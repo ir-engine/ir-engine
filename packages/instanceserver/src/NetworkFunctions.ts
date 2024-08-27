@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
+
 import { Spark } from 'primus'
 
 import { API } from '@ir-engine/common'
@@ -46,7 +46,7 @@ import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { AuthTask } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
-import { Action, getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
+import { Action, cloneDeep, getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
 import { NetworkPeerFunctions, NetworkState, updatePeers } from '@ir-engine/network'
 import { Application } from '@ir-engine/server-core/declarations'
 import config from '@ir-engine/server-core/src/appconfig'
@@ -248,7 +248,7 @@ export const handleConnectingPeer = (
   const cachedActions = ([updatePeersAction] as Required<Action>[])
     .concat(NetworkPeerFunctions.getCachedActionsForPeer(peerID))
     .map((action) => {
-      return _.cloneDeep(action)
+      return cloneDeep(action)
     })
 
   const instanceServerState = getState(InstanceServerState)

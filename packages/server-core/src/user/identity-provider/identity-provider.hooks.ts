@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import { random } from 'lodash'
 
 import { isDev } from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
@@ -221,7 +220,7 @@ async function createNewUser(context: HookContext<IdentityProviderService>) {
 
   let selectedAvatarId
   while (selectedAvatarId == null) {
-    const randomId = random(avatars.data.length - 1)
+    const randomId = Math.floor(Math.random() * avatars.data.length)
     const selectedAvatar = avatars.data[randomId]
     try {
       await Promise.all([

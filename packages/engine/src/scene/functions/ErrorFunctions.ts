@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isEmpty } from 'lodash'
-
 import {
   Component,
   ComponentErrorsType,
@@ -34,7 +32,7 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { none } from '@ir-engine/hyperflux'
+import { isEmpty, none } from '@ir-engine/hyperflux'
 
 import { ErrorComponent } from '../components/ErrorComponent'
 

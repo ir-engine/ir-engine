@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cloneDeep, isEqual, uniqueId } from 'lodash'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { ComponentMap, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -50,6 +49,7 @@ import {
   toVector3
 } from '@ir-engine/visual-script'
 
+import { cloneDeep, equalsDeep } from '@ir-engine/hyperflux'
 import { addEntityToScene } from '../helper/entityHelper'
 
 type State = {
@@ -268,6 +268,8 @@ export const setEntityTransform = makeFlowNodeDefinition({
   }
 })
 
+let uniqueId = 0
+
 export const useEntityTransform = makeEventNodeDefinition({
   typeName: 'engine/entity/TransformComponent/use',
   category: NodeCategory.Engine,
@@ -289,14 +291,14 @@ export const useEntityTransform = makeEventNodeDefinition({
     const entity = Number(read('entity')) as Entity
     const prevTransform = {}
     const systemUUID = defineSystem({
-      uuid: 'visual-script-useTransform-' + uniqueId(),
+      uuid: 'visual-script-useTransform-' + uniqueId++,
       insert: { with: InputSystemGroup },
       execute: () => {
         const transform = getComponent(entity, TransformComponent)
         Object.entries(transform).forEach(([key, value]) => {
           if (!Object.keys(useEntityTransform.out).includes(key)) return
           if (Object.hasOwn(prevTransform, key)) {
-            if (isEqual(prevTransform[key], transform[key])) return
+            if (equalsDeep(prevTransform[key], transform[key])) return
           }
           write(key as any, value)
           commit(`${key}Change` as any)

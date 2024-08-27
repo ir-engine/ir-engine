@@ -23,28 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineCamera } from 'react-icons/hi'
+import { Scene } from 'three'
 
 import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { previewScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
-import { getState } from '@ir-engine/hyperflux'
+import { debounce, getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import {
   RendererComponent,
   getNestedVisibleChildren,
   getSceneParameters
 } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { Scene } from 'three'
+
 import Button from '../../../../../primitives/tailwind/Button'
 import ImagePreviewInput from '../../../input/Image/Preview'
 import NodeEditor from '../../nodeEditor'

@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
 
 import {
@@ -181,6 +180,8 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
+let uniqueId = 0
+
 export function registerComponentListeners() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
@@ -217,7 +218,7 @@ export function registerComponentListeners() {
           .filter(([output, type]) => type === 'flow')
 
         const systemUUID = defineSystem({
-          uuid: `visual-script-use-${componentName}` + uniqueId(),
+          uuid: `visual-script-use-${componentName}` + uniqueId++,
           insert: { with: InputSystemGroup },
           execute: () => {},
           reactor: () => {

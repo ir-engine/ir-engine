@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { debounce } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -40,7 +39,7 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
 import { AvatarState } from '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
 import { LocalAvatarState } from '@ir-engine/engine/src/avatar/state/AvatarState'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { debounce, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'

@@ -23,8 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { clamp } from 'lodash'
-import { AnimationAction, AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
+import {
+  AnimationAction,
+  AnimationClip,
+  AnimationMixer,
+  LoopOnce,
+  LoopRepeat,
+  MathUtils,
+  Object3D,
+  Vector3
+} from 'three'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -184,11 +192,11 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
 
   walkWeight = lerp(
     walk.getEffectiveWeight(),
-    clamp(1 / (magnitude - 1.65) - locomoteBlendStrength, 0, 1),
+    MathUtils.clamp(1 / (magnitude - 1.65) - locomoteBlendStrength, 0, 1),
     getState(ECSState).deltaSeconds * 4
   )
-  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) - locomoteBlendStrength // - fallWeight
-  idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) // - fallWeight
+  runWeight = MathUtils.clamp(magnitude * 0.1 - walkWeight, 0, 1) - locomoteBlendStrength // - fallWeight
+  idleWeight = MathUtils.clamp(1 - runWeight - walkWeight, 0, 1) // - fallWeight
   run.setEffectiveWeight(runWeight)
   walk.setEffectiveWeight(walkWeight)
   idle.setEffectiveWeight(idleWeight - idleBlendStrength)

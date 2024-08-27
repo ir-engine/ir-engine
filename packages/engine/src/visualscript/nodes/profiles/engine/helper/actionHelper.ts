@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { startCase } from 'lodash'
 import matches from 'ts-matches'
 
 import { defineSystem, destroySystem, InputSystemGroup, SystemDefinitions, SystemUUID } from '@ir-engine/ecs'
@@ -33,7 +32,8 @@ import {
   ActionQueueHandle,
   defineActionQueue,
   dispatchAction,
-  removeActionQueue
+  removeActionQueue,
+  startCase
 } from '@ir-engine/hyperflux'
 import { makeEventNodeDefinition, makeFlowNodeDefinition, NodeCategory, NodeDefinition } from '@ir-engine/visual-script'
 

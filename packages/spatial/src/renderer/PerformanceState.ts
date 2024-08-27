@@ -24,14 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GetGPUTier, getGPUTier } from 'detect-gpu'
-import { debounce } from 'lodash'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import { Camera, MathUtils, Scene } from 'three'
 
 import { ComponentType, defineSystem, ECSState, PresentationSystemGroup } from '@ir-engine/ecs'
 import { profile } from '@ir-engine/ecs/src/Timer'
-import { defineState, getMutableState, getState, State, useMutableState } from '@ir-engine/hyperflux'
+import { debounce, defineState, getMutableState, getState, State, useMutableState } from '@ir-engine/hyperflux'
 import { RendererComponent, RenderSettingsState } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { EngineState } from '../EngineState'

@@ -28,9 +28,8 @@ import { commitProperty } from '@ir-engine/editor/src/components/properties/Util
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { VisualScriptComponent } from '@ir-engine/engine'
-import { getState } from '@ir-engine/hyperflux'
+import { equalsDeep, getState } from '@ir-engine/hyperflux'
 import { VisualScriptState } from '@ir-engine/visual-script'
-import { isEqual } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -57,7 +56,7 @@ export const ActiveVisualScript = (props: { entity }) => {
         registry={visualScriptState.registries[visualScriptComponent.domain]}
         onChangeVisualScript={(newVisualScript) => {
           if (!newVisualScript) return
-          if (isEqual(visualScriptComponent.visualScript, newVisualScript)) return
+          if (equalsDeep(visualScriptComponent.visualScript, newVisualScript)) return
           commitProperty(VisualScriptComponent, 'visualScript')(newVisualScript)
         }}
       />

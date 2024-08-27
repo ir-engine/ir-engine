@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
-import { random } from 'lodash'
 
 import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { githubRepoAccessRefreshPath } from '@ir-engine/common/src/schemas/user/github-repo-access-refresh.schema'
@@ -94,7 +93,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
         name: '' as UserName,
         isGuest: false,
         inviteCode: code,
-        avatarId: avatars.data[random(avatars.data.length - 1)].id,
+        avatarId: avatars.data[Math.floor(Math.random() * avatars.data.length)].id,
         scopes: []
       })
       entity.userId = newUser.id

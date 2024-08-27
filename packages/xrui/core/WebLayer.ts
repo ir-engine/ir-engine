@@ -48,7 +48,7 @@ export class WebLayer {
     // const prerasterizedElement = element.getAttribute('xr-prerasterized')
     // if (prerasterizedElement) {
     //   const split = prerasterizedElement.split('-')
-    //   this.prerasterizedRange = _.range(parseInt(split[0]), parseInt(split[1]) + 1)
+    //   this.prerasterizedRange = range(parseInt(split[0]), parseInt(split[1]) + 1)
     //   this.prerasterizeRange()
     // }
   }

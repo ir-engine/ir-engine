@@ -41,7 +41,6 @@ import {
   projectPermissionPath,
   scopePath
 } from '@ir-engine/common/src/schema.type.module'
-import _ from 'lodash'
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'
 import staticResourceDocs from './static-resource.docs'
@@ -125,7 +124,7 @@ export default (app: Application): void => {
           targetIds.push(scope.userId)
         })
 
-        const uniqueUserIds = _.uniq(targetIds)
+        const uniqueUserIds = [...new Set(targetIds)]
 
         // Publish to all users with project read scopes or project permission
         promises.push(...uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(item)))

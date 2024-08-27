@@ -56,7 +56,6 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { isArray } from 'lodash'
 import { Material, MeshBasicMaterial } from 'three'
 import { SourceComponent } from '../../components/SourceComponent'
 
@@ -93,7 +92,7 @@ const MeshReactor = () => {
   useEffect(() => {
     if (materialComponent) return
     const material = meshComponent.material.value as Material
-    if (!isArray(material)) createAndSourceMaterial(material)
+    if (!Array.isArray(material)) createAndSourceMaterial(material)
     else for (const mat of material) createAndSourceMaterial(mat)
   }, [])
   return null

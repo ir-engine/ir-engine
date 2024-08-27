@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 export * from './src/functions/ActionFunctions'
 export * from './src/functions/createHookableFunction'
 export * from './src/functions/EnvironmentConstants'
+export * from './src/functions/ObjectFunctions'
 export * from './src/functions/ReactorFunctions'
 export * from './src/functions/StateFunctions'
 export * from './src/functions/StoreFunctions'

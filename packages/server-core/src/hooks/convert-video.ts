@@ -38,7 +38,6 @@ export {}
 // import createStaticResource from './create-static-resource';
 //
 // import fs from 'fs';
-// import _ from 'lodash';
 // import appRootPath from 'app-root-path';
 // import uploadThumbnailLinkHook from './upload-thumbnail-link';
 // import { BadRequest } from '@feathersjs/errors';
@@ -89,7 +88,7 @@ export {}
 //               : 'application';
 //                         const mimetype = mimetypeDict[extension];
 //
-//             const localContext = _.cloneDeep(context);
+//             const localContext = cloneDeep(context);
 //             localContext.params.file = {
 //               fieldname: 'file',
 //               originalname: file,
@@ -172,13 +171,13 @@ export {}
 //
 //   if (fileId.length > 0) {
 //     let thumbnailUploadResult: any;
-//     const localContext = _.cloneDeep(context);
+//     const localContext = cloneDeep(context);
 //
 //     localContext.params.storageProvider = getStorageProvider();
 //     localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video');
 //
 //     if (localContext.data.metadata.thumbnailUrl != null && localContext.data.metadata.thumbnailUrl.length > 0) {
-//       const localContextClone = _.cloneDeep(localContext);
+//       const localContextClone = cloneDeep(localContext);
 //       localContextClone.params.parentResourceId = result.id;
 //       thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone);
 //       localContext.params.thumbnailUrl = localContext.data.metadata.thumbnailUrl = thumbnailUploadResult.params.thumbnailUrl;
@@ -238,7 +237,7 @@ export {}
 //             localContext.data.metadata.thumbnailUrl = (thumbnailUrlResult as any)[0];
 //             localContext.result.metadata.thumbnailUrl = localContext.data.metadata.thumbnailUrl;
 //
-//             const localContextClone = _.cloneDeep(localContext);
+//             const localContextClone = cloneDeep(localContext);
 //             localContextClone.params.parentResourceId = result.id;
 //             thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone);
 //
@@ -327,7 +326,7 @@ export {}
 //           localContext.data.metadata.thumbnailUrl = (thumbnailUrlResult as any)[0];
 //           localContext.result.metadata.thumbnailUrl = localContext.data.metadata.thumbnailUrl;
 //
-//           const localContextClone = _.cloneDeep(localContext);
+//           const localContextClone = cloneDeep(localContext);
 //           localContextClone.params.parentResourceId = result.id;
 //           thumbnailUploadResult = await uploadThumbnailLinkHook()(localContextClone);
 //

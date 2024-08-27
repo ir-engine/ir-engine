@@ -28,7 +28,7 @@ import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import https from 'https'
 import { Knex } from 'knex'
-import _ from 'lodash'
+
 import fetch from 'node-fetch'
 
 import {
@@ -42,7 +42,7 @@ import { LocationID, locationPath, LocationType, RoomCode } from '@ir-engine/com
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, orderBy } from '@ir-engine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -109,7 +109,7 @@ export async function getFreeInstanceserver({
   logger.info('Getting free instanceserver')
   const k8AgonesClient = getState(ServerState).k8AgonesClient
   const serverResult = await k8AgonesClient.listNamespacedCustomObject('agones.dev', 'v1', 'default', 'gameservers')
-  const readyServers = _.filter((serverResult.body as any).items, (server: any) => {
+  const readyServers = (serverResult.body as any).items.filter((server: any) => {
     const releaseMatch = releaseRegex.exec(server.metadata.name)
     let returned = server.status.state === 'Ready'
     if (returned && !provisionConstraints)
@@ -523,7 +523,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         userId,
         provisionConstraints
       })
-    const instanceUserSort = _.orderBy(nonFullInstances, ['currentUsers'], ['desc'])
+    const instanceUserSort = orderBy(nonFullInstances, ['currentUsers'], ['desc'])
     const instance = instanceUserSort[0]
     if (!config.kubernetes.enabled) {
       logger.info('Resetting local instance to ' + instance.id)

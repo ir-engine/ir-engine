@@ -23,7 +23,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { clone, debounce } from 'lodash'
+
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -39,7 +39,7 @@ import { inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFu
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, cloneDeep, debounce, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FiRefreshCcw } from 'react-icons/fi'
@@ -604,7 +604,7 @@ const AssetPanel = () => {
   }
 
   const handleSelectCategory = (category: Category) => {
-    selectedCategory.set(clone(category))
+    selectedCategory.set(cloneDeep(category))
     staticResourcesPagination.skip.set(0)
     !category.isLeaf && collapsedCategories[category.name].set(!category.collapsed)
   }

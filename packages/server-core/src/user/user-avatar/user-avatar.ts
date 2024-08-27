@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Knex } from 'knex'
-import _ from 'lodash'
 
 import {
   instanceAttendancePath,
@@ -101,7 +100,7 @@ export default (app: Application): void => {
         .select()
         .options({ nestTables: true })
 
-      const targetIds = _.uniq(layerUsers.map((item) => item[userAvatarPath].userId))
+      const targetIds = [...new Set(layerUsers.map((item) => item[userAvatarPath].userId))]
 
       return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {

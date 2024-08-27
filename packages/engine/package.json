@@ -52,7 +52,6 @@
     "fflate": "0.7.4",
     "hls.js": "^1.3.5",
     "js-sha3": "^0.8.0",
-    "lodash": "4.17.21",
     "node-cache": "^5.1.2",
     "node-schedule": "^2.1.1",
     "noisejs": "2.1.0",

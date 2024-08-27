@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { omit } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { useEdgesState, useNodesState } from 'reactflow'
 
 import { GraphJSON, VariableJSON } from '@ir-engine/visual-script'
 
+import { cloneDeep } from '@ir-engine/hyperflux'
 import { flowToVisual } from '../transformers/flowToVisual'
 import { visualToFlow } from '../transformers/VisualToFlow'
 import { autoLayout } from '../util/autoLayout'
@@ -96,7 +96,8 @@ export const useVisualScriptFlow = ({
       if (!node.parentNode) return node
       const parentNode = deletedNodes.find((deletedNode) => deletedNode.id === node.parentNode)
       if (parentNode === undefined) return node
-      const newNode = omit(node, 'parentNode')
+      const newNode = cloneDeep(node)
+      delete newNode['parentNode']
       newNode.position.x += parentNode.position.x
       newNode.position.y += parentNode.position.y
       return newNode

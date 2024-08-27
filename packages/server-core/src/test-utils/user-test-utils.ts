@@ -29,7 +29,6 @@ import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/us
 import { InviteCode, UserName, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Application } from '@ir-engine/server-core/declarations'
 import crypto from 'crypto'
-import { random } from 'lodash'
 import { v1 } from 'uuid'
 
 /**
@@ -42,7 +41,7 @@ const getAvatarId = async (app: Application) => {
     .service(avatarPath)
     .find({ isInternal: true, query: { isPublic: true, $limit: 10 } })) as Paginated<AvatarType>
 
-  return avatars.data[random(avatars.data.length - 1)].id
+  return avatars.data[Math.floor(Math.random() * avatars.data.length)].id
 }
 
 /**

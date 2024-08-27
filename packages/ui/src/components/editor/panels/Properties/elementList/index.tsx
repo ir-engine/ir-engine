@@ -23,12 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { startCase } from 'lodash'
 import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Component } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getState, startCase, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { PrefabIcons, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'

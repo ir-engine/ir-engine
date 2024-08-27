@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
-
 import logger from '@ir-engine/common/src/logger'
 import { projectPermissionPath } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import { projectMethods, projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
@@ -85,7 +83,7 @@ export default (app: Application): void => {
         targetIds.push(scope.userId)
       })
 
-      const uniqueUserIds = _.uniq(targetIds)
+      const uniqueUserIds = [...new Set(targetIds)]
       return Promise.all(uniqueUserIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)

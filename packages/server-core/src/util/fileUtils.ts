@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { equalsDeep } from '@ir-engine/hyperflux'
 import * as fs from 'fs'
-import { isEqual } from 'lodash'
 import mime from 'mime-types'
 import path from 'path'
 
@@ -58,6 +58,6 @@ export function snapshot(directory: string): DirectorySnapshot {
 export function delta(shot1: DirectorySnapshot, shot2: DirectorySnapshot): DirectorySnapshot {
   return {
     modified: shot2.modified,
-    files: shot2.files.filter((file) => !shot1.files.find((oldFile) => isEqual(file, oldFile)))
+    files: shot2.files.filter((file) => !shot1.files.find((oldFile) => equalsDeep(file, oldFile)))
   }
 }

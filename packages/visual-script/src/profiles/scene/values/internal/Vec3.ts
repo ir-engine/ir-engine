@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { clamp } from 'lodash'
-
+import { MathUtils } from 'three'
 import { EPSILON, equalsTolerance, parseSafeFloats, toSafeString } from '../../../../VisualScriptModule'
 import { Mat3, mat4ToMat3, quatToMat3 } from './Mat3'
 import { Mat4 } from './Mat4'
@@ -206,7 +205,7 @@ export function mat3ToEuler(m: Mat3, result = new Vec3()): Vec3 {
     m32 = te[5],
     m33 = te[8]
 
-  result.y = Math.asin(clamp(m13, -1, 1))
+  result.y = Math.asin(MathUtils.clamp(m13, -1, 1))
 
   if (Math.abs(m13) < 0.9999999) {
     result.x = Math.atan2(-m23, m33)
