@@ -357,19 +357,6 @@ const Reactor = () => {
     }
   }, [gltfs])
 
-  useEffect(() => {
-    const networkState = getMutableState(NetworkState)
-
-    networkState.networkSchema[IKSerialization.ID].set({
-      read: IKSerialization.readBlendWeight,
-      write: IKSerialization.writeBlendWeight
-    })
-
-    return () => {
-      networkState.networkSchema[IKSerialization.ID].set(none)
-    }
-  }, [])
-
   const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   useEffect(() => {
@@ -391,6 +378,19 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
+    useEffect(() => {
+      const networkState = getMutableState(NetworkState)
+
+      networkState.networkSchema[IKSerialization.ID].set({
+        read: IKSerialization.readBlendWeight,
+        write: IKSerialization.writeBlendWeight
+      })
+
+      return () => {
+        networkState.networkSchema[IKSerialization.ID].set(none)
+      }
+    }, [])
+
     if (!useMutableState(EngineState).viewerEntity.value) return null
     return <Reactor />
   }
