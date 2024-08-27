@@ -31,9 +31,8 @@ import useGoogleAnalytics from './hooks/useGoogleAnalytics'
 
 createEngine(HyperFlux.store)
 startTimer()
+useGoogleAnalytics()
 
 export default function ({ children }: { children: React.ReactNode }) {
-  useGoogleAnalytics()
-
   return <>{children}</>
 }
