@@ -182,7 +182,7 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
         </div>
 
         <Tooltip content={file.fullName}>
-          <Text theme="secondary" fontSize="sm" className="line-clamp-1 w-full text-wrap break-all">
+          <Text theme="secondary" fontSize="sm" className="mt-2 line-clamp-1 w-full text-wrap break-all">
             {file.fullName}
           </Text>
         </Tooltip>

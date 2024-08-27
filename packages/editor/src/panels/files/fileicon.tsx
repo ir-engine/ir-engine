@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { HiFolder } from 'react-icons/hi2'
 import { IoAccessibilityOutline } from 'react-icons/io5'
 import { MdOutlineAudioFile, MdOutlinePhotoSizeSelectActual, MdOutlineViewInAr } from 'react-icons/md'
 import { PiVideoCameraBold } from 'react-icons/pi'
-import { TbFileDescription } from 'react-icons/tb'
+import { twMerge } from 'tailwind-merge'
 
 const FileIconType = {
   gltf: MdOutlineViewInAr,
@@ -61,7 +60,8 @@ const FileIconType = {
   'audio/mp3': MdOutlineAudioFile
 }
 
-// todo update the file icon and file folder design from figma
+const FOLDER_ICON_PATH = '/static/editor/folder-icon.png'
+const FILE_ICON_PATH = '/static/editor/file-icon.png'
 
 export const FileIcon = ({
   thumbnailURL,
@@ -81,21 +81,28 @@ export const FileIcon = ({
   return (
     <>
       {isFolder ? (
-        <HiFolder className={`${color}`} />
+        <img
+          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'translate-y-2 scale-[2.5] object-contain')}
+          crossOrigin="anonymous"
+          src={FOLDER_ICON_PATH}
+          alt="folder-icon"
+        />
       ) : thumbnailURL ? (
         <img
-          className={`${isMinified ? 'h-4 w-4' : 'h-full w-full'} object-contain`}
+          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'object-contain')}
           crossOrigin="anonymous"
           src={thumbnailURL}
-          alt=""
+          alt="file-thumbnail"
         />
       ) : FallbackIcon ? (
-        <FallbackIcon className={`${color} h-full w-full p-4`} />
+        <FallbackIcon className={twMerge(color, 'h-full w-full p-4')} />
       ) : (
-        <>
-          <TbFileDescription className={`${color}`} />
-          {/* type && type.length > 0 && showRibbon && <span className='text-xs'>{type}</span> */}
-        </>
+        <img
+          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'object-contain')}
+          crossOrigin="anonymous"
+          src={FILE_ICON_PATH}
+          alt="file-icon"
+        />
       )}
     </>
   )
