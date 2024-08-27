@@ -264,6 +264,40 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
     setContextSelectedItem(undefined)
     setAnchorEvent(undefined)
   }
+  enum OperatingSystems {
+    Windows,
+    MacOS,
+    Linux,
+    Android,
+    iOS,
+    Unknown
+  }
+  const detectOS = () => {
+    const userAgent = window.navigator.userAgent
+    const platform = window.navigator.platform
+    const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K']
+    const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE']
+    const iosPlatforms = ['iPhone', 'iPad', 'iPod']
+    let os = OperatingSystems.Unknown
+
+    if (macosPlatforms.includes(platform)) {
+      os = OperatingSystems.MacOS
+    } else if (iosPlatforms.includes(platform)) {
+      os = OperatingSystems.iOS
+    } else if (windowsPlatforms.includes(platform)) {
+      os = OperatingSystems.Windows
+    } else if (/Android/.test(userAgent)) {
+      os = OperatingSystems.Android
+    } else if (/Linux/.test(platform)) {
+      os = OperatingSystems.Linux
+    }
+
+    return os
+  }
+
+  const usesCtrlKey = () => {
+    return detectOS() !== OperatingSystems.MacOS
+  }
 
   const onClick = useCallback(
     (e: MouseEvent, entity: Entity) => {
@@ -272,7 +306,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
         // Deselect material entity since we've just clicked on a hierarchy node
         getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-        if (e.ctrlKey) {
+        if ((e.ctrlKey && usesCtrlKey()) || (e.metaKey && !usesCtrlKey())) {
           if (entity === rootEntity) return
           EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
         } else if (e.shiftKey && prevClickedNode) {
