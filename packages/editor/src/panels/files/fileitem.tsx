@@ -170,7 +170,7 @@ export default function FileItem({ file }: { file: FileDataType }) {
 
   const [_dragProps, drag, preview] = useDrag(() => ({
     type: file.type,
-    file,
+    item: file,
     multiple: false
   }))
 
@@ -199,7 +199,7 @@ export default function FileItem({ file }: { file: FileDataType }) {
     event.preventDefault()
     event.stopPropagation()
     setAnchorEvent(event)
-    if (!selectedFiles.value.length) selectedFiles.set([file])
+    if (selectedFiles.length <= 1) selectedFiles.set([file])
   }
 
   const handleSelectedFiles = (event: React.MouseEvent) => {
@@ -238,22 +238,25 @@ export default function FileItem({ file }: { file: FileDataType }) {
   }
 
   return (
-    <div ref={drop} className={twMerge('h-min', isOver && 'border-2 border-gray-400')}>
-      <div ref={drag}>
-        <div onContextMenu={handleContextMenu}>
-          <GridView
-            file={file}
-            onClick={(event) => {
-              handleSelectedFiles(event)
-              handleFileClick(event)
-            }}
-            onDoubleClick={handleFileClick}
-            onContextMenu={handleContextMenu}
-            isSelected={selectedFiles.value.some(({ key }) => key === file.key)}
-          />
-          <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} file={file} />
-        </div>
-      </div>
+    <div
+      ref={(ref) => drag(drop(ref))}
+      className={twMerge('h-min', isOver && 'border-2 border-gray-400')}
+      onContextMenu={handleContextMenu}
+    >
+      <GridView
+        file={file}
+        onClick={(event) => {
+          handleSelectedFiles(event)
+          handleFileClick(event)
+        }}
+        onDoubleClick={(event) => {
+          selectedFiles.set([])
+          handleFileClick(event)
+        }}
+        onContextMenu={handleContextMenu}
+        isSelected={selectedFiles.value.some(({ key }) => key === file.key)}
+      />
+      <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} file={file} />
     </div>
   )
 }
