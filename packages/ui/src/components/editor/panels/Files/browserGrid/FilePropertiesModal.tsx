@@ -38,6 +38,7 @@ import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 import Text from '../../../../../primitives/tailwind/Text'
+import TextArea from '../../../../../primitives/tailwind/TextArea'
 import { FileType, createFileDigest, createStaticResourceDigest } from '../container'
 
 export default function FilePropertiesModal({
@@ -104,6 +105,7 @@ export default function FilePropertiesModal({
           tags: newTags,
           licensing: resourceDigest.licensing.value,
           attribution: resourceDigest.attribution.value,
+          description: resourceDigest.description.value,
           project: projectName
         })
       }
@@ -277,41 +279,42 @@ export default function FilePropertiesModal({
                 )}
               </span>
             </div>
-            <div className="grid grid-cols-2 items-center gap-2">
-              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.description')}</Text>
-              <span className="flex items-center">
-                {editedField.value === 'description' ? (
-                  <>
-                    <Input
-                      value={resourceDigest.description.value ?? ''}
-                      onChange={onChange('description', resourceDigest.description)}
-                    />
-                    <Button
-                      title={t('common:components.save')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<RiSave2Line />}
-                      onClick={() => editedField.set(null)}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <Text className="text-theme-input">
-                      {files.length > 1 && !sharedFields.value.includes('description')
-                        ? t('editor:layout.filebrowser.fileProperties.mixedValues')
-                        : resourceDigest.description.value || <em>{t('common:components.none')}</em>}
-                    </Text>
-                    <Button
-                      title={t('common:components.edit')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<HiPencil />}
-                      onClick={() => editedField.set('description')}
-                    />
-                  </>
-                )}
-              </span>
-            </div>
+            <span className="flex flex-col items-start">
+              <label className="mb-2">Description</label> {/* Assuming "Description" is your label */}
+              {editedField.value === 'description' ? (
+                <>
+                  <TextArea
+                    className="resize-vertical max-h-[20em] min-h-[5em] w-full overflow-y-auto rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={resourceDigest.description.value ?? ''}
+                    onChange={onChange('description', resourceDigest.description)}
+                    placeholder="Enter description here..."
+                  />
+                  <Button
+                    title={t('common:components.save')}
+                    variant="transparent"
+                    size="small"
+                    startIcon={<RiSave2Line />}
+                    onClick={() => editedField.set(null)}
+                    className="mt-2"
+                  />
+                </>
+              ) : (
+                <>
+                  <Text className="text-theme-input">
+                    {files.length > 1 && !sharedFields.value.includes('description')
+                      ? t('editor:layout.filebrowser.fileProperties.mixedValues')
+                      : resourceDigest.description.value || <em>{t('common:components.none')}</em>}
+                  </Text>
+                  <Button
+                    title={t('common:components.edit')}
+                    variant="transparent"
+                    size="small"
+                    startIcon={<HiPencil />}
+                    onClick={() => editedField.set('description')}
+                  />
+                </>
+              )}
+            </span>
             <div className="mt-10 flex flex-col gap-2">
               <Text className="text-theme-gray3" fontSize="sm">
                 {t('editor:layout.filebrowser.fileProperties.addTag')}
