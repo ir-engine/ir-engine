@@ -51,6 +51,7 @@ import { GLTF } from '@gltf-transform/core'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@ir-engine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -263,40 +264,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
   const handleClose = () => {
     setContextSelectedItem(undefined)
     setAnchorEvent(undefined)
-  }
-  enum OperatingSystems {
-    Windows,
-    MacOS,
-    Linux,
-    Android,
-    iOS,
-    Unknown
-  }
-  const detectOS = () => {
-    const userAgent = window.navigator.userAgent
-    const platform = window.navigator.platform
-    const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K']
-    const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE']
-    const iosPlatforms = ['iPhone', 'iPad', 'iPod']
-    let os = OperatingSystems.Unknown
-
-    if (macosPlatforms.includes(platform)) {
-      os = OperatingSystems.MacOS
-    } else if (iosPlatforms.includes(platform)) {
-      os = OperatingSystems.iOS
-    } else if (windowsPlatforms.includes(platform)) {
-      os = OperatingSystems.Windows
-    } else if (/Android/.test(userAgent)) {
-      os = OperatingSystems.Android
-    } else if (/Linux/.test(platform)) {
-      os = OperatingSystems.Linux
-    }
-
-    return os
-  }
-
-  const usesCtrlKey = () => {
-    return detectOS() !== OperatingSystems.MacOS
   }
 
   const onClick = useCallback(
