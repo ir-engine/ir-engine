@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'

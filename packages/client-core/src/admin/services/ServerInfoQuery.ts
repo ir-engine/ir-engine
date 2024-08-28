@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useMemo } from 'react'
 
 import { podsPath, PodsType, ServerPodInfoType } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 export const useServerInfoFind = () => {
   const serverInfoQuery = useFind(podsPath)

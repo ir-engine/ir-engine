@@ -31,7 +31,7 @@ import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/
 import { ProjectSettingType, projectPath, projectSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useGet, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useGet, useMutation } from '@ir-engine/common'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'

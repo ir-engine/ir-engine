@@ -42,7 +42,7 @@ import { ChannelID, channelPath, ChannelType, messagePath } from '@ir-engine/com
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useFind, useGet, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useGet, useMutation } from '@ir-engine/common'
 
 import AttachFileIcon from './assets/attach-file2.svg'
 import SendIcon from './assets/send.svg'

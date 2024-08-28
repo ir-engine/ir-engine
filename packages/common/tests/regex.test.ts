@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import assert from 'assert'
 import {
-  ABSOLUTE_URL_PROTOCOL_REGEX,
   ASSETS_REGEX,
   BUILDER_CHART_REGEX,
   CSS_URL_REGEX,
@@ -227,24 +226,6 @@ describe('regex.test', () => {
         const matchesArray = Array.from(matches)
         assert.ok(matchesArray.length === 0, `Expected '${source}' to not match CSS_URL_REGEX`)
       })
-    })
-  })
-
-  describe('ABSOLUTE_URL_REGEX', () => {
-    it('should match absolute URLs', () => {
-      const positiveCases = ['http://example.com', 'https://example.com', 'ftp://example.com', '//example.com']
-
-      positiveCases.forEach((url) => {
-        assert.match(url, ABSOLUTE_URL_PROTOCOL_REGEX, `Expected '${url}' to match ABSOLUTE_URL_REGEX`)
-      })
-    })
-
-    it('should not match relative URLs', () => {
-      assert.doesNotMatch(
-        'example.com',
-        ABSOLUTE_URL_PROTOCOL_REGEX,
-        `Expected 'example.com' to not match ABSOLUTE_URL_REGEX`
-      )
     })
   })
 

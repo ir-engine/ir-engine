@@ -41,7 +41,7 @@ import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/Sp
 import { AvatarState } from '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
 import { LocalAvatarState } from '@ir-engine/engine/src/avatar/state/AvatarState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'

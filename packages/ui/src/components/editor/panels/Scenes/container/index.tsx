@@ -31,7 +31,7 @@ import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/too
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useRealtime } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useRealtime } from '@ir-engine/common'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'

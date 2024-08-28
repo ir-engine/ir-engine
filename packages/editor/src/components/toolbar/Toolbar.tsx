@@ -32,7 +32,7 @@ import { useUserHasAccessHook } from '@ir-engine/client-core/src/user/userHasAcc
 import { locationPath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import { SidebarButton } from '@ir-engine/ui/src/components/tailwind/SidebarButton'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'

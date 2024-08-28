@@ -52,7 +52,7 @@ import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/
 import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState, VideoConstants } from '@ir-engine/network'
-import { useFind, useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useGet } from '@ir-engine/common'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'

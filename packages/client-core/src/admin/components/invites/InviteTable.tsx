@@ -30,7 +30,7 @@ import { HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { invitePath, InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 import { State } from '@ir-engine/hyperflux'
-import { useFind, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useSearch } from '@ir-engine/common'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 

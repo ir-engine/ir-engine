@@ -29,7 +29,7 @@ import { HiPlay, HiPlusCircle, HiStop } from 'react-icons/hi2'
 import { RecordingID, recordingPath, RecordingType } from '@ir-engine/common/src/schema.type.module'
 import { PlaybackState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 import Icon from '../../../primitives/mui/Icon'
 import IconButtonWithTooltip from '../../../primitives/mui/IconButtonWithTooltip'

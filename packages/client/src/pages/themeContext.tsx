@@ -29,7 +29,7 @@ import { AppThemeState, getAppTheme, useAppThemeName } from '@ir-engine/client-c
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { ClientThemeOptionsType, clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 export interface ThemeContextProps {
   theme: string

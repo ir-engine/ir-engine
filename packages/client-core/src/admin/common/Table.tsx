@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { HiArrowSmallDown, HiArrowSmallUp, HiArrowsUpDown } from 'react-icons/hi2'
 
 import { ImmutableObject, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
-import { FeathersOrder, useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { FeathersOrder, useFind } from '@ir-engine/common'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Table, {
   TableBody,

@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useMutation } from '@ir-engine/common'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { insertionSort } from '@ir-engine/common/src/utils/insertionSort'
+import { insertionSort } from './insertionSort'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { Query } from '@ir-engine/ecs/src/QueryFunctions'

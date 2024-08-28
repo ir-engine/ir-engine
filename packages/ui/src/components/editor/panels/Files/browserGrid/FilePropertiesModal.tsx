@@ -31,7 +31,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { API } from '@ir-engine/common'
 import { StaticResourceType, UserType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { ImmutableArray, NO_PROXY, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'

@@ -34,7 +34,7 @@ import {
   UserType
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@ir-engine/common'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'

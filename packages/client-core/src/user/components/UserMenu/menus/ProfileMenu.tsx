@@ -50,7 +50,7 @@ import {
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Checkbox from '@ir-engine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'

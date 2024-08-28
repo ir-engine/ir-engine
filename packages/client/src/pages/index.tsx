@@ -40,7 +40,7 @@ import ProfileMenu from '@ir-engine/client-core/src/user/components/UserMenu/men
 import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
 
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect

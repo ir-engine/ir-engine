@@ -30,11 +30,10 @@ import { useEffect } from 'react'
 
 import { AvatarID, UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { createState } from '@ir-engine/hyperflux'
+import { createState, EventDispatcher } from '@ir-engine/hyperflux'
 
 import { API } from '@ir-engine/common'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 
 let eventDispatcher: EventDispatcher

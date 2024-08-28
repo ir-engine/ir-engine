@@ -29,7 +29,7 @@ import React from 'react'
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
 import RoomMenu from '@ir-engine/client-core/src/user/components/UserMenu/menus/RoomMenu'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 export const RoomPage = () => {
   const clientSettingQuery = useFind(clientSettingPath)

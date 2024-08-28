@@ -27,7 +27,7 @@ import React from 'react'
 
 import { InstalledRoutesInterface } from '@ir-engine/common/src/interfaces/Route'
 import { routePath } from '@ir-engine/common/src/schema.type.module'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@ir-engine/common'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
 import { routeColumns, RouteRowType } from '../../common/constants/route'

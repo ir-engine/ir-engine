@@ -30,7 +30,7 @@ import { LocationService, LocationState } from '@ir-engine/client-core/src/socia
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useGet } from '@ir-engine/common'
 
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'

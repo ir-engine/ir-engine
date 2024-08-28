@@ -27,7 +27,6 @@ Infinite Reality Engine. All Rights Reserved.
  * @fileoverview Contains function declarations describing the heuristics used by ClientInputSystem.
  */
 
-import { Object3DUtils } from '@ir-engine/common/src/utils/Object3DUtils'
 import {
   defineQuery,
   Engine,
@@ -59,6 +58,7 @@ import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
+import { Object3DUtils } from '../../transform/Object3DUtils'
 
 const _worldPosInputSourceComponent = new Vector3()
 const _worldPosInputComponent = new Vector3()

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ProjectPermissionType, projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { HyperFlux } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 /**
  *

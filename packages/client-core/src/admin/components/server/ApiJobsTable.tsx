@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { apiJobPath, ApiJobType } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'

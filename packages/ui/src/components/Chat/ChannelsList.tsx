@@ -28,7 +28,7 @@ import React, { useEffect } from 'react'
 
 import { ChannelID, channelPath, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 import UserIcon from './assets/user.svg'
 import { ChatState } from './ChatState'

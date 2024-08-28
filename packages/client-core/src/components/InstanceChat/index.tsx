@@ -35,7 +35,7 @@ import { InstanceID, MessageID, messagePath, UserName } from '@ir-engine/common/
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@ir-engine/common'
 import Avatar from '@ir-engine/ui/src/primitives/mui/Avatar'
 import Badge from '@ir-engine/ui/src/primitives/mui/Badge'
 import Card from '@ir-engine/ui/src/primitives/mui/Card'

@@ -40,7 +40,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@ir-engine/common'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'

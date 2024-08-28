@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { featureFlagSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 const useFeatureFlags = (flagNames: string[]): boolean[] => {
   const response = useFind(featureFlagSettingPath, {

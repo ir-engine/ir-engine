@@ -43,7 +43,7 @@ import {
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useFind, useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useGet } from '@ir-engine/common'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Chip from '@ir-engine/ui/src/primitives/mui/Chip'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'

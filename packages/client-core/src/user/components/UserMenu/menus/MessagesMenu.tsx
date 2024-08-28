@@ -30,7 +30,7 @@ import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import { ChannelID, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@ir-engine/common'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import InputText from '../../../../common/components/InputText'

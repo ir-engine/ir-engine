@@ -33,7 +33,7 @@ import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { UserID, userPath } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
-import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useGet } from '@ir-engine/common'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Chip from '@ir-engine/ui/src/primitives/mui/Chip'
 

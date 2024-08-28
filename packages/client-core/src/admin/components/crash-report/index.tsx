@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { metabaseUrlPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useMutation } from '@ir-engine/common'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { isEmpty } from 'lodash'

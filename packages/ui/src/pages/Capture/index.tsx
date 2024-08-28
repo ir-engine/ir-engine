@@ -71,7 +71,7 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useGet } from '@ir-engine/common'
 import Header from '@ir-engine/ui/src/components/tailwind/Header'
 import RecordingsList from '@ir-engine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'

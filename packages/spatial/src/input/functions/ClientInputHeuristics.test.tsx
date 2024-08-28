@@ -27,7 +27,7 @@ import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/hyperflux'
 import {
   createEngine,
   createEntity,

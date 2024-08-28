@@ -34,7 +34,7 @@ import {
   MathUtils
 } from 'three'
 
-import { useDidMount } from '@ir-engine/common/src/utils/useDidMount'
+import { useDidMount } from '@ir-engine/hyperflux'
 import { defineComponent, Entity, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'

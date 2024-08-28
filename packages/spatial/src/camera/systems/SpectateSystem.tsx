@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MathUtils } from 'three'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/hyperflux'
 import {
   Engine,
   EntityUUID,

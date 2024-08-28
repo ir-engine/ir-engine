@@ -51,7 +51,7 @@ import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 import { clientContextParams } from '../../../../util/contextParams'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'

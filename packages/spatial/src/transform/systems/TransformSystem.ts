@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 
-import { insertionSort } from '@ir-engine/common/src/utils/insertionSort'
 import {
   AnimationSystemGroup,
   defineQuery,
@@ -51,6 +50,7 @@ import { ComputedTransformComponent } from '../components/ComputedTransformCompo
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
 import { composeMatrix, TransformComponent } from '../components/TransformComponent'
 import { TransformSerialization } from '../TransformSerialization'
+import { insertionSort } from '../../common/functions/insertionSort'
 
 const transformQuery = defineQuery([TransformComponent])
 const groupQuery = defineQuery([GroupComponent, VisibleComponent])

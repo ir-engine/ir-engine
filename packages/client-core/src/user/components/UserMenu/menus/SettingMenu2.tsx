@@ -36,7 +36,7 @@ import {
   AvatarInputSettingsState
 } from '@ir-engine/engine/src/avatar/state/AvatarInputSettingsState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'

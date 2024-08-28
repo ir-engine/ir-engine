@@ -48,7 +48,7 @@ import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { PeerID, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useGet } from '@ir-engine/common'
 
 export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => {
   const { peerID, type } = props

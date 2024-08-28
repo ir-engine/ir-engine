@@ -33,7 +33,7 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { FeatureFlagSettingType, featureFlagSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getAllStringValueNodes } from '@ir-engine/common/src/utils/getAllStringValueNodes'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@ir-engine/common'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 

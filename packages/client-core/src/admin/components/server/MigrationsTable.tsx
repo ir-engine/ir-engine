@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { migrationsInfoPath, MigrationsInfoType } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { migrationsInfoColumns, MigrationsInfoRowType } from '../../common/constants/migrations-info'

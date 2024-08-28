@@ -27,7 +27,7 @@ import { Not } from 'bitecs'
 import React from 'react'
 import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'

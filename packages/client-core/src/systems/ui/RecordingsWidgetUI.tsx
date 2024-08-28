@@ -31,7 +31,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import { defineState, getMutableState, getState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useFind, useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useGet } from '@ir-engine/common'
 import { WidgetAppService } from '@ir-engine/spatial/src/xrui/WidgetAppService'
 import { startPlayback } from '@ir-engine/ui/src/pages/Capture'
 

@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import {
   defineQuery,
   defineSystem,

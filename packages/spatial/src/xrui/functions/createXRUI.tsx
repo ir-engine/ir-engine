@@ -27,7 +27,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EntityContext, createEntity } from '@ir-engine/ecs/src/EntityFunctions'

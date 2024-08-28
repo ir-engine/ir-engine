@@ -23,16 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+export * from './src/EventDispatcher'
 export * from './src/functions/ActionFunctions'
-export * from './src/functions/createHookableFunction'
 export * from './src/functions/EnvironmentConstants'
 export * from './src/functions/ReactorFunctions'
 export * from './src/functions/StateFunctions'
 export * from './src/functions/StoreFunctions'
+export * from './src/functions/createHookableFunction'
+export * from './src/functions/useDidMount'
+export * from './src/functions/useForceUpdate'
 export * from './src/functions/useImmediateEffect'
 export * from './src/functions/useReactiveRef'
-export * from './src/functions/useForceUpdate'
 
-export type * from './src/types/Types'
 export type * from './src/types/DeepReadonly'
 export type * from './src/types/OpaqueType'
+export type * from './src/types/Types'

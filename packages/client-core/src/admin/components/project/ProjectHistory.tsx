@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'
 import { ProjectHistoryType } from '@ir-engine/common/src/schemas/projects/project-history.schema'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind } from '@ir-engine/common'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'

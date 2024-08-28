@@ -37,11 +37,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Params, Query } from '@feathersjs/feathers'
 import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
+import { ServiceTypes } from '../../declarations'
 
-import { API } from '@ir-engine/common'
-import { ServiceTypes } from '@ir-engine/common/declarations'
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
-import { defineState, getState, NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getState, NO_PROXY, OpaqueType, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { API } from '../API'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
 

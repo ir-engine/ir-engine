@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Vector2 } from 'three'
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
+import { OpaqueType } from '@ir-engine/hyperflux'
 import {
   defineComponent,
   defineQuery,

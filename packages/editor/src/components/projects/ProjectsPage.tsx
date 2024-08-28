@@ -60,7 +60,7 @@ import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
 import multiLogger from '@ir-engine/common/src/logger'
 import { InviteCode, ProjectType, projectPath, projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@ir-engine/common'
 
 import { EditorState } from '../../services/EditorServices'
 import { Button } from '../inputs/Button'

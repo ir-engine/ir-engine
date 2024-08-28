@@ -29,7 +29,7 @@ import { HiPencil, HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { locationPath, LocationType } from '@ir-engine/common/src/schema.type.module'
-import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 

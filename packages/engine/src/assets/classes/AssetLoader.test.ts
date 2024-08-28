@@ -32,7 +32,7 @@ import '../../EngineModule'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { AssetExt, AssetType } from '@ir-engine/common/src/constants/AssetType'
-import { AssetLoader } from './AssetLoader'
+import { ABSOLUTE_URL_PROTOCOL_REGEX, AssetLoader } from './AssetLoader'
 
 /**
  * tests
@@ -113,6 +113,24 @@ describe('AssetLoader', async () => {
       AssetLoader.loadAsset('', undefined, undefined, (err) => {
         assert.notEqual(err, null)
       })
+    })
+  })
+
+  describe('ABSOLUTE_URL_REGEX', () => {
+    it('should match absolute URLs', () => {
+      const positiveCases = ['http://example.com', 'https://example.com', 'ftp://example.com', '//example.com']
+
+      positiveCases.forEach((url) => {
+        assert.match(url, ABSOLUTE_URL_PROTOCOL_REGEX, `Expected '${url}' to match ABSOLUTE_URL_REGEX`)
+      })
+    })
+
+    it('should not match relative URLs', () => {
+      assert.doesNotMatch(
+        'example.com',
+        ABSOLUTE_URL_PROTOCOL_REGEX,
+        `Expected 'example.com' to not match ABSOLUTE_URL_REGEX`
+      )
     })
   })
 })
