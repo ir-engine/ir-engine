@@ -180,30 +180,6 @@ const ProfileModal = ({ user }) => {
                 }
               />
             </InputGroup>
-            {/* <InputGroup
-              className="mr-0 flex flex-row items-center justify-start"
-              label="API Key"
-              labelClassName="text-left w-20"
-            >
-              <StringInput
-                type={showKeys.apiKey.value ? 'text' : 'password'}
-                value={apiKey.token.value}
-                endComponent={
-                  <button
-                    type="button"
-                    className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
-                    onClick={() => toggleKey('apiKey')}
-                    name="apiKey"
-                  >
-                    {showKeys.apiKey.value ? (
-                      <PiEyeBold className="font-small text-[#6B7280]" />
-                    ) : (
-                      <PiEyeClosedBold className="font-small text-[#6B7280]" />
-                    )}
-                  </button>
-                }
-              />
-            </InputGroup> */}
           </div>
         </div>
 
@@ -223,102 +199,6 @@ const ProfileModal = ({ user }) => {
           </span>
         </div>
         <hr className="mx-4 text-[#A0A1A2] opacity-10" />
-        {/* <div className="flex justify-center px-4 py-2">
-          {
-            <>
-              <div className="flex w-full justify-evenly">
-                <DiscordIcon className="cursor-pointer" viewBox="0 0 40 40" onClick={handleOAuthServiceClick} />
-                <GoogleIcon className="cursor-pointer" viewBox="0 0 40 40" onClick={handleOAuthServiceClick} />
-                <MetaIcon
-                  className="cursor-pointer"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 40 40"
-                  onClick={handleOAuthServiceClick}
-                />
-                <LinkedInIcon className="cursor-pointer" viewBox="0 0 40 40" onClick={handleOAuthServiceClick} />
-                <XIcon
-                  className="cursor-pointer"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 40 40"
-                  onClick={handleOAuthServiceClick}
-                />
-                <GithubIcon
-                  className="cursor-pointer"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 40 40"
-                  onClick={handleOAuthServiceClick}
-                />
-              </div>
-
-              {!selfUser?.isGuest.value && removeSocial && (
-                <div className="flex w-full justify-evenly">
-                  <div>{t('user:usermenu.profile.removeSocial')}</div>
-
-                  <div>
-                    {authState?.discord.value && oauthConnectedState.discord.value && (
-                      <DiscordIcon
-                        className="cursor-pointer"
-                        width="40"
-                        height="40"
-                        viewBox="0 0 40 40"
-                        onClick={handleRemoveOAuthServiceClick}
-                      />
-                    )}
-                    {authState?.google.value && oauthConnectedState.google.value && (
-                      <GoogleIcon
-                        className="cursor-pointer"
-                        width="40"
-                        height="40"
-                        viewBox="0 0 40 40"
-                        onClick={handleRemoveOAuthServiceClick}
-                      />
-                    )}
-                    {authState?.facebook.value && oauthConnectedState.facebook.value && (
-                      <MetaIcon
-                        className="cursor-pointer"
-                        width="40"
-                        height="40"
-                        viewBox="0 0 40 40"
-                        onClick={handleRemoveOAuthServiceClick}
-                      />
-                    )}
-                    {authState?.linkedin.value && oauthConnectedState.linkedin.value && (
-                      <LinkedInIcon
-                        className="cursor-pointer"
-                        width="40"
-                        height="40"
-                        viewBox="0 0 40 40"
-                        onClick={handleRemoveOAuthServiceClick}
-                      />
-                    )}
-                    {authState?.twitter.value && oauthConnectedState.twitter.value && (
-                      <XIcon
-                        className="cursor-pointer"
-                        width="40"
-                        height="40"
-                        viewBox="0 0 40 40"
-                        onClick={handleRemoveOAuthServiceClick}
-                      />
-                    )}
-                    {authState?.github.value && oauthConnectedState.github.value && (
-                      <GithubIcon
-                        className="cursor-pointer"
-                        width="40"
-                        height="40"
-                        viewBox="0 0 25 25"
-                        onClick={handleRemoveOAuthServiceClick}
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
-            </>
-          }
-        </div> */}
-        <hr className="mx-4 text-[#A0A1A2] opacity-10" />
         <div className="px-7 py-2">
           <a href={clientSetting?.privacyPolicy} className="text-xs text-[#A0A1A2] underline">
             {t('user:usermenu.profile.privacyPolicy')}
@@ -331,14 +211,10 @@ const ProfileModal = ({ user }) => {
 
 export const Profile = ({ user }) => {
   const { avatar } = user
-  // const anchorPosition = useHookstate({ left: 0, top: 0 })
   const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
-  // const anchorEl = useHookstate<any>(null)
 
   const handleClick = (event) => {
-    // anchorPosition.set({ left: event.clientX, top: event.clientY })
     setAnchorEvent(event)
-    // anchorEl.set(event.currentTarget)
   }
 
   return (
@@ -360,11 +236,7 @@ export const Profile = ({ user }) => {
           onClick={handleClick}
         />
       </div>
-      <ContextMenu
-        anchorEvent={anchorEvent}
-        // anchorEl={anchorEl.value}
-        onClose={() => setAnchorEvent(undefined)}
-      >
+      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
         <ProfileModal user={user} />
       </ContextMenu>
     </>

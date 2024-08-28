@@ -225,6 +225,19 @@ export default function Toolbar() {
               </SidebarButton>
             </div>
           ))}
+          {sceneAssetID.value && (
+            <Button
+              rounded="none"
+              disabled={!hasPublishAccess}
+              onClick={() =>
+                PopoverState.showPopupover(
+                  <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+                )
+              }
+            >
+              {t('editor:toolbar.lbl-publish')}
+            </Button>
+          )}
         </div>
       </ContextMenu>
     </>
