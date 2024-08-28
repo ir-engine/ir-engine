@@ -29,10 +29,8 @@ import {
   AnimationClip,
   AnimationMixer,
   Bone,
-  Color,
   Group,
   LoaderUtils,
-  Material,
   MathUtils,
   Matrix4,
   Mesh,
@@ -991,28 +989,14 @@ const PrimitiveReactor = (props: {
   useLayoutEffect(() => {
     if (!geometries[geometries.length - 1]) return
 
-    console.log(node, 'skinned mesh ya')
     let mesh: Mesh | SkinnedMesh
-
-    // if(hasComponent(props.entity, MeshComponent)) {
-    //   const preexistingMesh = getComponent(props.entity, MeshComponent)
-    //   const preexistingGeometry = preexistingMesh.geometry
-    //   const preexistingMaterialsArray = Array.isArray(preexistingMesh.material) ? preexistingMesh.material : [preexistingMesh.material]
-
-    //   setComponent(props.entity, MeshComponent, mesh!)
-
-    // }else{
-
-    // }
-
-    const preexistingMaterialsArray = [] as Material[]
     //For debug visualization of material indices
-    meshDef.primitives.map((primitive) => {
-      console.log(primitive.attributes)
-      const multiplier = typeof node.skin !== 'undefined' ? 1 : 0.5
-      const randomColor = new Color(Math.random() * multiplier, Math.random() * multiplier, Math.random() * multiplier)
-      preexistingMaterialsArray[primitive.material!] = new MeshStandardMaterial({ color: randomColor })
-    })
+    // setComponent(props.entity, MaterialInstanceComponent)
+    // const array = [] as Material[]
+    // meshDef.primitives.map((primitive) => {
+    //   const materialUUID = (props.documentID + '-material-' + primitive.material!) as EntityUUID
+    //   array[primitive.material!] = getComponent(UUIDComponent.getEntityByUUID(materialUUID), MaterialStateComponent).material
+    // })
 
     //HACK
     for (let i = 0; i < geometries.length; i++) {
@@ -1028,8 +1012,6 @@ const PrimitiveReactor = (props: {
 
     // geometry.deleteAttribute('tangent')
 
-    console.log(mergedGeometry)
-    console.log(geometries)
     mesh =
       typeof node.skin !== 'undefined'
         ? new SkinnedMesh(mergedGeometry!, new MeshStandardMaterial())
@@ -1038,8 +1020,9 @@ const PrimitiveReactor = (props: {
       ;(mesh as SkinnedMesh).skeleton = new Skeleton()
       setComponent(props.entity, SkinnedMeshComponent, mesh as SkinnedMesh)
     }
+    if (geometries.length) mesh.material = []
+    setComponent(props.entity, MeshComponent, mesh)
     console.log(getComponent(props.entity, NameComponent), mesh)
-    mesh.material = preexistingMaterialsArray
 
     /** @todo multiple primitive support */
     addObjectToGroup(props.entity, mesh)
@@ -1067,16 +1050,16 @@ const PrimitiveReactor = (props: {
           documentID={props.documentID}
           entity={entity}
         />
-      )}
-      {typeof primitive.material === 'number' && (
+      )} */}
+      {meshDef.primitives.map((primitive, index) => (
         <MaterialInstanceReactor
           nodeIndex={props.nodeIndex}
-          primitiveIndex={props.primitiveIndex}
+          primitiveIndex={index}
           documentID={props.documentID}
-          entity={entity}
+          entity={props.entity}
         />
-      )}
-      {primitive.targets && (
+      ))}
+      {/* {primitive.targets && (
         <MorphTargetReactor
           key={'targets'}
           documentID={props.documentID}
@@ -1142,7 +1125,8 @@ const MaterialInstanceReactor = (props: {
     if (typeof primitive.material !== 'number' || !materialEntity) return
 
     setComponent(props.entity, MaterialInstanceComponent)
-    getMutableComponent(props.entity, MaterialInstanceComponent).uuid.merge([materialUUID])
+    const materialInstance = getMutableComponent(props.entity, MaterialInstanceComponent)
+    materialInstance.uuid[primitive.material].set(materialUUID)
   }, [materialEntity, primitive.material])
 
   return null

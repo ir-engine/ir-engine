@@ -158,7 +158,7 @@ export const MaterialInstanceComponent = defineComponent({
 
     if (materialComponent.uuid.value.length === 0) return null
 
-    if (materialComponent.uuid.value.length > 1)
+    if (materialComponent.uuid.value.length)
       return (
         <>
           {materialComponent.uuid.value.map((uuid, index) => (

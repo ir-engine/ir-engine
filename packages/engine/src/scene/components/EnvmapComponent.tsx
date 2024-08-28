@@ -343,10 +343,13 @@ const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
     const child = target as Mesh<any, MeshStandardMaterial>
     if (!child.material || child.type == 'VFXBatch') return
 
-    const materialEntity = UUIDComponent.getEntityByUUID(child.material.uuid as EntityUUID)
-    setComponent(materialEntity, BoxProjectionPlugin, {
-      cubeMapPos: new Uniform(bakeComponent.bakePositionOffset),
-      cubeMapSize: new Uniform(bakeComponent.bakeScale)
+    const materials = Array.isArray(child.material) ? child.material : [child.material]
+
+    materials.forEach((material) => {
+      setComponent(UUIDComponent.getEntityByUUID(material.uuid as EntityUUID), BoxProjectionPlugin, {
+        cubeMapPos: new Uniform(bakeComponent.bakePositionOffset),
+        cubeMapSize: new Uniform(bakeComponent.bakeScale)
+      })
     })
   }
 }
