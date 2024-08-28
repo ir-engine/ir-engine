@@ -180,10 +180,11 @@ export const FileThumbnailJobState = defineState({
   }
 })
 
-type ThumbnailFileType = 'image' | 'model' | 'texture' | 'video' | 'material'
+type ThumbnailFileType = 'image' | 'model' | 'texture' | 'video' | 'material' | 'lookDev'
 
 const extensionThumbnailTypes: { extensions: string[]; thumbnailType: ThumbnailFileType }[] = [
   { extensions: ['material.gltf'], thumbnailType: 'material' },
+  { extensions: ['lookdev.gltf'], thumbnailType: 'lookDev' },
   { extensions: ['gltf', 'glb', 'vrm', 'usdz', 'fbx'], thumbnailType: 'model' },
   { extensions: ['png', 'jpeg', 'jpg'], thumbnailType: 'image' },
   { extensions: ['ktx2'], thumbnailType: 'texture' },
@@ -329,6 +330,14 @@ const ThumbnailJobReactor = () => {
       )
     })
   }, [fileType, tex, id])
+
+  //Load lookDev
+  useEffect(() => {
+    if (src === '' || fileType !== 'lookDev') {
+      cleanupState()
+      return
+    }
+  })
 
   // Load models
   useEffect(() => {
