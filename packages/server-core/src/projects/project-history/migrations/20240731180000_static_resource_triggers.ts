@@ -27,7 +27,7 @@ import * as fs from 'fs'
 import type { Knex } from 'knex'
 import * as path from 'path'
 
-const sqlFilePath = path.join(__dirname, './static_resource_triggers.sql')
+const sqlFilePath = path.join(__dirname, './static-resource_triggers.sql')
 
 /**
  * @param { import("knex").Knex } knex

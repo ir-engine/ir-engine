@@ -46,7 +46,7 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  useChildrenWithComponent
+  useChildrenWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -195,7 +195,7 @@ export const ObjectGridSnapComponent = defineComponent({
     const engineState = useState(getMutableState(EngineState))
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
     const modelComponent = useComponent(entity, ModelComponent)
-    const meshComponents = useChildrenWithComponent(entity, MeshComponent)
+    const meshComponents = useChildrenWithComponents(entity, [MeshComponent])
 
     useEffect(() => {
       if (!modelComponent.scene.value) return

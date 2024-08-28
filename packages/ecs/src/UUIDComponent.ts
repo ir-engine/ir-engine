@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { MathUtils } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
 import { hookstate, NO_PROXY_STEALTH, State, useHookstate } from '@ir-engine/hyperflux'
 
@@ -88,7 +88,7 @@ export const UUIDComponent = defineComponent({
   },
 
   generateUUID() {
-    return MathUtils.generateUUID() as EntityUUID
+    return uuidv4() as EntityUUID
   }
 })
 

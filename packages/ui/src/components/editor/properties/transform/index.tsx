@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getComponent, hasComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadTagComponent'
@@ -89,7 +89,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     EditorControlFunctions.positionObject(selectedEntities, [value])
   }
 
-  const onChangeRotation = (value: Euler) => {
+  const onChangeRotation = (value: Quaternion) => {
     const selectedEntities = SelectionState.getSelectedEntities()
     EditorControlFunctions.rotateObject(selectedEntities, [value])
   }

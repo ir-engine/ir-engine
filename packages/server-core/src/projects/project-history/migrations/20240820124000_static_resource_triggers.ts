@@ -23,28 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { featureFlagSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { defineState, getMutableState } from '@ir-engine/hyperflux/functions/StateFunctions'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
-import { useEffect } from 'react'
+import * as fs from 'fs'
+import type { Knex } from 'knex'
+import * as path from 'path'
 
-export const FeatureFlagsState = defineState({
-  name: 'ee.engine.FeatureFlagsState',
-  initial: {} as Record<string, boolean>,
-  enabled(flagName: string) {
-    const state = getMutableState(FeatureFlagsState)[flagName].value
-    return typeof state === 'boolean' ? state : true
-  },
-  reactor: () => {
-    const featureFlagQuery = useFind(featureFlagSettingPath, { query: { paginate: false } })
+const sqlFilePath = path.join(__dirname, './static-resource_triggers.sql')
 
-    useEffect(() => {
-      const data = featureFlagQuery.data
-      getMutableState(FeatureFlagsState).merge(
-        Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
-      )
-    }, [featureFlagQuery.data])
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const sql = fs.readFileSync(sqlFilePath, 'utf8')
+  await knex.raw(sql)
+}
 
-    return null
-  }
-})
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('DROP PROCEDURE IF EXISTS handle_thumbnails;')
+  await knex.raw('DROP PROCEDURE IF EXISTS handle_tags;')
+  await knex.raw('DROP PROCEDURE IF EXISTS update_static_resource_history;')
+  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_update;')
+
+  await knex.raw('DROP PROCEDURE IF EXISTS insert_static_resource_history;')
+  await knex.raw('DROP TRIGGER IF EXISTS after_static_resource_insert;')
+}

@@ -49,7 +49,6 @@ const tieredSettings = {
       shadowMapResolution: 0,
       usePostProcessing: false,
       forceBasicMaterials: true,
-      updateCSMFrustums: false,
       renderScale: 0.75
     },
     render: { smaaPreset: SMAAPreset.LOW }
@@ -60,7 +59,6 @@ const tieredSettings = {
       shadowMapResolution: 0,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.LOW }
@@ -71,7 +69,6 @@ const tieredSettings = {
       shadowMapResolution: 256,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.LOW }
@@ -82,7 +79,6 @@ const tieredSettings = {
       shadowMapResolution: 512,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.MEDIUM }
@@ -93,7 +89,6 @@ const tieredSettings = {
       shadowMapResolution: 1024,
       usePostProcessing: true,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.HIGH }
@@ -104,7 +99,6 @@ const tieredSettings = {
       shadowMapResolution: 2048,
       usePostProcessing: true,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.ULTRA }

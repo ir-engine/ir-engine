@@ -44,11 +44,12 @@ import {
 import config from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { EntityUUID } from '@ir-engine/ecs'
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 
 import { AssetType } from '@ir-engine/common/src/constants/AssetType'
+import { TransformComponent } from '@ir-engine/spatial'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
@@ -126,6 +127,8 @@ export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
 
   if (!width || !height) return
 
+  const transform = getComponent(mesh.entity, TransformComponent)
+
   const ratio = (height || 1) / (width || 1)
   const _width = Math.min(1.0, 1.0 / ratio)
   const _height = Math.min(1.0, ratio)
@@ -139,9 +142,10 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 
   if (!width || !height) return
 
+  const transform = getComponent(mesh.entity, TransformComponent)
   const ratio = (height || 1) / (width || 1)
-  const _width = Math.min(1.0, 1.0 / ratio)
-  const _height = Math.min(1.0, ratio)
+  const _width = Math.min(1.0, 1.0 / ratio) * transform.scale.x
+  const _height = Math.min(1.0, ratio) * transform.scale.y
   mesh.scale.set(_width, _height, 1)
 }
 

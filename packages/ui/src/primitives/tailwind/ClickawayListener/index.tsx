@@ -40,7 +40,7 @@ const ClickawayListener = (props: { children: JSX.Element }) => {
       }}
     >
       <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
+        className="flex h-full w-full items-center justify-center"
         onMouseEnter={() => childOver.set(true)}
         onMouseLeave={() => childOver.set(false)}
       >
