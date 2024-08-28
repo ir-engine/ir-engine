@@ -795,7 +795,11 @@ export async function transformModel(
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
 
-    await API.instance.service(fileBrowserPath).create(folderURL)
+    const fileBrowserService = API.instance.service(fileBrowserPath)
+    const folderExists = await fileBrowserService.get(folderURL)
+    if (!folderExists) {
+      await fileBrowserService.create(folderURL)
+    }
 
     json.images?.map((image) => {
       const nuURI = pathJoin(
