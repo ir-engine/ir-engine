@@ -138,7 +138,7 @@ export const setPlugin = (material: Material, callback) => {
 }
 
 export const hasPlugin = (material: Material, callback) =>
-  material.plugins?.length && !!material.plugins.find((plugin) => plugin.toString() === callback.toString())
+  Boolean(material.plugins?.length && !!material.plugins.find((plugin) => plugin.toString() === callback.toString()))
 
 export const removePlugin = (material: Material, callback) => {
   const pluginIndex = material.plugins?.findIndex((plugin) => plugin === callback)
