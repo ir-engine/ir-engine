@@ -122,6 +122,10 @@ export const getMaterial = (uuid: EntityUUID) => {
 }
 
 export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
+  if (!groupEntity) return
+  if (!hasComponent(groupEntity, MeshComponent)) return
+  if (newMaterialUUIDs.length === 0) return
+
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
   if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
   else for (let i = 0; i < mesh.material.length; i++) mesh.material[i] = getMaterial(newMaterialUUIDs[i])
