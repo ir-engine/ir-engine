@@ -41,6 +41,7 @@ import {
   InferStateValueType,
   NO_PROXY_STEALTH,
   none,
+  SetPartialStateAction,
   State,
   useHookstate
 } from '@ir-engine/hyperflux/functions/StateFunctions'
@@ -48,7 +49,7 @@ import {
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { Static, TSchema } from '@sinclair/typebox'
+import { Kind, Static, TSchema, Type, TObject } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 
 /**
@@ -61,8 +62,8 @@ export const INITIAL_COMPONENT_SIZE =
   config.client.appEnv === 'test' ? 100000 : 5000 /** @todo set to 0 after next bitECS update */
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE) // Send the INITIAL_COMPONENT_SIZE value to bitECS as its DefaultSize
 
-export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
-export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
+export const ComponentMap = new Map<string, Component<any, any, any, any, any>>()
+export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any>>() // <jsonID, Component>
 globalThis.ComponentMap = ComponentMap
 globalThis.ComponentJSONIDMap = ComponentJSONIDMap
 
@@ -76,7 +77,7 @@ type SomeStringLiteral = 'a' | 'b' | 'c'
 /** @private Type that will be a `string` when T is an extension of `string`, but will be a dummy string union otherwise. */
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 
-type ComponentSchema = TSchema
+type ComponentSchema = TSchema | bitECS.ISchema
 
 /**
  * @description
@@ -87,8 +88,7 @@ type ComponentSchema = TSchema
  */
 export interface ComponentPartial<
   Schema extends ComponentSchema = any,
-  ComponentType = Static<Schema>,
-  ECSSchema extends bitECS.ISchema = Record<string, never>,
+  ComponentType = Schema extends TSchema ? Static<Schema> : Schema,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
@@ -99,8 +99,6 @@ export interface ComponentPartial<
   jsonID?: string
   /** @description A Component's Schema is the shape of its runtime data. */
   schema?: Schema
-  /** @description A Component's Schema is the shape of its bitECS runtime data. */
-  ecsSchema?: ECSSchema
   /**
    * @deprecated
    * @description Called once when the component is added to an entity (ie: initialized).
@@ -152,8 +150,7 @@ export interface ComponentPartial<
  */
 export interface Component<
   Schema extends ComponentSchema = any,
-  ComponentType = Static<Schema>,
-  ECSSchema extends bitECS.ISchema = Record<string, any>,
+  ComponentType = Schema extends TSchema ? Static<Schema> : Schema,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = string
@@ -162,7 +159,6 @@ export interface Component<
   name: string
   jsonID?: string
   schema?: Schema
-  ecsSchema?: ECSSchema
   /** @deprecated */
   onInit?: (entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
@@ -185,6 +181,14 @@ export type SetComponentType<C extends Component> = Parameters<C['onSet']>[2]
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type used by its {@link Component.errors} field. */
 export type ComponentErrorsType<C extends Component> =
   C['errors'][number] /** @todo What is C[...][number] doing here? */
+
+const schemaIsJSONSchema = (schema?: ComponentSchema): schema is TSchema => {
+  return !!(schema as TSchema)?.[Kind]
+}
+
+const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECS.ISchema => {
+  return (schema as TSchema)?.[Kind] === undefined
+}
 
 /**
  * @description
@@ -220,26 +224,30 @@ export type ComponentErrorsType<C extends Component> =
  */
 export const defineComponent = <
   Schema extends ComponentSchema = any,
-  ComponentType = Static<Schema>,
-  ECSSchema extends bitECS.ISchema = Record<string, never>,
+  ComponentType = Schema extends TSchema ? Static<Schema> : Schema,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never,
-  ComponentExtras = Record<string, any>
+  ComponentExtras = Record<string, any>,
+  SOAComponent = Schema extends TSchema ? SoAComponentType<any> : SoAComponentType<Schema>
 >(
-  def: ComponentPartial<Schema, ComponentType, ECSSchema, JSON, SetJSON, ErrorTypes> & ComponentExtras
-) => {
-  const Component = (def.ecsSchema ? bitECS.defineComponent(def.ecsSchema, INITIAL_COMPONENT_SIZE) : {}) as Component<
-    Schema,
-    ComponentType,
-    ECSSchema,
-    JSON,
-    SetJSON,
-    ErrorTypes
-  > &
-    SoAComponentType<ECSSchema>
+  def: ComponentPartial<Schema, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
+): Component<Schema, ComponentType, JSON, SetJSON, ErrorTypes> & { _TYPE: ComponentType } & ComponentExtras &
+  SOAComponent => {
+  const Component = (
+    schemaIsECSSchema(def.schema) ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}
+  ) as Component<Schema, ComponentType, JSON, SetJSON, ErrorTypes> & { _TYPE: ComponentType } & ComponentExtras &
+    SOAComponent
   Component.isComponent = true
-  Component.onSet = (entity, component, json) => {}
+  Component.onSet = (entity, component, json) => {
+    if (!json) return
+    if (schemaIsJSONSchema(def.schema)) {
+      const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
+      if (!Value.Check(schema, json)) console.error(`${def.name}:onSet Invalid arguments for component type`)
+      else if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
+      else component.merge(json as SetPartialStateAction<ComponentType>)
+    }
+  }
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
 
@@ -261,7 +269,7 @@ export const defineComponent = <
   }
   ComponentMap.set(Component.name, Component)
 
-  return Component as typeof Component & { _TYPE: ComponentType } & ComponentExtras
+  return Component
 
   // const ExternalComponentReactor = (props: SetJSON) => {
   //   const entity = useEntityContext()
@@ -281,24 +289,18 @@ export const defineComponent = <
   // return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
 }
 
-export const getOptionalMutableComponent = <
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(
+export const getOptionalMutableComponent = <Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> | undefined => {
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
   const componentState = component.stateMap[entity]!
   return componentState.promised ? undefined : componentState
 }
 
-export const getMutableComponent = <Schema extends ComponentSchema, ComponentType, ECSSchema extends bitECS.ISchema>(
+export const getMutableComponent = <Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, unknown, unknown, unknown>
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> => {
   const componentState = getOptionalMutableComponent(entity, component)
   if (!componentState || componentState.promised) {
@@ -310,29 +312,17 @@ export const getMutableComponent = <Schema extends ComponentSchema, ComponentTyp
   return componentState
 }
 
-export const getOptionalComponent = <
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(
+export const getOptionalComponent = <Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType | undefined => {
   const componentState = component.stateMap[entity]!
   return componentState?.promised ? undefined : (componentState?.get(NO_PROXY_STEALTH) as ComponentType)
 }
 
-export const getComponent = <
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(
+export const getComponent = <Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
   if (!bitECS.hasComponent(HyperFlux.store, component, entity)) {
     console.warn(
@@ -344,18 +334,12 @@ export const getComponent = <
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
 }
 
-export const createInitialComponentValue = <
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(
+export const createInitialComponentValue = <Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
   if (component.onInit) return component.onInit(entity) as ComponentType
-  else if (component.schema) return Value.Create(component.schema) as ComponentType
+  else if (schemaIsJSONSchema(component.schema)) return Value.Create(component.schema) as ComponentType
   else return undefined as ComponentType
 }
 
@@ -371,15 +355,9 @@ export const createInitialComponentValue = <
  * @param args `@todo` Explain what `setComponent(   args)` is
  * @returns The component that was attached.
  */
-export const setComponent = <
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(
+export const setComponent = <Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>,
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>,
   args: SetJSON | undefined = undefined
 ): ComponentType => {
   if (!entity) {
@@ -458,15 +436,9 @@ export const updateComponent = <C extends Component>(
   })
 }
 
-export const hasComponent = <
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(
+export const hasComponent = <Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): boolean => {
   if (!component) throw new Error('[hasComponent]: component is undefined')
   if (!entity) return false
@@ -478,13 +450,10 @@ export const hasComponent = <
  * @param entity
  * @param components
  */
-export function hasComponents<
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(entity: Entity, components: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>[]): boolean {
+export function hasComponents<Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
+  entity: Entity,
+  components: Component<Schema, ComponentType, JSON, SetJSON, unknown>[]
+): boolean {
   if (!components) throw new Error('[hasComponent]: component is undefined')
   if (components.length < 1 || !entity) return false
 
@@ -589,15 +558,9 @@ export function _use(promise) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(
+export function useComponent<Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
@@ -612,15 +575,9 @@ export function useComponent<
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useOptionalComponent<
-  Schema extends ComponentSchema,
-  ComponentType,
-  ECSSchema extends bitECS.ISchema,
-  JSON,
-  SetJSON
->(
+export function useOptionalComponent<Schema extends ComponentSchema, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, ComponentType, ECSSchema, JSON, SetJSON, unknown>
+  component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> | undefined {
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
   const componentState = useHookstate(component.stateMap[entity])

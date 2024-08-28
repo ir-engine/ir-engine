@@ -49,7 +49,7 @@ let availableNetworkId = 0 as NetworkId
 export const NetworkObjectComponent = defineComponent({
   name: 'NetworkObjectComponent',
 
-  ecsSchema: {
+  schema: {
     networkId: ECS.Types.ui32
   },
 

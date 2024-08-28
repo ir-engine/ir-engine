@@ -39,7 +39,7 @@ export const MotionCaptureRigComponent = defineComponent({
       prevScreenLandmarks: null as NormalizedLandmark[] | null
     }
   },
-  ecsSchema: {
+  schema: {
     rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionECS])) as Record<
       VRMHumanBoneName,
       typeof QuaternionECS

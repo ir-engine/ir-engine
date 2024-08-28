@@ -28,7 +28,6 @@ import { Object3D } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { matches } from '@ir-engine/hyperflux'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { Type } from '@sinclair/typebox'
 
@@ -48,11 +47,11 @@ export const ShadowComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.boolean.test(json.cast)) component.cast.set(json.cast)
-    if (matches.boolean.test(json.receive)) component.receive.set(json.receive)
-  },
+  // onSet: (entity, component, json) => {
+  //   if (!json) return
+  //   if (matches.boolean.test(json.cast)) component.cast.set(json.cast)
+  //   if (matches.boolean.test(json.receive)) component.receive.set(json.receive)
+  // },
 
   reactor: () => {
     const entity = useEntityContext()

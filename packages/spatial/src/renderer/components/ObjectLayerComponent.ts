@@ -50,7 +50,7 @@ export const ObjectLayerMaskDefault = 1 << 0 // enable layer 0
 
 export const ObjectLayerMaskComponent = defineComponent({
   name: 'ObjectLayerMaskComponent',
-  ecsSchema: { mask: Types.i32 },
+  schema: { mask: Types.i32 },
 
   onInit(entity) {
     return ObjectLayerMaskDefault // enable layer 0

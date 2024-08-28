@@ -37,8 +37,6 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { Type } from '@feathersjs/typebox'
-import { Matrix4Schema, QuaternionSchema, Vector3Schema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
@@ -67,15 +65,7 @@ export const TransformECS = {
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
   jsonID: 'EE_transform',
-  ecsSchema: TransformECS,
-
-  schema: Type.Object({
-    position: Vector3Schema(),
-    rotation: QuaternionSchema(),
-    scale: Vector3Schema(),
-    matrix: Matrix4Schema(),
-    matrixWorld: Matrix4Schema()
-  }),
+  schema: TransformECS,
 
   onInit: (entity) => {
     const dirtyTransforms = TransformComponent.dirtyTransforms
