@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 // Do not delete json and urlencoded, they are used even if some IDEs show them as unused
@@ -38,11 +38,11 @@ import cors from 'koa-cors'
 import helmet from 'koa-helmet'
 import healthcheck from 'koa-simple-healthcheck'
 
-import { pipeLogs } from '@etherealengine/common/src/logger'
-import { pipe } from '@etherealengine/common/src/utils/pipe'
-import { Engine, createEngine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { API } from '@ir-engine/common'
+import { pipeLogs } from '@ir-engine/common/src/logger'
+import { pipe } from '@ir-engine/common/src/utils/pipe'
+import { createEngine } from '@ir-engine/ecs/src/Engine'
+import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
 import { Application } from '../declarations'
 import { logger } from './ServerLogger'
@@ -70,8 +70,8 @@ export const configureOpenAPI = () => (app: Application) => {
       }),
       specs: {
         info: {
-          title: 'Ethereal Engine API Surface',
-          description: 'APIs for the Ethereal Engine application',
+          title: 'Infinite Reality Engine API Surface',
+          description: 'APIs for the Infinite Reality Engine application',
           version: '1.0.0'
         },
         schemes: ['https'],
@@ -174,7 +174,7 @@ export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
-  createEngine()
+  createEngine(createHyperStore({ publicPath: config.client.dist }))
 
   const serverState = getMutableState(ServerState)
   serverState.serverMode.set(serverMode)
@@ -185,10 +185,8 @@ export const createFeathersKoaApp = (
     createIPFSStorageProvider()
   }
 
-  getMutableState(EngineState).publicPath.set(config.client.dist)
-
   const app = koa(feathers()) as Application
-  Engine.instance.api = app
+  API.instance = app
 
   app.set('nextReadyEmitter', new EventEmitter())
 
@@ -260,7 +258,7 @@ export const createFeathersKoaApp = (
     }
   })
 
-  pipeLogs(Engine.instance.api)
+  pipeLogs(API.instance)
 
   return app
 }

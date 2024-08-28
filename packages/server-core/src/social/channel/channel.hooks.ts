@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
@@ -29,8 +29,8 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { Knex } from 'knex'
 
-import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { channelUserPath, ChannelUserType } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { instancePath } from '@ir-engine/common/src/schemas/networking/instance.schema'
+import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'
 import {
   ChannelData,
   channelDataValidator,
@@ -38,12 +38,9 @@ import {
   channelPatchValidator,
   channelPath,
   ChannelType
-} from '@etherealengine/common/src/schemas/social/channel.schema'
-import {
-  userRelationshipPath,
-  UserRelationshipType
-} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
-import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+} from '@ir-engine/common/src/schemas/social/channel.schema'
+import { userRelationshipPath, UserRelationshipType } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
+import setLoggedInUser from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -259,12 +256,14 @@ const createSelfOwner = async (context: HookContext<ChannelService>) => {
 const createChannelUsers = async (context: HookContext<ChannelService>) => {
   /** @todo ensure all users specified are friends of loggedInUser */
 
+  const result = Array.isArray(context.result) ? context.result : ([context.result] as ChannelType[])
+
   const process = async (item: ChannelData) => {
     if (item.users) {
       await Promise.all(
         context.actualData.users.map(async (user) =>
           context.app.service(channelUserPath).create({
-            channelId: item.id as ChannelID,
+            channelId: result[0].id as ChannelID,
             userId: user
           })
         )
@@ -294,7 +293,7 @@ export default {
     ],
     get: [setLoggedInUser('userId'), iff(isProvider('external'), ensureUserHasChannelAccess)],
     create: [
-      () => schemaHooks.validateData(channelDataValidator),
+      schemaHooks.validateData(channelDataValidator),
       schemaHooks.resolveData(channelDataResolver),
       iff(isProvider('external'), ensureUsersFriendWithOwner),
       checkExistingChannel,
@@ -304,7 +303,7 @@ export default {
     update: [disallow('external')],
     patch: [
       iff(isProvider('external'), verifyScope('channel', 'write')),
-      () => schemaHooks.validateData(channelPatchValidator),
+      schemaHooks.validateData(channelPatchValidator),
       schemaHooks.resolveData(channelPatchResolver)
     ],
     remove: [iff(isProvider('external'), ensureUserChannelOwner)]

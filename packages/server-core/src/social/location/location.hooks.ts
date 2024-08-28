@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,22 +14,22 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
-import { locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
-import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
-import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
+import { locationAdminPath } from '@ir-engine/common/src/schemas/social/location-admin.schema'
+import { locationAuthorizedUserPath } from '@ir-engine/common/src/schemas/social/location-authorized-user.schema'
+import { locationSettingPath } from '@ir-engine/common/src/schemas/social/location-setting.schema'
 import {
   locationDataValidator,
   LocationID,
@@ -38,11 +38,11 @@ import {
   locationPath,
   locationQueryValidator,
   LocationType
-} from '@etherealengine/common/src/schemas/social/location.schema'
-import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
+} from '@ir-engine/common/src/schemas/social/location.schema'
+import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
+import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
 
-import { projectHistoryPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { projectHistoryPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -120,14 +120,12 @@ const createAuthorizedLocation = async (context: HookContext<LocationService>) =
   for (const item of data) {
     if (item.locationAdmin && context.params && context.params.user) {
       await context.app.service(locationAdminPath).create({
-        ...(item as LocationType).locationAdmin,
         userId: context.params.user.id,
-        locationId: (item as LocationType).id as LocationID
+        locationId: item.id as LocationID
       })
       await context.app.service(locationAuthorizedUserPath).create({
-        ...(item as LocationType).locationAdmin,
         userId: context.params.user.id,
-        locationId: (item as LocationType).id as LocationID
+        locationId: item.id as LocationID
       })
     }
   }
@@ -230,11 +228,11 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
+    all: [schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
     find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
     get: [],
     create: [
-      () => schemaHooks.validateData(locationDataValidator),
+      schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
       iff(
         isProvider('external'),
@@ -249,7 +247,7 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      () => schemaHooks.validateData(locationPatchValidator),
+      schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
       iff(
         isProvider('external'),

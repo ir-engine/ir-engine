@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers/lib'
@@ -49,12 +49,12 @@ import {
   UserKickType,
   userPath,
   UserType
-} from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { getMutableState, getState, HyperFlux, Identifiable, State } from '@etherealengine/hyperflux'
+} from '@ir-engine/common/src/schema.type.module'
+import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { getMutableState, getState, HyperFlux, Identifiable, State } from '@ir-engine/hyperflux'
 import {
   addNetwork,
   NetworkConnectionParams,
@@ -62,17 +62,17 @@ import {
   NetworkState,
   NetworkTopics,
   updatePeers
-} from '@etherealengine/network'
-import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import { Application } from '@etherealengine/server-core/declarations'
-import config from '@etherealengine/server-core/src/appconfig'
-import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
+} from '@ir-engine/network'
+import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
+import { Application } from '@ir-engine/server-core/declarations'
+import config from '@ir-engine/server-core/src/appconfig'
+import multiLogger from '@ir-engine/server-core/src/ServerLogger'
+import { ServerState } from '@ir-engine/server-core/src/ServerState'
+import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
 
 import './InstanceServerModule'
 
-import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -154,7 +154,7 @@ const assignExistingInstance = async ({
       currentUsers: existingInstance.currentUsers + 1,
       podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local',
       assigned: false,
-      assignedAt: null!
+      assignedAt: null
     },
     { headers }
   )
@@ -249,7 +249,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
-  Engine.instance.userID = hostId
+  Engine.instance.store.userID = hostId
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
   HyperFlux.store.forwardingTopics.add(topic)
 
@@ -443,7 +443,7 @@ const updateInstance = async ({
           currentUsers: (instance.currentUsers as number) + 1,
           assigned: false,
           podName: config.kubernetes.enabled ? instanceServerState.instanceServer?.objectMeta?.name : 'local',
-          assignedAt: null!
+          assignedAt: null
         },
         { headers }
       )

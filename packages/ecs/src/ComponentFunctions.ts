@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 /**
@@ -32,11 +32,11 @@ import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import config from '@etherealengine/common/src/config'
-import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
-import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { HyperFlux, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import config from '@ir-engine/common/src/config'
+import { DeepReadonly } from '@ir-engine/common/src/DeepReadonly'
+import { HookableFunction } from '@ir-engine/common/src/utils/createHookableFunction'
+import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
+import { HyperFlux, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import {
   hookstate,
   InferStateValueType,
@@ -45,7 +45,7 @@ import {
   none,
   State,
   useHookstate
-} from '@etherealengine/hyperflux/functions/StateFunctions'
+} from '@ir-engine/hyperflux/functions/StateFunctions'
 
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
@@ -410,6 +410,21 @@ export const hasComponent = <C extends Component>(entity: Entity, component: C) 
   if (!component) throw new Error('[hasComponent]: component is undefined')
   if (!entity) return false
   return bitECS.hasComponent(HyperFlux.store, component, entity)
+}
+
+/**
+ * Returns true if the entity has all the specified components, false if it is missing any
+ * @param entity
+ * @param components
+ */
+export function hasComponents(entity: Entity, components: ComponentType<any>[]): boolean {
+  if (!components) throw new Error('[hasComponent]: component is undefined')
+  if (components.length < 1 || !entity) return false
+
+  for (const component of components) {
+    if (!hasComponent(entity, component)) return false
+  }
+  return true
 }
 
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {

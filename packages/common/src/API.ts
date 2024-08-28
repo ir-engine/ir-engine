@@ -23,25 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { FeathersApplication } from '@feathersjs/feathers'
+import { ServiceTypes } from '../declarations'
 
-const useFeatureFlags = (flagNames: string[]): boolean[] => {
-  const response = useFind(featureFlagSettingPath, {
-    query: {
-      $or: flagNames.map((flagName) => ({ flagName })),
-      paginate: false
-    }
-  })
-
-  if (response.status !== 'success') {
-    return []
-  }
-
-  return flagNames.map((flagName) => {
-    const flag = response.data.find(({ flagName: name }) => name === flagName)
-    return flag ? flag.flagValue : true
-  })
+export const API = {
+  instance: null! as FeathersApplication<ServiceTypes>
 }
-
-export default useFeatureFlags

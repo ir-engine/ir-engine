@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,18 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
 import {
   ClampToEdgeWrapping,
+  CompressedTexture,
   DoubleSide,
   LinearFilter,
   Mesh,
@@ -33,13 +34,14 @@ import {
   ShaderMaterial,
   Side,
   SphereGeometry,
+  Texture,
   Uniform,
   Vector2,
   VideoTexture,
   Wrapping
 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -47,21 +49,21 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { MeshComponent, useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { ContentFitType, ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineState, NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MeshComponent, useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import { ContentFitType } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 
 import { clearErrors } from '../functions/ErrorFunctions'
-import { PLANE_GEO, resizeVideoMesh, SPHERE_GEO } from './ImageComponent'
+import { getTextureSize, PLANE_GEO, resizeVideoMesh, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
@@ -272,6 +274,9 @@ function VideoReactor() {
       })
   )
 
+  const fitPlacementUvOffset = useState(new Vector2(0, 0))
+  const fitPlacementUvScale = useState(new Vector2(1, 1))
+
   useEffect(() => {
     const videoEntity = videoMeshEntity.value
     video.videoMeshEntity.set(videoEntity)
@@ -296,15 +301,55 @@ function VideoReactor() {
   useEffect(() => {
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
     resizeVideoMesh(videoMesh)
-    const scale = ObjectFitFunctions.computeContentFitScale(
-      videoMesh.scale.x,
-      videoMesh.scale.y,
-      video.size.width.value,
-      video.size.height.value,
-      video.fit.value
-    )
-    videoMesh.scale.setScalar(scale)
-  }, [video.size, video.fit, video.texture])
+
+    const uvOffset = new Vector2(0, 0)
+    const uvScale = new Vector2(1, 1)
+
+    const containerWidth = video.size.width.value
+    const containerHeight = video.size.height.value
+    const containerRatio = containerWidth / containerHeight
+
+    videoMesh.scale.x = containerWidth
+    videoMesh.scale.y = containerHeight
+
+    const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
+    const imageRatio = imageSize.x / imageSize.y || 1
+
+    let isPlacementHorz = true
+    if (video.fit.value == 'horizontal') {
+      isPlacementHorz = true
+    }
+    if (video.fit.value == 'vertical') {
+      isPlacementHorz = false
+    }
+    if (video.fit.value == 'contain') {
+      if (imageRatio > containerRatio) {
+        isPlacementHorz = true
+      } else {
+        isPlacementHorz = false
+      }
+    }
+    if (video.fit.value == 'cover') {
+      if (imageRatio > containerRatio) {
+        isPlacementHorz = false
+      } else {
+        isPlacementHorz = true
+      }
+    }
+
+    if (isPlacementHorz) {
+      uvScale.y = imageRatio / containerRatio
+      uvScale.x = 1
+      uvOffset.y = (1 - uvScale.y) / 2
+    } else {
+      uvScale.x = 1 / imageRatio / (1 / containerRatio)
+      uvScale.y = 1
+      uvOffset.x = (1 - uvScale.x) / 2
+    }
+
+    fitPlacementUvOffset.set(uvOffset)
+    fitPlacementUvScale.set(uvScale)
+  }, [video.size, video.fit, video.texture, mesh.material])
 
   useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
@@ -342,13 +387,21 @@ function VideoReactor() {
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
-    uniforms.uvOffset.value = video.uvOffset.value
-  }, [video.uvOffset])
+    uniforms.uvOffset.value = new Vector2(
+      video.uvOffset.x.value + fitPlacementUvOffset.x.value,
+      video.uvOffset.y.value + fitPlacementUvOffset.y.value
+    )
+  }, [video.uvOffset, fitPlacementUvOffset])
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.uvScale.value = video.uvScale.value
-  }, [video.uvScale])
+
+    uniforms.uvScale.value = new Vector2(
+      video.uvScale.x.value * fitPlacementUvScale.x.value,
+      video.uvScale.y.value * fitPlacementUvScale.y.value
+    )
+  }, [video.uvScale, fitPlacementUvScale])
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
