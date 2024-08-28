@@ -27,7 +27,7 @@ import Pause from '@mui/icons-material/Pause'
 import PlayArrow from '@mui/icons-material/PlayArrow'
 import React from 'react'
 
-import { getComponent, getMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -46,9 +46,9 @@ const MediaControlsView = (props: MediaControlsProps) => {
   const mediaComponent = useHookstate(getMutableComponent(props.entity, MediaComponent))
 
   const buttonClick = () => {
-    const mediaElement = getComponent(props.entity, MediaElementComponent)
-    if (!mediaElement) return
-    mediaElement.element.paused ? mediaElement.element.play() : mediaElement.element.pause()
+    if (!hasComponent(props.entity, MediaElementComponent)) return //early out if the mediaElement is null
+    const isPaused = mediaComponent.paused.value
+    isPaused ? mediaComponent.paused.set(false) : mediaComponent.paused.set(true)
   }
 
   return (
@@ -56,10 +56,12 @@ const MediaControlsView = (props: MediaControlsProps) => {
       xr-layer="true"
       id="container"
       style={{
-        width: '100px',
-        height: '100px',
+        width: '100%',
+        height: '100%',
         display: 'flex',
-        padding: '150px'
+        alignItems: 'center',
+        justifyItems: 'center',
+        justifyContent: 'center'
       }}
     >
       <button
@@ -71,8 +73,8 @@ const MediaControlsView = (props: MediaControlsProps) => {
           boxShadow: '#fff2 0 0 30px',
           color: 'lightgrey',
           fontSize: '25px',
-          width: '100px',
-          height: '100px',
+          width: '40%',
+          height: '40%',
           margin: 'auto auto',
           transform: 'translateZ(0.01px)'
         }}
@@ -87,7 +89,11 @@ const MediaControlsView = (props: MediaControlsProps) => {
             background-color: grey;
         }`}
         </style>
-        {mediaComponent.paused.value ? <PlayArrow style={{ fill: 'white' }} /> : <Pause style={{ fill: 'white' }} />}
+        {mediaComponent.paused.value ? (
+          <PlayArrow style={{ fill: 'white', width: '100%', height: '100%' }} />
+        ) : (
+          <Pause style={{ fill: 'white', width: '100%', height: '100%' }} />
+        )}
       </button>
     </div>
   )
