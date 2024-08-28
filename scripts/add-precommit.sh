@@ -19,6 +19,8 @@ add_precommit() {
   fi
 }
 
-for directory in packages/projects/projects/ir-engine/* ;
- do (cd "$directory" && add_precommit $directory); 
+for org in packages/projects/projects/* ;
+  do for directory in $org/* ;
+    do (cd "$directory" && add_precommit $directory); 
+  done
 done
