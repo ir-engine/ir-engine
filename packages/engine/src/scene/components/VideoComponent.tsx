@@ -315,29 +315,29 @@ function VideoReactor() {
     const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
     const imageRatio = imageSize.x / imageSize.y || 1
 
-    let placement = 'horz'
+    let isPlacementHorz = true
     if (video.fit.value == 'horizontal') {
-      placement = 'horz'
+      isPlacementHorz = true
     }
     if (video.fit.value == 'vertical') {
-      placement = 'vert'
+      isPlacementHorz = false
     }
     if (video.fit.value == 'contain') {
       if (imageRatio > containerRatio) {
-        placement = 'horz'
+        isPlacementHorz = true
       } else {
-        placement = 'vert'
+        isPlacementHorz = false
       }
     }
     if (video.fit.value == 'cover') {
       if (imageRatio > containerRatio) {
-        placement = 'vert'
+        isPlacementHorz = false
       } else {
-        placement = 'horz'
+        isPlacementHorz = true
       }
     }
 
-    if (placement == 'horz') {
+    if (isPlacementHorz) {
       uvScale.y = imageRatio / containerRatio
       uvScale.x = 1
       uvOffset.y = (1 - uvScale.y) / 2
