@@ -4,23 +4,23 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+Infinite Reality Engine. All Rights Reserved.
 */
 
 /** @type {import('tailwindcss').Config} */
@@ -33,22 +33,20 @@ module.exports = {
     extend: {
       gradientColorStops: {
         ...Array.from({ length: 101 }, (_, i) => i).reduce((acc, curr) => {
-          acc[curr] = `${curr}%`;
-          return acc;
+          acc[curr] = `${curr}%`
+          return acc
         }, {})
-      },
-      backgroundImage: {
-        'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)',
-        'text-gradient-onboarding': 'linear-gradient(275deg, #4195FB 4.98%, #4E9CFB 61.64%, #A5CDFD 97.96%)',
-        'button-gradient-onboarding': 'linear-gradient(96deg, #375DAF 57.63%, #6481C1 100%)'
       },
       textColor: {
         theme: {
+          input: 'var(--text-input)',
           primary: 'var(--text-primary)',
           secondary: 'var(--text-secondary)',
           highlight: 'var(--text-highlight)',
+          gray3: 'var(--text-gray3)',
           iconGreen: 'var(--icon-green)',
-          iconRed: 'var(--icon-red)'
+          iconRed: 'var(--icon-red)',
+          'menu-default': 'var(--text-menu-default)'
         }
       },
       backgroundColor: {
@@ -57,9 +55,13 @@ module.exports = {
           secondary: 'var(--bg-secondary)',
           highlight: 'var(--bg-highlight)',
           surfaceInput: 'var(--bg-surface-input)',
+          'surrface-bg': 'var(--bg-surface-bg)',
           'surface-main': 'var(--bg-surface-main)',
+          'surface-dropdown': 'var(--bg-surface-dropdown)',
+          'surface-card': 'var(--bg-surface-card)',
           'table-secondary': 'var(--bg-table-secondary)',
           'blue-secondary': 'var(--bg-blue-secondary)',
+          'studio-surface': 'var(--bg-studio-surface)',
           bannerInformative: 'var(--bg-banner-informative)',
           tagGreen: 'var(--bg-tag-green)',
           tagLime: 'var(--bg-tag-lime)',
@@ -69,11 +71,17 @@ module.exports = {
       },
       borderColor: {
         theme: {
-          primary: 'var(--border-primary)'
+          primary: 'var(--border-primary)',
+          input: 'var(--border-input)',
+          focus: 'var(--border-focus)'
         }
       },
       colors: {
-        'blue-primary': '#375DAF'
+        'blue-primary': 'var(--blue-primary)'
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        figtree: ['Figtree', 'sans-serif']
       }
     }
   },

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,15 +14,17 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { AssetExt, FileToAssetExt } from '@ir-engine/common/src/constants/AssetType'
 import {
   Engine,
   Entity,
@@ -32,20 +34,20 @@ import {
   defineSystem,
   getComponent,
   getOptionalComponent,
-  removeEntity,
+  removeComponent,
   setComponent,
-  useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs'
-import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { entityJSONToGLTFNode } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
-import { createSceneEntity } from '@etherealengine/engine/src/scene/functions/createSceneEntity'
-import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { toEntityJson } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+} from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { useEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { entityJSONToGLTFNode } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
+import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
+import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
+import { toEntityJson } from '@ir-engine/engine/src/scene/functions/serializeWorld'
 import {
   NO_PROXY,
   defineState,
@@ -54,19 +56,20 @@ import {
   getState,
   useHookstate,
   useState
-} from '@etherealengine/hyperflux'
-import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { HolographicMaterial } from '@etherealengine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
-import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
+import { MouseScroll } from '@ir-engine/spatial/src/input/state/ButtonState'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { HolographicMaterial } from '@ir-engine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
 import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -80,12 +83,30 @@ export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
   initial: {
     placementEntity: UndefinedEntity as Entity,
-    selectedAsset: undefined as undefined | string,
+    selectedAsset: '',
     yawOffset: 0,
     pitchOffset: 0,
     rollOffset: 0,
     maxDistance: 25,
     materialCache: [] as [Mesh, Material][]
+  },
+  setSelectedAsset: (src: string) => {
+    const assetExt = FileToAssetExt(src)
+    if (assetExt && (assetExt === AssetExt.GLTF || assetExt === AssetExt.GLB))
+      getMutableState(ClickPlacementState).selectedAsset.set(src)
+    else {
+      // If in click placement mode and non-placeable asset was selected, show warning
+      if (getState(EditorHelperState).placementMode === PlacementMode.CLICK) {
+        ClickPlacementState.assetError()
+      } else ClickPlacementState.resetSelectedAsset()
+    }
+  },
+  resetSelectedAsset: () => {
+    getMutableState(ClickPlacementState).selectedAsset.set('')
+  },
+  assetError: () => {
+    NotificationService.dispatchNotify('Selected asset is not valid for click placement', { variant: 'warning' })
+    ClickPlacementState.resetSelectedAsset()
   }
 })
 
@@ -93,7 +114,8 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   const { parentEntity } = props
   const clickState = useState(getMutableState(ClickPlacementState))
   const editorState = useState(getMutableState(EditorHelperState))
-  const gltfComponent = useComponent(parentEntity, GLTFComponent)
+  const sceneLoaded = GLTFComponent.useSceneLoaded(parentEntity)
+  const errors = useEntityErrors(clickState.placementEntity.value, ModelComponent)
 
   // const renderers = defineQuery([RendererComponent])
 
@@ -109,7 +131,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   // }, [editorState.placementMode])
 
   useEffect(() => {
-    if (gltfComponent.progress.value < 100) return
+    if (!sceneLoaded) return
     if (editorState.placementMode.value === PlacementMode.CLICK) {
       SelectionState.updateSelection([])
       if (clickState.placementEntity.value) return
@@ -120,19 +142,23 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
         (uuid) => uuid !== getComponent(clickState.placementEntity.value, UUIDComponent)
       )
       EditorControlFunctions.removeObject([clickState.placementEntity.value])
-      removeEntity(clickState.placementEntity.value)
       clickState.placementEntity.set(UndefinedEntity)
       SelectionState.updateSelection(selectedEntities)
     }
-  }, [editorState.placementMode, gltfComponent.progress])
+  }, [editorState.placementMode, sceneLoaded])
 
   useEffect(() => {
-    if (!clickState.selectedAsset.value || !clickState.placementEntity.value) return
-    const assetURL = clickState.selectedAsset.get(NO_PROXY)!
+    if (!clickState.placementEntity.value) return
+    const assetURL = clickState.selectedAsset.get(NO_PROXY)
     const placementEntity = clickState.placementEntity.value
     if (getComponent(placementEntity, ModelComponent)?.src === assetURL) return
     updatePlacementEntitySnapshot(placementEntity)
   }, [clickState.selectedAsset, clickState.placementEntity])
+
+  useEffect(() => {
+    if (!errors || !errors.value) return
+    ClickPlacementState.assetError()
+  }, [errors])
 
   return (
     <PlacementModelReactor key={clickState.placementEntity.value} placementEntity={clickState.placementEntity.value} />
@@ -167,7 +193,10 @@ const getParentEntity = () => {
 }
 
 const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
-  setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  const selectedAsset = getState(ClickPlacementState).selectedAsset
+  if (selectedAsset) setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  else removeComponent(placementEntity, ModelComponent)
+
   const sceneID = getComponent(placementEntity, SourceComponent)
   const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   const uuid = getComponent(placementEntity, UUIDComponent)
@@ -230,7 +259,7 @@ const clickListener = () => {
 
 export const ClickPlacementSystem = defineSystem({
   uuid: 'ee.studio.ClickPlacementSystem',
-  insert: { before: TransformSystem },
+  insert: { after: TransformDirtyCleanupSystem },
   reactor: () => {
     const parentEntity = useHookstate(getMutableState(EditorState)).rootEntity
 
@@ -245,6 +274,10 @@ export const ClickPlacementSystem = defineSystem({
     const placementEntity = clickState.placementEntity
     if (!placementEntity) return
 
+    const editorEntity = getState(EditorState).rootEntity
+    const physicsWorld = Physics.getWorld(editorEntity)
+    if (!physicsWorld) return
+
     //@todo: fix type of `typeof GroupComponent`
     const sceneObjects: any[] = []
     const candidates = objectLayerQuery()
@@ -255,8 +288,6 @@ export const ClickPlacementSystem = defineSystem({
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const pointerScreenRaycaster = new Raycaster()
-
-    const physicsWorld = getState(PhysicsState).physicsWorld
 
     let intersectEntity: Entity = UndefinedEntity
     let targetIntersection: { point: Vector3; normal: Vector3 } | null = null

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and
 provide for limited attribution for the Original Developer. In addition,
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AuthenticationResult } from '@feathersjs/authentication'
@@ -29,9 +29,10 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
-import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
-import multiLogger from '@etherealengine/common/src/logger'
+import { API } from '@ir-engine/common/src/API'
+import config, { validateEmail, validatePhoneNumber } from '@ir-engine/common/src/config'
+import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/AuthUser'
+import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
   AvatarID,
@@ -56,17 +57,15 @@ import {
   userAvatarPath,
   userPath,
   userSettingPath
-} from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+} from '@ir-engine/common/src/schema.type.module'
 import {
+  HyperFlux,
   defineState,
   getMutableState,
   getState,
   syncStateWithLocalStorage,
   useHookstate
-} from '@etherealengine/hyperflux'
-
-import { API } from '../../API'
+} from '@ir-engine/hyperflux'
 import { NotificationService } from '../../common/services/NotificationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
@@ -96,6 +95,7 @@ export const UserSeed: UserType = {
     createdAt: '',
     updatedAt: ''
   },
+  acceptedTOS: false,
   userSetting: {
     id: '' as UserSettingID,
     themeModes: {},
@@ -108,9 +108,16 @@ export const UserSeed: UserType = {
   locationAdmins: [],
   locationBans: [],
   instanceAttendance: [],
+  lastLogin: {
+    id: '',
+    ipAddress: '',
+    userAgent: '',
+    identityProviderId: '',
+    userId: '' as UserID,
+    createdAt: ''
+  },
   createdAt: '',
-  updatedAt: '',
-  lastLogin: null
+  updatedAt: ''
 }
 
 const resolveWalletUser = (credentials: any): UserType => {
@@ -146,6 +153,10 @@ export interface EmailRegistrationForm {
   password: string
 }
 
+export interface AppleLoginForm {
+  email: string
+}
+
 export interface GithubLoginForm {
   email: string
 }
@@ -159,16 +170,16 @@ export interface LinkedInLoginForm {
  */
 async function _resetToGuestToken(options = { reset: true }) {
   if (options.reset) {
-    await API.instance.client.authentication.reset()
+    await API.instance.authentication.reset()
   }
-  const newProvider = await Engine.instance.api.service(identityProviderPath).create({
+  const newProvider = await API.instance.service(identityProviderPath).create({
     type: 'guest',
     token: uuidv4(),
     userId: '' as UserID
   })
   const accessToken = newProvider.accessToken!
   console.log(`Created new guest accessToken: ${accessToken}`)
-  await API.instance.client.authentication.setAccessToken(accessToken as string)
+  await API.instance.authentication.setAccessToken(accessToken as string)
   return accessToken
 }
 
@@ -184,22 +195,22 @@ export const AuthService = {
       const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) {
-        await API.instance.client.authentication.reset()
+        await API.instance.authentication.reset()
       }
       if (accessToken) {
-        await API.instance.client.authentication.setAccessToken(accessToken as string)
+        await API.instance.authentication.setAccessToken(accessToken as string)
       } else {
         await _resetToGuestToken({ reset: false })
       }
 
       let res: AuthenticationResult
       try {
-        res = await API.instance.client.reAuthenticate()
+        res = await API.instance.reAuthenticate()
       } catch (err) {
         if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
           authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
-          res = await API.instance.client.reAuthenticate()
+          res = await API.instance.reAuthenticate()
         } else {
           logger.error(err, 'Error re-authenticating')
           throw err
@@ -211,7 +222,7 @@ export const AuthService = {
         if (!identityProvider?.id) {
           authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
-          res = await API.instance.client.reAuthenticate()
+          res = await API.instance.reAuthenticate()
         }
         const authUser = resolveAuthUser(res)
         // authUser is now { accessToken, authentication, identityProvider }
@@ -232,7 +243,7 @@ export const AuthService = {
 
   async loadUserData(userId: UserID) {
     try {
-      const client = API.instance.client
+      const client = API.instance
       const user = await client.service(userPath).get(userId)
       if (!user.userSetting) {
         const settingsRes = (await client
@@ -247,16 +258,19 @@ export const AuthService = {
       }
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
-      NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
+      NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
     }
   },
 
   async loginUserByPassword(form: EmailLoginForm) {
     // check email validation.
     if (!validateEmail(form.email)) {
-      NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
-        variant: 'error'
-      })
+      NotificationService.dispatchNotify(
+        i18n.t('common:error.validation-error', { type: 'email address' }).toString(),
+        {
+          variant: 'error'
+        }
+      )
 
       return
     }
@@ -264,7 +278,7 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
 
     try {
-      const authenticationResult = await API.instance.client.authenticate({
+      const authenticationResult = await API.instance.authenticate({
         strategy: 'local',
         email: form.email,
         password: form.password
@@ -303,41 +317,41 @@ export const AuthService = {
    *
    * @param vprResult {object} - VPR Query result from a user's wallet.
    */
-  async loginUserByXRWallet(vprResult: any) {
-    const authState = getMutableState(AuthState)
-    try {
-      authState.merge({ isProcessing: true, error: '' })
+  // async loginUserByXRWallet(vprResult: any) {
+  //   const authState = getMutableState(AuthState)
+  //   try {
+  //     authState.merge({ isProcessing: true, error: '' })
 
-      const credentials: any = parseUserWalletCredentials(vprResult)
-      console.log(credentials)
+  //     const credentials: any = parseUserWalletCredentials(vprResult)
+  //     console.log(credentials)
 
-      const walletUser = resolveWalletUser(credentials)
-      const authUser = {
-        accessToken: '',
-        authentication: { strategy: 'did-auth' },
-        identityProvider: {
-          id: '',
-          token: '',
-          type: 'didWallet',
-          userId: walletUser.id,
-          createdAt: '',
-          updatedAt: ''
-        }
-      }
+  //     const walletUser = resolveWalletUser(credentials)
+  //     const authUser = {
+  //       accessToken: '',
+  //       authentication: { strategy: 'did-auth' },
+  //       identityProvider: {
+  //         id: '',
+  //         token: '',
+  //         type: 'didWallet',
+  //         userId: walletUser.id,
+  //         createdAt: '',
+  //         updatedAt: ''
+  //       }
+  //     }
 
-      // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = authState.user.id.value
-      walletUser.id = oldId
+  //     // TODO: This is temp until we move completely to XR wallet #6453
+  //     const oldId = authState.user.id.value
+  //     walletUser.id = oldId
 
-      // loadXRAvatarForUpdatedUser(walletUser)
-      authState.merge({ isLoggedIn: true, user: walletUser, authUser })
-    } catch (err) {
-      authState.merge({ error: i18n.t('common:error.login-error') })
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
+  //     // loadXRAvatarForUpdatedUser(walletUser)
+  //     authState.merge({ isLoggedIn: true, user: walletUser, authUser })
+  //   } catch (err) {
+  //     authState.merge({ error: i18n.t('common:error.login-error') })
+  //     NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  //   } finally {
+  //     authState.merge({ isProcessing: false, error: '' })
+  //   }
+  // },
 
   /**
    * Logs in the current user based on an OAuth response.
@@ -364,24 +378,24 @@ export const AuthService = {
   },
 
   async removeUserOAuth(service: string) {
-    const ipResult = (await Engine.instance.api.service(identityProviderPath).find()) as Paginated<IdentityProviderType>
+    const ipResult = (await API.instance.service(identityProviderPath).find()) as Paginated<IdentityProviderType>
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
         NotificationService.dispatchNotify('You can not remove your last login method.', { variant: 'warning' })
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
-        const newTokenResult = await Engine.instance.api.service(generateTokenPath).create({
+        const newTokenResult = await API.instance.service(generateTokenPath).create({
           type: otherIp!.type,
           token: otherIp!.token
         })
 
         if (newTokenResult?.token) {
           getMutableState(AuthState).merge({ isProcessing: true, error: '' })
-          await API.instance.client.authentication.setAccessToken(newTokenResult.token)
-          const res = await API.instance.client.reAuthenticate(true)
+          await API.instance.authentication.setAccessToken(newTokenResult.token)
+          const res = await API.instance.reAuthenticate(true)
           const authUser = resolveAuthUser(res)
-          await Engine.instance.api.service(identityProviderPath).remove(ipToRemove.id)
+          await API.instance.service(identityProviderPath).remove(ipToRemove.id)
           const authState = getMutableState(AuthState)
           authState.merge({ authUser })
           await AuthService.loadUserData(authUser.identityProvider.userId)
@@ -395,8 +409,8 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      await API.instance.client.authentication.setAccessToken(accessToken as string)
-      const res = await API.instance.client.authenticate({
+      await API.instance.authentication.setAccessToken(accessToken as string)
+      const res = await API.instance.authenticate({
         strategy: 'jwt',
         accessToken
       })
@@ -432,7 +446,7 @@ export const AuthService = {
 
   async loginUserMagicLink(token, redirectSuccess, redirectError) {
     try {
-      const res = await Engine.instance.api.service(loginPath).get(token)
+      const res = await API.instance.service(loginPath).get(token)
       await AuthService.loginUserByJwt(res.token!, '/', '/')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -445,13 +459,13 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      await API.instance.client.logout()
+      await API.instance.logout()
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } catch (_) {
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
-      AuthService.doLoginAuto(true)
+      window.location.reload()
     }
   },
 
@@ -459,7 +473,7 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider: any = await Engine.instance.api.service(identityProviderPath).create({
+      const identityProvider: any = await API.instance.service(identityProviderPath).create({
         token: form.email,
         type: 'password',
         userId: '' as UserID
@@ -474,7 +488,12 @@ export const AuthService = {
     }
   },
 
-  async createMagicLink(emailPhone: string, authData: AuthStrategiesType, linkType?: 'email' | 'sms') {
+  async createMagicLink(
+    emailPhone: string,
+    authData: AuthStrategiesType,
+    linkType?: 'email' | 'sms',
+    redirectUrl?: string
+  ) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -495,9 +514,12 @@ export const AuthService = {
       const stripped = emailPhone.replace(/-/g, '')
       if (validatePhoneNumber(stripped)) {
         if (!enableSmsMagicLink) {
-          NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email address' }), {
-            variant: 'error'
-          })
+          NotificationService.dispatchNotify(
+            i18n.t('common:error.validation-error', { type: 'email address' }).toString(),
+            {
+              variant: 'error'
+            }
+          )
           return
         }
         type = 'sms'
@@ -505,30 +527,36 @@ export const AuthService = {
         emailPhone = '+1' + stripped
       } else if (validateEmail(emailPhone)) {
         if (!enableEmailMagicLink) {
-          NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'phone number' }), {
-            variant: 'error'
-          })
+          NotificationService.dispatchNotify(
+            i18n.t('common:error.validation-error', { type: 'phone number' }).toString(),
+            {
+              variant: 'error'
+            }
+          )
           return
         }
         type = 'email'
       } else {
-        NotificationService.dispatchNotify(i18n.t('common:error.validation-error', { type: 'email or phone number' }), {
-          variant: 'error'
-        })
+        NotificationService.dispatchNotify(
+          i18n.t('common:error.validation-error', { type: 'email or phone number' }).toString(),
+          {
+            variant: 'error'
+          }
+        )
         return
       }
     }
 
     try {
-      await Engine.instance.api
+      await API.instance
         .service(magicLinkPath)
-        .create({ type, [paramName]: emailPhone, accessToken: storedToken })
+        .create({ type, [paramName]: emailPhone, accessToken: storedToken, redirectUrl })
       const message = {
         email: 'email-sent-msg',
         sms: 'sms-sent-msg',
         default: 'success-msg'
       }
-      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`), {
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`).toString(), {
         variant: 'success'
       })
     } catch (err) {
@@ -544,7 +572,7 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
 
     try {
-      const identityProvider = await Engine.instance.api.service(identityProviderPath).create({
+      const identityProvider = await API.instance.service(identityProviderPath).create({
         token: form.email,
         type: 'password',
         userId: '' as UserID
@@ -562,13 +590,15 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
+      const identityProvider = (await API.instance.service(magicLinkPath).create({
         email,
         type: 'email',
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg'), { variant: 'success' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg').toString(), {
+          variant: 'success'
+        })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
@@ -588,13 +618,13 @@ export const AuthService = {
     }
 
     try {
-      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
+      const identityProvider = (await API.instance.service(magicLinkPath).create({
         mobile: sendPhone,
         type: 'sms',
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg'), { variant: 'error' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg').toString(), { variant: 'error' })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
@@ -605,7 +635,7 @@ export const AuthService = {
   },
 
   async addConnectionByOauth(
-    oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
+    oauth: 'apple' | 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: UserID
   ) {
     window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
@@ -614,7 +644,7 @@ export const AuthService = {
   async removeConnection(identityProviderId: number, userId: UserID) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
-      await Engine.instance.api.service(identityProviderPath).remove(identityProviderId)
+      await API.instance.service(identityProviderPath).remove(identityProviderId)
       return AuthService.loadUserData(userId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -628,30 +658,30 @@ export const AuthService = {
   },
 
   async updateUserSettings(id: UserSettingID, data: UserSettingPatch) {
-    const response = await Engine.instance.api.service(userSettingPath).patch(id, data)
+    const response = await API.instance.service(userSettingPath).patch(id, data)
     getMutableState(AuthState).user.userSetting.merge(response)
   },
 
   async removeUser(userId: UserID) {
-    await Engine.instance.api.service(userPath).remove(userId)
+    await API.instance.service(userPath).remove(userId)
     AuthService.logoutUser()
   },
 
   async updateApiKey() {
-    const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
+    const userApiKey = (await API.instance.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
 
     let apiKey: UserApiKeyType | undefined
     if (userApiKey.data.length > 0) {
-      apiKey = await Engine.instance.api.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
+      apiKey = await API.instance.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
     } else {
-      apiKey = await Engine.instance.api.service(userApiKeyPath).create({})
+      apiKey = await API.instance.service(userApiKeyPath).create({})
     }
 
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
   async createLoginToken() {
-    return Engine.instance.api.service(loginTokenPath).create({})
+    return API.instance.service(loginTokenPath).create({})
   },
 
   useAPIListeners: () => {
@@ -676,17 +706,17 @@ export const AuthService = {
         const selfUser = getMutableState(AuthState).user
 
         if (selfUser.id.value === userAvatar.userId) {
-          const user = await Engine.instance.api.service(userPath).get(userAvatar.userId)
+          const user = await API.instance.service(userPath).get(userAvatar.userId)
           getMutableState(AuthState).user.merge(user)
         }
       }
 
-      Engine.instance.api.service(userPath).on('patched', userPatchedListener)
-      Engine.instance.api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
+      API.instance.service(userPath).on('patched', userPatchedListener)
+      API.instance.service(userAvatarPath).on('patched', userAvatarPatchedListener)
 
       return () => {
-        Engine.instance.api.service(userPath).off('patched', userPatchedListener)
-        Engine.instance.api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
+        API.instance.service(userPath).off('patched', userPatchedListener)
+        API.instance.service(userAvatarPath).off('patched', userAvatarPatchedListener)
       }
     }, [])
   }
@@ -695,25 +725,25 @@ export const AuthService = {
 /**
  * @param vprResult {any} See `loginUserByXRWallet()`'s docstring.
  */
-function parseUserWalletCredentials(vprResult: any) {
-  console.log('PARSING:', vprResult)
+// function parseUserWalletCredentials(vprResult: any) {
+//   console.log('PARSING:', vprResult)
 
-  const {
-    data: { presentation: vp }
-  } = vprResult
-  const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
+//   const {
+//     data: { presentation: vp }
+//   } = vprResult
+//   const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
 
-  const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
+//   const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
 
-  return {
-    user: {
-      id: vp.holder,
-      displayName,
-      icon: displayIcon
-      // session // this will contain the access token and helper methods
-    }
-  }
-}
+//   return {
+//     user: {
+//       id: vp.holder,
+//       displayName,
+//       icon: displayIcon
+//       // session // this will contain the access token and helper methods
+//     }
+//   }
+// }
 
 /**
  * Parses the user's preferred display name (username) and avatar icon from the
@@ -742,7 +772,7 @@ export const useAuthenticated = () => {
   }, [])
 
   useEffect(() => {
-    Engine.instance.userID = authState.user.id.value
+    HyperFlux.store.userID = authState.user.id.value
   }, [authState.user.id])
 
   return authState.isLoggedIn.value

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
@@ -36,6 +36,8 @@ export const authenticationSettingMethods = ['find', 'patch'] as const
 export const authStrategiesSchema = Type.Object(
   {
     jwt: Type.Optional(Type.Boolean()),
+    apple: Type.Optional(Type.Boolean()),
+    discord: Type.Optional(Type.Boolean()),
     facebook: Type.Optional(Type.Boolean()),
     github: Type.Optional(Type.Boolean()),
     google: Type.Optional(Type.Boolean()),
@@ -68,6 +70,7 @@ export interface AuthBearerTokenType extends Static<typeof authBearerTokenSchema
 export const authCallbackSchema = Type.Object(
   {
     facebook: Type.String(),
+    apple: Type.String(),
     github: Type.String(),
     google: Type.String(),
     linkedin: Type.String(),
@@ -92,6 +95,8 @@ export const authAppCredentialsSchema = Type.Object(
     appId: Type.Optional(Type.String()),
     key: Type.String(),
     secret: Type.String(),
+    nonce: Type.Optional(Type.Boolean()),
+    response: Type.Optional(Type.Array(Type.String())),
     scope: Type.Optional(Type.Array(Type.String())),
     custom_params: Type.Optional(Type.Record(Type.String(), Type.String()))
   },
@@ -102,6 +107,7 @@ export interface AuthAppCredentialsType extends Static<typeof authAppCredentials
 export const authOauthSchema = Type.Object(
   {
     defaults: Type.Optional(Type.Ref(authDefaultsSchema)),
+    apple: Type.Optional(Type.Ref(authAppCredentialsSchema)),
     facebook: Type.Optional(Type.Ref(authAppCredentialsSchema)),
     github: Type.Optional(Type.Ref(authAppCredentialsSchema)),
     google: Type.Optional(Type.Ref(authAppCredentialsSchema)),

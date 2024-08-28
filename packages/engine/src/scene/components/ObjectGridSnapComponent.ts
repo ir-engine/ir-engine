@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,16 +14,16 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
+import { useDidMount } from '@ir-engine/common/src/utils/useDidMount'
 import {
   defineComponent,
   getComponent,
@@ -32,19 +32,24 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
-import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { getMutableState, useState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
+import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
+import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import {
+  EntityTreeComponent,
+  iterateEntityNode,
+  useChildrenWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
 import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { ModelComponent } from './ModelComponent'
@@ -165,6 +170,11 @@ export const BoundingBoxHelperComponent = defineComponent({
   }
 })
 
+const defaultMax = new Vector3(0.5, 0.5, 0.5)
+const originalPosition = new Vector3()
+const originalRotation = new Quaternion()
+const originalScale = new Vector3()
+
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
@@ -183,14 +193,12 @@ export const ObjectGridSnapComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
-    const modelComponent = useComponent(entity, ModelComponent)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
+    const modelComponent = useComponent(entity, ModelComponent)
+    const meshComponents = useChildrenWithComponents(entity, [MeshComponent])
 
     useEffect(() => {
       if (!modelComponent.scene.value) return
-      const originalPosition = new Vector3()
-      const originalRotation = new Quaternion()
-      const originalScale = new Vector3()
       const originalParent = getComponent(entity, EntityTreeComponent).parentEntity
       const transform = getComponent(entity, TransformComponent)
       transform.matrix.decompose(originalPosition, originalRotation, originalScale)
@@ -198,6 +206,7 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
       transform.matrixWorld.identity()
       TransformComponent.updateFromWorldMatrix(entity)
+
       const meshes: Mesh[] = []
       //iterate through children and update their transforms to reflect identity from parent
       iterateEntityNode(entity, (childEntity: Entity) => {
@@ -208,13 +217,15 @@ export const ObjectGridSnapComponent = defineComponent({
           }
         }
       })
+
       //compute bounding box
-      const bbox = new Box3()
+      const bbox = snapComponent.bbox.value.makeEmpty()
       if (meshes.length > 0) {
-        bbox.setFromObject(meshes[0])
-        for (let i = 1; i < meshes.length; i++) {
+        for (let i = 0; i < meshes.length; i++) {
           bbox.expandByObject(meshes[i])
         }
+      } else {
+        bbox.set(Vector3_Zero, defaultMax)
       }
 
       //set entity transform back to original
@@ -224,10 +235,12 @@ export const ObjectGridSnapComponent = defineComponent({
         rotation: originalRotation,
         scale: originalScale
       })
+
       iterateEntityNode(entity, computeTransformMatrix, (childEntity) => hasComponent(childEntity, TransformComponent))
+
       //set bounding box in component
       snapComponent.bbox.set(bbox)
-    }, [modelComponent.scene])
+    }, [modelComponent.scene, meshComponents])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return

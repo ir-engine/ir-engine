@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,30 +14,30 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiCloud } from 'react-icons/fi'
 
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
-import { SkyTypeEnum } from '@etherealengine/engine/src/scene/constants/SkyTypeEnum'
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
+import { SkyTypeEnum } from '@ir-engine/engine/src/scene/constants/SkyTypeEnum'
 
 import {
   EditorComponentType,
   commitProperties,
   commitProperty,
   updateProperty
-} from '@etherealengine/editor/src/components/properties/Util'
+} from '@ir-engine/editor/src/components/properties/Util'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
 import FolderInput from '../../input/Folder'
@@ -118,7 +118,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.inclination' as any)}
         />
       </InputGroup>
-      <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')}>
+      <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')} className="w-auto">
         <Slider
           min={0.001}
           max={1}
@@ -128,7 +128,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
         />
       </InputGroup>
-      <InputGroup name="Scattering Amount" label={t('editor:properties.skybox.lbl-scattering')}>
+      <InputGroup name="Scattering Amount" label={t('editor:properties.skybox.lbl-scattering')} className="w-auto">
         <Slider
           min={0}
           max={0.1}
@@ -138,7 +138,11 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
         />
       </InputGroup>
-      <InputGroup name="Scattering Distance" label={t('editor:properties.skybox.lbl-scatteringDistance')}>
+      <InputGroup
+        name="Scattering Distance"
+        label={t('editor:properties.skybox.lbl-scatteringDistance')}
+        className="w-auto"
+      >
         <Slider
           min={0}
           max={1}
@@ -148,7 +152,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
         />
       </InputGroup>
-      <InputGroup name="Horizon Start" label={t('editor:properties.skybox.lbl-horizonStart')}>
+      <InputGroup name="Horizon Start" label={t('editor:properties.skybox.lbl-horizonStart')} className="w-auto">
         <Slider
           min={1}
           max={20}
@@ -157,7 +161,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
         />
       </InputGroup>
-      <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')}>
+      <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')} className="w-auto">
         <Slider
           min={0}
           max={4}

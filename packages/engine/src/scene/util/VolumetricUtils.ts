@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,20 +14,20 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine, getComponent } from '@etherealengine/ecs'
-import { ImmutableArray, State, getState } from '@etherealengine/hyperflux'
-import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { Engine, getComponent } from '@ir-engine/ecs'
+import { ImmutableArray, State, getState } from '@ir-engine/hyperflux'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import {
   BufferGeometry,
   CompressedTexture,
@@ -667,7 +667,7 @@ interface handleAutoplayProps {
 
 export const handleMediaAutoplay = ({ audioContext, media, paused }: handleAutoplayProps) => {
   const attachEventListeners = () => {
-    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas!
     const playMedia = () => {
       media.play()
       audioContext.resume()
@@ -675,14 +675,14 @@ export const handleMediaAutoplay = ({ audioContext, media, paused }: handleAutop
       window.removeEventListener('pointerdown', playMedia)
       window.removeEventListener('keypress', playMedia)
       window.removeEventListener('touchstart', playMedia)
-      renderer.canvas.removeEventListener('pointerdown', playMedia)
-      renderer.canvas.removeEventListener('touchstart', playMedia)
+      canvas.removeEventListener('pointerdown', playMedia)
+      canvas.removeEventListener('touchstart', playMedia)
     }
     window.addEventListener('pointerdown', playMedia)
     window.addEventListener('keypress', playMedia)
     window.addEventListener('touchstart', playMedia)
-    renderer.canvas.addEventListener('pointerdown', playMedia)
-    renderer.canvas.addEventListener('touchstart', playMedia)
+    canvas.addEventListener('pointerdown', playMedia)
+    canvas.addEventListener('touchstart', playMedia)
   }
 
   // Try to play. If it fails, attach event listeners to play on user interaction

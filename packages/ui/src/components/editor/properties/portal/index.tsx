@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,39 +14,39 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
-import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   PortalComponent,
   PortalEffects,
   PortalPreviewTypes
-} from '@etherealengine/engine/src/scene/components/PortalComponent'
+} from '@ir-engine/engine/src/scene/components/PortalComponent'
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { UUIDComponent } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
   commitProperty,
   updateProperty
-} from '@etherealengine/editor/src/components/properties/Util'
-import { bakeEnvmapTexture, uploadCubemapBakeToServer } from '@etherealengine/editor/src/functions/uploadEnvMapBake'
-import { imageDataToBlob } from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
+} from '@ir-engine/editor/src/components/properties/Util'
+import { bakeEnvmapTexture, uploadCubemapBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
+import { imageDataToBlob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import { GiPortal } from 'react-icons/gi'
 import Button from '../../../../primitives/tailwind/Button'
 import EulerInput from '../../input/Euler'
@@ -61,8 +61,6 @@ type PortalOptions = {
   label: string
   value: string
 }
-
-const rotation = new Quaternion()
 
 /**
  * PortalNodeEditor provides the editor for properties of PortalNode.
@@ -117,10 +115,8 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     commitProperties(PortalComponent, { previewImageURL: url }, [props.entity])
   }
 
-  const changeSpawnRotation = (value: Euler) => {
-    rotation.setFromEuler(value)
-
-    commitProperties(PortalComponent, { spawnRotation: rotation })
+  const changeSpawnRotation = (value: Quaternion) => {
+    commitProperties(PortalComponent, { spawnRotation: value })
   }
 
   const changePreviewType = (val) => {
@@ -184,7 +180,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <div className="flex flex-col">
           <div className="flex w-auto flex-row gap-1">
             <Button
-              className="h-[30px] w-[100px] bg-neutral-700 text-xs font-normal text-zinc-300"
+              className="h-10 bg-neutral-700 text-xs"
               onClick={() => {
                 updateCubeMapBake()
               }}
@@ -192,10 +188,10 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
               {t('editor:properties.portal.lbl-generateImage')}
             </Button>
             <Button
-              className="h-[30px] w-[74px] bg-blue-800 text-xs font-normal text-neutral-400"
               onClick={() => {
                 uploadEnvmap()
               }}
+              className="h-10 text-xs"
             >
               {t('editor:properties.portal.lbl-saveImage')}
             </Button>
@@ -206,14 +202,14 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         previewOnly={true}
         value={state.previewImageURL.value ?? portalComponent.previewImageURL.value}
       />
-      <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
+      <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')} className="w-auto">
         <Vector3Input
           value={portalComponent.spawnPosition.value}
           onChange={updateProperty(PortalComponent, 'spawnPosition')}
           onRelease={commitProperty(PortalComponent, 'spawnPosition')}
         />
       </InputGroup>
-      <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>
+      <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')} className="w-auto">
         <EulerInput
           quaternion={portalComponent.spawnRotation.value}
           onChange={changeSpawnRotation}

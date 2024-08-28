@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,36 +14,40 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Vector2 } from 'three'
 
-import { Entity } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getState } from '@etherealengine/hyperflux'
-import { CameraSettings } from '@etherealengine/spatial/src/camera/CameraState'
-import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
-import { FollowCameraMode } from '@etherealengine/spatial/src/camera/types/FollowCameraMode'
-import { DefaultAxisAlias, InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { getThumbstickOrThumbpadAxes } from '@etherealengine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
-import { AxisValueMap } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { Entity } from '@ir-engine/ecs'
+import { getComponent, getMutableComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { CameraSettings } from '@ir-engine/spatial/src/camera/CameraState'
+import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
+import { setTargetCameraRotation } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
+import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
+import { DefaultAxisAlias, InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
+import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
+import { getThumbstickOrThumbpadAxes } from '@ir-engine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
+import { AxisValueMap } from '@ir-engine/spatial/src/input/state/ButtonState'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { XRState } from '@ir-engine/spatial/src/xr/XRState'
+import { useEffect } from 'react'
+import { EngineState } from '../../EngineState'
+import { TransformComponent } from '../../SpatialModule'
+import { Q_Y_180 } from '../../common/constants/MathConstants'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 
 // const throttleHandleCameraZoom = throttle(handleFollowCameraZoom, 30, { leading: true, trailing: false })
@@ -163,8 +167,34 @@ const execute = () => {
   }
 }
 
+const reactor = () => {
+  const xrSession = useMutableState(XRState).session.value
+
+  useEffect(() => {
+    if (!xrSession) return
+
+    const { localFloorEntity, viewerEntity } = getState(EngineState)
+
+    /**
+     * Upon entering a new XR session, we need to update the world origin to match the local floor.
+     */
+    const worldOriginTransform = getComponent(localFloorEntity, TransformComponent)
+    const cameraAttachedEntity = getOptionalComponent(viewerEntity, FollowCameraComponent)?.targetEntity || viewerEntity
+    const transform = getComponent(cameraAttachedEntity, TransformComponent)
+
+    /**
+     * Since the world origin is based on gamepad movement, we need to transform it by the pose of Whatever the camera is currently following
+     */
+    worldOriginTransform.position.copy(transform.position)
+    worldOriginTransform.rotation.copy(transform.rotation).multiply(Q_Y_180)
+  }, [xrSession])
+
+  return null
+}
+
 export const FollowCameraInputSystem = defineSystem({
   uuid: 'ee.engine.FollowCameraInputSystem',
   insert: { after: InputSystemGroup },
-  execute
+  execute,
+  reactor
 })

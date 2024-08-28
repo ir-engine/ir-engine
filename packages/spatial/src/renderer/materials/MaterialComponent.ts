@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Material, Shader, WebGLRenderer } from 'three'
@@ -32,14 +32,14 @@ import {
   defineQuery,
   getComponent,
   getMutableComponent
-} from '@etherealengine/ecs'
-import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+} from '@ir-engine/ecs'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { v4 as uuidv4 } from 'uuid'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPlugin } from './constants/plugins/TransparencyDitheringComponent'
-import { assignMaterial } from './materialFunctions'
+import { setMeshMaterial } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -112,11 +112,8 @@ export const MaterialStateComponent = defineComponent({
 
   onRemove: (entity) => {
     const materialComponent = getComponent(entity, MaterialStateComponent)
-    for (const entity of materialComponent.instances) {
-      const instanceComponent = getMutableComponent(entity, MaterialInstanceComponent)
-      const index = instanceComponent.uuid.value.indexOf(getComponent(entity, UUIDComponent))
-      if (index != -1)
-        assignMaterial(entity, UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterial), index)
+    for (const instanceEntity of materialComponent.instances) {
+      setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
     }
   }
 })

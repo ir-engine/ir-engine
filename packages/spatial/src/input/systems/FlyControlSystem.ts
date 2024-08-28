@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { MathUtils, Quaternion, Vector3 } from 'three'
@@ -36,8 +36,8 @@ import {
   InputSystemGroup,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
@@ -83,22 +83,23 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
   const inputSourceEntities = inputSourceQuery()
-  const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
 
   /** Since we have nothing that specifies whether we should use orbit/fly controls or not, just tie it to the camera orbit component for the studio */
   for (const entity of cameraQuery()) {
-    const inputPointerEntity = InputPointerComponent.getPointersForCamera(entity)
-    if (!inputPointerEntity) continue
+    const inputPointerEntities = InputPointerComponent.getPointersForCamera(entity)
+    if (!inputPointerEntities) continue
     if (hasComponent(entity, CameraOrbitComponent)) {
+      const buttons = InputComponent.getMergedButtonsForInputSources(inputPointerEntities)
       if (buttons.SecondaryClick?.down) onSecondaryClick(entity)
       if (buttons.SecondaryClick?.up) onSecondaryReleased(entity)
     }
   }
 
   for (const entity of flyControlQuery()) {
+    const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
+
     const flyControlComponent = getComponent(entity, FlyControlComponent)
     const transform = getComponent(entity, TransformComponent)
-    const input = getComponent(entity, InputComponent)
 
     movement.copy(Vector3_Zero)
     for (const inputSourceEntity of inputSourceEntities) {
@@ -109,8 +110,6 @@ const execute = () => {
         movement.y += pointer.movement.y
       }
     }
-
-    const hasMovement = movement.lengthSq() > EPSILON
 
     // rotate about the camera's local x axis
     candidateWorldQuat.multiplyQuaternions(

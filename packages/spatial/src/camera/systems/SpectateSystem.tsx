@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,28 +14,29 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { MathUtils } from 'three'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   Engine,
   EntityUUID,
   getComponent,
   getOptionalComponent,
+  matchesEntityUUID,
   removeComponent,
   setComponent,
   UUIDComponent
-} from '@etherealengine/ecs'
+} from '@ir-engine/ecs'
 import {
   defineAction,
   defineState,
@@ -44,19 +45,19 @@ import {
   none,
   useHookstate,
   useMutableState
-} from '@etherealengine/hyperflux'
-import { matchesUserID, NetworkObjectComponent, NetworkTopics, WorldNetworkAction } from '@etherealengine/network'
+} from '@ir-engine/hyperflux'
+import { matchesUserID, NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
 
+import { EngineState } from '../../EngineState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraComponent } from '../components/CameraComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
 export class SpectateActions {
   static spectateEntity = defineAction({
     type: 'ee.engine.Engine.SPECTATE_USER' as const,
     spectatorUserID: matchesUserID,
-    spectatingUserID: matchesUserID.optional(),
+    spectatingEntity: matchesEntityUUID.optional(),
     $topic: NetworkTopics.world
   })
 
@@ -69,12 +70,12 @@ export class SpectateActions {
 
 export const SpectateEntityState = defineState({
   name: 'SpectateEntityState',
-  initial: {} as Record<UserID, { spectating?: UserID }>,
+  initial: {} as Record<UserID, { spectating?: EntityUUID }>,
 
   receptors: {
     onSpectateUser: SpectateActions.spectateEntity.receive((action) => {
       getMutableState(SpectateEntityState)[action.spectatorUserID].set({
-        spectating: action.spectatingUserID as UserID | undefined
+        spectating: action.spectatingEntity as EntityUUID | undefined
       })
     }),
     onEntityDestroy: WorldNetworkAction.destroyEntity.receive((action) => {
@@ -105,27 +106,9 @@ const SpectatorReactor = () => {
   const state = useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID])
 
   useEffect(() => {
-    const cameraEntity = Engine.instance.viewerEntity
+    const cameraEntity = getState(EngineState).viewerEntity
 
-    if (state.spectating.value) {
-      const cameraTransform = getComponent(cameraEntity, TransformComponent)
-      const networkCameraEntity = NetworkObjectComponent.getOwnedNetworkObjectWithComponent(
-        state.spectating.value,
-        CameraComponent
-      )
-      setComponent(cameraEntity, ComputedTransformComponent, {
-        referenceEntities: [networkCameraEntity],
-        computeFunction: () => {
-          const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
-          if (!networkTransform) return
-          cameraTransform.position.copy(networkTransform.position)
-          cameraTransform.rotation.copy(networkTransform.rotation)
-        }
-      })
-      return () => {
-        removeComponent(cameraEntity, ComputedTransformComponent)
-      }
-    } else {
+    if (!state.spectating.value) {
       setComponent(cameraEntity, FlyControlComponent, {
         boostSpeed: 4,
         moveSpeed: 4,
@@ -140,22 +123,21 @@ const SpectatorReactor = () => {
 
   if (!state.spectating.value) return null
 
-  return <SpectatingUserReactor key={state.spectating.value} userID={state.spectating.value} />
+  return <SpectatingUserReactor key={state.spectating.value} entityUUID={state.spectating.value} />
 }
 
-const SpectatingUserReactor = (props: { userID: UserID }) => {
-  /** @todo reevaluate if we should use the _camera suffix */
-  const networkCameraEntity = UUIDComponent.useEntityByUUID((props.userID + '_camera') as EntityUUID)
+const SpectatingUserReactor = (props: { entityUUID: EntityUUID }) => {
+  const spectateEntity = UUIDComponent.useEntityByUUID(props.entityUUID)
 
   useEffect(() => {
-    if (!networkCameraEntity) return
+    if (!spectateEntity) return
 
-    const cameraEntity = Engine.instance.viewerEntity
+    const cameraEntity = getState(EngineState).viewerEntity
     const cameraTransform = getComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, ComputedTransformComponent, {
-      referenceEntities: [networkCameraEntity],
+      referenceEntities: [spectateEntity],
       computeFunction: () => {
-        const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
+        const networkTransform = getOptionalComponent(spectateEntity, TransformComponent)
         if (!networkTransform) return
         cameraTransform.position.copy(networkTransform.position)
         cameraTransform.rotation.copy(networkTransform.rotation)
@@ -164,7 +146,7 @@ const SpectatingUserReactor = (props: { userID: UserID }) => {
     return () => {
       removeComponent(cameraEntity, ComputedTransformComponent)
     }
-  }, [networkCameraEntity])
+  }, [spectateEntity])
 
   return null
 }

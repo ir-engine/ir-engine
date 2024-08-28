@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,24 +14,25 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 import assert from 'assert'
 import {
   ABSOLUTE_URL_PROTOCOL_REGEX,
   ASSETS_REGEX,
+  BUILDER_CHART_REGEX,
   CSS_URL_REGEX,
   EMAIL_REGEX,
   GITHUB_URL_REGEX,
   INSTALLATION_SIGNED_REGEX,
-  INVALID_FILENAME_REGEX,
   INVITE_CODE_REGEX,
+  MAIN_CHART_REGEX,
   PHONE_REGEX,
   PROJECT_PUBLIC_REGEX,
   PROJECT_REGEX,
@@ -39,6 +40,8 @@ import {
   PUBLIC_SIGNED_REGEX,
   STATIC_ASSET_REGEX,
   USER_ID_REGEX,
+  VALID_FILENAME_REGEX,
+  VALID_HEIRARCHY_SEARCH_REGEX,
   VALID_PROJECT_NAME,
   VALID_SCENE_NAME_REGEX,
   WINDOWS_RESERVED_NAME_REGEX
@@ -46,7 +49,7 @@ import {
 
 describe('regex.test', () => {
   describe('INVALID_FILENAME_REGEX', () => {
-    it('should match invalid filenames', () => {
+    it('should not match invalid filenames', () => {
       const invalidFilenames = [
         'hello_world',
         'file<name',
@@ -57,15 +60,23 @@ describe('regex.test', () => {
         'question?mark',
         'asterisk*char',
         'control\0char',
-        'another\ncontrol'
+        'another\ncontrol',
+        'file name',
+        '< tag >',
+        'key : value',
+        'quote " example',
+        'path / to / file',
+        'C:\\ path \\ to \\ file',
+        'pipe | character',
+        'question ? mark',
+        'star * char'
       ]
       invalidFilenames.forEach((filename) => {
-        assert.ok(INVALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be invalid`)
-        INVALID_FILENAME_REGEX.lastIndex = 0
+        assert.ok(!VALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be invalid`)
       })
     })
 
-    it('should not match valid filenames', () => {
+    it('should match valid filenames', () => {
       const validFilenames = [
         'helloworld',
         'filename',
@@ -79,8 +90,37 @@ describe('regex.test', () => {
         'anothercontrol'
       ]
       validFilenames.forEach((filename) => {
-        assert.ok(!INVALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be valid`)
-        INVALID_FILENAME_REGEX.lastIndex = 0
+        assert.ok(VALID_FILENAME_REGEX.test(filename), `Expected '${filename}' to be valid`)
+      })
+    })
+  })
+
+  describe('HEIRARCHY_SEARCH_REPLACE_REGEX', () => {
+    it('should replace special characters in search', () => {
+      const escapeSpecialChars = (input) => {
+        return input.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
+      }
+
+      const testCases = [
+        { input: 'a.b', expected: 'a\\.b' },
+        { input: 'a*b', expected: 'a\\*b' },
+        { input: 'a+b', expected: 'a\\+b' },
+        { input: 'a?b', expected: 'a\\?b' },
+        { input: '^a', expected: '\\^a' },
+        { input: 'a$b', expected: 'a\\$b' },
+        { input: '(a)', expected: '\\(a\\)' },
+        { input: 'a|b', expected: 'a\\|b' },
+        { input: '[a]', expected: '\\[a\\]' },
+        { input: 'a\\b', expected: 'a\\\\b' },
+        { input: 'a.b*c+?^${}()|[]\\', expected: 'a\\.b\\*c\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\' },
+        { input: 'abc', expected: 'abc' }
+      ]
+
+      testCases.forEach(({ input, expected }) => {
+        it(`should escape special characters in "${input}" correctly`, function () {
+          const escaped = escapeSpecialChars(input)
+          assert.equal(escaped, expected, `Expected escaped ${input} string to match expected ${expected} value`)
+        })
       })
     })
   })
@@ -159,10 +199,18 @@ describe('regex.test', () => {
       ]
 
       positiveCases.forEach(({ source, urlResource }) => {
-        const match = CSS_URL_REGEX.exec(source)
-        assert.ok(match, `Expected '${source}' to match CSS_URL_REGEX`)
-        assert.equal(match?.[2] ?? match?.[3], urlResource, `Expected URL resource: ${urlResource} in '${source}'`)
-        CSS_URL_REGEX.lastIndex = 0 // reset the regex (important for patterns with global flag)
+        const matches = source.matchAll(CSS_URL_REGEX)
+
+        const matchesArray = Array.from(matches)
+        assert.ok(matchesArray.length > 0, `Expected '${source}' to match CSS_URL_REGEX`)
+
+        for (const match of matchesArray) {
+          assert.equal(
+            match[2] ?? match[3],
+            urlResource,
+            `Expected URL resource: ${urlResource} in '${source}'. Found ${match[2] ?? match[3]}`
+          )
+        }
       })
     })
 
@@ -175,7 +223,9 @@ describe('regex.test', () => {
       ]
 
       negativeCases.forEach((source) => {
-        assert.ok(!CSS_URL_REGEX.test(source), `Expected '${source}' to not match CSS_URL_REGEX`)
+        const matches = source.matchAll(CSS_URL_REGEX)
+        const matchesArray = Array.from(matches)
+        assert.ok(matchesArray.length === 0, `Expected '${source}' to not match CSS_URL_REGEX`)
       })
     })
   })
@@ -202,31 +252,36 @@ describe('regex.test', () => {
     it('should match static asset URLs', () => {
       const positiveCases = [
         {
-          url: 'https://example.com/projects/default-project/assets/images/logo.png',
+          url: 'https://example.com/projects/ir-engine/default-project/assets/images/logo.png',
+          orgName: 'ir-engine',
           projectName: 'default-project',
           assetPath: 'assets/images/logo.png'
         },
         {
-          url: 'https://example.com/static-resources/default-project/assets/images/logo.png',
+          url: 'https://example.com/static-resources/ir-engine/default-project/assets/images/logo.png',
+          orgName: 'ir-engine',
           projectName: 'default-project',
           assetPath: 'assets/images/logo.png'
         },
         {
-          url: 'https://example.com/projects/default-project/assets/animations/emotes.glb',
+          url: 'https://example.com/projects/ir-engine/default-project/assets/animations/emotes.glb',
+          orgName: 'ir-engine',
           projectName: 'default-project',
           assetPath: 'assets/animations/emotes.glb'
         },
         {
-          url: 'https://example.com/projects/default-project/assets/animations/locomotion.glb',
+          url: 'https://example.com/projects/ir-engine/default-project/assets/animations/locomotion.glb',
+          orgName: 'ir-engine',
           projectName: 'default-project',
           assetPath: 'assets/animations/locomotion.glb'
         }
       ]
-      positiveCases.forEach(({ url, projectName, assetPath }) => {
+      positiveCases.forEach(({ url, orgName, projectName, assetPath }) => {
         const match = STATIC_ASSET_REGEX.exec(url)
         assert.ok(match, `Expected '${url}' to match STATIC_ASSET_REGEX`)
-        assert.equal(match?.[1], projectName, `Expected project name '${projectName}' in '${url}'. Found ${match?.[1]}`)
-        assert.equal(match?.[2], assetPath, `Expected asset path '${assetPath}' in '${url}'. Found ${match?.[2]}`)
+        assert.equal(match?.[1], orgName, `Expected org name name '${orgName}' in '${url}'. Found ${match?.[1]}`)
+        assert.equal(match?.[2], projectName, `Expected project name '${projectName}' in '${url}'. Found ${match?.[2]}`)
+        assert.equal(match?.[3], assetPath, `Expected asset path '${assetPath}' in '${url}'. Found ${match?.[3]}`)
       })
     })
 
@@ -234,7 +289,7 @@ describe('regex.test', () => {
       const negativeCases = [
         'https://example.com/static-resources/',
         'https://example.com/project/subdir/assets',
-        'https://example.com/default-project/assets/animations/emotes.glb'
+        'https://example.com/ir-engine/default-project/assets/animations/emotes.glb'
       ]
       negativeCases.forEach((url) => {
         assert.doesNotMatch(url, STATIC_ASSET_REGEX, `Expected '${url}' to not match STATIC_ASSET_REGEX`)
@@ -531,9 +586,9 @@ describe('regex.test', () => {
   describe('ASSETS_REGEX', () => {
     it('should match assets URLs', () => {
       const positiveCases = [
-        'https://example.com/projects/default-project/assets/images/logo.png',
-        'https://example.com/projects/default-project/assets/animations/emotes.glb',
-        'https://example.com/projects/default-project/assets/animations/locomotion.glb'
+        'https://example.com/projects/ir-engine/default-project/assets/images/logo.png',
+        'https://example.com/projects/ir-engine/default-project/assets/animations/emotes.glb',
+        'https://example.com/projects/ir-engine/default-project/assets/animations/locomotion.glb'
       ]
       positiveCases.forEach((url) => {
         assert.match(url, ASSETS_REGEX, `Expected '${url}' to match ASSETS_REGEX`)
@@ -542,9 +597,9 @@ describe('regex.test', () => {
 
     it('should not match non-assets URLs', () => {
       const negativeCases = [
-        'https://example.com/projects/default-project/scene.json',
-        'https://example.com/projects/default-project/assets',
-        'https://example.com/default-project/assets/animations/emotes.glb'
+        'https://example.com/projects/ir-engine/default-project/scene.json',
+        'https://example.com/projects/ir-engine/default-project/assets',
+        'https://example.com/ir-engine/default-project/assets/animations/emotes.glb'
       ]
       negativeCases.forEach((url) => {
         assert.doesNotMatch(url, ASSETS_REGEX, `Expected '${url}' to not match ASSETS_REGEX`)
@@ -555,9 +610,9 @@ describe('regex.test', () => {
   describe('PROJECT_REGEX', () => {
     it('should match valid project paths', () => {
       const positiveCases = [
-        'projects/project123',
-        'projects/project-name',
-        'projects/project_name',
+        'projects/ir-engine/project123',
+        'projects/ir-engine/project-name',
+        'projects/ir-engine/project_name',
         'projects/project/123',
         'projects/project/abc_def'
       ]
@@ -580,9 +635,9 @@ describe('regex.test', () => {
   describe('PROJECT_PUBLIC_REGEX', () => {
     it('should match valid project paths', () => {
       const positiveCases = [
-        'projects/project123/public/',
-        'projects/project-name/public/',
-        'projects/project_name/public/',
+        'projects/ir-engine/project123/public/',
+        'projects/ir-engine/project-name/public/',
+        'projects/ir-engine/project_name/public/',
         'projects/project/123/public/',
         'projects/project/abc_def/public/'
       ]
@@ -593,10 +648,10 @@ describe('regex.test', () => {
 
     it('should not match invalid project paths', () => {
       const negativeCases = [
-        'projects/project123/public', // (missing trailing slash)
-        'projects/project-name/private/', // (incorrect folder private instead of public)
-        'projects/project$name/public/', // (contains invalid character $)
-        'projects/project-@name/public/', // (contains invalid character @)
+        'projects/ir-engine/project123/public', // (missing trailing slash)
+        'projects/ir-engine/project-name/private/', // (incorrect folder private instead of public)
+        'projects/ir-engine/project$name/public/', // (contains invalid character $)
+        'projects/ir-engine/project-@name/public/', // (contains invalid character @)
         'projects/' // (missing project name and /public/)
       ]
       negativeCases.forEach((value) => {
@@ -608,9 +663,9 @@ describe('regex.test', () => {
   describe('PROJECT_THUMBNAIL_REGEX', () => {
     it('should match valid project thumbnail paths', () => {
       const positiveCases = [
-        'projects/project123/thumbnails/',
-        'projects/project-name/thumbnails/',
-        'projects/project_name/thumbnails/',
+        'projects/ir-engine/project123/thumbnails/',
+        'projects/ir-engine/project-name/thumbnails/',
+        'projects/ir-engine/project_name/thumbnails/',
         'projects/project/123/thumbnails/',
         'projects/project/abc_def/thumbnails/'
       ]
@@ -621,10 +676,10 @@ describe('regex.test', () => {
 
     it('should not match invalid project thumbnail paths', () => {
       const negativeCases = [
-        'projects/project123/thumbnails', // (missing trailing slash)
-        'projects/project-name/private/', // (incorrect folder private instead of public)
-        'projects/project$name/thumbnails/', // (contains invalid character $)
-        'projects/project-@name/thumbnails/', // (contains invalid character @)
+        'projects/ir-engine/project123/thumbnails', // (missing trailing slash)
+        'projects/ir-engine/project-name/private/', // (incorrect folder private instead of public)
+        'projects/ir-engine/project$name/thumbnails/', // (contains invalid character $)
+        'projects/ir-engine/project-@name/thumbnails/', // (contains invalid character @)
         'projects/' // (missing project name and /thumbnail/)
       ]
       negativeCases.forEach((value) => {
@@ -659,6 +714,114 @@ describe('regex.test', () => {
       ]
       negativeCases.forEach((name) => {
         assert.doesNotMatch(name, VALID_PROJECT_NAME, `Expected '${name}' to not match VALID_PROJECT_NAME`)
+      })
+    })
+  })
+
+  describe('MAIN_CHART_REGEX', () => {
+    it('should match valid charts', () => {
+      const positiveCases = [
+        {
+          chart: 'ir-engine-1.0.0',
+          version: '1.0.0'
+        },
+        {
+          chart: 'ir-engine-10.11.12',
+          version: '10.11.12'
+        },
+        {
+          chart: 'ir-engine-123.456.789',
+          version: '123.456.789'
+        },
+        {
+          chart: 'ir-engine-0.0.1',
+          version: '0.0.1'
+        },
+        {
+          chart: 'ir-engine-9.99.999',
+          version: '9.99.999'
+        }
+      ]
+
+      positiveCases.forEach(({ chart, version }) => {
+        const matches = chart.matchAll(MAIN_CHART_REGEX)
+        const matchesArray = Array.from(matches)
+        assert.ok(matchesArray.length > 0, `Expected '${chart}' to match MAIN_CHART_REGEX`)
+
+        for (const match of matchesArray) {
+          assert.equal(match[1], version, `Expected version: ${version} in '${chart}'. Found ${match[1]}`)
+        }
+      })
+    })
+
+    it('should not match invalid charts', () => {
+      const negativeCases = [
+        'ir-engine-1.0', // only two groups of digits
+        'ir-engine-1.0.a', // non-digit character in version
+        'ir-engine-1.0_0', // underscore instead of period
+        'etheralengine-1.0.0', // misspelled prefix
+        'ir-engine 1.0.0', // space instead of hyphen
+        'ir-engine-.0.0', // missing first group of digits
+        '1.0.0-ir-engine' // version string not in the correct place
+      ]
+      negativeCases.forEach((chart) => {
+        const matches = chart.matchAll(MAIN_CHART_REGEX)
+        const matchesArray = Array.from(matches)
+        assert.ok(matchesArray.length === 0, `Expected '${chart}' to not match MAIN_CHART_REGEX`)
+      })
+    })
+  })
+
+  describe('BUILDER_CHART_REGEX', () => {
+    it('should match valid charts', () => {
+      const positiveCases = [
+        {
+          chart: 'ir-engine-builder-1.0.0',
+          version: '1.0.0'
+        },
+        {
+          chart: 'ir-engine-builder-10.11.12',
+          version: '10.11.12'
+        },
+        {
+          chart: 'ir-engine-builder-123.456.789',
+          version: '123.456.789'
+        },
+        {
+          chart: 'ir-engine-builder-0.0.1',
+          version: '0.0.1'
+        },
+        {
+          chart: 'ir-engine-builder-9.99.999',
+          version: '9.99.999'
+        }
+      ]
+
+      positiveCases.forEach(({ chart, version }) => {
+        const matches = chart.matchAll(BUILDER_CHART_REGEX)
+        const matchesArray = Array.from(matches)
+        assert.ok(matchesArray.length > 0, `Expected '${chart}' to match BUILDER_CHART_REGEX`)
+
+        for (const match of matchesArray) {
+          assert.equal(match[1], version, `Expected version: ${version} in '${chart}'. Found ${match[1]}`)
+        }
+      })
+    })
+
+    it('should not match invalid charts', () => {
+      const negativeCases = [
+        'ir-engine-builder-1.0', // only two groups of digits
+        'ir-engine-builder-1.0.a', // non-digit character in version
+        'ir-engine-builder-1.0_0', // underscore instead of period
+        'etheralengine-1.0.0', // misspelled prefix
+        'ir-engine-builder 1.0.0', // space instead of hyphen
+        'ir-engine-builder-.0.0', // missing first group of digits
+        '1.0.0-ir-engine-builder' // version string not in the correct place
+      ]
+      negativeCases.forEach((chart) => {
+        const matches = chart.matchAll(BUILDER_CHART_REGEX)
+        const matchesArray = Array.from(matches)
+        assert.ok(matchesArray.length === 0, `Expected '${chart}' to not match BUILDER_CHART_REGEX`)
       })
     })
   })

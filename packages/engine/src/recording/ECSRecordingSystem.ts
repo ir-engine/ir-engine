@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,28 +14,29 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { decode, encode } from 'msgpackr'
 import { PassThrough } from 'stream'
 import matches, { Validator } from 'ts-matches'
 
-import multiLogger from '@etherealengine/common/src/logger'
+import { API } from '@ir-engine/common'
+import multiLogger from '@ir-engine/common/src/logger'
 import {
   RecordingID,
   recordingPath,
   RecordingSchemaType,
   UserID,
   userPath
-} from '@etherealengine/common/src/schema.type.module'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+} from '@ir-engine/common/src/schema.type.module'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   defineSystem,
   ECSState,
@@ -44,14 +45,14 @@ import {
   getComponent,
   PresentationSystemGroup,
   UUIDComponent
-} from '@etherealengine/ecs'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+} from '@ir-engine/ecs'
+import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import {
   ECSDeserializer,
   ECSSerialization,
   ECSSerializer,
   SerializedChunk
-} from '@etherealengine/engine/src/recording/ECSSerializerSystem'
+} from '@ir-engine/engine/src/recording/ECSSerializerSystem'
 import {
   defineAction,
   defineActionQueue,
@@ -61,7 +62,7 @@ import {
   getState,
   PeerID,
   Topic
-} from '@etherealengine/hyperflux'
+} from '@ir-engine/hyperflux'
 import {
   addDataChannelHandler,
   DataChannelRegistryState,
@@ -77,9 +78,9 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType,
   WorldNetworkAction
-} from '@etherealengine/network'
-import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'
+} from '@ir-engine/network'
+import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
+import { PhysicsSerialization } from '@ir-engine/spatial/src/physics/PhysicsSerialization'
 
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
@@ -189,7 +190,7 @@ export const RecordingState = defineState({
         if (peerSchema.length) schema.peers[peerID] = peerSchema
       })
 
-      const recording = await Engine.instance.api.service(recordingPath).create({ schema: schema })
+      const recording = await API.instance.service(recordingPath).create({ schema: schema })
 
       if (recording.id) RecordingState.startRecording({ recordingID: recording.id })
     } catch (err) {
@@ -363,7 +364,7 @@ export const dispatchError = (error: string, targetPeer: PeerID, topic: Topic) =
 }
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
-  const api = Engine.instance.api
+  const api = API.instance
 
   const recording = await api.service(recordingPath).get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$peer, action.$topic)
@@ -488,7 +489,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 }
 
 export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActions.stopRecording>) => {
-  const api = Engine.instance.api
+  const api = API.instance
 
   const activeRecording = activeRecordings.get(action.recordingID)
   if (!activeRecording) return dispatchError('Recording not found', action.$peer, action.$topic)
@@ -534,7 +535,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 }
 
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
-  const api = Engine.instance.api
+  const api = API.instance
 
   const recording = await api.service(recordingPath).get(action.recordingID, { isInternal: true })
 
@@ -685,7 +686,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 }
 
 export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActions.stopPlayback>) => {
-  const api = Engine.instance.api
+  const api = API.instance
 
   const recording = await api.service(recordingPath).get(action.recordingID)
 
@@ -828,10 +829,7 @@ const execute = () => {
             for (const func of dataChannelFunctions) func(network, dataChannel, peerID, encodedData)
           }
         }
-        network.transport.bufferToAll(dataChannel, peerID, encodedData)
-        // for (const peerID of network.users[userId]) {
-        //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
-        // }
+        network.bufferToAll(dataChannel, peerID, encodedData)
       }
     }
     // }

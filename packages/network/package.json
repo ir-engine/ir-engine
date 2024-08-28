@@ -1,22 +1,23 @@
 {
-  "name": "@etherealengine/network",
+  "name": "@ir-engine/network",
   "version": "1.6.0",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Networking abstractions and APIs for the Ethereal Engine",
+  "description": "Networking abstractions and APIs for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "mocha --jobs 1"
   },
-  "repository": "http://github.com/etherealengine/etherealengine",
-  "author": "Ethereal Engine",
+  "repository": "http://github.com/ir-engine/ir-engine",
+  "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
-    "@etherealengine/common": "^1.6.0",
-    "@etherealengine/ecs": "^1.6.0",
-    "@etherealengine/hyperflux": "^1.6.0"
+    "@ir-engine/common": "^1.6.0",
+    "@ir-engine/ecs": "^1.6.0",
+    "three": "0.158.0",
+    "@ir-engine/hyperflux": "^1.6.0"
   },
   "devDependencies": {
     "@types/mocha": "10.0.1",

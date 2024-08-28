@@ -1,9 +1,9 @@
 {
-  "name": "@etherealengine/matchmaking",
+  "name": "@ir-engine/matchmaking",
   "version": "1.6.0",
   "author": {
-    "name": "Ethereal Engine Collective",
-    "email": "hello@etherealengine.org"
+    "name": "Infinite Reality Engine Collective",
+    "email": "hello@ir-engine.org"
   },
   "publishConfig": {
     "access": "public"
@@ -16,7 +16,7 @@
   "npmClient": "npm",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/etherealengine/etherealengine.git"
+    "url": "git+https://github.com/ir-engine/ir-engine.git"
   },
   "scripts": {
     "check-errors": "tsc --noemit",

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers/lib'
@@ -49,12 +49,12 @@ import {
   UserKickType,
   userPath,
   UserType
-} from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { getMutableState, getState, HyperFlux, Identifiable, State } from '@etherealengine/hyperflux'
+} from '@ir-engine/common/src/schema.type.module'
+import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { getMutableState, getState, HyperFlux, Identifiable, State } from '@ir-engine/hyperflux'
 import {
   addNetwork,
   NetworkConnectionParams,
@@ -62,18 +62,17 @@ import {
   NetworkState,
   NetworkTopics,
   updatePeers
-} from '@etherealengine/network'
-import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import { Application } from '@etherealengine/server-core/declarations'
-import config from '@etherealengine/server-core/src/appconfig'
-import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+} from '@ir-engine/network'
+import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
+import { Application } from '@ir-engine/server-core/declarations'
+import config from '@ir-engine/server-core/src/appconfig'
+import multiLogger from '@ir-engine/server-core/src/ServerLogger'
+import { ServerState } from '@ir-engine/server-core/src/ServerState'
+import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
 
 import './InstanceServerModule'
 
-import { initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -114,10 +113,12 @@ const createNewInstance = async (app: Application, newInstance: InstanceData, he
 
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId, headers)
   const instanceResult = await app.service(instancePath).create(newInstance, { headers })
+  logger.info('Created new instance: %o', instanceResult)
   if (!channelId) {
-    await app.service(channelPath).create({
+    const channel = await app.service(channelPath).create({
       instanceId: instanceResult.id
     })
+    logger.info('Created new channel: %o', channel)
   }
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
@@ -153,7 +154,7 @@ const assignExistingInstance = async ({
       currentUsers: existingInstance.currentUsers + 1,
       podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local',
       assigned: false,
-      assignedAt: null!
+      assignedAt: null
     },
     { headers }
   )
@@ -205,7 +206,12 @@ const initializeInstance = async ({
 
   if (existingInstanceResult.total > 0) {
     const instance = existingInstanceResult.data[0]
-    if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return false
+    if (userId) {
+      const user = await app.service(userPath).get(userId)
+      if (!user) return false
+      const authorised = await authorizeUserToJoinServer(app, instance, user)
+      if (!authorised) return false
+    }
     if (instance.locationId) {
       const existingChannel = (await app.service(channelPath).find({
         query: {
@@ -243,7 +249,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
-  Engine.instance.userID = hostId
+  Engine.instance.store.userID = hostId
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
   HyperFlux.store.forwardingTopics.add(topic)
 
@@ -271,15 +277,18 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
     if (!sceneId) throw new Error('No sceneId provided')
 
+    let unload
+
     const sceneUpdatedListener = async () => {
       const scene = await app.service(staticResourcePath).get(sceneId, { headers })
-      const gltfEntity = GLTFSourceState.load(scene.url, scene.id as EntityUUID)
-      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+      if (unload) unload()
+      unload = GLTFAssetState.loadScene(scene.url, scene.id as EntityUUID)
+      const entity = UUIDComponent.getEntityByUUID(scene.id as EntityUUID)
 
       /** @todo - quick hack to wait until scene has loaded */
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getComponent(gltfEntity, GLTFComponent).progress === 100) {
+          if (getComponent(entity, GLTFComponent).progress === 100) {
             clearInterval(interval)
             resolve()
           }
@@ -395,13 +404,18 @@ const updateInstance = async ({
   logger.info(`agones state is ${status.state}`)
   logger.info('app instance is %o', instanceServerState.instance)
 
-  const isReady = status.state === 'Ready'
-  const isNeedingNewServer = !config.kubernetes.enabled && !instanceStarted
+  const isNeedingNewServer = !config.kubernetes.enabled || status.state === 'Ready'
 
-  if (isReady || isNeedingNewServer) {
+  if (isNeedingNewServer && !instanceStarted) {
     instanceStarted = true
     const initialized = await initializeInstance({ app, status, headers, userId })
-    if (initialized) await loadEngine({ app, sceneId, headers })
+    if (initialized) {
+      await loadEngine({ app, sceneId, headers })
+      return true
+    } else {
+      instanceStarted = false
+      return false
+    }
   } else {
     try {
       if (!getState(InstanceServerState).ready)
@@ -414,7 +428,12 @@ const updateInstance = async ({
           }, 1000)
         })
       const instance = await app.service(instancePath).get(instanceServerState.instance.id, { headers })
-      if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return false
+      if (userId) {
+        const user = await app.service(userPath).get(userId)
+        if (!user) return false
+        const authorised = await authorizeUserToJoinServer(app, instance, user)
+        if (!authorised) return false
+      }
 
       logger.info(`Authorized user ${userId} to join server`)
       await serverState.agonesSDK.allocate()
@@ -424,7 +443,7 @@ const updateInstance = async ({
           currentUsers: (instance.currentUsers as number) + 1,
           assigned: false,
           podName: config.kubernetes.enabled ? instanceServerState.instanceServer?.objectMeta?.name : 'local',
-          assignedAt: null!
+          assignedAt: null
         },
         { headers }
       )
@@ -567,7 +586,7 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   const network = getServerNetwork(app)
   const matchingPeer = Object.values(network.peers).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
-    matchingPeer.spark?.end()
+    matchingPeer.transport?.end?.()
     NetworkPeerFunctions.destroyPeer(network, matchingPeer.peerID)
     updatePeers(network)
   }
@@ -602,6 +621,15 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
   }
 
   logger.info(`user ${userId} joining ${locationId ?? channelId} and room code ${roomCode}`)
+
+  if (userId) {
+    const user = await app.service(userPath).get(userId)
+    // disallow users from joining media servers if they haven't accepted the TOS
+    if (channelId && !user.acceptedTOS) {
+      logger.warn('User tried to connect without accepting TOS')
+      return
+    }
+  }
 
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
@@ -713,7 +741,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
     const user = await app.service(userPath).get(userId, { headers: connection.headers })
-    const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
+    const instanceId = instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)
     logger.info('Disconnecting user ', user.id)
@@ -798,9 +826,10 @@ export default (app: Application): void => {
     logger.info('kicking peerId %o', peerId)
 
     const peer = NetworkState.worldNetwork.peers[peerId[0]]
-    if (!peer || !peer.spark) return
+    if (!peer || !peer.transport) return
 
     handleDisconnect(getServerNetwork(app), peer.peerID)
+    peer.transport.end?.()
   }
 
   app.service(userKickPath).on('created', kickCreatedListener)

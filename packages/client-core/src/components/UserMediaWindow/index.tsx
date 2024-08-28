@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { DrawingUtils } from '@mediapipe/tasks-vision'
@@ -29,7 +29,8 @@ import hark from 'hark'
 import { t } from 'i18next'
 import React, { RefObject, useEffect, useRef } from 'react'
 
-import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import Text from '@ir-engine/client-core/src/common/components/Text'
+import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import {
   globalMuteProducer,
   globalUnmuteProducer,
@@ -40,34 +41,28 @@ import {
   toggleScreenshareAudioPaused,
   toggleScreenshareVideoPaused,
   toggleWebcamPaused
-} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { UserName, clientSettingPath, userPath } from '@etherealengine/common/src/schema.type.module'
-import { useExecute } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
-import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
-import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import {
-  NO_PROXY,
-  PeerID,
-  State,
-  getMutableState,
-  getState,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
-import { NetworkState, VideoConstants } from '@etherealengine/network'
-import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
-import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
-import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
+} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { UserName, clientSettingPath, userPath } from '@ir-engine/common/src/schema.type.module'
+import { useExecute } from '@ir-engine/ecs'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
+import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
+import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
+import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
+import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NetworkState, VideoConstants } from '@ir-engine/network'
+import { useFind, useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
+import Slider from '@ir-engine/ui/src/primitives/mui/Slider'
+import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
+import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 
+import { useTranslation } from 'react-i18next'
+import { useZendesk } from '../../hooks/useZendesk'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -481,6 +476,10 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     rendered
   } = useUserMediaWindowHook({ peerID, type })
 
+  const { t } = useTranslation()
+
+  const { initialized, openChat } = useZendesk()
+
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
@@ -576,7 +575,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
             [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
+            [styles['border-lit']]: soundIndicatorOn && (isSelf ? !audioProducerPaused : !audioStreamPaused)
           })}
         >
           {(videoStream == null ||
@@ -597,6 +596,46 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
         <div className={styles['user-controls']}>
           <div className={styles['username']}>{username}</div>
+          {initialized && isPiP && !isSelf && (
+            <button
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                position: 'relative',
+                width: '50%',
+                left: '25%',
+                alignItems: 'center',
+                alignContent: 'center',
+                height: '2rem',
+                marginTop: '1rem',
+                marginBottom: '0.5rem',
+                borderRadius: '10px',
+                backgroundColor: 'red'
+              }}
+              onClick={openChat}
+            >
+              <Icon
+                type="Report"
+                style={{
+                  display: 'block',
+                  width: '20px',
+                  height: '20px',
+                  margin: '8px',
+                  color: 'var(--inputBackground)'
+                }}
+              />
+              <Text
+                align="center"
+                sx={{
+                  marginLeft: '8px',
+                  fontSize: '12px',
+                  color: 'var(--inputBackground)'
+                }}
+              >
+                {t('social:user.reportUser')}
+              </Text>
+            </button>
+          )}
           <div className={styles['controls']}>
             <div className={styles['mute-controls']}>
               {videoStream && !videoProducerPaused ? (

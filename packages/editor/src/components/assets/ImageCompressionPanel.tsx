@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,38 +14,38 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React from 'react'
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
-import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
+import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
-} from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { ImmutableArray, useHookstate } from '@etherealengine/hyperflux'
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+} from '@ir-engine/engine/src/assets/constants/CompressionParms'
+import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
+import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
-import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
-import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
-import { FileType, createFileDigest } from '@etherealengine/ui/src/components/editor/panels/Files/container'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
+import { FileType, createFileDigest } from '@ir-engine/ui/src/components/editor/panels/Files/container'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
 
@@ -150,7 +150,7 @@ export default function ImageCompressionPanel({
   }
 
   return (
-    <div className="max-h-[80vh] w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-full min-w-[400px] max-w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
         <Button
@@ -161,27 +161,27 @@ export default function ImageCompressionPanel({
         />
       </div>
 
-      <div className="mx-auto grid w-1/2 gap-y-2">
+      <div className="mx-auto grid w-4/5 min-w-[400px] justify-center gap-y-2">
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-24 text-[#D3D5D9]"
+          containerClassName="w-full justify-start flex-nowrap"
+          labelClassName="w-24 text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-[#42454D] bg-[#141619] px-2 py-1.5" value={title} disabled />
+          <Input className="border-theme-input bg-[#141619] px-2 py-1.5" value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start flex-nowrap"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.mode')}
           info={t('editor:properties.model.transform.modeTooltip')}
         >
           <Select
             className="w-full"
-            inputClassName="px-2 py-0.5 text-[#9CA0AA] text-sm"
+            inputClassName="px-2 py-0.5 text-theme-input text-sm"
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
               { label: 'UASTC', value: 'UASTC' }
@@ -191,9 +191,9 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start flex-nowrap"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="flipY"
           label={t('editor:properties.model.transform.flipY')}
           info={t('editor:properties.model.transform.flipYTooltip')}
@@ -205,9 +205,9 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start flex-nowrap"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="linear"
           label={t('editor:properties.model.transform.srgb')}
           info={t('editor:properties.model.transform.srgbTooltip')}
@@ -219,9 +219,9 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start flex-nowrap"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="mipmaps"
           label={t('editor:properties.model.transform.mipmaps')}
           info={t('editor:properties.model.transform.mipmapsTooltip')}
@@ -233,9 +233,9 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          className="w-full justify-start"
-          labelClassName="w-20 text-[#D3D5D9]"
-          infoClassName="text-[#D3D5D9]"
+          containerClassName="w-full justify-start flex-nowrap"
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="normalMap"
           label={t('editor:properties.model.transform.normalMap')}
           info={t('editor:properties.model.transform.normalMapTooltip')}
@@ -249,15 +249,15 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
-              className="w-full justify-start"
-              labelClassName="w-20 text-[#D3D5D9]"
-              infoClassName="text-[#D3D5D9]"
+              containerClassName="w-full justify-start flex-nowrap"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="quality"
               label={t('editor:properties.model.transform.quality')}
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
               <Slider
-                className="bg-[#191B1F] [&::-moz-range-track]:bg-[#191B1F]"
+                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
                 width={160}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
@@ -268,15 +268,15 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="w-full justify-start"
-              labelClassName="w-20 text-[#D3D5D9]"
-              infoClassName="text-[#D3D5D9]"
+              containerClassName="w-full justify-start flex-nowrap"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="compressionLevel"
               label={t('editor:properties.model.transform.compressionLevel')}
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
               <Slider
-                className="bg-[#191B1F] [&::-moz-range-track]:bg-[#191B1F]"
+                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
                 width={160}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
@@ -291,9 +291,9 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
-              className="w-full justify-start"
-              labelClassName="w-20 text-[#D3D5D9]"
-              infoClassName="text-[#D3D5D9]"
+              containerClassName="w-full justify-start flex-nowrap"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="uastcFlags"
               label={t('editor:properties.model.transform.uastcFlags')}
               info={t('editor:properties.model.transform.uastcFlagsTooltip')}
@@ -306,9 +306,9 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              className="w-full justify-start"
-              labelClassName="w-20 text-[#D3D5D9]"
-              infoClassName="text-[#D3D5D9]"
+              containerClassName="w-full justify-start flex-nowrap"
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="uastcZstandard"
               label={t('editor:properties.model.transform.uastcZstandard')}
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}

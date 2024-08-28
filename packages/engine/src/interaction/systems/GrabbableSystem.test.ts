@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,39 +14,33 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, createEngine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import {
-  PeerID,
-  applyIncomingActions,
-  clearOutgoingActions,
-  dispatchAction,
-  getMutableState
-} from '@etherealengine/hyperflux'
-import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@etherealengine/network'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
-import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
+import { AvatarID, UserID } from '@ir-engine/common/src/schema.type.module'
+import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
+import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { PeerID, applyIncomingActions, clearOutgoingActions, dispatchAction } from '@ir-engine/hyperflux'
+import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@ir-engine/network'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
@@ -59,12 +53,15 @@ import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
 describe.skip('EquippableSystem Integration Tests', () => {
   let equippableSystem
   let sceneEntity: Entity
+
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.store.defaultDispatchDelay = () => 0
-    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
+
     sceneEntity = loadEmptyScene()
+    setComponent(sceneEntity, SceneComponent)
+    const physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
+    physicsWorld.timestep = 1 / 60
   })
 
   afterEach(() => {
@@ -134,7 +131,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     NetworkPeerFunctions.createPeer(NetworkState.worldNetwork, hostUserId, hostIndex, hostUserId, hostIndex)
 
     const userId = 'user id' as UserID
-    Engine.instance.userID = userId
+    Engine.instance.store.userID = userId
 
     const grabbableEntity = createEntity()
 

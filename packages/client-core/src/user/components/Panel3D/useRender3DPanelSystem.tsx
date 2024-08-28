@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,40 +14,38 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 
 import {
-  createEntity,
   EntityUUID,
-  generateEntityUUID,
-  getComponent,
-  hasComponent,
-  setComponent,
+  UUIDComponent,
   UndefinedEntity,
-  UUIDComponent
-} from '@etherealengine/ecs'
-import { useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+  createEntity,
+  generateEntityUUID,
+  hasComponent,
+  setComponent
+} from '@ir-engine/ecs'
+import { useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { RendererComponent, initializeEngineRenderer } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
   removeEntityNodeRecursively
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvasElement>) {
   const canvasRef = useHookstate(canvas.current)
@@ -66,7 +64,6 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     setComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, VisibleComponent)
     setComponent(cameraEntity, CameraOrbitComponent, { refocus: true })
-    setComponent(cameraEntity, SceneComponent, { children: [sceneEntity, cameraEntity] })
     setComponent(cameraEntity, InputComponent)
     setComponent(cameraEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
@@ -89,14 +86,17 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     if (!canvas.current || canvasRef.value === canvas.current) return
     canvasRef.set(canvas.current)
 
-    const { cameraEntity } = panelState.value
+    const { cameraEntity, sceneEntity } = panelState.value
 
     setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + canvasRef.value.id)
 
     if (hasComponent(cameraEntity, RendererComponent)) return
 
-    setComponent(cameraEntity, RendererComponent, { canvas: canvasRef.value as HTMLCanvasElement })
-    getComponent(cameraEntity, RendererComponent).initialize()
+    setComponent(cameraEntity, RendererComponent, {
+      canvas: canvasRef.value as HTMLCanvasElement,
+      scenes: [sceneEntity]
+    })
+    initializeEngineRenderer(cameraEntity)
   }, [canvas.current])
 
   return panelState.value

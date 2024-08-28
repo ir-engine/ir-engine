@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BlendFunction, SMAAPreset, VignetteTechnique } from 'postprocessing'
@@ -30,16 +30,16 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { MdAutoFixHigh } from 'react-icons/md'
 import { Color, DisplayP3ColorSpace, LinearDisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace } from 'three'
 
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
   commitProperties,
   commitProperty,
   updateProperty
-} from '@etherealengine/editor/src/components/properties/Util'
-import { getState } from '@etherealengine/hyperflux'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
-import { PostProcessingEffectState } from '@etherealengine/spatial/src/renderer/effects/EffectRegistry'
+} from '@ir-engine/editor/src/components/properties/Util'
+import { NO_PROXY, getState } from '@ir-engine/hyperflux'
+import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
 import { GiMagickTrick } from 'react-icons/gi'
 import Accordion from '../../../../primitives/tailwind/Accordion'
 import Checkbox from '../../../../primitives/tailwind/Checkbox'
@@ -51,7 +51,7 @@ import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import Vector2Input from '../../input/Vector2'
 import Vector3Input from '../../input/Vector3'
-import PropertyGroup from '../group'
+import NodeEditor from '../nodeEditor'
 
 enum PropertyTypes {
   BlendFunction,
@@ -118,7 +118,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
 
   const renderProperty = (effectName: string, property: string, index: number) => {
     const effectSettingState = effects[effectName].schema[property]
-    const effectSettingValue = postprocessing.effects[effectName][property].value
+    const effectSettingValue = postprocessing.effects[effectName][property].get(NO_PROXY)
 
     let renderVal = <></>
 
@@ -178,6 +178,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <Vector2Input
             value={effectSettingValue}
             onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
         break
@@ -187,6 +188,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <Vector3Input
             value={effectSettingValue}
             onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
         break
@@ -195,7 +197,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <TexturePreviewInput
             value={effectSettingValue}
-            onRelease={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
         break
@@ -204,6 +206,9 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <ColorInput
             value={new Color(effectSettingValue)}
             onChange={(value) =>
+              updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)('#' + value)
+            }
+            onRelease={(value) =>
               commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)('#' + value)
             }
           />
@@ -243,14 +248,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     }
 
     return (
-      <div
-        key={index}
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
+      <div key={index}>
         <InputGroup name={effectSettingState.name} label={effectSettingState.name}>
           {renderVal}
         </InputGroup>
@@ -274,7 +272,12 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             value={postprocessing.effects[effect]?.isActive?.value}
             label={effect}
           />
-          {postprocessing.effects[effect]?.isActive?.value && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect]?.isActive?.value && (
+            <div>
+              {renderEffectsTypes(effect)}
+              <hr className="my-2 h-[1px] text-[#A0A1A2]" />
+            </div>
+          )}
         </div>
       )
     })
@@ -282,10 +285,11 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup
+    <NodeEditor
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
       icon={<PostProcessingSettingsEditor.iconComponent />}
+      {...props}
     >
       <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
         <BooleanInput
@@ -299,9 +303,9 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       {postprocessing.enabled.value && (
         <>
           <Accordion
-            className="bg-[#242424] p-0 text-white"
+            className="bg-none p-2 text-white"
             onClick={() => setOpenSettings(!openSettings)}
-            title={'Post Processing Effects'}
+            title={t('editor:properties.postprocessing.name')}
             prefixIcon={<GiMagickTrick />}
             expandIcon={<FaChevronDown />}
             shrinkIcon={<FaChevronUp />}
@@ -310,7 +314,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           </Accordion>
         </>
       )}
-    </PropertyGroup>
+    </NodeEditor>
   )
 }
 

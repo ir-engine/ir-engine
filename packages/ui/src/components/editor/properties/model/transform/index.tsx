@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,45 +14,42 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect } from 'react'
 import { DoubleSide, Mesh } from 'three'
 
-import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
-import {
-  ComponentType,
-  getMutableComponent,
-  hasComponent,
-  useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import GLTFTransformProperties from '@etherealengine/editor/src/components/properties/GLTFTransformProperties'
-import exportGLTF from '@etherealengine/editor/src/functions/exportGLTF'
-import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { API } from '@ir-engine/common'
+import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
+import { ComponentType, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import exportGLTF from '@ir-engine/editor/src/functions/exportGLTF'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import {
   DefaultModelTransformParameters,
   ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { useHookstate } from '@etherealengine/hyperflux'
-import { NO_PROXY, State, useMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
+} from '@ir-engine/engine/src/assets/classes/ModelTransform'
+import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { getModelResources } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
+import { useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, useMutableState } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import StringInput from '../../../input/String'
 import TexturePreviewInput from '../../../input/Texture'
+import GLTFTransformProperties from '../../gltf/transform'
 
 export default function ModelTransformProperties({ entity, onChangeModel }: { entity: Entity; onChangeModel: any }) {
   const modelState = useComponent(entity, ModelComponent)
@@ -139,7 +136,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
         if (clientside) {
           nuPath = await clientSideTransformModel(variant as ModelTransformParameters)
         } else {
-          await Engine.instance.api.service(modelTransformPath).create(variant)
+          await API.instance.service(modelTransformPath).create(variant)
         }
       }
 
@@ -187,7 +184,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      const transformedPath = await API.instance.service(modelTransformPath).create(transformParms.value)
       console.log('transformed model into ' + transformedPath)
       onChangeModel(transformedPath)
     }
@@ -205,44 +202,92 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [modelState.scene, transformParms])
 
   return (
-    <Accordion className="p-0" title="Model Transform Properties" expandIcon={undefined} shrinkIcon={undefined}>
-      <div className="TransformContainer">
-        <Accordion className="p-0" title="glTF-Transform" expandIcon={undefined} shrinkIcon={undefined}>
+    <Accordion
+      className="space-y-4 p-4"
+      title="Model Transform Properties"
+      expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+      shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+      titleClassName="text-gray-300"
+      titleFontSize="base"
+    >
+      <div className="mr-2 flex flex-col gap-2">
+        <Accordion
+          className="p-0"
+          title="glTF-Transform"
+          expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+          shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+          titleClassName="text-gray-300"
+          titleFontSize="base"
+        >
           <GLTFTransformProperties transformParms={transformParms} itemCount={1} />
         </Accordion>
-        {!transforming.value && (
-          <>
-            <InputGroup name="Clientside Transform" label="Clientside Transform">
-              <BooleanInput
-                value={isClientside.value}
-                onChange={(val: boolean) => {
-                  isClientside.set(val)
-                }}
-              />
-            </InputGroup>
-            <InputGroup name="Batch Compress" label="Batch Compress">
-              <BooleanInput
-                value={isBatchCompress.value}
-                onChange={(val: boolean) => {
-                  isBatchCompress.set(val)
-                }}
-              />
-            </InputGroup>
-            <button className="OptimizeButton button" onClick={onTransformModel(modelState)}>
-              Optimize
-            </button>
-          </>
-        )}
-        {transforming.value && <p>Transforming...</p>}
-        {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
-
-        <Accordion className="p-0" title="Delete Attribute" expandIcon={undefined} shrinkIcon={undefined}>
+        <Accordion
+          className="p-0"
+          title="Transform"
+          expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+          shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+          titleClassName="text-gray-300"
+          titleFontSize="base"
+        >
+          {!transforming.value && (
+            <>
+              <InputGroup name="Clientside Transform" label="Clientside Transform">
+                <BooleanInput
+                  value={isClientside.value}
+                  onChange={(val: boolean) => {
+                    isClientside.set(val)
+                  }}
+                />
+              </InputGroup>
+              <InputGroup name="Batch Compress" label="Batch Compress">
+                <BooleanInput
+                  value={isBatchCompress.value}
+                  onChange={(val: boolean) => {
+                    isBatchCompress.set(val)
+                  }}
+                />
+              </InputGroup>
+              <div className="flex flex-col items-end py-1">
+                <Button variant="outline" onClick={onTransformModel(modelState)}>
+                  Optimize
+                </Button>
+              </div>
+            </>
+          )}
+          {transforming.value && (
+            <LoadingView fullSpace className="mb-2 flex h-[10%] w-[10%] justify-center" title=" Transforming..." />
+          )}
+          {transformHistory.length > 0 && (
+            <div className="flex flex-col items-end py-1">
+              <Button onClick={onUndoTransform}>Undo</Button>
+            </div>
+          )}
+        </Accordion>
+        <Accordion
+          className="p-0"
+          title="Delete Attribute"
+          expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+          shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+          titleClassName="text-gray-300"
+          titleFontSize="base"
+        >
           <InputGroup name="Attribute" label="Attribute">
             <StringInput value={attribToDelete.value} onChange={attribToDelete.set} />
           </InputGroup>
-          <Button onClick={deleteAttribute(modelState)}>Delete Attribute</Button>
+          <div className="flex flex-col items-end">
+            <Button variant="outline" onClick={deleteAttribute(modelState)}>
+              Delete Attribute
+            </Button>
+          </div>
         </Accordion>
-        <Accordion className="p-0" title="Bake To Vertices" expandIcon={undefined} shrinkIcon={undefined}>
+        <Accordion
+          className="p-0"
+          title="Bake To Vertices"
+          expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+          shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+          titleClassName="text-gray-300"
+          titleFontSize="base"
+        >
           <InputGroup name="map" label="map">
             <BooleanInput
               value={vertexBakeOptions.map.value}
@@ -275,8 +320,10 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
               }}
             />
           </InputGroup>
-          <Button onClick={doVertexBake(modelState)}>Bake To Vertices</Button>
-          <Button onClick={onBakeSelected}>Bake And Optimize</Button>
+          <div className="flex flex-col items-end gap-2">
+            <Button onClick={doVertexBake(modelState)}>Bake To Vertices</Button>
+            <Button onClick={onBakeSelected}>Bake And Optimize</Button>
+          </div>
         </Accordion>
       </div>
     </Accordion>

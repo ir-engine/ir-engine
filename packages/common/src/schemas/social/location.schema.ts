@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,28 +14,29 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 
+import { UserID } from '../../schema.type.module'
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { locationAdminSchema } from './location-admin.schema'
+import { locationAdminDataSchema, locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
 import { locationBanSchema } from './location-ban.schema'
-import { locationSettingSchema } from './location-setting.schema'
+import { locationSettingDataSchema, locationSettingPatchSchema, locationSettingSchema } from './location-setting.schema'
 
 export const locationPath = 'location'
 
@@ -67,6 +68,9 @@ export const locationSchema = Type.Object(
     locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
     locationAuthorizedUsers: Type.Array(Type.Ref(locationAuthorizedUserSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
+    updatedBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -75,22 +79,66 @@ export const locationSchema = Type.Object(
 export interface LocationType extends Static<typeof locationSchema> {}
 
 export interface LocationDatabaseType
-  extends Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans' | 'url'> {}
+  extends Omit<
+    LocationType,
+    'locationSetting' | 'locationAuthorizedUsers' | 'locationBans' | 'locationAdmin' | 'sceneAsset' | 'url'
+  > {}
 
 // Schema for creating new entries
-export const locationDataSchema = Type.Pick(
-  locationSchema,
-  ['name', 'sceneId', 'slugifiedName', 'isLobby', 'isFeatured', 'maxUsersPerInstance', 'locationSetting'],
-  {
-    $id: 'LocationData'
-  }
+export const locationDataProperties = Type.Pick(locationSchema, [
+  'name',
+  'sceneId',
+  'slugifiedName',
+  'isLobby',
+  'isFeatured',
+  'maxUsersPerInstance'
+])
+
+export const locationDataSchema = Type.Intersect(
+  [
+    locationDataProperties,
+    Type.Object(
+      {
+        id: Type.Optional(
+          TypedString<LocationID>({
+            format: 'uuid'
+          })
+        ),
+        locationAdmin: Type.Optional(Type.Ref(locationAdminDataSchema)),
+        locationSetting: Type.Ref(locationSettingDataSchema)
+      },
+      { additionalProperties: false }
+    )
+  ],
+  { $id: 'LocationData' }
 )
 export interface LocationData extends Static<typeof locationDataSchema> {}
 
 // Schema for updating existing entries
-export const locationPatchSchema = Type.Partial(locationSchema, {
-  $id: 'LocationPatch'
-})
+export const locationPatchProperties = Type.Pick(locationSchema, [
+  'id',
+  'name',
+  'sceneId',
+  'projectId',
+  'slugifiedName',
+  'isLobby',
+  'isFeatured',
+  'sceneAsset',
+  'maxUsersPerInstance',
+  'updatedBy'
+])
+
+export const locationPatchSchema = Type.Partial(
+  Type.Intersect([
+    locationPatchProperties,
+    Type.Object({
+      locationSetting: Type.Ref(locationSettingPatchSchema)
+    })
+  ]),
+  {
+    $id: 'LocationPatch'
+  }
+)
 export interface LocationPatch extends Static<typeof locationPatchSchema> {}
 
 // Schema for allowed query properties
@@ -111,9 +159,7 @@ export const locationQuerySchema = Type.Intersect(
         $like: Type.String()
       },
       sceneId: {
-        $like: Type.String({
-          format: 'uuid'
-        })
+        $like: Type.String()
       }
     }),
     // Add additional query properties here

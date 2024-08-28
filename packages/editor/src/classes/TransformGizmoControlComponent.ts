@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -36,7 +36,7 @@ import {
   UndefinedEntity,
   useComponent,
   useEntityContext
-} from '@etherealengine/ecs'
+} from '@ir-engine/ecs'
 import {
   SnapMode,
   TransformAxisType,
@@ -44,18 +44,26 @@ import {
   TransformModeType,
   TransformSpace,
   TransformSpaceType
-} from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getState, matches, useMutableState } from '@etherealengine/hyperflux'
-import { InputComponent, InputExecutionOrder } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+} from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { getState, matches, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { gizmoPlane } from '../constants/GizmoPresets'
-import { onPointerDown, onPointerHover, onPointerLost, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
+import {
+  onGizmoCommit,
+  onPointerDown,
+  onPointerHover,
+  onPointerLost,
+  onPointerMove,
+  onPointerUp
+} from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
@@ -113,19 +121,30 @@ export const TransformGizmoControlComponent = defineComponent({
     if (typeof json.showY === 'number') component.showY.set(json.showY)
     if (typeof json.showZ === 'number') component.showZ.set(json.showZ)
   },
-  onRemove: (entity, component) => {
-    component.controlledEntities.set([])
-    component.visualEntity.set(UndefinedEntity)
-    component.planeEntity.set(UndefinedEntity)
-    component.pivotEntity.set(UndefinedEntity)
-  },
+
   reactor: function (props) {
     const gizmoControlEntity = useEntityContext()
     const gizmoControlComponent = useComponent(gizmoControlEntity, TransformGizmoControlComponent)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
-
+    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
     const editorHelperState = useMutableState(EditorHelperState)
+    const inputPointerEntities = InputPointerComponent.usePointersForCamera(Engine.instance.viewerEntity)
+
+    // Commit transform changes if the pointer entities are lost (ie. pointer dragged outside of the canvas)
+    useImmediateEffect(() => {
+      const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
+      if (
+        !gizmoControlComponent.enabled ||
+        !gizmoControlComponent.visualEntity ||
+        !gizmoControlComponent.planeEntity ||
+        !gizmoControlComponent.dragging ||
+        inputPointerEntities.length
+      )
+        return
+
+      onGizmoCommit(gizmoControlEntity)
+      removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+    }, [inputPointerEntities])
+
     InputComponent.useExecuteWithInput(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
@@ -156,7 +175,6 @@ export const TransformGizmoControlComponent = defineComponent({
 
           if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) {
             onPointerUp(gizmoControlEntity)
-            onPointerLost(gizmoControlEntity)
             onPointerLost(gizmoControlEntity)
             removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
           }

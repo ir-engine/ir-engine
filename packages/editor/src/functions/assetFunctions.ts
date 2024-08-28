@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,28 +14,28 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
-} from '@etherealengine/client-core/src/util/upload'
-import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { Engine } from '@etherealengine/ecs'
-import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+} from '@ir-engine/client-core/src/util/upload'
+import { API } from '@ir-engine/common'
+import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
-import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
+import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 
-const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList) => {
+export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
       const fileDirectory = file.webkitRelativePath || file.name
@@ -44,6 +44,7 @@ const handleUploadFiles = (projectName: string, directoryPath: string, files: Fi
           {
             project: projectName,
             path: directoryPath.replace('projects/' + projectName + '/', '') + fileDirectory,
+            type: 'asset',
             contentType: file.type
           }
         ]
@@ -89,22 +90,18 @@ export const inputFileWithAddToScene = ({
     el.click()
   })
 
-export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
+export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
     const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
     const filePath = fileDirectory ? pathJoin(fileDirectory, file.name) : file.name
+    const fileArgs = args?.[i] ?? {}
     promises.push(
-      uploadToFeathersService(
-        fileBrowserUploadPath,
-        [file],
-        {
-          args: [{ project: projectName, path: filePath, contentType: '' }]
-        },
-        onProgress
-      )
+      uploadToFeathersService(fileBrowserUploadPath, [file], {
+        args: [{ contentType: '', ...fileArgs, project: projectName, path: filePath }]
+      })
     )
   }
 
@@ -116,9 +113,9 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
 
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
-  const exists = await Engine.instance.api.service(fileBrowserPath).get(resourcePath)
+  const exists = await API.instance.service(fileBrowserPath).get(resourcePath)
   if (exists) {
-    await Engine.instance.api.service(fileBrowserPath).remove(resourcePath)
+    await API.instance.service(fileBrowserPath).remove(resourcePath)
   }
 }
 
@@ -191,7 +188,7 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
 export const extractZip = async (path: string): Promise<any> => {
   try {
     const params = { path: path }
-    await Engine.instance.api.service(assetLibraryPath).create(params)
+    await API.instance.service(assetLibraryPath).create(params)
   } catch (err) {
     console.error('error extracting zip: ', err)
   }

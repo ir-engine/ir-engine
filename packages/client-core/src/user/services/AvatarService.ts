@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,18 +14,18 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
-import i18n from 'i18next'
 
+import { API } from '@ir-engine/common'
 import {
   AvatarID,
   avatarPath,
@@ -37,13 +37,13 @@ import {
   UserName,
   userPath,
   UserType
-} from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarState as AvatarNetworkState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-
-import { EntityUUID } from '@etherealengine/ecs'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+} from '@ir-engine/common/src/schema.type.module'
+import { EntityUUID } from '@ir-engine/ecs'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
+import { AvatarState as AvatarNetworkState } from '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
+import { defineState, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
+import i18n from 'i18next'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
 import { AuthState } from './AuthService'
@@ -63,7 +63,7 @@ export const AvatarState = defineState({
 
 export const AvatarService = {
   async createAvatar(model: File, thumbnail: File, avatarName: string, isPublic: boolean) {
-    const newAvatar = await Engine.instance.api.service(avatarPath).create({
+    const newAvatar = await API.instance.service(avatarPath).create({
       name: avatarName,
       isPublic
     })
@@ -80,7 +80,7 @@ export const AvatarService = {
     const skip = avatarState.skip.value
     const newSkip =
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
-    const result = (await Engine.instance.api.service(avatarPath).find({
+    const result = (await API.instance.service(avatarPath).find({
       query: {
         name: {
           $like: `%${search}%`
@@ -134,7 +134,7 @@ export const AvatarService = {
       }
     }
 
-    const avatar = await Engine.instance.api.service(avatarPath).patch(originalAvatar.id, payload)
+    const avatar = await API.instance.service(avatarPath).patch(originalAvatar.id, payload)
     getMutableState(AvatarState).avatarList.set((prevAvatarList) => {
       const index = prevAvatarList.findIndex((item) => item.id === avatar.id)
       prevAvatarList[index] = avatar
@@ -148,7 +148,7 @@ export const AvatarService = {
   },
 
   async removeStaticResource(id: string) {
-    return Engine.instance.api.service(staticResourcePath).remove(id)
+    return API.instance.service(staticResourcePath).remove(id)
   },
 
   async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: AvatarID) {
@@ -164,17 +164,15 @@ export const AvatarService = {
 
   async getAvatar(id: AvatarID) {
     try {
-      return Engine.instance.api.service(avatarPath).get(id)
+      return API.instance.service(avatarPath).get(id)
     } catch (err) {
       return null
     }
   },
 
   async updateUsername(userId: UserID, name: UserName) {
-    const { name: updatedName } = (await Engine.instance.api
-      .service(userPath)
-      .patch(userId, { name: name })) as UserType
-    NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
+    const { name: updatedName } = (await API.instance.service(userPath).patch(userId, { name: name })) as UserType
+    NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg').toString(), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
     dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))
   }

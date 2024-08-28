@@ -1,12 +1,12 @@
 {
-  "name": "@etherealengine/editor",
+  "name": "@ir-engine/editor",
   "version": "1.6.0",
   "main": "lib/editor.umd.js",
   "module": "lib/editor.es.js",
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git://github.com/etherealengine/etherealengine.git"
+    "url": "git://github.com/ir-engine/ir-engine.git"
   },
   "engines": {
     "node": ">= 18.12.0"
@@ -29,12 +29,12 @@
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.11.2",
-    "@etherealengine/client-core": "^1.6.0",
-    "@etherealengine/common": "^1.6.0",
-    "@etherealengine/engine": "^1.6.0",
-    "@etherealengine/hyperflux": "^1.6.0",
-    "@etherealengine/ui": "^1.6.0",
-    "@etherealengine/visual-script": "^1.6.0",
+    "@ir-engine/client-core": "^1.6.0",
+    "@ir-engine/common": "^1.6.0",
+    "@ir-engine/engine": "^1.6.0",
+    "@ir-engine/hyperflux": "^1.6.0",
+    "@ir-engine/ui": "^1.6.0",
+    "@ir-engine/visual-script": "^1.6.0",
     "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
     "@mui/icons-material": "5.15.15",
     "@mui/material": "5.11.13",
@@ -45,12 +45,10 @@
     "potpack": "^2.0.0",
     "postprocessing": "6.34.1",
     "rc-dock": "3.2.18",
-    "rc-slider": "10.5.0",
     "react": "18.2.0",
     "react-dnd": "16.0.1",
     "react-dnd-html5-backend": "16.0.1",
     "react-dom": "18.2.0",
-    "react-hot-keys": "^2.7.2",
     "react-hotkeys-hook": "4.3.8",
     "react-i18next": "11.16.6",
     "react-json-view": "^1.21.3",

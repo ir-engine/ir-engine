@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GetGPUTier, getGPUTier } from 'detect-gpu'
@@ -29,10 +29,10 @@ import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import { Camera, MathUtils, Scene } from 'three'
 
-import { defineSystem, ECSState, PresentationSystemGroup } from '@etherealengine/ecs'
-import { profile } from '@etherealengine/ecs/src/Timer'
-import { defineState, getMutableState, getState, State, useMutableState } from '@etherealengine/hyperflux'
-import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { ComponentType, defineSystem, ECSState, PresentationSystemGroup } from '@ir-engine/ecs'
+import { profile } from '@ir-engine/ecs/src/Timer'
+import { defineState, getMutableState, getState, State, useMutableState } from '@ir-engine/hyperflux'
+import { RendererComponent, RenderSettingsState } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { EngineState } from '../EngineState'
 import { RendererState } from './RendererState'
@@ -49,7 +49,6 @@ const tieredSettings = {
       shadowMapResolution: 0,
       usePostProcessing: false,
       forceBasicMaterials: true,
-      updateCSMFrustums: false,
       renderScale: 0.75
     },
     render: { smaaPreset: SMAAPreset.LOW }
@@ -60,7 +59,6 @@ const tieredSettings = {
       shadowMapResolution: 0,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.LOW }
@@ -71,7 +69,6 @@ const tieredSettings = {
       shadowMapResolution: 256,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.LOW }
@@ -82,7 +79,6 @@ const tieredSettings = {
       shadowMapResolution: 512,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.MEDIUM }
@@ -93,7 +89,6 @@ const tieredSettings = {
       shadowMapResolution: 1024,
       usePostProcessing: true,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.HIGH }
@@ -104,7 +99,6 @@ const tieredSettings = {
       shadowMapResolution: 2048,
       usePostProcessing: true,
       forceBasicMaterials: false,
-      updateCSMFrustums: true,
       renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.ULTRA }
@@ -346,11 +340,16 @@ const timeRenderFrameGPU = (callback: (number) => void = () => {}): (() => void)
  * @param camera Camera
  * @param onFinished Callback with the render time as a parameter
  */
-const timeRender = (renderer: EngineRenderer, scene: Scene, camera: Camera, onFinished: (ms: number) => void) => {
+const timeRender = (
+  renderer: ComponentType<typeof RendererComponent>,
+  scene: Scene,
+  camera: Camera,
+  onFinished: (ms: number) => void
+) => {
   const end = timeRenderFrameGPU((renderTime) => {
     onFinished(renderTime)
   })
-  renderer.renderer.render(scene, camera)
+  renderer.renderer!.render(scene, camera)
   end()
 
   scene.remove(camera)
@@ -419,10 +418,15 @@ const decrementCPUPerformance = () => {
   )
 }
 
-const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPUTier['override']) => {
+const buildPerformanceState = async (
+  renderer: ComponentType<typeof RendererComponent>,
+  override?: GetGPUTier['override']
+) => {
   const performanceState = getMutableState(PerformanceState)
+  const gl = renderer.renderContext as WebGL2RenderingContext
+
   const gpuTier = await getGPUTier({
-    glContext: renderer.renderContext,
+    glContext: gl,
     desktopTiers: [0, 15, 30, 60, 120, 240],
     //Mobile is harder to determine, most phones lock benchmark rendering at 60fps
     mobileTiers: [0, 15, 30, 45, 60, 75],
@@ -433,7 +437,6 @@ const buildPerformanceState = async (renderer: EngineRenderer, override?: GetGPU
     tier = Math.max(tier - 2, 0)
   }
 
-  const gl = renderer.renderContext as WebGL2RenderingContext
   performanceState.merge({
     initialized: true,
     gpu: gpuTier.device || 'unknown',

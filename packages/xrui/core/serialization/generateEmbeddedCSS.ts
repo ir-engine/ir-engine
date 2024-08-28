@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,16 +14,16 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { CSS_URL_REGEX } from '@etherealengine/common/src/regex/index'
+import { CSS_URL_REGEX } from '@ir-engine/common/src/regex/index'
 import { WebRenderer } from '../WebRenderer'
 import { getEmbeddedDataURL } from './getEmbeddedDataURL'
 
@@ -45,10 +45,12 @@ export async function generateEmbeddedCSS(url: string, css: string): Promise<str
   css = css.replaceAll(':focus', WebRenderer.attributeCSS(WebRenderer.FOCUS_ATTRIBUTE))
   css = css.replaceAll(':target', WebRenderer.attributeCSS(WebRenderer.TARGET_ATTRIBUTE))
 
-  while ((found = CSS_URL_REGEX.exec(css))) {
-    const isCSSImport = !!found[2]
+  const matches = css.matchAll(CSS_URL_REGEX)
+
+  for (const match of matches) {
+    const isCSSImport = !!match[2]
     const accept = isCSSImport ? 'type/css' : undefined
-    const resourceURL = found[2] || found[3]
+    const resourceURL = match[2] || match[3]
     promises.push(
       getEmbeddedDataURL(new URL(resourceURL, url).href, accept).then((dataURL) => {
         css = css.replace(resourceURL, dataURL)

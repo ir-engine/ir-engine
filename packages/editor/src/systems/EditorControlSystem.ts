@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,19 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { Entity, PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { Entity, PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -35,26 +35,26 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
+import { FlyControlComponent } from '@ir-engine/spatial/src/camera/components/FlyControlComponent'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
+import { InfiniteGridComponent } from '@ir-engine/spatial/src/renderer/components/InfiniteGridHelper'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -70,8 +70,9 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -247,18 +248,6 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
   }
 }
 
-const findTopLevelParent = (entity: Entity) => {
-  while (
-    getOptionalComponent(
-      getOptionalComponent(entity, EntityTreeComponent)?.parentEntity || UndefinedEntity,
-      EntityTreeComponent
-    )?.parentEntity
-  ) {
-    entity = getComponent(entity, EntityTreeComponent).parentEntity!
-  }
-  return entity
-}
-
 const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity => {
   // Check for adjacent child
   const childTree = getComponent(child, EntityTreeComponent)
@@ -278,6 +267,8 @@ const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity 
 
 const inputQuery = defineQuery([InputSourceComponent])
 let clickStartEntity = UndefinedEntity
+
+let hierarchyFeatureFlagEnabled = false
 
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
@@ -329,14 +320,20 @@ const execute = () => {
         }
       }
 
-      // Get top most parent entity that isn't the scene entity
-      const selectedParentEntity = findTopLevelParent(closestIntersection.entity)
+      // Get top most parent entity from the GLTF document
+      let selectedParentEntity = GLTFSnapshotState.findTopLevelParent(closestIntersection.entity)
+      // If selectedParentEntity has a parent in a different GLTF document use that as top most parent
+      const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
+      if (parent && getComponent(parent, SourceComponent) !== getComponent(selectedParentEntity, SourceComponent)) {
+        selectedParentEntity = parent
+      }
+
       // If entity is already selected set closest intersection, otherwise set top parent
       const selectedEntity =
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
       // If not showing model children in hierarchy don't allow those objects to be selected
-      if (!FeatureFlagsState.enabled(FeatureFlags.Editor.UI.Hierarchy.ShowModelChildren)) {
+      if (!hierarchyFeatureFlagEnabled) {
         const inAuthoringLayer = GLTFSnapshotState.isInSnapshot(
           getOptionalComponent(selectedParentEntity, SourceComponent),
           selectedEntity
@@ -369,15 +366,65 @@ const execute = () => {
         selectedEntities.length !== 1 ||
         (selectedEntities.length === 1 && selectedEntities[0] !== clickStartEntity)
       ) {
-        SelectionState.updateSelection([getComponent(clickStartEntity, UUIDComponent)])
+        const ctrlOrMetaClicked = usesCtrlKey()
+          ? !!buttons.ControlLeft?.pressed || !!buttons.ControlRight?.pressed
+          : !!buttons.MetaLeft?.pressed || !!buttons.MetaRight?.pressed
+
+        updateSelection(
+          clickStartEntity,
+          ctrlOrMetaClicked,
+          !!buttons.ShiftLeft?.pressed || !!buttons.ShiftRight?.pressed
+        )
       }
     }
+  }
+}
+
+const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean) => {
+  const selectedEntities = SelectionState.getSelectedEntities()
+  if (control) {
+    if (selectedEntities.includes(clickedEntity)) {
+      SelectionState.updateSelection(
+        selectedEntities
+          .filter((entity) => entity !== clickedEntity)
+          .map((entity) => getComponent(entity, UUIDComponent))
+      )
+    } else {
+      SelectionState.updateSelection([
+        ...selectedEntities.map((entity) => getComponent(entity, UUIDComponent)),
+        getComponent(clickedEntity, UUIDComponent)
+      ])
+    }
+  }
+  /** @todo decide how we want shift selection to work with viewport */
+  // else if (shift) {
+  //   const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
+  //   const lastSelectedIndex = selectedEntities.indexOf(lastSelectedEntity)
+  //   const clickedEntityIndex = selectedEntities.indexOf(clickedEntity)
+  //   if (lastSelectedIndex === -1) {
+  //     SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
+  //   } else if (clickedEntityIndex === -1) {
+  //     const min = Math.min(lastSelectedIndex, selectedEntities.indexOf(clickedEntity))
+  //     const max = Math.max(lastSelectedIndex, selectedEntities.indexOf(clickedEntity))
+  //     const newSelection = selectedEntities.slice(0, min).concat(selectedEntities.slice(max))
+  //
+  //     SelectionState.updateSelection(newSelection.map((entity) => getComponent(entity, UUIDComponent)))
+  //   } else {
+  //     const min = Math.min(lastSelectedIndex, clickedEntityIndex)
+  //     const max = Math.max(lastSelectedIndex, clickedEntityIndex)
+  //     const newSelection = selectedEntities.slice(min, max + 1)
+  //     SelectionState.updateSelection(newSelection.map((entity) => getComponent(entity, UUIDComponent)))
+  //   }
+  // }
+  else {
+    SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
   }
 }
 
 const reactor = () => {
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
+  const flag = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -410,6 +457,10 @@ const reactor = () => {
       removeComponent(viewerEntity, InputComponent)
     }
   }, [viewerEntity])
+
+  useEffect(() => {
+    hierarchyFeatureFlagEnabled = flag[0]
+  }, [flag])
 
   return null
 }

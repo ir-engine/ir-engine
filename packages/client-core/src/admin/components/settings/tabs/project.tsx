@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,30 +14,31 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ProjectSettingType, projectPath, projectSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
+import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import { ProjectSettingType, projectPath, projectSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useGet, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { HiTrash, HiUser } from 'react-icons/hi2'
 
 const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
@@ -182,7 +183,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           {displayedSettings.value.map((setting: ProjectSettingType, index: number) => (
             <div className="my-2 flex flex-row items-end gap-2" key={index}>
               <Input
-                containerClassname="w-1/4"
+                containerClassName="w-1/4"
                 label={t('admin:components.setting.project.keyName')}
                 value={setting.key}
                 endComponent={
@@ -198,14 +199,17 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 onChange={(e) => handleSettingsKeyChange(e, setting, index)}
               />
               <Input
-                containerClassname="w-1/4"
+                containerClassName="w-1/4"
                 label={t('admin:components.setting.project.value')}
                 value={setting.value || ''}
                 endComponent={
                   setting.userId && (
                     <Tooltip
-                      title={t('admin:components.setting.project.lastUpdatedBy', { userId: setting.userId })}
                       position="left center"
+                      content={t('admin:components.common.lastUpdatedBy', {
+                        userId: setting.userId,
+                        updatedAt: toDisplayDateTime(setting.updatedAt)
+                      })}
                     >
                       <HiUser className="mr-2" />
                     </Tooltip>

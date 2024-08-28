@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -40,24 +40,27 @@ import {
   Vector3
 } from 'three'
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
-import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { easeOutCubic, normalizeRange } from '@etherealengine/spatial/src/common/functions/MathFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { ReferenceSpace, XRAction, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { defineState, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
+import { CameraActions } from '@ir-engine/spatial/src/camera/CameraState'
+import checkPositionIsValid from '@ir-engine/spatial/src/common/functions/checkPositionIsValid'
+import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
+import { easeOutCubic, normalizeRange } from '@ir-engine/spatial/src/common/functions/MathFunctions'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { ReferenceSpace, XRAction, XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -149,7 +152,7 @@ let fadeBackInAccumulator = -1
 let visibleSegments = 2
 
 const execute = () => {
-  const { isCameraAttachedToAvatar } = getState(XRControlsState)
+  const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
   if (!isCameraAttachedToAvatar) return
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
 
@@ -220,7 +223,8 @@ const execute = () => {
       currentVertexLocal.toArray(lineGeometryVertices, i * 3)
       positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
       const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
-      const validationData = checkPositionIsValid(currentVertexWorld, false, currentVertexDirection)
+      const physicsWorld = Physics.getWorld(selfAvatarEntity)!
+      const validationData = checkPositionIsValid(physicsWorld, currentVertexWorld, false, currentVertexDirection)
       if (validationData.raycastHit !== null) {
         guidelineBlocked = true
         currentVertexWorld.copy(validationData.raycastHit.position as Vector3)
@@ -258,9 +262,12 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const cameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+  const cameraAttachedToAvatar = XRState.useCameraAttachedToAvatar()
+
   useEffect(() => {
-    if (!cameraAttachedToAvatar.value) return
+    if (!cameraAttachedToAvatar) return
+
+    const originEntity = getState(EngineState).originEntity
 
     const lineGeometry = new BufferGeometry()
     lineGeometryVertices.fill(0)
@@ -275,6 +282,7 @@ const reactor = () => {
     const guidelineEntity = createEntity()
     addObjectToGroup(guidelineEntity, guideline)
     setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
+    setComponent(guidelineEntity, EntityTreeComponent, { parentEntity: originEntity })
 
     // The guide cursor at the end of the line
     const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
@@ -288,6 +296,7 @@ const reactor = () => {
     const guideCursorEntity = createEntity()
     addObjectToGroup(guideCursorEntity, guideCursor)
     setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
+    setComponent(guideCursorEntity, EntityTreeComponent, { parentEntity: originEntity })
 
     const transition = createTransitionState(0.5)
 

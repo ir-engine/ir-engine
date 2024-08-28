@@ -7,13 +7,13 @@ npx ttab -t 'agones-local' './start-all-docker.sh; ./start-agones.sh'
 sleep 1
 
 ## Start client
-npx ttab -t 'etherealengine-client' -d ../packages/client npm run dev
+npx ttab -t 'ir-engine-client' -d ../packages/client npm run dev
 
 ## Start api server
-npx ttab -t 'etherealengine-api' -d ../packages/server npm run dev-api-server
+npx ttab -t 'ir-engine-api' -d ../packages/server npm run dev-api-server
 
 ## Start world instanceserver
-npx ttab -t 'etherealengine-world-instanceserver' -d ../packages/instanceserver npm run dev
+npx ttab -t 'ir-engine-world-instanceserver' -d ../packages/instanceserver npm run dev
 
 ## Start channel instanceserver
-npx ttab -t 'etherealengine-channel-instanceserver' -d ../packages/instanceserver npm run dev-channel
+npx ttab -t 'ir-engine-channel-instanceserver' -d ../packages/instanceserver npm run dev-channel

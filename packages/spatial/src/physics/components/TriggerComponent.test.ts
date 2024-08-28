@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,18 +14,18 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { World } from '@dimforge/rapier3d-compat'
 import {
   EntityUUID,
+  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -35,14 +35,14 @@ import {
   removeEntity,
   serializeComponent,
   setComponent
-} from '@etherealengine/ecs'
-import { getMutableState } from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
-import { Physics } from '../classes/Physics'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { PhysicsState } from '../state/PhysicsState'
 import { Shapes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'
 import { ColliderComponentDefaults, assertColliderComponentEquals } from './ColliderComponent.test'
@@ -175,16 +175,22 @@ describe('TriggerComponent', () => {
 
   describe('reactor', () => {
     let testEntity = UndefinedEntity
-    let physicsWorld: World | undefined = undefined
+    let physicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
-      physicsWorld = Physics.createWorld()
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
       physicsWorld!.timestep = 1 / 60
-      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
 
       testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent)
       setComponent(testEntity, ColliderComponent)
@@ -193,7 +199,6 @@ describe('TriggerComponent', () => {
 
     afterEach(() => {
       removeEntity(testEntity)
-      physicsWorld = undefined
       return destroyEngine()
     })
 
@@ -213,7 +218,7 @@ describe('TriggerComponent', () => {
       assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentData)
       const reactor = ColliderComponent.reactorMap.get(testEntity)!
       assert.ok(reactor.isRunning)
-      const collider = Physics._Colliders.get(testEntity)!
+      const collider = physicsWorld.Colliders.get(testEntity)!
       assert.ok(collider)
       assert.ok(collider.isSensor())
     })

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,41 +14,41 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { debounce } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
-import AvatarPreview from '@etherealengine/client-core/src/common/components/AvatarPreview'
-import Button from '@etherealengine/client-core/src/common/components/Button'
-import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import Text from '@etherealengine/client-core/src/common/components/Text'
-import { AvatarID, avatarPath } from '@etherealengine/common/src/schema.type.module'
-import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { SpawnEffectComponent } from '@etherealengine/engine/src/avatar/components/SpawnEffectComponent'
-import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { LocalAvatarState } from '@etherealengine/engine/src/avatar/state/AvatarState'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Avatar from '@ir-engine/client-core/src/common/components/Avatar'
+import AvatarPreview from '@ir-engine/client-core/src/common/components/AvatarPreview'
+import Button from '@ir-engine/client-core/src/common/components/Button'
+import InputText from '@ir-engine/client-core/src/common/components/InputText'
+import Menu from '@ir-engine/client-core/src/common/components/Menu'
+import Text from '@ir-engine/client-core/src/common/components/Text'
+import { AvatarID, avatarPath } from '@ir-engine/common/src/schema.type.module'
+import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
+import { AvatarState } from '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
+import { LocalAvatarState } from '@ir-engine/engine/src/avatar/state/AvatarState'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import Box from '@ir-engine/ui/src/primitives/mui/Box'
+import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
@@ -65,7 +65,7 @@ const AvatarMenu = () => {
   const avatarLoading = useHookstate(false)
   const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
-  const createAvatarEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.CreateAvatar)
+  const [createAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.CreateAvatar])
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)

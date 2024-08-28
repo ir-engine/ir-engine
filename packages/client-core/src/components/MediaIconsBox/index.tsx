@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,52 +14,55 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
+import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import {
   toggleMicrophonePaused,
   toggleScreenshare,
   toggleWebcamPaused
-} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import logger from '@etherealengine/common/src/logger'
-import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import { Engine } from '@etherealengine/ecs'
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import {
-  ECSRecordingActions,
-  PlaybackState,
-  RecordingState
-} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
-import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
-import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
-import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
+} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { Engine, defineQuery, getOptionalComponent } from '@ir-engine/ecs'
+import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
+import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
+import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NetworkState } from '@ir-engine/network'
+import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
+import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
+import { XRState } from '@ir-engine/spatial/src/xr/XRState'
+import { RegisteredWidgets, WidgetAppActions } from '@ir-engine/spatial/src/xrui/WidgetAppService'
+import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWithTooltip'
 
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import multiLogger from '@ir-engine/common/src/logger'
+import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
+import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
+import { clientContextParams } from '../../util/contextParams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
+
+const sceneSettings = defineQuery([SceneSettingsComponent])
+const logger = multiLogger.child({ component: 'client-core:MediaIconsBox' })
+const clogger = multiLogger.child({ component: 'client-core:MediaIconsBox', modifier: clientContextParams })
 
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
@@ -69,6 +72,7 @@ export const MediaIconsBox = () => {
   const location = useLocation()
   const hasAudioDevice = useHookstate(false)
   const hasVideoDevice = useHookstate(false)
+  const numVideoDevices = useHookstate(0)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
@@ -92,13 +96,18 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled =
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
-  const spectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
+  const spectating =
+    !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value &&
+    getOptionalComponent(sceneSettings()?.[0], SceneSettingsComponent)?.spectateEntity === null
   const xrState = useMutableState(XRState)
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
-  const motionCaptureEnabled = FeatureFlagsState.useEnabled(FeatureFlags.Client.Menu.MotionCapture)
+  const [motionCaptureEnabled, xrEnabled] = useFeatureFlags([
+    FeatureFlags.Client.Menu.MotionCapture,
+    FeatureFlags.Client.Menu.XR
+  ])
 
   useEffect(() => {
     navigator.mediaDevices
@@ -106,6 +115,7 @@ export const MediaIconsBox = () => {
       .then((devices) => {
         hasAudioDevice.set(devices.filter((device) => device.kind === 'audioinput').length > 0)
         hasVideoDevice.set(devices.filter((device) => device.kind === 'videoinput').length > 0)
+        numVideoDevices.set(devices.filter((device) => device.kind === 'videoinput').length)
       })
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
@@ -135,9 +145,13 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
+
   const handleExitSpectatorClick = () => {
-    deleteSearchParams('spectate')
-    dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
+    if (spectating) {
+      SearchParamState.set('spectate', none)
+    } else {
+      SearchParamState.set('spectate', '')
+    }
   }
 
   return (
@@ -180,7 +194,7 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
           />
-          {isCamVideoEnabled && hasVideoDevice.value && (
+          {isCamVideoEnabled && numVideoDevices.value > 1 && (
             <IconButtonWithTooltip
               id="FlipVideo"
               title={t('user:menu.cycleCamera')}
@@ -196,7 +210,10 @@ export const MediaIconsBox = () => {
               id="UserPoseTracking"
               title={t('user:menu.poseTracking')}
               className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
-              onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
+              onClick={() => {
+                window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
+                clogger.info({ event_name: 'motion_capture', event_value: isMotionCaptureEnabled })
+              }}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               icon={<Icon type={'Accessibility'} />}
@@ -204,7 +221,11 @@ export const MediaIconsBox = () => {
           )}
         </>
       ) : null}
-      {screenshareEnabled && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+      {!isMobile &&
+      !(typeof navigator.mediaDevices.getDisplayMedia === 'undefined') &&
+      screenshareEnabled &&
+      mediaNetworkReady &&
+      mediaNetworkState?.ready.value ? (
         <>
           <IconButtonWithTooltip
             id="UserScreenSharing"
@@ -217,7 +238,7 @@ export const MediaIconsBox = () => {
           />
         </>
       ) : null}
-      {supportsVR && (
+      {supportsVR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserVR"
           title={t('user:menu.enterVR')}
@@ -230,7 +251,7 @@ export const MediaIconsBox = () => {
           icon={<VrIcon />}
         />
       )}
-      {supportsAR && (
+      {supportsAR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserAR"
           title={t('user:menu.enterAR')}
@@ -253,7 +274,8 @@ export const MediaIconsBox = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          Exit Spectate
+          {/* todo - better UX for entering spectate mode */}
+          {spectating ? 'Exit Spectate' : 'Enter Spectate'}
         </button>
       )}
       {/* {recordScopes && (

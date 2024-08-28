@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,40 +14,39 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import type Hls from 'hls.js'
-import { startTransition, useEffect } from 'react'
+import { startTransition, useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, UndefinedEntity } from '@etherealengine/ecs'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { ComponentType, Engine, UndefinedEntity } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
-import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/DebugMeshComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { State, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
@@ -104,19 +103,26 @@ export const MediaElementComponent = defineComponent({
       component.element.set(json.element as HTMLMediaElement)
   },
 
-  onRemove: (entity, component) => {
-    const element = component.element.get({ noproxy: true }) as HTMLMediaElement
-    component.hls.value?.destroy()
-    component.hls.set(none)
-    const audioNodeGroup = AudioNodeGroups.get(element)
-    if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
-    AudioNodeGroups.delete(element)
-    element.pause()
-    element.removeAttribute('src')
-    element.load()
-    element.remove()
-    component.element.set(none)
-    component.abortController.value.abort()
+  reactor: () => {
+    const entity = useEntityContext()
+    const mediaElementComponent = useComponent(entity, MediaElementComponent)
+
+    useLayoutEffect(() => {
+      return () => {
+        const element = mediaElementComponent.element.get({ noproxy: true }) as HTMLMediaElement
+        mediaElementComponent.hls.value?.destroy()
+        mediaElementComponent.hls.set(none)
+        const audioNodeGroup = AudioNodeGroups.get(element)
+        if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
+        AudioNodeGroups.delete(element)
+        element.pause()
+        element.removeAttribute('src')
+        element.load()
+        element.remove()
+        mediaElementComponent.element.set(none)
+        mediaElementComponent.abortController.value.abort()
+      }
+    }, [])
   },
 
   errors: ['MEDIA_ERROR', 'HLS_ERROR']
@@ -155,10 +161,6 @@ export const MediaComponent = defineComponent({
        */
       // autoStartTime: -1
     }
-  },
-
-  onRemove: (entity, component) => {
-    removeComponent(entity, MediaElementComponent)
   },
 
   toJSON: (entity, component) => {
@@ -232,6 +234,8 @@ export const MediaComponent = defineComponent({
       if (typeof json.seekTime === 'number') component.seekTime.set(json.seekTime)
 
       if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
+
+      if (typeof json.synchronize === 'boolean') component.synchronize.set(json.synchronize)
     })
   },
 
@@ -252,7 +256,7 @@ export function MediaReactor() {
   useEffect(() => {
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
-    const { renderer } = getComponent(Engine.instance.viewerEntity, RendererComponent)
+    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
@@ -287,6 +291,10 @@ export function MediaReactor() {
       document.body.removeEventListener('touchend', handleAutoplay)
       renderer.domElement.removeEventListener('pointerup', handleAutoplay)
       renderer.domElement.removeEventListener('touchend', handleAutoplay)
+
+      removeComponent(entity, BoundingBoxComponent)
+      removeComponent(entity, InputComponent)
+      removeComponent(entity, MediaElementComponent)
     }
   }, [])
 
@@ -321,7 +329,6 @@ export function MediaReactor() {
       clearErrors(entity, MediaComponent)
 
       const paths = media.resources.value
-
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
@@ -356,25 +363,28 @@ export function MediaReactor() {
 
   useEffect(
     function updateMediaElement() {
-      if (!media.ended.value) {
-        // If current track is not ended, don't change the track
-        return
-      }
+      if (!media.ended.value) return // If current track is not ended, don't change the track
 
       if (!isClient) return
 
-      const track = media.track.value
-      const nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
-
-      if (nextTrack === -1) return
-
-      const path = media.resources[nextTrack].value
-      if (!path) {
-        if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
-        return
-      }
+      if (media.resources.value.every((resource) => !resource)) return // if all resources are empty, we dont move to next track
 
       const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+      const track = media.track.value
+      let nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
+
+      //check if we haven't set up for single play yet, or if our sources don't match the new resources
+      //** todo  make this more robust in a refactor, feels very error prone with edge cases */
+      if (nextTrack === -1 && mediaElement?.element?.src === media.resources.value[0]) return
+
+      let path = media.resources.value[nextTrack]
+
+      while (!path) {
+        // we already remove the case where we dont have any track
+        // if current path is null, we simply skip over and move to next proper track
+        nextTrack = (nextTrack + 1) % media.resources.length
+        path = media.resources[nextTrack].value
+      }
 
       const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
 
@@ -387,55 +397,7 @@ export function MediaReactor() {
       media.track.set(nextTrack)
 
       if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
-        setComponent(entity, MediaElementComponent, {
-          element: document.createElement(assetClass) as HTMLMediaElement
-        })
-        const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-
-        const element = mediaElementState.element.value as HTMLMediaElement
-
-        element.crossOrigin = 'anonymous'
-        element.preload = 'auto'
-        element.muted = false
-        element.setAttribute('playsinline', 'true')
-
-        const signal = mediaElementState.abortController.signal.value
-
-        element.addEventListener(
-          'playing',
-          () => {
-            media.waiting.set(false)
-            clearErrors(entity, MediaElementComponent)
-          },
-          { signal }
-        )
-        element.addEventListener('waiting', () => media.waiting.set(true), { signal })
-        element.addEventListener(
-          'error',
-          (err) => {
-            addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            media.ended.set(true)
-            media.waiting.set(false)
-          },
-          { signal }
-        )
-
-        element.addEventListener(
-          'ended',
-          () => {
-            media.ended.set(true)
-            media.waiting.set(false)
-          },
-          { signal }
-        )
-
-        const audioNodes = createAudioNodeGroup(
-          element,
-          audioContext.createMediaElementSource(element),
-          media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
-        )
-
-        audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
+        setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
       }
 
       setComponent(entity, MediaElementComponent)
@@ -507,6 +469,70 @@ export function MediaReactor() {
   }, [debugEnabled, audioHelperTexture])
 
   return null
+}
+
+const setUpMediaElement = (
+  entity: Entity,
+  path: string,
+  media: State<ComponentType<typeof MediaComponent>>,
+  audioContext: AudioContext,
+  gainNodeMixBuses: {
+    mediaStreams: GainNode
+    notifications: GainNode
+    music: GainNode
+    soundEffects: GainNode
+  }
+) => {
+  const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+  setComponent(entity, MediaElementComponent, {
+    element: document.createElement(assetClass) as HTMLMediaElement
+  })
+  const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+
+  const element = mediaElementState.element.value as HTMLMediaElement
+
+  element.crossOrigin = 'anonymous'
+  element.preload = 'auto'
+  element.muted = false
+  element.setAttribute('playsinline', 'true')
+
+  const signal = mediaElementState.abortController.signal.value
+
+  element.addEventListener(
+    'playing',
+    () => {
+      media.waiting.set(false)
+      clearErrors(entity, MediaElementComponent)
+    },
+    { signal }
+  )
+  element.addEventListener('waiting', () => media.waiting.set(true), { signal })
+  element.addEventListener(
+    'error',
+    (err) => {
+      addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
+      media.ended.set(true)
+      media.waiting.set(false)
+    },
+    { signal }
+  )
+
+  element.addEventListener(
+    'ended',
+    () => {
+      media.ended.set(true)
+      media.waiting.set(false)
+    },
+    { signal }
+  )
+
+  const audioNodes = createAudioNodeGroup(
+    element,
+    audioContext.createMediaElementSource(element),
+    media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
+  )
+
+  audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
 }
 
 export const setupHLS = async (entity: Entity, url: string): Promise<Hls> => {

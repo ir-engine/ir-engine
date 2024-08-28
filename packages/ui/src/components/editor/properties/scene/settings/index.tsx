@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import getImagePalette from 'image-palette-core'
@@ -28,33 +28,38 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EntityUUID, defineQuery } from '@ir-engine/ecs'
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
   commitProperties,
   commitProperty,
   updateProperty
-} from '@etherealengine/editor/src/components/properties/Util'
-import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFunctions'
-import { takeScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
-import { generateEnvmapBake } from '@etherealengine/editor/src/functions/uploadEnvMapBake'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+} from '@ir-engine/editor/src/components/properties/Util'
+import { uploadProjectFiles } from '@ir-engine/editor/src/functions/assetFunctions'
+import { takeScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
+import { generateEnvmapBake } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import {
   blurAndScaleImageData,
   convertImageDataToKTX2Blob,
   imageDataToBlob
-} from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+} from '@ir-engine/engine/src/scene/classes/ImageUtils'
+import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { getState, useHookstate, useState } from '@ir-engine/hyperflux'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import ImagePreviewInput from '../../../input/Image/Preview'
+import NodeInput from '../../../input/Node'
 import NumericInput from '../../../input/Numeric'
 import PropertyGroup from '../../group'
+
+const cameraQuery = defineQuery([CameraComponent])
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -164,6 +169,8 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     image.src = url
   }
 
+  const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
+
   return (
     <PropertyGroup
       name={t('editor:properties.sceneSettings.name')}
@@ -171,18 +178,53 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
       icon={<SceneSettingsEditor.iconComponent />}
     >
       <InputGroup
+        name="Spectate Entity"
+        label={t('editor:properties.sceneSettings.lbl-spectate')}
+        info={t('editor:properties.sceneSettings.info-spectate')}
+      >
+        <BooleanInput
+          value={useSpectatingEntity.value}
+          onChange={(value) => {
+            useSpectatingEntity.set(value)
+            commitProperty(
+              SceneSettingsComponent,
+              'spectateEntity'
+            )(useSpectatingEntity.value ? ('' as EntityUUID) : null)
+          }}
+        />
+      </InputGroup>
+      {useSpectatingEntity.value ? (
+        <InputGroup
+          name="Entity UUID"
+          label={t('editor:properties.sceneSettings.lbl-uuid')}
+          info={t('editor:properties.sceneSettings.info-uuid')}
+        >
+          <NodeInput
+            value={sceneSettingsComponent.spectateEntity.value ?? ('' as EntityUUID)}
+            onRelease={commitProperty(SceneSettingsComponent, `spectateEntity`)}
+            onChange={commitProperty(SceneSettingsComponent, `spectateEntity`)}
+          />
+        </InputGroup>
+      ) : (
+        <></>
+      )}
+
+      <InputGroup
         name="Thumbnail"
         label={t('editor:properties.sceneSettings.lbl-thumbnail')}
         info={t('editor:properties.sceneSettings.info-thumbnail')}
+        className="w-auto"
       >
         <div>
           <ImagePreviewInput value={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
 
-          <Button onClick={createThumbnail}>{t('editor:properties.sceneSettings.generate')}</Button>
+          <Button onClick={createThumbnail} className="mt-2 w-full">
+            {t('editor:properties.sceneSettings.generate')}
+          </Button>
           {state.uploadingThumbnail.value ? (
-            <LoadingCircle />
+            <LoadingView spinnerOnly />
           ) : (
-            <Button onClick={uploadThumbnail} disabled={!state.thumbnail.value}>
+            <Button onClick={uploadThumbnail} disabled={!state.thumbnail.value} className="mt-2 w-full">
               {t('editor:properties.sceneSettings.save')}
             </Button>
           )}
@@ -192,39 +234,55 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         name="Loading Screen"
         label={t('editor:properties.sceneSettings.lbl-loading')}
         info={t('editor:properties.sceneSettings.info-loading')}
+        className="w-auto"
       >
         <div>
           <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
-          <Button onClick={createLoadingScreen}>{t('editor:properties.sceneSettings.generate')}</Button>
+          <Button onClick={createLoadingScreen} className="mt-2 w-full">
+            {t('editor:properties.sceneSettings.generate')}
+          </Button>
           {state.uploadingLoadingScreen.value ? (
             <LoadingView spinnerOnly />
           ) : (
-            <Button onClick={uploadLoadingScreen} disabled={!state.loadingScreenImageData.value}>
+            <Button
+              onClick={uploadLoadingScreen}
+              disabled={!state.loadingScreenImageData.value}
+              className="mt-2 w-full"
+            >
               {t('editor:properties.sceneSettings.save')}
             </Button>
           )}
         </div>
       </InputGroup>
       <InputGroup name="Primary Color" label={t('editor:properties.sceneSettings.lbl-colors')}>
-        <div>
+        <div className="w-full space-y-2">
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.primaryColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            className="w-full"
           />
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.backgroundColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            className="w-full"
           />
           <ColorInput
             disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.alternativeColor.value)}
-            onChange={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            className="w-full"
           />
-          <Button onClick={generateColors}>{t('editor:properties.sceneSettings.generate')}</Button>
+          <Button onClick={generateColors} className="w-full">
+            {t('editor:properties.sceneSettings.generate')}
+          </Button>
         </div>
       </InputGroup>
+
       <InputGroup name="Kill Height" label={t('editor:properties.sceneSettings.lbl-killHeight')}>
         <NumericInput
           value={sceneSettingsComponent.sceneKillHeight.value}

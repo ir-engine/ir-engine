@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,22 +14,22 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { ReactNode, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
+import { HiArrowSmallDown, HiArrowSmallUp, HiArrowsUpDown } from 'react-icons/hi2'
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import { ImmutableObject, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { FeathersOrder, useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Table, {
   TableBody,
   TableCell,
@@ -37,8 +37,8 @@ import Table, {
   TableHeaderCell,
   TablePagination,
   TableRow
-} from '@etherealengine/ui/src/primitives/tailwind/Table'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+} from '@ir-engine/ui/src/primitives/tailwind/Table'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 export interface ITableHeadCell {
   id: string | number
@@ -49,20 +49,20 @@ export interface ITableHeadCell {
 
 interface TableHeadProps {
   onRequestSort: (property: string | number, order: FeathersOrder) => void
-  order: FeathersOrder
-  orderBy: string | number
+  order: ImmutableObject<Record<string, FeathersOrder>>
   columns: ITableHeadCell[]
 }
 
-const TableHead = ({ order, orderBy, onRequestSort, columns }: TableHeadProps) => {
+const TableHead = ({ order, onRequestSort, columns }: TableHeadProps) => {
   const SortArrow = ({ columnId }: { columnId: string | number }) => {
-    if (columnId === orderBy) {
-      if (order === 1) {
-        return <HiArrowSmallUp onClick={() => onRequestSort(columnId, -1)} />
-      }
-      return <HiArrowSmallDown onClick={() => onRequestSort(columnId, 1)} />
+    const currentOrder: FeathersOrder = columnId in order && order[columnId] === 1 ? 1 : -1
+    const newOrder: FeathersOrder = currentOrder === 1 ? -1 : 1
+    const Icon = currentOrder === 1 ? HiArrowSmallDown : HiArrowSmallUp
+
+    if (columnId in order && order[columnId] === 1) {
+      return <Icon onClick={() => onRequestSort(columnId, newOrder)} />
     }
-    return <HiArrowSmallUp className={'opacity-0 hover:opacity-50'} />
+    return <HiArrowsUpDown onClick={() => onRequestSort(columnId, newOrder)} />
   }
 
   return (
@@ -93,7 +93,6 @@ interface DataTableProps {
 
 const DataTable = ({ query, columns, rows }: DataTableProps) => {
   const { t } = useTranslation()
-  const [orderBy, order] = (Object.entries(query.sort)[0] as [string | number, FeathersOrder]) ?? ['', 0]
 
   const storedRows = useHookstate<{ fetched: boolean; rows: RowType[] }>({ fetched: false, rows: [] })
 
@@ -122,8 +121,7 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
       )}
       <Table containerClassName={`${query.status === 'pending' && 'opacity-50'} h-[calc(100%_-_160px)]`}>
         <TableHead
-          order={order}
-          orderBy={orderBy}
+          order={query.sort}
           onRequestSort={(property, order) => query.setSort({ [property]: order })}
           columns={columns}
         />
