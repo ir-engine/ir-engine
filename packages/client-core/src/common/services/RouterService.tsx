@@ -94,8 +94,6 @@ export const useSearchParamState = () => {
         const params = new URLSearchParams(location.search)
         const current = Object.fromEntries([...params.entries()])
 
-        if (current[props.keyID] === value) return
-
         setSearchParams({ ...current, [props.keyID]: value })
 
         return () => {

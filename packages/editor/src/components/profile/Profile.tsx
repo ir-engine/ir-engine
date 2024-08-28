@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
-import { GithubIcon } from '@etherealengine/client-core/src/common/components/Icons/GithubIcon'
-import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
-import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
-import { MetaIcon } from '@etherealengine/client-core/src/common/components/Icons/MetaIcon'
-import { XIcon } from '@etherealengine/client-core/src/common/components/Icons/XIcon'
-import { initialAuthState, initialOAuthConnectedState } from '@etherealengine/client-core/src/common/initialAuthState'
-import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
-import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
-import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
-import StringInput from '@etherealengine/ui/src/components/editor/input/String'
-import { ContextMenu } from '@etherealengine/ui/src/components/tailwind/ContextMenu'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import { DiscordIcon } from '@ir-engine/client-core/src/common/components/Icons/DiscordIcon'
+import { GithubIcon } from '@ir-engine/client-core/src/common/components/Icons/GithubIcon'
+import { GoogleIcon } from '@ir-engine/client-core/src/common/components/Icons/GoogleIcon'
+import { LinkedInIcon } from '@ir-engine/client-core/src/common/components/Icons/LinkedInIcon'
+import { MetaIcon } from '@ir-engine/client-core/src/common/components/Icons/MetaIcon'
+import { XIcon } from '@ir-engine/client-core/src/common/components/Icons/XIcon'
+import { initialAuthState, initialOAuthConnectedState } from '@ir-engine/client-core/src/common/initialAuthState'
+import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
+import { PopupMenuServices } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
+import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import StringInput from '@ir-engine/ui/src/components/editor/input/String'
+import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaArrowRightToBracket } from 'react-icons/fa6'
@@ -78,7 +78,7 @@ const ProfileModal = ({ user }) => {
       }
   }, [selfUser.identityProviders])
 
-  const { inviteCode, name, id: userId, apiKey, avatar } = user
+  const { inviteCode, name, id: userId, avatar } = user
   const clientSetting = useFind(clientSettingPath).data.at(0)
 
   const authState = useHookstate(initialAuthState)
@@ -186,7 +186,7 @@ const ProfileModal = ({ user }) => {
                 }
               />
             </InputGroup>
-            <InputGroup
+            {/* <InputGroup
               className="mr-0 flex flex-row items-center justify-start"
               label="API Key"
               labelClassName="text-left w-20"
@@ -209,7 +209,7 @@ const ProfileModal = ({ user }) => {
                   </button>
                 }
               />
-            </InputGroup>
+            </InputGroup> */}
           </div>
         </div>
 

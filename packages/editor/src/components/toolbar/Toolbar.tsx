@@ -27,6 +27,7 @@ import AddEditLocationModal from '@ir-engine/client-core/src/admin/components/lo
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
 import { useUserHasAccessHook } from '@ir-engine/client-core/src/user/userHasAccess'
 import { locationPath } from '@ir-engine/common/src/schema.type.module'
