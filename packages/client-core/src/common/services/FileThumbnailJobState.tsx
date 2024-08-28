@@ -108,7 +108,8 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
   if (!blob) return
   const thumbnailMode = 'automatic'
   const thumbnailKey = `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
-    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
+    .replace(projectName + '/', '')
+    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '_')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
   const thumbnailURL = new URL(

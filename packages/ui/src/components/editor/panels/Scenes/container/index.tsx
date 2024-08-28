@@ -95,7 +95,15 @@ export default function ScenesPanel() {
                 <SceneItem
                   key={scene.id}
                   scene={scene}
-                  updateEditorState
+                  onDeleteScene={() => {
+                    if (editorState.sceneAssetID.value === scene.id) {
+                      editorState.sceneName.set(null)
+                      editorState.sceneAssetID.set(null)
+                    }
+                  }}
+                  onRenameScene={(newName) => {
+                    editorState.scenePath.set(newName)
+                  }}
                   moveMenuUp={true}
                   handleOpenScene={() => onClickScene(scene)}
                   refetchProjectsData={scenesQuery.refetch}

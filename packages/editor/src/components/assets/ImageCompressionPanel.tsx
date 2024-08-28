@@ -150,7 +150,7 @@ export default function ImageCompressionPanel({
   }
 
   return (
-    <div className="max-h-[80vh] w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-full min-w-[400px] max-w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
         <Button
@@ -161,9 +161,9 @@ export default function ImageCompressionPanel({
         />
       </div>
 
-      <div className="mx-auto grid w-1/2 gap-y-2">
+      <div className="mx-auto grid w-4/5 min-w-[400px] justify-center gap-y-2">
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-24 text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.dst')}
@@ -172,7 +172,7 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="mode"
@@ -191,7 +191,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="flipY"
@@ -205,7 +205,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="linear"
@@ -219,7 +219,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="mipmaps"
@@ -233,7 +233,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="normalMap"
@@ -249,7 +249,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
-              containerClassName="w-full justify-start"
+              containerClassName="w-full justify-start flex-nowrap"
               labelClassName="w-20 text-theme-gray3"
               infoClassName="text-theme-gray3"
               name="quality"
@@ -268,7 +268,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              containerClassName="w-full justify-start"
+              containerClassName="w-full justify-start flex-nowrap"
               labelClassName="w-20 text-theme-gray3"
               infoClassName="text-theme-gray3"
               name="compressionLevel"
@@ -291,7 +291,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
-              containerClassName="w-full justify-start"
+              containerClassName="w-full justify-start flex-nowrap"
               labelClassName="w-20 text-theme-gray3"
               infoClassName="text-theme-gray3"
               name="uastcFlags"
@@ -306,7 +306,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              containerClassName="w-full justify-start"
+              containerClassName="w-full justify-start flex-nowrap"
               labelClassName="w-20 text-theme-gray3"
               infoClassName="text-theme-gray3"
               name="uastcZstandard"

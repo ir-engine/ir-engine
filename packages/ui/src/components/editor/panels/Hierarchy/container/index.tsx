@@ -49,8 +49,10 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 
 import { GLTF } from '@gltf-transform/core'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@ir-engine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -68,7 +70,6 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -272,7 +273,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
         // Deselect material entity since we've just clicked on a hierarchy node
         getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-        if (e.ctrlKey) {
+        if ((e.ctrlKey && usesCtrlKey()) || (e.metaKey && !usesCtrlKey())) {
           if (entity === rootEntity) return
           EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
         } else if (e.shiftKey && prevClickedNode) {

@@ -6,8 +6,7 @@
     "check-errors": "tsc --noemit",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"**/*.scss\" --fix",
-    "format-staged": "lint-staged",
-    "precommit": "no-master-commits -b main"
+    "format-staged": "lint-staged"
   },
   "license": "ISC",
   "pre-commit": [
@@ -15,10 +14,10 @@
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
-      "prettier --write"
+      "prettier --write \"**/*.{ts,tsx}\""
     ],
     "*.scss": [
-      "stylelint --fix"
+      "stylelint \"**/*.scss\" --fix"
     ]
   }
 }
