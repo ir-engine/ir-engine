@@ -249,7 +249,13 @@ export const defineComponent = <
     }
   }
   Component.onRemove = () => {}
-  Component.toJSON = (entity, component) => null!
+  Component.toJSON = (entity, component) => {
+    if (schemaIsJSONSchema(def.schema)) {
+      return component.value as JSON
+    }
+
+    return null as JSON
+  }
 
   Component.errors = []
   Object.assign(Component, def)
