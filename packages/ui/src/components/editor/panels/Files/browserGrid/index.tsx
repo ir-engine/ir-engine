@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and
 provide for limited attribution for the Original Developer. In addition,
@@ -14,29 +14,29 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import {
   FilesViewModeSettings,
   availableTableColumns
-} from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
-import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
-import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+} from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'
+import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
+import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
+import { getSpawnPositionAtCenter } from '@ir-engine/editor/src/functions/screenSpaceFunctions'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -187,7 +187,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
         />
       </div>
 
-      <Tooltip title={t(props.item.fullName)}>
+      <Tooltip content={t(props.item.fullName)}>
         <div className="text-secondary line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
       </Tooltip>
     </div>
@@ -200,17 +200,19 @@ type FileBrowserItemType = {
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
   openModelCompress: () => void
   openImageCompress: () => void
-  openFileProperties: () => void
+  openFileProperties: (item: FileDataType) => void
   openDeleteFileModal: () => void
   isFilesLoading: boolean
   projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
+  onContextMenu: (event: React.MouseEvent, currentFile: FileDataType) => void
   handleDropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
   isSelected: boolean
   refreshDirectory: () => Promise<void>
+  selectedFileKeys: string[]
 }
 
 function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
@@ -228,6 +230,7 @@ export function FileBrowserItem({
   currentContent,
   projectName,
   onClick,
+  onContextMenu,
   handleDropItemsOnPanel,
   openModelCompress,
   openImageCompress,
@@ -238,7 +241,8 @@ export function FileBrowserItem({
   isListView,
   staticResourceModifiedDates,
   isSelected,
-  refreshDirectory
+  refreshDirectory,
+  selectedFileKeys
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
@@ -248,6 +252,7 @@ export function FileBrowserItem({
     event.preventDefault()
     event.stopPropagation()
     setAnchorEvent(event)
+    onContextMenu(event, item)
   }
 
   const handleClose = () => {
@@ -319,7 +324,9 @@ export function FileBrowserItem({
         accept: [...SupportedFileTypes],
         drop: (dropItem) => handleDropItemsOnPanel(dropItem, item),
         canDrop: (dropItem: Record<string, unknown>) =>
-          item.isFolder && ('key' in dropItem || canDropItemOverFolder(item.key)),
+          item.isFolder &&
+          ('key' in dropItem || canDropItemOverFolder(item.key)) &&
+          !selectedFileKeys.includes(item.key),
         collect: (monitor) => ({
           isOver: monitor.canDrop() && monitor.isOver()
         })
@@ -359,7 +366,7 @@ export function FileBrowserItem({
         </div>
       )}
 
-      <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
+      <ContextMenu anchorEvent={anchorEvent} onClose={handleClose}>
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           <Button variant="outline" size="small" fullWidth onClick={addFolder}>
             {t('editor:layout.filebrowser.addNewFolder')}
@@ -418,7 +425,7 @@ export function FileBrowserItem({
             size="small"
             fullWidth
             onClick={() => {
-              openFileProperties()
+              openFileProperties(item)
               handleClose()
             }}
           >

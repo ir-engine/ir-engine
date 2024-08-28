@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,20 +14,19 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
 import { BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { spawnPointPath } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID } from '@ir-engine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -35,28 +34,26 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineState, getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
-import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { Vector3_Right } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
-import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineState, getMutableState, getState, matches, useHookstate } from '@ir-engine/hyperflux'
+import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { Vector3_Right } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { enableObjectLayer } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
@@ -200,23 +197,24 @@ export const PortalComponent = defineComponent({
       }
     }, [portalComponent.previewType])
 
-    const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)
+    /** @todo - reimplement once spawn points are refactored */
+    // const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)
 
-    const [texture] = useTexture(portalDetails.data?.previewImageURL || '', entity)
+    // const [texture] = useTexture(portalDetails.data?.previewImageURL || '', entity)
 
-    useEffect(() => {
-      if (!texture || !portalComponent.mesh.value) return
+    // useEffect(() => {
+    //   if (!texture || !portalComponent.mesh.value) return
 
-      const material = portalComponent.mesh.value.material as MeshBasicMaterial
-      material.map = texture
-      material.needsUpdate = true
-    }, [texture, portalComponent.mesh])
+    //   const material = portalComponent.mesh.value.material as MeshBasicMaterial
+    //   material.map = texture
+    //   material.needsUpdate = true
+    // }, [texture, portalComponent.mesh])
 
-    useEffect(() => {
-      if (!portalDetails.data) return
-      portalComponent.remoteSpawnPosition.value.copy(portalDetails.data.position as Vector3)
-      portalComponent.remoteSpawnRotation.value.copy(portalDetails.data.rotation as Quaternion)
-    }, [portalDetails])
+    // useEffect(() => {
+    //   if (!portalDetails.data) return
+    //   portalComponent.remoteSpawnPosition.value.copy(portalDetails.data.position as Vector3)
+    //   portalComponent.remoteSpawnRotation.value.copy(portalDetails.data.rotation as Quaternion)
+    // }, [portalDetails])
 
     return null
   },

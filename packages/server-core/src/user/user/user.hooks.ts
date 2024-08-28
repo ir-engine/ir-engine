@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,27 +14,24 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { MethodNotAllowed } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
-import { userSettingPath } from '@etherealengine/common/src/schemas/user/user-setting.schema'
+import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
+import { userAvatarPath } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
+import { userSettingPath } from '@ir-engine/common/src/schemas/user/user-setting.schema'
 import {
   InviteCode,
   userDataValidator,
@@ -43,8 +40,8 @@ import {
   userPatchValidator,
   userQueryValidator,
   UserType
-} from '@etherealengine/common/src/schemas/user/user.schema'
-import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+} from '@ir-engine/common/src/schemas/user/user.schema'
+import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
@@ -53,7 +50,6 @@ import persistData from '../../hooks/persist-data'
 import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { userAvatarDataResolver } from '../user-avatar/user-avatar.resolvers'
 import { UserService } from './user.class'
 import {
   userDataResolver,
@@ -227,14 +223,7 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
       })
 
       if (existingUserAvatar.data.length === 0) {
-        const userAvatarData = await userAvatarDataResolver.resolve(
-          {
-            userId: item.id,
-            avatarId: item.avatarId
-          },
-          context
-        )
-        await context.app.service(userAvatarPath).create(userAvatarData)
+        await context.app.service(userAvatarPath).create({ userId: item.id, avatarId: item.avatarId })
       } else if (existingUserAvatar.data[0].avatarId !== item.avatarId) {
         await context.app.service(userAvatarPath).patch(existingUserAvatar.data[0].id, {
           avatarId: item.avatarId
@@ -284,9 +273,19 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
 
     const searchedIdentityProviders = (await context.app.service(identityProviderPath).find({
       query: {
-        accountIdentifier: {
-          $like: `%${search}%`
-        }
+        $select: ['id', 'userId'],
+        $or: [
+          {
+            accountIdentifier: {
+              $like: `%${search}%`
+            }
+          },
+          {
+            email: {
+              $like: `%${search}%`
+            }
+          }
+        ]
       },
       paginate: false
     })) as IdentityProviderType[]
@@ -322,7 +321,7 @@ export default createSkippableHooks(
     },
 
     before: {
-      all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
+      all: [schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
       find: [
         iff(
           isProvider('external'),
@@ -336,7 +335,7 @@ export default createSkippableHooks(
       get: [persistQuery, discardQuery('skipAvatar')],
       create: [
         iff(isProvider('external'), verifyScope('user', 'write')),
-        () => schemaHooks.validateData(userDataValidator),
+        schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
         persistData,
         discard('scopes', 'avatarId')
@@ -344,7 +343,7 @@ export default createSkippableHooks(
       update: [disallow()],
       patch: [
         iff(isProvider('external'), restrictUserPatch),
-        () => schemaHooks.validateData(userPatchValidator),
+        schemaHooks.validateData(userPatchValidator),
         schemaHooks.resolveData(userPatchResolver),
         persistData,
         disallowNonId,

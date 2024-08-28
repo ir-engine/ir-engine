@@ -4,23 +4,23 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React from 'react'
@@ -32,6 +32,7 @@ export const RadioRoot = ({
   onChange,
   selected,
   className,
+  labelClassName,
   disabled,
   description
 }: {
@@ -40,6 +41,7 @@ export const RadioRoot = ({
   onChange: React.ChangeEventHandler<HTMLInputElement>
   selected: boolean
   className?: string
+  labelClassName?: string
   disabled?: boolean
   description?: string
 }) => {
@@ -49,7 +51,7 @@ export const RadioRoot = ({
       <label
         onClick={() => onChange({ target: { value } } as any)}
         htmlFor={label}
-        className="flex cursor-pointer items-center text-sm font-medium text-theme-primary"
+        className={twMerge('flex cursor-pointer items-center text-sm font-medium text-theme-primary', labelClassName)}
       >
         <input
           type="radio"
@@ -58,7 +60,7 @@ export const RadioRoot = ({
           name={label}
           onChange={onChange}
           disabled={disabled}
-          className="mr-2 h-4 w-4 shrink-0 appearance-none rounded-full border border-[#212226] bg-[#141619] bg-clip-content checked:border-blue-primary checked:bg-blue-500 checked:p-[2px] indeterminate:hover:border-[#9CA0AA]  focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
+          className="shrink-0 rounded-full border-gray-200 text-blue-primary checked:border-blue-primary focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-offset-gray-800"
         />
         {label}
       </label>
@@ -74,6 +76,7 @@ const Radio = <T extends OptionValueType>({
   options,
   onChange,
   className,
+  labelClassName,
   horizontal,
   disabled
 }: {
@@ -81,6 +84,7 @@ const Radio = <T extends OptionValueType>({
   options: { label: string; value: T; description?: string }[]
   onChange: (value: T) => void
   className?: string
+  labelClassName?: string
   horizontal?: boolean
   disabled?: boolean
 }) => {
@@ -91,6 +95,7 @@ const Radio = <T extends OptionValueType>({
           key={label}
           selected={value === optionValue}
           label={label}
+          labelClassName={labelClassName}
           value={optionValue}
           onChange={(event) => onChange(event.target.value as T)}
           disabled={disabled}

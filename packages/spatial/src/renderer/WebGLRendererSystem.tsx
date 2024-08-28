@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import '../threejsPatches'
@@ -55,16 +55,8 @@ import {
   QueryReactor,
   useComponent,
   useEntityContext
-} from '@etherealengine/ecs'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  NO_PROXY,
-  none,
-  State,
-  useMutableState
-} from '@etherealengine/hyperflux'
+} from '@ir-engine/ecs'
+import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
 import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
@@ -133,18 +125,13 @@ export const RendererComponent = defineComponent({
 
   /**
    * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
-   * see https://github.com/EtherealEngine/etherealengine/issues/9308
+   * see https://github.com/ir-engine/ir-engine/issues/9308
    */
   activeRender: false,
 
   onSet(entity, component, json) {
     if (json?.canvas) component.canvas.set(json.canvas)
     if (json?.scenes) component.scenes.set(json.scenes)
-  },
-
-  onRemove(entity, component) {
-    component.value.renderer?.dispose()
-    component.value.effectComposer?.dispose()
   },
 
   reactor: () => {
@@ -208,6 +195,13 @@ export const RendererComponent = defineComponent({
         effectComposer.removePass(effectPass)
       }
     }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
+
+    useEffect(() => {
+      return () => {
+        rendererComponent.value.renderer?.dispose()
+        rendererComponent.value.effectComposer?.dispose()
+      }
+    }, [])
 
     return null
   }
@@ -329,7 +323,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.updateCSMFrustums && renderer.csm?.updateFrustums()
+    state.useShadows && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)

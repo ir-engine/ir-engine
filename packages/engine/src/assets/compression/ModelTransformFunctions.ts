@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
@@ -56,17 +56,17 @@ import { getPixels } from 'ndarray-pixels'
 import { LoaderUtils } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import config from '@etherealengine/common/src/config'
-import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
-import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { API } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
+import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
+import { baseName, pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 import {
   ExtractedImageTransformParameters,
   extractParameters,
   ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+} from '@ir-engine/engine/src/assets/classes/ModelTransform'
+import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
+import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { UploadRequestState } from '../state/UploadRequestState'
 import { EEMaterial, EEMaterialExtension } from './extensions/EE_MaterialTransformer'
@@ -748,7 +748,7 @@ export async function transformModel(
       body: data,
       contentType: (await getContentType(args.dst)) || ''
     }
-    result = await Engine.instance.api.service('file-browser').patch(null, uploadArgs)
+    result = await API.instance.service('file-browser').patch(null, uploadArgs)
     */
     /*dispatchAction(
       BufferHandlerExtension.saveBuffer({
@@ -794,8 +794,8 @@ export async function transformModel(
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
-    //await Engine.instance.api.service(fileBrowserPath).remove(folderURL)
-    await Engine.instance.api.service(fileBrowserPath).create(folderURL)
+    //await API.instance.service(fileBrowserPath).remove(folderURL)
+    await API.instance.service(fileBrowserPath).create(folderURL)
 
     json.images?.map((image) => {
       const nuURI = pathJoin(
@@ -827,7 +827,7 @@ export async function transformModel(
         body: data,
         contentType: (await getContentType(uri)) || ''
       }
-      return Engine.instance.api.service(fileBrowserPath).patch(null, args)
+      return API.instance.service(fileBrowserPath).patch(null, args)
     }
     await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
     result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))

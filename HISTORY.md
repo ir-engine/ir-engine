@@ -1,4 +1,8 @@
-# Author Archive 
+# ARCHIVED
+
+This document is archived. Please refer to release tags for more info https://github.com/ir-engine/ir-engine/tags
+
+## Author Archive 
 
 Updated to Q1 2022
 

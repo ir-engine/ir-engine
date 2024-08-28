@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
@@ -43,39 +43,36 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { AssetType, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
-import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/regex'
+import { AssetType, FileToAssetType } from '@ir-engine/common/src/constants/AssetType'
+import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@ir-engine/common/src/regex'
 
-import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
-import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ResourcesJson, ResourceType } from '@etherealengine/common/src/interfaces/ResourcesJson'
-import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { ProjectBuilderTagsType } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
-import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
-import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
-import { ProjectCommitType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
-import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
-import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
+import { ProjectPackageJsonType } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
+import { ResourcesJson, ResourceType } from '@ir-engine/common/src/interfaces/ResourcesJson'
+import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
+import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
+import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuilderTagsType } from '@ir-engine/common/src/schemas/projects/project-builder-tags.schema'
+import { ProjectCheckSourceDestinationMatchType } from '@ir-engine/common/src/schemas/projects/project-check-source-destination-match.schema'
+import { ProjectCheckUnfetchedCommitType } from '@ir-engine/common/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCommitType } from '@ir-engine/common/src/schemas/projects/project-commits.schema'
+import { ProjectDestinationCheckType } from '@ir-engine/common/src/schemas/projects/project-destination-check.schema'
+import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
+import { helmSettingPath } from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
+import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
+import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import {
   copyFolderRecursiveSync,
   deleteFolderRecursive,
   getFilesRecursive
-} from '@etherealengine/common/src/utils/fsHelperFunctions'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState } from '@etherealengine/hyperflux'
-import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
+} from '@ir-engine/common/src/utils/fsHelperFunctions'
+import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { getState } from '@ir-engine/hyperflux'
+import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 
-import { BUILDER_CHART_REGEX } from '@etherealengine/common/src/regex'
+import { BUILDER_CHART_REGEX } from '@ir-engine/common/src/regex'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
@@ -191,7 +188,7 @@ export const updateBuilder = async (
 
       if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
         await execAsync(
-          `helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+          `helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
         )
       else {
         const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
@@ -202,7 +199,7 @@ export const updateBuilder = async (
           const builderChartVersion = match[1]
           if (builderChartVersion)
             await execAsync(
-              `helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+              `helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
             )
         }
       }
@@ -248,7 +245,7 @@ export const checkBuilderService = async (
         jobStatus.failed = failed.length > 0
         jobStatus.running = running.length > 0
       } else {
-        const containerName = 'etherealengine-builder'
+        const containerName = 'ir-engine-builder'
 
         const builderPods = await k8DefaultClient.listNamespacedPod(
           'default',
@@ -325,24 +322,12 @@ export const getProjectConfig = (projectName: string) => {
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
-  const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
   const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
   if (fs.existsSync(manifestJsonPath)) {
     const data = fs.readFileSync(manifestJsonPath)
     return JSON.parse(data.toString()) as ManifestJson
   }
-  if (fs.existsSync(packageJsonPath)) {
-    const data = fs.readFileSync(packageJsonPath)
-    const packageJson = JSON.parse(data.toString()) as ProjectPackageJsonType
-    return {
-      name: packageJson.name!,
-      version: packageJson.version!,
-      engineVersion: packageJson.etherealEngine?.version,
-      description: packageJson.description,
-      thumbnail: packageJson.etherealEngine?.thumbnail
-    }
-  }
-  throw new Error(`No manifest.json or package.json found in project '${projectName}'`)
+  throw new Error(`No manifest.json found in project '${projectName}'`)
 }
 
 export const engineVersion = (
@@ -371,29 +356,8 @@ export const getProjectManifestFromRemote = async (
       Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
     ) as ManifestJson
   } catch (err) {
-    logger.warn("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
-
-    try {
-      const blobResponse = await octoKit.rest.repos.getContent({
-        owner,
-        repo,
-        path: 'package.json',
-        ref: sha
-      })
-      const packageJson = JSON.parse(
-        Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
-      ) as ProjectPackageJsonType
-      return {
-        name: packageJson.name,
-        version: packageJson.version,
-        engineVersion: packageJson.etherealEngine?.version,
-        description: packageJson.description,
-        thumbnail: packageJson.etherealEngine?.thumbnail
-      } as ManifestJson
-    } catch (err) {
-      logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
-      return Promise.reject(err)
-    }
+    logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+    return Promise.reject(err)
   }
 }
 
@@ -584,7 +548,7 @@ export const checkProjectDestinationMatch = async (
       error: 'invalidRepoProjectName',
       text: 'The repository you are attempting to update from contains a different project than the one you are updating'
     }
-  else return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
+  return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
 }
 
 export const checkDestination = async (app: Application, url: string, params?: ProjectParams) => {
@@ -1042,13 +1006,13 @@ export async function getProjectUpdateJobBody(
     command.push(data.reset.toString())
   }
 
-  const projectJobName = data.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(data.name)
 
   const labels = {
-    'etherealengine/projectUpdater': 'true',
-    'etherealengine/autoUpdate': 'false',
-    'etherealengine/projectField': projectJobName,
-    'etherealengine/release': process.env.RELEASE_NAME!
+    'ir-engine/projectUpdater': 'true',
+    'ir-engine/autoUpdate': 'false',
+    'ir-engine/projectField': projectJobName,
+    'ir-engine/release': process.env.RELEASE_NAME!
   }
 
   const name = `${process.env.RELEASE_NAME}-${projectJobName}-update`
@@ -1090,12 +1054,12 @@ export async function getProjectPushJobBody(
     command.push(storageProviderName)
   }
 
-  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(project.name)
 
   const labels = {
-    'etherealengine/projectPusher': 'true',
-    'etherealengine/projectField': projectJobName,
-    'etherealengine/release': process.env.RELEASE_NAME!
+    'ir-engine/projectPusher': 'true',
+    'ir-engine/projectField': projectJobName,
+    'ir-engine/release': process.env.RELEASE_NAME!
   }
 
   const name = `${process.env.RELEASE_NAME}-${projectJobName}-gh-push`
@@ -1104,16 +1068,16 @@ export async function getProjectPushJobBody(
 }
 
 export const getCronJobBody = (project: ProjectType, image: string): object => {
-  const projectJobName = project.name.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(project.name)
   return {
     metadata: {
       name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
       labels: {
-        'etherealengine/projectUpdater': 'true',
-        'etherealengine/autoUpdate': 'true',
-        'etherealengine/projectField': projectJobName,
-        'etherealengine/projectId': project.id,
-        'etherealengine/release': process.env.RELEASE_NAME
+        'ir-engine/projectUpdater': 'true',
+        'ir-engine/autoUpdate': 'true',
+        'ir-engine/projectField': projectJobName,
+        'ir-engine/projectId': project.id,
+        'ir-engine/release': process.env.RELEASE_NAME
       }
     },
     spec: {
@@ -1126,15 +1090,15 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
           template: {
             metadata: {
               labels: {
-                'etherealengine/projectUpdater': 'true',
-                'etherealengine/autoUpdate': 'true',
-                'etherealengine/projectField': projectJobName,
-                'etherealengine/projectId': project.id,
-                'etherealengine/release': process.env.RELEASE_NAME
+                'ir-engine/projectUpdater': 'true',
+                'ir-engine/autoUpdate': 'true',
+                'ir-engine/projectField': projectJobName,
+                'ir-engine/projectId': project.id,
+                'ir-engine/release': process.env.RELEASE_NAME
               }
             },
             spec: {
-              serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
+              serviceAccountName: `${process.env.RELEASE_NAME}-ir-engine-api`,
               containers: [
                 {
                   name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
@@ -1180,12 +1144,12 @@ export async function getDirectoryArchiveJobBody(
     jobId
   ]
 
-  const projectJobName = projectName.toLowerCase().replace(/[^a-z0-9-.]/g, '-')
+  const projectJobName = cleanProjectName(projectName)
 
   const labels = {
-    'etherealengine/directoryArchiver': 'true',
-    'etherealengine/projectField': projectJobName,
-    'etherealengine/release': process.env.RELEASE_NAME || ''
+    'ir-engine/directoryArchiver': 'true',
+    'ir-engine/projectField': projectJobName,
+    'ir-engine/release': process.env.RELEASE_NAME || ''
   }
 
   const name = `${process.env.RELEASE_NAME}-${projectJobName}-archive`
@@ -1211,7 +1175,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
     app
   )
 
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'ir-engine')!.image
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 
@@ -1298,7 +1262,10 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
 
 export const copyDefaultProject = () => {
   deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
-  copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
+  copyFolderRecursiveSync(
+    path.join(appRootPath.path, 'packages/projects/default-project'),
+    path.join(projectsRootFolder, 'ir-engine')
+  )
 }
 
 export const getGitProjectData = (project) => {
@@ -1347,9 +1314,9 @@ export const updateProject = async (
   },
   params?: ProjectParams
 ) => {
-  if (data.sourceURL === 'default-project') {
+  if (data.sourceURL === 'ir-engine/default-project') {
     copyDefaultProject()
-    await uploadLocalProjectToProvider(app, 'default-project')
+    await uploadLocalProjectToProvider(app, 'ir-engine/default-project')
     if (params?.jobId) {
       const date = await getDateTimeSql()
       await app.service(apiJobPath).patch(params.jobId as string, {
@@ -1361,7 +1328,7 @@ export const updateProject = async (
       (await app.service(projectPath).find({
         query: {
           action: 'admin',
-          name: 'default-project',
+          name: 'ir-engine/default-project',
           $limit: 1
         }
       })) as Paginated<ProjectType>
@@ -1452,6 +1419,7 @@ export const updateProject = async (
   try {
     const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
     if (data.commitSHA) await git.checkout(data.commitSHA)
+    else if (data.sourceBranch) await git.checkout(data.sourceBranch)
     if (branchExists.length === 0 || data.reset) {
       try {
         await git.deleteLocalBranch(branchName)
@@ -1536,7 +1504,7 @@ export const updateProject = async (
   returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
   if (returned.name !== projectName)
-    await app.service(projectPath).patch(existingProject!.id, {
+    await app.service(projectPath).patch(returned.id, {
       name: projectName
     })
 
@@ -1677,6 +1645,19 @@ const staticResourceClasses = [
   AssetType.Prefab
 ]
 
+const ignoreFiles = ['.ds_store']
+
+/**
+ * Checks whether a file is to be ignored in resources.json and static-resources
+ * @param key
+ */
+export const isIgnoredFile = (key: string) => {
+  for (const ignoreFile of ignoreFiles) {
+    if (key.includes(ignoreFile)) return true
+  }
+  return false
+}
+
 /**
  * Updates the local storage provider with the project's current files
  * @param app Application object
@@ -1756,7 +1737,10 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) {
+      if (
+        (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) ||
+        isIgnoredFile(filePathRelative)
+      ) {
         existingKeySet.delete(key)
         continue
       }
@@ -1767,9 +1751,15 @@ export const uploadLocalProjectToProvider = async (
       const stats = await getStats(fileResult, contentType)
       const resourceInfo = resourcesJson?.[filePathRelative]
       const type = isScene ? 'scene' : getResourceType(filePathRelative, resourceInfo!)
-      const thumbnailKey =
-        resourceInfo?.thumbnailKey ?? (isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined)
-
+      let thumbnailKey = resourceInfo?.thumbnailKey
+      if (!thumbnailKey) {
+        if (isScene) {
+          thumbnailKey = key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg'
+        } else if (type === 'thumbnail') {
+          //since thumbnails are not in resource json, we need to redefine their thumbnail keys here
+          thumbnailKey = key
+        }
+      }
       if (existingKeySet.has(key)) {
         const id = existingKeySet.get(key)!
         existingKeySet.delete(key)
@@ -1834,4 +1824,11 @@ export const uploadLocalProjectToProvider = async (
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   const assetsOnly = !fs.existsSync(path.join(projectRootPath, 'xrengine.config.ts'))
   return { files: results.filter((success) => !!success) as string[], assetsOnly }
+}
+
+export const cleanProjectName = (name: string) => {
+  const returned = name.toLowerCase().replace(/[^a-zA-Z0-9-.]/g, '-')
+  if (!/[a-zA-Z0-9]/.test(returned[0])) return cleanProjectName(name.slice(1))
+  if (!/[a-zA-Z0-9]/.test(returned[returned.length - 1])) return cleanProjectName(name.slice(0, returned.length - 1))
+  return returned
 }

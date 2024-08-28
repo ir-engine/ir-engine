@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,20 +14,21 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 
+import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
@@ -179,7 +180,7 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
 
   context.hashedThumbnailResults = {}
 
-  const thumbkeyToIndex = new Map<string, string>()
+  const thumbkeyToIndex = new Map<string, string[]>()
   const storageProvider = getStorageProvider()
 
   for (const resource of dataArr) {
@@ -190,7 +191,10 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
       const thumbnailURLWithHash = thumbnailURL + '?hash=' + resource.hash.slice(0, 6)
       context.hashedThumbnailResults[resource.id] = thumbnailURLWithHash
     } else {
-      if (resource.thumbnailKey) thumbkeyToIndex.set(resource.thumbnailKey, resource.id)
+      if (resource.thumbnailKey) {
+        if (!thumbkeyToIndex.has(resource.thumbnailKey)) thumbkeyToIndex.set(resource.thumbnailKey, [])
+        thumbkeyToIndex.get(resource.thumbnailKey)?.push(resource.id)
+      }
     }
   }
 
@@ -209,13 +213,43 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
   for (const thumbnailResource of thumbnailResources) {
     const thumbnailURL = storageProvider.getCachedURL(thumbnailResource.key, context.params.isInternal)
     const thumbnailURLWithHash = thumbnailURL + '?hash=' + thumbnailResource.hash.slice(0, 6)
-    const id = thumbkeyToIndex.get(thumbnailResource.key)
+    const ids = thumbkeyToIndex.get(thumbnailResource.key)
 
-    if (!id) continue
-    context.hashedThumbnailResults[id] = thumbnailURLWithHash
+    if (!ids) continue
+    for (const id of ids) context.hashedThumbnailResults[id] = thumbnailURLWithHash
   }
 
   return context
+}
+
+const addDeleteLog = async (context: HookContext<StaticResourceService>) => {
+  try {
+    const resource = context.result as StaticResourceType
+
+    const project = await context.app.service(projectPath).find({
+      query: {
+        name: resource.project,
+        $limit: 1
+      }
+    })
+
+    const projectId = project.data[0].id
+
+    const action = resource.type === 'scene' ? 'SCENE_REMOVED' : 'RESOURCE_REMOVED'
+
+    await context.app.service(projectHistoryPath).create({
+      projectId: projectId,
+      userId: context.params.user?.id || null,
+      action: action,
+      actionIdentifier: resource.id,
+      actionIdentifierType: 'static-resource',
+      actionDetail: JSON.stringify({
+        url: resource.key
+      })
+    })
+  } catch (error) {
+    console.error('Error in adding delete log: ', error)
+  }
 }
 
 export default {
@@ -328,7 +362,7 @@ export default {
     create: [updateResourcesJson],
     update: [updateResourcesJson],
     patch: [updateResourcesJson],
-    remove: [removeResourcesJson]
+    remove: [removeResourcesJson, addDeleteLog]
   },
 
   error: {

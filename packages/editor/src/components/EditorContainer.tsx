@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,30 +14,29 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
-import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
-import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy'
-import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Materials'
-import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
-import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
-import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
-import { VisualScriptPanelTab } from '@etherealengine/ui/src/components/editor/panels/VisualScript'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { AssetsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Assets'
+import { FilesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Files'
+import { HierarchyPanelTab } from '@ir-engine/ui/src/components/editor/panels/Hierarchy'
+import { MaterialsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Materials'
+import { PropertiesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Properties'
+import { ScenePanelTab } from '@ir-engine/ui/src/components/editor/panels/Scenes'
+import { ViewportPanelTab } from '@ir-engine/ui/src/components/editor/panels/Viewport'
+import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/VisualScript'
 
-import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
-import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
+import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
+import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
@@ -51,12 +50,14 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
-import { useZendesk } from '@etherealengine/client-core/src/hooks/useZendesk'
-import { FeatureFlags } from '@etherealengine/common/src/constants/FeatureFlags'
-import { EntityUUID } from '@etherealengine/ecs'
-import useFeatureFlags from '@etherealengine/engine/src/useFeatureFlags'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
+import { API } from '@ir-engine/common'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { EntityUUID } from '@ir-engine/ecs'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
@@ -126,7 +127,62 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
-  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '', type: 'scene' } }).data
+
+  const currentLoadedSceneURL = useHookstate(null as string | null)
+
+  /**
+   * what is our source of truth for which scene is loaded?
+   *      EditorState.scenePath
+   * because we DO NOT want url hashes to trigger a scene reload
+   */
+
+  /** we don't want to use useFind here, because we don't want all static-resource query refetches to potentially reload the scene */
+  useEffect(() => {
+    if (!scenePath.value) return
+
+    const abortController = new AbortController()
+    API.instance
+      .service(staticResourcePath)
+      .find({
+        query: { key: scenePath.value, type: 'scene', $limit: 1 }
+      })
+      .then((result) => {
+        if (abortController.signal.aborted) return
+
+        const scene = result.data[0]
+        if (!scene) {
+          console.error('Scene not found')
+          sceneName.set(null)
+          sceneAssetID.set(null)
+          currentLoadedSceneURL.set(null)
+          return
+        }
+
+        projectName.set(scene.project!)
+        sceneName.set(scene.key.split('/').pop() ?? null)
+        sceneAssetID.set(scene.id)
+        currentLoadedSceneURL.set(scene.url)
+      })
+
+    return () => {
+      abortController.abort()
+    }
+  }, [scenePath.value])
+
+  useEffect(() => {
+    initializeSpatialEngine()
+    return () => {
+      destroySpatialEngine()
+    }
+  }, [])
+
+  const originEntity = useMutableState(EngineState).originEntity.value
+
+  useEffect(() => {
+    if (!sceneAssetID.value || !currentLoadedSceneURL.value || !originEntity) return
+    return setCurrentEditorScene(currentLoadedSceneURL.value, sceneAssetID.value as EntityUUID)
+  }, [originEntity, currentLoadedSceneURL.value])
+
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
@@ -136,28 +192,10 @@ const EditorContainer = () => {
     PopoverState.showPopupover(<SaveSceneDialog />)
   })
 
-  const viewerEntity = useMutableState(EngineState).viewerEntity.value
-
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
   const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
-
-  useEffect(() => {
-    const scene = sceneQuery[0]
-    if (!scene) return
-
-    projectName.set(scene.project!)
-    sceneName.set(scene.key.split('/').pop() ?? null)
-    sceneAssetID.set(scene.id)
-  }, [sceneQuery[0]?.key])
-
-  useEffect(() => {
-    const scene = sceneQuery[0]
-    if (!sceneAssetID.value || !scene || !viewerEntity) return
-
-    return setCurrentEditorScene(scene.url, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, sceneAssetID, sceneQuery[0]?.url])
 
   useEffect(() => {
     return () => {
@@ -170,6 +208,16 @@ const EditorContainer = () => {
       onEditorError(errorState.value)
     }
   }, [errorState])
+
+  useEffect(() => {
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      if (EditorState.isModified()) {
+        event.preventDefault()
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
 
   return (
     <main className="pointer-events-auto">
