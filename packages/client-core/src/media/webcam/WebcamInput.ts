@@ -1,7 +1,7 @@
 import * as Comlink from 'comlink'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { createWorkerFromCrossOriginURL } from '@ir-engine/common/src/utils/createWorkerFromCrossOriginURL'
+import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/functions/createWorkerFromCrossOriginURL'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'

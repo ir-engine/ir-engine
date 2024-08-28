@@ -32,12 +32,6 @@ export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{2,62}[a-zA-Z0-9]$/
 export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
 
-/**
- * Matches CSS imports & URLS.
- * For eg: `@import "styles.css"`, `url(image.png)`. Captures the resource in group 2 or group 3.
- */
-export const CSS_URL_REGEX = /(@import\s+["']([^"']+)["']|url\((?!['"]?(?:data):)['"]?([^'"\)]+)['"]?\))/gi
-
 
 /**
  * Captures org name, project name and asset path from a URL.
