@@ -440,11 +440,11 @@ const positionObject = (
 const T_QUAT_1 = new Quaternion()
 const T_QUAT_2 = new Quaternion()
 
-const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(EditorHelperState).transformSpace) => {
+const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState(EditorHelperState).transformSpace) => {
   for (let i = 0; i < nodes.length; i++) {
     const entity = nodes[i]
-
-    T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
+    T_QUAT_1.copy(rotations[i] ?? rotations[0])
+    const euler = new Euler().setFromQuaternion(T_QUAT_1, 'YXZ')
 
     const transform = getComponent(entity, TransformComponent)
 
@@ -460,6 +460,7 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
 
       const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
       const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
+      euler.copy(new Euler().setFromQuaternion(newLocalQuaternion, 'YXZ'))
 
       transform.rotation.copy(newLocalQuaternion)
     }
@@ -766,7 +767,7 @@ const toggleSelection = (entities: EntityUUID[]) => {
     }
   }
 
-  SelectionState.updateSelection(entities)
+  SelectionState.updateSelection(selectedEntities)
 }
 
 const addToSelection = (entities: EntityUUID[]) => {

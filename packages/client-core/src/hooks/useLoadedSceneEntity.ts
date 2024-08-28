@@ -23,28 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { featureFlagSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { defineState, getMutableState } from '@ir-engine/hyperflux/functions/StateFunctions'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
-import { useEffect } from 'react'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
-export const FeatureFlagsState = defineState({
-  name: 'ee.engine.FeatureFlagsState',
-  initial: {} as Record<string, boolean>,
-  enabled(flagName: string) {
-    const state = getMutableState(FeatureFlagsState)[flagName].value
-    return typeof state === 'boolean' ? state : true
-  },
-  reactor: () => {
-    const featureFlagQuery = useFind(featureFlagSettingPath, { query: { paginate: false } })
-
-    useEffect(() => {
-      const data = featureFlagQuery.data
-      getMutableState(FeatureFlagsState).merge(
-        Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
-      )
-    }, [featureFlagQuery.data])
-
-    return null
-  }
-})
+export const useLoadedSceneEntity = (sceneID: string | undefined) => {
+  const scene = useGet(staticResourcePath, sceneID).data
+  const scenes = useMutableState(GLTFAssetState)
+  const sceneKey = scene?.url
+  return sceneKey ? scenes[sceneKey].value : null
+}
