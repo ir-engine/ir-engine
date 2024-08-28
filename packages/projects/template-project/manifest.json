@@ -2,6 +2,6 @@
   "name": "ir-engine/ir-template",
   "version": "0.0.0",
   "engineVersion": "1.6.0",
-  "description": "The default project for iR Engine",
+  "description": "",
   "thumbnail": "/static/IR_thumbnail.jpg"
 }

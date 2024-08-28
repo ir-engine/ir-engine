@@ -1,3 +1,3 @@
-### Ethereal Engine Project
+### Infinite Reality Engine Project
 
-This is an Ethereal Engine project.
+This is an Infinite Reality Engine project.
