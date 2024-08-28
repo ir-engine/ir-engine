@@ -43,17 +43,6 @@ import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, 
 import {
   DataChannelRegistryState,
   DataChannelType,
-  MediasoupDataConsumerActions,
-  MediasoupDataProducerActions,
-  MediasoupDataProducersConsumersObjectsState,
-  MediasoupMediaConsumerActions,
-  MediasoupMediaProducerActions,
-  MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState,
-  MediasoupTransportActions,
-  MediasoupTransportObjectsState,
-  MediasoupTransportState,
-  MediaStreamAppData,
   NetworkState
 } from '@ir-engine/network'
 import config from '@ir-engine/server-core/src/appconfig'
@@ -75,6 +64,10 @@ import {
   SocketWebRTCServerNetwork,
   WebRTCTransportExtension
 } from './SocketWebRTCServerFunctions'
+import { MediaStreamAppData } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
+import { MediasoupDataConsumerActions, MediasoupDataProducerActions, MediasoupDataProducersConsumersObjectsState } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
+import { MediasoupMediaProducerActions, MediasoupMediaProducerConsumerState, MediasoupMediaProducersConsumersObjectsState, MediasoupMediaConsumerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { MediasoupTransportState, MediasoupTransportActions, MediasoupTransportObjectsState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
@@ -796,8 +789,7 @@ export async function handleRequestProducer(
         paused,
         producerId: producer.id,
         globalMute: false,
-        encodings: (rtpParameters as any).encodings,
-        channelId: appData.channelId
+        encodings: (rtpParameters as any).encodings
       }
     }
     dispatchAction(

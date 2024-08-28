@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert, { strictEqual } from 'assert'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/hyperflux'
 import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'

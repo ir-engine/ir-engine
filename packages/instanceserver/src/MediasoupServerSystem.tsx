@@ -31,11 +31,6 @@ import { defineActionQueue, getMutableState, getState, useHookstate, useMutableS
 import {
   DataChannelRegistryState,
   DataChannelType,
-  MediasoupDataConsumerActions,
-  MediasoupDataProducerActions,
-  MediasoupMediaConsumerActions,
-  MediasoupMediaProducerActions,
-  MediasoupTransportActions,
   NetworkState,
   NetworkTopics
 } from '@ir-engine/network'
@@ -53,6 +48,9 @@ import {
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
+import { MediasoupDataProducerActions, MediasoupDataConsumerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
+import { MediasoupMediaConsumerActions, MediasoupMediaProducerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { MediasoupTransportActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 
 /** @todo replace this with event sourcing */
 const requestConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.requestConsumer.matches)

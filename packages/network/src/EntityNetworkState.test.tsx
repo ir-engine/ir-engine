@@ -27,14 +27,12 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { EntityUUID, generateEntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { SystemDefinitions } from '@ir-engine/ecs/src/SystemFunctions'
-import { applyIncomingActions, dispatchAction, PeerID, ReactorReconciler } from '@ir-engine/hyperflux'
+import { applyIncomingActions, dispatchAction, PeerID, ReactorReconciler, UserID } from '@ir-engine/hyperflux'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { createMockNetwork } from '../tests/createMockNetwork'
@@ -47,6 +45,7 @@ import { WorldNetworkAction } from './functions/WorldNetworkAction'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from './NetworkObjectComponent'
 import { NetworkState } from './NetworkState'
 import { NetworkWorldUserStateSystem } from './NetworkUserState'
+import { NetworkId } from './NetworkId'
 
 describe('EntityNetworkState', () => {
   beforeEach(async () => {

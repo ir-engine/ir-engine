@@ -37,8 +37,6 @@ import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import {
-  MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState,
   NetworkObjectComponent,
   NetworkObjectOwnedTag,
   NetworkState,
@@ -47,15 +45,20 @@ import {
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '../../scene/components/MediaComponent'
-import { AudioState } from '../AudioState'
-import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
-import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { getAvatarBoneWorldPosition } from '@ir-engine/engine/src/avatar/functions/avatarFunctions'
+import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
+import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { addPannerNode, removePannerNode, updateAudioPanner } from '@ir-engine/engine/src/audio/PositionalAudioFunctions'
+import { MediasoupMediaProducerConsumerState, MediasoupMediaProducersConsumersObjectsState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 
 const _vec3 = new Vector3()
 const _rot = new Vector3()
+
+/** 
+ * @todo remove direct reference to mediasoup stuff and move this back to engine package
+ */
 
 /**
  * Scene Objects

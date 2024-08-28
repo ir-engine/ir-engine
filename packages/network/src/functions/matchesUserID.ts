@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/hyperflux'
 import { matches, Validator } from '@ir-engine/hyperflux'
 
 export const matchesUserID = matches.string as Validator<unknown, UserID>

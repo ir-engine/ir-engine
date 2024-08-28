@@ -41,7 +41,6 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { applyVideoToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import {
-  MediasoupMediaProducerConsumerState,
   NetworkObjectComponent,
   NetworkObjectOwnedTag,
   NetworkState,
@@ -68,6 +67,7 @@ import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMe
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
+import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 
 const logger = multiLogger.child({ component: 'client-core:systems' })
 

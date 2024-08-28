@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { AvatarID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'

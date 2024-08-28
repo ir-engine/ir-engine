@@ -30,7 +30,7 @@ import { useEffect } from 'react'
 import { Quaternion } from 'three'
 
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
-import { RingBuffer } from '@ir-engine/common/src/utils/RingBuffer'
+import { RingBuffer } from '@ir-engine/network/src/functions/RingBuffer'
 import { ECSState } from '@ir-engine/ecs'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'

@@ -23,6 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from './OpaqueType'
+import { OpaqueType } from '@ir-engine/hyperflux'
 
 export type NetworkId = OpaqueType<'networkId'> & number

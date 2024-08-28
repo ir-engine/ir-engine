@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { ChannelID, InstanceID } from '@ir-engine/common/src/schema.type.module'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { ChannelID } from '@ir-engine/common/src/schema.type.module'
 import {
   NO_PROXY_STEALTH,
+  NetworkID,
   PeerID,
   Validator,
   defineAction,
@@ -36,6 +36,7 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  isClient,
   matches,
   matchesPeerID,
   none,
@@ -43,13 +44,13 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
-import { DataChannelType } from '../../DataChannelRegistry'
-import { MediaStreamAppData, MediaTagType, NetworkActions, NetworkState } from '../../NetworkState'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from './MediasoupTransportState'
+import { DataChannelType, MediaTagType, NetworkState, NetworkActions } from '@ir-engine/network'
+import { MediaStreamAppData } from '../../interfaces/NetworkInterfaces'
 
 export class MediasoupMediaProducerActions {
   static requestProducer = defineAction({
@@ -151,7 +152,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerState',
 
   initial: {} as Record<
-    InstanceID,
+    NetworkID,
     {
       producers: {
         [producerID: string]: {
@@ -182,7 +183,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     }
   >,
 
-  getProducerByPeerIdAndMediaTag: (networkID: InstanceID, peerID: string, mediaTag: MediaTagType) => {
+  getProducerByPeerIdAndMediaTag: (networkID: NetworkID, peerID: string, mediaTag: MediaTagType) => {
     const state = getState(MediasoupMediaProducerConsumerState)[networkID]
     if (!state) return
 
@@ -192,7 +193,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     return getState(MediasoupMediaProducersConsumersObjectsState).producers[producer.producerID]
   },
 
-  getConsumerByPeerIdAndMediaTag: (networkID: InstanceID, peerID: string, tag: MediaTagType) => {
+  getConsumerByPeerIdAndMediaTag: (networkID: NetworkID, peerID: string, tag: MediaTagType) => {
     const state = getState(MediasoupMediaProducerConsumerState)[networkID]
     if (!state) return
 
@@ -348,7 +349,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     const networkIDs = useMutableState(MediasoupMediaProducerConsumerState)
     return (
       <>
-        {networkIDs.keys.map((id: InstanceID) => (
+        {networkIDs.keys.map((id: NetworkID) => (
           <NetworkReactor key={id} networkID={id} />
         ))}
       </>
@@ -356,7 +357,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
   }
 })
 
-export const NetworkMediaProducer = (props: { networkID: InstanceID; producerID: string }) => {
+export const NetworkMediaProducer = (props: { networkID: NetworkID; producerID: string }) => {
   const { networkID, producerID } = props
   const producerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
@@ -434,7 +435,7 @@ export const NetworkMediaProducer = (props: { networkID: InstanceID; producerID:
   return null
 }
 
-export const NetworkMediaConsumer = (props: { networkID: InstanceID; consumerID: string }) => {
+export const NetworkMediaConsumer = (props: { networkID: NetworkID; consumerID: string }) => {
   const { networkID, consumerID } = props
   const consumerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers[consumerID]
@@ -478,7 +479,7 @@ export const NetworkMediaConsumer = (props: { networkID: InstanceID; consumerID:
   return null
 }
 
-const NetworkReactor = (props: { networkID: InstanceID }) => {
+const NetworkReactor = (props: { networkID: NetworkID }) => {
   const { networkID } = props
   const producers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers)
   const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)

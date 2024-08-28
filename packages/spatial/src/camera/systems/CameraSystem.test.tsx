@@ -27,7 +27,7 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   Engine,

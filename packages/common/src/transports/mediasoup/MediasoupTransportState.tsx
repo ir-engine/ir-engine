@@ -25,24 +25,22 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useLayoutEffect } from 'react'
 
-import { InstanceID } from '@ir-engine/common/src/schema.type.module'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   defineAction,
   defineState,
   getMutableState,
   getState,
+  isClient,
   matches,
   matchesPeerID,
+  NetworkID,
   none,
   PeerID,
   useHookstate,
   useMutableState,
   Validator
 } from '@ir-engine/hyperflux'
-
-import { Network } from '../../Network'
-import { NetworkActions, NetworkState } from '../../NetworkState'
+import { Network, NetworkActions, NetworkState } from '@ir-engine/network'
 
 export class MediasoupTransportActions {
   static requestTransport = defineAction({
@@ -110,7 +108,7 @@ export const MediasoupTransportState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupTransportState',
 
   initial: {} as Record<
-    InstanceID,
+    NetworkID,
     {
       [transportID: string]: {
         transportID: string
@@ -168,7 +166,7 @@ export const MediasoupTransportState = defineState({
   },
 
   getTransport: (
-    networkID: InstanceID,
+    networkID: NetworkID,
     direction: 'send' | 'recv',
     peerID = getState(NetworkState).networks[networkID].hostPeerID
   ) => {
@@ -187,7 +185,7 @@ export const MediasoupTransportState = defineState({
     const networkIDs = useMutableState(MediasoupTransportState)
     return (
       <>
-        {networkIDs.keys.map((id: InstanceID) => (
+        {networkIDs.keys.map((id: NetworkID) => (
           <NetworkReactor key={id} networkID={id} />
         ))}
       </>
@@ -195,7 +193,7 @@ export const MediasoupTransportState = defineState({
   }
 })
 
-const TransportReactor = (props: { networkID: InstanceID; transportID: string }) => {
+const TransportReactor = (props: { networkID: NetworkID; transportID: string }) => {
   const { transportID } = props
 
   useLayoutEffect(() => {
@@ -210,7 +208,7 @@ const TransportReactor = (props: { networkID: InstanceID; transportID: string })
   return null
 }
 
-const NetworkReactor = (props: { networkID: InstanceID }) => {
+const NetworkReactor = (props: { networkID: NetworkID }) => {
   const { networkID } = props
   const transports = useHookstate(getMutableState(MediasoupTransportState)[networkID])
   const network = useHookstate(getMutableState(NetworkState).networks[networkID])
