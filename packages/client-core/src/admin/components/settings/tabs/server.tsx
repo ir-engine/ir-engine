@@ -44,8 +44,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
 
   const id = serverSetting?.id
 
-  const gaTrackingId = useHookstate(serverSetting?.gaTrackingId)
-
   const githubWebhookSecret = useHookstate(serverSetting?.githubWebhookSecret)
   const instanceserverUnreachableTimeoutSeconds = useHookstate(serverSetting?.instanceserverUnreachableTimeoutSeconds)
   const dryRun = useHookstate(true)
@@ -62,7 +60,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     if (!id) return
     state.loading.set(true)
     patchServerSetting(id, {
-      gaTrackingId: gaTrackingId.value,
       githubWebhookSecret: githubWebhookSecret.value,
       instanceserverUnreachableTimeoutSeconds: instanceserverUnreachableTimeoutSeconds.value
     })
@@ -75,7 +72,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   }
 
   const handleCancel = () => {
-    gaTrackingId.set(serverSetting?.gaTrackingId)
     githubWebhookSecret.set(serverSetting?.githubWebhookSecret)
   }
 
@@ -108,13 +104,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           value={serverSetting?.hostname || 'test'}
           label={t('admin:components.setting.hostName')}
           disabled
-        />
-
-        <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.googleAnalyticsTrackingId')}
-          value={gaTrackingId.value || ''}
-          onChange={(e) => gaTrackingId.set(e.target.value)}
         />
 
         <Input

@@ -23,27 +23,41 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// Use this hook to manipulate incoming or outgoing data.
-// For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
-import { Hook, HookContext } from '@feathersjs/feathers'
-import ua from 'universal-analytics'
+import { serverSettingPath } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
+import type { Knex } from 'knex'
 
-import config from '../appconfig'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export default (): Hook => {
-  return async (context: HookContext): Promise<HookContext> => {
-    if (context.method === 'remove') return context
-    if (!context.params.user) {
-      // send a anonymous user's analytics
-      const visitor = ua(config.server.gaTrackingId, { https: false })
-      visitor.pageview(context.service).send()
-      visitor.event(context.method, 'Request').send()
-    } else {
-      // send the user's analytics
-      const visitor = ua(config.server.gaTrackingId, context.params.user._id, { https: false })
-      visitor.pageview(context.service).send()
-      visitor.event(context.method, 'Request').send()
-    }
-    return context
+  const gaTrackingIdColumnExists = await knex.schema.hasColumn(serverSettingPath, 'gaTrackingId')
+
+  if (gaTrackingIdColumnExists === true) {
+    await knex.schema.alterTable(serverSettingPath, async (table) => {
+      table.dropColumn('gaTrackingId')
+    })
   }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const gaTrackingIdColumnExists = await knex.schema.hasColumn(serverSettingPath, 'gaTrackingId')
+
+  if (gaTrackingIdColumnExists === false) {
+    await knex.schema.alterTable(serverSettingPath, async (table) => {
+      table.string('gaTrackingId', 255).nullable()
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
