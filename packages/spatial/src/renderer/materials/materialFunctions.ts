@@ -134,7 +134,7 @@ export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUI
 export const setPlugin = (material: Material, callback) => {
   if (hasPlugin(material, callback)) removePlugin(material, callback)
   material.onBeforeCompile = callback
-  material.needsUpdate = true
+  material.needsUpdate = true // @warning This is actually a setter (with no getter) that calls ++material.version
 }
 
 export const hasPlugin = (material: Material, callback) =>
