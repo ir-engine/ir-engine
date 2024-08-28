@@ -586,7 +586,8 @@ export function useOptionalComponent<Schema extends ComponentSchema, ComponentTy
   component: Component<Schema, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> | undefined {
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
-  const componentState = useHookstate(component.stateMap[entity])
+  // The linter infers this correctly, but tsc doesn't
+  const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType>
   return componentState.promised ? undefined : componentState
 }
 
