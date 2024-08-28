@@ -23,12 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DiscordIcon } from '@ir-engine/client-core/src/common/components/Icons/DiscordIcon'
-import { GithubIcon } from '@ir-engine/client-core/src/common/components/Icons/GithubIcon'
-import { GoogleIcon } from '@ir-engine/client-core/src/common/components/Icons/GoogleIcon'
-import { LinkedInIcon } from '@ir-engine/client-core/src/common/components/Icons/LinkedInIcon'
-import { MetaIcon } from '@ir-engine/client-core/src/common/components/Icons/MetaIcon'
-import { XIcon } from '@ir-engine/client-core/src/common/components/Icons/XIcon'
 import { initialAuthState, initialOAuthConnectedState } from '@ir-engine/client-core/src/common/initialAuthState'
 import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
 import { PopupMenuServices } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
@@ -229,7 +223,7 @@ const ProfileModal = ({ user }) => {
           </span>
         </div>
         <hr className="mx-4 text-[#A0A1A2] opacity-10" />
-        <div className="flex justify-center px-4 py-2">
+        {/* <div className="flex justify-center px-4 py-2">
           {
             <>
               <div className="flex w-full justify-evenly">
@@ -323,7 +317,7 @@ const ProfileModal = ({ user }) => {
               )}
             </>
           }
-        </div>
+        </div> */}
         <hr className="mx-4 text-[#A0A1A2] opacity-10" />
         <div className="px-7 py-2">
           <a href={clientSetting?.privacyPolicy} className="text-xs text-[#A0A1A2] underline">
