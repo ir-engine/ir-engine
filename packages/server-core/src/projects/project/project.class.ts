@@ -98,14 +98,19 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     const storageProvider = getStorageProvider()
     const data = (await super._find({ paginate: false })) as ProjectType[]
+    logger.info('projects to add org name to', data)
 
     for (const project of data) {
+      logger.info('Adding org name to', project, project.repositoryPath)
       if (project.repositoryPath || project.name === 'ir-engine/default-project') {
         const [orgName, projectName] = project.name.split('/')
+
+        logger.info('orgName', orgName, 'projectName', projectName)
 
         try {
           if (await storageProvider.doesExist(projectName, `projects/`)) {
             const files = await storageProvider.listObjects(`projects/${projectName}`, true)
+            logger.info('files', files)
             for (const file of files.Contents) {
               const fileName = file.Key.split('/').pop()!
               const oldDirectory = file.Key.replace(fileName, '')
@@ -118,6 +123,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         }
       }
     }
+    logger.info('Finished adding org names to projects')
     return Promise.resolve()
   }
 
