@@ -35,6 +35,8 @@ import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.s
 import { smsPath } from '@ir-engine/common/src/schemas/user/sms.schema'
 import { UserName } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { BadRequest } from '@feathersjs/errors'
+import { EMAIL_REGEX } from '@ir-engine/common/src/regex'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -126,8 +128,14 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
 
     // check magiclink type
     let token = ''
-    if (data.type === 'email') token = data.email
-    else if (data.type === 'sms') token = data.mobile
+    if (data.type === 'email') {
+      if (!EMAIL_REGEX.test(data.email)) {
+        throw new BadRequest('Invalid email', {
+          email: data.email
+        })
+      }
+      token = data.email
+    } else if (data.type === 'sms') token = data.mobile
 
     let identityProvider: IdentityProviderType
     const identityProviders = (
