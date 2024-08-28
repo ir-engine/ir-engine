@@ -23,6 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs'
+import assert from 'assert'
+import { LightTagComponent } from './LightTagComponent'
 
-export const LightTagComponent = defineComponent({ name: 'LightTagComponent' })
+describe('LightTagComponent', () => {
+  describe('IDs', () => {
+    it('should initialize the LightTagComponent.name field with the expected value', () => {
+      assert.equal(LightTagComponent.name, 'LightTagComponent')
+    })
+  }) //:: IDs
+})
