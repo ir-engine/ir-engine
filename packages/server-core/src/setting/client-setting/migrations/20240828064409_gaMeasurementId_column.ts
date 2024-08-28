@@ -23,23 +23,41 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
-import { useEffect } from 'react'
-import ReactGA from 'react-ga4'
+import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
+import type { Knex } from 'knex'
 
-const useGoogleAnalytics = () => {
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSettings = clientSettingQuery.data[0]
-  const gaMeasurementId = clientSettings?.gaMeasurementId
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  useEffect(() => {
-    // Initialize Google Analytics
-    if (gaMeasurementId) {
-      ReactGA.initialize(gaMeasurementId)
-      ReactGA.send({ hitType: 'pageview', page: window.location.pathname })
-    }
-  }, [gaMeasurementId])
+  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(clientSettingPath, 'gaMeasurementId')
+
+  if (gaMeasurementIdColumnExists === false) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.string('gaMeasurementId').nullable()
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export default useGoogleAnalytics
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(clientSettingPath, 'gaMeasurementId')
+
+  if (gaMeasurementIdColumnExists === true) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('gaMeasurementId')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

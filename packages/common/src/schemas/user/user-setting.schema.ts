@@ -46,7 +46,6 @@ export const userSettingSchema = Type.Object(
       format: 'uuid'
     }),
     themeModes: Type.Record(Type.String(), Type.String()),
-    gaMeasurementId: Type.Optional(Type.String()),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),

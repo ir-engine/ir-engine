@@ -99,7 +99,6 @@ export const UserSeed: UserType = {
   userSetting: {
     id: '' as UserSettingID,
     themeModes: {},
-    gaMeasurementId: '',
     userId: '' as UserID,
     createdAt: '',
     updatedAt: ''

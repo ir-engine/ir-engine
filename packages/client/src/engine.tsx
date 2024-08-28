@@ -27,12 +27,10 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { HyperFlux } from '@ir-engine/hyperflux'
 import { startTimer } from '@ir-engine/spatial/src/startTimer'
 import React from 'react'
-import useGoogleAnalytics from './hooks/useGoogleAnalytics'
 
 createEngine(HyperFlux.store)
 startTimer()
 
 export default function ({ children }: { children: React.ReactNode }) {
-  useGoogleAnalytics()
   return <>{children}</>
 }
