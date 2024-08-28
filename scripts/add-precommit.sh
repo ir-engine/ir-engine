@@ -1,4 +1,4 @@
-# add precommit to all hooks
+#!/bin/bash
 
 read -r -d '' pre_commit_commands << EOM
 #!/bin/bash
