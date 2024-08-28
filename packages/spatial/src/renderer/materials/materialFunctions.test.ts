@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  EntityUUID,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
@@ -33,20 +34,24 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
+import { isArray } from 'lodash'
 import sinon from 'sinon'
-import { Material } from 'three'
+import { BoxGeometry, Material, Mesh } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../../common/NameComponent'
+import { TransformComponent } from '../RendererModule'
+import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialPrototypeComponent,
   MaterialPrototypeConstructor,
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from './MaterialComponent'
-import { createMaterialPrototype, getMaterial } from './materialFunctions'
+import { createMaterialPrototype, getMaterial, setMeshMaterial } from './materialFunctions'
 
 describe('materialFunctions', () => {
   describe('getMaterial', () => {
@@ -59,6 +64,7 @@ describe('materialFunctions', () => {
     })
 
     afterEach(() => {
+      removeEntity(testEntity)
       return destroyEngine()
     })
 
@@ -175,7 +181,157 @@ describe('materialFunctions', () => {
     })
   }) //:: createMaterialPrototype
 
-  describe('setMeshMaterial', () => {}) //:: setMeshMaterial
+  describe('setMeshMaterial', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should add the first item of `@param newMaterialUUIDs` to MeshComponent.material when MeshComponent.material is not an array', () => {
+      const Expected = UUIDComponent.generateUUID()
+      const newMaterialUUIDs = [Expected, UUIDComponent.generateUUID()]
+      const material = new Material()
+      material.uuid = Expected
+      // Set the data as expected
+      setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
+      const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, Expected)
+      setComponent(materialEntity, MaterialStateComponent, { material: material })
+      // Sanity check before running
+      assert.equal(!testEntity, false)
+      assert.equal(!hasComponent(testEntity, MeshComponent), false)
+      assert.equal(newMaterialUUIDs.length === 0, false)
+      // Run and Check the result
+      setMeshMaterial(testEntity, newMaterialUUIDs)
+      const result = getComponent(testEntity, MeshComponent).material
+      assert.equal(isArray(result), false)
+      assert.equal((result as Material).uuid, Expected)
+    })
+
+    it('should add all items of `@param newMaterialUUIDs` to MeshComponent.material when MeshComponent.material is an array', () => {
+      // Set the fallback material
+      const fallbackMaterial = new Material()
+      const fallbackUUID = MaterialStateComponent.fallbackMaterial
+      const fallbackEntity = createEntity()
+      setComponent(fallbackEntity, UUIDComponent, fallbackUUID)
+      setComponent(fallbackEntity, MaterialStateComponent, { instances: [UndefinedEntity], material: fallbackMaterial })
+
+      // Generate all UUIDs
+      const DummyUUID = UUIDComponent.generateUUID()
+      const uuid1 = UUIDComponent.generateUUID()
+      const uuid2 = UUIDComponent.generateUUID()
+      const newMaterialUUIDs = [uuid1, uuid2, DummyUUID]
+      const Expected = [uuid1, uuid2]
+      // Generate the Materials
+      const material1 = new Material()
+      const material2 = new Material()
+      material1.uuid = uuid1
+      material2.uuid = uuid2
+      const materialEntity1 = createEntity()
+      const materialEntity2 = createEntity()
+      setComponent(materialEntity1, UUIDComponent, uuid1)
+      setComponent(materialEntity2, UUIDComponent, uuid2)
+      setComponent(materialEntity1, MaterialStateComponent, { material: material1 })
+      setComponent(materialEntity2, MaterialStateComponent, { material: material2 })
+      // Generate the Mesh with the Materials
+      const mesh = new Mesh(new BoxGeometry())
+      mesh.material = [material1, material2] as Material[]
+      setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, MeshComponent, mesh)
+
+      // Sanity check before running
+      assert.equal(!testEntity, false)
+      assert.equal(!hasComponent(testEntity, MeshComponent), false)
+      assert.equal(Expected.length === 0, false)
+
+      // Run and Check the result
+      setMeshMaterial(testEntity, newMaterialUUIDs)
+      const result = getComponent(testEntity, MeshComponent).material as Material[]
+      assert.equal(isArray(result), true)
+      for (const material of result) {
+        assert.notEqual(material.uuid, DummyUUID)
+        assert.notEqual(material.uuid, fallbackUUID)
+        assert.equal(Expected.includes(material.uuid as EntityUUID), true)
+      }
+    })
+
+    it('should not do anything when `@param groupEntity` is falsy', () => {
+      const Expected = UUIDComponent.generateUUID()
+      const newMaterialUUIDs = [Expected, UUIDComponent.generateUUID()]
+      const material = new Material()
+      material.uuid = Expected
+      // Set the data as expected
+      setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
+      const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, Expected)
+      setComponent(materialEntity, MaterialStateComponent, { material: material })
+      // Sanity check before running
+      assert.equal(!UndefinedEntity, true) // Will pass UndefinedEntity as `@param groupEntity`
+      assert.equal(!hasComponent(testEntity, MeshComponent), false)
+      assert.equal(newMaterialUUIDs.length === 0, false)
+      // Run and Check the result
+      setMeshMaterial(UndefinedEntity, newMaterialUUIDs)
+      const result = getComponent(testEntity, MeshComponent).material
+      assert.equal(isArray(result), false)
+      assert.notEqual((result as Material).uuid, Expected)
+    })
+
+    it('should not do anything when `@param groupEntity` does not have a MeshComponent', () => {
+      const Expected = UUIDComponent.generateUUID()
+      const newMaterialUUIDs = [Expected, UUIDComponent.generateUUID()]
+      const material = new Material()
+      material.uuid = Expected
+      // Set the data as expected
+      setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
+      // setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
+      const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, Expected)
+      setComponent(materialEntity, MaterialStateComponent, { material: material })
+      // Sanity check before running
+      assert.equal(!testEntity, false)
+      assert.equal(!hasComponent(testEntity, MeshComponent), true)
+      assert.equal(newMaterialUUIDs.length === 0, false)
+      // Run and Check the result
+      setMeshMaterial(testEntity, newMaterialUUIDs)
+      const result = getOptionalComponent(testEntity, MeshComponent)?.material
+      assert.equal(isArray(result), false)
+      assert.equal(result, undefined)
+    })
+
+    it('should not do anything when `@param newMaterialUUIDs` is empty', () => {
+      const newMaterialUUIDs = [] as EntityUUID[]
+      const Expected = UUIDComponent.generateUUID()
+      const material = new Material()
+      material.uuid = Expected
+      // Set the data as expected
+      setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(testEntity, MeshComponent, new Mesh(new BoxGeometry()))
+      const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, Expected)
+      setComponent(materialEntity, MaterialStateComponent, { material: material })
+      // Sanity check before running
+      assert.equal(!testEntity, false)
+      assert.equal(!hasComponent(testEntity, MeshComponent), false)
+      assert.equal(newMaterialUUIDs.length === 0, true)
+      // Run and Check the result
+      setMeshMaterial(testEntity, newMaterialUUIDs)
+      const result = getComponent(testEntity, MeshComponent).material
+      assert.equal(isArray(result), false)
+      assert.notEqual((result as Material).uuid, Expected)
+    })
+  }) //:: setMeshMaterial
+
   describe('setPlugin', () => {}) //:: setPlugin
   describe('hasPlugin', () => {}) //:: hasPlugin
   describe('removePlugin', () => {}) //:: removePlugin
