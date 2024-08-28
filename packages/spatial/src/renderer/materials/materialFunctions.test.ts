@@ -51,7 +51,7 @@ import {
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from './MaterialComponent'
-import { createMaterialPrototype, getMaterial, setMeshMaterial } from './materialFunctions'
+import { createMaterialPrototype, getMaterial, hasPlugin, setMeshMaterial, setPlugin } from './materialFunctions'
 
 describe('materialFunctions', () => {
   describe('getMaterial', () => {
@@ -332,9 +332,118 @@ describe('materialFunctions', () => {
     })
   }) //:: setMeshMaterial
 
-  describe('setPlugin', () => {}) //:: setPlugin
-  describe('hasPlugin', () => {}) //:: hasPlugin
-  describe('removePlugin', () => {}) //:: removePlugin
+  describe('setPlugin', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should set material.onBeforeCompile to `@param callback`', () => {
+      const material = new Material()
+      const callback = sinon.spy()
+      // Sanity check before running
+      const before = material.onBeforeCompile.toString()
+      assert.notEqual(before, callback)
+      // Run and Check the result
+      setPlugin(material, callback)
+      const result = material.onBeforeCompile.toString()
+      assert.equal(result, callback)
+    })
+
+    it('should set material.needsUpdate to true', () => {
+      const callback = sinon.spy()
+      const material = new Material()
+      // Sanity check before running
+      const before = material.version
+      assert.equal(before, 0)
+      // Run and Check the result
+      setPlugin(material, callback)
+      const result = material.version
+      assert.equal(result, 1)
+    })
+  }) //:: setPlugin
+
+  describe('hasPlugin', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should return false if the `@param material`.plugins array is empty', () => {
+      const Expected = false
+      const callback = sinon.spy()
+      // Set the data as expected
+      const material = new Material()
+      material.plugins = []
+      // Sanity check before running
+      assert.equal(material.plugins.length, 0)
+      assert.equal(material.plugins.includes(callback), false)
+      // Run and Check the result
+      const result = hasPlugin(material, callback)
+      assert.equal(result, Expected)
+    })
+
+    it('should return false if the `@param material`.plugins array is not empty but does not contain the `@param callback`', () => {
+      const Expected = false
+      const callback = sinon.spy()
+      const other = () => {}
+      // Set the data as expected
+      const material = new Material()
+      material.plugins = [other]
+      // Sanity check before running
+      assert.equal(material.plugins.length, 1)
+      assert.equal(material.plugins.includes(callback), false)
+      // Run and Check the result
+      const result = hasPlugin(material, callback)
+      assert.equal(result, Expected)
+    })
+
+    it('should return true if the `@param material`.plugins array is not empty and it contains the `@param callback`', () => {
+      const Expected = true
+      const callback = sinon.spy()
+      // Set the data as expected
+      const material = new Material()
+      material.plugins = [callback]
+      // Sanity check before running
+      assert.equal(material.plugins.length, 1)
+      assert.equal(material.plugins.includes(callback), true)
+      // Run and Check the result
+      const result = hasPlugin(material, callback)
+      assert.equal(result, Expected)
+    })
+  }) //:: hasPlugin
+
+  describe('removePlugin', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+  }) //:: removePlugin
+
   describe('materialPrototypeMatches', () => {}) //:: materialPrototypeMatches
   describe('updateMaterialPrototype', () => {}) //:: updateMaterialPrototype
   describe('MaterialNotFoundError', () => {}) //:: MaterialNotFoundError
