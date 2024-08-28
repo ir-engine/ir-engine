@@ -767,7 +767,7 @@ const toggleSelection = (entities: EntityUUID[]) => {
     }
   }
 
-  SelectionState.updateSelection(entities)
+  SelectionState.updateSelection(selectedEntities)
 }
 
 const addToSelection = (entities: EntityUUID[]) => {
