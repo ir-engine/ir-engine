@@ -30,8 +30,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 export const VisibleComponent = defineComponent({
   name: 'VisibleComponent',
   jsonID: 'EE_visible',
-  schema: Type.Boolean({ default: true }),
-  toJSON: () => true
+  schema: Type.Boolean({ default: true })
 })
 
 export const setVisibleComponent = (entity: Entity, visible: boolean) => {
