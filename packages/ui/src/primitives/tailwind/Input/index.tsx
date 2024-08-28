@@ -32,7 +32,7 @@ import Label from '../Label'
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
   label?: string
-  containerClassname?: string
+  containerClassName?: string
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
   onChange?: InputHTMLAttributes<HTMLInputElement>['onChange']
@@ -43,6 +43,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   variant?: 'outlined' | 'underlined' | 'onboarding'
   labelClassname?: string
   errorBorder?: boolean
+  maxLength?: number
 }
 
 const variants = {
@@ -54,7 +55,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       className,
-      containerClassname,
+      containerClassName,
       label,
       type = 'text',
       error,
@@ -99,7 +100,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const twcontainerClassName = twMerge(
       'flex w-full flex-col items-center',
       containerVariants[variant],
-      containerClassname
+      containerClassName
     )
 
     const containerClass =

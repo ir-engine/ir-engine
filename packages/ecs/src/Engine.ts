@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import * as bitECS from 'bitecs'
 import { getAllEntities } from 'bitecs'
-import { Cache } from 'three'
 
 import { API } from '@ir-engine/common'
 import * as Hyperflux from '@ir-engine/hyperflux'
@@ -95,8 +94,6 @@ export function createEngine(hyperstore = createHyperStore({ publicPath: '' })) 
 }
 
 export async function destroyEngine() {
-  Cache.clear()
-
   getState(ECSState).timer?.clear()
 
   if (API.instance) {

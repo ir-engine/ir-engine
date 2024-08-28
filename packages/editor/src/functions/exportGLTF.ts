@@ -27,6 +27,8 @@ import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import exportModelGLTF from '@ir-engine/engine/src/assets/functions/exportModelGLTF'
 
+import { getState } from '@ir-engine/hyperflux'
+import { ImportSettingsState } from '../services/ImportSettingsState'
 import { uploadProjectFiles } from './assetFunctions'
 
 export default async function exportGLTF(entity: Entity, path: string) {
@@ -44,8 +46,11 @@ export async function exportRelativeGLTF(entity: Entity, projectName: string, re
     includeCustomExtensions: true,
     onlyVisible: false
   })
+  const importSettings = getState(ImportSettingsState)
   const blob = isGLTF ? [JSON.stringify(gltf, null, 2)] : [gltf]
   const file = new File(blob, relativePath)
-  const urls = await Promise.all(uploadProjectFiles(projectName, [file], [``]).promises)
+  const urls = await Promise.all(
+    uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`]).promises
+  )
   console.log('exported model data to ', ...urls)
 }

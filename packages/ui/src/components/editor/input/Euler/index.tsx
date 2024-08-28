@@ -38,7 +38,7 @@ const { RAD2DEG, DEG2RAD } = _Math
  */
 type EulerInputProps = {
   quaternion: Quaternion
-  onChange?: (euler: Euler) => any
+  onChange?: (quat: Quaternion) => any
   onRelease?: (euler: Euler) => void
   unit?: string
 }
@@ -49,18 +49,20 @@ type EulerInputProps = {
  * @type {Object}
  */
 export const EulerInput = (props: EulerInputProps) => {
-  const euler = useHookstate(new Euler().setFromQuaternion(props.quaternion, 'YXZ'))
+  const quaternion = useHookstate(props.quaternion)
+  const euler = useHookstate(new Euler().setFromQuaternion(quaternion.value, 'YXZ'))
 
   useEffect(() => {
-    euler.value.setFromQuaternion(props.quaternion, 'YXZ')
-  }, [props])
+    euler.value.setFromQuaternion(quaternion.value, 'YXZ')
+  }, [props.quaternion])
 
   const onSetEuler = useCallback(
     (component: keyof typeof euler) => (value: number) => {
       const radVal = value * DEG2RAD
-      euler[component].value !== radVal && (euler[component].set(radVal) || props.onChange?.(euler.value))
+      euler[component].value !== radVal &&
+        (euler[component].set(radVal), quaternion.value.setFromEuler(euler.value), props.onChange?.(quaternion.value))
     },
-    []
+    [euler, quaternion, props]
   )
 
   return (
@@ -75,7 +77,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={euler.x.value * RAD2DEG}
             onChange={onSetEuler('x')}
             axis="x"
-            onPointerUp={props.onRelease}
+            onPointerUp={() => props.onRelease?.(euler.value)}
           />
         }
       />
@@ -89,7 +91,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={euler.y.value * RAD2DEG}
             onChange={onSetEuler('y')}
             axis="y"
-            onPointerUp={props.onRelease}
+            onPointerUp={() => props.onRelease?.(euler.value)}
           />
         }
       />
@@ -103,7 +105,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={euler.z.value * RAD2DEG}
             onChange={onSetEuler('z')}
             axis="z"
-            onPointerUp={props.onRelease}
+            onPointerUp={() => props.onRelease?.(euler.value)}
           />
         }
       />

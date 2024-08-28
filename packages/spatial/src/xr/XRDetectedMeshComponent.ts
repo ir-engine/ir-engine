@@ -61,7 +61,6 @@ export const XRDetectedMeshComponent = defineComponent({
       component.mesh.set(json.mesh as XRMesh)
     }
     if (matches.object.test(json.geometry)) {
-      component.geometry.value?.dispose?.()
       component.geometry.set(json.geometry as BufferGeometry)
     }
   },

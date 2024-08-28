@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Frustum, Matrix4, Vector3 } from 'three'
 
-import { getComponent } from '@ir-engine/ecs'
+import { getComponent, getOptionalComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -49,7 +49,8 @@ const frustum = new Frustum()
  * @constructor
  */
 const inRangeAndFrustumToInteract = (entity: Entity): boolean => {
-  const interactable = getComponent(entity, InteractableComponent)
+  const interactable = getOptionalComponent(entity, InteractableComponent)
+  if (!interactable) return false
   const maxDistanceSquare = interactable.activationDistance * interactable.activationDistance
   let inRangeAndFrustum = DistanceFromLocalClientComponent.squaredDistance[entity] < maxDistanceSquare
   if (inRangeAndFrustum) {
