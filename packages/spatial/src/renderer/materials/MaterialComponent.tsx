@@ -158,7 +158,7 @@ export const MaterialInstanceComponent = defineComponent({
 
     if (materialComponent.uuid.value.length === 0) return null
 
-    if (materialComponent.uuid.value.length)
+    if (materialComponent.uuid.value.length > 1)
       return (
         <>
           {materialComponent.uuid.value.map((uuid, index) => (
@@ -189,9 +189,9 @@ const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; e
     const material = getComponent(materialStateEntity, MaterialStateComponent).material
     if (props.array) {
       if (!Array.isArray(meshComponent.material.value)) meshComponent.material.set([])
-      meshComponent.material[index].set(material)
+      getMutableComponent(entity, MeshComponent).material[index].set(material)
     } else {
-      meshComponent.material.set(material)
+      getMutableComponent(entity, MeshComponent).material.set(material)
     }
   }, [materialStateComponent.material])
 

@@ -123,6 +123,7 @@ export const EnvmapComponent = defineComponent({
 
     const component = useComponent(entity, EnvmapComponent)
     const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
+    const material = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
     const [envMapTexture, error] = useTexture(
       component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
       entity
@@ -132,7 +133,7 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       updateEnvMapIntensity(mesh, component.envMapIntensity.value)
-    }, [mesh, component.envMapIntensity])
+    }, [material, mesh, component.envMapIntensity])
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Skybox) return
@@ -212,9 +213,9 @@ export const EnvmapComponent = defineComponent({
     }, [component.type, component.envMapSourceURL])
 
     useEffect(() => {
-      //if (!component.envmap.value) return
+      if (!component.envmap.value) return
       updateEnvMap(mesh, component.envmap.value as Texture)
-    }, [mesh, component.envmap])
+    }, [mesh, material, component.envmap])
 
     useEffect(() => {
       const envmap = component.envmap.value

@@ -29,12 +29,12 @@ import {
   AnimationClip,
   AnimationMixer,
   Bone,
+  BufferGeometry,
   Group,
   LoaderUtils,
   MathUtils,
   Matrix4,
   Mesh,
-  MeshStandardMaterial,
   Quaternion,
   Skeleton,
   SkinnedMesh,
@@ -385,8 +385,6 @@ const ChildGLTFReactor = (props: { source: string }) => {
   const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
   const parentUUID = useComponent(entity, UUIDComponent).value
 
-  console.log(source)
-
   useLayoutEffect(() => {
     return () => {
       getMutableState(GLTFDocumentState)[source].set(none)
@@ -456,8 +454,6 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
     }
   }, [animationState])
 
-  console.log('document reactor', documentState.value, props.documentID)
-  console.log(getComponent(rootEntity, NameComponent))
   return (
     <>
       {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
@@ -645,8 +641,6 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
-  console.log('node reactor', node.value, props.nodeIndex)
-
   useLayoutEffect(() => {
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
@@ -694,20 +688,19 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     entityState.set(entity)
 
     return () => {
-      //check if entity is in some other document
-      // if (hasComponent(entity, UUIDComponent)) {
-      //   const uuid = getComponent(entity, UUIDComponent)
-      //   const documents = getState(GLTFDocumentState)
-      //   for (const documentID in documents) {
-      //     const document = documents[documentID]
-      //     if (!document?.nodes) continue
-      //     for (const node of document.nodes) {
-      //       if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
-      //     }
-      //   }
-      // }
-      console.log('cleaning up node', getComponent(entity, NameComponent))
-      //removeEntity(entity)
+      // check if entity is in some other document
+      if (hasComponent(entity, UUIDComponent)) {
+        const uuid = getComponent(entity, UUIDComponent)
+        const documents = getState(GLTFDocumentState)
+        for (const documentID in documents) {
+          const document = documents[documentID]
+          if (!document?.nodes) continue
+          for (const node of document.nodes) {
+            if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
+          }
+        }
+      }
+      removeEntity(entity)
     }
   }, [])
 
@@ -818,7 +811,6 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension)
-    console.log(props.extension, Component)
   }, [extension])
 
   return null
@@ -977,8 +969,7 @@ const PrimitiveReactor = (props: {
   const geometries = meshDef.primitives.map(
     (primitive, index) => GLTFLoaderFunctions.useLoadPrimitive(options, props.nodeIndex, index)!
   )
-
-  console.log('primitive reactor', getComponent(props.entity, NameComponent), geometries)
+  console.log(geometries, getComponent(props.entity, NameComponent))
 
   useEffect(() => {
     return () => {
@@ -986,10 +977,33 @@ const PrimitiveReactor = (props: {
     }
   }, [])
 
-  useLayoutEffect(() => {
-    if (!geometries[geometries.length - 1]) return
+  const finalGeometry = useHookstate(null as BufferGeometry | null)
 
-    let mesh: Mesh | SkinnedMesh
+  useEffect(() => {
+    if (geometries.some((geometry) => !geometry) || finalGeometry.value) return
+    if (geometries.length > 1) {
+      let needsTangentRecalculation = false
+      for (let i = 0; i < geometries.length; i++) {
+        geometries[i].deleteAttribute('tangent')
+        if (geometries[i].attributes.tangent) needsTangentRecalculation = true
+      }
+
+      const newGeometry = mergeBufferGeometries(geometries, true)
+      if (needsTangentRecalculation) newGeometry?.computeTangents()
+
+      for (let i = 0; i < meshDef.primitives.length; i++)
+        newGeometry!.groups[i].materialIndex = meshDef.primitives[i].material!
+
+      finalGeometry.set(newGeometry)
+    } else {
+      finalGeometry.set(geometries[0])
+    }
+  }, [geometries])
+
+  useLayoutEffect(() => {
+    //check if theres an undefined value in geometries
+    if (!finalGeometry.value) return
+
     //For debug visualization of material indices
     // setComponent(props.entity, MaterialInstanceComponent)
     // const array = [] as Material[]
@@ -998,46 +1012,30 @@ const PrimitiveReactor = (props: {
     //   array[primitive.material!] = getComponent(UUIDComponent.getEntityByUUID(materialUUID), MaterialStateComponent).material
     // })
 
-    //HACK
-    for (let i = 0; i < geometries.length; i++) {
-      geometries[i].deleteAttribute('tangent')
-    }
-
-    const mergedGeometry = mergeBufferGeometries(geometries, true)
-
-    //HACK HACK HACK!
-    for (let i = 0; i < meshDef.primitives.length; i++) {
-      mergedGeometry!.groups[i].materialIndex = meshDef.primitives[i].material!
-    }
-
-    // geometry.deleteAttribute('tangent')
-
-    mesh =
+    const mesh =
       typeof node.skin !== 'undefined'
-        ? new SkinnedMesh(mergedGeometry!, new MeshStandardMaterial())
-        : new Mesh(mergedGeometry!, new MeshStandardMaterial())
+        ? new SkinnedMesh(finalGeometry.get(NO_PROXY) as BufferGeometry)
+        : new Mesh(finalGeometry.get(NO_PROXY) as BufferGeometry, [])
+
     if (typeof node.skin !== 'undefined') {
       ;(mesh as SkinnedMesh).skeleton = new Skeleton()
       setComponent(props.entity, SkinnedMeshComponent, mesh as SkinnedMesh)
     }
-    if (geometries.length) mesh.material = []
+
     setComponent(props.entity, MeshComponent, mesh)
-    console.log(getComponent(props.entity, NameComponent), mesh)
 
-    /** @todo multiple primitive support */
     addObjectToGroup(props.entity, mesh)
+    proxifyParentChildRelationships(mesh)
 
-    // mesh.name = node.name ?? 'Node-' + props.nodeIndex
-
-    // /** @todo multiple primitive support */
-    // proxifyParentChildRelationships(mesh)
+    mesh.name = node.name ?? 'Node-' + props.nodeIndex
 
     return () => {
-      //removeComponent(entity, SkinnedMeshComponent)
-      //removeComponent(entity, MeshComponent)
-      //removeObjectFromGroup(entity, mesh)
+      console.log('cleaning up', finalGeometry.value)
+      removeComponent(props.entity, SkinnedMeshComponent)
+      removeComponent(props.entity, MeshComponent)
+      removeObjectFromGroup(props.entity, mesh)
     }
-  }, [node.skin, geometries])
+  }, [node.skin, finalGeometry])
 
   if (!geometries) return null
 
@@ -1053,22 +1051,14 @@ const PrimitiveReactor = (props: {
       )} */}
       {meshDef.primitives.map((primitive, index) => (
         <MaterialInstanceReactor
+          key={index}
           nodeIndex={props.nodeIndex}
           primitiveIndex={index}
           documentID={props.documentID}
           entity={props.entity}
+          isArray={meshDef.primitives.length > 1}
         />
       ))}
-      {/* {primitive.targets && (
-        <MorphTargetReactor
-          key={'targets'}
-          documentID={props.documentID}
-          entity={entity}
-          targets={primitive.targets}
-          nodeIndex={props.nodeIndex}
-          primitiveIndex={props.primitiveIndex}
-        />
-      )} */}
     </>
   )
 }
@@ -1108,6 +1098,7 @@ const MaterialInstanceReactor = (props: {
   documentID: string
   primitiveIndex: number
   entity: Entity
+  isArray: boolean
 }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
 
@@ -1120,13 +1111,13 @@ const MaterialInstanceReactor = (props: {
 
   const materialUUID = (props.documentID + '-material-' + primitive.material!) as EntityUUID
   const materialEntity = UUIDComponent.useEntityByUUID(materialUUID)
-
   useEffect(() => {
     if (typeof primitive.material !== 'number' || !materialEntity) return
 
     setComponent(props.entity, MaterialInstanceComponent)
     const materialInstance = getMutableComponent(props.entity, MaterialInstanceComponent)
-    materialInstance.uuid[primitive.material].set(materialUUID)
+    if (props.isArray) materialInstance.uuid[primitive.material].set(materialUUID)
+    else materialInstance.uuid.set([materialUUID])
   }, [materialEntity, primitive.material])
 
   return null
