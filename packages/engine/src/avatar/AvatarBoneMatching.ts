@@ -639,7 +639,8 @@ export const recursiveHipsLookup = (model: Object3D) => {
   }
   if (model.children.length > 0) {
     for (const child of model.children) {
-      return recursiveHipsLookup(child)
+      const results = recursiveHipsLookup(child)
+      if (results) return results
     }
   }
 }

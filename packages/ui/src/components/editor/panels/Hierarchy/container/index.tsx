@@ -52,6 +52,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@ir-engine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -272,7 +273,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
         // Deselect material entity since we've just clicked on a hierarchy node
         getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-        if (e.ctrlKey) {
+        if ((e.ctrlKey && usesCtrlKey()) || (e.metaKey && !usesCtrlKey())) {
           if (entity === rootEntity) return
           EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
         } else if (e.shiftKey && prevClickedNode) {
