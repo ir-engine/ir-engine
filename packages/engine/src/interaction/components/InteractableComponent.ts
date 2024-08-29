@@ -105,6 +105,7 @@ const updateXrDistVec3 = (selfAvatarEntity: Entity) => {
 
 const _center = new Vector3()
 const _size = new Vector3()
+let activateUI = false
 
 export const updateInteractableUI = (entity: Entity) => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
@@ -144,7 +145,7 @@ export const updateInteractableUI = (entity: Entity) => {
   }
 
   const transition = InteractableTransitions.get(entity)!
-  let activateUI = false
+  activateUI = false
 
   const inCameraFrustum = inFrustum(interactable.uiEntity)
   let hovering = false
@@ -323,7 +324,13 @@ export const InteractableComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         const buttons = InputComponent.getMergedButtons(entity)
-        if (!interactableComponent.clickInteract.value && buttons.PrimaryClick?.pressed) return
+        if (
+          !activateUI ||
+          (!interactableComponent.clickInteract.value &&
+            interactableComponent.uiActivationType.value === XRUIActivationType.proximity &&
+            buttons.PrimaryClick?.pressed)
+        )
+          return
         if (
           buttons.Interact?.pressed &&
           !buttons.Interact?.dragging &&
