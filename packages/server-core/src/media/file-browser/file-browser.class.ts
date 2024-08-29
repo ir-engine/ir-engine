@@ -59,7 +59,7 @@ export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects
 export interface FileBrowserParams extends KnexAdapterParams {}
 
 const ensureProjectsDirectory = (directory: string) => {
-  if (!directory.startsWith('projects')) throw new Error('Not allowed to access this directory')
+  if (!directory.startsWith('projects')) throw new Error(`Not allowed to access directory "${directory}"`)
 }
 
 /**
@@ -86,7 +86,8 @@ export class FileBrowserService
   async get(key: string, params?: FileBrowserParams) {
     if (!key) return false
     const storageProvider = getStorageProvider()
-    const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
+    let [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
+    if (directory[0] === '/') directory = directory.slice(1)
 
     ensureProjectsDirectory(directory)
 

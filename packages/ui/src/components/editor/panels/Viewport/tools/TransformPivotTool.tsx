@@ -41,7 +41,7 @@ const transformPivotOptions = [
   {
     label: t('editor:toolbar.transformPivot.lbl-selection'),
     description: t('editor:toolbar.transformPivot.info-selection'),
-    value: TransformPivot.Selection
+    value: TransformPivot.FirstSelected
   },
   {
     label: t('editor:toolbar.transformPivot.lbl-center'),
@@ -49,9 +49,14 @@ const transformPivotOptions = [
     value: TransformPivot.Center
   },
   {
-    label: t('editor:toolbar.transformPivot.lbl-bottom'),
-    description: t('editor:toolbar.transformPivot.info-bottom'),
-    value: TransformPivot.Bottom
+    label: t('editor:toolbar.transformPivot.lbl-bbox'),
+    description: t('editor:toolbar.transformPivot.info-bbox'),
+    value: TransformPivot.BoundingBox
+  },
+  {
+    label: t('editor:toolbar.transformPivot.lbl-bbox-bottom'),
+    description: t('editor:toolbar.transformPivot.info-bbox-bottom'),
+    value: TransformPivot.BoundingBoxBottom
   },
   {
     label: t('editor:toolbar.transformPivot.lbl-origin'),
@@ -79,11 +84,12 @@ const TransformPivotTool = () => {
         content={
           transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
         }
+        position="right center"
       >
         <Select
           key={editorHelperState.transformPivot.value}
           inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs"
-          className="m-1 w-28 border-theme-input text-theme-gray3"
+          className="m-1 w-32 border-theme-input text-theme-gray3"
           onChange={setTransformPivot}
           options={transformPivotOptions}
           currentValue={editorHelperState.transformPivot.value}
