@@ -182,7 +182,7 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
         </div>
 
         <Tooltip content={file.fullName}>
-          <Text theme="secondary" fontSize="sm" className="mt-2 line-clamp-1 w-full text-wrap break-all">
+          <Text theme="secondary" fontSize="sm" className="mt-2 w-24 overflow-hidden whitespace-nowrap text-ellipsis">
             {file.fullName}
           </Text>
         </Tooltip>
@@ -192,7 +192,6 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
 }
 
 export default function FileItem({ file }: { file: FileDataType }) {
-  const { t } = useTranslation()
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const isListView = filesViewMode.value === 'list'
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent>(undefined)
@@ -281,9 +280,9 @@ export default function FileItem({ file }: { file: FileDataType }) {
       handleFileClick(event)
     },
     isSelected: selectedFiles.value.some((selectedFile) => selectedFile.key === file.key),
-    drag: drop,
-    drop: drop,
-    isOver: isOver,
+    drag,
+    drop,
+    isOver,
     onContextMenu: handleContextMenu
   }
 
