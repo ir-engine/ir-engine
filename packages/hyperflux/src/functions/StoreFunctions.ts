@@ -110,7 +110,7 @@ export class HyperFlux {
   static store: HyperStore
 }
 
-export function createHyperStore(options: {
+export function createHyperStore(options?: {
   getDispatchTime?: () => number
   defaultDispatchDelay?: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
@@ -118,9 +118,9 @@ export function createHyperStore(options: {
   const store: HyperStore = {
     defaultTopic: 'default' as Topic,
     forwardingTopics: new Set<Topic>(),
-    getDispatchTime: options.getDispatchTime ?? (() => 0),
-    defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
-    getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => undefined),
+    getDispatchTime: options?.getDispatchTime ?? (() => 0),
+    defaultDispatchDelay: options?.defaultDispatchDelay ?? (() => 0),
+    getCurrentReactorRoot: options?.getCurrentReactorRoot ?? (() => undefined),
     userID: '' as UserID,
     peerID: uuidv4() as PeerID,
     stateMap: {},

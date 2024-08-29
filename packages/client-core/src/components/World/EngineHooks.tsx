@@ -49,7 +49,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { AuthState } from '../../user/services/AuthService'
-import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -105,7 +105,7 @@ export const usePortalTeleport = () => {
     }
 
     if (activePortal.redirect) {
-      window.location.href = getState(AssetLoaderState).publicDomain + '/location/' + activePortal.location
+      window.location.href = getState(DomainConfigState).publicDomain + '/location/' + activePortal.location
       return
     }
 

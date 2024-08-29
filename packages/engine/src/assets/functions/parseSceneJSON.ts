@@ -24,14 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getState } from '@ir-engine/hyperflux'
-import { AssetLoaderState } from '../state/AssetLoaderState'
+import { DomainConfigState } from '../state/DomainConfigState'
 
 export const sceneRelativePathIdentifier = '__$project$__'
 export const sceneCorsPathIdentifier = '__$cors-proxy$__'
 
 export const parseStorageProviderURLs = (
   data: any,
-  domains: { publicDomain: string; cloudDomain: string; proxyDomain: string } = getState(AssetLoaderState)
+  domains: { publicDomain: string; cloudDomain: string; proxyDomain: string } = getState(DomainConfigState)
 ) => {
   for (const [key, val] of Object.entries(data)) {
     if (val && typeof val === 'object') {
@@ -51,7 +51,7 @@ export const parseStorageProviderURLs = (
 
 export const cleanStorageProviderURLs = (
   data: any,
-  domains: { publicDomain: string; cloudDomain: string; proxyDomain: string } = getState(AssetLoaderState)
+  domains: { publicDomain: string; cloudDomain: string; proxyDomain: string } = getState(DomainConfigState)
 ) => {
   for (const [key, val] of Object.entries(data)) {
     if (val && typeof val === 'object') {

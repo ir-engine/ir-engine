@@ -50,7 +50,7 @@ import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
@@ -66,7 +66,7 @@ export const ImageComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      source: `${getState(AssetLoaderState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`,
+      source: `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`,
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,

@@ -39,11 +39,13 @@ import helmet from 'koa-helmet'
 import healthcheck from 'koa-simple-healthcheck'
 
 import { API } from '@ir-engine/common'
+import commonConfig from '@ir-engine/common/src/config'
 import { pipeLogs } from '@ir-engine/common/src/logger'
 import { pipe } from '@ir-engine/common/src/utils/pipe'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { Application } from '../declarations'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
@@ -56,7 +58,6 @@ import mysql from './mysql'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
-import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('fix-esm').register()
@@ -175,9 +176,13 @@ export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
-  createEngine(createHyperStore({}))
+  createEngine(createHyperStore())
 
-  getMutableState(AssetLoaderState).publicDomain.set(config.client.dist)
+  getMutableState(DomainConfigState).merge({
+    publicDomain: config.client.dist,
+    cloudDomain: commonConfig.client.fileServer,
+    proxyDomain: commonConfig.client.cors.proxyUrl
+  })
 
   const serverState = getMutableState(ServerState)
   serverState.serverMode.set(serverMode)

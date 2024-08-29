@@ -34,7 +34,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { getGLTFAsync } from '../../assets/functions/resourceLoaderHooks'
-import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AvatarControllerType, AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { XRHandMeshModel } from './XRHandMeshModel'
@@ -46,7 +46,7 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
 
   const [gltf] = await getGLTFAsync(
     `${
-      getState(AssetLoaderState).cloudDomain
+      getState(DomainConfigState).cloudDomain
     }/projects/ir-engine/default-project/assets/controllers/${handedness}_controller.glb`
   )
   let handMesh = gltf?.scene?.children[0]
@@ -87,7 +87,7 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
   if (avatarInputControllerType === AvatarControllerType.None) return
 
   const [gltf] = await getGLTFAsync(
-    `${getState(AssetLoaderState).cloudDomain}/projects/ir-engine/default-project/assets/controllers/${handedness}.glb`
+    `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/controllers/${handedness}.glb`
   )
   const handMesh = gltf?.scene?.children[0]
 

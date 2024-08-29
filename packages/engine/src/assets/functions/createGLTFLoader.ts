@@ -42,11 +42,11 @@ import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
 import { loadDRACODecoderNode, NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
-import { AssetLoaderState } from '../state/AssetLoaderState'
+import { DomainConfigState } from '../state/DomainConfigState'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
-  ktxLoader.setTranscoderPath(getState(AssetLoaderState).publicDomain + '/loader_decoders/basis/')
+  ktxLoader.setTranscoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/basis/')
   const renderer = new WebGLRenderer()
   ktxLoader.detectSupport(renderer)
   renderer.dispose()
@@ -79,7 +79,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   if (isClient) {
     initializeKTX2Loader(loader)
     const dracoLoader = new DRACOLoader()
-    dracoLoader.setDecoderPath(getState(AssetLoaderState).publicDomain + '/loader_decoders/')
+    dracoLoader.setDecoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)
     loader.setDRACOLoader(dracoLoader)
   } else {

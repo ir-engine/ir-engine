@@ -61,7 +61,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import React from 'react'
 import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
@@ -332,7 +332,7 @@ const Reactor = () => {
   const [gltfs] = useBatchGLTF(
     animations.map((animationFile) => {
       return `${
-        getState(AssetLoaderState).cloudDomain
+        getState(DomainConfigState).cloudDomain
       }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
     })
   )

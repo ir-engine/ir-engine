@@ -45,7 +45,7 @@ import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
-import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { getState } from '@ir-engine/hyperflux'
 import styles from './index.module.scss'
 
@@ -73,7 +73,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
     setComponent(sceneEntity, LoopAnimationComponent, {
       animationPack:
-        getState(AssetLoaderState).cloudDomain + defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
+        getState(DomainConfigState).cloudDomain + defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
     setComponent(sceneEntity, ModelComponent, { src: avatarUrl, convertToVRM: true })

@@ -34,7 +34,7 @@ import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObje
 
 import { AssetLoader } from '../../../classes/AssetLoader'
 import { modelResourcesPath } from '../../../functions/pathResolver'
-import { AssetLoaderState } from '../../../state/AssetLoaderState'
+import { DomainConfigState } from '../../../state/DomainConfigState'
 import { UploadRequestState } from '../../../state/UploadRequestState'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -171,7 +171,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
       // const basePath = LoaderUtils.extractUrlBase(writer.options.path!)
       const basePath = LoaderUtils.extractUrlBase(
         pathJoin(
-          getState(AssetLoaderState).cloudDomain,
+          getState(DomainConfigState).cloudDomain,
           'projects',
           writer.options.projectName!,
           writer.options.relativePath!

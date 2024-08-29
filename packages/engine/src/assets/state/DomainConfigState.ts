@@ -25,16 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineState } from '@ir-engine/hyperflux'
 
-import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
-import { CORTOLoader } from '../loaders/corto/CORTOLoader'
-
-export const AssetLoaderState = defineState({
-  name: 'AssetLoaderState',
-  initial: () => {
-    const gltfLoader = createGLTFLoader()
-    return {
-      gltfLoader,
-      cortoLoader: null! as CORTOLoader
-    }
+export const DomainConfigState = defineState({
+  name: 'DomainConfigState',
+  initial: {
+    publicDomain: '',
+    cloudDomain: '',
+    proxyDomain: ''
   }
 })

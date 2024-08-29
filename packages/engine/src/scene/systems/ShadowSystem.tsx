@@ -86,7 +86,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useHasModelOrIndependentMesh } from '../components/ModelComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
@@ -447,7 +447,7 @@ const reactor = () => {
   const useShadows = useShadowsEnabled()
 
   const [shadowTexture] = useTexture(
-    `${getState(AssetLoaderState).cloudDomain}/projects/ir-engine/default-project/assets/drop-shadow.png`
+    `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/drop-shadow.png`
   )
 
   useEffect(() => {

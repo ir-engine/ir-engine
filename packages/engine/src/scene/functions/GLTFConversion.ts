@@ -31,7 +31,7 @@ import { sceneRelativePathIdentifier } from '@ir-engine/engine/src/assets/functi
 import { TransformComponent } from '@ir-engine/spatial'
 
 import { getState } from '@ir-engine/hyperflux'
-import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
@@ -86,7 +86,7 @@ export const getCacheRegex = (fileServer: string) => {
  * @param mode 'encode' or 'decode'
  */
 export const handleScenePaths = (gltf: GLTF.IGLTF, mode: 'encode' | 'decode') => {
-  const cloudDomain = getState(AssetLoaderState).cloudDomain
+  const cloudDomain = getState(DomainConfigState).cloudDomain
   const cacheRe = getCacheRegex(cloudDomain)
   const symbolRe = /__\$project\$__/
   const frontier = [...(gltf.scenes ?? []), ...(gltf.nodes ?? [])]

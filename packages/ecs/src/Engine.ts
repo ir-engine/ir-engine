@@ -89,7 +89,7 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function createEngine(hyperstore = createHyperStore({})) {
+export function createEngine(hyperstore = createHyperStore()) {
   if (Engine.instance) throw new Error('Store already exists')
   Engine.instance = new Engine()
   hyperstore.getCurrentReactorRoot = () =>

@@ -40,7 +40,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { loadCubeMapTexture } from '../constants/Util'
@@ -56,7 +56,7 @@ export const SkyboxComponent = defineComponent({
       backgroundColor: new Color(0x000000),
       equirectangularPath: '',
       cubemapPath: `${
-        getState(AssetLoaderState).cloudDomain
+        getState(DomainConfigState).cloudDomain
       }/projects/ir-engine/default-project/assets/skyboxsun25deg/`,
       backgroundType: 1,
       sky: null! as Sky | null,

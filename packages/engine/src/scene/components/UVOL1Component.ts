@@ -65,6 +65,7 @@ import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
 import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 
 const decodeCorto = (url: string, start: number, end: number) => {
   return new Promise<BufferGeometry | null>((res, rej) => {
@@ -160,7 +161,7 @@ function UVOL1Reactor() {
   useEffect(() => {
     if (!getState(AssetLoaderState).cortoLoader) {
       const loader = new CORTOLoader()
-      loader.setDecoderPath(getState(AssetLoaderState).publicDomain + '/loader_decoders/')
+      loader.setDecoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/')
       loader.preload()
       const assetLoaderState = getMutableState(AssetLoaderState)
       assetLoaderState.cortoLoader.set(loader)
