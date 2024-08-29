@@ -134,6 +134,7 @@ export const MaterialInstanceComponent = defineComponent({
     const uuids = getComponent(entity, MaterialInstanceComponent).uuid
     for (const uuid of uuids) {
       const materialEntity = UUIDComponent.getEntityByUUID(uuid)
+      if (!hasComponent(materialEntity, MaterialStateComponent)) continue
       const materialComponent = getMutableComponent(materialEntity, MaterialStateComponent)
       if (materialComponent.instances.value)
         materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
