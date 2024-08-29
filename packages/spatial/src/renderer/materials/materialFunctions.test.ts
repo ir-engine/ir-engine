@@ -49,12 +49,14 @@ import {
   MaterialPrototypeComponent,
   MaterialPrototypeConstructor,
   MaterialPrototypeDefinitions,
+  MaterialPrototypeObjectConstructor,
   MaterialStateComponent
 } from './MaterialComponent'
 import {
   createMaterialPrototype,
   getMaterial,
   hasPlugin,
+  materialPrototypeMatches,
   removePlugin,
   setMeshMaterial,
   setPlugin
@@ -467,7 +469,147 @@ describe('materialFunctions', () => {
     })
   }) //:: removePlugin
 
-  describe('materialPrototypeMatches', () => {}) //:: materialPrototypeMatches
+  describe('materialPrototypeMatches', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should return true when the prototypeName is equal to the material.userData.type, even if material.type would match', () => {
+      const Expected = true
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      const materialEntity = createEntity()
+      const prototypeUUID = UUIDComponent.generateUUID()
+      const materialUUID = UUIDComponent.generateUUID()
+      const material = new Material()
+      material.uuid = materialUUID
+      material.userData = { type: '123456' }
+      const prototypeName = material.userData.type
+      const prototypeConstructor = (() => {}) as unknown as MaterialPrototypeConstructor
+      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
+      setComponent(materialEntity, UUIDComponent, materialUUID)
+      setComponent(prototypeEntity, MaterialPrototypeComponent, {
+        prototypeConstructor: { [prototypeName as string]: prototypeConstructor }
+      })
+      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
+      // Run and Check the result
+      const result = materialPrototypeMatches(materialEntity)
+      assert.equal(result, Expected)
+    })
+
+    it('should return true when the prototypeName is equal to the material.type if material.userData.type is falsy', () => {
+      const Expected = true
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      const materialEntity = createEntity()
+      const prototypeUUID = UUIDComponent.generateUUID()
+      const materialUUID = UUIDComponent.generateUUID()
+      const material = new Material()
+      material.uuid = materialUUID
+      material.userData = { type: 0 }
+      const prototypeName = material.type
+      const prototypeConstructor = (() => {}) as unknown as MaterialPrototypeConstructor
+      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
+      setComponent(materialEntity, UUIDComponent, materialUUID)
+      setComponent(prototypeEntity, MaterialPrototypeComponent, {
+        prototypeConstructor: { [prototypeName as string]: prototypeConstructor }
+      })
+      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
+      assert.equal(Boolean(material.userData.type), false)
+      // Run and Check the result
+      const result = materialPrototypeMatches(materialEntity)
+      assert.equal(result, Expected)
+    })
+
+    it('should return false if `@param materialEntity` does not have a MaterialStateComponent', () => {
+      const Expected = false
+      // Set the data as expected
+      const materialUUID = UUIDComponent.generateUUID()
+      const material = new Material()
+      material.uuid = materialUUID
+      const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, materialUUID)
+      // setComponent(materialEntity, MaterialStateComponent, { material: material })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), false)
+      // Run and Check the result
+      const result = materialPrototypeMatches(materialEntity)
+      assert.equal(result, Expected)
+    })
+
+    it('should return false when `@param materialEntity`.MaterialStateComponent.prototypeEntity is falsy', () => {
+      const Expected = false
+      // Set the data as expected
+      const materialUUID = UUIDComponent.generateUUID()
+      const material = new Material()
+      material.uuid = materialUUID
+      const materialEntity = createEntity()
+      setComponent(materialEntity, UUIDComponent, materialUUID)
+      setComponent(materialEntity, MaterialStateComponent, { material: material })
+      // Sanity check before running
+      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, true)
+      // Run and Check the result
+      const result = materialPrototypeMatches(materialEntity)
+      assert.equal(result, Expected)
+    })
+
+    it('should return false if `@param materialEntity`.MaterialStateComponent.prototypeEntity does not have a MaterialPrototypeComponent', () => {
+      const Expected = false
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      const materialEntity = createEntity()
+      const prototypeUUID = UUIDComponent.generateUUID()
+      const materialUUID = UUIDComponent.generateUUID()
+      const material = new Material()
+      material.uuid = materialUUID
+      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
+      setComponent(materialEntity, UUIDComponent, materialUUID)
+      // setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: { [prototypeName as string]: prototypeConstructor } })
+      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
+      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), false)
+      // Run and Check the result
+      const result = materialPrototypeMatches(materialEntity)
+      assert.equal(result, Expected)
+    })
+
+    it('should return false if `@param materialEntity`.MaterialStateComponent.protypeEntity.MaterialPrototypeComponent.prototypeConstructor is falsy', () => {
+      const Expected = false
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      const materialEntity = createEntity()
+      const prototypeUUID = UUIDComponent.generateUUID()
+      const materialUUID = UUIDComponent.generateUUID()
+      const material = new Material()
+      material.uuid = materialUUID
+      const DummyConstructor = {} as MaterialPrototypeObjectConstructor
+      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
+      setComponent(materialEntity, UUIDComponent, materialUUID)
+      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: undefined })
+      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
+      assert.deepEqual(getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeConstructor, DummyConstructor)
+      // Run and Check the result
+      const result = materialPrototypeMatches(materialEntity)
+      assert.equal(result, Expected)
+    })
+  }) //:: materialPrototypeMatches
+
   describe('updateMaterialPrototype', () => {}) //:: updateMaterialPrototype
   describe('MaterialNotFoundError', () => {}) //:: MaterialNotFoundError
   describe('PrototypeNotFoundError', () => {}) //:: PrototypeNotFoundError
