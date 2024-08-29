@@ -32,6 +32,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AssetExt, AssetType, FileToAssetExt, FileToAssetType } from '@ir-engine/common/src/constants/AssetType'
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
+import { Loader } from '../loaders/base/Loader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { TextureLoader } from '../loaders/texture/TextureLoader'
@@ -90,6 +91,8 @@ export const getLoader = (assetType: AssetExt) => {
   }
 }
 
+export type AssetLoader = ReturnType<typeof getLoader> | Loader
+
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
 const loadAsset = async <T>(
@@ -98,7 +101,7 @@ const loadAsset = async <T>(
   onProgress: (request: ProgressEvent) => void = () => {},
   onError: (event: ErrorEvent | Error) => void = () => {},
   signal?: AbortSignal,
-  loader?: ReturnType<typeof getLoader>
+  loader?: AssetLoader
 ) => {
   if (!url) {
     onError(new Error('URL is empty'))

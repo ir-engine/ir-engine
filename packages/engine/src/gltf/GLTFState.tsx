@@ -1182,7 +1182,7 @@ export const AnimationReactor = (props: {
   return null
 }
 
-export const getParserOptions = (entity: Entity) => {
+export const getParserOptions = (entity: Entity): GLTFParserOptions => {
   const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
   const documentID = GLTFComponent.getInstanceID(gltfEntity)
   const gltfComponent = getComponent(gltfEntity, GLTFComponent)
@@ -1194,10 +1194,9 @@ export const getParserOptions = (entity: Entity) => {
     url: gltfComponent.src,
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
-    crossOrigin: gltfLoader.crossOrigin,
     requestHeader: gltfLoader.requestHeader,
     manager: gltfLoader.manager,
-    ktx2Loader: gltfLoader.ktx2Loader,
+    ktx2Loader: gltfLoader.ktx2Loader!,
     meshoptDecoder: gltfLoader.meshoptDecoder
-  } as GLTFParserOptions
+  }
 }

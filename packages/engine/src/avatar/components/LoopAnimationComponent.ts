@@ -36,7 +36,6 @@ import {
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   defineComponent,
-  getComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
@@ -131,9 +130,7 @@ export const LoopAnimationComponent = defineComponent({
       }
       animComponent.mixer.time.set(0)
       try {
-        const action = animComponent.mixer.value.clipAction(
-          vrmComponent ? bindAnimationClipFromMixamo(clip, getComponent(entity, VRMComponent)) : clip
-        )
+        const action = animComponent.mixer.value.clipAction(vrmComponent ? bindAnimationClipFromMixamo(clip) : clip)
         loopAnimationComponent._action.set(action)
         return () => {
           action.stop()
