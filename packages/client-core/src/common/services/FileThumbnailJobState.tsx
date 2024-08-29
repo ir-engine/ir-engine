@@ -331,17 +331,9 @@ const ThumbnailJobReactor = () => {
     })
   }, [fileType, tex, id])
 
-  //Load lookDev
+  // Load models, materails, lookDev
   useEffect(() => {
-    if (src === '' || fileType !== 'lookDev') {
-      cleanupState()
-      return
-    }
-  })
-
-  // Load models
-  useEffect(() => {
-    if (src === '' || (fileType !== 'model' && fileType !== 'material')) {
+    if (src === '' || (fileType !== 'model' && fileType !== 'material' && fileType !== 'lookDev')) {
       cleanupState()
       return
     }
@@ -355,7 +347,7 @@ const ThumbnailJobReactor = () => {
     setComponent(entity, BoundingBoxComponent)
     if (fileType === 'model') {
       setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
-    } else {
+    } else if (fileType === 'material') {
       if (materialLoaded.value) {
         materialLoaded.set(false)
       }
@@ -372,6 +364,8 @@ const ThumbnailJobReactor = () => {
           materialLoaded.set(true)
         }
       })
+    } else if (fileType === 'lookDev') {
+      //setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
     }
 
     const lightEntity = createEntity()
