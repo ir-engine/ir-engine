@@ -88,12 +88,7 @@ export const formatMaterialArgs = (args, defaultArgs: any = undefined) => {
           }
         }
         const tex = v as Texture
-        if (tex?.isTexture) {
-          if (tex.source.data !== undefined) {
-            return [k, v]
-          }
-          return [k, undefined]
-        }
+        if (tex?.isTexture) return [k, tex.source.data !== undefined ? v : undefined]
         if (v === '') return [k, undefined]
         return [k, v]
       })
