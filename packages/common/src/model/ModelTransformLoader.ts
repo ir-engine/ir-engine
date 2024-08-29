@@ -39,15 +39,14 @@ import {
   KHRTextureBasisu,
   KHRTextureTransform
 } from '@gltf-transform/extensions'
+import { EEMaterialExtension } from '@ir-engine/engine/src/assets/compression/extensions/EE_MaterialTransformer'
+import { EEResourceIDExtension } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
+import { MOZLightmapExtension } from '@ir-engine/engine/src/assets/compression/extensions/MOZ_LightmapTransformer'
+import { VRMExtension } from '@ir-engine/engine/src/assets/compression/extensions/EE_VRMTransformer'
 import fetch from 'cross-fetch'
 import draco3d from 'draco3dgltf'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
-
-import { FileLoader } from '../loaders/base/FileLoader'
-import { EEMaterialExtension } from './extensions/EE_MaterialTransformer'
-import { EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
-import { VRMExtension } from './extensions/EE_VRMTransformer'
-import { MOZLightmapExtension } from './extensions/MOZ_LightmapTransformer'
+import { FileLoader } from 'three'
 
 const transformHistory: string[] = []
 export default async function ModelTransformLoader() {

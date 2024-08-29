@@ -28,7 +28,6 @@ import { AudioLoader } from 'three'
 import { getState } from '@ir-engine/hyperflux'
 
 import { AssetExt, AssetType, FileToAssetExt, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
-import { Engine } from '@ir-engine/ecs'
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
@@ -37,6 +36,7 @@ import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
+import { DomainConfigState } from '../state/DomainConfigState'
 
 /**
  * Get asset type from the asset file extension.
@@ -99,7 +99,7 @@ export const isAbsolutePath = (path) => {
   return ABSOLUTE_URL_PROTOCOL_REGEX.test(path)
 }
 
-const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(AssetLoaderState).publicDomain + url)
+const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(DomainConfigState).publicDomain + url)
 
 const loadAsset = async <T>(
   url: string,

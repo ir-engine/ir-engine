@@ -47,7 +47,6 @@ import {
   recordingPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { useVideoFrameCallback } from '@ir-engine/common/src/utils/useVideoFrameCallback'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import {
@@ -78,6 +77,7 @@ import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
 import Button from '../../primitives/tailwind/Button'
+import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 
 /**
  * Start playback of a recording
