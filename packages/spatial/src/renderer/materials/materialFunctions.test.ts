@@ -58,6 +58,7 @@ import {
   createMaterialPrototype,
   getMaterial,
   getMaterialIndices,
+  getPrototypeEntityFromName,
   hasPlugin,
   materialPrototypeMatches,
   removePlugin,
@@ -657,10 +658,101 @@ describe('materialFunctions', () => {
     })
   }) //:: getMaterialIndices
 
+  describe('getPrototypeEntityFromName', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should return the first entity that has a MaterialPrototypeComponent and a NameComponent that matches the `@param name`', () => {
+      const Expected = testEntity
+      const name = 'ExpectedName'
+      // Set the data as expected
+      setComponent(testEntity, NameComponent, name)
+      setComponent(testEntity, MaterialPrototypeComponent)
+      const otherEntity = createEntity()
+      setComponent(otherEntity, NameComponent, name)
+      setComponent(otherEntity, MaterialPrototypeComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, NameComponent), true)
+      assert.equal(hasComponent(otherEntity, NameComponent), true)
+      assert.equal(hasComponent(testEntity, MaterialPrototypeComponent), true)
+      assert.equal(hasComponent(otherEntity, MaterialPrototypeComponent), true)
+      // Run and Check the result
+      const result = getPrototypeEntityFromName(name)
+      assert.notEqual(result, otherEntity)
+      assert.equal(result, Expected)
+    })
+
+    it('should return undefined when there are no entities that have a MaterialPrototypeComponent', () => {
+      const Expected = undefined
+      const name = 'ExpectedName'
+      // Set the data as expected
+      setComponent(testEntity, NameComponent, name)
+      // setComponent(testEntity, MaterialPrototypeComponent)
+      const otherEntity = createEntity()
+      setComponent(otherEntity, NameComponent, name)
+      // setComponent(otherEntity, MaterialPrototypeComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, NameComponent), true)
+      assert.equal(hasComponent(otherEntity, NameComponent), true)
+      assert.equal(hasComponent(testEntity, MaterialPrototypeComponent), false)
+      assert.equal(hasComponent(otherEntity, MaterialPrototypeComponent), false)
+      // Run and Check the result
+      const result = getPrototypeEntityFromName(name)
+      assert.notEqual(result, otherEntity)
+      assert.notEqual(result, testEntity)
+      assert.equal(result, Expected)
+    })
+
+    it('should return undefined when the first entity that has a MaterialPrototypeComponent has a NameComponent that does not match the `@param name`', () => {
+      const Expected = undefined
+      const name = 'ExpectedName'
+      // Set the data as expected
+      setComponent(testEntity, NameComponent, name)
+      setComponent(testEntity, MaterialPrototypeComponent)
+      const otherEntity = createEntity()
+      setComponent(otherEntity, NameComponent, name)
+      setComponent(otherEntity, MaterialPrototypeComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, NameComponent), true)
+      assert.equal(hasComponent(otherEntity, NameComponent), true)
+      assert.equal(hasComponent(testEntity, MaterialPrototypeComponent), true)
+      assert.equal(hasComponent(otherEntity, MaterialPrototypeComponent), true)
+      // Run and Check the result
+      const result = getPrototypeEntityFromName('OtherName')
+      assert.notEqual(result, otherEntity)
+      assert.notEqual(result, testEntity)
+      assert.equal(result, Expected)
+    })
+
+    it('should return undefined when the entity that has a MaterialPrototypeComponent does not have a NameComponent', () => {
+      const Expected = undefined
+      const name = 'ExpectedName'
+      // Set the data as expected
+      // setComponent(testEntity, NameComponent, name)
+      setComponent(testEntity, MaterialPrototypeComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, NameComponent), false)
+      assert.equal(hasComponent(testEntity, MaterialPrototypeComponent), true)
+      // Run and Check the result
+      const result = getPrototypeEntityFromName(name)
+      assert.notEqual(result, testEntity)
+      assert.equal(result, Expected)
+    })
+  }) //:: getPrototypeEntityFromName
+
   describe('updateMaterialPrototype', () => {}) //:: updateMaterialPrototype
   describe('MaterialNotFoundError', () => {}) //:: MaterialNotFoundError
   describe('PrototypeNotFoundError', () => {}) //:: PrototypeNotFoundError
-  describe('getPrototypeEntityFromName', () => {}) //:: getPrototypeEntityFromName
   describe('injectMaterialDefaults', () => {}) //:: injectMaterialDefaults
 
   /**
