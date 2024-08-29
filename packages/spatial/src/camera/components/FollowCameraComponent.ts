@@ -106,42 +106,20 @@ export const FollowCameraComponent = defineComponent({
     lastZoomStartDistance: S.Number(0)
   }),
 
-  onInit: (entity: Entity, schema) => {
+  onInit: (entity, initial) => {
     return {
-      ...schema!,
-      firstPersonOffset: Vec3SchemaToVec3(schema!.firstPersonOffset),
-      thirdPersonOffset: Vec3SchemaToVec3(schema!.thirdPersonOffset),
-      currentOffset: Vec3SchemaToVec3(schema!.currentOffset),
-      currentTargetPosition: Vec3SchemaToVec3(schema!.currentTargetPosition),
+      ...initial,
+      firstPersonOffset: Vec3SchemaToVec3(initial.firstPersonOffset),
+      thirdPersonOffset: Vec3SchemaToVec3(initial.thirdPersonOffset),
+      currentOffset: Vec3SchemaToVec3(initial.currentOffset),
+      currentTargetPosition: Vec3SchemaToVec3(initial.currentTargetPosition),
       raycastProps: {
-        ...schema!.raycastProps,
-        cameraRays: schema!.raycastProps.cameraRays as Vector3[],
-        camRayCastClock: schema!.raycastProps.camRayCastClock() as Clock
+        ...initial.raycastProps,
+        cameraRays: initial.raycastProps.cameraRays as Vector3[],
+        camRayCastClock: initial.raycastProps.camRayCastClock() as Clock
       }
     }
   },
-
-  // onSet: (entity, component, json) => {
-  //   if (!json) return
-
-  //   if (typeof json.firstPersonOffset !== 'undefined') component.firstPersonOffset.set(json.firstPersonOffset)
-  //   if (typeof json.thirdPersonOffset !== 'undefined') component.thirdPersonOffset.set(json.thirdPersonOffset)
-  //   if (typeof json.targetEntity !== 'undefined') component.targetEntity.set(json.targetEntity)
-  //   if (typeof json.mode === 'string') component.mode.set(json.mode)
-  //   if (matches.arrayOf(matches.string).test(json.allowedModes)) component.allowedModes.set(json.allowedModes)
-  //   if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
-  //   if (typeof json.targetDistance !== 'undefined') component.targetDistance.set(json.targetDistance)
-  //   if (typeof json.zoomVelocity !== 'undefined') component.zoomVelocity.set(json.zoomVelocity)
-  //   if (typeof json.thirdPersonMinDistance !== 'undefined')
-  //     component.thirdPersonMinDistance.set(json.thirdPersonMinDistance)
-  //   if (typeof json.thirdPersonMaxDistance !== 'undefined')
-  //     component.thirdPersonMaxDistance.set(json.thirdPersonMaxDistance)
-  //   if (typeof json.theta !== 'undefined') component.theta.set(json.theta)
-  //   if (typeof json.phi !== 'undefined') component.phi.set(json.phi)
-  //   if (typeof json.minPhi !== 'undefined') component.minPhi.set(json.minPhi)
-  //   if (typeof json.maxPhi !== 'undefined') component.maxPhi.set(json.maxPhi)
-  //   if (typeof json.shoulderSide !== 'undefined') component.shoulderSide.set(json.shoulderSide)
-  // },
 
   reactor: () => {
     const entity = useEntityContext()

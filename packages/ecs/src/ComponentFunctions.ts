@@ -88,25 +88,24 @@ type ComponentSchema = TSchema | bitECS.ISchema
  */
 export interface ComponentPartial<
   Schema extends ComponentSchema = any,
-  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema,
+  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema | undefined,
   ComponentType = SchemaInstanceType,
-  JSON = ComponentType,
-  SetJSON = PartialIfObject<DeepReadonly<JSON>>,
+  JSON = SchemaInstanceType,
+  SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = never
 > {
   /** @description Human readable label for the component. Displayed in the editor and debugging tools. */
   name: string
   /** @description Internal ID used to reference this component in JSON data. */
   jsonID?: string
-  /** @description A Component's Schema is the shape of its runtime data. */
+  /** @description A Component's Schema is the shape of its serializable data. */
   schema?: Schema
   /**
    * @description Called once when the component is added to an entity (ie: initialized).
-   * @param this `@internal` The component partial itself.
-   * @param entity The {@link Entity} to which this Component is being assigned.
-   * @returns The schema (aka shape) of the component's runtime data.
+   * @param initial the initial value created from the component's schema.
+   * @returns The shape of the component's runtime data.
    */
-  onInit?: (entity: Entity, schema?: SchemaInstanceType) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (entity: Entity, initial: SchemaInstanceType) => ComponentType & OnInitValidateNotState<ComponentType>
   /**
    * @description
    * Serializer function called when the component is saved to a snapshot or scene file.
@@ -150,17 +149,17 @@ export interface ComponentPartial<
  */
 export interface Component<
   Schema extends ComponentSchema = any,
-  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema,
+  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema | undefined,
   ComponentType = SchemaInstanceType,
-  JSON = ComponentType,
-  SetJSON = PartialIfObject<DeepReadonly<JSON>>,
+  JSON = SchemaInstanceType,
+  SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = string
 > {
   isComponent: true
   name: string
   jsonID?: string
   schema?: Schema
-  onInit?: (entity: Entity, schema?: SchemaInstanceType) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (entity: Entity, initial: SchemaInstanceType) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
@@ -224,10 +223,10 @@ const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECS.ISchema =
  */
 export const defineComponent = <
   Schema extends ComponentSchema = any,
-  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema,
+  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema | undefined,
   ComponentType = SchemaInstanceType,
-  JSON = ComponentType,
-  SetJSON = PartialIfObject<DeepReadonly<JSON>>,
+  JSON = SchemaInstanceType,
+  SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
   ComponentExtras = Record<string, any>,
   SOAComponent = Schema extends TSchema ? SoAComponentType<any> : SoAComponentType<Schema>
@@ -242,19 +241,26 @@ export const defineComponent = <
     SOAComponent
   Component.isComponent = true
   Component.onSet = (entity, component, json) => {
-    if (!json) return
+    if (json === undefined || json === null) return
     if (schemaIsJSONSchema(def.schema)) {
-      //const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
-      //if (!Value.Check(schema, json)) console.error(`${def.name}:onSet Invalid arguments for component type`)
-      //else
       if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
-      else component.merge(json as SetPartialStateAction<ComponentType>)
+      else {
+        const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
+        const schemaValue = Value.Cast(schema, json)
+        component.merge(schemaValue as SetPartialStateAction<ComponentType>)
+      }
     }
   }
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => {
     if (schemaIsJSONSchema(def.schema)) {
-      return component.value as JSON
+      const value = component.value
+      if (def.onInit) {
+        const schemaValue = Value.Parse(def.schema, value) as JSON
+        return schemaValue
+      }
+
+      return value as unknown as JSON
     }
 
     return null as JSON
@@ -363,8 +369,8 @@ export const createInitialComponentValue = <
     const schema = Value.Create(component.schema) as SchemaInstanceType
     if (component.onInit) return component.onInit(entity, schema) as ComponentType
     else return schema as unknown as ComponentType
-  } else if (component.onInit) return component.onInit(entity, undefined) as ComponentType
-  else return true as ComponentType
+  } else if (component.onInit) return component.onInit(entity, undefined as SchemaInstanceType) as ComponentType
+  else return null as ComponentType
 }
 
 /**

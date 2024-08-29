@@ -23,16 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Value } from '@sinclair/typebox/value'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 
+import { Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
   getAllComponents,
   getComponent,
+  getMutableComponent,
   hasComponent,
   hasComponents,
   removeComponent,
@@ -40,6 +43,7 @@ import {
   useComponent,
   useOptionalComponent
 } from './ComponentFunctions'
+import { S } from './ComponentSchemaUtils'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
@@ -81,6 +85,112 @@ describe('ComponentFunctions', async () => {
       assert.equal(Vector3Component.name, 'Vector3Component')
       assert.equal(Vector3Component.schema, Vector3Schema)
       assert.equal(ComponentMap.size, 1)
+    })
+
+    it('should use default toJSON function if none is defined', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(0)
+        })
+      })
+
+      const entity = createEntity()
+      setComponent(entity, Vector3Component)
+      const vector3Component = getMutableComponent(entity, Vector3Component)
+      const json = Vector3Component.toJSON(entity, vector3Component)
+      const fromSchema = Value.Create(Vector3Component.schema)
+      assert(Value.Equal(vector3Component.value, fromSchema))
+      assert(Value.Equal(json, fromSchema))
+      assert(Value.Equal(json, vector3Component.value))
+    })
+
+    it('should use default onSet function if none is defined', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        })
+      })
+
+      const setValue = { x: 12, y: 24 }
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, setValue)
+      const vector3Component = getComponent(entity, Vector3Component)
+      assert(Value.Check(Vector3Component.schema, vector3Component))
+      assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
+      assert(vector3Component.z === Value.Create(Vector3Component.schema).z)
+    })
+
+    it('should override runtime data if onInit is specified', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        }),
+        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
+      })
+
+      const setValue = { x: 12, y: 24 }
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, setValue)
+      const vector3Component = getComponent(entity, Vector3Component)
+      const fromSchema = Value.Create(Vector3Component.schema)
+      assert(vector3Component instanceof Vector3)
+      assert(vector3Component.isVector3)
+      assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
+      assert(vector3Component.z === fromSchema.z)
+      assert(!Value.Equal(vector3Component, fromSchema))
+    })
+
+    it('toJSON should still be in the shape of the schema even if overriden by onInit', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        }),
+        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
+      })
+
+      const setValue = { x: 12, y: 24 }
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, setValue)
+      const vector3Component = getMutableComponent(entity, Vector3Component)
+      const json = Vector3Component.toJSON(entity, vector3Component)
+      assert(vector3Component.value instanceof Vector3)
+      assert(!(json instanceof Vector3))
+      assert(vector3Component.isVector3)
+      assert(Value.Equal(json, { ...setValue, z: 4 }))
+      assert((json as any).isVector3 === undefined)
+    })
+
+    it('Can set component with overriden types', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        }),
+        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
+      })
+
+      const setValue = new Vector3(12, 15, 74)
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, setValue)
+      const vector3Component = getComponent(entity, Vector3Component)
+      assert(vector3Component instanceof Vector3)
+      assert(
+        vector3Component.x === setValue.x && vector3Component.y === setValue.y && vector3Component.z === setValue.z
+      )
     })
   })
 
