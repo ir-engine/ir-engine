@@ -1179,7 +1179,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
 }
 
 export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info({ event_name: 'screen_share', event_value: true })
+  logger.info({ event_name: 'screen_share_on', event_value: true })
   const mediaStreamState = getMutableState(MediaStreamState)
 
   // get a screen share track
@@ -1235,7 +1235,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
 }
 
 export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info({ event_name: 'screen_share', event_value: false })
+  logger.info({ event_name: 'screen_share_off', event_value: true })
   const mediaStreamState = getMutableState(MediaStreamState)
 
   console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)

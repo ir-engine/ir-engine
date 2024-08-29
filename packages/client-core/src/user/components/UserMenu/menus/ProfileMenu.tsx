@@ -258,27 +258,37 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
     // Get the url without query parameters.
     const redirectUrl = window.location.toString().replace(window.location.search, '')
-    if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl)
-    else if (type === 'sms') AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl)
+    if (type === 'email')
+      AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl).then(() =>
+        logger.info({
+          event_name: 'connect_email',
+          event_value: e.currentTarget.id
+        })
+      )
+    else if (type === 'sms')
+      AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl).then(() =>
+        logger.info({
+          event_name: 'connect_sms',
+          event_value: e.currentTarget.id
+        })
+      )
     return
   }
 
   const handleOAuthServiceClick = (e) => {
-    AuthService.loginUserByOAuth(e.currentTarget.id, location).then(() =>
-      logger.info({
-        event_name: 'connect_social_login',
-        event_value: e.currentTarget.id
-      })
-    )
+    logger.info({
+      event_name: 'connect_social_login',
+      event_value: e.currentTarget.id
+    })
+    AuthService.loginUserByOAuth(e.currentTarget.id, location)
   }
 
   const handleRemoveOAuthServiceClick = (e) => {
-    AuthService.removeUserOAuth(e.currentTarget.id).then(() =>
-      logger.info({
-        event_name: 'disconnect_social_login',
-        event_value: e.currentTarget.id
-      })
-    )
+    logger.info({
+      event_name: 'disconnect_social_login',
+      event_value: e.currentTarget.id
+    })
+    AuthService.removeUserOAuth(e.currentTarget.id)
   }
 
   const handleLogout = async () => {

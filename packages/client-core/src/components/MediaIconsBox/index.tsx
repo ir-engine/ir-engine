@@ -189,7 +189,10 @@ export const MediaIconsBox = () => {
             id="UserVideo"
             title={t('user:menu.toggleVideo')}
             className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
-            onClick={toggleWebcamPaused}
+            onClick={() => {
+              toggleWebcamPaused
+              clogger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
+            }}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
@@ -212,7 +215,10 @@ export const MediaIconsBox = () => {
               className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
               onClick={() => {
                 window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
-                clogger.info({ event_name: 'motion_capture', event_value: isMotionCaptureEnabled })
+                clogger.info({
+                  event_name: 'toggle_motion_capture',
+                  event_value: isMotionCaptureEnabled
+                })
               }}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
