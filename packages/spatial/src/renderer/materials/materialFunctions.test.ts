@@ -51,7 +51,14 @@ import {
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from './MaterialComponent'
-import { createMaterialPrototype, getMaterial, hasPlugin, setMeshMaterial, setPlugin } from './materialFunctions'
+import {
+  createMaterialPrototype,
+  getMaterial,
+  hasPlugin,
+  removePlugin,
+  setMeshMaterial,
+  setPlugin
+} from './materialFunctions'
 
 describe('materialFunctions', () => {
   describe('getMaterial', () => {
@@ -441,6 +448,22 @@ describe('materialFunctions', () => {
     afterEach(() => {
       removeEntity(testEntity)
       return destroyEngine()
+    })
+
+    it('should remove the `@param callback` function from the `@param material`.plugins array', () => {
+      const Expected = false
+      const Initial = !Expected
+      const callback = sinon.spy()
+      // Set the data as expected
+      const material = new Material()
+      material.plugins = [callback]
+      // Sanity check before running
+      const before = material.plugins.includes(callback)
+      assert.equal(before, Initial)
+      // Run and Check the result
+      removePlugin(material, callback)
+      const result = material.plugins.includes(callback)
+      assert.equal(result, Expected)
     })
   }) //:: removePlugin
 
