@@ -146,10 +146,13 @@ export const removePlugin = (material: Material, callback) => {
 }
 
 export const materialPrototypeMatches = (materialEntity: Entity) => {
-  const materialComponent = getComponent(materialEntity, MaterialStateComponent)
+  const materialComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
+  if (!materialComponent) return false
   const prototypeEntity = materialComponent.prototypeEntity
   if (!prototypeEntity) return false
-  const prototypeComponent = getComponent(prototypeEntity, MaterialPrototypeComponent)
+  const prototypeComponent = getOptionalComponent(prototypeEntity, MaterialPrototypeComponent)
+  if (!prototypeComponent) return false
+  if (!prototypeComponent.prototypeConstructor) return false
   const prototypeName = Object.keys(prototypeComponent.prototypeConstructor)[0]
   const material = materialComponent.material
   const materialType = material.userData.type || material.type
