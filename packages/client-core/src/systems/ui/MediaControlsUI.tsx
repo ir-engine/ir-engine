@@ -27,15 +27,29 @@ import Pause from '@mui/icons-material/Pause'
 import PlayArrow from '@mui/icons-material/PlayArrow'
 import React from 'react'
 
-import { getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getMutableComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
 
 export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />
-  return createXRUI(MediaControls, null, { interactable: false })
+  const videoTransform = getOptionalComponent(entity, TransformComponent)
+  const videoComponent = getOptionalComponent(entity, VideoComponent)
+  const scaleX = (videoComponent?.size.x ?? 1) * (videoTransform?.scale.x ?? 1)
+  const scaleY = (videoComponent?.size.y ?? 1) * (videoTransform?.scale.y ?? 1)
+
+  const controlsUIScale = Math.min(scaleX, scaleY)
+
+  const xrUI = createXRUI(MediaControls, null, { interactable: false })
+  const xrUITransform = getOptionalComponent(xrUI.entity, XRUIComponent)
+  xrUITransform?.scale.set(controlsUIScale, controlsUIScale, 1)
+
+  return xrUI
 }
 
 type MediaControlsProps = {
@@ -44,6 +58,9 @@ type MediaControlsProps = {
 
 const MediaControlsView = (props: MediaControlsProps) => {
   const mediaComponent = useHookstate(getMutableComponent(props.entity, MediaComponent))
+
+  const controlsPercent = '10%'
+  const oneUnitInPixels = 1000
 
   const buttonClick = () => {
     if (!hasComponent(props.entity, MediaElementComponent)) return //early out if the mediaElement is null
@@ -56,12 +73,13 @@ const MediaControlsView = (props: MediaControlsProps) => {
       xr-layer="true"
       id="container"
       style={{
-        width: '100%',
-        height: '100%',
+        width: `${oneUnitInPixels}px`,
+        height: `${oneUnitInPixels}px`,
         display: 'flex',
         alignItems: 'center',
         justifyItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        flex: 'auto'
       }}
     >
       <button
@@ -73,9 +91,10 @@ const MediaControlsView = (props: MediaControlsProps) => {
           boxShadow: '#fff2 0 0 30px',
           color: 'lightgrey',
           fontSize: '25px',
-          width: '40%',
-          height: '40%',
-          margin: 'auto auto',
+          width: controlsPercent,
+          height: controlsPercent,
+          //margin: 'auto',
+          //flex: 'auto',
           transform: 'translateZ(0.01px)'
         }}
         onClick={buttonClick}
@@ -90,9 +109,9 @@ const MediaControlsView = (props: MediaControlsProps) => {
         }`}
         </style>
         {mediaComponent.paused.value ? (
-          <PlayArrow style={{ fill: 'white', width: '100%', height: '100%' }} />
+          <PlayArrow style={{ fill: 'white', width: `100%`, height: `100%` }} />
         ) : (
-          <Pause style={{ fill: 'white', width: '100%', height: '100%' }} />
+          <Pause style={{ fill: 'white', width: `100%`, height: `100%` }} />
         )}
       </button>
     </div>
