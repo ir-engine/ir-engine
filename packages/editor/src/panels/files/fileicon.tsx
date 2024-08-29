@@ -82,7 +82,7 @@ export const FileIcon = ({
     <>
       {isFolder ? (
         <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'translate-y-2 scale-[2.5] object-contain')}
+          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'object-contain')}
           crossOrigin="anonymous"
           src={FOLDER_ICON_PATH}
           alt="folder-icon"
