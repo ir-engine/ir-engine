@@ -154,6 +154,7 @@
     "@feathersjs/feathers": "5.0.5",
     "@feathersjs/schema": "5.0.5",
     "@feathersjs/typebox": "5.0.5",
+    "@sinclair/typebox": "^0.33.7",
     "app-root-path": "3.1.0",
     "cli": "1.0.1",
     "dotenv": "16.0.3",

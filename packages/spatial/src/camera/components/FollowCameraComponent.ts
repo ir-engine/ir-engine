@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
-
-import { defineQuery, ECSState, Engine, useEntityContext } from '@ir-engine/ecs'
+import { ECSState, Engine, defineQuery, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -36,9 +33,11 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
+import { EntitySchema, S, Vector3Schema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { getState, matches, useImmediateEffect } from '@ir-engine/hyperflux'
-
+import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp, smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -58,50 +57,62 @@ const window = 'window' in globalThis ? globalThis.window : ({} as any as Window
 
 export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',
+
+  schema: S.Object({
+    firstPersonOffset: Vector3Schema(),
+    thirdPersonOffset: Vector3Schema(),
+    currentOffset: Vector3Schema(),
+    offsetSmoothness: S.Number(0.1),
+    targetEntity: EntitySchema,
+    currentTargetPosition: Vector3Schema(),
+    targetPositionSmoothness: S.Number(0),
+    mode: S.Enum(FollowCameraMode, FollowCameraMode.ThirdPerson),
+    allowedModes: S.Array(S.Enum(FollowCameraMode), [
+      FollowCameraMode.ThirdPerson,
+      FollowCameraMode.FirstPerson,
+      FollowCameraMode.TopDown,
+      FollowCameraMode.ShoulderCam
+    ]),
+    distance: S.Number(0),
+    targetDistance: S.Number(0),
+    zoomVelocity: S.Object({
+      value: S.Number(0)
+    }),
+    thirdPersonMinDistance: S.Number(0),
+    thirdPersonMaxDistance: S.Number(0),
+    effectiveMinDistance: S.Number(0),
+    effectiveMaxDistance: S.Number(0),
+    theta: S.Number(180),
+    phi: S.Number(10),
+    minPhi: S.Number(0),
+    maxPhi: S.Number(0),
+    locked: S.Bool(false),
+    enabled: S.Bool(true),
+    shoulderSide: S.Enum(FollowCameraShoulderSide, FollowCameraShoulderSide.Left),
+    raycastProps: S.Object({
+      enabled: S.Bool(true),
+      rayCount: S.Number(3),
+      rayLength: S.Number(15.0),
+      rayFrequency: S.Number(0.1),
+      rayConeAngle: S.Number(Math.PI / 12),
+      camRayCastClock: S.Class(
+        {
+          getElapsedTime: S.Func([], S.Number()),
+          start: S.Call()
+        },
+        Clock
+      ),
+      camRayCastCache: S.Object({
+        maxDistance: S.Number(-1),
+        targetHit: S.Bool(false)
+      }),
+      cameraRays: S.Array(Vector3Schema(), [])
+    }),
+    accumulatedZoomTriggerDebounceTime: S.Number(-1),
+    lastZoomStartDistance: S.Number(0)
+  }),
+
   onInit: (entity) => {
-    /** @todo add a reactor to dynamically update to these values */
-    const cameraSettings = getState(CameraSettingsState)
-
-    // if (cameraSettings.projectionType === ProjectionType.Orthographic) {
-    //   camera.camera = new OrthographicCamera(
-    //     data.fov / -2,
-    //     data.fov / 2,
-    //     data.fov / 2,
-    //     data.fov / -2,
-    //     data.cameraNearClip,
-    //     data.cameraFarClip
-    //   )
-    // } else if ((camera.camera as PerspectiveCamera).fov) {
-    //   ;(camera.camera as PerspectiveCamera).fov = data.fov ?? 50
-    // }
-
-    const cameraRays = [] as Vector3[]
-    const rayConeAngle = Math.PI / 12
-    const camRayCastClock = new Clock()
-    const camRayCastCache = {
-      maxDistance: -1,
-      targetHit: false
-    }
-
-    const raycastProps = {
-      enabled: true,
-      rayCount: 3,
-      rayLength: 15.0,
-      rayFrequency: 0.1,
-      rayConeAngle,
-      camRayCastClock,
-      camRayCastCache,
-      cameraRays
-    }
-
-    for (let i = 0; i < raycastProps.rayCount; i++) {
-      cameraRays.push(new Vector3())
-    }
-
-    const windowHeight = 'innerHeight' in window ? window.innerHeight : 1
-    const windowWidth = 'innerWidth' in window ? window.innerWidth : 2
-    const distance = (windowHeight / windowWidth) * cameraSettings.startCameraDistance
-
     return {
       firstPersonOffset: new Vector3(),
       thirdPersonOffset: new Vector3(),
@@ -118,51 +129,103 @@ export const FollowCameraComponent = defineComponent({
         FollowCameraMode.ShoulderCam
       ],
       // map portrait window to further distance, landscape to closer distance
-      distance: distance,
-      targetDistance: distance,
+      distance: 0,
+      targetDistance: 0,
       zoomVelocity: { value: 0 },
-      thirdPersonMinDistance: cameraSettings.minCameraDistance,
-      thirdPersonMaxDistance: cameraSettings.maxCameraDistance,
-      effectiveMinDistance: cameraSettings.minCameraDistance,
-      effectiveMaxDistance: cameraSettings.maxCameraDistance,
+      thirdPersonMinDistance: 0,
+      thirdPersonMaxDistance: 0,
+      effectiveMinDistance: 0,
+      effectiveMaxDistance: 0,
       theta: 180,
       phi: 10,
-      minPhi: cameraSettings.minPhi,
-      maxPhi: cameraSettings.maxPhi,
+      minPhi: 0,
+      maxPhi: 0,
       locked: false,
       enabled: true,
       shoulderSide: FollowCameraShoulderSide.Left,
-      raycastProps,
+      raycastProps: {
+        enabled: true,
+        rayCount: 3,
+        rayLength: 15.0,
+        rayFrequency: 0.1,
+        rayConeAngle: Math.PI / 12,
+        camRayCastClock: new Clock(),
+        camRayCastCache: {
+          maxDistance: -1,
+          targetHit: false
+        },
+        cameraRays: [] as Vector3[]
+      },
       accumulatedZoomTriggerDebounceTime: -1,
-      lastZoomStartDistance: (cameraSettings.minCameraDistance + cameraSettings.minCameraDistance) / 2
+      lastZoomStartDistance: 0
     }
   },
 
-  onSet: (entity, component, json) => {
-    if (!json) return
+  // onSet: (entity, component, json) => {
+  //   if (!json) return
 
-    if (typeof json.firstPersonOffset !== 'undefined') component.firstPersonOffset.set(json.firstPersonOffset)
-    if (typeof json.thirdPersonOffset !== 'undefined') component.thirdPersonOffset.set(json.thirdPersonOffset)
-    if (typeof json.targetEntity !== 'undefined') component.targetEntity.set(json.targetEntity)
-    if (typeof json.mode === 'string') component.mode.set(json.mode)
-    if (matches.arrayOf(matches.string).test(json.allowedModes)) component.allowedModes.set(json.allowedModes)
-    if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
-    if (typeof json.targetDistance !== 'undefined') component.targetDistance.set(json.targetDistance)
-    if (typeof json.zoomVelocity !== 'undefined') component.zoomVelocity.set(json.zoomVelocity)
-    if (typeof json.thirdPersonMinDistance !== 'undefined')
-      component.thirdPersonMinDistance.set(json.thirdPersonMinDistance)
-    if (typeof json.thirdPersonMaxDistance !== 'undefined')
-      component.thirdPersonMaxDistance.set(json.thirdPersonMaxDistance)
-    if (typeof json.theta !== 'undefined') component.theta.set(json.theta)
-    if (typeof json.phi !== 'undefined') component.phi.set(json.phi)
-    if (typeof json.minPhi !== 'undefined') component.minPhi.set(json.minPhi)
-    if (typeof json.maxPhi !== 'undefined') component.maxPhi.set(json.maxPhi)
-    if (typeof json.shoulderSide !== 'undefined') component.shoulderSide.set(json.shoulderSide)
-  },
+  //   if (typeof json.firstPersonOffset !== 'undefined') component.firstPersonOffset.set(json.firstPersonOffset)
+  //   if (typeof json.thirdPersonOffset !== 'undefined') component.thirdPersonOffset.set(json.thirdPersonOffset)
+  //   if (typeof json.targetEntity !== 'undefined') component.targetEntity.set(json.targetEntity)
+  //   if (typeof json.mode === 'string') component.mode.set(json.mode)
+  //   if (matches.arrayOf(matches.string).test(json.allowedModes)) component.allowedModes.set(json.allowedModes)
+  //   if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
+  //   if (typeof json.targetDistance !== 'undefined') component.targetDistance.set(json.targetDistance)
+  //   if (typeof json.zoomVelocity !== 'undefined') component.zoomVelocity.set(json.zoomVelocity)
+  //   if (typeof json.thirdPersonMinDistance !== 'undefined')
+  //     component.thirdPersonMinDistance.set(json.thirdPersonMinDistance)
+  //   if (typeof json.thirdPersonMaxDistance !== 'undefined')
+  //     component.thirdPersonMaxDistance.set(json.thirdPersonMaxDistance)
+  //   if (typeof json.theta !== 'undefined') component.theta.set(json.theta)
+  //   if (typeof json.phi !== 'undefined') component.phi.set(json.phi)
+  //   if (typeof json.minPhi !== 'undefined') component.minPhi.set(json.minPhi)
+  //   if (typeof json.maxPhi !== 'undefined') component.maxPhi.set(json.maxPhi)
+  //   if (typeof json.shoulderSide !== 'undefined') component.shoulderSide.set(json.shoulderSide)
+  // },
 
   reactor: () => {
     const entity = useEntityContext()
     const follow = useComponent(entity, FollowCameraComponent)
+    const cameraSettingsState = useMutableState(CameraSettingsState)
+
+    useImmediateEffect(() => {
+      const cameraSettings = cameraSettingsState.value
+
+      // if (cameraSettings.projectionType === ProjectionType.Orthographic) {
+      //   camera.camera = new OrthographicCamera(
+      //     data.fov / -2,
+      //     data.fov / 2,
+      //     data.fov / 2,
+      //     data.fov / -2,
+      //     data.cameraNearClip,
+      //     data.cameraFarClip
+      //   )
+      // } else if ((camera.camera as PerspectiveCamera).fov) {
+      //   ;(camera.camera as PerspectiveCamera).fov = data.fov ?? 50
+      // }
+
+      const cameraRays = [] as Vector3[]
+      for (let i = 0; i < follow.raycastProps.rayCount.value; i++) {
+        cameraRays.push(new Vector3())
+      }
+      follow.raycastProps.cameraRays.set(cameraRays)
+
+      const windowHeight = 'innerHeight' in window ? window.innerHeight : 1
+      const windowWidth = 'innerWidth' in window ? window.innerWidth : 2
+      const distance = (windowHeight / windowWidth) * cameraSettings.startCameraDistance
+
+      follow.merge({
+        distance: distance,
+        targetDistance: distance,
+        thirdPersonMinDistance: cameraSettings.minCameraDistance,
+        thirdPersonMaxDistance: cameraSettings.maxCameraDistance,
+        effectiveMinDistance: cameraSettings.minCameraDistance,
+        effectiveMaxDistance: cameraSettings.maxCameraDistance,
+        minPhi: cameraSettings.minPhi,
+        maxPhi: cameraSettings.maxPhi,
+        lastZoomStartDistance: (cameraSettings.minCameraDistance + cameraSettings.minCameraDistance) / 2
+      })
+    }, [cameraSettingsState])
 
     useEffect(() => {
       const followCamera = getComponent(entity, FollowCameraComponent)

@@ -242,9 +242,10 @@ export const defineComponent = <
   Component.onSet = (entity, component, json) => {
     if (!json) return
     if (schemaIsJSONSchema(def.schema)) {
-      const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
-      if (!Value.Check(schema, json)) console.error(`${def.name}:onSet Invalid arguments for component type`)
-      else if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
+      // const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
+      // if (!Value.Check(schema, json)) console.error(`${def.name}:onSet Invalid arguments for component type`)
+      // else
+      if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
       else component.merge(json as SetPartialStateAction<ComponentType>)
     }
   }
@@ -346,7 +347,7 @@ export const createInitialComponentValue = <Schema extends ComponentSchema, Comp
 ): ComponentType => {
   if (component.onInit) return component.onInit(entity) as ComponentType
   else if (schemaIsJSONSchema(component.schema)) return Value.Create(component.schema) as ComponentType
-  else return undefined as ComponentType
+  else return true as ComponentType
 }
 
 /**

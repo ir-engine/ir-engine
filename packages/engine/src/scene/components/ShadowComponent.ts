@@ -28,16 +28,16 @@ import { Object3D } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { Type } from '@sinclair/typebox'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
   jsonID: 'EE_shadow',
 
-  schema: Type.Object({
-    cast: Type.Boolean({ default: true }),
-    receive: Type.Boolean({ default: true })
+  schema: S.Object({
+    cast: S.Bool(true),
+    receive: S.Bool(true)
   }),
 
   reactor: () => {
