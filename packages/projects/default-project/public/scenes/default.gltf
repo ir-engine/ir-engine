@@ -336,9 +336,9 @@
         "EE_scene_settings": {
           "thumbnailURL": "__$project$__/ir-engine/default-project/public/scenes/default.thumbnail.jpg",
           "loadingScreenURL": "__$project$__/ir-engine/default-project/public/scenes/default.loadingscreen.ktx2",
-          "primaryColor": "#38620D",
-          "backgroundColor": "rgb(214, 214, 211)",
-          "alternativeColor": "#376312",
+          "primaryColor": "#B3B3B3",
+          "backgroundColor": "#2C2C2C",
+          "alternativeColor": "#A1A1A1",
           "sceneKillHeight": -10
         },
         "EE_visible": true
