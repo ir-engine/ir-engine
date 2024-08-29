@@ -454,7 +454,7 @@ function NewVolumetricComponentReactor() {
       handleMediaAutoplay({
         audioContext,
         media,
-        paused: playlistComponent?.paused!
+        paused: playlistComponent!.paused!
       })
       return
     }
@@ -611,7 +611,7 @@ function NewVolumetricComponentReactor() {
         component.geometry.targets.set(['corto'])
         if (!getState(AssetLoaderState).cortoLoader) {
           const loader = new CORTOLoader()
-          loader.setDecoderPath(Engine.instance.store.publicPath + '/loader_decoders/')
+          loader.setDecoderPath(getState(AssetLoaderState).publicDomain + '/loader_decoders/')
           loader.preload()
           const assetLoaderState = getMutableState(AssetLoaderState)
           assetLoaderState.cortoLoader.set(loader)

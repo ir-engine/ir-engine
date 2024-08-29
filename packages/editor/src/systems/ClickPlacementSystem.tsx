@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { AssetExt, FileToAssetExt } from '@ir-engine/common/src/constants/AssetType'
+import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import {
   Engine,
   Entity,

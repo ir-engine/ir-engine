@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Material, Object3D, Object3DEventMap, Texture } from 'three'
 
-import { pathJoin, relativePathTo } from '@ir-engine/common/src/utils/miscUtils'
+import { pathJoin, relativePathTo } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { EntityUUID, UUIDComponent, getOptionalComponent } from '@ir-engine/ecs'
 
-import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getState } from '@ir-engine/hyperflux'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'

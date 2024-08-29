@@ -23,7 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ECSRecordingSystem } from './ECSRecordingSystem'
-import { ECSSerialization } from './ECSSerializerSystem'
+//https://stackoverflow.com/a/60476525
 
-export { ECSRecordingSystem, ECSSerialization }
+import { useCallback } from 'react'
+import { useHookstate } from '@hookstate/core'
+
+export const useReactiveRef = <T extends HTMLElement>() => {
+  const ref = useHookstate({ current: null })
+  const handleRef = useCallback((node) => {
+    ref.current.set(node)
+  }, [])
+  return [ref.value as { current: T | null }, handleRef] as const
+}

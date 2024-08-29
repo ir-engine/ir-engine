@@ -55,7 +55,7 @@ import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchPara
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem, destroySystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { AuthTask, ReadyTask } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
+import { AuthTask, ReadyTask } from '@ir-engine/common/src/world/receiveJoinWorld'
 import {
   Action,
   Identifiable,

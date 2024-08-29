@@ -35,7 +35,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
-import { unique } from '@ir-engine/common/src/utils/miscUtils'
+import { unique } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   FilesViewModeSettings,

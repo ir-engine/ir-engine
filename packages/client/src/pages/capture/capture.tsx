@@ -34,7 +34,7 @@ import { LocationService, LocationState } from '@ir-engine/client-core/src/socia
 import { AuthService } from '@ir-engine/client-core/src/user/services/AuthService'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { ECSRecordingActions } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
+import { ECSRecordingActions } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { defineActionQueue, useMutableState } from '@ir-engine/hyperflux'
 import CaptureUI from '@ir-engine/ui/src/pages/Capture'
 

@@ -28,6 +28,7 @@ import { twMerge } from 'tailwind-merge'
 import { Group, LoaderUtils } from 'three'
 
 import { API } from '@ir-engine/common'
+import { transformModel as clientSideTransformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -35,7 +36,6 @@ import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'

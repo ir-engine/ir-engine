@@ -34,7 +34,7 @@ import {
   NormalAnimationBlendMode
 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import {
   defineComponent,
   getComponent,

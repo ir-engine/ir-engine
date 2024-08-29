@@ -30,7 +30,7 @@ import appRootPath from 'app-root-path'
 import path from 'path'
 
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
+import { transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { Application } from '@ir-engine/server-core/declarations'
 
 import config from '../../appconfig'

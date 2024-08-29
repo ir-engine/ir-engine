@@ -43,7 +43,7 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { AssetType, FileToAssetType } from '@ir-engine/common/src/constants/AssetType'
+import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@ir-engine/common/src/regex'
 
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'

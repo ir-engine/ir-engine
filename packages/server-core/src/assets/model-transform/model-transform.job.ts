@@ -29,7 +29,7 @@ import dotenv from 'dotenv-flow'
 
 import { argsToObject } from '@ir-engine/common/src/utils/objectToCommandLineArgs'
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
+import { transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
 import { ServerMode } from '@ir-engine/server-core/src/ServerState'
 

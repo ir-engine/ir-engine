@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import { createEntity, setComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { hookstate } from '@ir-engine/hyperflux'

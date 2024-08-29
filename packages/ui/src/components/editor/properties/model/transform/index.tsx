@@ -36,7 +36,7 @@ import {
   DefaultModelTransformParameters,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
+import { transformModel as clientSideTransformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@ir-engine/hyperflux'

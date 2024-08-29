@@ -60,7 +60,7 @@ import {
   PlaybackState,
   RecordingState,
   activePlaybacks
-} from '@ir-engine/engine/src/recording/ECSRecordingSystem'
+} from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import {
   defineState,
   dispatchAction,

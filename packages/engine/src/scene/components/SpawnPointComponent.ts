@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/hyperflux'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'

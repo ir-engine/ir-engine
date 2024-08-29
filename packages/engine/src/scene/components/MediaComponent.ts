@@ -27,7 +27,7 @@ import type Hls from 'hls.js'
 import { startTransition, useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import { ComponentType, Engine, UndefinedEntity } from '@ir-engine/ecs'
 import {
   defineComponent,

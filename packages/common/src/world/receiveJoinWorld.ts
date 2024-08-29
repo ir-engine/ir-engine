@@ -32,8 +32,8 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Action, PeerID, dispatchAction } from '@ir-engine/hyperflux'
 import { CameraActions } from '@ir-engine/spatial/src/camera/CameraState'
 
-import { ikTargets } from '../../avatar/animation/Util'
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
+import { ikTargets } from '@ir-engine/engine/src/avatar/animation/Util'
+import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 
 export enum AuthError {
   MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',
@@ -66,19 +66,19 @@ export type JoinWorldProps = {
 export type SpawnInWorldProps = {
   parentUUID: EntityUUID
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
-  avatarID: AvatarID
+  avatarURL: string
   name: string
 }
 
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
-  const { avatarSpawnPose, avatarID, parentUUID } = props
-  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID)
+  const { avatarSpawnPose, avatarURL, parentUUID } = props
+  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarURL)
   const entityUUID = Engine.instance.userID
   dispatchAction(
     AvatarNetworkAction.spawn({
       ...avatarSpawnPose,
       parentUUID,
-      avatarID,
+      avatarURL,
       entityUUID: (entityUUID + '_avatar') as EntityUUID,
       name: props.name
     })

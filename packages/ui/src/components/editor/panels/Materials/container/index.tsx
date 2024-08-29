@@ -29,7 +29,7 @@ import { FixedSizeList } from 'react-window'
 
 import { API } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { EntityUUID, getComponent, getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
 import { uploadProjectFiles } from '@ir-engine/editor/src/functions/assetFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'

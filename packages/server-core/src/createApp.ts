@@ -56,6 +56,7 @@ import mysql from './mysql'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
+import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('fix-esm').register()
@@ -174,7 +175,9 @@ export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
-  createEngine(createHyperStore({ publicPath: config.client.dist }))
+  createEngine(createHyperStore({}))
+
+  getMutableState(AssetLoaderState).publicDomain.set(config.client.dist)
 
   const serverState = getMutableState(ServerState)
   serverState.serverMode.set(serverMode)

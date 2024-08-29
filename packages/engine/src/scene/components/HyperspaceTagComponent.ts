@@ -41,7 +41,6 @@ import {
   Vector3
 } from 'three'
 
-import config from '@ir-engine/common/src/config'
 import { PresentationSystemGroup } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -69,6 +68,7 @@ import { destroyEntityTree, EntityTreeComponent } from '@ir-engine/spatial/src/t
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
@@ -179,7 +179,7 @@ export const HyperspaceTagComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const [galaxyTexture] = useTexture(
-      `${config.client.fileServer}/projects/ir-engine/default-project/assets/galaxyTexture.jpg`,
+      `${getState(AssetLoaderState).cloudDomain}/projects/ir-engine/default-project/assets/galaxyTexture.jpg`,
       entity
     )
     const hyperspaceEffectEntityState = useHookstate(createEntity)

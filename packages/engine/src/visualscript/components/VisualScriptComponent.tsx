@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 
-import { cleanStorageProviderURLs, parseStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
+import { cleanStorageProviderURLs, parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { Entity } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'

@@ -28,12 +28,10 @@ import assert from 'assert'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { API } from '@ir-engine/common'
-import { AvatarID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { EventDispatcher, ReactorReconciler, applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux'
+import { ReactorReconciler, UserID, applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
@@ -68,20 +66,6 @@ describe('spawnAvatarReceptor', () => {
     physicsWorld.timestep = 1 / 60
 
     createMockNetwork()
-
-    const eventDispatcher = new EventDispatcher()
-    ;(API.instance as any) = {
-      service: () => {
-        return {
-          on: (serviceName, cb) => {
-            eventDispatcher.addEventListener(serviceName, cb)
-          },
-          off: (serviceName, cb) => {
-            eventDispatcher.removeEventListener(serviceName, cb)
-          }
-        }
-      }
-    }
   })
 
   afterEach(() => {
@@ -105,7 +89,7 @@ describe('spawnAvatarReceptor', () => {
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID,
+        avatarURL: '',
         name: ''
       })
     )

@@ -28,7 +28,7 @@ import assert from 'assert'
 import React from 'react'
 import { default as Sinon, default as sinon } from 'sinon'
 
-import { parseStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
+import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import {
   ComponentMap,
   createEntity,

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/hyperflux'
 import { defineQuery } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'

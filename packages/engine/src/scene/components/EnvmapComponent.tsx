@@ -42,7 +42,7 @@ import {
   Vector3
 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import { EntityUUID, UUIDComponent, useQuery } from '@ir-engine/ecs'
 import {
   defineComponent,

@@ -29,7 +29,7 @@ import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 import { Quaternion } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import { RingBuffer } from '@ir-engine/network/src/functions/RingBuffer'
 import { ECSState } from '@ir-engine/ecs'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'

@@ -57,7 +57,7 @@ import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/sr
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import templateManifestJson from '@ir-engine/projects/template-project/manifest.json'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'

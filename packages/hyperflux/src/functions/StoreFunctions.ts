@@ -33,11 +33,6 @@ import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
   /**
-   * @todo temporarily moved public path from EngineState to here to treeshake properly. Will be moved in a further restructuring.
-   * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
-   */
-  publicPath: string
-  /**
    * The topic to dispatch to when none are supplied
    */
   defaultTopic: Topic
@@ -116,13 +111,11 @@ export class HyperFlux {
 }
 
 export function createHyperStore(options: {
-  publicPath: string
   getDispatchTime?: () => number
   defaultDispatchDelay?: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
 }) {
   const store: HyperStore = {
-    publicPath: options.publicPath,
     defaultTopic: 'default' as Topic,
     forwardingTopics: new Set<Topic>(),
     getDispatchTime: options.getDispatchTime ?? (() => 0),

@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { MathUtils, Vector2, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import {
   ECSState,
   Entity,

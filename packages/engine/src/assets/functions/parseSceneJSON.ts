@@ -23,40 +23,45 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { config } from '@ir-engine/common/src/config'
+import { getState } from '@ir-engine/hyperflux'
+import { AssetLoaderState } from '../state/AssetLoaderState'
 
 export const sceneRelativePathIdentifier = '__$project$__'
 export const sceneCorsPathIdentifier = '__$cors-proxy$__'
-const storageProviderHost = config.client.fileServer ?? `https://localhost:8642`
-const corsPath = config.client.cors.serverPort ? config.client.cors.proxyUrl : `https://localhost:3029`
 
-export const parseStorageProviderURLs = (data: any) => {
+export const parseStorageProviderURLs = (
+  data: any,
+  domains: { publicDomain: string; cloudDomain: string; proxyDomain: string } = getState(AssetLoaderState)
+) => {
   for (const [key, val] of Object.entries(data)) {
     if (val && typeof val === 'object') {
-      data[key] = parseStorageProviderURLs(val)
+      data[key] = parseStorageProviderURLs(val, domains)
     }
     if (typeof val === 'string') {
       if (val.includes(sceneRelativePathIdentifier)) {
-        data[key] = `${storageProviderHost}/projects` + data[key].replace(sceneRelativePathIdentifier, '')
+        data[key] = `${domains.cloudDomain}/projects` + data[key].replace(sceneRelativePathIdentifier, '')
       }
       if (val.startsWith(sceneCorsPathIdentifier)) {
-        data[key] = data[key].replace(sceneCorsPathIdentifier, corsPath)
+        data[key] = data[key].replace(sceneCorsPathIdentifier, domains.proxyDomain)
       }
     }
   }
   return data
 }
 
-export const cleanStorageProviderURLs = (data: any) => {
+export const cleanStorageProviderURLs = (
+  data: any,
+  domains: { publicDomain: string; cloudDomain: string; proxyDomain: string } = getState(AssetLoaderState)
+) => {
   for (const [key, val] of Object.entries(data)) {
     if (val && typeof val === 'object') {
       data[key] = cleanStorageProviderURLs(val)
     }
     if (typeof val === 'string') {
-      if (val.includes(storageProviderHost + '/projects')) {
-        data[key] = val.replace(storageProviderHost + '/projects', sceneRelativePathIdentifier)
-      } else if (val.startsWith(config.client.cors.proxyUrl)) {
-        data[key] = val.replace(config.client.cors.proxyUrl, sceneCorsPathIdentifier)
+      if (val.includes(domains.cloudDomain + '/projects')) {
+        data[key] = val.replace(domains.cloudDomain + '/projects', sceneRelativePathIdentifier)
+      } else if (val.startsWith(domains.proxyDomain)) {
+        data[key] = val.replace(domains.proxyDomain, sceneCorsPathIdentifier)
       }
     }
   }

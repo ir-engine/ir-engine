@@ -32,7 +32,7 @@ import { API } from '@ir-engine/common'
 import { RecordingID, recordingResourceUploadPath, RecordingSchemaType } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { RecordingAPIState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
+import { RecordingAPIState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { getMutableState, none, PeerID } from '@ir-engine/hyperflux'
 import {
   DataChannelType,

@@ -28,7 +28,6 @@ import { PassThrough } from 'stream'
 import matches, { Validator } from 'ts-matches'
 
 import { API } from '@ir-engine/common'
-import multiLogger from '@ir-engine/common/src/logger'
 import {
   RecordingID,
   recordingPath,
@@ -36,7 +35,7 @@ import {
   UserID,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import {
   defineSystem,
   ECSState,
@@ -52,7 +51,7 @@ import {
   ECSSerialization,
   ECSSerializer,
   SerializedChunk
-} from '@ir-engine/engine/src/recording/ECSSerializerSystem'
+} from '@ir-engine/network/src/serialization/ECSSerializerSystem'
 import {
   defineAction,
   defineActionQueue,
@@ -60,6 +59,8 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  HyperFlux,
+  isClient,
   PeerID,
   Topic
 } from '@ir-engine/hyperflux'
@@ -79,13 +80,10 @@ import {
   webcamVideoDataChannelType,
   WorldNetworkAction
 } from '@ir-engine/network'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 import { PhysicsSerialization } from '@ir-engine/spatial/src/physics/PhysicsSerialization'
 
-import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
-
-const logger = multiLogger.child({ component: 'engine:recording' })
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { mocapDataChannelType } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
 
 export class ECSRecordingActions {
   static startRecording = defineAction({
@@ -359,7 +357,7 @@ export const activeRecordings = new Map<RecordingID, ActiveRecording>()
 export const activePlaybacks = new Map<RecordingID, ActivePlayback>()
 
 export const dispatchError = (error: string, targetPeer: PeerID, topic: Topic) => {
-  logger.error('Recording Error: ' + error)
+  HyperFlux.store.logger('engine:recording').error('Recording Error: ' + error)
   dispatchAction(ECSRecordingActions.error({ error, $to: targetPeer, $topic: topic }))
 }
 
@@ -397,7 +395,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       }
       dataChannelsRecording.get(dataChannel)!.frames.push({ data, timecode: Date.now() - startTime })
     } catch (error) {
-      logger.error('Could not decode data channel message', error)
+      HyperFlux.store.logger('engine:recording').error('Could not decode data channel message', error)
     }
   }
 
@@ -430,7 +428,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
           body: buffer,
           mimeType: 'application/octet-stream'
         }).then(() => {
-          logger.info('Uploaded entities chunk', chunkIndex)
+          HyperFlux.store.logger('engine:recording').info('Uploaded entities chunk', chunkIndex)
         })
 
         for (const [dataChannel, data] of dataChannelsRecording.entries()) {
@@ -444,7 +442,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
               body: buffer,
               mimeType: 'application/octet-stream'
             }).then(() => {
-              logger.info('Uploaded raw chunk', chunkIndex)
+              HyperFlux.store.logger('engine:recording').info('Uploaded raw chunk', chunkIndex)
             })
           }
           data.frames = []
@@ -479,7 +477,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
         })
       )
     } catch (e) {
-      logger.error('Could not start media recording')
+      HyperFlux.store.logger('engine:recording').error('Could not start media recording')
       console.log(e)
       dispatchError('Could not start media recording', action.$peer, action.$topic)
     }
@@ -649,7 +647,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                   parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
                   ownerID: entityID,
                   entityUUID: (entityID + '_avatar') as EntityUUID,
-                  avatarID: user.avatar.id!,
+                  avatarURL: user.avatar.modelResource!.url!,
                   name: user.name + "'s Clone"
                 })
               )

@@ -27,7 +27,7 @@ import { Types } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { UserID } from '@ir-engine/hyperflux'
 import { UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,

@@ -32,16 +32,6 @@ export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{2,62}[a-zA-Z0-9]$/
 export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
 
-
-/**
- * Captures org name, project name and asset path from a URL.
- * For eg: `/path/to/projects/project123/assets/images/logo.png` will capture following groups
- * - `@org123` => Group 1
- * - `project123` => Group 2
- * - `assets/images/logo.png` => Group 3
- */
-export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/([^\/]*)\/((?:assets\/|).*)$)/
-
 // =====================================================================
 // ========================= ID Regex Patterns =========================
 // =====================================================================
@@ -127,10 +117,3 @@ export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
 export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
-// ==========================================================================
-// ========================= Dynamic Regex Patterns =========================
-// ==========================================================================
-
-export const getCacheRegex = (fileServer: string) => {
-  return new RegExp(`${fileServer}\/projects`)
-}

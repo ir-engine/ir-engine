@@ -31,7 +31,7 @@ import '../../EngineModule'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 
-import { AssetExt, AssetType } from '@ir-engine/common/src/constants/AssetType'
+import { AssetExt, AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { ABSOLUTE_URL_PROTOCOL_REGEX, AssetLoader } from './AssetLoader'
 
 /**

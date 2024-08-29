@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdDeblur } from 'react-icons/md'
 
-import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
+import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { getOptionalMutableComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'

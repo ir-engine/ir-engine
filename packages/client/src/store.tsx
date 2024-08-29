@@ -43,8 +43,8 @@ const initializeLogs = async () => {
 }
 
 //@ts-ignore
-const publicPath = import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
-createHyperStore({ publicPath })
+// const publicPath = import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
+createHyperStore({})
 initializei18n()
 API.createAPI()
 initializeLogs()

@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
 
-import { config } from '@ir-engine/common/src/config'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { Engine } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -37,10 +35,12 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { getState, isClient } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { loadCubeMapTexture } from '../constants/Util'
@@ -55,7 +55,9 @@ export const SkyboxComponent = defineComponent({
     return {
       backgroundColor: new Color(0x000000),
       equirectangularPath: '',
-      cubemapPath: `${config.client.fileServer}/projects/ir-engine/default-project/assets/skyboxsun25deg/`,
+      cubemapPath: `${
+        getState(AssetLoaderState).cloudDomain
+      }/projects/ir-engine/default-project/assets/skyboxsun25deg/`,
       backgroundType: 1,
       sky: null! as Sky | null,
       skyboxProps: {

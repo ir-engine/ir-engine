@@ -39,7 +39,7 @@ import {
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { InviteCode, UserID, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import setLoggedInUserData from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'

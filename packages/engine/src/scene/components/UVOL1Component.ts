@@ -37,7 +37,7 @@ import {
   Vector3
 } from 'three'
 
-import { useVideoFrameCallback } from '@ir-engine/common/src/utils/useVideoFrameCallback'
+import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { Engine } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -160,7 +160,7 @@ function UVOL1Reactor() {
   useEffect(() => {
     if (!getState(AssetLoaderState).cortoLoader) {
       const loader = new CORTOLoader()
-      loader.setDecoderPath(Engine.instance.store.publicPath + '/loader_decoders/')
+      loader.setDecoderPath(getState(AssetLoaderState).publicDomain + '/loader_decoders/')
       loader.preload()
       const assetLoaderState = getMutableState(AssetLoaderState)
       assetLoaderState.cortoLoader.set(loader)

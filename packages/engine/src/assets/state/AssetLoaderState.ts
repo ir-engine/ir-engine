@@ -34,7 +34,10 @@ export const AssetLoaderState = defineState({
     const gltfLoader = createGLTFLoader()
     return {
       gltfLoader,
-      cortoLoader: null! as CORTOLoader
+      cortoLoader: null! as CORTOLoader,
+      publicDomain: '',
+      cloudDomain: '',
+      proxyDomain: '',
     }
   }
 })

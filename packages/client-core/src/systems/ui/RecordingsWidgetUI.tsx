@@ -28,7 +28,7 @@ import { HiPlay, HiPlusCircle } from 'react-icons/hi2'
 
 import { recordingPath, RecordingType } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
+import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { defineState, getMutableState, getState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { useFind, useGet } from '@ir-engine/common'

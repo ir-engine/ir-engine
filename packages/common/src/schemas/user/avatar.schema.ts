@@ -27,17 +27,18 @@ Infinite Reality Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
+import { OpaqueType } from '../../interfaces/OpaqueType'
+
+export type AvatarID = OpaqueType<'AvatarID'> & string
 
 export const avatarPath = 'avatar'
 
 export const avatarMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
-export type AvatarID = OpaqueType<'AvatarID'> & string
 
 // Main data model schema
 export const avatarSchema = Type.Object(
