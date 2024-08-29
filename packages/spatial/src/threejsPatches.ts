@@ -27,10 +27,10 @@ import * as THREE from 'three'
 import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vector3, Vector4 } from 'three'
 
 import { isClient } from '@ir-engine/hyperflux'
-import { Object3DUtils } from '@ir-engine/spatial'
 import { Entity } from '@ir-engine/ecs'
 
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
+import { Object3DUtils } from './transform/Object3DUtils'
 
 //@ts-ignore
 Vector3.prototype.toJSON = function () {
