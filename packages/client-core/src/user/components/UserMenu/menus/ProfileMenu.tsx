@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 // import * as polyfill from 'credential-handler-polyfill'
-import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
@@ -98,7 +97,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
-  const loginLink = useHookstate('')
+  //const loginLink = useHookstate('')
 
   const authSetting = useFind(authenticationSettingPath).data.at(0)
   const clientSetting = useFind(clientSettingPath).data.at(0)
@@ -371,9 +370,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     AuthService.updateApiKey()
   }
 
-  const createLoginLink = () => {
+  /*   const createLoginLink = () => {
     AuthService.createLoginToken().then((token) => loginLink.set(`${config.client.serverUrl}/login/${token.token}`))
-  }
+  } */
 
   const getConnectText = () => {
     if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
@@ -446,11 +445,11 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </Text>
             )}
 
-            {hasAcceptedTermsAndAge && !selfUser?.isGuest.value && (
+            {/* {hasAcceptedTermsAndAge && !selfUser?.isGuest.value && (
               <Text mt={1} variant="body2" onClick={() => createLoginLink()}>
                 {t('user:usermenu.profile.createLoginLink')}
               </Text>
-            )}
+            )} */}
 
             {hasAcceptedTermsAndAge && (
               <Text id="show-user-id" mt={1} variant="body2" onClick={() => showUserId.set(!showUserId.value)}>
@@ -701,7 +700,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           />
         )}
 
-        {loginLink.value.length > 0 && (
+        {/* {loginLink.value.length > 0 && (
           <div>
             <InputText
               label={t('user:usermenu.profile.loginLink')}
@@ -722,7 +721,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               <QRCodeSVG height={176} width={200} value={loginLink.value} />
             </div>
           </div>
-        )}
+        )} */}
 
         {!hideLogin && hasAcceptedTermsAndAge && (
           <>
