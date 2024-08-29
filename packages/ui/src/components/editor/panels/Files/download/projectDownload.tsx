@@ -32,15 +32,15 @@ import { downloadBlobAsZip } from '@ir-engine/editor/src/functions/assetFunction
 import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import Progress from '../../../../../primitives/tailwind/Progress'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Progress from '../../../../../primitives/tailwind/Progress'
 
 const DownloadProjectState = defineState({
   name: 'DownloadProjectState',
   initial: () => ({
     total: 0,
     progress: 0,
-    isFetching:false,
+    isFetching: false,
     isDownloading: false
   })
 })
@@ -60,16 +60,16 @@ export const handleDownloadProject = async (projectName: string, selectedDirecto
   if (!data) return
 
   const response = await fetch(`${config.client.fileServer}/${data}`)
-  
+
   downloadState.isFetching.set(false) // Fetch completed
-  
-  if(!response.ok) {
-    NotificationService.dispatchNotify(`Failed to fetch project ${response.status} ` , { variant: 'error' })
+
+  if (!response.ok) {
+    NotificationService.dispatchNotify(`Failed to fetch project ${response.status} `, { variant: 'error' })
     return
   }
 
   downloadState.isDownloading.set(true) // Start Download
-  
+
   const totalBytes = parseInt(response.headers.get('Content-Length') || '0', 10)
   downloadState.total.set(totalBytes) // Set the total bytes
 
@@ -113,19 +113,20 @@ export const ProjectDownloadProgress = () => {
 
   return (
     <>
-      {isDownloading && 
+      {isDownloading && (
         <div className="flex h-auto w-full justify-center pb-2 pt-2">
           <div className="flex w-1/2">
             <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
               {t('editor:layout.filebrowser.downloadingProject', { completed, total })}
-            </span>    
-              <div className="basis-1/2">
-                <Progress value={progress} />
-              </div>     
+            </span>
+            <div className="basis-1/2">
+              <Progress value={progress} />
+            </div>
           </div>
-        </div>}
+        </div>
+      )}
       {isFetching && (
-          <LoadingView
+        <LoadingView
           titleClassname="mt-0"
           containerClassName="flex-row mt-1"
           className="mx-2 my-auto h-6 w-6"
