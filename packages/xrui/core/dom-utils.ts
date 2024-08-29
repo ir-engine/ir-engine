@@ -357,7 +357,7 @@ async function loadFontsForSvg(fontFamilies) {
   return Promise.all(fontLoadPromises) // Wait for all fonts to load
 }
 
-function extractFontFamilies(element: Element) {
+export function extractFontFamilies(element: Element) {
   const fontFamilies = new Set<string>()
   const elements = element.querySelectorAll('*')
   elements.forEach((el) => {

@@ -28,7 +28,7 @@ export class Bounds {
   top = 0
   width = 0
   height = 0
-  copy(rect: Bounds) {
+  copy(rect: Omit<Bounds, 'copy'>) {
     this.top = rect.top
     this.left = rect.left
     this.width = rect.width

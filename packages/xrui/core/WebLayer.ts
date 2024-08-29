@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Bounds, Edges, traverseChildElements } from './dom-utils'
+import { traverseChildElements } from './dom-utils'
 import { WebLayerManagerBase } from './WebLayerManagerBase'
 import { WebRenderer } from './WebRenderer'
 

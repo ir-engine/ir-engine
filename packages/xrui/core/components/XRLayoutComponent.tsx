@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { useAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Quaternion, Vector3 } from 'three'
 import { Transition } from '../classes/Transition'
 
@@ -67,7 +67,7 @@ export const XRLayoutComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const xrLayout = useComponent(entity, XRLayoutComponent)
-    const parentEntity = useAncestorWithComponent(entity, XRLayoutComponent)
+    const parentEntity = useAncestorWithComponents(entity, [XRLayoutComponent])
     const parentLayout = useOptionalComponent(parentEntity, XRLayoutComponent)
 
     // compute effective size

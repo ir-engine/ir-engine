@@ -39,7 +39,7 @@ import { State, getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { useAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import {
   Color,
@@ -54,6 +54,7 @@ import {
   Vector3
 } from 'three'
 import { Bounds } from '../classes/Bounds'
+import { Edges } from '../classes/Edges'
 import { TimestampedValue, Transition } from '../classes/Transition'
 import { getViewportBounds } from '../dom-utils'
 import { XRLayoutComponent } from './XRLayoutComponent'
@@ -67,13 +68,23 @@ export interface XRUIBorderRadius {
 
 export const PIXELS_TO_METERS = 0.001
 
+export interface NodeSnapshot {
+  clonedElement: HTMLElement
+  fontFamilies: string[]
+  metrics: {
+    bounds: Bounds
+    padding: Edges
+    margin: Edges
+    border: Edges
+  }
+}
+
 export const XRUILayerComponent = defineComponent({
   name: 'XRUILayerComponent',
 
   onInit: (entity) => {
     return {
       element: null as HTMLElement | null,
-      clonedElement: null as HTMLElement | null,
 
       stackGroup: new Group(),
       backgroundMesh: null! as Mesh,
@@ -100,6 +111,7 @@ export const XRUILayerComponent = defineComponent({
       autoUpdateLayout: true,
 
       __internal: {
+        snapshot: null as NodeSnapshot | null,
         layerBuffer: [] as TimestampedValue<Mesh>[],
         currentBorderRadius: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } as XRUIBorderRadius
       }
@@ -110,8 +122,8 @@ export const XRUILayerComponent = defineComponent({
     const entity = useEntityContext()
     const layer = useComponent(entity, XRUILayerComponent)
     const layout = useOptionalComponent(entity, XRLayoutComponent)
-    const parentLayerEntity = useAncestorWithComponent(entity, XRUILayerComponent)
-    const parentLayoutEntity = useAncestorWithComponent(entity, XRLayoutComponent)
+    const parentLayerEntity = useAncestorWithComponents(entity, [XRUILayerComponent])
+    const parentLayoutEntity = useAncestorWithComponents(entity, [XRLayoutComponent])
     const parentLayer = useOptionalComponent(parentLayerEntity, XRUILayerComponent)
     const parentLayout = useOptionalComponent(parentLayerEntity ?? parentLayoutEntity, XRLayoutComponent)
 
@@ -180,22 +192,18 @@ export const XRUILayerComponent = defineComponent({
       layer.domRect.set(rect)
       const parentRect = parentLayer?.domRect.value
 
-      // generate texture
-      const clonedElement = cloneDomWithXrLayerReplacement(layer.element.value)
-
       // update layout
       if (layer.autoUpdateLayout.value) {
         updateLayoutFromDomRects(layout, rect, parentRect ?? _getViewportBounds())
       }
 
-      // update layout & texture
-
-      layer.ready.set(true)
-
       return () => {
         // cancel unfinished update
       }
     }, [layer.element, !!layout, parentLayer?.domRect, layer.autoUpdateLayout])
+
+    // update layout
+    React.useEffect(() => {})
 
     useExecute(() => {}, { with: PresentationSystemGroup })
   }
@@ -288,7 +296,7 @@ const renderedFontCache = new Map()
 
 function getRenderedFont(element) {
   const computedStyle = getComputedStyle(element)
-  const fontFamily = computedStyle.fontFamily
+  const fontFamily = computedStyle.fontFamily // e.g. "Arial, sans-serif"
 
   if (renderedFontCache.has(fontFamily)) {
     return renderedFontCache.get(fontFamily)
@@ -318,49 +326,4 @@ function getRenderedFont(element) {
 
   renderedFontCache.set(fontFamily, selectedFont)
   return selectedFont
-}
-
-function cloneDomWithXrLayerReplacement(node) {
-  // If the node is an element and has the xr-layer attribute
-  if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('xr-layer')) {
-    // Create an invisible placeholder that retains layout
-    const placeholder = document.createElement('div')
-    const computedStyle = getComputedStyle(node)
-
-    // Copy over essential styles to maintain layout integrity
-    placeholder.style.display = computedStyle.display
-    placeholder.style.position = computedStyle.position
-    placeholder.style.margin = computedStyle.margin
-    placeholder.style.padding = computedStyle.padding
-    placeholder.style.width = computedStyle.width
-    placeholder.style.height = computedStyle.height
-    placeholder.style.flex = computedStyle.flex
-    placeholder.style.gridArea = computedStyle.gridArea
-    placeholder.style.visibility = 'hidden' // Invisible but takes up space
-    placeholder.style.boxSizing = computedStyle.boxSizing
-
-    // Special handling for Flexbox and Grid layouts
-    if (computedStyle.display.includes('flex') || computedStyle.display.includes('grid')) {
-      placeholder.style.minWidth = computedStyle.minWidth
-      placeholder.style.minHeight = computedStyle.minHeight
-      placeholder.style.maxWidth = computedStyle.maxWidth
-      placeholder.style.maxHeight = computedStyle.maxHeight
-      placeholder.style.alignSelf = computedStyle.alignSelf
-      placeholder.style.justifySelf = computedStyle.justifySelf
-    }
-
-    return placeholder
-  }
-
-  // If the node is a text node, simply clone it
-  if (node.nodeType === Node.TEXT_NODE) {
-    return node.cloneNode(true)
-  }
-
-  // Otherwise, clone the node and recursively clone its children
-  const clone = node.cloneNode(false) // Shallow clone
-  for (let child of node.childNodes) {
-    clone.appendChild(cloneDomWithXrLayerReplacement(child))
-  }
-  return clone
 }

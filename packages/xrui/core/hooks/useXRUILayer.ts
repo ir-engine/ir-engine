@@ -25,7 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createEntity, setComponent, useComponent } from '@ir-engine/ecs'
 import React from 'react'
-import { XRUILayerComponent } from '../components/XRUILayerComponent'
+import { Bounds } from '../classes/Bounds'
+import { Edges } from '../classes/Edges'
+import { NodeSnapshot, XRUILayerComponent } from '../components/XRUILayerComponent'
 
 export function useXRUILayer() {
   const entity = React.useMemo(() => {
@@ -36,6 +38,18 @@ export function useXRUILayer() {
 
   const state = useComponent(entity, XRUILayerComponent)
 
+  // generate snapshot for serialization and rendering
+  React.useLayoutEffect(() => {
+    const el = state.element.value as HTMLElement
+    if (!el) {
+      state.__internal.snapshot.set(null)
+      return
+    }
+    const snapshot = createNodeSnapshot(el) as NodeSnapshot
+    snapshot.metrics = extractDOMMetrics(el)
+    state.__internal.snapshot.set(snapshot)
+  })
+
   return {
     ref: (v: HTMLElement | null) => {
       v?.setAttribute('xr-layer', 'true')
@@ -43,5 +57,85 @@ export function useXRUILayer() {
     },
     entity,
     state
+  }
+}
+
+function createNodeSnapshot(node: Node): Pick<NodeSnapshot, 'clonedElement' | 'fontFamilies'> {
+  // If the node is an element and has the xr-layer attribute
+  const fonts = new Set<string>()
+  let clone: Node
+
+  if (node.nodeType === Node.ELEMENT_NODE && (node as Element).hasAttribute('xr-layer')) {
+    // Create an invisible placeholder that retains layout
+    const placeholder = document.createElement('div')
+    const computedStyle = getComputedStyle(node as Element)
+
+    // Copy over essential styles to maintain layout integrity
+    placeholder.style.display = computedStyle.display
+    placeholder.style.position = computedStyle.position
+    placeholder.style.margin = computedStyle.margin
+    placeholder.style.padding = computedStyle.padding
+    placeholder.style.width = computedStyle.width
+    placeholder.style.height = computedStyle.height
+    placeholder.style.flex = computedStyle.flex
+    placeholder.style.gridArea = computedStyle.gridArea
+    placeholder.style.visibility = 'hidden' // Invisible but takes up space
+    placeholder.style.boxSizing = computedStyle.boxSizing
+
+    // Special handling for Flexbox and Grid layouts
+    if (computedStyle.display.includes('flex') || computedStyle.display.includes('grid')) {
+      placeholder.style.minWidth = computedStyle.minWidth
+      placeholder.style.minHeight = computedStyle.minHeight
+      placeholder.style.maxWidth = computedStyle.maxWidth
+      placeholder.style.maxHeight = computedStyle.maxHeight
+      placeholder.style.alignSelf = computedStyle.alignSelf
+      placeholder.style.justifySelf = computedStyle.justifySelf
+    }
+
+    clone = placeholder
+  } else if (node.nodeType === Node.ELEMENT_NODE) {
+    // Otherwise, clone the node and recursively clone its children
+    const computedStyle = getComputedStyle(node as Element)
+    const fontFamily = computedStyle.fontFamily.split(',').map((f) => f.trim())
+    for (const font of fontFamily) fonts.add(font)
+    clone = node.cloneNode(false) // Shallow clone
+    for (const child of node.childNodes) {
+      const snapshot = createNodeSnapshot(child)
+      clone.appendChild(snapshot.clonedElement)
+      snapshot.fontFamilies.forEach(fonts.add, fonts)
+    }
+  } else {
+    // Otherwise, simply clone it
+    clone = node.cloneNode(true)
+  }
+
+  return {
+    clonedElement: clone as HTMLElement,
+    fontFamilies: Array.from(fonts)
+  }
+}
+
+function extractDOMMetrics(element: HTMLElement) {
+  const computedStyle = getComputedStyle(element)
+  return {
+    bounds: new Bounds().copy(element.getBoundingClientRect()),
+    margin: new Edges().copy({
+      top: Number.parseFloat(computedStyle.marginTop),
+      right: Number.parseFloat(computedStyle.marginRight),
+      bottom: Number.parseFloat(computedStyle.marginBottom),
+      left: Number.parseFloat(computedStyle.marginLeft)
+    }),
+    padding: new Edges().copy({
+      top: Number.parseFloat(computedStyle.paddingTop),
+      right: Number.parseFloat(computedStyle.paddingRight),
+      bottom: Number.parseFloat(computedStyle.paddingBottom),
+      left: Number.parseFloat(computedStyle.paddingLeft)
+    }),
+    border: new Edges().copy({
+      top: Number.parseFloat(computedStyle.borderTopWidth),
+      right: Number.parseFloat(computedStyle.borderRightWidth),
+      bottom: Number.parseFloat(computedStyle.borderBottomWidth),
+      left: Number.parseFloat(computedStyle.borderLeftWidth)
+    })
   }
 }
