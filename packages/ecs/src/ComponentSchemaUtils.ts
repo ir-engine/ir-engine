@@ -58,13 +58,11 @@ export const S = {
   Array: <T extends TSchema, Initial extends any[]>(items: T, init?: Initial, options?: ArrayOptions) =>
     Type.Array(items, buildOptions(init, options)),
 
-  // Newer version of TypeBox has an Extends function that would make this better
-  Class: <T extends TProperties, Initial extends new (...params: any[]) => any>(
-    items: T,
+  Class: <T extends TSchema, Initial extends new (...params: any[]) => any>(
     init: Initial,
-    options?: ObjectOptions,
+    items?: T,
     ...args: ConstructorParameters<Initial>
-  ) => Type.Object(items, buildOptions(init, options)),
+  ) => Type.Function([], items ?? Type.Object({}), { default: () => new init(...args) }),
 
   Func: <T extends TSchema[], U extends TSchema>(parameters: [...T], returns: U, options?: SchemaOptions) =>
     Type.Function(parameters, returns, options),

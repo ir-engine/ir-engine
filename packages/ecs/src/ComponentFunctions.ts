@@ -233,10 +233,7 @@ export const defineComponent = <
   SOAComponent = Schema extends TSchema ? SoAComponentType<any> : SoAComponentType<Schema>
 >(
   def: ComponentPartial<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
-): Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, ErrorTypes> & {
-  _TYPE: ComponentType
-} & ComponentExtras &
-  SOAComponent => {
+) => {
   const Component = (
     schemaIsECSSchema(def.schema) ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}
   ) as Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, ErrorTypes> & {
@@ -247,9 +244,9 @@ export const defineComponent = <
   Component.onSet = (entity, component, json) => {
     if (!json) return
     if (schemaIsJSONSchema(def.schema)) {
-      // const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
-      // if (!Value.Check(schema, json)) console.error(`${def.name}:onSet Invalid arguments for component type`)
-      // else
+      //const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
+      //if (!Value.Check(schema, json)) console.error(`${def.name}:onSet Invalid arguments for component type`)
+      //else
       if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
       else component.merge(json as SetPartialStateAction<ComponentType>)
     }

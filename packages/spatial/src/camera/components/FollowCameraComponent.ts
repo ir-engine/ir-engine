@@ -95,13 +95,7 @@ export const FollowCameraComponent = defineComponent({
       rayLength: S.Number(15.0),
       rayFrequency: S.Number(0.1),
       rayConeAngle: S.Number(Math.PI / 12),
-      camRayCastClock: S.Class(
-        {
-          getElapsedTime: S.Func([], S.Number()),
-          start: S.Call()
-        },
-        Clock
-      ),
+      camRayCastClock: S.Class(Clock),
       camRayCastCache: S.Object({
         maxDistance: S.Number(-1),
         targetHit: S.Bool(false)
@@ -122,7 +116,7 @@ export const FollowCameraComponent = defineComponent({
       raycastProps: {
         ...schema!.raycastProps,
         cameraRays: schema!.raycastProps.cameraRays as Vector3[],
-        camRayCastClock: new Clock()
+        camRayCastClock: schema!.raycastProps.camRayCastClock() as Clock
       }
     }
   },
