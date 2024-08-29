@@ -35,7 +35,10 @@ import {
   UndefinedEntity,
   createEntity,
   getComponent,
+  getOptionalComponent,
+  removeComponent,
   removeEntity,
+  serializeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -43,7 +46,7 @@ import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoade
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
-import { NO_PROXY, defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -72,6 +75,7 @@ import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -211,7 +215,14 @@ const ThumbnailJobReactor = () => {
   const currentJob = useHookstate(null as ThumbnailJob | null)
   const { key: src, project, id } = currentJob.value ?? { key: '', project: '', id: '' }
   const strippedSrc = stripSearchFromURL(src)
-  const extension = strippedSrc.endsWith('.material.gltf') ? 'material.gltf' : strippedSrc.split('.').pop() ?? ''
+  let extension = strippedSrc
+  if (strippedSrc.endsWith('.material.gltf')) {
+    extension = 'material.gltf'
+  } else if (strippedSrc.endsWith('.lookdev.gltf')) {
+    extension = 'lookdev.gltf'
+  } else {
+    extension = strippedSrc.split('.').pop() ?? ''
+  }
   const fileType = extensionThumbnailTypeMap.get(extension)
 
   const state = useHookstate({
@@ -345,6 +356,13 @@ const ThumbnailJobReactor = () => {
     setComponent(entity, VisibleComponent)
     setComponent(entity, ShadowComponent, { cast: true, receive: true })
     setComponent(entity, BoundingBoxComponent)
+
+    const lightEntity = createEntity()
+    setComponent(lightEntity, TransformComponent, { rotation: new Quaternion().setFromEuler(new Euler(-4, -0.5, 0)) })
+    setComponent(lightEntity, NameComponent, 'thumbnail job light for ' + src)
+    setComponent(lightEntity, VisibleComponent)
+    setComponent(lightEntity, DirectionalLightComponent, { intensity: 1, color: new Color(0xffffff) })
+
     if (fileType === 'model') {
       setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
     } else if (fileType === 'material') {
@@ -365,14 +383,29 @@ const ThumbnailJobReactor = () => {
         }
       })
     } else if (fileType === 'lookDev') {
-      //setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
-    }
+      setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
 
-    const lightEntity = createEntity()
-    setComponent(lightEntity, TransformComponent, { rotation: new Quaternion().setFromEuler(new Euler(-4, -0.5, 0)) })
-    setComponent(lightEntity, NameComponent, 'thumbnail job light for ' + src)
-    setComponent(lightEntity, VisibleComponent)
-    setComponent(lightEntity, DirectionalLightComponent, { intensity: 1, color: new Color(0xffffff) })
+      const reactor = startReactor(() => {
+        const modelComponent = useOptionalComponent(entity, ModelComponent)
+
+        useEffect(() => {
+          if (!modelComponent?.scene.value) {
+            return
+          }
+          iterateEntityNode(entity, (child) => {
+            const dirLight = getOptionalComponent(child, DirectionalLightComponent)
+            if (dirLight) {
+              setComponent(lightEntity, DirectionalLightComponent, serializeComponent(child, DirectionalLightComponent))
+              removeComponent(child, DirectionalLightComponent)
+            }
+          })
+
+          reactor.stop()
+        }, [modelComponent?.scene])
+
+        return null
+      })
+    }
 
     if (!state.cameraEntity.value) {
       let canvasContainer = document.getElementById('thumbnail-camera-container')
@@ -410,7 +443,7 @@ const ThumbnailJobReactor = () => {
     }
     if (src === '') return
     if (
-      (fileType !== 'model' && fileType !== 'material') ||
+      (fileType !== 'model' && fileType !== 'material' && fileType !== 'lookDev') ||
       !state.cameraEntity.value ||
       !state.modelEntity.value ||
       !lightComponent?.light.value
@@ -491,8 +524,9 @@ const ThumbnailJobReactor = () => {
       const renderer = getComponent(cameraEntity, RendererComponent)
       const { scene, canvas, scenes } = renderer
       const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
-      const { children } = getSceneParameters(entitiesToRender)
+      const { background, children } = getSceneParameters(entitiesToRender)
       scene.children = children
+      scene.background = background
       render(renderer, renderer.scene, getComponent(cameraEntity, CameraComponent), 0, false)
       function cleanup() {
         jobState.set(jobState.get(NO_PROXY).slice(1))
