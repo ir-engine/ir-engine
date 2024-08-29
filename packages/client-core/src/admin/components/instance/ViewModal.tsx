@@ -34,7 +34,7 @@ import {
   userKickPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
-import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
@@ -42,6 +42,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
+import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 const useKickUser = () => {
@@ -65,8 +66,7 @@ const useKickUser = () => {
 const useUsersInInstance = (instanceId: InstanceID) => {
   const instanceAttendances = useFind(instanceAttendancePath, {
     query: {
-      instanceId,
-      ended: false
+      instanceId
     }
   })
 
@@ -95,6 +95,12 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
   })
 
   const instanceUsersQuery = useUsersInInstance(instanceId as InstanceID)
+
+  const userKickQuery = useFind(userKickPath, {
+    query: {
+      instanceId
+    }
+  })
   const kickUser = useKickUser()
 
   return (
@@ -117,9 +123,19 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
               <AvatarImage src={el.avatar.thumbnailResource?.url ?? ''} />
               <Text>{el.name}</Text>
             </div>
+            {userKickQuery.data.find((d: any) => d.userId === el.id) && (
+              <Badge
+                className="rounded"
+                variant="danger"
+                label={t('admin:components.instance.banned', {
+                  duration: toDisplayDateTime(userKickQuery.data.find((d: any) => d.userId === el.id)!.duration)
+                })}
+              />
+            )}
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
+                disabled={!!userKickQuery.data.find((d: any) => d.userId === el.id)}
                 onClick={() => {
                   kickData.merge({
                     userId: el.id,
@@ -133,6 +149,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
               </Button>
               <Button
                 variant="outline"
+                disabled={!!userKickQuery.data.find((d: any) => d.userId === el.id)}
                 onClick={() => {
                   kickData.merge({
                     userId: el.id,

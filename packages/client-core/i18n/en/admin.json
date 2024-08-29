@@ -313,6 +313,7 @@
         "id": "Instance ID",
         "ipAddress": "IP Address",
         "currentUsers": "Current Users",
+        "isActive": "Is Active",
         "locationName": "Location",
         "channelId": "Channel",
         "podName": "Pod Name",
@@ -322,12 +323,15 @@
         "view": "View",
         "delete": "Delete"
       },
+      "active": "Active",
+      "ended": "Ended",
       "instances": "Instance",
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
       "count": "Count",
       "kick": "Kick",
       "ban": "Ban",
+      "banned": "Banned till {{duration}}",
       "kickDuration": "Kick Duration",
       "confirmUserBan": "Are you sure you want to ban this user?",
       "noInstanceUsers": "No users in this instance"
