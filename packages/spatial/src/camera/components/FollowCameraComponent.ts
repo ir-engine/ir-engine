@@ -33,8 +33,8 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EntitySchema, S, Vector3Schema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { EntitySchema, S, Vec3Schema, Vec3SchemaToVec3 } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
@@ -59,12 +59,12 @@ export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',
 
   schema: S.Object({
-    firstPersonOffset: Vector3Schema(),
-    thirdPersonOffset: Vector3Schema(),
-    currentOffset: Vector3Schema(),
+    firstPersonOffset: Vec3Schema(),
+    thirdPersonOffset: Vec3Schema(),
+    currentOffset: Vec3Schema(),
     offsetSmoothness: S.Number(0.1),
     targetEntity: EntitySchema,
-    currentTargetPosition: Vector3Schema(),
+    currentTargetPosition: Vec3Schema(),
     targetPositionSmoothness: S.Number(0),
     mode: S.Enum(FollowCameraMode, FollowCameraMode.ThirdPerson),
     allowedModes: S.Array(S.Enum(FollowCameraMode), [
@@ -106,58 +106,24 @@ export const FollowCameraComponent = defineComponent({
         maxDistance: S.Number(-1),
         targetHit: S.Bool(false)
       }),
-      cameraRays: S.Array(Vector3Schema(), [])
+      cameraRays: S.Array(Vec3Schema(), [])
     }),
     accumulatedZoomTriggerDebounceTime: S.Number(-1),
     lastZoomStartDistance: S.Number(0)
   }),
 
-  onInit: (entity) => {
+  onInit: (entity: Entity, schema) => {
     return {
-      firstPersonOffset: new Vector3(),
-      thirdPersonOffset: new Vector3(),
-      currentOffset: new Vector3(),
-      offsetSmoothness: 0.1,
-      targetEntity: UndefinedEntity,
-      currentTargetPosition: new Vector3(),
-      targetPositionSmoothness: 0,
-      mode: FollowCameraMode.ThirdPerson,
-      allowedModes: [
-        FollowCameraMode.ThirdPerson,
-        FollowCameraMode.FirstPerson,
-        FollowCameraMode.TopDown,
-        FollowCameraMode.ShoulderCam
-      ],
-      // map portrait window to further distance, landscape to closer distance
-      distance: 0,
-      targetDistance: 0,
-      zoomVelocity: { value: 0 },
-      thirdPersonMinDistance: 0,
-      thirdPersonMaxDistance: 0,
-      effectiveMinDistance: 0,
-      effectiveMaxDistance: 0,
-      theta: 180,
-      phi: 10,
-      minPhi: 0,
-      maxPhi: 0,
-      locked: false,
-      enabled: true,
-      shoulderSide: FollowCameraShoulderSide.Left,
+      ...schema!,
+      firstPersonOffset: Vec3SchemaToVec3(schema!.firstPersonOffset),
+      thirdPersonOffset: Vec3SchemaToVec3(schema!.thirdPersonOffset),
+      currentOffset: Vec3SchemaToVec3(schema!.currentOffset),
+      currentTargetPosition: Vec3SchemaToVec3(schema!.currentTargetPosition),
       raycastProps: {
-        enabled: true,
-        rayCount: 3,
-        rayLength: 15.0,
-        rayFrequency: 0.1,
-        rayConeAngle: Math.PI / 12,
-        camRayCastClock: new Clock(),
-        camRayCastCache: {
-          maxDistance: -1,
-          targetHit: false
-        },
-        cameraRays: [] as Vector3[]
-      },
-      accumulatedZoomTriggerDebounceTime: -1,
-      lastZoomStartDistance: 0
+        ...schema!.raycastProps,
+        cameraRays: schema!.raycastProps.cameraRays as Vector3[],
+        camRayCastClock: new Clock()
+      }
     }
   },
 

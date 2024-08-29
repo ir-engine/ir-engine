@@ -27,12 +27,13 @@ import {
   NumberOptions,
   ObjectOptions,
   SchemaOptions,
+  Static,
   StringOptions,
   TProperties,
   TSchema,
   Type
 } from '@sinclair/typebox'
-import { Quaternion } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { UndefinedEntity } from './Entity'
 
 const buildOptions = (init: any | undefined, options?: SchemaOptions) => {
@@ -80,7 +81,7 @@ export const EntitySchema = Type.Intersect([OpaqueTypeSchema(Type.Literal('entit
   default: UndefinedEntity
 })
 
-export const Vector3Schema = (options?: { x: NumberOptions; y: NumberOptions; z: NumberOptions }) =>
+export const Vec3Schema = (options?: { x: NumberOptions; y: NumberOptions; z: NumberOptions }) =>
   S.Object(
     {
       x: S.Number(),
@@ -96,6 +97,8 @@ export const Vector3Schema = (options?: { x: NumberOptions; y: NumberOptions; z:
       $id: 'Vector3'
     }
   )
+
+export const Vec3SchemaToVec3 = (vec3: Static<ReturnType<typeof Vec3Schema>>) => new Vector3(vec3.x, vec3.y, vec3.z)
 
 export const QuaternionSchema = (options?: {
   x: NumberOptions
