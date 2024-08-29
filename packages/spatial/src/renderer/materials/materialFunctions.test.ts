@@ -43,9 +43,11 @@ import sinon from 'sinon'
 import { BoxGeometry, Material, Mesh } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../../common/NameComponent'
+import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { TransformComponent } from '../RendererModule'
 import { MeshComponent } from '../components/MeshComponent'
 import {
+  MaterialInstanceComponent,
   MaterialPrototypeComponent,
   MaterialPrototypeConstructor,
   MaterialPrototypeDefinitions,
@@ -55,6 +57,7 @@ import {
 import {
   createMaterialPrototype,
   getMaterial,
+  getMaterialIndices,
   hasPlugin,
   materialPrototypeMatches,
   removePlugin,
@@ -610,10 +613,53 @@ describe('materialFunctions', () => {
     })
   }) //:: materialPrototypeMatches
 
+  describe('getMaterialIndices', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should return an empty array if `@param entity` does not have a MaterialInstanceComponent', () => {
+      // Set the data as expected
+      const materialUUID = UUIDComponent.generateUUID()
+      // setComponent(testEntity, MaterialInstanceComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, MaterialInstanceComponent), false)
+      // Run and Check the result
+      const result = getMaterialIndices(testEntity, materialUUID)
+      assert.equal(result.length, 0)
+    })
+
+    it('should return an array that contains the indices of MaterialInstanceComponent.uuid that matched the `@param materialUUID`. None of them should be undefined', () => {
+      // Set the data as expected
+      const dummy1 = UUIDComponent.generateUUID()
+      const dummy2 = UUIDComponent.generateUUID()
+      const dummy3 = UUIDComponent.generateUUID()
+      const materialUUID = UUIDComponent.generateUUID()
+      const uuids = [materialUUID, dummy1, materialUUID, dummy2, materialUUID, dummy3] as EntityUUID[]
+      const Expected = [0, 2, 4]
+      setComponent(testEntity, MaterialInstanceComponent, { uuid: uuids })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, MaterialInstanceComponent), true)
+      for (const id of Expected) assert.equal(uuids[id], materialUUID)
+      // Run and Check the result
+      const result = getMaterialIndices(testEntity, materialUUID)
+      assert.equal(result.length, Expected.length)
+      assertArrayEqual(result, Expected)
+    })
+  }) //:: getMaterialIndices
+
   describe('updateMaterialPrototype', () => {}) //:: updateMaterialPrototype
   describe('MaterialNotFoundError', () => {}) //:: MaterialNotFoundError
   describe('PrototypeNotFoundError', () => {}) //:: PrototypeNotFoundError
-  describe('getMaterialIndices', () => {}) //:: getMaterialIndices
   describe('getPrototypeEntityFromName', () => {}) //:: getPrototypeEntityFromName
   describe('injectMaterialDefaults', () => {}) //:: injectMaterialDefaults
 
