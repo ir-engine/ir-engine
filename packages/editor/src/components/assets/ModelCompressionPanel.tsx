@@ -51,7 +51,6 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
@@ -61,7 +60,8 @@ export const createLODVariants = async (
   lods: LODVariantDescriptor[],
   clientside: boolean,
   heuristic: Heuristic,
-  exportCombined = false
+  exportCombined = false,
+  onProgress: (numerator: number, denominator: number, status: string) => void = () => {}
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
     ...lod.params
@@ -70,10 +70,17 @@ export const createLODVariants = async (
   const transformMetadata = [] as Record<string, any>[]
   for (const [i, variant] of lodVariantParams.entries()) {
     if (clientside) {
-      await clientSideTransformModel(variant, (key, data) => {
-        if (!transformMetadata[i]) transformMetadata[i] = {}
-        transformMetadata[i][key] = data
-      })
+      await clientSideTransformModel(
+        variant,
+        (key, data) => {
+          if (!transformMetadata[i]) transformMetadata[i] = {}
+          transformMetadata[i][key] = data
+        },
+        (numerator, denominator, status) => {
+          status = `LOD ${i + 1} of ${lods.length}: ${status}`
+          onProgress(numerator / denominator + i, lods.length, status)
+        }
+      )
     } else {
       await API.instance.service(modelTransformPath).create(variant)
     }
@@ -115,6 +122,11 @@ export default function ModelCompressionPanel({
 }) {
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
+  const compressionProgress = useHookstate({
+    numerator: 0,
+    denominator: 1,
+    status: ''
+  })
   const selectedLODIndex = useHookstate(0)
   const selectedPreset = useHookstate(defaultParams)
   const presetList = useHookstate(structuredClone(LODList))
@@ -130,6 +142,11 @@ export default function ModelCompressionPanel({
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
+    compressionProgress.set({
+      numerator: 0,
+      denominator: 1,
+      status: ''
+    })
     for (const file of selectedFiles) {
       await compressModel(file)
     }
@@ -187,7 +204,9 @@ export default function ModelCompressionPanel({
     }
 
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(fileLODs, clientside, heuristic, exportCombined)
+    await createLODVariants(fileLODs, clientside, heuristic, exportCombined, (numerator, denominator, status) => {
+      compressionProgress.set({ numerator, denominator, status })
+    })
   }
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
@@ -316,9 +335,19 @@ export default function ModelCompressionPanel({
           />
         </div>
 
-        <div className="flex justify-end px-8">
+        <div className="flex justify-end justify-items-stretch px-8">
           {compressionLoading.value ? (
-            <LoadingView spinnerOnly className="mx-0 h-12 w-12" />
+            <div className="flex w-full flex-col">
+              <div className="h-4 w-full overflow-hidden rounded bg-white">
+                <div
+                  className="h-4 w-full origin-left bg-blue-primary transition-transform"
+                  style={{
+                    transform: `scaleX(${compressionProgress.numerator.value / compressionProgress.denominator.value})`
+                  }}
+                />
+              </div>
+              {compressionProgress.status.value}
+            </div>
           ) : (
             <Button variant="primary" onClick={compressContentInBrowser}>
               {t('editor:properties.model.transform.compress')}

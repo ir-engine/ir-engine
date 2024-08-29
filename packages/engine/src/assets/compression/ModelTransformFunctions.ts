@@ -345,7 +345,8 @@ function hashBuffer(buffer: Uint8Array): string {
 
 export async function transformModel(
   args: ModelTransformParameters,
-  onMetadata: (key: string, data: any) => void = (key, data) => {}
+  onMetadata: (key: string, data: any) => void = (key, data) => {},
+  onProgress: (numerator: number, denominator: number, status: string) => void = (numerator, denominator, status) => {}
 ): Promise<string> {
   const parms = args
 
@@ -451,6 +452,8 @@ export async function transformModel(
   */
   /* /Meshopt Compression */
 
+  onProgress(0, 1, `Initializing transform...`)
+
   const document = await io.read(initialSrc)
   const root = document.getRoot()
 
@@ -550,6 +553,7 @@ export async function transformModel(
   })
 
   const textures = root.listTextures()
+
   const eeMaterialExtension: EEMaterialExtension | undefined = root
     .listExtensionsUsed()
     .find((ext) => ext.extensionName === 'EE_material') as EEMaterialExtension
@@ -565,10 +569,17 @@ export async function transformModel(
     textures.push(...eeMaterialExtension.textures)
   }
 
+  const numTextures = textures.length
+  const progressDenominator = numTextures + 3 // init + [textures] + finalize + write
+
   /* PROCESS TEXTURES */
   if (parms.textureFormat !== 'default') {
     let ktx2Encoder: KTX2Encoder | null = null
-    for (const texture of textures) {
+    for (let i = 0; i < numTextures; i++) {
+      const texture = textures[i]
+
+      onProgress(i + 1, progressDenominator, `Processing texture ${i + 1} of ${numTextures}...`)
+
       console.log('considering texture ' + texture.getURI())
       if (texture.getMimeType() === 'image/ktx2') continue
       const oldImg = texture.getImage()
@@ -732,6 +743,8 @@ export async function transformModel(
   }
   onMetadata('maxTextureSize', maxTextureSize)
 
+  onProgress(progressDenominator - 2, progressDenominator, `Finalizing transform...`)
+
   let result
   if (['glb', 'vrm'].includes(parms.modelFormat)) {
     const data = await io.writeBinary(document)
@@ -792,6 +805,7 @@ export async function transformModel(
         meshes: root.listMeshes().map((mesh) => mesh.getName())
       })
     )
+    onProgress(progressDenominator - 1, progressDenominator, `Writing files...`)
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
 
@@ -850,6 +864,7 @@ export async function transformModel(
     await doUpload(new Blob([JSON.stringify(json)], { type: 'application/json' }), finalPath)
     result = finalPath
     console.log('Handled gltf file')
+    onProgress(1, 1, `Complete.`)
   }
 
   let totalVertexCount = 0
