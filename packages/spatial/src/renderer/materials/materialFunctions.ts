@@ -275,7 +275,7 @@ export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID): nu
 }
 
 export const getPrototypeEntityFromName = (name: string) =>
-  prototypeQuery().find((entity) => getComponent(entity, NameComponent) === name)
+  prototypeQuery().find((entity) => getOptionalComponent(entity, NameComponent) === name)
 
 export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
   const material = getOptionalComponent(UUIDComponent.getEntityByUUID(materialUUID), MaterialStateComponent)
