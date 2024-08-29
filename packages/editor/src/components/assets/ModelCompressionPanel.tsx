@@ -34,7 +34,10 @@ import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
+import {
+  transformModel as clientSideTransformModel,
+  ModelTransformStatus
+} from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { ImmutableArray, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
@@ -56,12 +59,27 @@ import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
+const progressCaptions: Map<ModelTransformStatus, string> = new Map([
+  [ModelTransformStatus.Initializing, 'editor:properties.model.transform.status.initializing'],
+  [ModelTransformStatus.ProcessingTexture, 'editor:properties.model.transform.status.processingtexture'],
+  [ModelTransformStatus.Finalizing, 'editor:properties.model.transform.status.finalizing'],
+  [ModelTransformStatus.WritingFiles, 'editor:properties.model.transform.status.writingfiles'],
+  [ModelTransformStatus.Complete, 'editor:properties.model.transform.status.complete']
+])
+
 export const createLODVariants = async (
   lods: LODVariantDescriptor[],
   clientside: boolean,
   heuristic: Heuristic,
   exportCombined = false,
-  onProgress: (numerator: number, denominator: number, status: string) => void = () => {}
+  onProgress: (
+    progress: number,
+    status: ModelTransformStatus,
+    numerator: number,
+    denominator: number,
+    currentLOD: number,
+    totalLODS: number
+  ) => void = () => {}
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
     ...lod.params
@@ -76,9 +94,8 @@ export const createLODVariants = async (
           if (!transformMetadata[i]) transformMetadata[i] = {}
           transformMetadata[i][key] = data
         },
-        (numerator, denominator, status) => {
-          status = `LOD ${i + 1} of ${lods.length}: ${status}`
-          onProgress(numerator / denominator + i, lods.length, status)
+        (progress, status, numerator, denominator) => {
+          onProgress((progress + i) / lods.length, status, numerator ?? 0, denominator ?? 0, i, lods.length)
         }
       )
     } else {
@@ -123,9 +140,8 @@ export default function ModelCompressionPanel({
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
   const compressionProgress = useHookstate({
-    numerator: 0,
-    denominator: 1,
-    status: ''
+    progress: 0,
+    caption: ''
   })
   const selectedLODIndex = useHookstate(0)
   const selectedPreset = useHookstate(defaultParams)
@@ -143,9 +159,8 @@ export default function ModelCompressionPanel({
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
     compressionProgress.set({
-      numerator: 0,
-      denominator: 1,
-      status: ''
+      progress: 0,
+      caption: ''
     })
     for (const file of selectedFiles) {
       await compressModel(file)
@@ -204,9 +219,24 @@ export default function ModelCompressionPanel({
     }
 
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(fileLODs, clientside, heuristic, exportCombined, (numerator, denominator, status) => {
-      compressionProgress.set({ numerator, denominator, status })
-    })
+    await createLODVariants(
+      fileLODs,
+      clientside,
+      heuristic,
+      exportCombined,
+      (progress, status, numerator, denominator, currentLOD, totalLODs) => {
+        let caption = t(progressCaptions.get(status)!, {
+          numerator: numerator + 1,
+          denominator
+        })
+        caption = t('editor:properties.model.transform.progress', {
+          currentLOD: currentLOD + 1,
+          totalLODs,
+          caption
+        })
+        compressionProgress.set({ progress, caption })
+      }
+    )
   }
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
@@ -342,11 +372,11 @@ export default function ModelCompressionPanel({
                 <div
                   className="h-4 w-full origin-left bg-blue-primary transition-transform"
                   style={{
-                    transform: `scaleX(${compressionProgress.numerator.value / compressionProgress.denominator.value})`
+                    transform: `scaleX(${compressionProgress.progress.value})`
                   }}
                 />
               </div>
-              {compressionProgress.status.value}
+              {compressionProgress.caption.value}
             </div>
           ) : (
             <Button variant="primary" onClick={compressContentInBrowser}>

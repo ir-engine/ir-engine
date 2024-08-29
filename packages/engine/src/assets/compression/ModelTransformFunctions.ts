@@ -343,10 +343,24 @@ function hashBuffer(buffer: Uint8Array): string {
   return hash.digest('hex')
 }
 
+enum Status {
+  Initializing,
+  ProcessingTexture,
+  Finalizing,
+  WritingFiles,
+  Complete
+}
+
+export { Status as ModelTransformStatus }
+
 export async function transformModel(
   args: ModelTransformParameters,
   onMetadata: (key: string, data: any) => void = (key, data) => {},
-  onProgress: (numerator: number, denominator: number, status: string) => void = (numerator, denominator, status) => {}
+  onProgress: (progress: number, status: Status, numerator?: number, denominator?: number) => void = (
+    numerator,
+    denominator,
+    status
+  ) => {}
 ): Promise<string> {
   const parms = args
 
@@ -452,7 +466,7 @@ export async function transformModel(
   */
   /* /Meshopt Compression */
 
-  onProgress(0, 1, `Initializing transform...`)
+  onProgress(0, Status.Initializing)
 
   const document = await io.read(initialSrc)
   const root = document.getRoot()
@@ -570,7 +584,7 @@ export async function transformModel(
   }
 
   const numTextures = textures.length
-  const progressDenominator = numTextures + 3 // init + [textures] + finalize + write
+  const totalProgressSteps = numTextures + 3 // init + [textures] + finalize + write
 
   /* PROCESS TEXTURES */
   if (parms.textureFormat !== 'default') {
@@ -578,7 +592,7 @@ export async function transformModel(
     for (let i = 0; i < numTextures; i++) {
       const texture = textures[i]
 
-      onProgress(i + 1, progressDenominator, `Processing texture ${i + 1} of ${numTextures}...`)
+      onProgress((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextures)
 
       console.log('considering texture ' + texture.getURI())
       if (texture.getMimeType() === 'image/ktx2') continue
@@ -743,7 +757,7 @@ export async function transformModel(
   }
   onMetadata('maxTextureSize', maxTextureSize)
 
-  onProgress(progressDenominator - 2, progressDenominator, `Finalizing transform...`)
+  onProgress(totalProgressSteps - 2 / totalProgressSteps, Status.Finalizing)
 
   let result
   if (['glb', 'vrm'].includes(parms.modelFormat)) {
@@ -805,7 +819,7 @@ export async function transformModel(
         meshes: root.listMeshes().map((mesh) => mesh.getName())
       })
     )
-    onProgress(progressDenominator - 1, progressDenominator, `Writing files...`)
+    onProgress(totalProgressSteps - 1 / totalProgressSteps, Status.WritingFiles)
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
 
@@ -864,7 +878,7 @@ export async function transformModel(
     await doUpload(new Blob([JSON.stringify(json)], { type: 'application/json' }), finalPath)
     result = finalPath
     console.log('Handled gltf file')
-    onProgress(1, 1, `Complete.`)
+    onProgress(1, Status.Complete)
   }
 
   let totalVertexCount = 0
