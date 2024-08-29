@@ -28,6 +28,7 @@ import React from 'react'
 import { Bounds } from '../classes/Bounds'
 import { Edges } from '../classes/Edges'
 import { NodeSnapshot, XRUILayerComponent } from '../components/XRUILayerComponent'
+import { bufferToHex } from '../hex-utils'
 
 export function useXRUILayer() {
   const entity = React.useMemo(() => {
@@ -38,16 +39,36 @@ export function useXRUILayer() {
 
   const state = useComponent(entity, XRUILayerComponent)
 
-  // generate snapshot for serialization and rendering
+  // generate snapshot for serialization and rasterization
   React.useLayoutEffect(() => {
     const el = state.element.value as HTMLElement
     if (!el) {
       state.__internal.snapshot.set(null)
       return
     }
+
+    // generate a snapshot that includes the element and its children, excluding descendent elements with the xr-layer attribute
     const snapshot = createNodeSnapshot(el) as NodeSnapshot
     snapshot.metrics = extractDOMMetrics(el)
-    state.__internal.snapshot.set(snapshot)
+
+    // generate a hash of the unprocessed snapshot for caching purposes
+    let abort = false
+    const serializer = new XMLSerializer()
+    const textEncoder = new TextEncoder()
+    const unprocessedSerializedDOM = serializer.serializeToString(snapshot.clonedElement as HTMLElement)
+    crypto.subtle
+      .digest('SHA-1', textEncoder.encode(unprocessedSerializedDOM))
+      .then((hash) => {
+        snapshot.hash = bufferToHex(hash)
+      })
+      .then(() => {
+        // if the snapshot is still valid, set it
+        if (!abort) state.__internal.snapshot.set(snapshot)
+      })
+
+    return () => {
+      abort = true
+    }
   })
 
   return {

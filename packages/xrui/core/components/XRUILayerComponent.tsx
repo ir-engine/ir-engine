@@ -69,6 +69,7 @@ export interface XRUIBorderRadius {
 export const PIXELS_TO_METERS = 0.001
 
 export interface NodeSnapshot {
+  hash: string
   clonedElement: HTMLElement
   fontFamilies: string[]
   metrics: {
@@ -181,23 +182,16 @@ export const XRUILayerComponent = defineComponent({
     }, [layer.texture, geometry])
 
     // process changes to DOM
-    React.useLayoutEffect(() => {
-      if (!layer.element.value) return
+    React.useEffect(() => {
+      if (!layer.__internal.snapshot.value) return
       if (!layout) return
 
       layer.ready.set(false)
 
-      // retrieve layout
-      const rect = layer.element.value.getBoundingClientRect() as any as Bounds
-      layer.domRect.set(rect)
-      const parentRect = parentLayer?.domRect.value
-
-      // update layout
-      if (layer.autoUpdateLayout.value) {
-        updateLayoutFromDomRects(layout, rect, parentRect ?? _getViewportBounds())
-      }
+      const snapshot = layer.__internal.snapshot
 
       return () => {
+        abort = true
         // cancel unfinished update
       }
     }, [layer.element, !!layout, parentLayer?.domRect, layer.autoUpdateLayout])
