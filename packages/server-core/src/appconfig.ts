@@ -192,7 +192,8 @@ const client = {
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
       : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
   port: process.env.APP_PORT || '3000',
-  releaseName: process.env.RELEASE_NAME || 'local'
+  releaseName: process.env.RELEASE_NAME || 'local',
+  gaMeasurementId: process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID!
 }
 
 // TODO: rename to 'instanceserver'

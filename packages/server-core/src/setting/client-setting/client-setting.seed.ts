@@ -59,7 +59,7 @@ export const clientSettingSeedData = {
   appTitle: 'static/ir-logo.svg',
   appSubtitle: 'IR Engine',
   appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
-  gaMeasurementId: '',
+  gaMeasurementId: process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID || '',
   appSocialLinks: JSON.stringify([
     { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
     { icon: 'static/github.svg', link: 'https://github.com/ir-engine' }

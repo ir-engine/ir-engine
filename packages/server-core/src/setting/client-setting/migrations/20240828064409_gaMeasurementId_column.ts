@@ -39,6 +39,14 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.alterTable(clientSettingPath, async (table) => {
       table.string('gaMeasurementId').nullable()
     })
+
+    const clientSettings = await knex.table(clientSettingPath).first()
+
+    if (clientSettings) {
+      await knex.table(clientSettingPath).update({
+        gaMeasurementId: process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID
+      })
+    }
   }
 
   await knex.raw('SET FOREIGN_KEY_CHECKS=1')
