@@ -31,11 +31,11 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { InviteService } from '@ir-engine/client-core/src/social/services/InviteService'
 import { useFind, useMutation } from '@ir-engine/common'
 import {
-  instancePath,
   InviteCode,
   InviteData,
-  invitePath,
   InviteType,
+  instancePath,
+  invitePath,
   locationPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'

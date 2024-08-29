@@ -25,14 +25,14 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useFind, useMutation } from '@ir-engine/common'
 import {
   AvatarID,
-  avatarPath,
   ScopeType,
-  scopeTypePath,
   UserData,
   UserName,
   UserPatch,
-  userPath,
-  UserType
+  UserType,
+  avatarPath,
+  scopeTypePath,
+  userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'

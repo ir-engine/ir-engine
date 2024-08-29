@@ -28,8 +28,8 @@ import {
   LocationData,
   LocationID,
   LocationPatch,
-  locationPath,
   LocationType,
+  locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'

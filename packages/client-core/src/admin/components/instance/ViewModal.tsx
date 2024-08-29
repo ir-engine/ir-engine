@@ -29,9 +29,9 @@ import { useTranslation } from 'react-i18next'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation } from '@ir-engine/common'
 import {
-  instanceAttendancePath,
   InstanceID,
   UserID,
+  instanceAttendancePath,
   userKickPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'

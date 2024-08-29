@@ -31,8 +31,8 @@ import { API, useFind } from '@ir-engine/common'
 import { defaultIceServer } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import {
   IceServerType,
-  instanceServerSettingPath,
-  InstanceServerSettingType
+  InstanceServerSettingType,
+  instanceServerSettingPath
 } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
