@@ -25,17 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { UserID } from '@ir-engine/hyperflux'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, matches, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, UserID, getMutableState, matches, none, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'

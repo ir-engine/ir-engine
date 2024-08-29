@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import matches, { Validator } from 'ts-matches'
+import matches from 'ts-matches'
 
 import { matchesEntityUUID } from '@ir-engine/ecs'
-import { OpaqueType, defineAction } from '@ir-engine/hyperflux'
+import { defineAction } from '@ir-engine/hyperflux'
 import { NetworkTopics } from '@ir-engine/network'
 import { SpawnObjectActions } from '@ir-engine/spatial/src/transform/SpawnObjectActions'
 

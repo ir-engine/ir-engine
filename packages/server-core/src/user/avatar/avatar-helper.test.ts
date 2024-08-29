@@ -47,5 +47,4 @@ describe('avatar-helper', () => {
     await tearDownAPI()
     destroyEngine()
   })
-
 })

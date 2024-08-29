@@ -27,7 +27,6 @@ import { Types } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { UserID } from '@ir-engine/hyperflux'
 import { UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -38,12 +37,12 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { UserID, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
-import { AxesHelperComponent } from '@ir-engine/spatial/src/common/debug/AxesHelperComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { AxesHelperComponent } from '@ir-engine/spatial/src/common/debug/AxesHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { ikTargets } from '../animation/Util'

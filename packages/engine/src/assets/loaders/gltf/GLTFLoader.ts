@@ -38,6 +38,7 @@ import {
   Texture
 } from 'three'
 
+import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 import { DRACOLoader } from './DRACOLoader'
@@ -67,7 +68,6 @@ import {
 } from './GLTFExtensions'
 import { GLTFParser } from './GLTFParser'
 import { KTX2Loader } from './KTX2Loader'
-import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
 
 export class GLTFLoader extends Loader {
   dracoLoader = null as null | DRACOLoader

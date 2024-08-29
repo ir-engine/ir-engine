@@ -39,8 +39,8 @@ import { Box, Button } from '@mui/material'
 import ProfileMenu from '@ir-engine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
 
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useFind } from '@ir-engine/common'
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect

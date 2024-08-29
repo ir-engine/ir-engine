@@ -25,10 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { isClient } from '@ir-engine/hyperflux'
 import { createEntity, setComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { hookstate } from '@ir-engine/hyperflux'
+import { hookstate, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'

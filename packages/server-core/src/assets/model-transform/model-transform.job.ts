@@ -27,11 +27,11 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
+import { transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { argsToObject } from '@ir-engine/common/src/utils/objectToCommandLineArgs'
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
-import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
 import { ServerMode } from '@ir-engine/server-core/src/ServerState'
+import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
 
 const modelTransformParameters: ModelTransformParameters = argsToObject(process.argv.slice(3))
 

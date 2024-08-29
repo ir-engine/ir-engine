@@ -42,7 +42,6 @@ import {
   Vector3
 } from 'three'
 
-import { isClient } from '@ir-engine/hyperflux'
 import { EntityUUID, UUIDComponent, useQuery } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -54,6 +53,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { isClient } from '@ir-engine/hyperflux'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'

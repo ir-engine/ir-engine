@@ -29,6 +29,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 
+import { UserID } from '@ir-engine/hyperflux'
 import { TypedString } from '../../types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { ScopeType } from '../scope/scope.schema'
@@ -40,9 +41,8 @@ import { avatarDataSchema, AvatarID } from './avatar.schema'
 import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
 import { userLoginSchema } from './user-login.schema'
-import { UserID } from '@ir-engine/hyperflux'
 
-export type { UserID}
+export type { UserID }
 
 export const userPath = 'user'
 

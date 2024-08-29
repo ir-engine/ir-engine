@@ -28,7 +28,6 @@ import assert from 'assert'
 import React from 'react'
 import { default as Sinon, default as sinon } from 'sinon'
 
-import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import {
   ComponentMap,
   createEntity,
@@ -54,6 +53,7 @@ import {
   VisualScriptComponent,
   VisualScriptDomain
 } from '@ir-engine/engine'
+import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'

@@ -26,12 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
 
-import { isClient } from '@ir-engine/hyperflux'
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { isClient } from '@ir-engine/hyperflux'
 import { WebContainer3D } from '@ir-engine/xrui'
 
 import { InputComponent } from '../../input/components/InputComponent'

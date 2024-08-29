@@ -44,19 +44,30 @@ import {
 } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { getAvatarBoneWorldPosition } from '@ir-engine/engine/src/avatar/functions/avatarFunctions'
-import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import {
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { addPannerNode, removePannerNode, updateAudioPanner } from '@ir-engine/engine/src/audio/PositionalAudioFunctions'
-import { MediasoupMediaProducerConsumerState, MediasoupMediaProducersConsumersObjectsState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import {
+  addPannerNode,
+  removePannerNode,
+  updateAudioPanner
+} from '@ir-engine/engine/src/audio/PositionalAudioFunctions'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { getAvatarBoneWorldPosition } from '@ir-engine/engine/src/avatar/functions/avatarFunctions'
+import {
+  AudioNodeGroups,
+  createAudioNodeGroup,
+  MediaElementComponent
+} from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
 const _vec3 = new Vector3()
 const _rot = new Vector3()
 
-/** 
+/**
  * @todo remove direct reference to mediasoup stuff and move this back to engine package
  */
 

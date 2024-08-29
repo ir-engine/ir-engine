@@ -39,5 +39,4 @@ describe('Core', () => {
     await tearDownAPI()
     destroyEngine()
   })
-
 })

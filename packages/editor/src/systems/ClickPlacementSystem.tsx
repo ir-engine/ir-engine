@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import {
   Engine,
   Entity,
@@ -38,6 +37,7 @@ import {
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
+import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'

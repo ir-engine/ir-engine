@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 //https://stackoverflow.com/a/60476525
 
-import { useCallback } from 'react'
 import { useHookstate } from '@hookstate/core'
+import { useCallback } from 'react'
 
 export const useReactiveRef = <T extends HTMLElement>() => {
   const ref = useHookstate({ current: null })

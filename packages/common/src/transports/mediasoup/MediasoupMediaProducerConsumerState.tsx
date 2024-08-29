@@ -44,13 +44,13 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
+import { DataChannelType, MediaTagType, NetworkActions, NetworkState } from '@ir-engine/network'
+import { MediaStreamAppData } from '../../interfaces/NetworkInterfaces'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from './MediasoupTransportState'
-import { DataChannelType, MediaTagType, NetworkState, NetworkActions } from '@ir-engine/network'
-import { MediaStreamAppData } from '../../interfaces/NetworkInterfaces'
 
 export class MediasoupMediaProducerActions {
   static requestProducer = defineAction({

@@ -50,7 +50,6 @@ describe('invalidation.test', () => {
     destroyEngine()
   })
 
-
   let createdPath1, createdPath2, createdFile1
   it('creates one invalidation entry', async () => {
     createdPath1 = await app.service(invalidationPath).create({

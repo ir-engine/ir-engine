@@ -24,11 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
+import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import { loadWebappInjection } from '@ir-engine/projects/loadWebappInjection'
-import { useFind } from '@ir-engine/common'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'

@@ -61,13 +61,13 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
+import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
-import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 
 const logger = multiLogger.child({ component: 'client-core:systems' })
 

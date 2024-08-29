@@ -59,18 +59,24 @@ import { v4 as uuidv4 } from 'uuid'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
-import { baseName, pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import {
   ExtractedImageTransformParameters,
   extractParameters,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
+import { baseName, pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
+import {
+  EEMaterial,
+  EEMaterialExtension
+} from '@ir-engine/engine/src/assets/compression/extensions/EE_MaterialTransformer'
+import {
+  EEResourceID,
+  EEResourceIDExtension
+} from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadRequestState'
-import { EEMaterial, EEMaterialExtension } from '@ir-engine/engine/src/assets/compression/extensions/EE_MaterialTransformer'
-import { EEResourceID, EEResourceIDExtension } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
 
 /**

@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UserID } from '@ir-engine/hyperflux'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Action, getMutableState, none, PeerID } from '@ir-engine/hyperflux'
+import { Action, getMutableState, none, PeerID, UserID } from '@ir-engine/hyperflux'
 
 import { Network } from '../Network'
 import { NetworkState } from '../NetworkState'

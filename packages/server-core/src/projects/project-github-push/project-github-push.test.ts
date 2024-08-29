@@ -110,7 +110,6 @@ describe('project-github-push.test', () => {
     destroyEngine()
   })
 
-
   it('should check for accessible repo', async () => {
     nock('https://api.github.com')
       .get(/\/repos.*/)

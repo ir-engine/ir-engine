@@ -40,12 +40,12 @@ import {
   Validator
 } from '@ir-engine/hyperflux'
 
+import { DataChannelType, NetworkActions, NetworkState } from '@ir-engine/network'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from './MediasoupTransportState'
-import { DataChannelType, NetworkActions, NetworkState } from '@ir-engine/network'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({

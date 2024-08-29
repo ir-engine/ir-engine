@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
-import { UserID } from '@ir-engine/hyperflux'
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { UserID } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'

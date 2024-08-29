@@ -53,12 +53,12 @@ import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { Object3DUtils } from '../../transform/Object3DUtils'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
-import { Object3DUtils } from '../../transform/Object3DUtils'
 
 const _worldPosInputSourceComponent = new Vector3()
 const _worldPosInputComponent = new Vector3()

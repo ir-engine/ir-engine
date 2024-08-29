@@ -29,10 +29,10 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 
+import { OpaqueType } from '../../interfaces/OpaqueType'
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { OpaqueType } from '../../interfaces/OpaqueType'
 
 export type AvatarID = OpaqueType<'AvatarID'> & string
 

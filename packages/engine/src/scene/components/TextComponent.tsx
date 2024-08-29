@@ -32,10 +32,9 @@ import { useEffect } from 'react'
 import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 
-import { isClient } from '@ir-engine/hyperflux'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches } from '@ir-engine/hyperflux'
+import { isClient, matches } from '@ir-engine/hyperflux'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 
 /**

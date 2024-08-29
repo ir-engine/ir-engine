@@ -26,12 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { MeshBasicMaterial, VideoTexture } from 'three'
 
-import { isClient } from '@ir-engine/hyperflux'
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, isClient } from '@ir-engine/hyperflux'
 import { StandardCallbacks, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 

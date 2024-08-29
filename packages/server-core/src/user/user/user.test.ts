@@ -48,7 +48,6 @@ describe('user.test', () => {
     destroyEngine()
   })
 
-
   let avatar: AvatarType
   before(async () => {
     const avatarName = 'CyberbotGreen'

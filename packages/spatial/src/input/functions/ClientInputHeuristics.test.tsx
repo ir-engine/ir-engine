@@ -27,7 +27,6 @@ import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
 
-import { UserID } from '@ir-engine/hyperflux'
 import {
   createEngine,
   createEntity,
@@ -42,7 +41,7 @@ import {
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
 import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'

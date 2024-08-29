@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind, useMutation } from '@ir-engine/common'
 import { metabaseSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/common'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'

@@ -25,12 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { UserID } from '@ir-engine/hyperflux'
 import { defineQuery } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getState } from '@ir-engine/hyperflux'
+import { UserID, getState } from '@ir-engine/hyperflux'
 import { Q_Y_180 } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'

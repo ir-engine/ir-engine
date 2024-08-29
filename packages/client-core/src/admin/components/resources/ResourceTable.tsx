@@ -27,8 +27,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiEye, HiTrash } from 'react-icons/hi2'
 
-import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { useFind, useSearch } from '@ir-engine/common'
+import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 

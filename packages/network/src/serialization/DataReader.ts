@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { TypedArray } from 'bitecs'
 
-import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { PeerID } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 
 import { JitterBufferEntry, Network } from '../Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../NetworkObjectComponent'

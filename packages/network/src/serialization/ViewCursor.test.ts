@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert, { strictEqual } from 'assert'
 
-import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 
 import { NetworkObjectComponent } from '../NetworkObjectComponent'
 import {

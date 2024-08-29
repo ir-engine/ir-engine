@@ -27,8 +27,8 @@ import React from 'react'
 
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useFind } from '@ir-engine/common'
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { EditorNavbarProfile } from './EditorNavbarProfile'
 import styles from './styles.module.scss'
 

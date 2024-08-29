@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { EntityUUID, UUIDComponent, getComponent } from '@ir-engine/ecs'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { NetworkID, PeerID, UserID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { SpawnObjectActions } from '../../../spatial/src/transform/SpawnObjectActions'

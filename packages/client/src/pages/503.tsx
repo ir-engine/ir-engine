@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useFind } from '@ir-engine/common'
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 

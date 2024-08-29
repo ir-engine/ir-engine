@@ -27,8 +27,6 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
-import { NetworkId } from '@ir-engine/network/src/NetworkId'
-import { UserID } from '@ir-engine/hyperflux'
 import {
   Engine,
   SystemDefinitions,
@@ -42,7 +40,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux'
+import { PeerID, UserID, applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux'
 import {
   Network,
   NetworkPeerFunctions,
@@ -50,6 +48,7 @@ import {
   NetworkTopics,
   NetworkWorldUserStateSystem
 } from '@ir-engine/network'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { createMockNetwork } from '../../../../network/tests/createMockNetwork'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'

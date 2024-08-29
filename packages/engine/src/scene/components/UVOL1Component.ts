@@ -37,7 +37,6 @@ import {
   Vector3
 } from 'three'
 
-import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { Engine } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -55,17 +54,18 @@ import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AudioState } from '../../audio/AudioState'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
 import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
 
 const decodeCorto = (url: string, start: number, end: number) => {
   return new Promise<BufferGeometry | null>((res, rej) => {

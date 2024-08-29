@@ -27,11 +27,11 @@ Infinite Reality Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
+import { NetworkID } from '@ir-engine/hyperflux'
 import { TypedString } from '../../types/TypeboxUtils'
 import { ChannelID } from '../social/channel.schema'
 import { LocationID, locationSchema, RoomCode } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { NetworkID } from '@ir-engine/hyperflux'
 
 export const instancePath = 'instance'
 

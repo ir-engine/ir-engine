@@ -30,7 +30,7 @@ import { useEffect } from 'react'
 
 import { AvatarID, UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { createState, EventDispatcher } from '@ir-engine/hyperflux'
+import { EventDispatcher, createState } from '@ir-engine/hyperflux'
 
 import { API } from '@ir-engine/common'
 import { createEngine } from '@ir-engine/ecs/src/Engine'

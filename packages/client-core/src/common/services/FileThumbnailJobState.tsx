@@ -65,10 +65,10 @@ import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems
 import React, { useEffect } from 'react'
 import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, SphereGeometry, Vector3 } from 'three'
 
+import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
-import { useFind } from '@ir-engine/common'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'

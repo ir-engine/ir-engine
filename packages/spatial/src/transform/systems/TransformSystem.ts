@@ -40,6 +40,7 @@ import { NetworkState } from '@ir-engine/network'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { insertionSort } from '../../common/functions/insertionSort'
 import { EngineState } from '../../EngineState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
@@ -50,7 +51,6 @@ import { ComputedTransformComponent } from '../components/ComputedTransformCompo
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
 import { composeMatrix, TransformComponent } from '../components/TransformComponent'
 import { TransformSerialization } from '../TransformSerialization'
-import { insertionSort } from '../../common/functions/insertionSort'
 
 const transformQuery = defineQuery([TransformComponent])
 const groupQuery = defineQuery([GroupComponent, VisibleComponent])

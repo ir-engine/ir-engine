@@ -32,7 +32,7 @@ import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import { 
+import {
   DeepReadonly,
   getNestedObject,
   HyperFlux,

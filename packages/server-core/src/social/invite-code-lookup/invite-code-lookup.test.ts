@@ -61,7 +61,6 @@ describe('invite-code-lookup service', () => {
     destroyEngine()
   })
 
-
   it('registered the service', async () => {
     const service = await app.service(inviteCodeLookupPath)
     assert.ok(service, 'Registered the service')

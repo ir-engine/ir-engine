@@ -27,7 +27,15 @@ import { GLTF } from '@gltf-transform/core'
 import matches, { Validator } from 'ts-matches'
 
 import { Entity, EntityUUID, UUIDComponent, getComponent, useOptionalComponent } from '@ir-engine/ecs'
-import { HyperFlux, State, defineAction, defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import {
+  HyperFlux,
+  State,
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  useHookstate
+} from '@ir-engine/hyperflux'
 import { SourceComponent } from '../scene/components/SourceComponent'
 
 export const GLTFDocumentState = defineState({
@@ -53,7 +61,9 @@ export const GLTFNodeState = defineState({
     const source = getComponent(entity, SourceComponent)
     const uuid = getComponent(entity, UUIDComponent)
     if (!source || !uuid) {
-      HyperFlux.store.logger('GLTFNodeState.getMutableNode').error('entity does not have SourceComponent or UUIDComponent')
+      HyperFlux.store
+        .logger('GLTFNodeState.getMutableNode')
+        .error('entity does not have SourceComponent or UUIDComponent')
     }
     const nodeLookup = getState(GLTFNodeState)[source][uuid]
     if (!nodeLookup) {

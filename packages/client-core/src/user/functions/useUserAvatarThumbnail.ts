@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind, useGet } from '@ir-engine/common'
 import { config } from '@ir-engine/common/src/config'
 import { avatarPath, userAvatarPath, UserID } from '@ir-engine/common/src/schema.type.module'
-import { useFind, useGet } from '@ir-engine/common'
 
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/ir-engine/default-project/assets/default-silhouette.svg`
 

@@ -27,8 +27,8 @@ import React from 'react'
 
 import { clamp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 
-import { toPrecision } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { getStepSize } from '@ir-engine/editor/src/functions/utils'
+import { toPrecision } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { twMerge } from 'tailwind-merge'
 import Text from '../../../../primitives/tailwind/Text'

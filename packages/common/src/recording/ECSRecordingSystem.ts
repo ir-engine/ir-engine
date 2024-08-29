@@ -47,12 +47,6 @@ import {
 } from '@ir-engine/ecs'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import {
-  ECSDeserializer,
-  ECSSerialization,
-  ECSSerializer,
-  SerializedChunk
-} from '@ir-engine/network/src/serialization/ECSSerializerSystem'
-import {
   defineAction,
   defineActionQueue,
   defineState,
@@ -80,6 +74,12 @@ import {
   webcamVideoDataChannelType,
   WorldNetworkAction
 } from '@ir-engine/network'
+import {
+  ECSDeserializer,
+  ECSSerialization,
+  ECSSerializer,
+  SerializedChunk
+} from '@ir-engine/network/src/serialization/ECSSerializerSystem'
 import { PhysicsSerialization } from '@ir-engine/spatial/src/physics/PhysicsSerialization'
 
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'

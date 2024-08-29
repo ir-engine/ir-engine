@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect } from 'react'
 
-import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import {
   Component,
   ComponentJSONIDMap,
@@ -42,6 +41,7 @@ import {
   useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { dispatchAction, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { FileLoader } from '../assets/loaders/base/FileLoader'

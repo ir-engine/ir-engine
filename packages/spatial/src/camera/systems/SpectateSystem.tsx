@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MathUtils } from 'three'
 
-import { UserID } from '@ir-engine/hyperflux'
 import {
   Engine,
   EntityUUID,
@@ -44,7 +43,8 @@ import {
   getState,
   none,
   useHookstate,
-  useMutableState
+  useMutableState,
+  UserID
 } from '@ir-engine/hyperflux'
 import { matchesUserID, NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
 

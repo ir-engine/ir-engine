@@ -68,7 +68,9 @@ export const executeSystems = (elapsedTime: number) => {
   const end = nowMilliseconds()
   const duration = end - start
   if (duration > 150) {
-    HyperFlux.store.logger('ecs:execute').warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
+    HyperFlux.store
+      .logger('ecs:execute')
+      .warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
   }
   ecsState.lastSystemExecutionDuration.set(duration)
 }

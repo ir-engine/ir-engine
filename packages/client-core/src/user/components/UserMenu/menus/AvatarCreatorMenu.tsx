@@ -31,9 +31,9 @@ import InputText from '@ir-engine/client-core/src/common/components/InputText'
 import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import config from '@ir-engine/common/src/config'
-import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
@@ -44,7 +44,6 @@ import { AvatarService } from '../../../services/AvatarService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-
 
 export const isAvaturn = (url: string) => {
   const fileExtensionRegex = /\.[0-9a-z]+$/i

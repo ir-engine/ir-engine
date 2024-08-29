@@ -37,4 +37,4 @@ const isDev = globalThis.process.env.APP_ENV === 'development'
 
 const isTest = globalThis.process.env.APP_ENV === 'test'
 
-export { isBrowser, isClient, isWebWorker, isDev, isTest }
+export { isBrowser, isClient, isDev, isTest, isWebWorker }

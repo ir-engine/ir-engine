@@ -25,11 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert, { strictEqual } from 'assert'
 
-import { UserID } from '@ir-engine/hyperflux'
 import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
-import { ActionRecipients, applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
+import { ActionRecipients, applyIncomingActions, getMutableState, getState, UserID } from '@ir-engine/hyperflux'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { SpawnObjectActions } from '@ir-engine/spatial/src/transform/SpawnObjectActions'
 

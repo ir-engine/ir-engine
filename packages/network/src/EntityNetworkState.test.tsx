@@ -42,10 +42,10 @@ import './EntityNetworkState'
 
 import { NetworkPeerFunctions } from './functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
+import { NetworkId } from './NetworkId'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from './NetworkObjectComponent'
 import { NetworkState } from './NetworkState'
 import { NetworkWorldUserStateSystem } from './NetworkUserState'
-import { NetworkId } from './NetworkId'
 
 describe('EntityNetworkState', () => {
   beforeEach(async () => {

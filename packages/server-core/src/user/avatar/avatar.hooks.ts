@@ -39,8 +39,8 @@ import {
 } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { userAvatarPath } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
 import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
-import setLoggedInUser from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
+import setLoggedInUser from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'

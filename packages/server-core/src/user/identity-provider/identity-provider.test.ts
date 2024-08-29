@@ -49,7 +49,6 @@ describe('identity-provider.test', () => {
     destroyEngine()
   })
 
-
   it('should create an identity provider for guest', async () => {
     const type = 'guest'
     const token = uuidv4()

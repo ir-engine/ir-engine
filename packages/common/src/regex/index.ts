@@ -116,4 +116,3 @@ export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 
 export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
 export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
-

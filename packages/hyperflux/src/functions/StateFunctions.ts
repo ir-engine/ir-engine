@@ -27,11 +27,11 @@ import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useH
 import { Identifiable, identifiable } from '@hookstate/identifiable'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
+import { DeepReadonly } from '../types/DeepReadonly'
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
+import { isClient } from './EnvironmentConstants'
 import { startReactor } from './ReactorFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
-import { DeepReadonly } from '../types/DeepReadonly'
-import { isClient } from './EnvironmentConstants'
 
 export * from '@hookstate/core'
 export { useHookstate as useState } from '@hookstate/core'

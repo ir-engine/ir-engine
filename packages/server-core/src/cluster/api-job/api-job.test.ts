@@ -43,7 +43,6 @@ describe('api job service', () => {
     destroyEngine()
   })
 
-
   it('should register the service', () => {
     const service = app.service(apiJobPath)
     assert.ok(service, 'Registered the service')
