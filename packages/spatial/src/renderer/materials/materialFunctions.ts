@@ -266,10 +266,12 @@ export const createAndAssignMaterial = (user: Entity, material: Material, index 
   return materialEntity
 }
 
-export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID) => {
+export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID): number[] => {
   if (!hasComponent(entity, MaterialInstanceComponent)) return [] as number[]
   const uuids = getComponent(entity, MaterialInstanceComponent).uuid
-  return uuids.map((uuid, index) => (uuid === materialUUID ? index : undefined)).filter((x) => x !== undefined)
+  return uuids
+    .map((uuid, index) => (uuid === materialUUID ? index : undefined))
+    .filter((x) => x !== undefined) as number[]
 }
 
 export const getPrototypeEntityFromName = (name: string) =>
