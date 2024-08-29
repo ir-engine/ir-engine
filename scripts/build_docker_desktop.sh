@@ -114,6 +114,12 @@ else
   VITE_AVATURN_API=$VITE_AVATURN_API
 fi
 
+if [ -z "$VITE_AVATURN_URL" ]; then
+  VITE_TERMS_OF_SERVICE_ADDRESS=https://www.ir.world/terms-of-service
+else
+  VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS
+fi
+
 if [ -z "$NODE_ENV" ]
 then
   NODE_ENV=development
