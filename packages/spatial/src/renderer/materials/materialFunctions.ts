@@ -34,6 +34,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeEntity,
   setComponent,
@@ -158,11 +159,15 @@ export const materialPrototypeMatches = (materialEntity: Entity) => {
 /**Updates the material entity's threejs material prototype to match its
  * current prototype entity */
 export const updateMaterialPrototype = (materialEntity: Entity) => {
-  const materialComponent = getComponent(materialEntity, MaterialStateComponent)
-  const prototypeEntity = materialComponent.prototypeEntity!
-  const prototypeName = getComponent(prototypeEntity, NameComponent)
-  const prototypeComponent = getComponent(prototypeEntity, MaterialPrototypeComponent)
-  const prototypeConstructor = prototypeComponent.prototypeConstructor![prototypeName]
+  const materialComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
+  if (!materialComponent) return
+  const prototypeEntity = materialComponent.prototypeEntity
+  if (!prototypeEntity) return
+  const prototypeName = getOptionalComponent(prototypeEntity, NameComponent)
+  if (!prototypeName) return
+  const prototypeComponent = getOptionalComponent(prototypeEntity, MaterialPrototypeComponent)
+  if (!prototypeComponent) return
+  const prototypeConstructor = prototypeComponent.prototypeConstructor[prototypeName]
   if (!prototypeConstructor || !prototypeComponent.prototypeArguments) return
   const material = materialComponent.material
   if (!material || material.type === prototypeName) return
@@ -190,19 +195,20 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   return newMaterial
 }
 
-export function MaterialNotFoundError(message) {
+export function MaterialNotFoundError(message: string) {
   this.name = 'MaterialNotFound'
   this.message = message
 }
 
-export function PrototypeNotFoundError(message) {
+export function PrototypeNotFoundError(message: string) {
   this.name = 'PrototypeNotFound'
   this.message = message
 }
 
 /** Assigns a preexisting material entity to a mesh */
 export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) => {
-  const materialStateComponent = getMutableComponent(materialEntity, MaterialStateComponent)
+  const materialStateComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
+  if (!materialStateComponent) return
   materialStateComponent.instances.set([...materialStateComponent.instances.value, user])
   if (!user) return
   if (!hasComponent(user, MaterialInstanceComponent)) setComponent(user, MaterialInstanceComponent)
