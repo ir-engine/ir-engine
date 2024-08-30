@@ -23,32 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import FileBrowser from './filebrowser'
 
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import FilesPanelContainer from './container'
-
-export const FilesPanelTitle = () => {
+const FilesPanelTitle = () => {
   const { t } = useTranslation()
-
   return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <span>{'Files'}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
+    <PanelDragContainer>
+      <PanelTitle>{t('editor:layout.filebrowser.tab-name')}</PanelTitle>
+    </PanelDragContainer>
   )
 }
-
-export default FilesPanelTitle
 
 export const FilesPanelTab: TabData = {
   id: 'filesPanel',
   closable: true,
   title: <FilesPanelTitle />,
-  content: <FilesPanelContainer />
+  content: <FileBrowser />
 }

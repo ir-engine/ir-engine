@@ -30,16 +30,16 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
-import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import { useHookstate } from '@ir-engine/hyperflux'
-import Modal from '../../../../../primitives/tailwind/Modal'
-import Text from '../../../../../primitives/tailwind/Text'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { FileDataType } from '../helpers'
 
 export default function DeleteFileModal({
   files,
   onComplete
 }: {
-  files: FileDataType[]
+  files: readonly FileDataType[]
   onComplete?: (err?: unknown) => void
 }) {
   const { t } = useTranslation()

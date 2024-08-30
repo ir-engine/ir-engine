@@ -23,16 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { useUploadingFiles } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { archiverPath } from '@ir-engine/common/src/schema.type.module'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { downloadBlobAsZip } from '@ir-engine/editor/src/functions/assetFunctions'
 import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Progress from '@ir-engine/ui/src/primitives/tailwind/Progress'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import Progress from '../../../../../primitives/tailwind/Progress'
+import { useCurrentFiles } from './helpers'
 
 const DownloadProjectState = defineState({
   name: 'DownloadProjectState',
@@ -55,11 +59,11 @@ export const handleDownloadProject = async (projectName: string, selectedDirecto
 
   const downloadState = getMutableState(DownloadProjectState)
 
-  downloadState.isDownloading.set(true) // Start Download
+  downloadState.isDownloading.set(true)
 
   const response = await fetch(`${config.client.fileServer}/${data}`)
   const totalBytes = parseInt(response.headers.get('Content-Length') || '0', 10)
-  downloadState.total.set(totalBytes) // Set the total bytes
+  downloadState.total.set(totalBytes)
 
   const reader = response.body?.getReader()
   const chunks: Uint8Array[] = []
@@ -74,7 +78,7 @@ export const handleDownloadProject = async (projectName: string, selectedDirecto
   }
 
   const blob = new Blob(chunks)
-  downloadState.isDownloading.set(false) // Mark as completed
+  downloadState.isDownloading.set(false)
   downloadState.progress.set(0)
   downloadState.total.set(0)
 
@@ -88,7 +92,8 @@ export const handleDownloadProject = async (projectName: string, selectedDirecto
   downloadBlobAsZip(blob, fileName)
 }
 
-export const ProjectDownloadProgress = () => {
+export function ProjectDownloadProgress() {
+  // todo remove the export once files/container/index.tsx is deleted
   const { t } = useTranslation()
   const downloadState = useMutableState(DownloadProjectState)
   const isDownloading = downloadState.isDownloading.value
@@ -108,4 +113,59 @@ export const ProjectDownloadProgress = () => {
       </div>
     </div>
   ) : null
+}
+
+export function FileUploadProgress() {
+  const { t } = useTranslation()
+  const { completed, total, progress } = useUploadingFiles()
+
+  return total ? (
+    <div className="flex h-auto w-full justify-center pb-2 pt-2">
+      <div className="flex w-1/2">
+        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+          {t('editor:layout.filebrowser.uploadingFiles', { completed, total })}
+        </span>
+        <div className="basis-1/2">
+          <Progress value={progress} />
+        </div>
+      </div>
+    </div>
+  ) : null
+}
+
+function GeneratingThumbnailsProgress() {
+  const { t } = useTranslation()
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+
+  if (!thumbnailJobState.length) return null
+
+  return (
+    <LoadingView
+      titleClassname="mt-0"
+      containerClassName="flex-row mt-1"
+      className="mx-2 my-auto h-6 w-6"
+      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
+    />
+  )
+}
+
+function FilesLoading() {
+  const { t } = useTranslation()
+  const { filesQuery } = useCurrentFiles()
+  const isLoading = filesQuery?.status === 'pending'
+
+  return isLoading ? (
+    <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} fullSpace className="block h-12 w-12" />
+  ) : null
+}
+
+export default function Loaders() {
+  return (
+    <>
+      <FileUploadProgress />
+      <ProjectDownloadProgress />
+      <FilesLoading />
+      <GeneratingThumbnailsProgress />
+    </>
+  )
 }
