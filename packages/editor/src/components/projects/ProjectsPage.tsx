@@ -23,51 +23,44 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
-import Check from '@mui/icons-material/Check'
-import Clear from '@mui/icons-material/Clear'
-import Delete from '@mui/icons-material/Delete'
-import Download from '@mui/icons-material/Download'
-import DownloadDone from '@mui/icons-material/DownloadDone'
-import FilterList from '@mui/icons-material/FilterList'
-import Group from '@mui/icons-material/Group'
-import Link from '@mui/icons-material/Link'
-import LinkOff from '@mui/icons-material/LinkOff'
-import Search from '@mui/icons-material/Search'
-import Settings from '@mui/icons-material/Settings'
-import Upload from '@mui/icons-material/Upload'
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  CircularProgress,
-  IconButton,
-  InputBase,
-  Menu,
-  MenuItem,
-  Button as MuiButton,
-  Paper
-} from '@mui/material'
-import React, { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-
-import ProjectDrawer from '@ir-engine/client-core/src/admin/common/Project/ProjectDrawer'
-import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import AddEditProjectModal from '@ir-engine/client-core/src/admin/components/project/AddEditProjectModal'
+import ManageUserPermissionModal from '@ir-engine/client-core/src/admin/components/project/ManageUserPermissionModal'
+import { ProjectUpdateState } from '@ir-engine/client-core/src/admin/services/ProjectUpdateService'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
-import { useFind, useMutation } from '@ir-engine/common'
+import { useFind } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { InviteCode, ProjectType, projectPath, projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
+import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
+import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
+import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import React, { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import {
+  MdArrowDropDown,
+  MdArrowRight,
+  MdDownload,
+  MdDownloadDone,
+  MdFilterList,
+  MdGroup,
+  MdLink,
+  MdLinkOff,
+  MdOutlineSearch,
+  MdSettings,
+  MdUpload
+} from 'react-icons/md'
+import { useNavigate } from 'react-router-dom'
 import { EditorState } from '../../services/EditorServices'
-import { Button } from '../inputs/Button'
-import { CreateProjectDialog } from './CreateProjectDialog'
-import { DeleteDialog } from './DeleteDialog'
-import { EditPermissionsDialog } from './EditPermissionsDialog'
-import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ProjectsPage' })
 
@@ -75,6 +68,12 @@ function sortAlphabetical(a, b) {
   if (a > b) return -1
   if (b > a) return 1
   return 0
+}
+
+function clipText(text: string, length: number, clipFrom: 'start' | 'end' = 'end') {
+  if (text.length <= length) return text
+  if (clipFrom === 'start') return '...' + text.slice(text.length - length)
+  return text.slice(0, length) + '...'
 }
 
 const OFFICIAL_PROJECTS_DATA = [
@@ -139,57 +138,24 @@ const OFFICIAL_PROJECTS_DATA = [
 
 const COMMUNITY_PROJECTS_DATA = [] as typeof OFFICIAL_PROJECTS_DATA
 
-const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summary: string }>) => {
-  return (
-    <Accordion classes={{ root: styles.expansionList }} disableGutters defaultExpanded>
-      <AccordionSummary
-        id={props.id}
-        classes={{
-          root: styles.expansionSummary,
-          content: styles.expansionSummaryContent,
-          expanded: styles.expansionSummaryExpanded
-        }}
-      >
-        <IconButton aria-label="menu" disableRipple>
-          <ArrowRightRounded />
-        </IconButton>
-        <h3>{props.summary}</h3>
-      </AccordionSummary>
-      <AccordionDetails classes={{ root: styles.expansionDetail }}>{props.children}</AccordionDetails>
-    </Accordion>
-  )
-}
-
-const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
+const ProjectPage = ({ studioPath }: { studioPath: string }) => {
   const { t } = useTranslation()
-  const activeProject = useHookstate<ProjectType | null>(null)
-  const activeProjectValue = activeProject.value as ProjectType | null
-  const error = useHookstate<Error | null>(null)
+  const navigate = useNavigate()
   const search = useHookstate({ local: '', query: '' })
   const searchTimeoutCancelRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const filterAnchorEl = useHookstate<any>(null)
-  const projectAnchorEl = useHookstate<any>(null)
   const projectCategoryFilter = useHookstate({ installed: true, official: true, community: true })
-  const isCreateDialogOpen = useHookstate(false)
-  const isDeleteDialogOpen = useHookstate(false)
-  const updatingProject = useHookstate(false)
-  const uploadingProject = useHookstate(false)
-  const editPermissionsDialogOpen = useHookstate(false)
-  const projectDrawerOpen = useHookstate(false)
-  const changeDestination = useHookstate(false)
+  const [searchContextEvent, setSearchContextEvent] = useState<React.MouseEvent<HTMLElement> | undefined>(undefined)
 
-  const navigate = useNavigate()
-  const hasWriteAccess =
-    activeProjectValue?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
+  const refreshingGithubRepoAccess = useHookstate(false)
 
-  const authState = useMutableState(AuthState)
-  const refreshingGithubRepoAccess = useHookstate(getMutableState(ProjectState).refreshingGithubRepoAccess)
-  const authUser = authState.authUser
-  const user = authState.user
+  const [projectContextState, setProjectContextState] = useState({
+    event: undefined,
+    project: null
+  } as {
+    event: React.MouseEvent<HTMLElement> | undefined
+    project: ProjectType | null
+  })
 
-  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
-
-  const { create: projectCreateQuery, remove: projectRemoveQuery } = useMutation(projectPath)
   const projectFindQuery = useFind(projectPath, {
     query: {
       /** @todo - add pagination to UI */
@@ -200,15 +166,11 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
       $sort: { name: 1 }
     }
   })
-
-  const projectPermissionsFindQuery = useFind(projectPermissionPath, {
-    query: {
-      projectId: activeProject?.value?.id,
-      paginate: false
-    }
-  })
+  const hasWriteAccess =
+    projectContextState.project?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
 
   const installedProjects = projectFindQuery.data.filter(() => projectCategoryFilter.installed.value)
+
   const officialProjects = (
     search.query.value
       ? OFFICIAL_PROJECTS_DATA.filter(
@@ -231,70 +193,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
     .filter((p) => !installedProjects?.find((ip) => ip.name.includes(p.name))) as ProjectType[]
   communityProjects.sort(sortAlphabetical)
 
-  useEffect(() => {
-    if (activeProjectValue)
-      activeProject.set(installedProjects.find((item) => item.id === activeProjectValue?.id) as ProjectType | null)
-  }, [installedProjects])
-
-  const refreshGithubRepoAccess = () => {
-    ProjectService.refreshGithubRepoAccess().then(() => {
-      projectFindQuery.refetch()
-    })
-  }
-
-  // TODO: Implement tutorial #7257
-  const openTutorial = () => {
-    logger.info('Implement Tutorial...')
-  }
-
-  const onClickExisting = (event, project) => {
-    event.preventDefault()
-    if (!isInstalled(project)) return
-    navigate(`${studioPath}?project=${project.name}`)
-    getMutableState(EditorState).projectName.set(project.name)
-    const parsed = new URL(window.location.href)
-    const query = parsed.searchParams
-    query.set('project', project.name)
-    parsed.search = query.toString()
-    if (typeof history.pushState !== 'undefined') {
-      window.history.replaceState({}, '', parsed.toString())
-    }
-  }
-
-  const onCreateProject = async (orgname: string, projectName: string, repositoryPath?: string) => {
-    projectCreateQuery({ name: `${orgname}/${projectName}`, repositoryPath }, { query: { action: 'studio' } })
-  }
-
-  const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
-    await ProjectService.createPermission(userInviteCode, projectId, 'reviewer')
-  }
-
-  const onPatchPermission = async (id: string, type: string) => {
-    await ProjectService.patchPermission(id, type)
-  }
-
-  const onRemovePermission = async (id: string) => {
-    await ProjectService.removePermission(id)
-  }
-
-  const openDeleteConfirm = () => isDeleteDialogOpen.set(true)
-  const closeDeleteConfirm = () => isDeleteDialogOpen.set(false)
-  const openCreateDialog = () => isCreateDialogOpen.set(true)
-  const closeCreateDialog = () => isCreateDialogOpen.set(false)
-  const openEditPermissionsDialog = () => editPermissionsDialogOpen.set(true)
-  const closeEditPermissionsDialog = () => editPermissionsDialogOpen.set(false)
-
-  const deleteProject = async () => {
-    closeDeleteConfirm()
-
-    updatingProject.set(true)
-    if (activeProjectValue) {
-      projectRemoveQuery(activeProjectValue.id)
-    }
-
-    closeProjectContextMenu()
-    updatingProject.set(false)
-  }
+  const uploadingProject = useHookstate(false)
 
   const pushProject = async (id: string) => {
     uploadingProject.set(true)
@@ -327,291 +226,324 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
     }, 100)
   }
 
-  const openFilterMenu = (e) => filterAnchorEl.set(e.target)
-  const closeFilterMenu = () => filterAnchorEl.set(null)
-  const toggleFilter = (type: string) =>
-    projectCategoryFilter.set({ ...projectCategoryFilter.value, [type]: !projectCategoryFilter.value[type] })
-
-  const openProjectContextMenu = (event: MouseEvent, project: ProjectType) => {
+  const onClickExisting = (event, project) => {
     event.preventDefault()
-    event.stopPropagation()
-
-    activeProject.set(JSON.parse(JSON.stringify(project)))
-    projectAnchorEl.set(event.target)
+    if (!isInstalled(project)) return
+    navigate(`${studioPath}?project=${project.name}`)
+    getMutableState(EditorState).projectName.set(project.name)
+    const parsed = new URL(window.location.href)
+    const query = parsed.searchParams
+    query.set('project', project.name)
+    parsed.search = query.toString()
+    if (typeof history.pushState !== 'undefined') {
+      window.history.replaceState({}, '', parsed.toString())
+    }
   }
 
-  const closeProjectContextMenu = () => projectAnchorEl.set(null)
+  const handleProjectUpdate = async () => {
+    if (!projectContextState.project) return
+    const project = projectContextState.project
+    const projectUpdateStatus = getMutableState(ProjectUpdateState)[project.name].value
+    await ProjectService.uploadProject({
+      sourceURL: projectUpdateStatus.sourceURL,
+      destinationURL: projectUpdateStatus.destinationURL,
+      name: project.name,
+      reset: true,
+      commitSHA: projectUpdateStatus.selectedSHA,
+      sourceBranch: projectUpdateStatus.selectedBranch,
+      updateType: projectUpdateStatus.updateType,
+      updateSchedule: projectUpdateStatus.updateSchedule
+    }).catch((err) => {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    })
+    PopoverState.hidePopupover()
+  }
 
   const renderProjectList = (projects: ProjectType[], areInstalledProjects?: boolean) => {
-    if (!projects || projects.length <= 0) return <></>
-
     return (
-      <ul className={styles.listContainer}>
-        {projects.map((project: ProjectType, index) => (
-          <li className={styles.itemContainer} key={index}>
-            <a
+      <div className="grid grid-cols-6 gap-2">
+        {projects.map((project, index) => (
+          <div className="col-span-1" key={index}>
+            <button
               onClick={(e) => {
                 areInstalledProjects ? onClickExisting(e, project) : window.open(project.repositoryPath)
               }}
             >
-              <div
-                className={styles.thumbnailContainer}
-                style={{ backgroundImage: `url(${project.thumbnail ?? '/static/IR_thumbnail.jpg'})` }}
-                id={'open-' + project.name}
+              <img
+                onError={({ currentTarget }) => {
+                  currentTarget.src = '/static/IR_thumbnail.jpg'
+                }}
+                className="h-auto w-full bg-cover bg-center bg-no-repeat"
+                src={project.thumbnail}
               />
-            </a>
-            <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
-              <h3 className={styles.header}>{project.name.replace(/-/g, ' ')}</h3>
+            </button>
+
+            <div className="relative flex w-full items-center px-2">
+              <Tooltip content={project.name}>
+                <Text component="h3">{clipText(project.name.replace(/-/g, ' '), 25, 'start')}</Text>
+              </Tooltip>
+
               {project.name !== 'ir-engine/default-project' && (
-                <IconButton
-                  className={styles.iconButton}
-                  disableRipple
-                  onClick={(e: any) => openProjectContextMenu(e, project)}
+                <button
+                  className="absolute right-2"
+                  onClick={(e: any) => {
+                    setProjectContextState({
+                      event: e,
+                      project
+                    })
+                  }}
                 >
-                  <Settings />
-                </IconButton>
+                  <MdSettings />
+                </button>
               )}
             </div>
             {!areInstalledProjects && isInstalled(project) && (
-              <span className={styles.installedIcon}>
-                <DownloadDone />
+              <span>
+                <MdDownloadDone />
               </span>
             )}
             {project.description && (
-              <p className={styles.description} id={'description-' + project.name}>
+              <Text className="w-full text-wrap text-center" fontSize="sm">
                 {project.description}
-              </p>
+              </Text>
             )}
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     )
   }
 
-  const handleOpenProjectDrawer = (change = false) => {
-    projectDrawerOpen.set(true)
-    changeDestination.set(change)
+  const toggleFilter = (type: string) =>
+    projectCategoryFilter.set({ ...projectCategoryFilter.value, [type]: !projectCategoryFilter.value[type] })
+
+  const refreshGithubRepoAccess = () => {
+    ProjectService.refreshGithubRepoAccess().then(() => {
+      projectFindQuery.refetch()
+    })
   }
 
-  const handleCloseProjectDrawer = () => {
-    changeDestination.set(false)
-    projectDrawerOpen.set(false)
-  }
+  const authState = useMutableState(AuthState)
+  const authUser = authState.authUser
+  const user = authState.user
+  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
-  /**
-   * Rendering view for projects page, if user is not login yet then showing login view.
-   * if user is logged in and has no existing projects then the welcome view is shown, providing link to the tutorials.
-   * if user has existing projects then we show the existing projects in grids and a grid to add new project.
-   */
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
+
   return (
-    <main className={styles.projectPage}>
-      <style>
-        {`
-        #menu-projectURL {
-          z-index: 1500;
-        },
-        #menu-branchData,
-        #menu-commitData {
-          z-index: 1500;
-        }
-        #engine-container {
-          display: flex;
-          flex-direction: column;
-        }
-        `}
-      </style>
-      <div className={styles.projectPageContainer}>
-        <div className={styles.projectGridContainer}>
-          <div className={styles.projectGridHeader}>
-            <h2>{t(`editor.projects.title`)}</h2>
-            <Paper component="form" classes={{ root: styles.searchInputRoot }}>
-              <IconButton aria-label="menu" disableRipple onClick={openFilterMenu}>
-                <FilterList />
-              </IconButton>
-              <Menu
-                anchorEl={filterAnchorEl.value}
-                open={Boolean(filterAnchorEl.value)}
-                onClose={closeFilterMenu}
-                classes={{ paper: styles.filterMenu }}
-              >
-                <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('installed')}>
-                  {projectCategoryFilter.value.installed && <Check />}
-                  {t(`editor.projects.installed`)}
-                </MenuItem>
-                <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('official')}>
-                  {projectCategoryFilter.value.official && <Check />}
-                  {t(`editor.projects.official`)}
-                </MenuItem>
-                <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('community')}>
-                  {projectCategoryFilter.value.community && <Check />}
-                  {t(`editor.projects.community`)}
-                </MenuItem>
-              </Menu>
-              <InputBase
-                value={search.local.value}
-                classes={{ root: styles.inputRoot }}
-                placeholder={t(`editor.projects.lbl-searchProject`)}
-                inputProps={{ 'aria-label': t(`editor.projects.lbl-searchProject`) }}
-                onChange={(event) => handleSearch(event.target.value)}
-              />
-              {search.local.value ? (
-                <IconButton aria-label="search" disableRipple onClick={() => handleSearch('')}>
-                  <Clear />
-                </IconButton>
-              ) : (
-                <IconButton aria-label="search" disableRipple>
-                  <Search />
-                </IconButton>
-              )}
-            </Paper>
-            <div className={styles.buttonContainer}>
-              {githubProvider != null && (
-                <MuiButton
-                  className={styles.refreshGHBtn}
-                  type="button"
-                  variant="contained"
-                  color="primary"
-                  disabled={refreshingGithubRepoAccess.value}
-                  onClick={() => refreshGithubRepoAccess()}
-                >
-                  {refreshingGithubRepoAccess.value ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
-                      {t('admin:components.project.refreshingGithubRepoAccess')}
-                    </Box>
-                  ) : (
-                    t('admin:components.project.refreshGithubRepoAccess')
-                  )}
-                </MuiButton>
-              )}
-              <Button onClick={() => handleOpenProjectDrawer(false)} className={styles.btn}>
-                {t(`editor.projects.install`)}
-              </Button>
-              <Button onClick={openCreateDialog} className={styles.btn} disabled>
-                {t(`editor.projects.lbl-createProject`)}
-              </Button>
-            </div>
-          </div>
-          <div className={styles.projectGrid}>
-            {error.value && <div className={styles.errorMsg}>{error.value.message}</div>}
-            {projectCategoryFilter.installed.value && (
-              <ProjectExpansionList
-                id="installed-projects"
-                summary={`${t('editor.projects.installed')} (${installedProjects.length})`}
-              >
-                {renderProjectList(installedProjects, true)}
-              </ProjectExpansionList>
-            )}
-            {projectCategoryFilter.official.value && (
-              <ProjectExpansionList
-                id="official-projects"
-                summary={`${t('editor.projects.official')} (${officialProjects.length})`}
-              >
-                {renderProjectList(officialProjects)}
-              </ProjectExpansionList>
-            )}
-            {projectCategoryFilter.community.value && (
-              <ProjectExpansionList
-                id="community-projects"
-                summary={`${t('editor.projects.community')} (${communityProjects.length})`}
-              >
-                {renderProjectList(communityProjects)}
-              </ProjectExpansionList>
-            )}
-          </div>
-        </div>
-        {/* {installedProjects.length < 2 && projectFindQuery.status === 'pending' ? (
-          <div className={styles.welcomeContainer}>
-            <h1>{t('editor.projects.welcomeMsg')}</h1>
-            <h2>{t('editor.projects.description')}</h2>
-            <MediumButton onClick={openTutorial}>{t('editor.projects.lbl-startTutorial')}</MediumButton>
-          </div>
-        ) : null} */}
-      </div>
-      {activeProjectValue?.name !== 'ir-engine/default-project' && (
-        <Menu
-          anchorEl={projectAnchorEl.value}
-          open={Boolean(projectAnchorEl.value)}
-          onClose={closeProjectContextMenu}
-          TransitionProps={{ onExited: () => activeProject.set(null) }}
-          classes={{ paper: styles.filterMenu }}
-        >
-          {activeProjectValue && isInstalled(activeProjectValue) && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openEditPermissionsDialog}>
-              <Group />
-              {t(`editor.projects.permissions`)}
-            </MenuItem>
-          )}
-          {activeProjectValue && isInstalled(activeProjectValue) && hasRepo(activeProjectValue) && hasWriteAccess && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
-              <Download />
-              {t(`editor.projects.updateFromGithub`)}
-            </MenuItem>
-          )}
-          {activeProjectValue && isInstalled(activeProjectValue) && !hasRepo(activeProjectValue) && hasWriteAccess && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
-              <Link />
-              {t(`editor.projects.link`)}
-            </MenuItem>
-          )}
-          {activeProjectValue && isInstalled(activeProjectValue) && hasRepo(activeProjectValue) && hasWriteAccess && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
-              <LinkOff />
-              {t(`editor.projects.unlink`)}
-            </MenuItem>
-          )}
-          {hasWriteAccess && hasRepo(activeProjectValue) && (
-            <MenuItem
-              classes={{ root: styles.filterMenuItem }}
-              onClick={() => activeProject?.value?.id && pushProject(activeProjectValue!.id)}
+    <main className="pointer-events-auto flex h-full w-full flex-col items-center overflow-y-auto px-5 py-3">
+      <div className="flex w-2/3 items-center justify-around gap-x-2">
+        <Input
+          onChange={(e) => {
+            handleSearch(e.target.value)
+          }}
+          value={search.local.value}
+          // label={t('editor.projects.lbl-searchProject')}
+          startComponent={
+            <button
+              onClick={(e) => {
+                setSearchContextEvent(e)
+              }}
             >
-              {uploadingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Upload />}
-              {t(`editor.projects.pushToGithub`)}
-            </MenuItem>
-          )}
-          {isInstalled(activeProjectValue) && hasWriteAccess && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
-              {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
-              {t(`editor.projects.uninstall`)}
-            </MenuItem>
-          )}
-          {!isInstalled(activeProjectValue) && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
-              {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
-              {t(`editor.projects.install`)}
-            </MenuItem>
-          )}
-        </Menu>
-      )}
-      <CreateProjectDialog open={isCreateDialogOpen.value} onSuccess={onCreateProject} onClose={closeCreateDialog} />
-      {activeProjectValue && projectPermissionsFindQuery.data && (
-        <EditPermissionsDialog
-          open={editPermissionsDialogOpen.value}
-          onClose={closeEditPermissionsDialog}
-          project={activeProjectValue}
-          projectPermissions={projectPermissionsFindQuery.data}
-          addPermission={onCreatePermission}
-          patchPermission={onPatchPermission}
-          removePermission={onRemovePermission}
+              <MdFilterList className="text-2xl" />
+            </button>
+          }
+          endComponent={<MdOutlineSearch className="text-2xl" />}
         />
+
+        <div className="flex items-center justify-between gap-3">
+          {githubProvider && (
+            <Button onClick={refreshGithubRepoAccess} variant="outline">
+              {refreshingGithubRepoAccess.value ? (
+                <>
+                  <LoadingView className="mr-2 h-10 w-10" />
+                  {t('admin:components.project.refreshingGithubRepoAccess')}
+                </>
+              ) : (
+                t('admin:components.project.refreshGithubRepoAccess')
+              )}
+            </Button>
+          )}
+
+          <Button
+            onClick={() => {
+              PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
+            }}
+            variant="outline"
+          >
+            {t('editor.projects.install')}
+          </Button>
+        </div>
+      </div>
+
+      <ContextMenu
+        anchorEvent={searchContextEvent}
+        onClose={() => {
+          setSearchContextEvent(undefined)
+        }}
+      >
+        <div className="flex w-fit flex-col gap-4 rounded-lg border bg-neutral-900 p-2 shadow-lg">
+          <Checkbox
+            label={t('editor.projects.installed')}
+            value={projectCategoryFilter.installed.value}
+            onChange={() => toggleFilter('installed')}
+          />
+          <Checkbox
+            label={t('editor.projects.official')}
+            value={projectCategoryFilter.official.value}
+            onChange={() => toggleFilter('official')}
+          />
+          <Checkbox
+            label={t('editor.projects.community')}
+            value={projectCategoryFilter.community.value}
+            onChange={() => toggleFilter('community')}
+          />
+        </div>
+      </ContextMenu>
+
+      {installedProjects.length > 0 && (
+        <Accordion
+          title={`${t('editor.projects.installed')} (${installedProjects.length})`}
+          expandIcon={<MdArrowRight className="text-2xl" />}
+          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
+          className="mb-3 mt-5 w-3/4"
+          open={true}
+        >
+          {renderProjectList(installedProjects, true)}
+        </Accordion>
       )}
-      <ProjectDrawer
-        open={projectDrawerOpen.value}
-        inputProject={activeProjectValue}
-        existingProject={activeProjectValue != null}
-        onClose={handleCloseProjectDrawer}
-        changeDestination={changeDestination.value}
-      />
-      <DeleteDialog
-        open={isDeleteDialogOpen.value}
-        isProjectMenu
-        onCancel={closeDeleteConfirm}
-        onClose={closeDeleteConfirm}
-        onConfirm={deleteProject}
-      />
+
+      {officialProjects.length > 0 && (
+        <Accordion
+          title={`${t('editor.projects.official')} (${officialProjects.length})`}
+          expandIcon={<MdArrowRight className="text-2xl" />}
+          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
+          className="mb-3 w-3/4"
+          open={true}
+        >
+          {renderProjectList(officialProjects)}
+        </Accordion>
+      )}
+
+      {communityProjects.length > 0 && (
+        <Accordion
+          title={`${t('editor.projects.community')} (${communityProjects.length})`}
+          expandIcon={<MdArrowRight className="text-2xl" />}
+          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
+          className="w-3/4"
+          open={true}
+        >
+          {renderProjectList(communityProjects)}
+        </Accordion>
+      )}
+
+      <ContextMenu
+        anchorEvent={projectContextState.event}
+        onClose={() => {
+          setProjectContextState({ event: undefined, project: null })
+        }}
+      >
+        <div className="flex w-fit flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+          {projectContextState.project && isInstalled(projectContextState.project) && (
+            <Button
+              onClick={() => {
+                if (projectContextState.project) {
+                  setProjectContextState({ event: undefined, project: null })
+                  PopoverState.showPopupover(<ManageUserPermissionModal project={projectContextState.project} />)
+                }
+              }}
+              startIcon={<MdGroup className="text-2xl" />}
+              variant="outline"
+              fullWidth
+            >
+              {t('editor.projects.permissions')}
+            </Button>
+          )}
+
+          {projectContextState.project &&
+            isInstalled(projectContextState.project) &&
+            hasRepo(projectContextState.project) &&
+            hasWriteAccess && (
+              <Button
+                onClick={() => {
+                  if (projectContextState.project) {
+                    setProjectContextState({ event: undefined, project: null })
+                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                  }
+                }}
+                startIcon={<MdDownload className="text-2xl" />}
+                variant="outline"
+                fullWidth
+              >
+                {t('editor.projects.updateFromGithub')}
+              </Button>
+            )}
+
+          {projectContextState.project &&
+            isInstalled(projectContextState.project) &&
+            !hasRepo(projectContextState.project) &&
+            hasWriteAccess && (
+              <Button
+                onClick={() => {
+                  if (projectContextState.project) {
+                    setProjectContextState({ event: undefined, project: null })
+                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                  }
+                }}
+                startIcon={<MdLink className="text-2xl" />}
+                variant="outline"
+                fullWidth
+              >
+                {t('editor.projects.link')}
+              </Button>
+            )}
+
+          {projectContextState.project &&
+            isInstalled(projectContextState.project) &&
+            hasRepo(projectContextState.project) &&
+            hasWriteAccess && (
+              <Button
+                onClick={() => {
+                  if (projectContextState.project) {
+                    setProjectContextState({ event: undefined, project: null })
+                    PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
+                  }
+                }}
+                startIcon={<MdLinkOff className="text-2xl" />}
+                variant="outline"
+                fullWidth
+              >
+                {t('editor.projects.unlink')}
+              </Button>
+            )}
+
+          {isInstalled(projectContextState.project) && hasWriteAccess && hasRepo(projectContextState.project) && (
+            <Button
+              startIcon={uploadingProject.value ? <LoadingView className="h-6 w-6" /> : <MdUpload />}
+              onClick={() => projectContextState.project?.id && pushProject(projectContextState.project?.id)}
+              variant="outline"
+              fullWidth
+            >
+              {t('editor.projects.pushToGithub')}
+            </Button>
+          )}
+
+          {!isInstalled(projectContextState.project) && (
+            <Button
+              startIcon={<MdDownload className="text-2xl" />}
+              onClick={() => {
+                setProjectContextState({ event: undefined, project: null })
+                PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
+              }}
+              variant="outline"
+              fullWidth
+            >
+              {t(`editor.projects.install`)}
+            </Button>
+          )}
+        </div>
+      </ContextMenu>
     </main>
   )
 }
 
-export default ProjectsPage
+export default ProjectPage
