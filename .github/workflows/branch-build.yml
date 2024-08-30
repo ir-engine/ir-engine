@@ -94,6 +94,10 @@ jobs:
           key: dir-${{github.sha}}
       - run: npm run dev-docker
       - run: npm run dev-reinit
+      - run: rm -rf packages/instanceserver
+      - run: rm -rf packages/server
+      - run: rm -rf packages/server-core
+      - run: rm -rf packages/taskserver
       - run: npm run build-client
 
   test:
@@ -112,9 +116,7 @@ jobs:
           - hyperflux
           - matchmaking
           - network
-          - server
           - spatial
-          - taskserver
           - visual-script
           - xrui
     defaults:
@@ -133,8 +135,10 @@ jobs:
     strategy:
       matrix:
         package:
-          - server-core
           - instanceserver
+          - server
+          - server-core
+          - taskserver
     defaults:
       run:
         shell: bash
@@ -147,6 +151,7 @@ jobs:
       - run: rm -rf packages/client-core
       - run: rm -rf packages/editor
       - run: rm -rf packages/ui
+      - run: npm i
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
