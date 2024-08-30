@@ -63,5 +63,5 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
       await app.service(projectPath)._seedProject('ir-engine/default-project')
   }
 
-  // if (!config.kubernetes.enabled && !config.testEnabled) await app.service(projectPath)._syncDevLocalProjects()
+  if (!config.kubernetes.enabled && !config.testEnabled) await app.service(projectPath)._syncDevLocalProjects()
 }
