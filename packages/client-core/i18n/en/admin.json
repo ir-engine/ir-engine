@@ -492,7 +492,7 @@
       "localStorageProvider": "Local Storage Provider",
       "performDryRun": "Perform Dry Run",
       "storageProvider": "Storage Provider",
-      "googleAnalyticsTrackingId": "Google Analytics Tracking ID",
+      "googleAnalyticsMeasurementId": "Google Analytics Measurement ID",
       "certPath": "CertPath",
       "keyPath": "KeyPath",
       "githubWebhookSecret": "Github Webhook Secret",

@@ -27,16 +27,16 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useMutation } from '@ir-engine/common'
 import {
-  instanceAttendancePath,
   InstanceID,
   UserID,
+  instanceAttendancePath,
   userKickPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'

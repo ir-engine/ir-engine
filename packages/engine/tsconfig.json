@@ -34,5 +34,5 @@
     "../engine/**/*",
     "./**/*.ts",
     "./**/*.tsx"
-  ]
+, "../common/src/world/AvatarNetworkState.tsx"  ]
 }

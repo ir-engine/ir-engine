@@ -27,7 +27,6 @@ Infinite Reality Engine. All Rights Reserved.
  * @fileoverview Contains function declarations describing the heuristics used by ClientInputSystem.
  */
 
-import { Object3DUtils } from '@ir-engine/common/src/utils/Object3DUtils'
 import {
   defineQuery,
   Engine,
@@ -54,6 +53,7 @@ import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { Object3DUtils } from '../../transform/Object3DUtils'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'

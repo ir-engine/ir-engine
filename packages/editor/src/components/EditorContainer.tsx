@@ -27,7 +27,6 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { AssetsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Assets'
-import { FilesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Files'
 import { HierarchyPanelTab } from '@ir-engine/ui/src/components/editor/panels/Hierarchy'
 import { MaterialsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Materials'
 import { PropertiesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Properties'
@@ -62,6 +61,7 @@ import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
+import { FilesPanelTab } from '../panels/files'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
