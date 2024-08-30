@@ -105,7 +105,6 @@ const updateXrDistVec3 = (selfAvatarEntity: Entity) => {
 
 const _center = new Vector3()
 const _size = new Vector3()
-let activateUI = false
 
 export const updateInteractableUI = (entity: Entity) => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
@@ -145,7 +144,7 @@ export const updateInteractableUI = (entity: Entity) => {
   }
 
   const transition = InteractableTransitions.get(entity)!
-  activateUI = false
+  let activateUI = false
 
   const inCameraFrustum = inFrustum(interactable.uiEntity)
   let hovering = false
@@ -169,6 +168,7 @@ export const updateInteractableUI = (entity: Entity) => {
     } else {
       activateUI = interactable.uiVisibilityOverride !== XRUIVisibilityOverride.off //could be more explicit, needs to be if we add more enum options
     }
+    getMutableComponent(entity, InteractableComponent).canInteract.set(activateUI)
   }
 
   //highlight if hovering OR if closest, otherwise turn off highlight
@@ -246,6 +246,7 @@ export const InteractableComponent = defineComponent({
       //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
 
       //TODO canInteract for grabbed state on grabbable?
+      canInteract: false,
       uiInteractable: true,
       uiEntity: UndefinedEntity,
       label: 'E',
@@ -272,6 +273,8 @@ export const InteractableComponent = defineComponent({
     if (json.label) component.label.set(json.label)
     if (typeof json.uiActivationType === 'number' && component.uiActivationType.value !== json.uiActivationType)
       component.uiActivationType.set(json.uiActivationType)
+    if (typeof json.canInteract === 'boolean' && component.canInteract.value !== json.canInteract)
+      component.canInteract.set(json.canInteract)
     if (typeof json.clickInteract === 'boolean' && component.clickInteract.value !== json.clickInteract)
       component.clickInteract.set(json.clickInteract)
     if (typeof json.uiInteractable === 'boolean' && component.uiInteractable.value !== json.uiInteractable)
@@ -325,7 +328,7 @@ export const InteractableComponent = defineComponent({
       () => {
         const buttons = InputComponent.getMergedButtons(entity)
         if (
-          !activateUI ||
+          !interactableComponent.canInteract.value ||
           (!interactableComponent.clickInteract.value &&
             interactableComponent.uiActivationType.value === XRUIActivationType.proximity &&
             buttons.PrimaryClick?.pressed)
