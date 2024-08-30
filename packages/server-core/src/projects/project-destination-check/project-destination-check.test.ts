@@ -40,7 +40,7 @@ import {
 import { destroyEngine } from '@ir-engine/ecs'
 
 import { Application, HookContext } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 import {
   getRepoManifestJson1,
@@ -94,7 +94,10 @@ describe('project-destination-check.test', () => {
 
   afterEach(() => nock.cleanAll())
 
-  after(() => destroyEngine())
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
+  })
 
   it('should check for accessible repo', async () => {
     nock('https://api.github.com')

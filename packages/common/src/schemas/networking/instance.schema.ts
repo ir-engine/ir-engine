@@ -27,8 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
-import { OpaqueType } from '../../interfaces'
-
+import { NetworkID } from '@ir-engine/hyperflux'
 import { TypedString } from '../../types/TypeboxUtils'
 import { ChannelID } from '../social/channel.schema'
 import { LocationID, locationSchema, RoomCode } from '../social/location.schema'
@@ -38,7 +37,7 @@ export const instancePath = 'instance'
 
 export const instanceMethods = ['create', 'find', 'get', 'patch', 'remove'] as const
 
-export type InstanceID = OpaqueType<'InstanceID'> & string
+export type InstanceID = NetworkID
 
 // Main data model schema
 export const instanceSchema = Type.Object(
@@ -65,7 +64,7 @@ export const instanceSchema = Type.Object(
         format: 'uuid'
       })
     ),
-    assignedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    assignedAt: Type.Optional(Type.Union([Type.Null(), Type.String({ format: 'date-time' })])),
     location: Type.Ref(locationSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -75,12 +74,14 @@ export const instanceSchema = Type.Object(
 export interface InstanceType extends Static<typeof instanceSchema> {}
 
 // Schema for creating new entries
-export const instanceDataSchema = Type.Pick(
-  instanceSchema,
-  ['roomCode', 'ipAddress', 'channelId', 'podName', 'currentUsers', 'ended', 'assigned', 'locationId', 'assignedAt'],
-  {
-    $id: 'InstanceData'
-  }
+export const instanceDataSchema = Type.Partial(
+  Type.Pick(
+    instanceSchema,
+    ['roomCode', 'ipAddress', 'channelId', 'podName', 'currentUsers', 'ended', 'assigned', 'locationId', 'assignedAt'],
+    {
+      $id: 'InstanceData'
+    }
+  )
 )
 export interface InstanceData extends Static<typeof instanceDataSchema> {}
 
@@ -102,14 +103,20 @@ export const instanceQueryProperties = Type.Pick(instanceSchema, [
   'ended',
   'assigned',
   'locationId',
-  'assignedAt'
+  'assignedAt',
+  'createdAt'
 ])
 export const instanceQuerySchema = Type.Intersect(
   [
     querySyntax(instanceQueryProperties, {
       ipAddress: {
         $like: Type.String()
-      }
+      },
+      id: {
+        $like: Type.String()
+      },
+      locationId: { $like: Type.String() },
+      channelId: { $like: Type.String() }
     }),
     // Add additional query properties here
     Type.Object(

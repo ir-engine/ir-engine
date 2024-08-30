@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { downloadScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
 import { EditorHelperState, PlacementMode } from '@ir-engine/editor/src/services/EditorHelperState'
 import { useMutableState } from '@ir-engine/hyperflux'
@@ -41,17 +43,20 @@ export default function SceneHelpersTool() {
   const { t } = useTranslation()
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
+  const [pointClickEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.PointClick])
 
   return (
     <div className="flex items-center gap-1">
-      <Tooltip content={t('editor:toolbar.placement.click')}>
-        <Button
-          startIcon={<LuMousePointerClick className="text-theme-input" />}
-          onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
-          variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
-          className="px-0"
-        />
-      </Tooltip>
+      {pointClickEnabled && (
+        <Tooltip content={t('editor:toolbar.placement.click')}>
+          <Button
+            startIcon={<LuMousePointerClick className="text-theme-input" />}
+            onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
+            variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
+            className="px-0"
+          />
+        </Tooltip>
+      )}
       <Tooltip content={t('editor:toolbar.placement.drag')}>
         <Button
           startIcon={<LuMove3D className="text-theme-input" />}

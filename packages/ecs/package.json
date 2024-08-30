@@ -28,10 +28,8 @@
   "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
-    "@ir-engine/common": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0",
     "bitecs": "0.3.40",
-    "three": "0.158.0",
     "uuid": "9.0.0"
   },
   "devDependencies": {

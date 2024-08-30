@@ -47,7 +47,11 @@ export const ActionTypes = [
   'PERMISSION_REMOVED',
   'LOCATION_PUBLISHED',
   'LOCATION_MODIFIED',
-  'LOCATION_UNPUBLISHED'
+  'LOCATION_UNPUBLISHED',
+  'TAGS_MODIFIED',
+  'THUMBNAIL_CREATED',
+  'THUMBNAIL_MODIFIED',
+  'THUMBNAIL_REMOVED'
 ] as const
 
 export type ActionType = (typeof ActionTypes)[number]

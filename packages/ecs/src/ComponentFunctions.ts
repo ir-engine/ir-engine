@@ -32,25 +32,24 @@ import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import { config, DeepReadonly, HookableFunction, getNestedObject } from '@ir-engine/common'
 import {
   HyperFlux,
-  ReactorRoot,
-  startReactor,
-  hookstate,
+  DeepReadonly,
+  getNestedObject,
   InferStateValueType,
-  NO_PROXY,
   NO_PROXY_STEALTH,
-  none,
+  ReactorRoot,
   State,
+  hookstate,
+  isTest,
+  none,
+  startReactor,
   useHookstate
 } from '@ir-engine/hyperflux'
 
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { useExecute } from './SystemFunctions'
-import { PresentationSystemGroup } from './SystemGroups'
 
 /**
  * @description
@@ -58,8 +57,7 @@ import { PresentationSystemGroup } from './SystemGroups'
  * - `100_000` for 'test' client environment
  * - `5_000` otherwise
  */
-export const INITIAL_COMPONENT_SIZE =
-  config.client.appEnv === 'test' ? 100000 : 5000 /** @todo set to 0 after next bitECS update */
+export const INITIAL_COMPONENT_SIZE = isTest ? 100000 : 5000 /** @todo set to 0 after next bitECS update */
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE) // Send the INITIAL_COMPONENT_SIZE value to bitECS as its DefaultSize
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()
@@ -409,6 +407,21 @@ export const hasComponent = <C extends Component>(entity: Entity, component: C) 
   if (!component) throw new Error('[hasComponent]: component is undefined')
   if (!entity) return false
   return bitECS.hasComponent(HyperFlux.store, component, entity)
+}
+
+/**
+ * Returns true if the entity has all the specified components, false if it is missing any
+ * @param entity
+ * @param components
+ */
+export function hasComponents(entity: Entity, components: ComponentType<any>[]): boolean {
+  if (!components) throw new Error('[hasComponent]: component is undefined')
+  if (components.length < 1 || !entity) return false
+
+  for (const component of components) {
+    if (!hasComponent(entity, component)) return false
+  }
+  return true
 }
 
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {

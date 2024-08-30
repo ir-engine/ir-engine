@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { SceneItem } from '@ir-engine/client-core/src/admin/components/scene/SceneItem'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useRealtime } from '@ir-engine/common'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import CreateSceneDialog from '@ir-engine/editor/src/components/dialogs/CreateScenePanelDialog'
 import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/toolbar/Toolbar'
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useRealtime } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
@@ -95,7 +95,15 @@ export default function ScenesPanel() {
                 <SceneItem
                   key={scene.id}
                   scene={scene}
-                  updateEditorState
+                  onDeleteScene={() => {
+                    if (editorState.sceneAssetID.value === scene.id) {
+                      editorState.sceneName.set(null)
+                      editorState.sceneAssetID.set(null)
+                    }
+                  }}
+                  onRenameScene={(newName) => {
+                    editorState.scenePath.set(newName)
+                  }}
                   moveMenuUp={true}
                   handleOpenScene={() => onClickScene(scene)}
                   refetchProjectsData={scenesQuery.refetch}

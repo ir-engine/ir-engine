@@ -23,9 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { CSS_URL_REGEX } from '@ir-engine/common'
 import { WebRenderer } from '../WebRenderer'
 import { getEmbeddedDataURL } from './getEmbeddedDataURL'
+
+/**
+ * Matches CSS imports & URLS.
+ * For eg: `@import "styles.css"`, `url(image.png)`. Captures the resource in group 2 or group 3.
+ */
+export const CSS_URL_REGEX = /(@import\s+["']([^"']+)["']|url\((?!['"]?(?:data):)['"]?([^'"\)]+)['"]?\))/gi
 
 export async function getEmbeddedCSS(url: string) {
   if (WebRenderer.embeddedCSSMap.has(url)) return WebRenderer.embeddedCSSMap.get(url)!

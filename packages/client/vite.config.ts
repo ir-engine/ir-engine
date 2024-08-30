@@ -124,10 +124,19 @@ import('ts-node').then((tsnode) => {
 })
 
 const getProjectConfigExtensions = async (config: UserConfig) => {
-  const projects = fs
-    .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name)
+  const projects = fs.existsSync(path.resolve(__dirname, '../projects/projects'))
+    ? fs
+        .readdirSync(path.resolve(__dirname, '../projects/projects'), { withFileTypes: true })
+        .filter((orgDir) => orgDir.isDirectory())
+        .map((orgDir) => {
+          return fs
+            .readdirSync(path.resolve(__dirname, '../projects/projects', orgDir.name), { withFileTypes: true })
+            .filter((projectDir) => projectDir.isDirectory())
+            .map((projectDir) => `${orgDir.name}/${projectDir.name}`)
+        })
+        .flat()
+    : []
+
   for (const project of projects) {
     const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
     if (fs.existsSync(staticPath)) {

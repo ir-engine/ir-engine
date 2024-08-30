@@ -26,9 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import { Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
@@ -87,17 +94,6 @@ export const TransformComponent = defineComponent({
     if (json?.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
-
-    const transform = getComponent(entity, TransformComponent)
-    composeMatrix(entity)
-    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-    const parentEntity = entityTree?.parentEntity
-    if (parentEntity) {
-      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-      if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
-    } else {
-      transform.matrixWorld.copy(transform.matrix)
-    }
   },
 
   toJSON: (entity, component) => {
@@ -108,8 +104,28 @@ export const TransformComponent = defineComponent({
     }
   },
 
-  onRemove: (entity) => {
-    delete TransformComponent.dirtyTransforms[entity]
+  reactor: () => {
+    const entity = useEntityContext()
+    const transformComponent = useComponent(entity, TransformComponent)
+
+    useImmediateEffect(() => {
+      const transform = transformComponent.value as TransformComponentType
+      composeMatrix(entity)
+      const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+      const parentEntity = entityTree?.parentEntity
+      if (parentEntity) {
+        const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+        if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+      } else {
+        transform.matrixWorld.copy(transform.matrix)
+      }
+
+      return () => {
+        delete TransformComponent.dirtyTransforms[entity]
+      }
+    }, [])
+
+    return null
   },
 
   getWorldPosition: (entity: Entity, vec3: Vector3) => {
@@ -127,7 +143,7 @@ export const TransformComponent = defineComponent({
   },
 
   getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
-    const relativeEntity = getAncestorWithComponent(entity, SceneComponent)
+    const relativeEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
     return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
   },
@@ -189,7 +205,7 @@ export const TransformComponent = defineComponent({
   },
 
   getSceneScale: (entity: Entity, vec3: Vector3) => {
-    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!sceneEntity) return vec3.set(1, 1, 1)
 
     TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)

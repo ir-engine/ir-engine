@@ -27,17 +27,17 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
-import { UserID } from '../'
-import { OpaqueType } from '../../interfaces'
-
+import { UserID } from '@ir-engine/hyperflux'
+import { OpaqueType } from '../../interfaces/OpaqueType'
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
 
+export type AvatarID = OpaqueType<'AvatarID'> & string
+
 export const avatarPath = 'avatar'
 
 export const avatarMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
-export type AvatarID = OpaqueType<'AvatarID'> & string
 
 // Main data model schema
 export const avatarSchema = Type.Object(

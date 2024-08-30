@@ -23,21 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { FeathersApplication } from '@feathersjs/feathers'
 import * as bitECS from 'bitecs'
 import { getAllEntities } from 'bitecs'
-import { Cache } from 'three'
 
-import type { ServiceTypes, UserID } from '@ir-engine/common'
 import * as Hyperflux from '@ir-engine/hyperflux'
 import {
+  createHyperStore,
+  disposeStore,
+  getState,
   HyperFlux,
   HyperStore,
   NO_PROXY_STEALTH,
-  ReactorReconciler,
-  createHyperStore,
-  disposeStore,
-  getState
+  ReactorReconciler
 } from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
@@ -49,10 +46,13 @@ import { SystemState } from './SystemState'
 export class Engine {
   static instance: Engine
 
-  api: FeathersApplication<ServiceTypes>
-
-  /** The uuid of the logged-in user */
-  userID: UserID
+  /**
+   * @deprecated use "Engine.instance.store.userID" instead
+   * The uuid of the logged-in user
+   */
+  get userID() {
+    return Engine.instance.store.userID
+  }
 
   store: HyperStore
 
@@ -89,30 +89,18 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function createEngine() {
+export function createEngine(hyperstore = createHyperStore()) {
   if (Engine.instance) throw new Error('Store already exists')
   Engine.instance = new Engine()
-  Engine.instance.store = bitECS.createWorld(
-    createHyperStore({
-      getDispatchTime: () => getState(ECSState).simulationTime,
-      getCurrentReactorRoot: () =>
-        getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
-    })
-  ) as HyperStore
-  const UndefinedEntity = bitECS.addEntity(HyperFlux.store)
+  hyperstore.getCurrentReactorRoot = () =>
+    getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
+  hyperstore.getDispatchTime = () => getState(ECSState).simulationTime
+  Engine.instance.store = bitECS.createWorld(hyperstore) as HyperStore
+  const UndefinedEntity = bitECS.addEntity(hyperstore)
 }
 
-export async function destroyEngine() {
-  Cache.clear()
-
+export function destroyEngine() {
   getState(ECSState).timer?.clear()
-
-  if (Engine.instance.api) {
-    if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()
-
-    const knex = (Engine.instance.api as any).get?.('knexClient')
-    if (knex) await knex.destroy()
-  }
 
   /** Remove all entities */
   const entities = getAllEntities(HyperFlux.store) as Entity[]

@@ -30,8 +30,6 @@ import { Navigate } from 'react-router-dom'
 import styles from '@ir-engine/client-core/src/admin/old-styles/admin.module.scss'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 
-import '@ir-engine/client-core/src/user/UserUISystem'
-
 import { PopupMenuState } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@ir-engine/common/src/config'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
@@ -41,8 +39,8 @@ import { Box, Button } from '@mui/material'
 import ProfileMenu from '@ir-engine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
 
+import { useFind } from '@ir-engine/common'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect

@@ -34,7 +34,6 @@ import {
   Vector3
 } from 'three'
 
-import config from '@ir-engine/common/src/config'
 import { matches } from '@ir-engine/hyperflux'
 import { matchesVector3 } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 
@@ -73,8 +72,6 @@ export const preloadedAnimations = {
   locomotion: 'locomotion',
   emotes: 'emotes'
 }
-
-export const defaultAnimationPath = `${config.client.fileServer}/projects/ir-engine/default-project/assets/animations/`
 
 export const matchesIkTarget = matches.some(
   ...Object.keys(ikTargets).map((k: keyof typeof ikTargets) => matches.literal(k))

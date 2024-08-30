@@ -38,12 +38,14 @@ import cors from 'koa-cors'
 import helmet from 'koa-helmet'
 import healthcheck from 'koa-simple-healthcheck'
 
+import { API } from '@ir-engine/common'
+import commonConfig from '@ir-engine/common/src/config'
 import { pipeLogs } from '@ir-engine/common/src/logger'
 import { pipe } from '@ir-engine/common/src/utils/pipe'
-import { Engine, createEngine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { createEngine } from '@ir-engine/ecs/src/Engine'
+import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { Application } from '../declarations'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
@@ -174,7 +176,13 @@ export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
-  createEngine()
+  createEngine(createHyperStore())
+
+  getMutableState(DomainConfigState).merge({
+    publicDomain: config.client.dist,
+    cloudDomain: commonConfig.client.fileServer,
+    proxyDomain: commonConfig.client.cors.proxyUrl
+  })
 
   const serverState = getMutableState(ServerState)
   serverState.serverMode.set(serverMode)
@@ -185,10 +193,8 @@ export const createFeathersKoaApp = (
     createIPFSStorageProvider()
   }
 
-  getMutableState(EngineState).publicPath.set(config.client.dist)
-
   const app = koa(feathers()) as Application
-  Engine.instance.api = app
+  API.instance = app
 
   app.set('nextReadyEmitter', new EventEmitter())
 
@@ -260,7 +266,16 @@ export const createFeathersKoaApp = (
     }
   })
 
-  pipeLogs(Engine.instance.api)
+  pipeLogs(API.instance)
 
   return app
+}
+
+export const tearDownAPI = async () => {
+  if (API.instance) {
+    if ((API.instance as any).server) await API.instance.teardown()
+
+    const knex = (API.instance as any).get?.('knexClient')
+    if (knex) await knex.destroy()
+  }
 }

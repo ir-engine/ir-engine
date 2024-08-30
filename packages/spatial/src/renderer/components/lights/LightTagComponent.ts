@@ -25,4 +25,4 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs'
 
-export const LightTagComponent = defineComponent({ name: 'LightTag' })
+export const LightTagComponent = defineComponent({ name: 'LightTagComponent' })

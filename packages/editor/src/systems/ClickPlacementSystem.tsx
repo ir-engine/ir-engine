@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { AssetExt, FileToAssetExt } from '@ir-engine/common/src/constants/AssetType'
 import {
   Engine,
   Entity,
@@ -38,6 +37,7 @@ import {
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
+import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -69,7 +69,7 @@ import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/component
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { HolographicMaterial } from '@ir-engine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
 import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -259,7 +259,7 @@ const clickListener = () => {
 
 export const ClickPlacementSystem = defineSystem({
   uuid: 'ee.studio.ClickPlacementSystem',
-  insert: { before: TransformDirtyUpdateSystem },
+  insert: { after: TransformDirtyCleanupSystem },
   reactor: () => {
     const parentEntity = useHookstate(getMutableState(EditorState)).rootEntity
 

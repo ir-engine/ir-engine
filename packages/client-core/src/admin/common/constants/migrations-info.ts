@@ -36,8 +36,8 @@ interface IMigrationsInfoColumn extends ITableHeadCell {
 }
 
 export const migrationsInfoColumns: IMigrationsInfoColumn[] = [
-  { id: 'id', label: t('admin:components.server.columns.id') },
-  { id: 'name', label: t('admin:components.server.columns.name') },
-  { id: 'batch', label: t('admin:components.server.columns.batch') },
-  { id: 'migration_time', label: t('admin:components.server.columns.migration_time'), sortable: true }
+  { id: 'id', label: t('admin:components.server.columns.migrationsInfo.id') },
+  { id: 'name', label: t('admin:components.server.columns.migrationsInfo.name') },
+  { id: 'batch', label: t('admin:components.server.columns.migrationsInfo.batch') },
+  { id: 'migration_time', label: t('admin:components.server.columns.migrationsInfo.migration_time'), sortable: true }
 ]

@@ -48,7 +48,8 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build": "tsc && rimraf dist && rollup -c",
-    "test": "cross-env TEST=true mocha --config .mocharc.cjs"
+    "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.js --loader:.wasm=binary",
+    "test": "mocha --jobs 1"
   },
   "dependencies": {
     "@juggle/resize-observer": "^3.4.0",
