@@ -35,7 +35,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createTestLocation } from '../../../tests/util/createTestLocation'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('bot.service', () => {
   let app: Application
@@ -50,8 +50,9 @@ describe('bot.service', () => {
     app = createFeathersKoaApp()
     await app.setup()
   })
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   before(async () => {

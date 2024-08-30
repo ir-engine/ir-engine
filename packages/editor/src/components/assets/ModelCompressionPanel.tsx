@@ -28,13 +28,13 @@ import { twMerge } from 'tailwind-merge'
 import { LoaderUtils } from 'three'
 
 import { API } from '@ir-engine/common'
+import { transformModel as clientSideTransformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { ImmutableArray, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
@@ -46,7 +46,7 @@ import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
 
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'

@@ -35,7 +35,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createTestLocation } from '../../../tests/util/createTestLocation'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('invite.service', () => {
   let app: Application
@@ -46,9 +46,7 @@ describe('invite.service', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
 
-  before(async () => {
     const name = ('test-invite-user-name-' + uuidv4()) as UserName
     const avatarName = 'test-invite-avatar-name-' + uuidv4()
 
@@ -68,7 +66,8 @@ describe('invite.service', () => {
 
   after(async () => {
     await app.service(userPath).remove(testUser.id)
-    await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   inviteTypes.forEach((inviteType) => {
