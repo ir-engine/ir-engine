@@ -833,7 +833,8 @@ const useLoadImageSource = (
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
   const sourceURI = useHookstate('')
-  const [result] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
+  const result = useHookstate<Texture | null>(null)
+  const [loadedTexture] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
   let isObjectURL = false
 
   const bufferViewSourceURI = GLTFLoaderFunctions.useLoadBufferView(options, sourceDef?.bufferView)
@@ -867,9 +868,23 @@ const useLoadImageSource = (
   }, [sourceDef?.uri, bufferViewSourceURI])
 
   useEffect(() => {
-    if (!result || !sourceURI.value || !sourceDef) return
+    if (!loadedTexture) return
 
-    const texture = result
+    let resultTexture
+    if (loadedTexture instanceof ImageBitmap) {
+      resultTexture = new Texture(loadedTexture as ImageBitmap)
+      resultTexture.needsUpdate = true
+    } else {
+      resultTexture = loadedTexture
+    }
+
+    result.set(resultTexture)
+  }, [loadedTexture])
+
+  useEffect(() => {
+    if (!result.value || !sourceURI.value || !sourceDef) return
+
+    const texture = result.value
 
     // Clean up resources and configure Texture.
 
@@ -884,7 +899,7 @@ const useLoadImageSource = (
     // sourceCache[sourceIndex] = promise
   }, [result])
 
-  return result
+  return result.value as Texture | null
 }
 
 const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
