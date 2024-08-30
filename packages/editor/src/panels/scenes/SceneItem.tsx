@@ -27,8 +27,8 @@ import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
+import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
 import { useHookstate } from '@ir-engine/hyperflux'
-import RenameSceneModal from '@ir-engine/ui/src/components/editor/panels/Scenes/modals/RenameScene'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -49,14 +49,14 @@ type SceneItemProps = {
   onDeleteScene?: (scene: StaticResourceType) => void
 }
 
-export const SceneItem = ({
+export default function SceneItem({
   scene,
   moveMenuUp,
   handleOpenScene,
   refetchProjectsData,
   onRenameScene,
   onDeleteScene
-}: SceneItemProps) => {
+}: SceneItemProps) {
   const { t } = useTranslation()
 
   const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
