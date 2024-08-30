@@ -63,7 +63,9 @@ const MediaControlsView = (props: MediaControlsProps) => {
   const oneUnitInPixels = 1000
 
   const buttonClick = () => {
-    if (!hasComponent(props.entity, MediaElementComponent)) return //early out if the mediaElement is null
+    //early out if the mediaElement is null
+    if (!hasComponent(props.entity, MediaElementComponent)) return
+
     const isPaused = mediaComponent.paused.value
     isPaused ? mediaComponent.paused.set(false) : mediaComponent.paused.set(true)
   }
@@ -93,8 +95,6 @@ const MediaControlsView = (props: MediaControlsProps) => {
           fontSize: '25px',
           width: controlsPercent,
           height: controlsPercent,
-          //margin: 'auto',
-          //flex: 'auto',
           transform: 'translateZ(0.01px)'
         }}
         onClick={buttonClick}
