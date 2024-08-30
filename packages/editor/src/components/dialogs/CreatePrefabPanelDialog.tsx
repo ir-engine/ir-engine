@@ -50,7 +50,7 @@ import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 
 export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
-  const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
+  const savePrefabFolder = useHookstate<string>('custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
   const prefabTag = useHookstate<string[]>([])
   const { t } = useTranslation()
@@ -58,8 +58,8 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const isOverwriteConfirmed = useHookstate(false)
   const onExportPrefab = async () => {
     const editorState = getState(EditorState)
-    const fileName = defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
-    const savefileName = 'custom-prefabs' + '/' + prefabName.value + '.gltf'
+    const fileName = 'assets/' + savePrefabFolder.value + '/' + prefabName.value + '.gltf'
+    const savefileName = savePrefabFolder.value + '/' + prefabName.value + '.gltf'
     const srcProject = editorState.projectName!
     const fileURL = pathJoin(config.client.fileServer, 'projects', srcProject, fileName)
     try {
@@ -129,7 +129,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
           return null
         })
         PopoverState.hidePopupover()
-        defaultPrefabFolder.set('assets/custom-prefabs')
+        savePrefabFolder.set('custom-prefabs')
         prefabName.set('prefab')
         prefabTag.set([])
         isOverwriteModalVisible.set(false)
@@ -149,8 +149,8 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
           onClose={PopoverState.hidePopupover}
         >
           <Input
-            value={defaultPrefabFolder.value}
-            onChange={(event) => defaultPrefabFolder.set(event.target.value)}
+            value={savePrefabFolder.value}
+            onChange={(event) => savePrefabFolder.set(event.target.value)}
             label="Default Save Folder"
           />
           <Input value={prefabName.value} onChange={(event) => prefabName.set(event.target.value)} label="Name" />
