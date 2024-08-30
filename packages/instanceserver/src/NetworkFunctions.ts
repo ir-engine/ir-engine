@@ -41,10 +41,10 @@ import {
   UserType
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { AuthTask } from '@ir-engine/common/src/world/receiveJoinWorld'
 import { EntityUUID } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { AuthTask } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
 import { Action, getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
 import { NetworkPeerFunctions, NetworkState, updatePeers } from '@ir-engine/network'

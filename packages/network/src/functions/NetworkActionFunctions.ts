@@ -23,13 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import {
   Action,
   addOutgoingTopicIfNecessary,
   clearOutgoingActions,
   dispatchAction,
   getState,
+  HyperFlux,
   PeerID
 } from '@ir-engine/hyperflux'
 
@@ -44,18 +44,18 @@ const receiveIncomingActions = (network: Network, fromPeerID: PeerID, actions: R
     }
   } else {
     for (const a of actions) {
-      Engine.instance.store.actions.incoming.push(a)
+      HyperFlux.store.actions.incoming.push(a)
     }
   }
 }
 
 const sendActionsAsPeer = (network: Network) => {
-  const outgoing = Engine.instance.store.actions.outgoing[network.topic]
+  const outgoing = HyperFlux.store.actions.outgoing[network.topic]
   if (!outgoing?.queue?.length) return
   const actions = [] as Action[]
   for (const action of outgoing.queue) {
     if (action.$network && !action.$topic && action.$network === network.id) action.$topic = network.topic
-    if (action.$to === Engine.instance.store.peerID) continue
+    if (action.$to === HyperFlux.store.peerID) continue
     actions.push(action)
   }
   // for (const peerID of network.peers) {
@@ -69,7 +69,7 @@ const sendActionsAsPeer = (network: Network) => {
 const sendActionsAsHost = (network: Network) => {
   addOutgoingTopicIfNecessary(network.topic)
 
-  const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
+  const actions = [...HyperFlux.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
 
   for (const peerID of Object.keys(network.peers) as PeerID[]) {
@@ -99,7 +99,7 @@ const sendActionsAsHost = (network: Network) => {
 const sendOutgoingActions = () => {
   for (const network of Object.values(getState(NetworkState).networks)) {
     try {
-      if (Engine.instance.store.peerID === network.hostPeerID) sendActionsAsHost(network as Network)
+      if (HyperFlux.store.peerID === network.hostPeerID) sendActionsAsHost(network as Network)
       else sendActionsAsPeer(network as Network)
     } catch (e) {
       console.error(e)

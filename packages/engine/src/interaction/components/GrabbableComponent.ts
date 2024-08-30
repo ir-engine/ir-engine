@@ -25,11 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { getComponent, hasComponent, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, isClient } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'

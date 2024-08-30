@@ -25,11 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { InstanceID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent, getComponent } from '@ir-engine/ecs'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
+import { NetworkID, PeerID, UserID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { SpawnObjectActions } from '../../../spatial/src/transform/SpawnObjectActions'
@@ -140,7 +139,7 @@ describe('NetworkPeerFunctions', () => {
     })
 
     it('should remove peer and owned network objects', async () => {
-      const userId = 'world' as UserID & InstanceID
+      const userId = 'world' as UserID & NetworkID
       const anotherPeerID = 'another peer id' as PeerID
       Engine.instance.store.userID = 'another user id' as UserID
       const userIndex = 1
