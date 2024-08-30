@@ -71,6 +71,7 @@ import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, S
 import config from '@ir-engine/common/src/config'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
+import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -397,6 +398,12 @@ const ThumbnailJobReactor = () => {
             if (dirLight) {
               setComponent(lightEntity, DirectionalLightComponent, serializeComponent(child, DirectionalLightComponent))
               removeComponent(child, DirectionalLightComponent)
+            }
+
+            const skybox = getOptionalComponent(child, SkyboxComponent)
+            if (skybox) {
+              setComponent(entity, SkyboxComponent, serializeComponent(child, SkyboxComponent))
+              removeComponent(child, SkyboxComponent)
             }
           })
 
