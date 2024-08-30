@@ -32,6 +32,7 @@ import {
   defineQuery,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent
 } from '@ir-engine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -114,7 +115,8 @@ export const MaterialStateComponent = defineComponent({
   fallbackMaterial: uuidv4() as EntityUUID,
 
   onRemove: (entity) => {
-    const materialComponent = getComponent(entity, MaterialStateComponent)
+    const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+    if (!materialComponent) return
     for (const instanceEntity of materialComponent.instances) {
       if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
       setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
@@ -133,7 +135,8 @@ export const MaterialInstanceComponent = defineComponent({
     if (json?.uuid && component.uuid.value !== undefined) component.uuid.set(json.uuid)
   },
   onRemove: (entity) => {
-    const uuids = getComponent(entity, MaterialInstanceComponent).uuid
+    const uuids = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid
+    if (!uuids) return
     for (const uuid of uuids) {
       const materialEntity = UUIDComponent.getEntityByUUID(uuid)
       if (!hasComponent(materialEntity, MaterialStateComponent)) continue
