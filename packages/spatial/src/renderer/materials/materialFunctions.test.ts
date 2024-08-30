@@ -73,6 +73,14 @@ import {
   setPlugin
 } from './materialFunctions'
 
+const prototypeDefaultArgs: PrototypeArgumentValue = {
+  type: 'defaultType',
+  default: {},
+  min: 21,
+  max: 42,
+  options: [{}]
+}
+
 describe('materialFunctions', () => {
   describe('getMaterial', () => {
     let testEntity = UndefinedEntity
@@ -901,37 +909,13 @@ describe('materialFunctions', () => {
     })
 
     describe('when `@param defaultArgs` is passed ...', () => {
-      it('... should return the object passed as `@param args` without any of the `@param defaultArgs` properties, when `@param defaultArgs` is falsy', () => {
-        const Expected = { asdf: 'asdfValue', other: 42 }
-        const defaultArgs1 = false
-        const defaultArgs2 = undefined
-        const defaultArgs3 = null
-        const defaultArgs4 = 0
-        // Sanity check before running
-        assert.equal(!Expected, false)
-        assert.equal(!!defaultArgs1, false)
-        assert.equal(!!defaultArgs2, false)
-        assert.equal(!!defaultArgs3, false)
-        assert.equal(!!defaultArgs4, false)
-        // Run and Check the result
-        const result1 = formatMaterialArgs(Expected, defaultArgs1)
-        const result2 = formatMaterialArgs(Expected, defaultArgs2)
-        const result3 = formatMaterialArgs(Expected, defaultArgs3)
-        const result4 = formatMaterialArgs(Expected, defaultArgs4)
-        assert.deepEqual(result1, Expected)
-        assert.deepEqual(result2, Expected)
-        assert.deepEqual(result3, Expected)
-        assert.deepEqual(result4, Expected)
-      })
-
       it('... should return the object passed as `@param args` without any of the `@param defaultArgs` properties that is not a valid Color or ColorRepresentation', () => {
-        const skip1 = true
-        const skip2 = false
-        const skip3 = null
         // Set the data as expected
         const valid = { str: '0x000000', num: 0xff0000, col: new Color(0, 0, 1) }
         const args = { ...valid, asdf: 'asdfValue', other: 42 }
-        const defaultArgs = { ...valid, skip1: skip1, skip2: skip2, skip3: skip3 }
+        const defaultArgs1 = { ...prototypeDefaultArgs, default: { ...valid } }
+        const defaultArgs2 = { ...prototypeDefaultArgs, default: { ...valid } }
+        const defaultArgs = { arg1: defaultArgs1, arg2: defaultArgs2 }
         const Expected = { ...args, ...valid }
         // Sanity check before running
         assert.equal(!Expected, false)
@@ -943,7 +927,7 @@ describe('materialFunctions', () => {
       it('... should return the object passed as `@param args` when none of the `@param args` object properties is a texture or an empty string', () => {
         // Set the data as expected
         const Expected = { asdf: 'asdf', thing: 41, other: 42, obj: { sub1: 43, sub2: 44 } }
-        const defaultArgs = { one: 1 }
+        const defaultArgs = { one: { ...prototypeDefaultArgs, default: { num: 1 } } }
         // Sanity check before running
         assert.equal(!Expected, false)
         // Run and Check the result
@@ -954,14 +938,6 @@ describe('materialFunctions', () => {
   }) //:: formatMaterialArgs
 
   describe('extractDefaults', () => {
-    const prototypeDefaultArgs: PrototypeArgumentValue = {
-      type: 'defaultType',
-      default: {},
-      min: 21,
-      max: 42,
-      options: [{}]
-    }
-
     it('should return an object that has all of the `@param defaultArgs`.default properties', () => {
       // Set the data as expected
       const defaultArg1 = { str: '0x111111', num: 0xff1111, col: new Color(0, 0, 0.1), one: 1 }
