@@ -36,7 +36,7 @@ const PopupMenu = () => {
     <>
       {popoverElement.get(NO_PROXY).map((element, idx) => {
         return (
-          <div key={idx} className="pointer-events-auto block">
+          <div key={idx} className="block">
             <ClickawayListener>{element ?? undefined}</ClickawayListener>
           </div>
         )
