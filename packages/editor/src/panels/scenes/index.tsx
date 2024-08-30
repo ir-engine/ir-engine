@@ -106,7 +106,6 @@ function ScenesPanel() {
                   onRenameScene={(newName) => {
                     editorState.scenePath.set(newName)
                   }}
-                  moveMenuUp={true}
                   handleOpenScene={() => onClickScene(scene)}
                   refetchProjectsData={scenesQuery.refetch}
                 />
