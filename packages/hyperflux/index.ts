@@ -23,20 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useState } from 'react'
+export * from './src/EventDispatcher'
+export * from './src/functions/ActionFunctions'
+export * from './src/functions/EnvironmentConstants'
+export * from './src/functions/ReactorFunctions'
+export * from './src/functions/StateFunctions'
+export * from './src/functions/StoreFunctions'
+export * from './src/functions/createHookableFunction'
+export * from './src/hooks/useDidMount'
+export * from './src/hooks/useForceUpdate'
+export * from './src/hooks/useImmediateEffect'
+export * from './src/hooks/usePrevious'
+export * from './src/hooks/useReactiveRef'
 
-import { State, useHookstate } from './StateFunctions'
-
-export const useHookstateFromFactory = <T>(cb: (...any) => T): State<T> => {
-  const state = useHookstate({} as T)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    if (mounted) return
-    state.set(cb())
-    setMounted(true)
-    return () => {
-      setMounted(false)
-    }
-  }, [])
-  return state
-}
+export type * from './src/types/DeepReadonly'
+export type * from './src/types/OpaqueType'
+export type * from './src/types/Types'

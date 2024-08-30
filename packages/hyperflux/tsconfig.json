@@ -29,5 +29,5 @@
     "declaration": false,
     "types": ["@feathersjs/feathers", "mocha"]
   },
-  "include": ["src"]
+  "include": ["src", "index.ts"]
 }
