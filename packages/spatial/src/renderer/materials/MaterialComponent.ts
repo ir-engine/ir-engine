@@ -61,14 +61,16 @@ export type MaterialPrototypeDefinition = {
   onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
 
+export type PrototypeArgumentValue = {
+  type: string
+  default: any
+  min?: number
+  max?: number
+  options?: any[]
+}
+
 export type PrototypeArgument = {
-  [_: string]: {
-    type: string
-    default: any
-    min?: number
-    max?: number
-    options?: any[]
-  }
+  [_: string]: PrototypeArgumentValue
 }
 
 export const MaterialPrototypeDefinitions = [
