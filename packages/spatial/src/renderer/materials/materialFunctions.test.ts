@@ -686,7 +686,7 @@ describe('materialFunctions', () => {
       setComponent(testEntity, NameComponent, name)
       setComponent(testEntity, MaterialPrototypeComponent)
       const otherEntity = createEntity()
-      setComponent(otherEntity, NameComponent, name)
+      setComponent(otherEntity, NameComponent, 'OtherEntityName')
       setComponent(otherEntity, MaterialPrototypeComponent)
       // Sanity check before running
       assert.equal(hasComponent(testEntity, NameComponent), true)

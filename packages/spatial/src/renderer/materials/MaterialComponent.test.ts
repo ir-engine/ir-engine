@@ -44,6 +44,7 @@ import {
   MaterialPrototypeObjectConstructor,
   MaterialStateComponent,
   PrototypeArgument,
+  PrototypeArgumentValue,
   prototypeQuery
 } from './MaterialComponent'
 
@@ -257,15 +258,7 @@ describe('MaterialInstanceComponent', () => {
   }) //:: onRemove
 }) //:: MaterialInstanceComponent
 
-type PrototypeArgumentData = {
-  type: string
-  default: any
-  min?: number
-  max?: number
-  options?: any[]
-}
-
-function assertPrototypeArgumentsEq(A: PrototypeArgumentData, B: PrototypeArgumentData) {
+function assertPrototypeArgumentsEq(A: PrototypeArgumentValue, B: PrototypeArgumentValue) {
   assert.equal(A.type, B.type)
   assert.deepEqual(A.default, B.default)
   assert.equal(A.min, B.min)
@@ -275,9 +268,7 @@ function assertPrototypeArgumentsEq(A: PrototypeArgumentData, B: PrototypeArgume
     return
   }
   assert.equal(A.options.length, B.options?.length)
-  for (const opt in A.options) {
-    assert.deepEqual(A.options[opt], B.options[opt])
-  }
+  for (const opt in A.options) assert.deepEqual(A.options[opt], B.options[opt])
 }
 
 type MaterialPrototypeComponentData = {
