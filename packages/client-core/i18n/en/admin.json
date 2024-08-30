@@ -331,6 +331,7 @@
       "count": "Count",
       "kick": "Kick",
       "ban": "Ban",
+      "unban" : "Unban",
       "banned": "Banned till {{duration}}",
       "kickDuration": "Kick Duration",
       "confirmUserBan": "Are you sure you want to ban this user?",
