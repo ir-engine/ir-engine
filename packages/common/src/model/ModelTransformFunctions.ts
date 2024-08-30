@@ -64,7 +64,7 @@ import {
   extractParameters,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { baseName, pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { baseName, dropRoot, pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
@@ -410,7 +410,7 @@ export async function transformModel(
 
   const fileUploadPath = (fUploadPath: string) => {
     const relativePath = fUploadPath.replace(config.client.fileServer, '')
-    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-|_./]*)$/
+    const pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
     const [_, projectName, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
     return [projectName, fileName]
@@ -800,8 +800,12 @@ export async function transformModel(
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
-    //await API.instance.service(fileBrowserPath).remove(folderURL)
-    await API.instance.service(fileBrowserPath).create(folderURL)
+
+    const fileBrowserService = API.instance.service(fileBrowserPath)
+    const folderExists = await fileBrowserService.get(folderURL)
+    if (!folderExists) {
+      await fileBrowserService.create(folderURL)
+    }
 
     json.images?.map((image) => {
       const nuURI = pathJoin(
@@ -820,7 +824,7 @@ export async function transformModel(
       )
     })
     Object.keys(resources).map((uri) => {
-      const localPath = pathJoin(resourcePath, baseName(uri))
+      const localPath = pathJoin(resourcePath, dropRoot(uri))
       resources[localPath] = resources[uri]
       delete resources[uri]
     })
