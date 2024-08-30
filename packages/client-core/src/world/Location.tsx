@@ -44,7 +44,7 @@ import { NotificationService } from '../common/services/NotificationService'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
-import { ClientContextState, clientContextParams } from '../util/ClientContextState'
+import { clientContextParams } from '../util/ClientContextState'
 
 const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
@@ -69,8 +69,6 @@ const LocationPage = ({ online }: Props) => {
   LocationService.useLocationBanListeners()
 
   useLoadEngineWithScene()
-
-  ClientContextState.useValue('location_id', params.locationName ?? `${params.projectName}/${params.sceneName}`)
 
   useEffect(() => {
     if (ready.value) logger.info({ event_name: 'enter_location' })

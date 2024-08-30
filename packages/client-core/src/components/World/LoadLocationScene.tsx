@@ -34,10 +34,14 @@ import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
+import { ClientContextState } from '../../util/ClientContextState'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useMutableState(LocationState)
   const scene = useGet(staticResourcePath, locationState.currentLocation.location.sceneId.value).data
+
+  ClientContextState.useValue('location_id', locationState.currentLocation.location.id.value)
+  ClientContextState.useValue('project_id', locationState.currentLocation.location.projectId.value)
 
   useEffect(() => {
     LocationState.setLocationName(props.locationName)
