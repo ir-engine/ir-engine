@@ -51,7 +51,7 @@ function useLoader<T extends ResourceAssetType>(
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
   //Called when the asset url is changed, mostly useful for editor functions when changing an asset
-  loader: AssetLoader,
+  loader?: AssetLoader,
   onUnload: (url: string) => void = (url: string) => {}
 ): [T | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   const value = useHookstate<T | null>(null)
@@ -319,7 +319,7 @@ export function useTexture(
   url: string,
   entity?: Entity,
   onUnload?: (url: string) => void,
-  loader: AssetLoader = new TextureLoader()
+  loader?: AssetLoader
 ): [Texture | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   return useLoader<Texture>(url, ResourceType.Texture, entity, loader, onUnload)
 }

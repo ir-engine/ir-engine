@@ -58,6 +58,7 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Group
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -123,7 +124,7 @@ export const EnvmapComponent = defineComponent({
 
     const component = useComponent(entity, EnvmapComponent)
     const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
-    const material = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
+    const material = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid
     const [envMapTexture, error] = useTexture(
       component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
       entity
@@ -177,7 +178,6 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       if (!envMapTexture) return
-
       envMapTexture.mapping = EquirectangularReflectionMapping
       component.envmap.set(envMapTexture)
     }, [envMapTexture])
@@ -213,7 +213,9 @@ export const EnvmapComponent = defineComponent({
     }, [component.type, component.envMapSourceURL])
 
     useEffect(() => {
-      if (!component.envmap.value) return
+      // if (!component.envmap.value) return
+      console.log(getComponent(entity, NameComponent), mesh?.material)
+
       updateEnvMap(mesh, component.envmap.value as Texture)
     }, [mesh, material, component.envmap])
 
@@ -241,6 +243,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
   const uuid = useComponent(envmapEntity, MaterialInstanceComponent).uuid
+
   const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
   useEffect(() => {
     const texture = envMaptexture

@@ -35,6 +35,7 @@ import {
 } from '@ir-engine/ecs'
 import { NO_PROXY, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { MaterialPrototypeComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
@@ -104,6 +105,40 @@ import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } fr
 
 // todo make this a state
 const cache = new GLTFRegistry()
+
+const useLoadPrimitives = (options: GLTFParserOptions, nodeIndex: number) => {
+  const finalGeometry = useHookstate(null as BufferGeometry | null)
+  const json = options.document
+  const node = json.nodes![nodeIndex]!
+  const mesh = json.meshes![node.mesh!]
+
+  const geometries = mesh.primitives.map(
+    (primitive, index) => GLTFLoaderFunctions.useLoadPrimitive(options, nodeIndex, index)!
+  )
+
+  useEffect(() => {
+    if (geometries.some((geometry) => !geometry) || finalGeometry.value) return
+    if (geometries.length > 1) {
+      let needsTangentRecalculation = false
+      for (let i = 0; i < geometries.length; i++) {
+        geometries[i].deleteAttribute('tangent')
+        if (geometries[i].attributes.tangent) needsTangentRecalculation = true
+      }
+
+      const newGeometry = mergeBufferGeometries(geometries, true)
+      if (needsTangentRecalculation) newGeometry?.computeTangents()
+
+      for (let i = 0; i < mesh.primitives.length; i++)
+        newGeometry!.groups[i].materialIndex = mesh.primitives[i].material!
+
+      finalGeometry.set(newGeometry)
+    } else {
+      finalGeometry.set(geometries[0])
+    }
+  }, [geometries])
+
+  return finalGeometry.get(NO_PROXY) as BufferGeometry | null
+}
 
 const useLoadPrimitive = (options: GLTFParserOptions, nodeIndex: number, primitiveIndex: number) => {
   const [result] = useResource(() => null as null | BufferGeometry)
@@ -871,6 +906,7 @@ const useLoadImageSource = (
     if (!loadedTexture) return
 
     let resultTexture
+    console.log(loadedTexture)
     if (loadedTexture instanceof ImageBitmap) {
       resultTexture = new Texture(loadedTexture as ImageBitmap)
       resultTexture.needsUpdate = true
@@ -1147,6 +1183,7 @@ const _createCubicSplineTrackInterpolant = (track: KeyframeTrack) => {
 export const GLTFLoaderFunctions = {
   computeBounds,
   useLoadPrimitive,
+  useLoadPrimitives,
   useLoadAccessor,
   useLoadBufferView,
   useLoadBuffer,

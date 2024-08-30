@@ -83,7 +83,6 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
@@ -963,13 +962,9 @@ const PrimitiveReactor = (props: {
 
   const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
-  //const primitive = meshDef.primitives[props.primitiveIndex] as GLTF.IMeshPrimitive
-
   const options = getParserOptions(props.entity)
-  const geometries = meshDef.primitives.map(
-    (primitive, index) => GLTFLoaderFunctions.useLoadPrimitive(options, props.nodeIndex, index)!
-  )
-  console.log(geometries, getComponent(props.entity, NameComponent))
+
+  const finalGeometry = GLTFLoaderFunctions.useLoadPrimitives(options, props.nodeIndex!)
 
   useEffect(() => {
     return () => {
@@ -977,32 +972,9 @@ const PrimitiveReactor = (props: {
     }
   }, [])
 
-  const finalGeometry = useHookstate(null as BufferGeometry | null)
-
-  useEffect(() => {
-    if (geometries.some((geometry) => !geometry) || finalGeometry.value) return
-    if (geometries.length > 1) {
-      let needsTangentRecalculation = false
-      for (let i = 0; i < geometries.length; i++) {
-        geometries[i].deleteAttribute('tangent')
-        if (geometries[i].attributes.tangent) needsTangentRecalculation = true
-      }
-
-      const newGeometry = mergeBufferGeometries(geometries, true)
-      if (needsTangentRecalculation) newGeometry?.computeTangents()
-
-      for (let i = 0; i < meshDef.primitives.length; i++)
-        newGeometry!.groups[i].materialIndex = meshDef.primitives[i].material!
-
-      finalGeometry.set(newGeometry)
-    } else {
-      finalGeometry.set(geometries[0])
-    }
-  }, [geometries])
-
   useLayoutEffect(() => {
     //check if theres an undefined value in geometries
-    if (!finalGeometry.value) return
+    if (!finalGeometry) return
 
     //For debug visualization of material indices
     // setComponent(props.entity, MaterialInstanceComponent)
@@ -1014,8 +986,8 @@ const PrimitiveReactor = (props: {
 
     const mesh =
       typeof node.skin !== 'undefined'
-        ? new SkinnedMesh(finalGeometry.get(NO_PROXY) as BufferGeometry)
-        : new Mesh(finalGeometry.get(NO_PROXY) as BufferGeometry, [])
+        ? new SkinnedMesh(finalGeometry as BufferGeometry)
+        : new Mesh(finalGeometry as BufferGeometry, [])
 
     if (typeof node.skin !== 'undefined') {
       ;(mesh as SkinnedMesh).skeleton = new Skeleton()
@@ -1030,14 +1002,11 @@ const PrimitiveReactor = (props: {
     mesh.name = node.name ?? 'Node-' + props.nodeIndex
 
     return () => {
-      console.log('cleaning up', finalGeometry.value)
       removeComponent(props.entity, SkinnedMeshComponent)
       removeComponent(props.entity, MeshComponent)
       removeObjectFromGroup(props.entity, mesh)
     }
   }, [node.skin, finalGeometry])
-
-  if (!geometries) return null
 
   return (
     <>
@@ -1182,7 +1151,7 @@ export const AnimationReactor = (props: {
   return null
 }
 
-export const getParserOptions = (entity: Entity): GLTFParserOptions => {
+export const getParserOptions = (entity: Entity) => {
   const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
   const documentID = GLTFComponent.getInstanceID(gltfEntity)
   const gltfComponent = getComponent(gltfEntity, GLTFComponent)
@@ -1194,9 +1163,10 @@ export const getParserOptions = (entity: Entity): GLTFParserOptions => {
     url: gltfComponent.src,
     path: LoaderUtils.extractUrlBase(gltfComponent.src),
     body: gltfComponent.body,
+    crossOrigin: gltfLoader.crossOrigin,
     requestHeader: gltfLoader.requestHeader,
     manager: gltfLoader.manager,
-    ktx2Loader: gltfLoader.ktx2Loader!,
+    ktx2Loader: gltfLoader.ktx2Loader,
     meshoptDecoder: gltfLoader.meshoptDecoder
-  }
+  } as GLTFParserOptions
 }
