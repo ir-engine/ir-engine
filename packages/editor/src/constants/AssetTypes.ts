@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
+import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { NativeTypes } from 'react-dnd-html5-backend'
 
 /**

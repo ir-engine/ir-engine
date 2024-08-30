@@ -144,7 +144,7 @@ export const PointLightComponent = defineComponent({
 
     useEffect(() => {
       if (debugEnabled.value) {
-        setComponent(entity, LightHelperComponent, { name: 'pointlight-helper', light: light })
+        setComponent(entity, LightHelperComponent, { name: 'point-light-helper', light: light })
       }
       return () => {
         removeComponent(entity, LightHelperComponent)

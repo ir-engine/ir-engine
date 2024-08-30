@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Object3DUtils } from './Object3DUtils'
 import { SpawnPoseState } from './SpawnPoseState'
 import { LookAtSystem } from './systems/LookAtSystem'
 import { TransformSystem } from './systems/TransformSystem'
 
-export { LookAtSystem, SpawnPoseState, TransformSystem }
+export { LookAtSystem, Object3DUtils, SpawnPoseState, TransformSystem }
