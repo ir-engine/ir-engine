@@ -273,3 +273,39 @@ export const clientSettingValidator = /* @__PURE__ */ getValidator(clientSetting
 export const clientSettingDataValidator = /* @__PURE__ */ getValidator(clientSettingDataSchema, dataValidator)
 export const clientSettingPatchValidator = /* @__PURE__ */ getValidator(clientSettingPatchSchema, dataValidator)
 export const clientSettingQueryValidator = /* @__PURE__ */ getValidator(clientSettingQuerySchema, queryValidator)
+
+
+export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSettingType => {
+  let appSocialLinks = JSON.parse(rawData.appSocialLinks) as ClientSocialLinkType[]
+
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof appSocialLinks === 'string') {
+    appSocialLinks = JSON.parse(appSocialLinks)
+  }
+
+  let themeSettings = JSON.parse(rawData.themeSettings) as Record<string, ClientThemeOptionsType>
+
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof themeSettings === 'string') {
+    themeSettings = JSON.parse(themeSettings)
+  }
+
+  let themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
+
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof themeModes === 'string') {
+    themeModes = JSON.parse(themeModes)
+  }
+
+  if (typeof rawData.mediaSettings === 'string') rawData.mediaSettings = JSON.parse(rawData.mediaSettings)
+
+  return {
+    ...rawData,
+    appSocialLinks,
+    themeSettings,
+    themeModes
+  }
+}
