@@ -25,12 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import * as bitECS from 'bitecs'
 import { getAllEntities } from 'bitecs'
-import { Cache } from 'three'
 
-import { API } from '@ir-engine/common'
 import * as Hyperflux from '@ir-engine/hyperflux'
-import { getState, NO_PROXY_STEALTH, ReactorReconciler } from '@ir-engine/hyperflux'
-import { createHyperStore, disposeStore, HyperFlux, HyperStore } from '@ir-engine/hyperflux/functions/StoreFunctions'
+import {
+  createHyperStore,
+  disposeStore,
+  getState,
+  HyperFlux,
+  HyperStore,
+  NO_PROXY_STEALTH,
+  ReactorReconciler
+} from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'
@@ -84,7 +89,7 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function createEngine(hyperstore = createHyperStore({ publicPath: '' })) {
+export function createEngine(hyperstore = createHyperStore()) {
   if (Engine.instance) throw new Error('Store already exists')
   Engine.instance = new Engine()
   hyperstore.getCurrentReactorRoot = () =>
@@ -94,17 +99,8 @@ export function createEngine(hyperstore = createHyperStore({ publicPath: '' })) 
   const UndefinedEntity = bitECS.addEntity(hyperstore)
 }
 
-export async function destroyEngine() {
-  Cache.clear()
-
+export function destroyEngine() {
   getState(ECSState).timer?.clear()
-
-  if (API.instance) {
-    if ((API.instance as any).server) await API.instance.teardown()
-
-    const knex = (API.instance as any).get?.('knexClient')
-    if (knex) await knex.destroy()
-  }
 
   /** Remove all entities */
   const entities = getAllEntities(HyperFlux.store) as Entity[]

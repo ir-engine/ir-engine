@@ -27,8 +27,6 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   Engine,
   SystemDefinitions,
@@ -42,7 +40,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux'
+import { PeerID, UserID, applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux'
 import {
   Network,
   NetworkPeerFunctions,
@@ -50,6 +48,7 @@ import {
   NetworkTopics,
   NetworkWorldUserStateSystem
 } from '@ir-engine/network'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { createMockNetwork } from '../../../../network/tests/createMockNetwork'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
@@ -71,10 +70,10 @@ describe('CameraSystem', async () => {
       return destroyEngine()
     })
 
-    const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
-    const tag = <NetworkWorldUserStateSystemReactor />
-
     it('should create a camera entity and apply a CameraComponent to that entity', async () => {
+      const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
+      const tag = <NetworkWorldUserStateSystemReactor />
+
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID

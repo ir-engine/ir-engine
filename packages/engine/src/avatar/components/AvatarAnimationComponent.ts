@@ -30,14 +30,12 @@ import { AnimationAction, Group, Matrix4, SkeletonHelper, Vector3 } from 'three'
 import {
   defineComponent,
   getComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, matches, none, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -47,6 +45,7 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import {
@@ -55,8 +54,6 @@ import {
   setupAvatarForUser,
   setupAvatarProportions
 } from '../functions/avatarFunctions'
-import { AvatarState } from '../state/AvatarNetworkState'
-import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -102,7 +99,6 @@ export const AvatarRigComponent = defineComponent({
       rawRig: null! as VRMHumanBones,
       /** contains ik solve data */
       ikMatrices: {} as Record<VRMHumanBoneName, Matrices>,
-      helperEntity: null as Entity | null,
       /** The VRM model */
       vrm: null! as VRM,
       avatarURL: null as string | null
@@ -115,11 +111,6 @@ export const AvatarRigComponent = defineComponent({
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
-  },
-
-  onRemove: (entity, component) => {
-    // ensure synchronously removed
-    if (component.helperEntity.value) removeComponent(component.helperEntity.value, ComputedTransformComponent)
   },
 
   reactor: function () {
@@ -144,7 +135,6 @@ export const AvatarRigComponent = defineComponent({
       const helperEntity = createEntity()
       setVisibleComponent(helperEntity, true)
       addObjectToGroup(helperEntity, helper)
-      rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
       setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
@@ -158,7 +148,6 @@ export const AvatarRigComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
-        rigComponent.helperEntity.set(none)
       }
     }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
 
@@ -193,7 +182,10 @@ export const AvatarRigComponent = defineComponent({
         retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
-        if (entity === AvatarComponent.getSelfAvatarEntity()) AvatarState.selectRandomAvatar()
+        addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        return () => {
+          removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        }
       }
     }, [rigComponent.vrm])
 
@@ -203,5 +195,7 @@ export const AvatarRigComponent = defineComponent({
     }, [locomotionAnimationState])
 
     return null
-  }
+  },
+
+  errors: ['UNSUPPORTED_AVATAR']
 })

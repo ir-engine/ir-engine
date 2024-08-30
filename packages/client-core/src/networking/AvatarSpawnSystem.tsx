@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchParamFromURL'
+import { spawnLocalAvatarInWorld } from '@ir-engine/common/src/world/receiveJoinWorld'
 import {
   defineSystem,
   Engine,
@@ -34,21 +35,25 @@ import {
   getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
+  useOptionalComponent,
   useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
-import { spawnLocalAvatarInWorld } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 
+import { useFind, useGet, useMutation } from '@ir-engine/common'
+import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
+import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { SearchParamState } from '../common/services/RouterService'
+import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
@@ -61,6 +66,9 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const spawnAvatar = useHookstate(false)
   const spectateEntity = useHookstate(null as null | EntityUUID)
   const settingsQuery = useQuery([SceneSettingsComponent])
+
+  const avatarsQuery = useFind(avatarPath)
+
   useEffect(() => {
     const sceneSettingsSpectateEntity = getOptionalComponent(settingsQuery[0], SceneSettingsComponent)?.spectateEntity
     spectateEntity.set(sceneSettingsSpectateEntity ?? (getSearchParamFromURL('spectate') as EntityUUID))
@@ -90,10 +98,11 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
     const user = getState(AuthState).user
+
     spawnLocalAvatarInWorld({
       parentUUID: rootUUID,
       avatarSpawnPose,
-      avatarID: user.avatar.id!,
+      avatarURL: user.avatar.modelResource!.url!,
       name: user.name
     })
 
@@ -112,12 +121,36 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     }
   }, [spawnAvatar.value])
 
+  const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
+  const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
+
+  const userAvatarQuery = useFind(userAvatarPath, { query: { userId: Engine.instance.userID } })
+  const userAvatarMutation = useMutation(userAvatarPath)
+
+  const userAvatar = useGet(avatarPath, userAvatarQuery.data[0]?.id)
+
+  useEffect(() => {
+    if (!errorWithAvatar || !avatarsQuery.data.length) return
+    const randomAvatar = avatarsQuery.data[Math.floor(Math.random() * avatarsQuery.data.length)]
+    userAvatarMutation.patch(null, { avatarId: randomAvatar.id }, { query: { userId: Engine.instance.store.userID } })
+  }, [errorWithAvatar])
+
+  useEffect(() => {
+    if (!userAvatar.data) return
+    dispatchAction(
+      AvatarNetworkAction.setAvatarURL({
+        avatarURL: userAvatar.data.modelResource!.url,
+        entityUUID: (Engine.instance.store.userID + '_avatar') as any as EntityUUID
+      })
+    )
+  }, [userAvatar.data])
+
   return null
 }
 
 const reactor = () => {
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
+  const sceneEntity = useLoadedSceneEntity(locationSceneID)
 
   if (!sceneEntity) return null
 

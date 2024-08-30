@@ -27,7 +27,6 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   Engine,
   EntityUUID,
@@ -40,7 +39,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import { PeerID, UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
 import {
   Network,
   NetworkPeerFunctions,
@@ -68,10 +67,10 @@ describe('SpectateSystem', async () => {
       return destroyEngine()
     })
 
-    const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
-    const tag = <NetworkWorldUserStateSystemReactor />
-
     it('should start spectating an entity when the `spectateEntity` action is dispatched', async () => {
+      const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
+      const tag = <NetworkWorldUserStateSystemReactor />
+
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
       const userUuid = userId as any as EntityUUID
@@ -107,6 +106,9 @@ describe('SpectateSystem', async () => {
     })
 
     it('should stop spectating an entity when the `exitSpectate` action is dispatched', async () => {
+      const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
+      const tag = <NetworkWorldUserStateSystemReactor />
+
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
       const userUuid = userId as any as EntityUUID

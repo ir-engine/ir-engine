@@ -29,6 +29,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 
+import { UserID } from '@ir-engine/hyperflux'
 import { TypedString } from '../../types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { ScopeType } from '../scope/scope.schema'
@@ -41,6 +42,8 @@ import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
 import { userLoginSchema } from './user-login.schema'
 
+export type { UserID }
+
 export const userPath = 'user'
 
 export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
@@ -52,7 +55,6 @@ export const userScopeSchema = Type.Object(
   { $id: 'UserScope', additionalProperties: false }
 )
 
-export type UserID = OpaqueType<'UserID'> & string
 export type InviteCode = OpaqueType<'InviteCode'> & string
 export type UserName = OpaqueType<'UserName'> & string
 
@@ -66,9 +68,7 @@ export const userSchema = Type.Object(
     acceptedTOS: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
-    avatarId: TypedString<AvatarID>({
-      format: 'uuid'
-    }),
+    avatarId: TypedString<AvatarID>(),
     avatar: Type.Ref(avatarDataSchema),
     userSetting: Type.Ref(userSettingSchema),
     apiKey: Type.Ref(userApiKeySchema),
@@ -86,9 +86,10 @@ export const userSchema = Type.Object(
 export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
-export const userDataSchema = Type.Partial(userSchema, {
-  $id: 'UserData'
-})
+export const userDataSchema = Type.Partial(
+  Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId', 'scopes']),
+  { $id: 'UserData' }
+)
 export interface UserData extends Static<typeof userDataSchema> {}
 
 // Schema for updating existing entries

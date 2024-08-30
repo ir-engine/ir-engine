@@ -55,7 +55,7 @@ export const featureFlagSettingSchema = Type.Object(
 export interface FeatureFlagSettingType extends Static<typeof featureFlagSettingSchema> {}
 
 // Schema for creating new entries
-export const featureFlagSettingDataSchema = Type.Pick(featureFlagSettingSchema, ['flagName', 'flagValue'], {
+export const featureFlagSettingDataSchema = Type.Pick(featureFlagSettingSchema, ['flagName', 'flagValue', 'userId'], {
   $id: 'FeatureFlagSettingData'
 })
 export interface FeatureFlagSettingData extends Static<typeof featureFlagSettingDataSchema> {}

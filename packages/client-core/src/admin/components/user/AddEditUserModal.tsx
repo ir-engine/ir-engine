@@ -22,18 +22,19 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useMutation } from '@ir-engine/common'
 import {
   AvatarID,
-  avatarPath,
   ScopeType,
-  scopeTypePath,
   UserData,
   UserName,
-  userPath,
-  UserType
+  UserPatch,
+  UserType,
+  avatarPath,
+  scopeTypePath,
+  userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
@@ -116,12 +117,12 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       name: name.value as UserName,
       avatarId: avatarId.value as AvatarID,
       isGuest: user?.isGuest,
-      scopes: scopes.value as { type: ScopeType }[]
+      scopes: scopes.value.map((scope) => ({ type: scope.type }))
     }
     submitLoading.set(true)
     try {
       if (user?.id) {
-        await userMutation.patch(user.id, userData)
+        await userMutation.patch(user.id, userData as UserPatch)
       } else {
         await userMutation.create(userData)
       }

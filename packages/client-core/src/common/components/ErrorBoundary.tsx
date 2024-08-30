@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { createErrorBoundary } from '@ir-engine/common/src/utils/createErrorBoundary'
+import { createErrorBoundary } from '@ir-engine/hyperflux'
 import { clientContextParams } from '../../util/contextParams'
 
 const logger = multiLogger.child({ component: 'client-core:system-crash', modifier: clientContextParams })

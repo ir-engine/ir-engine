@@ -29,7 +29,7 @@ import { projectsPath } from '@ir-engine/common/src/schemas/projects/projects.sc
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('projects.test', () => {
   let app: Application
@@ -40,7 +40,8 @@ describe('projects.test', () => {
   })
 
   after(async () => {
-    await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should find the projects', async () => {

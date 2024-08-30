@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/common'
 import {
   FileBrowserContentType,
   StaticResourceType,
@@ -35,7 +36,6 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
-import { unique } from '@ir-engine/common/src/utils/miscUtils'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   FilesViewModeSettings,
@@ -51,8 +51,8 @@ import { handleUploadFiles, inputFileWithAddToScene } from '@ir-engine/editor/sr
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { unique } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -213,7 +213,7 @@ function GeneratingThumbnailsProgress() {
   return (
     <LoadingView
       titleClassname="mt-0"
-      containerClassname="flex-row mt-1"
+      containerClassName="flex-row mt-1"
       className="mx-2 my-auto h-6 w-6"
       title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
     />
@@ -774,7 +774,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full w-auto"
+            containerClassName="flex h-full w-auto"
             className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />

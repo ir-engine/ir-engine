@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import config from '@ir-engine/common/src/config'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -64,7 +63,7 @@ function loadScript(url): Promise<HTMLScriptElement> {
  */
 const initialize8thwall = async (): Promise<XR8Assets> => {
   const [xr8Script, xrExtrasScript /*, xrCoachingOverlayScript*/] = await Promise.all([
-    loadScript(`https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`),
+    loadScript(`https://apps.8thwall.com/xrweb?appKey=${globalThis.process.env.VITE_8TH_WALL}`),
     loadScript(`https://cdn.8thwall.com/web/xrextras/xrextras.js`)
     // loadScript(`https://cdn.8thwall.com/web/coaching-overlay/coaching-overlay.js`)
   ])

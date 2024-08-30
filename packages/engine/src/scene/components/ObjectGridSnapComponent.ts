@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useDidMount } from '@ir-engine/common/src/utils/useDidMount'
 import {
   defineComponent,
   getComponent,
@@ -35,7 +34,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useState } from '@ir-engine/hyperflux'
+import { getMutableState, useDidMount, useState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
@@ -46,7 +45,7 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  useChildrenWithComponent
+  useChildrenWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -195,7 +194,7 @@ export const ObjectGridSnapComponent = defineComponent({
     const engineState = useState(getMutableState(EngineState))
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
     const modelComponent = useComponent(entity, ModelComponent)
-    const meshComponents = useChildrenWithComponent(entity, MeshComponent)
+    const meshComponents = useChildrenWithComponents(entity, [MeshComponent])
 
     useEffect(() => {
       if (!modelComponent.scene.value) return

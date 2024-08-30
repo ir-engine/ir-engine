@@ -27,11 +27,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 

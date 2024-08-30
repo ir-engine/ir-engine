@@ -33,6 +33,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import { serverAutoRefreshOptions } from '../../common/constants/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
+import ApiJobsTable from './ApiJobsTable'
 import MigrationsTable from './MigrationsTable'
 import ServerTable from './ServerTable'
 
@@ -121,6 +122,11 @@ export default function Servers() {
             title: t('admin:components.server.migrations'),
             tabLabel: t('admin:components.server.migrations'),
             bottomComponent: <MigrationsTable />
+          },
+          {
+            title: t('admin:components.server.apiJobs'),
+            tabLabel: t('admin:components.server.apiJobs'),
+            bottomComponent: <ApiJobsTable />
           }
         ]}
         tabcontainerClassName="bg-theme-primary"
