@@ -53,6 +53,7 @@ import {
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
   MaterialStateComponent,
+  PrototypeArgument,
   prototypeQuery
 } from './MaterialComponent'
 
@@ -69,14 +70,14 @@ export const loadMaterialGLTF = (url: string, callback: (material: Material | nu
   })
 }
 
-export const extractDefaults = (defaultArgs) => {
+export const extractDefaults = (defaultArgs: PrototypeArgument) => {
   return formatMaterialArgs(
     Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, v.default])),
     defaultArgs
   )
 }
 
-export const formatMaterialArgs = (args, defaultArgs: any = undefined) => {
+export const formatMaterialArgs = (args: any, defaultArgs?: PrototypeArgument) => {
   if (!args) return args
   return Object.fromEntries(
     Object.entries(args)
