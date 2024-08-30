@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   FilesState,
@@ -52,7 +53,6 @@ import {
   useCurrentFiles,
   useFileBrowserDrop
 } from './helpers'
-import { useFind } from '@ir-engine/common'
 
 type DisplayTypeProps = {
   file: FileDataType
@@ -182,7 +182,7 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
         </div>
 
         <Tooltip content={file.fullName}>
-          <Text theme="secondary" fontSize="sm" className="mt-2 w-24 overflow-hidden whitespace-nowrap text-ellipsis">
+          <Text theme="secondary" fontSize="sm" className="mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap">
             {file.fullName}
           </Text>
         </Tooltip>

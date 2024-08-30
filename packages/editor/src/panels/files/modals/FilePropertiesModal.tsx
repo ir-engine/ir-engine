@@ -30,15 +30,15 @@ import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/service
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { API, useFind } from '@ir-engine/common'
 import { StaticResourceType, UserType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { ImmutableArray, NO_PROXY, State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
 import { FilesState, SelectedFilesState } from '../../../services/FilesState'
 import { createFileDigest, createStaticResourceDigest } from '../helpers'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 export default function FilePropertiesModal() {
   const projectName = useMutableState(FilesState).projectName.value

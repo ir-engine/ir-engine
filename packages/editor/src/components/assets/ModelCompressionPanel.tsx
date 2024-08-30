@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
-import { ImmutableArray, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
 import { iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'

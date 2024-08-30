@@ -31,9 +31,9 @@ import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { FileDataType } from '../helpers'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import { FileDataType } from '../helpers'
 
 export default function RenameFileModal({ projectName, file }: { projectName: string; file: FileDataType }) {
   const { t } = useTranslation()

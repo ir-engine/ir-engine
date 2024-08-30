@@ -31,14 +31,13 @@ import { useMutation } from '@ir-engine/common'
 import { imageConvertPath } from '@ir-engine/common/src/schema.type.module'
 import { ImageConvertDefaultParms, ImageConvertParms } from '@ir-engine/engine/src/assets/constants/ImageConvertParms'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { FileDataType } from '../helpers'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-
+import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { FileDataType } from '../helpers'
 
 export default function ImageConvertModal({
   file,

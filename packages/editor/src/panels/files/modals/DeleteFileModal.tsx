@@ -31,9 +31,9 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { FileDataType } from '../helpers'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { FileDataType } from '../helpers'
 
 export default function DeleteFileModal({
   files,
