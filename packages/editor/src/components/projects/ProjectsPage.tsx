@@ -330,7 +330,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
 
   return (
-    <div className="flex h-full w-full flex-col items-center overflow-y-auto px-5 py-3">
+    <main className="pointer-events-auto flex h-full w-full flex-col items-center overflow-y-auto px-5 py-3">
       <div className="flex w-2/3 items-center justify-around gap-x-2">
         <Input
           onChange={(e) => {
@@ -542,7 +542,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
           )}
         </div>
       </ContextMenu>
-    </div>
+    </main>
   )
 }
 
