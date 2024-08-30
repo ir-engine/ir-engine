@@ -31,7 +31,6 @@ import {
   SelectedFilesState
 } from '@ir-engine/editor/src/services/FilesState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { MouseEventHandler, useEffect } from 'react'
@@ -53,6 +52,7 @@ import {
   useCurrentFiles,
   useFileBrowserDrop
 } from './helpers'
+import { useFind } from '@ir-engine/common'
 
 type DisplayTypeProps = {
   file: FileDataType

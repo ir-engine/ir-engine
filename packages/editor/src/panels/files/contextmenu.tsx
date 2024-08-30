@@ -27,7 +27,6 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
@@ -43,6 +42,7 @@ import { FileDataType, fileConsistsOfContentType, useCurrentFiles } from './help
 import DeleteFileModal from './modals/DeleteFileModal'
 import FilePropertiesModal from './modals/FilePropertiesModal'
 import RenameFileModal from './modals/RenameFileModal'
+import { useMutation } from '@ir-engine/common'
 
 function PasteFileButton({
   file: fFile,

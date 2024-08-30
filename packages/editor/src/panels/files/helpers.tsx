@@ -36,10 +36,10 @@ import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnown
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import React, { ReactNode, createContext, useContext } from 'react'
 import { handleUploadFiles } from '../../functions/assetFunctions'
 import { FilesState } from '../../services/FilesState'
+import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/common'
 
 /* CONSTANTS */
 
