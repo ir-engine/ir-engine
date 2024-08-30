@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ResizeObserver as Polyfill } from '@juggle/resize-observer'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 
 import { EventCallback, WebLayer } from './WebLayer'
 import { WebLayerManagerBase } from './WebLayerManagerBase'

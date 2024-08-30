@@ -31,10 +31,11 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
+import { useFind } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { projectPath, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'

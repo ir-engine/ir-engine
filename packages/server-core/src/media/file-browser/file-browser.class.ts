@@ -42,8 +42,8 @@ import {
   projectPermissionPath,
   ProjectPermissionType
 } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
 import { BadRequest } from '@feathersjs/errors/lib'
 import { Application } from '../../../declarations'
@@ -59,7 +59,7 @@ export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects
 export interface FileBrowserParams extends KnexAdapterParams {}
 
 const ensureProjectsDirectory = (directory: string) => {
-  if (!directory.startsWith('projects')) throw new Error('Not allowed to access this directory')
+  if (!directory.startsWith('projects')) throw new Error(`Not allowed to access directory "${directory}"`)
 }
 
 /**
@@ -86,7 +86,8 @@ export class FileBrowserService
   async get(key: string, params?: FileBrowserParams) {
     if (!key) return false
     const storageProvider = getStorageProvider()
-    const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
+    let [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
+    if (directory[0] === '/') directory = directory.slice(1)
 
     ensureProjectsDirectory(directory)
 

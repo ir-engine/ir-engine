@@ -26,14 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { AvatarID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { PeerID, applyIncomingActions, clearOutgoingActions, dispatchAction } from '@ir-engine/hyperflux'
+import { PeerID, UserID, applyIncomingActions, clearOutgoingActions, dispatchAction } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@ir-engine/network'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -86,7 +85,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID,
+        avatarURL: '',
         name: ''
       })
     )

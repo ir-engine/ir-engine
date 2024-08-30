@@ -36,16 +36,19 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
+
+import '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
+import '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
+
+import { NetworkActions, NetworkPeerFunctions, NetworkState } from '@ir-engine/network'
+
+import { MediasoupMediaConsumerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import {
-  MediasoupMediaConsumerActions,
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
-  MediasoupTransportState,
-  NetworkActions,
-  NetworkPeerFunctions,
-  NetworkState
-} from '@ir-engine/network'
-
+  MediasoupTransportState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import {
   onTransportCreated,

@@ -41,7 +41,7 @@ import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunct
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const newProjectName1 = 'org/projecttest_test_project_name_1'
 
@@ -153,8 +153,10 @@ describe('project-permission.test', () => {
       userId: user4.id
     })
   })
-  after(() => {
-    return destroyEngine()
+
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   describe("'project-permission' service'", () => {

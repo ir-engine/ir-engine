@@ -28,9 +28,10 @@ import React from 'react'
 
 import { MediaInstanceState } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { MediasoupMediaProducerConsumerState, NetworkState, screenshareVideoDataChannelType } from '@ir-engine/network'
+import { NetworkState, screenshareVideoDataChannelType } from '@ir-engine/network'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
 import ConferenceModeParticipant from './ConferenceModeParticipant'

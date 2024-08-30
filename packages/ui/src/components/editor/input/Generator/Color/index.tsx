@@ -36,7 +36,7 @@ import {
   ConstantColorJSON,
   RandomColorJSON
 } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { State } from '@ir-engine/hyperflux'
 
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
