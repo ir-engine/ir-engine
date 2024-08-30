@@ -151,7 +151,6 @@ jobs:
       - run: rm -rf packages/client-core
       - run: rm -rf packages/editor
       - run: rm -rf packages/ui
-      - run: npm i
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
