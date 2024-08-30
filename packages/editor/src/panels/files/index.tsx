@@ -23,27 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// Use this hook to manipulate incoming or outgoing data.
-// For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
-import { Hook, HookContext } from '@feathersjs/feathers'
-import ua from 'universal-analytics'
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import { TabData } from 'rc-dock'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import FileBrowser from './filebrowser'
 
-import config from '../appconfig'
+const FilesPanelTitle = () => {
+  const { t } = useTranslation()
+  return (
+    <PanelDragContainer>
+      <PanelTitle>{t('editor:layout.filebrowser.tab-name')}</PanelTitle>
+    </PanelDragContainer>
+  )
+}
 
-export default (): Hook => {
-  return async (context: HookContext): Promise<HookContext> => {
-    if (context.method === 'remove') return context
-    if (!context.params.user) {
-      // send a anonymous user's analytics
-      const visitor = ua(config.server.gaTrackingId, { https: false })
-      visitor.pageview(context.service).send()
-      visitor.event(context.method, 'Request').send()
-    } else {
-      // send the user's analytics
-      const visitor = ua(config.server.gaTrackingId, context.params.user._id, { https: false })
-      visitor.pageview(context.service).send()
-      visitor.event(context.method, 'Request').send()
-    }
-    return context
-  }
+export const FilesPanelTab: TabData = {
+  id: 'filesPanel',
+  closable: true,
+  title: <FilesPanelTitle />,
+  content: <FileBrowser />
 }

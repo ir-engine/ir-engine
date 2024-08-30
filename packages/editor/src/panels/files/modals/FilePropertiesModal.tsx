@@ -30,24 +30,22 @@ import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/service
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { API, useFind } from '@ir-engine/common'
 import { StaticResourceType, UserType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { ImmutableArray, NO_PROXY, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
-import Button from '../../../../../primitives/tailwind/Button'
-import Input from '../../../../../primitives/tailwind/Input'
-import Modal from '../../../../../primitives/tailwind/Modal'
-import Text from '../../../../../primitives/tailwind/Text'
-import { FileType, createFileDigest, createStaticResourceDigest } from '../container'
+import { FilesState, SelectedFilesState } from '../../../services/FilesState'
+import { createFileDigest, createStaticResourceDigest } from '../helpers'
 
-export default function FilePropertiesModal({
-  projectName,
-  files
-}: {
-  projectName: string
-  files: ImmutableArray<FileType>
-}) {
-  const itemCount = files.length
-  if (itemCount === 0) return null
+export default function FilePropertiesModal() {
+  const projectName = useMutableState(FilesState).projectName.value
+  const files = useMutableState(SelectedFilesState).value
+
+  const filesCount = files.length
+  if (filesCount === 0) return null
   const { t } = useTranslation()
 
   const fileStaticResources = useHookstate<StaticResourceType[]>([])
@@ -61,17 +59,17 @@ export default function FilePropertiesModal({
 
   let title: string
   let filename: string
-  if (itemCount === 1) {
+  if (filesCount === 1) {
     const firstFile = files[0]
     filename = firstFile.name
     title = t('editor:layout.filebrowser.fileProperties.header', { fileName: filename.toUpperCase() })
   } else {
     filename = t('editor:layout.filebrowser.fileProperties.mixedValues')
-    title = t('editor:layout.filebrowser.fileProperties.header-plural', { itemCount })
+    title = t('editor:layout.filebrowser.fileProperties.header-plural', { itemCount: filesCount })
   }
 
-  const onChange = (fieldName: string, state: State<any>) => {
-    return (e) => {
+  const onChange = (fieldName: string, state: State<string | undefined>) => {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!modifiedFields.value.includes(fieldName)) {
         modifiedFields.set([...modifiedFields.value, fieldName])
       }
@@ -111,17 +109,17 @@ export default function FilePropertiesModal({
     }
   }
 
-  const query = {
-    key: {
-      $like: undefined,
-      $or: files.map(({ key }) => ({
-        key
-      }))
-    },
-    $limit: 10000
-  }
-
-  const resources = useFind(staticResourcePath, { query })
+  const resources = useFind(staticResourcePath, {
+    query: {
+      key: {
+        $like: undefined,
+        $or: files.map(({ key }) => ({
+          key
+        }))
+      },
+      $limit: 10000
+    }
+  })
   useEffect(() => {
     if (resources.data.length === 0) return
     API.instance
@@ -163,7 +161,7 @@ export default function FilePropertiesModal({
   return (
     <Modal
       title={title}
-      className="w-96"
+      className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitButtonText={t('editor:layout.filebrowser.fileProperties.save-changes')}
