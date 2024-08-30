@@ -75,10 +75,10 @@ export const PersistentAnchorComponent = defineComponent({
    * @param component
    * @returns
    */
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      name: component.name.value,
-      wireframe: component.wireframe.value
+      name: component.name,
+      wireframe: component.wireframe
     }
   },
 

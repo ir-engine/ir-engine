@@ -35,7 +35,6 @@ import {
   defineComponent,
   getAllComponents,
   getComponent,
-  getMutableComponent,
   hasComponent,
   hasComponents,
   removeComponent,
@@ -99,12 +98,12 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
       setComponent(entity, Vector3Component)
-      const vector3Component = getMutableComponent(entity, Vector3Component)
-      const json = Vector3Component.toJSON(entity, vector3Component)
+      const vector3Component = getComponent(entity, Vector3Component)
+      const json = Vector3Component.toJSON(vector3Component)
       const fromSchema = Value.Create(Vector3Component.schema)
-      assert(Value.Equal(vector3Component.value, fromSchema))
+      assert(Value.Equal(vector3Component, fromSchema))
       assert(Value.Equal(json, fromSchema))
-      assert(Value.Equal(json, vector3Component.value))
+      assert(Value.Equal(json, vector3Component))
     })
 
     it('should use default onSet function if none is defined', () => {
@@ -134,7 +133,7 @@ describe('ComponentFunctions', async () => {
           y: S.Number(0),
           z: S.Number(4)
         }),
-        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
+        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
       })
 
       const setValue = { x: 12, y: 24 }
@@ -157,15 +156,15 @@ describe('ComponentFunctions', async () => {
           y: S.Number(0),
           z: S.Number(4)
         }),
-        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
+        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
       })
 
       const setValue = { x: 12, y: 24 }
       const entity = createEntity()
       setComponent(entity, Vector3Component, setValue)
-      const vector3Component = getMutableComponent(entity, Vector3Component)
-      const json = Vector3Component.toJSON(entity, vector3Component)
-      assert(vector3Component.value instanceof Vector3)
+      const vector3Component = getComponent(entity, Vector3Component)
+      const json = Vector3Component.toJSON(vector3Component)
+      assert(vector3Component instanceof Vector3)
       assert(!(json instanceof Vector3))
       assert(vector3Component.isVector3)
       assert(Value.Equal(json, { ...setValue, z: 4 }))
@@ -180,7 +179,7 @@ describe('ComponentFunctions', async () => {
           y: S.Number(0),
           z: S.Number(4)
         }),
-        onInit: (entity, initial) => new Vector3(initial.x, initial.y, initial.z)
+        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
       })
 
       const setValue = new Vector3(12, 15, 74)

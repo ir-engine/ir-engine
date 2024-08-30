@@ -57,19 +57,19 @@ export const CameraSettingsComponent = defineComponent({
     if (typeof json.maxPhi === 'number') component.maxPhi.set(json.maxPhi)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      fov: component.fov.value,
-      cameraNearClip: component.cameraNearClip.value,
-      cameraFarClip: component.cameraFarClip.value,
-      projectionType: component.projectionType.value,
-      minCameraDistance: component.minCameraDistance.value,
-      maxCameraDistance: component.maxCameraDistance.value,
-      startCameraDistance: component.startCameraDistance.value,
-      cameraMode: component.cameraMode.value,
-      cameraModeDefault: component.cameraModeDefault.value,
-      minPhi: component.minPhi.value,
-      maxPhi: component.maxPhi.value
+      fov: component.fov,
+      cameraNearClip: component.cameraNearClip,
+      cameraFarClip: component.cameraFarClip,
+      projectionType: component.projectionType,
+      minCameraDistance: component.minCameraDistance,
+      maxCameraDistance: component.maxCameraDistance,
+      startCameraDistance: component.startCameraDistance,
+      cameraMode: component.cameraMode,
+      cameraModeDefault: component.cameraModeDefault,
+      minPhi: component.minPhi,
+      maxPhi: component.maxPhi
     }
   },
 

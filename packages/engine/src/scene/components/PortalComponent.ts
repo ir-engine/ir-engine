@@ -115,24 +115,24 @@ export const PortalComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      location: component.location.value,
-      linkedPortalId: component.linkedPortalId.value,
-      redirect: component.redirect.value,
-      effectType: component.effectType.value,
-      previewType: component.previewType.value,
-      previewImageURL: component.previewImageURL.value,
+      location: component.location,
+      linkedPortalId: component.linkedPortalId,
+      redirect: component.redirect,
+      effectType: component.effectType,
+      previewType: component.previewType,
+      previewImageURL: component.previewImageURL,
       spawnPosition: {
-        x: component.spawnPosition.value.x,
-        y: component.spawnPosition.value.y,
-        z: component.spawnPosition.value.z
+        x: component.spawnPosition.x,
+        y: component.spawnPosition.y,
+        z: component.spawnPosition.z
       } as Vector3,
       spawnRotation: {
-        x: component.spawnRotation.value.x,
-        y: component.spawnRotation.value.y,
-        z: component.spawnRotation.value.z,
-        w: component.spawnRotation.value.w
+        x: component.spawnRotation.x,
+        y: component.spawnRotation.y,
+        z: component.spawnRotation.z,
+        w: component.spawnRotation.w
       } as Quaternion
     }
   },

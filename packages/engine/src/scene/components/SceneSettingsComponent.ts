@@ -56,15 +56,15 @@ export const SceneSettingsComponent = defineComponent({
     if (typeof json.spectateEntity === 'string') component.spectateEntity.set(json.spectateEntity)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      thumbnailURL: component.thumbnailURL.value,
-      loadingScreenURL: component.loadingScreenURL.value,
-      primaryColor: component.primaryColor.value,
-      backgroundColor: component.backgroundColor.value,
-      alternativeColor: component.alternativeColor.value,
-      sceneKillHeight: component.sceneKillHeight.value,
-      spectateEntity: component.spectateEntity.value
+      thumbnailURL: component.thumbnailURL,
+      loadingScreenURL: component.loadingScreenURL,
+      primaryColor: component.primaryColor,
+      backgroundColor: component.backgroundColor,
+      alternativeColor: component.alternativeColor,
+      sceneKillHeight: component.sceneKillHeight,
+      spectateEntity: component.spectateEntity
     }
   }
 })

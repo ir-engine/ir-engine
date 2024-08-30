@@ -84,11 +84,11 @@ export const ModelComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      src: component.src.value,
-      cameraOcclusion: component.cameraOcclusion.value,
-      convertToVRM: component.convertToVRM.value
+      src: component.src,
+      cameraOcclusion: component.cameraOcclusion,
+      convertToVRM: component.convertToVRM
     }
   },
 

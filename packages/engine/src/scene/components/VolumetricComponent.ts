@@ -111,13 +111,13 @@ export const VolumetricComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      paths: component.paths.value,
-      useLoadingEffect: component.useLoadingEffect.value,
-      autoplay: component.autoplay.value,
-      volume: component.volume.value,
-      playMode: component.playMode.value
+      paths: component.paths,
+      useLoadingEffect: component.useLoadingEffect,
+      autoplay: component.autoplay,
+      volume: component.volume,
+      playMode: component.playMode
     }
   },
 

@@ -59,10 +59,6 @@ export const UUIDComponent = defineComponent({
     _getUUIDState(uuid).set(entity)
   },
 
-  toJSON(entity, component) {
-    return component.value
-  },
-
   onRemove: (entity, component) => {
     const uuid = component.value
     _getUUIDState(uuid).set(UndefinedEntity)

@@ -113,25 +113,25 @@ export const VideoComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
       /**
        * An entity with with an attached MediaComponent;if an empty string, then the current entity is assumed
        */
-      mediaUUID: component.mediaUUID.value,
-      side: component.side.value,
-      size: component.size.value,
-      uvOffset: component.uvOffset.value,
-      uvScale: component.uvScale.value,
-      alphaUVOffset: component.alphaUVOffset.value,
-      alphaUVScale: component.alphaUVScale.value,
-      wrapS: component.wrapS.value,
-      wrapT: component.wrapT.value,
-      useAlpha: component.useAlpha.value,
-      useAlphaUVTransform: component.useAlphaUVTransform.value,
-      alphaThreshold: component.alphaThreshold.value,
-      fit: component.fit.value,
-      projection: component.projection.value
+      mediaUUID: component.mediaUUID,
+      side: component.side,
+      size: component.size,
+      uvOffset: component.uvOffset,
+      uvScale: component.uvScale,
+      alphaUVOffset: component.alphaUVOffset,
+      alphaUVScale: component.alphaUVScale,
+      wrapS: component.wrapS,
+      wrapT: component.wrapT,
+      useAlpha: component.useAlpha,
+      useAlphaUVTransform: component.useAlphaUVTransform,
+      alphaThreshold: component.alphaThreshold,
+      fit: component.fit,
+      projection: component.projection
     }
   },
 

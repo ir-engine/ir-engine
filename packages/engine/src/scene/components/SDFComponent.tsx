@@ -84,12 +84,12 @@ export const SDFComponent = defineComponent({
       component.scale.set(json.scale)
     }
   },
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      color: component.color.value,
-      enable: component.enable.value,
-      scale: component.scale.value,
-      mode: component.mode.value
+      color: component.color,
+      enable: component.enable,
+      scale: component.scale,
+      mode: component.mode
     }
   },
 

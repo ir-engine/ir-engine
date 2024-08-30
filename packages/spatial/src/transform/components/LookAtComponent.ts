@@ -43,9 +43,9 @@ export const LookAtComponent = defineComponent({
       component.yAxis.set(props.yAxis)
     }
   },
-  toJSON: (entity, component) => ({
-    target: component.target.value,
-    xAxis: component.xAxis.value,
-    yAxis: component.yAxis.value
+  toJSON: (component) => ({
+    target: component.target,
+    xAxis: component.xAxis,
+    yAxis: component.yAxis
   })
 })

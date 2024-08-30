@@ -49,10 +49,10 @@ export const PostProcessingComponent = defineComponent({
     if (typeof json.effects === 'object') component.merge({ effects: json.effects })
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      effects: component.effects.value,
-      enabled: component.enabled.value
+      effects: component.effects,
+      enabled: component.enabled
     }
   },
 

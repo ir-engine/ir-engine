@@ -87,15 +87,15 @@ export const PositionalAudioComponent = defineComponent({
       component.coneOuterGain.set(json.coneOuterGain)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      distanceModel: component.distanceModel.value,
-      rolloffFactor: component.rolloffFactor.value,
-      refDistance: component.refDistance.value,
-      maxDistance: component.maxDistance.value,
-      coneInnerAngle: component.coneInnerAngle.value,
-      coneOuterAngle: component.coneOuterAngle.value,
-      coneOuterGain: component.coneOuterGain.value
+      distanceModel: component.distanceModel,
+      rolloffFactor: component.rolloffFactor,
+      refDistance: component.refDistance,
+      maxDistance: component.maxDistance,
+      coneInnerAngle: component.coneInnerAngle,
+      coneOuterAngle: component.coneOuterAngle,
+      coneOuterGain: component.coneOuterGain
     }
   },
 

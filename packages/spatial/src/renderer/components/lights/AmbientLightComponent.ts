@@ -52,10 +52,10 @@ export const AmbientLightComponent = defineComponent({
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      color: component.color.value,
-      intensity: component.intensity.value
+      color: component.color,
+      intensity: component.intensity
     }
   },
 

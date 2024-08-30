@@ -163,17 +163,17 @@ export const MediaComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      controls: component.controls.value,
-      autoplay: component.autoplay.value,
-      resources: [...component.resources.value].filter(Boolean), // filter empty strings
-      volume: component.volume.value,
-      uiOffset: component.uiOffset.value,
-      synchronize: component.synchronize.value,
-      playMode: component.playMode.value,
-      isMusic: component.isMusic.value,
-      seekTime: component.seekTime.value // we can start media from a specific point if needed
+      controls: component.controls,
+      autoplay: component.autoplay,
+      resources: [...component.resources].filter(Boolean), // filter empty strings
+      volume: component.volume,
+      uiOffset: component.uiOffset,
+      synchronize: component.synchronize,
+      playMode: component.playMode,
+      isMusic: component.isMusic,
+      seekTime: component.seekTime // we can start media from a specific point if needed
     }
   },
 

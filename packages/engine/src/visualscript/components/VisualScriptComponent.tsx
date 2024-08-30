@@ -56,12 +56,12 @@ export const VisualScriptComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      domain: component.domain.value,
-      visualScript: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.visualScript.get({ noproxy: true })))),
+      domain: component.domain,
+      visualScript: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.visualScript))),
       run: false,
-      disabled: component.disabled.value
+      disabled: component.disabled
     }
   },
 

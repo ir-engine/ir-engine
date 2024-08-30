@@ -852,9 +852,9 @@ export const ParticleSystemComponent = defineComponent({
       component._refresh.set((component._refresh.value + 1) % 1000)
   },
 
-  toJSON: (entity, component) => ({
-    systemParameters: JSON.parse(JSON.stringify(component.systemParameters.value)),
-    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters.value))
+  toJSON: (component) => ({
+    systemParameters: JSON.parse(JSON.stringify(component.systemParameters)),
+    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters))
   }),
 
   reactor: function () {

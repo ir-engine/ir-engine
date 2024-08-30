@@ -42,7 +42,7 @@ export const CameraComponent = defineComponent({
     far: S.Number(1000)
   }),
 
-  onInit: (entity, initial) => {
+  onInit: (initial) => {
     const camera = new ArrayCamera()
     camera.fov = initial.fov
     camera.aspect = initial.aspect

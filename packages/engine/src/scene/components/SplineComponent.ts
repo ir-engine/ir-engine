@@ -74,8 +74,8 @@ export const SplineComponent = defineComponent({
       )
   },
 
-  toJSON: (entity, component) => {
-    return { elements: component.elements.get({ noproxy: true }) }
+  toJSON: (component) => {
+    return { elements: component.elements }
   },
 
   reactor: () => {

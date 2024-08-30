@@ -95,19 +95,19 @@ export const LoopAnimationComponent = defineComponent({
     if (typeof json.weight === 'number') component.weight.set(json.weight)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      activeClipIndex: component.activeClipIndex.value,
-      animationPack: component.animationPack.value,
-      paused: component.paused.value,
-      time: component.time.value,
-      timeScale: component.timeScale.value,
-      blendMode: component.blendMode.value,
-      loop: component.loop.value,
-      clampWhenFinished: component.clampWhenFinished.value,
-      zeroSlopeAtStart: component.zeroSlopeAtStart.value,
-      zeroSlopeAtEnd: component.zeroSlopeAtEnd.value,
-      weight: component.weight.value
+      activeClipIndex: component.activeClipIndex,
+      animationPack: component.animationPack,
+      paused: component.paused,
+      time: component.time,
+      timeScale: component.timeScale,
+      blendMode: component.blendMode,
+      loop: component.loop,
+      clampWhenFinished: component.clampWhenFinished,
+      zeroSlopeAtStart: component.zeroSlopeAtStart,
+      zeroSlopeAtEnd: component.zeroSlopeAtEnd,
+      weight: component.weight
     }
   },
 

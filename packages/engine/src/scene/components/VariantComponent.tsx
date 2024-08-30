@@ -107,15 +107,15 @@ export const VariantComponent = defineComponent({
     if (typeof json.budgetLevel === 'number') component.currentLevel.set(json.budgetLevel)
   },
 
-  toJSON: (entity, component) => ({
-    levels: component.levels.value.map((level) => {
+  toJSON: (component) => ({
+    levels: component.levels.map((level) => {
       return {
         src: level.src,
         metadata: level.metadata
       }
     }),
-    heuristic: component.heuristic.value,
-    useDistance: component.useDistance.value
+    heuristic: component.heuristic,
+    useDistance: component.useDistance
   }),
 
   reactor: VariantReactor

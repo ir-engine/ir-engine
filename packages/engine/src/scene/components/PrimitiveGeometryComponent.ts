@@ -49,10 +49,10 @@ export const PrimitiveGeometryComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      geometryType: component.geometryType.value,
-      geometryParams: component.geometryParams.value
+      geometryType: component.geometryType,
+      geometryParams: component.geometryParams
     }
   },
 

@@ -73,13 +73,13 @@ export const SplineTrackComponent = defineComponent({
     if (typeof json.loop === 'boolean') component.loop.set(json.loop)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      splineEntityUUID: component.splineEntityUUID.value,
-      velocity: component.velocity.value,
-      enableRotation: component.enableRotation.value,
-      lockToXZPlane: component.lockToXZPlane.value,
-      loop: component.loop.value
+      splineEntityUUID: component.splineEntityUUID,
+      velocity: component.velocity,
+      enableRotation: component.enableRotation,
+      lockToXZPlane: component.lockToXZPlane,
+      loop: component.loop
     }
   },
 

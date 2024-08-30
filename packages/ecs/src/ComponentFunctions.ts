@@ -88,9 +88,9 @@ type ComponentSchema = TSchema | bitECS.ISchema
  */
 export interface ComponentPartial<
   Schema extends ComponentSchema = any,
-  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema | undefined,
-  ComponentType = SchemaInstanceType,
-  JSON = SchemaInstanceType,
+  InitializationType = Schema extends TSchema ? Static<Schema> : Entity,
+  ComponentType = Schema extends TSchema ? Static<Schema> : Schema,
+  JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = never
 > {
@@ -105,7 +105,7 @@ export interface ComponentPartial<
    * @param initial the initial value created from the component's schema.
    * @returns The shape of the component's runtime data.
    */
-  onInit?: (entity: Entity, initial: SchemaInstanceType) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (initial: InitializationType) => ComponentType & OnInitValidateNotState<ComponentType>
   /**
    * @description
    * Serializer function called when the component is saved to a snapshot or scene file.
@@ -113,7 +113,7 @@ export interface ComponentPartial<
    * @param entity The {@link Entity} to which this Component is assigned.
    * @param component The Component's global data (aka {@link State}).
    */
-  toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
+  toJSON?: (component: ComponentType) => JSON
   /**
    * @description
    * Called when the component's data is updated via the {@link setComponent} function.
@@ -149,9 +149,9 @@ export interface ComponentPartial<
  */
 export interface Component<
   Schema extends ComponentSchema = any,
-  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema | undefined,
-  ComponentType = SchemaInstanceType,
-  JSON = SchemaInstanceType,
+  InitializationType = Schema extends TSchema ? Static<Schema> : Entity,
+  ComponentType = Schema extends TSchema ? Static<Schema> : Schema,
+  JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = string
 > {
@@ -159,8 +159,8 @@ export interface Component<
   name: string
   jsonID?: string
   schema?: Schema
-  onInit?: (entity: Entity, initial: SchemaInstanceType) => ComponentType & OnInitValidateNotState<ComponentType>
-  toJSON: (entity: Entity, component: State<ComponentType>) => JSON
+  onInit?: (initial: InitializationType) => ComponentType & OnInitValidateNotState<ComponentType>
+  toJSON: (component: ComponentType) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: any
@@ -207,7 +207,7 @@ const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECS.ISchema =
  *       myProp: 'My Value'
  *     }
  *   },
- *   toJSON: (entity, component) => {
+ *   toJSON: (component) => {
  *     return {
  *       myProp: component.myProp.value
  *     }
@@ -223,19 +223,19 @@ const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECS.ISchema =
  */
 export const defineComponent = <
   Schema extends ComponentSchema = any,
-  SchemaInstanceType = Schema extends TSchema ? Static<Schema> : Schema | undefined,
-  ComponentType = SchemaInstanceType,
-  JSON = SchemaInstanceType,
+  InitializationType = Schema extends TSchema ? Static<Schema> : Entity,
+  ComponentType = Schema extends TSchema ? Static<Schema> : Schema,
+  JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
   ComponentExtras = Record<string, any>,
   SOAComponent = Schema extends TSchema ? SoAComponentType<any> : SoAComponentType<Schema>
 >(
-  def: ComponentPartial<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
+  def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
 ) => {
   const Component = (
     schemaIsECSSchema(def.schema) ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}
-  ) as Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, ErrorTypes> & {
+  ) as Component<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & {
     _TYPE: ComponentType
   } & ComponentExtras &
     SOAComponent
@@ -245,25 +245,20 @@ export const defineComponent = <
     if (schemaIsJSONSchema(def.schema)) {
       if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
       else {
-        const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
-        const schemaValue = Value.Cast(schema, json)
-        component.merge(schemaValue as SetPartialStateAction<ComponentType>)
+        // const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
+        // const schemaValue = Value.Cast(schema, json)
+        component.merge(json as SetPartialStateAction<ComponentType>)
       }
     }
   }
   Component.onRemove = () => {}
-  Component.toJSON = (entity, component) => {
-    if (schemaIsJSONSchema(def.schema)) {
-      const value = component.value
-      if (def.onInit) {
-        const schemaValue = Value.Parse(def.schema, value) as JSON
-        return schemaValue
-      }
-
-      return value as unknown as JSON
+  Component.toJSON = (component) => {
+    if (schemaIsJSONSchema(def.schema) && def.onInit) {
+      const schemaValue = Value.Parse(def.schema, component) as JSON
+      return schemaValue
     }
 
-    return null as JSON
+    return component as unknown as JSON
   }
 
   Component.errors = []
@@ -349,7 +344,7 @@ export const getComponent = <Schema extends ComponentSchema, SchemaInstanceType,
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
-    return undefined as any
+    return undefined as ComponentType
   }
   const componentState = component.stateMap[entity]!
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
@@ -367,9 +362,11 @@ export const createInitialComponentValue = <
 ): ComponentType => {
   if (schemaIsJSONSchema(component.schema)) {
     const schema = Value.Create(component.schema) as SchemaInstanceType
-    if (component.onInit) return component.onInit(entity, schema) as ComponentType
+    if (component.onInit) return component.onInit(schema) as ComponentType
     else return schema as unknown as ComponentType
-  } else if (component.onInit) return component.onInit(entity, undefined as SchemaInstanceType) as ComponentType
+  } else if (schemaIsECSSchema(component.schema) && component.onInit) {
+    return component.onInit(entity as SchemaInstanceType)
+  } else if (component.onInit) return component.onInit(undefined as SchemaInstanceType) as ComponentType
   else return null as ComponentType
 }
 
@@ -513,14 +510,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
  */
 export const componentJsonDefaults = <C extends Component>(component: C) => {
   const initial = createInitialComponentValue(UndefinedEntity, component)
-  const pseudoState: Record<string, { value: any; get: () => any }> = {}
-  for (const key of Object.keys(initial)) {
-    pseudoState[key] = {
-      value: initial[key],
-      get: () => initial[key]
-    }
-  }
-  return component.toJSON(UndefinedEntity, pseudoState as any)
+  return component.toJSON(initial)
 }
 
 /**
@@ -557,8 +547,8 @@ export const removeAllComponents = (entity: Entity) => {
 }
 
 export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
-  const component = getMutableComponent(entity, Component)
-  return JSON.parse(JSON.stringify(Component.toJSON(entity, component))) as ReturnType<C['toJSON']>
+  const component = getComponent(entity, Component)
+  return JSON.parse(JSON.stringify(Component.toJSON(component))) as ReturnType<C['toJSON']>
 }
 
 // use seems to be unavailable in the server environment

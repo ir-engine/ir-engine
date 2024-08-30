@@ -192,9 +192,9 @@ export const NewVolumetricComponent = defineComponent({
       component.volume.set(json.volume)
     }
   },
-  toJSON: (entity, component) => ({
-    useLoadingEffect: component.useLoadingEffect.value,
-    volume: component.volume.value
+  toJSON: (component) => ({
+    useLoadingEffect: component.useLoadingEffect,
+    volume: component.volume
   }),
   errors: ['INVALID_TRACK', 'GEOMETRY_ERROR', 'TEXTURE_ERROR', 'UNKNOWN_ERROR'],
 

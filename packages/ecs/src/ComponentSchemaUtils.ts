@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import {
   ArrayOptions,
+  Kind,
   NumberOptions,
   ObjectOptions,
   SchemaOptions,
@@ -45,6 +46,15 @@ const buildOptions = (init: any | undefined, options?: SchemaOptions) => {
     : options
 }
 
+export interface TTypedClass<T> extends TSchema {
+  [Kind]: 'Object'
+  static: T
+  type: T
+}
+
+export const TypedClass = <T, TProps extends TProperties>(properties: TProps, init: T, options?: ObjectOptions) =>
+  S.Object(properties, init, options) as unknown as TTypedClass<T>
+
 export const S = {
   Number: (init?: number, options?: NumberOptions) => Type.Number(buildOptions(init, options)),
   Bool: (init?: boolean, options?: SchemaOptions) => Type.Boolean(buildOptions(init, options)),
@@ -58,11 +68,11 @@ export const S = {
   Array: <T extends TSchema, Initial extends any[]>(items: T, init?: Initial, options?: ArrayOptions) =>
     Type.Array(items, buildOptions(init, options)),
 
-  Class: <T extends TSchema, Initial extends new (...params: any[]) => any>(
+  Class: <T extends TProperties, Initial extends new (...params: any[]) => any>(
     init: Initial,
-    items?: T,
+    items: T,
     ...args: ConstructorParameters<Initial>
-  ) => Type.Function([], items ?? Type.Object({}), { default: () => new init(...args) }),
+  ) => TypedClass<InstanceType<Initial>, T>(items, new init(...args), () => new init(...args)),
 
   Func: <T extends TSchema[], U extends TSchema>(parameters: [...T], returns: U, options?: SchemaOptions) =>
     Type.Function(parameters, returns, options),
@@ -79,19 +89,16 @@ export const EntitySchema = Type.Intersect([OpaqueTypeSchema(Type.Literal('entit
   default: UndefinedEntity
 })
 
-export const Vec3Schema = (options?: { x: NumberOptions; y: NumberOptions; z: NumberOptions }) =>
-  S.Object(
+export const Vec3Schema = (init = { x: 0, y: 0, z: 0 }, options?: ObjectOptions) =>
+  TypedClass<Vector3, TProperties>(
     {
       x: S.Number(),
       y: S.Number(),
       z: S.Number()
     },
+    new Vector3(init.x, init.y, init.z),
     {
-      default: {
-        x: options?.x?.default ?? 0,
-        y: options?.y?.default ?? 0,
-        z: options?.z?.default ?? 0
-      },
+      ...options,
       $id: 'Vector3'
     }
   )

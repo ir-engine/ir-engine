@@ -78,13 +78,13 @@ export const SkyboxComponent = defineComponent({
     if (typeof json?.skyboxProps === 'object') component.skyboxProps.set(json.skyboxProps)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      backgroundColor: component.backgroundColor.value,
-      equirectangularPath: component.equirectangularPath.value,
-      cubemapPath: component.cubemapPath.value,
-      backgroundType: component.backgroundType.value,
-      skyboxProps: component.skyboxProps.get({ noproxy: true }) as any
+      backgroundColor: component.backgroundColor,
+      equirectangularPath: component.equirectangularPath,
+      cubemapPath: component.cubemapPath,
+      backgroundType: component.backgroundType,
+      skyboxProps: component.skyboxProps
     }
   },
 

@@ -96,11 +96,11 @@ export const TransformComponent = defineComponent({
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      position: component.position.value,
-      rotation: component.rotation.value,
-      scale: component.scale.value
+      position: component.position,
+      rotation: component.rotation,
+      scale: component.scale
     }
   },
 

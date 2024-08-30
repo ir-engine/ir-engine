@@ -53,16 +53,16 @@ export const MediaSettingsComponent = defineComponent({
     if (typeof json.coneOuterGain === 'number') component.coneOuterGain.set(json.coneOuterGain)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      immersiveMedia: component.immersiveMedia.value,
-      refDistance: component.refDistance.value,
-      rolloffFactor: component.rolloffFactor.value,
-      maxDistance: component.maxDistance.value,
-      distanceModel: component.distanceModel.value,
-      coneInnerAngle: component.coneInnerAngle.value,
-      coneOuterAngle: component.coneOuterAngle.value,
-      coneOuterGain: component.coneOuterGain.value
+      immersiveMedia: component.immersiveMedia,
+      refDistance: component.refDistance,
+      rolloffFactor: component.rolloffFactor,
+      maxDistance: component.maxDistance,
+      distanceModel: component.distanceModel,
+      coneInnerAngle: component.coneInnerAngle,
+      coneOuterAngle: component.coneOuterAngle,
+      coneOuterGain: component.coneOuterGain
     }
   },
 

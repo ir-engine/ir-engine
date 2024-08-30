@@ -46,7 +46,7 @@ import {
   hasComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
@@ -290,14 +290,14 @@ export const InteractableComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      label: component.label.value,
-      clickInteract: component.clickInteract.value,
-      activationDistance: component.activationDistance.value,
-      uiActivationType: component.uiActivationType.value,
-      uiInteractable: component.uiInteractable.value,
-      callbacks: component.callbacks.get(NO_PROXY)
+      label: component.label,
+      clickInteract: component.clickInteract,
+      activationDistance: component.activationDistance,
+      uiActivationType: component.uiActivationType,
+      uiInteractable: component.uiInteractable,
+      callbacks: component.callbacks
     }
   },
 

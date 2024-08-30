@@ -100,10 +100,10 @@ export const InputComponent = defineComponent({
     if (typeof json.grow === 'boolean') component.grow.set(json.grow)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      inputSinks: component.inputSinks.value,
-      activationDistance: component.activationDistance.value
+      inputSinks: component.inputSinks,
+      activationDistance: component.activationDistance
     }
   },
 

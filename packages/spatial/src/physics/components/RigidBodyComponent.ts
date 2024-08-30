@@ -102,14 +102,14 @@ export const RigidBodyComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      type: component.type.value as Body,
-      ccd: component.ccd.value,
-      allowRolling: component.allowRolling.value,
-      enabledRotations: component.enabledRotations.value,
-      canSleep: component.canSleep.value,
-      gravityScale: component.gravityScale.value
+      type: component.type,
+      ccd: component.ccd,
+      allowRolling: component.allowRolling,
+      enabledRotations: component.enabledRotations,
+      canSleep: component.canSleep,
+      gravityScale: component.gravityScale
     }
   },
 

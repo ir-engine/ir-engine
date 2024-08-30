@@ -90,11 +90,11 @@ export const LinkComponent = defineComponent({
 
   interactMessage,
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      url: component.url.value,
-      sceneNav: component.sceneNav.value,
-      location: component.location.value
+      url: component.url,
+      sceneNav: component.sceneNav,
+      location: component.location
     }
   },
 

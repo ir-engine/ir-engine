@@ -58,14 +58,14 @@ export const RenderSettingsComponent = defineComponent({
     if (typeof json.shadowMapType === 'number') component.shadowMapType.set(json.shadowMapType)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      primaryLight: component.primaryLight.value,
-      csm: component.csm.value,
-      cascades: component.cascades.value,
-      toneMapping: component.toneMapping.value,
-      toneMappingExposure: component.toneMappingExposure.value,
-      shadowMapType: component.shadowMapType.value
+      primaryLight: component.primaryLight,
+      csm: component.csm,
+      cascades: component.cascades,
+      toneMapping: component.toneMapping,
+      toneMappingExposure: component.toneMappingExposure,
+      shadowMapType: component.shadowMapType
     }
   },
 

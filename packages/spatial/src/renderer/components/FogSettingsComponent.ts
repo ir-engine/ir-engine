@@ -75,15 +75,15 @@ export const FogSettingsComponent = defineComponent({
     if (typeof json.height === 'number') component.height.set(json.height)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      type: component.type.value,
-      color: component.color.value,
-      density: component.density.value,
-      near: component.near.value,
-      far: component.far.value,
-      timeScale: component.timeScale.value,
-      height: component.height.value
+      type: component.type,
+      color: component.color,
+      density: component.density,
+      near: component.near,
+      far: component.far,
+      timeScale: component.timeScale,
+      height: component.height
     }
   },
 

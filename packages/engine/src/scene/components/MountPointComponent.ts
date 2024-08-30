@@ -152,10 +152,10 @@ export const MountPointComponent = defineComponent({
     if (matchesVector3.test(json.dismountOffset)) component.dismountOffset.set(json.dismountOffset)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      type: component.type.value,
-      dismountOffset: component.dismountOffset.value
+      type: component.type,
+      dismountOffset: component.dismountOffset
     }
   },
   mountEntity,

@@ -33,7 +33,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EntitySchema, S, Vec3Schema, Vec3SchemaToVec3 } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { EntitySchema, S, Vec3Schema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
@@ -95,7 +95,7 @@ export const FollowCameraComponent = defineComponent({
       rayLength: S.Number(15.0),
       rayFrequency: S.Number(0.1),
       rayConeAngle: S.Number(Math.PI / 12),
-      camRayCastClock: S.Class(Clock),
+      camRayCastClock: S.Class(Clock, {}),
       camRayCastCache: S.Object({
         maxDistance: S.Number(-1),
         targetHit: S.Bool(false)
@@ -106,20 +106,20 @@ export const FollowCameraComponent = defineComponent({
     lastZoomStartDistance: S.Number(0)
   }),
 
-  onInit: (entity, initial) => {
-    return {
-      ...initial,
-      firstPersonOffset: Vec3SchemaToVec3(initial.firstPersonOffset),
-      thirdPersonOffset: Vec3SchemaToVec3(initial.thirdPersonOffset),
-      currentOffset: Vec3SchemaToVec3(initial.currentOffset),
-      currentTargetPosition: Vec3SchemaToVec3(initial.currentTargetPosition),
-      raycastProps: {
-        ...initial.raycastProps,
-        cameraRays: initial.raycastProps.cameraRays as Vector3[],
-        camRayCastClock: initial.raycastProps.camRayCastClock() as Clock
-      }
-    }
-  },
+  // onInit: (initial) => {
+  //   return {
+  //     ...initial,
+  //     firstPersonOffset: Vec3SchemaToVec3(initial.firstPersonOffset),
+  //     thirdPersonOffset: Vec3SchemaToVec3(initial.thirdPersonOffset),
+  //     currentOffset: Vec3SchemaToVec3(initial.currentOffset),
+  //     currentTargetPosition: Vec3SchemaToVec3(initial.currentTargetPosition),
+  //     raycastProps: {
+  //       ...initial.raycastProps,
+  //       cameraRays: initial.raycastProps.cameraRays as Vector3[]
+  //       // camRayCastClock: initial.raycastProps.camRayCastClock() as Clock
+  //     }
+  //   }
+  // },
 
   reactor: () => {
     const entity = useEntityContext()

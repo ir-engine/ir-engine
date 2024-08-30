@@ -67,16 +67,16 @@ export const EnvMapBakeComponent = defineComponent({
     if (matches.boolean.test(json.boxProjection)) component.boxProjection.set(json.boxProjection)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      bakePosition: component.bakePosition.value,
-      bakePositionOffset: component.bakePositionOffset.value,
-      bakeScale: component.bakeScale.value,
-      bakeType: component.bakeType.value,
-      resolution: component.resolution.value,
-      refreshMode: component.refreshMode.value,
-      envMapOrigin: component.envMapOrigin.value,
-      boxProjection: component.boxProjection.value
+      bakePosition: component.bakePosition,
+      bakePositionOffset: component.bakePositionOffset,
+      bakeScale: component.bakeScale,
+      bakeType: component.bakeType,
+      resolution: component.resolution,
+      refreshMode: component.refreshMode,
+      envMapOrigin: component.envMapOrigin,
+      boxProjection: component.boxProjection
     }
   },
 

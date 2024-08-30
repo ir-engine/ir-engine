@@ -74,15 +74,15 @@ export const PointLightComponent = defineComponent({
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      color: component.color.value,
-      intensity: component.intensity.value,
-      range: component.range.value,
-      decay: component.decay.value,
-      castShadow: component.castShadow.value,
-      shadowBias: component.shadowBias.value,
-      shadowRadius: component.shadowRadius.value
+      color: component.color,
+      intensity: component.intensity,
+      range: component.range,
+      decay: component.decay,
+      castShadow: component.castShadow,
+      shadowBias: component.shadowBias,
+      shadowRadius: component.shadowRadius
     }
   },
 

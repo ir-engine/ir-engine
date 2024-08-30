@@ -52,11 +52,11 @@ export const PlaylistComponent = defineComponent({
     if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      tracks: component.tracks.value,
-      playMode: component.playMode.value,
-      autoplay: component.autoplay.value
+      tracks: component.tracks,
+      playMode: component.playMode,
+      autoplay: component.autoplay
     }
   },
 

@@ -82,7 +82,8 @@ const tempColor = new Color()
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
   jsonID: 'EE_envmap',
-  onInit: (entity) => {
+
+  onInit: () => {
     return {
       type: EnvMapSourceType.None as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType],
       envMapTextureType:
@@ -106,14 +107,14 @@ export const EnvmapComponent = defineComponent({
     if (typeof json?.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      type: component.type.value,
-      envMapTextureType: component.envMapTextureType.value,
-      envMapSourceColor: component.envMapSourceColor.value,
-      envMapSourceURL: component.envMapSourceURL.value,
-      envMapSourceEntityUUID: component.envMapSourceEntityUUID.value,
-      envMapIntensity: component.envMapIntensity.value
+      type: component.type,
+      envMapTextureType: component.envMapTextureType,
+      envMapSourceColor: component.envMapSourceColor,
+      envMapSourceURL: component.envMapSourceURL,
+      envMapSourceEntityUUID: component.envMapSourceEntityUUID,
+      envMapIntensity: component.envMapIntensity
     }
   },
 

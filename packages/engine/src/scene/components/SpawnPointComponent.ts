@@ -29,7 +29,7 @@ import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, matches, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, matches, none, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -58,9 +58,9 @@ export const SpawnPointComponent = defineComponent({
     if (matches.array.test(json.permissionedUsers)) component.permissionedUsers.set(json.permissionedUsers as any)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      permissionedUsers: component.permissionedUsers.get(NO_PROXY)
+      permissionedUsers: component.permissionedUsers
     }
   },
 

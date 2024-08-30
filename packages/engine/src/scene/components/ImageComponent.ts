@@ -84,13 +84,13 @@ export const ImageComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      source: component.source.value,
-      alphaMode: component.alphaMode.value,
-      alphaCutoff: component.alphaCutoff.value,
-      projection: component.projection.value,
-      side: component.side.value
+      source: component.source,
+      alphaMode: component.alphaMode,
+      alphaCutoff: component.alphaCutoff,
+      projection: component.projection,
+      side: component.side
     }
   },
 

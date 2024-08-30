@@ -80,15 +80,15 @@ export const AudioAnalysisComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      src: component.src.value,
-      bassEnabled: component.bassEnabled.value,
-      midEnabled: component.midEnabled.value,
-      trebleEnabled: component.trebleEnabled.value,
-      bassMultiplier: component.bassMultiplier.value,
-      midMultiplier: component.midMultiplier.value,
-      trebleMultiplier: component.trebleMultiplier.value
+      src: component.src,
+      bassEnabled: component.bassEnabled,
+      midEnabled: component.midEnabled,
+      trebleEnabled: component.trebleEnabled,
+      bassMultiplier: component.bassMultiplier,
+      midMultiplier: component.midMultiplier,
+      trebleMultiplier: component.trebleMultiplier
     }
   },
 
