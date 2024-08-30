@@ -46,7 +46,7 @@ import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
 
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
