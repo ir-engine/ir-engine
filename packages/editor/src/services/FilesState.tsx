@@ -23,22 +23,47 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+import { FileDataType } from '../panels/files/helpers'
 
-const argTypes = {}
+export const FilesViewModeState = defineState({
+  name: 'FilesViewModeState',
+  initial: {
+    viewMode: 'icons' as 'icons' | 'list'
+  },
+  extension: syncStateWithLocalStorage(['viewMode'])
+})
 
-export default {
-  title: 'Editor/Panel/Files/Container',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'FilesPanel',
-    jest: 'FilesPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
+export const FilesViewModeSettings = defineState({
+  name: 'FilesViewModeSettings',
+  initial: {
+    icons: {
+      iconSize: 90
+    },
+    list: {
+      fontSize: 15,
+      selectedTableColumns: {
+        name: true,
+        type: true,
+        dateModified: true,
+        size: true
+      }
     }
   },
-  argTypes
-}
+  extension: syncStateWithLocalStorage(['icons', 'list'])
+})
 
-export const Default = { args: {} }
+export const FilesState = defineState({
+  name: 'FilesState',
+  initial: () => ({
+    selectedDirectory: '',
+    projectName: '',
+    clipboardFile: null as { isCopy?: boolean; file: FileDataType } | null,
+    searchText: ''
+  })
+})
+
+export const SelectedFilesState = defineState({
+  name: 'FilesSelectedFilesState',
+  initial: [] as FileDataType[]
+})
