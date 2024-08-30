@@ -26,12 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Object3D } from 'three'
 
-import config from '@ir-engine/common/src/config'
-import { sceneRelativePathIdentifier } from '@ir-engine/common/src/utils/parseSceneJSON'
 import { EntityUUID, generateEntityUUID, SerializedComponentType, UUIDComponent } from '@ir-engine/ecs'
+import { sceneRelativePathIdentifier } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { TransformComponent } from '@ir-engine/spatial'
 
-import { getCacheRegex } from '@ir-engine/common/src/regex'
+import { getState } from '@ir-engine/hyperflux'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
@@ -76,13 +76,18 @@ export const gltfToSceneJson = (gltf: any): SceneJsonType => {
   return result
 }
 
+export const getCacheRegex = (fileServer: string) => {
+  return new RegExp(`${fileServer}\/projects`)
+}
+
 /**
  * Handles encoding and decoding scene path symbols from gltfs
  * @param gltf
  * @param mode 'encode' or 'decode'
  */
 export const handleScenePaths = (gltf: GLTF.IGLTF, mode: 'encode' | 'decode') => {
-  const cacheRe = getCacheRegex(config.client.fileServer)
+  const cloudDomain = getState(DomainConfigState).cloudDomain
+  const cacheRe = getCacheRegex(cloudDomain)
   const symbolRe = /__\$project\$__/
   const frontier = [...(gltf.scenes ?? []), ...(gltf.nodes ?? [])]
   while (frontier.length > 0) {
@@ -99,7 +104,7 @@ export const handleScenePaths = (gltf: GLTF.IGLTF, mode: 'encode' | 'decode') =>
         }
         if (mode === 'decode') {
           if (typeof v === 'string' && symbolRe.test(v)) {
-            elt[k] = v.replace(symbolRe, `${config.client.fileServer}/projects`)
+            elt[k] = v.replace(symbolRe, `${cloudDomain}/projects`)
           }
         }
       }

@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import type { ISchema } from 'bitecs'
 import { useLayoutEffect } from 'react'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import ECS, {
   Component,
   defineComponent,
@@ -42,7 +40,8 @@ import ECS, {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { matches, PeerID, Validator } from '@ir-engine/hyperflux'
+import { matches, PeerID, UserID, Validator } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId

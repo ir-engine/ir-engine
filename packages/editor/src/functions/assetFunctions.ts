@@ -33,7 +33,7 @@ import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-en
 import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(

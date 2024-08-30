@@ -33,7 +33,7 @@ import {
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 
-import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
+import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { AssetLoader, getLoader } from '../classes/AssetLoader'
 
 interface Cloneable<T> {
