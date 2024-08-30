@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/common'
 import {
   FileBrowserContentType,
   StaticResourceType,
@@ -35,7 +36,6 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
-import { unique } from '@ir-engine/common/src/utils/miscUtils'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   FilesViewModeSettings,
@@ -51,8 +51,8 @@ import { handleUploadFiles, inputFileWithAddToScene } from '@ir-engine/editor/sr
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { unique } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'

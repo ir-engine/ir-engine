@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Vector2 } from 'three'
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 import {
   defineComponent,
   defineQuery,
@@ -36,7 +35,7 @@ import {
   useEntityContext,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getState, useImmediateEffect } from '@ir-engine/hyperflux'
+import { defineState, getState, OpaqueType, useImmediateEffect } from '@ir-engine/hyperflux'
 
 /**
  * @description

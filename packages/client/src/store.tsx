@@ -32,10 +32,12 @@ import { BrowserRouter, history } from '@ir-engine/client-core/src/common/servic
 import waitForClientAuthenticated from '@ir-engine/client-core/src/util/wait-for-client-authenticated'
 import { API } from '@ir-engine/common'
 import { pipeLogs } from '@ir-engine/common/src/logger'
-import { createHyperStore } from '@ir-engine/hyperflux'
+import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
+import config from '@ir-engine/common/src/config'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { initializei18n } from './util'
 
@@ -60,11 +62,17 @@ const initializeGoogleAnalytics = async () => {
 }
 
 //@ts-ignore
-const publicPath = import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
-createHyperStore({ publicPath })
+const publicDomain = import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
+createHyperStore()
 initializei18n()
 ClientAPI.createAPI()
 initializeLogs()
+
+getMutableState(DomainConfigState).merge({
+  publicDomain,
+  cloudDomain: config.client.fileServer,
+  proxyDomain: config.client.cors.proxyUrl
+})
 
 export default function ({ children }): JSX.Element {
   const { t } = useTranslation()

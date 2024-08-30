@@ -27,8 +27,8 @@ import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
+import { useFind } from '@ir-engine/common'
 import { taskServerSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 

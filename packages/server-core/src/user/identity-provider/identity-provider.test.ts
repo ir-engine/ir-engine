@@ -31,7 +31,7 @@ import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('identity-provider.test', () => {
   let userId: UserID
@@ -44,8 +44,9 @@ describe('identity-provider.test', () => {
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should create an identity provider for guest', async () => {

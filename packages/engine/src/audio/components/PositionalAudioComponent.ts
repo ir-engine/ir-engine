@@ -35,7 +35,7 @@ import {
 } from '@ir-engine/ecs'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 

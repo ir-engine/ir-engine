@@ -37,7 +37,6 @@ import {
   Vector3
 } from 'three'
 
-import { useVideoFrameCallback } from '@ir-engine/common/src/utils/useVideoFrameCallback'
 import { Engine } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -55,11 +54,13 @@ import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AudioState } from '../../audio/AudioState'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
@@ -160,7 +161,7 @@ function UVOL1Reactor() {
   useEffect(() => {
     if (!getState(AssetLoaderState).cortoLoader) {
       const loader = new CORTOLoader()
-      loader.setDecoderPath(Engine.instance.store.publicPath + '/loader_decoders/')
+      loader.setDecoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/')
       loader.preload()
       const assetLoaderState = getMutableState(AssetLoaderState)
       assetLoaderState.cortoLoader.set(loader)

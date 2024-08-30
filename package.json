@@ -59,7 +59,7 @@
     "dev-docker-windows": "cd scripts && docker-compose up -d && docker-compose up -d -f docker-compose-minio.yml",
     "dev-tabs": "npm run dev-docker && cd scripts && ./dev-tabs.sh",
     "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --no-bail",
-    "dev-reinit": "./scripts/checkenv.sh && npm run dev-docker && cd packages/server && npm run dev-reinit-db",
+    "dev-reinit": "./scripts/checkenv.sh && npm run dev-docker && cd packages/server && npm run dev-reinit-db && cd .. && npm run precommit-hooks",
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker-windows && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
     "diff": "lerna diff",
@@ -75,6 +75,7 @@
     "migrate:rollback": "cd packages/server-core && npm run migrate:rollback",
     "migrate:unlock": "cd packages/server-core && npm run migrate:unlock",
     "postinstall": "patch-package --exclude ./node_modules/@mui/",
+    "precommit-hooks":  "./scripts/add-precommit.sh",
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "publish": "lerna publish from-package --yes --registry https://registry.npmjs.org",
     "publish-npm": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://registry.npmjs.org",
@@ -103,7 +104,7 @@
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
-      "prettier --write \"**/*.{ts,tsx}\""
+      "prettier --write"
     ],
     "*.scss": [
       "stylelint \"**/*.scss\" --fix"
