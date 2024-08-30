@@ -188,7 +188,6 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
                   {' '}
                   x{' '}
                 </Button>
-                a
               </div>
             ))}
           </div>
@@ -207,8 +206,9 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
             isOverwriteConfirmed.set(false)
             isOverwriteModalVisible.set(false)
           }}
+          className="w-1/3 max-w-md p-4"
         >
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <div className="flex justify-end">
             <p>Prefab with this name already exists. You will overwrite it.</p>
           </div>
         </Modal>
