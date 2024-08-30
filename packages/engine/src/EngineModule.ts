@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 /** World Module */
 import '@ir-engine/spatial'
 
-export * from './avatar/AvatarModule'
 export * from './assets/AssetModule'
+export * from './avatar/AvatarModule'
 export * from './interaction/InteractionModule'
 export * from './interaction/MediaModule'
 export * from './mocap/MocapModule'

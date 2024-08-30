@@ -28,12 +28,11 @@ import { Material, Object3D, Object3DEventMap, Texture } from 'three'
 import { EntityUUID, UUIDComponent, getOptionalComponent } from '@ir-engine/ecs'
 import { pathJoin, relativePathTo } from '@ir-engine/engine/src/assets/functions/miscUtils'
 
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { getState } from '@ir-engine/hyperflux'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
+
 export default class ImageRoutingExtension extends ExporterExtension implements GLTFExporterPlugin {
   replacementImages: { texture: Texture; original: HTMLImageElement }[]
 
@@ -49,10 +48,8 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     const src = getOptionalComponent(materialEntity, SourceComponent)
     if (!src) return
     const resolvedPath = STATIC_ASSET_REGEX.exec(src)!
-    //const projectDst = this.writer.options.projectName!
-    // let projectSrc = this.writer.options.projectName!
-    const projectDst = getState(EditorState).projectName!
-    let projectSrc = getState(EditorState).projectName!
+    const projectDst = this.writer.options.projectName!
+    let projectSrc = this.writer.options.projectName!
     let relativeSrc = './assets/'
     if (resolvedPath) {
       projectSrc = `${resolvedPath[1]}/${resolvedPath[2]}`
