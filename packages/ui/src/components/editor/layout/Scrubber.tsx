@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { toPrecision } from '@ir-engine/common/src/utils/miscUtils'
 import { getStepSize } from '@ir-engine/editor/src/functions/utils'
+import { toPrecision } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
 import React, { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'

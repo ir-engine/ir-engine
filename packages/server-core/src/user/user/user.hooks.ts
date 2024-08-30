@@ -41,7 +41,7 @@ import {
   userQueryValidator,
   UserType
 } from '@ir-engine/common/src/schemas/user/user.schema'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'

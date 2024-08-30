@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import exportModelGLTF from '@ir-engine/engine/src/assets/functions/exportModelGLTF'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
 import { getState } from '@ir-engine/hyperflux'
 import { ImportSettingsState } from '../services/ImportSettingsState'

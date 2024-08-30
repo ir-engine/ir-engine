@@ -62,14 +62,7 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Group
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import { ContentFitType } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
-import {
-  NodeCategory,
-  makeAsyncNodeDefinition,
-  makeFlowNodeDefinition,
-  makeFunctionNodeDefinition
-} from '@ir-engine/visual-script'
-
-import { addMediaComponent } from '../helper/assetHelper'
+import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@ir-engine/visual-script'
 
 export const playVideo = makeFlowNodeDefinition({
   typeName: 'engine/media/playVideo',
@@ -346,40 +339,6 @@ export const setAnimationAction = makeFlowNodeDefinition({
     })
 
     commit('flow')
-  }
-})
-
-const initialState = () => {}
-export const loadAsset = makeAsyncNodeDefinition({
-  typeName: 'engine/asset/loadAsset',
-  category: NodeCategory.Engine,
-  label: 'Load asset',
-  in: {
-    flow: 'flow',
-    assetPath: 'string'
-  },
-  out: { flow: 'flow', loadEnd: 'flow', entity: 'entity' },
-  initialState: initialState(),
-  triggered: ({ read, write, commit, finished }) => {
-    const loadAsset = async () => {
-      const assetPath = read<string>('assetPath')
-      const node = await addMediaComponent(assetPath)
-      return node
-    }
-
-    commit('flow', async () => {
-      const entity = await loadAsset()
-      write('entity', entity)
-      commit('loadEnd', () => {
-        write('entity', entity)
-        finished?.()
-      })
-    })
-
-    return null
-  },
-  dispose: () => {
-    return initialState()
   }
 })
 

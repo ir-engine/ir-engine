@@ -45,8 +45,6 @@ import {
   Vector2
 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
-import { usePrevious } from '@ir-engine/common/src/utils/usePrevious'
 import {
   defineComponent,
   getMutableComponent,
@@ -62,12 +60,12 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getState, NO_PROXY_STEALTH, none, State } from '@ir-engine/hyperflux'
+import { getState, isClient, NO_PROXY_STEALTH, none, State, usePrevious } from '@ir-engine/hyperflux'
 import { isIPhone, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
+import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { getLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'

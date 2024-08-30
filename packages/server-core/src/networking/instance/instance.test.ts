@@ -33,7 +33,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createTestLocation } from '@ir-engine/server-core/tests/util/createTestLocation'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const params = { isInternal: true } as any
 
@@ -59,8 +59,9 @@ describe('instance.test', () => {
     }
   })
 
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   let testLocation: LocationType

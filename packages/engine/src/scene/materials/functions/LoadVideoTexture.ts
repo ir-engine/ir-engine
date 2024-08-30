@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { RepeatWrapping, VideoTexture } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 
 export default function loadVideoTexture(src, onLoad = (result) => {}) {
   if (!isClient) return

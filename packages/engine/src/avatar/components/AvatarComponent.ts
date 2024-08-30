@@ -23,11 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { Engine, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { defineComponent, getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import { matches } from '@ir-engine/hyperflux'
+import { UserID, matches } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 
 export const AvatarComponent = defineComponent({
