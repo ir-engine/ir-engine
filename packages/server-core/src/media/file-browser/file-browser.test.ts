@@ -30,7 +30,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { ProjectType, projectPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 const PREFIX = 'test'
@@ -55,7 +55,8 @@ describe('file-browser.test', () => {
     } catch (error) {
       console.error('Error while cleaning up test directories:', error)
     }
-    return destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   describe('create', () => {

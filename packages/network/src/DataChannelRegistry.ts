@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
-import { defineState, getMutableState, getState, none, PeerID } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, none, OpaqueType, PeerID } from '@ir-engine/hyperflux'
 
 import { Network } from './Network'
 

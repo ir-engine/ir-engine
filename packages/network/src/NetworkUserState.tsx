@@ -25,10 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { InstanceID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, NetworkID, none, useHookstate, UserID } from '@ir-engine/hyperflux'
 
 import { NetworkTopics } from './Network'
 import { NetworkState } from './NetworkState'
@@ -38,22 +37,22 @@ import { NetworkState } from './NetworkState'
  */
 export const NetworkWorldUserState = defineState({
   name: 'ee.engine.network.NetworkWorldUserState',
-  initial: {} as Record<UserID, InstanceID[]>,
+  initial: {} as Record<UserID, NetworkID[]>,
 
-  userJoined: (userID: UserID, instanceID: InstanceID) => {
+  userJoined: (userID: UserID, instanceID: NetworkID) => {
     if (!getState(NetworkWorldUserState)[userID]) getMutableState(NetworkWorldUserState)[userID].set([])
     if (!getState(NetworkWorldUserState)[userID].includes(instanceID))
       getMutableState(NetworkWorldUserState)[userID].merge([instanceID])
   },
 
-  userLeft: (userID: UserID, instanceID: InstanceID) => {
+  userLeft: (userID: UserID, instanceID: NetworkID) => {
     if (!getState(NetworkWorldUserState)[userID]) return
     getMutableState(NetworkWorldUserState)[userID].set((ids) => ids.filter((id) => id !== instanceID))
     if (getState(NetworkWorldUserState)[userID].length === 0) getMutableState(NetworkWorldUserState)[userID].set(none)
   }
 })
 
-const NetworkUserReactor = (props: { networkID: InstanceID; userID: UserID }) => {
+const NetworkUserReactor = (props: { networkID: NetworkID; userID: UserID }) => {
   useEffect(() => {
     NetworkWorldUserState.userJoined(props.userID, props.networkID)
     return () => NetworkWorldUserState.userLeft(props.userID, props.networkID)
@@ -61,7 +60,7 @@ const NetworkUserReactor = (props: { networkID: InstanceID; userID: UserID }) =>
   return null
 }
 
-const NetworkReactor = (props: { networkID: InstanceID }) => {
+const NetworkReactor = (props: { networkID: NetworkID }) => {
   const networkUsers = useHookstate(getMutableState(NetworkState).networks[props.networkID].users)
 
   return (
@@ -76,7 +75,7 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
 const reactor = () => {
   const worldNetworkIDs = Object.entries(useHookstate(getMutableState(NetworkState).networks).value)
     .filter(([id, network]) => network.topic === NetworkTopics.world)
-    .map(([id]) => id as InstanceID)
+    .map(([id]) => id as NetworkID)
   return (
     <>
       {worldNetworkIDs.map((networkID) => (

@@ -28,25 +28,24 @@ import { twMerge } from 'tailwind-merge'
 import { LoaderUtils } from 'three'
 
 import { API } from '@ir-engine/common'
+import { transformModel as clientSideTransformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
-import { ImmutableArray, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
 import { iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { FileType } from '@ir-engine/ui/src/components/editor/panels/Files/container'
 import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
 
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -55,6 +54,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
+import { FileDataType } from '../../panels/files/helpers'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 export const createLODVariants = async (
@@ -110,7 +110,7 @@ export default function ModelCompressionPanel({
   selectedFiles,
   refreshDirectory
 }: {
-  selectedFiles: ImmutableArray<FileType>
+  selectedFiles: readonly FileDataType[]
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
@@ -165,7 +165,7 @@ export default function ModelCompressionPanel({
     localStorage.setItem('presets', JSON.stringify(presetList.value))
   }
 
-  const compressModel = async (file: FileType) => {
+  const compressModel = async (file: FileDataType) => {
     const clientside = true
     const exportCombined = true
 

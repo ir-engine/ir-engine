@@ -28,13 +28,13 @@ import { LoaderUtils, Mesh, Object3D } from 'three'
 import matches, { Validator } from 'ts-matches'
 import { v4 as uuidv4 } from 'uuid'
 
-import config from '@ir-engine/common/src/config'
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
-import { defineAction, dispatchAction, getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { defineAction, dispatchAction, getMutableState, getState, NO_PROXY } from '@ir-engine/hyperflux'
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 
 import { AssetLoader } from '../../../classes/AssetLoader'
 import { modelResourcesPath } from '../../../functions/pathResolver'
+import { DomainConfigState } from '../../../state/DomainConfigState'
 import { UploadRequestState } from '../../../state/UploadRequestState'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -170,7 +170,12 @@ export default class BufferHandlerExtension extends ExporterExtension implements
       const images = writer.json.images || []
       // const basePath = LoaderUtils.extractUrlBase(writer.options.path!)
       const basePath = LoaderUtils.extractUrlBase(
-        pathJoin(config.client.fileServer, 'projects', writer.options.projectName!, writer.options.relativePath!)
+        pathJoin(
+          getState(DomainConfigState).cloudDomain,
+          'projects',
+          writer.options.projectName!,
+          writer.options.relativePath!
+        )
       )
       //make uris relative to model src
       for (const image of images) {

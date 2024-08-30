@@ -36,12 +36,11 @@ import {
   ConstantColorJSON,
   RandomColorJSON
 } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@ir-engine/hyperflux/functions/StateFunctions'
-import Typography from '@ir-engine/ui/src/primitives/mui/Typography'
+import { State } from '@ir-engine/hyperflux'
 
-import { Grid } from '@mui/material'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
+import Text from '../../../../../primitives/tailwind/Text'
 import InputGroup from '../../Group'
 import NumericInput from '../../Numeric'
 import SelectInput from '../../Select'
@@ -165,42 +164,32 @@ export default function ColorGenerator({
               overflow: 'auto'
             }}
           >
-            <Grid
-              container
-              spacing={1}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <Grid item xs={2}>
-                <Typography>Start</Typography>
-              </Grid>
-              <Grid item xs={10}>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-x-1">
+                <Text fontSize="xs">Start</Text>
                 <NumericInput value={item.start} onChange={onChange(gradientScope.functions[index].start)} />
-              </Grid>
-              <Grid item xs={2}>
-                <Typography>A</Typography>
-              </Grid>
-              <Grid item xs={10}>
-                <ColorJSONInput
-                  value={item.function.a}
-                  onChange={onChange(gradientScope.functions[index].function.a)}
-                />
-              </Grid>
-              <Grid item xs={2}>
-                <Typography>B</Typography>
-              </Grid>
-              <Grid item xs={10}>
-                <ColorJSONInput
-                  value={item.function.b}
-                  onChange={onChange(gradientScope.functions[index].function.b)}
-                />
-              </Grid>
-            </Grid>
+              </div>
+
+              <div className="flex items-center gap-x-1">
+                <Text fontSize="xs">A</Text>
+                <div className="col-span-1 grid">
+                  <ColorJSONInput
+                    value={item.function.a}
+                    onChange={onChange(gradientScope.functions[index].function.a)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-x-1">
+                <Text fontSize="xs">B</Text>
+                <div className="col-span-1 grid">
+                  <ColorJSONInput
+                    value={item.function.b}
+                    onChange={onChange(gradientScope.functions[index].function.b)}
+                  />
+                </div>
+              </div>
+            </div>
             <Button onClick={onRemoveGradient(gradientScope.functions[index])}>Remove</Button>
           </div>
         ))}

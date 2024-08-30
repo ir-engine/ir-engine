@@ -42,8 +42,8 @@ import {
   projectPermissionPath,
   ProjectPermissionType
 } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
 import { BadRequest } from '@feathersjs/errors/lib'
 import { Application } from '../../../declarations'

@@ -34,7 +34,7 @@ import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunct
 import appRootPath from 'app-root-path'
 import path from 'path'
 import { Application } from '../../declarations'
-import { createFeathersKoaApp } from '../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../createApp'
 import resolveProjectId from './resolve-project-id'
 resolveProjectId
 
@@ -54,8 +54,9 @@ describe('resolve-project-id', () => {
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should fail if project name is missing', async () => {

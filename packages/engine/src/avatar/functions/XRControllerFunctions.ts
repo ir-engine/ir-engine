@@ -25,16 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationMixer, Group, LoopOnce } from 'three'
 
-import { config } from '@ir-engine/common/src/config'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { getGLTFAsync } from '../../assets/functions/resourceLoaderHooks'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AvatarControllerType, AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { XRHandMeshModel } from './XRHandMeshModel'
@@ -45,7 +45,9 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
   if (avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
   const [gltf] = await getGLTFAsync(
-    `${config.client.fileServer}/projects/ir-engine/default-project/assets/controllers/${handedness}_controller.glb`
+    `${
+      getState(DomainConfigState).cloudDomain
+    }/projects/ir-engine/default-project/assets/controllers/${handedness}_controller.glb`
   )
   let handMesh = gltf?.scene?.children[0]
 
@@ -85,7 +87,7 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
   if (avatarInputControllerType === AvatarControllerType.None) return
 
   const [gltf] = await getGLTFAsync(
-    `${config.client.fileServer}/projects/ir-engine/default-project/assets/controllers/${handedness}.glb`
+    `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/controllers/${handedness}.glb`
   )
   const handMesh = gltf?.scene?.children[0]
 

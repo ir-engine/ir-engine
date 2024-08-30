@@ -31,7 +31,7 @@ import {
   userAvatarPatchValidator,
   userAvatarQueryValidator
 } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import {
