@@ -27,11 +27,11 @@ import React from 'react'
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { createErrorBoundary } from '@ir-engine/hyperflux'
-import { clientContextParams } from '../../util/contextParams'
+import { clientContextParams } from '../../util/ClientContextState'
 
 const logger = multiLogger.child({ component: 'client-core:system-crash', modifier: clientContextParams })
 
-const ErrorBoundary = createErrorBoundary(
+const ClientErrorBoundary = createErrorBoundary(
   function error(props, error?: Error) {
     if (error) {
       return (
@@ -47,4 +47,4 @@ const ErrorBoundary = createErrorBoundary(
   (error) => logger.error(error)
 )
 
-export default ErrorBoundary
+export default ClientErrorBoundary
