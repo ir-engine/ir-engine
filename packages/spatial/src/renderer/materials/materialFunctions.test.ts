@@ -40,7 +40,7 @@ import {
 import assert from 'assert'
 import { isArray } from 'lodash'
 import sinon from 'sinon'
-import { BoxGeometry, Material, Mesh } from 'three'
+import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../../common/NameComponent'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
@@ -52,14 +52,21 @@ import {
   MaterialPrototypeConstructor,
   MaterialPrototypeDefinitions,
   MaterialPrototypeObjectConstructor,
-  MaterialStateComponent
+  MaterialStateComponent,
+  PrototypeArgument,
+  PrototypeArgumentValue
 } from './MaterialComponent'
 import {
+  MaterialNotFoundError,
+  PrototypeNotFoundError,
   createMaterialPrototype,
+  extractDefaults,
+  formatMaterialArgs,
   getMaterial,
   getMaterialIndices,
   getPrototypeEntityFromName,
   hasPlugin,
+  injectMaterialDefaults,
   materialPrototypeMatches,
   removePlugin,
   setMeshMaterial,
@@ -750,23 +757,238 @@ describe('materialFunctions', () => {
     })
   }) //:: getPrototypeEntityFromName
 
-  describe('updateMaterialPrototype', () => {}) //:: updateMaterialPrototype
-  describe('MaterialNotFoundError', () => {}) //:: MaterialNotFoundError
-  describe('PrototypeNotFoundError', () => {}) //:: PrototypeNotFoundError
-  describe('injectMaterialDefaults', () => {}) //:: injectMaterialDefaults
+  describe('injectMaterialDefaults', () => {
+    let testEntity = UndefinedEntity
 
-  /**
-  // @todo How to check these?
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should return an object that contains all of the expected keys/values', () => {
+      const key = 'asdfg'
+      const prototypeArgumentValue = {
+        type: '12345',
+        default: {},
+        min: 42,
+        max: 43,
+        options: []
+      }
+      const prototypeArguments = { [key]: prototypeArgumentValue }
+      const materialParameters = { [key]: { thing: 42 } }
+      const Expected = { ...prototypeArguments }
+      Expected[key].default = materialParameters[key]
+
+      // Set the data as expected
+      const material = new Material()
+      const prototypeEntity = createEntity()
+      const materialEntity = createEntity()
+      const prototypeUUID = UUIDComponent.generateUUID()
+      const materialUUID = UUIDComponent.generateUUID()
+      setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
+      material.uuid = materialUUID
+      setComponent(prototypeEntity, MaterialPrototypeComponent, {
+        prototypeArguments: prototypeArguments
+      })
+      setComponent(materialEntity, UUIDComponent, materialUUID)
+      setComponent(materialEntity, MaterialStateComponent, {
+        material: material,
+        prototypeEntity: prototypeEntity,
+        parameters: materialParameters
+      })
+      // Run and Check the result
+      const result = injectMaterialDefaults(materialUUID)
+      assert.deepEqual(result, Expected)
+    })
+  }) //:: injectMaterialDefaults
+
+  describe('MaterialNotFoundError', () => {
+    it('should assign the expected name to the error when it is instanced', () => {
+      const Expected = 'MaterialNotFound'
+      const result = new MaterialNotFoundError('thing')
+      assert.equal(result.name, Expected)
+    })
+
+    it('should assign the expected message to the error when it is instanced', () => {
+      const Expected = 'thing'
+      const result = new MaterialNotFoundError(Expected)
+      assert.equal(result.message, Expected)
+    })
+  }) //:: MaterialNotFoundError
+
+  describe('PrototypeNotFoundError', () => {
+    it('should assign the expected name to the error when it is instanced', () => {
+      const Expected = 'PrototypeNotFound'
+      const result = new PrototypeNotFoundError('thing')
+      assert.equal(result.name, Expected)
+    })
+
+    it('should assign the expected message to the error when it is instanced', () => {
+      const Expected = 'thing'
+      const result = new PrototypeNotFoundError(Expected)
+      assert.equal(result.message, Expected)
+    })
+  }) //:: PrototypeNotFoundError
 
   describe('formatMaterialArgs', () => {
-    it("should not do anything if `@param args` is falsy", () => {})
-  }) //:: formatMaterialArgs
-  describe('extractDefaults', () => {}) //:: extractDefaults
+    it('should return `@param args` if it is falsy', () => {
+      // Set the data as expected
+      const Expected1 = false
+      const Expected2 = undefined
+      const Expected3 = null
+      const Expected4 = 0
+      // Sanity check before running
+      assert.equal(!Expected1, true)
+      assert.equal(!Expected2, true)
+      assert.equal(!Expected3, true)
+      assert.equal(!Expected4, true)
+      // Run and Check the result
+      const result1 = formatMaterialArgs(Expected1)
+      const result2 = formatMaterialArgs(Expected2)
+      const result3 = formatMaterialArgs(Expected3)
+      const result4 = formatMaterialArgs(Expected4)
+      assert.equal(result1, Expected1)
+      assert.equal(result2, Expected2)
+      assert.equal(result3, Expected3)
+      assert.equal(result4, Expected4)
+    })
 
-  describe('loadMaterialGLTF', () => {}) //:: loadMaterialGLTF
+    describe('when `@param defaultArgs` is not passed ...', () => {
+      it('... should return the object passed as `@param args` when none of the `@param args` object properties is a texture or an empty string', () => {
+        // Set the data as expected
+        const Expected = { asdf: 'asdf', thing: 41, other: 42, obj: { sub1: 43, sub2: 44 } }
+        // Sanity check before running
+        assert.equal(!Expected, false)
+        // Run and Check the result
+        const result = formatMaterialArgs(Expected)
+        assert.deepEqual(result, Expected)
+      })
+
+      it('... should return the object passed as `@param args` without any of its empty string properties', () => {
+        const Expected = { asdf: 'asdfValue', other: 42 }
+        // Set the data as expected
+        const Thing = ''
+        const Args = { thing: Thing, ...Expected }
+        // Sanity check before running
+        assert.equal(!Expected, false)
+        // Run and Check the result
+        const result = formatMaterialArgs(Args)
+        assert.deepEqual(result, Expected)
+      })
+
+      it('... should return the object passed as `@param args` without any of its texture properties when the tex.source.data of that property is undefined', () => {
+        const texture = new Texture()
+        texture.source.data = 'SomeDefinedData'
+        const Expected = { tex: texture, asdf: 'asdfValue', other: 42 }
+        // Set the data as expected
+        const Thing = new Texture()
+        Thing.source.data = undefined
+        const Args = { thing: Thing, ...Expected }
+        // Sanity check before running
+        assert.equal(!Expected, false)
+        assert.equal(Thing.source.data, undefined)
+        assert.notEqual(texture.source.data, undefined)
+        // Run and Check the result
+        const result = formatMaterialArgs(Args)
+        assert.deepEqual(result, Expected)
+      })
+    })
+
+    describe('when `@param defaultArgs` is passed ...', () => {
+      it('... should return the object passed as `@param args` without any of the `@param defaultArgs` properties, when `@param defaultArgs` is falsy', () => {
+        const Expected = { asdf: 'asdfValue', other: 42 }
+        const defaultArgs1 = false
+        const defaultArgs2 = undefined
+        const defaultArgs3 = null
+        const defaultArgs4 = 0
+        // Sanity check before running
+        assert.equal(!Expected, false)
+        assert.equal(!!defaultArgs1, false)
+        assert.equal(!!defaultArgs2, false)
+        assert.equal(!!defaultArgs3, false)
+        assert.equal(!!defaultArgs4, false)
+        // Run and Check the result
+        const result1 = formatMaterialArgs(Expected, defaultArgs1)
+        const result2 = formatMaterialArgs(Expected, defaultArgs2)
+        const result3 = formatMaterialArgs(Expected, defaultArgs3)
+        const result4 = formatMaterialArgs(Expected, defaultArgs4)
+        assert.deepEqual(result1, Expected)
+        assert.deepEqual(result2, Expected)
+        assert.deepEqual(result3, Expected)
+        assert.deepEqual(result4, Expected)
+      })
+
+      it('... should return the object passed as `@param args` without any of the `@param defaultArgs` properties that is not a valid Color or ColorRepresentation', () => {
+        const skip1 = true
+        const skip2 = false
+        const skip3 = null
+        // Set the data as expected
+        const valid = { str: '0x000000', num: 0xff0000, col: new Color(0, 0, 1) }
+        const args = { ...valid, asdf: 'asdfValue', other: 42 }
+        const defaultArgs = { ...valid, skip1: skip1, skip2: skip2, skip3: skip3 }
+        const Expected = { ...args, ...valid }
+        // Sanity check before running
+        assert.equal(!Expected, false)
+        // Run and Check the result
+        const result = formatMaterialArgs(args, defaultArgs)
+        assert.deepEqual(result, Expected)
+      })
+
+      it('... should return the object passed as `@param args` when none of the `@param args` object properties is a texture or an empty string', () => {
+        // Set the data as expected
+        const Expected = { asdf: 'asdf', thing: 41, other: 42, obj: { sub1: 43, sub2: 44 } }
+        const defaultArgs = { one: 1 }
+        // Sanity check before running
+        assert.equal(!Expected, false)
+        // Run and Check the result
+        const result = formatMaterialArgs(Expected, defaultArgs)
+        assert.deepEqual(result, Expected)
+      })
+    })
+  }) //:: formatMaterialArgs
+
+  describe('extractDefaults', () => {
+    const prototypeDefaultArgs: PrototypeArgumentValue = {
+      type: 'defaultType',
+      default: {},
+      min: 21,
+      max: 42,
+      options: [{}]
+    }
+
+    it('should return an object that has all of the `@param defaultArgs`.default properties', () => {
+      // Set the data as expected
+      const defaultArg1 = { str: '0x111111', num: 0xff1111, col: new Color(0, 0, 0.1), one: 1 }
+      const defaultArg2 = { str: '0x222222', num: 0xff2222, col: new Color(0, 0, 0.2), two: 2 }
+      const defaultArg3 = { str: '0x333333', num: 0xff3333, col: new Color(0, 0, 0.3), three: 3 }
+      const defaultArg4 = { str: '0x444444', num: 0xff4444, col: new Color(0, 0, 0.4), four: 4 }
+      const arg1: PrototypeArgumentValue = { ...prototypeDefaultArgs, default: defaultArg1 }
+      const arg2: PrototypeArgumentValue = { ...prototypeDefaultArgs, default: defaultArg2 }
+      const arg3: PrototypeArgumentValue = { ...prototypeDefaultArgs, default: defaultArg3 }
+      const arg4: PrototypeArgumentValue = { ...prototypeDefaultArgs, default: defaultArg4 }
+      const defaultArgs: PrototypeArgument = { arg1: arg1, arg2: arg2, arg3: arg3, arg4: arg4 }
+      const Expected = { arg1: defaultArg1, arg2: defaultArg2, arg3: defaultArg3, arg4: defaultArg4 }
+      // Run and Check the result
+      const result = extractDefaults(defaultArgs)
+      assert.deepEqual(result, Expected)
+    })
+  }) //:: extractDefaults
+
+  /**
+  // Big
+  describe('updateMaterialPrototype', () => {}) //:: updateMaterialPrototype
   */
 
   /**
+  // @todo Wait until GLTF loader PR is merged ???
+  describe('loadMaterialGLTF', () => {}) //:: loadMaterialGLTF
+
   // @deprecated
   describe('assignMaterial', () => {}) //:: assignMaterial
   describe('createAndAssignMaterial', () => {}) //:: createAndAssignMaterial
