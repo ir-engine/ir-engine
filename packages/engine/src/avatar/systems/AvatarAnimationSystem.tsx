@@ -27,7 +27,6 @@ import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import config from '@ir-engine/common/src/config'
 import {
   defineQuery,
   defineSystem,
@@ -62,6 +61,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import React from 'react'
 import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
@@ -331,7 +331,9 @@ const Reactor = () => {
   const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
   const [gltfs] = useBatchGLTF(
     animations.map((animationFile) => {
-      return `${config.client.fileServer}/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
+      return `${
+        getState(DomainConfigState).cloudDomain
+      }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
     })
   )
   const manager = useMutableState(AnimationState)

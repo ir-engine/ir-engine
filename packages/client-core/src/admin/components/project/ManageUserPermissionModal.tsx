@@ -32,6 +32,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
+import { useFind } from '@ir-engine/common'
 import {
   InviteCode,
   ProjectPermissionType,
@@ -39,7 +40,6 @@ import {
   projectPermissionPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'

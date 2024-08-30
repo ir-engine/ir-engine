@@ -33,7 +33,14 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { teleportAvatar } from '@ir-engine/engine/src/avatar/functions/moveAvatar'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@ir-engine/engine/src/scene/components/PortalComponent'
-import { addOutgoingTopicIfNecessary, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  addOutgoingTopicIfNecessary,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import {
   addNetwork,
   createNetwork,
@@ -46,6 +53,7 @@ import {
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { AuthState } from '../../user/services/AuthService'
@@ -104,7 +112,7 @@ export const usePortalTeleport = () => {
     }
 
     if (activePortal.redirect) {
-      window.location.href = Engine.instance.store.publicPath + '/location/' + activePortal.location
+      window.location.href = getState(DomainConfigState).publicDomain + '/location/' + activePortal.location
       return
     }
 

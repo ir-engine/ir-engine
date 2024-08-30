@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { RingBuffer } from '@ir-engine/common/src/utils/RingBuffer'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { defineState, getState, PeerID } from '@ir-engine/hyperflux'
 
 import { addDataChannelHandler, DataChannelType, removeDataChannelHandler } from '../DataChannelRegistry'
+import { RingBuffer } from '../functions/RingBuffer'
 import { JitterBufferEntry, Network } from '../Network'
 import { NetworkState } from '../NetworkState'
 import { readDataPacket } from '../serialization/DataReader'

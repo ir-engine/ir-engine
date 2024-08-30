@@ -27,6 +27,7 @@ import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { useFind } from '@ir-engine/common'
 import { defaultThemeModes, defaultThemeSettings } from '@ir-engine/common/src/constants/DefaultThemeSettings'
 import { UserSettingPatch, clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
@@ -36,7 +37,6 @@ import {
   AvatarInputSettingsState
 } from '@ir-engine/engine/src/avatar/state/AvatarInputSettingsState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
