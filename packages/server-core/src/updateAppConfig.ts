@@ -35,6 +35,7 @@ import {
   ChargebeeSettingType
 } from '@ir-engine/common/src/schemas/setting/chargebee-setting.schema'
 import {
+  clientDbToSchema,
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
@@ -60,7 +61,6 @@ import appConfig from './appconfig'
 import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
-import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
 import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 

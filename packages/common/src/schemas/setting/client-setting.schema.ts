@@ -274,7 +274,6 @@ export const clientSettingDataValidator = /* @__PURE__ */ getValidator(clientSet
 export const clientSettingPatchValidator = /* @__PURE__ */ getValidator(clientSettingPatchSchema, dataValidator)
 export const clientSettingQueryValidator = /* @__PURE__ */ getValidator(clientSettingQuerySchema, queryValidator)
 
-
 export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSettingType => {
   let appSocialLinks = JSON.parse(rawData.appSocialLinks) as ClientSocialLinkType[]
 

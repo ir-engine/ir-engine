@@ -23,7 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ClientSettingDatabaseType, clientDbToSchema, clientSettingPath } from '../../common/src/schemas/setting/client-setting.schema'
+import {
+  ClientSettingDatabaseType,
+  clientDbToSchema,
+  clientSettingPath
+} from '../../common/src/schemas/setting/client-setting.schema'
 
 import knex from 'knex'
 
