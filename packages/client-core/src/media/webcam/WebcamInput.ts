@@ -1,7 +1,6 @@
 import * as Comlink from 'comlink'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { createWorkerFromCrossOriginURL } from '@ir-engine/common/src/utils/createWorkerFromCrossOriginURL'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -11,6 +10,7 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { SkinnedMeshComponent } from '@ir-engine/engine/src/avatar/components/SkinnedMeshComponent'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { defineActionQueue, getMutableState } from '@ir-engine/hyperflux'
+import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/functions/createWorkerFromCrossOriginURL'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 

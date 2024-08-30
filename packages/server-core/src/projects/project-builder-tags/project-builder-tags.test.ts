@@ -36,7 +36,7 @@ import { UserName, userPath } from '@ir-engine/common/src/schemas/user/user.sche
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application, HookContext } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 
 describe('project-builder-tags.test', () => {
@@ -53,9 +53,7 @@ describe('project-builder-tags.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
 
-  before(async () => {
     const name = ('test-project-builder-tags-user-name-' + uuidv4()) as UserName
 
     const avatar = await app.service(avatarPath).create({
@@ -84,7 +82,10 @@ describe('project-builder-tags.test', () => {
     )
   })
 
-  after(() => destroyEngine())
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
+  })
 
   it('should get the project branches', async () => {
     nock('https://registry.hub.docker.com')

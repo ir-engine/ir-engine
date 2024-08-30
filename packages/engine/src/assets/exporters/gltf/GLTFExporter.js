@@ -54,7 +54,7 @@ import {
 	NoColorSpace
 } from 'three';
 
-import { cleanStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
+import { cleanStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 
 /**
  * The KHR_mesh_quantization extension allows these extra attribute component types

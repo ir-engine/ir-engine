@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { DracoOptions, JoinOptions, PaletteOptions } from '@gltf-transform/functions'
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
+import { OpaqueType } from '@ir-engine/hyperflux'
 
 export type ResourceID = OpaqueType<'ResourceID'> & string
 

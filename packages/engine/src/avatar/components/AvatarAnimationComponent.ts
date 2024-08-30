@@ -45,6 +45,7 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import {
@@ -53,8 +54,6 @@ import {
   setupAvatarForUser,
   setupAvatarProportions
 } from '../functions/avatarFunctions'
-import { AvatarState } from '../state/AvatarNetworkState'
-import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -183,7 +182,10 @@ export const AvatarRigComponent = defineComponent({
         retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
-        if (entity === AvatarComponent.getSelfAvatarEntity()) AvatarState.selectRandomAvatar()
+        addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        return () => {
+          removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        }
       }
     }, [rigComponent.vrm])
 
@@ -193,5 +195,7 @@ export const AvatarRigComponent = defineComponent({
     }, [locomotionAnimationState])
 
     return null
-  }
+  },
+
+  errors: ['UNSUPPORTED_AVATAR']
 })

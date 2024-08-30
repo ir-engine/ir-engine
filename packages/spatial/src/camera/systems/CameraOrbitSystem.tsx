@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   defineQuery,
   defineSystem,
@@ -38,7 +37,7 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'

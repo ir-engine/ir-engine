@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import { MdArrowLeft, MdArrowRight } from 'react-icons/md'
+
 import React, { useEffect } from 'react'
 
 import { State, useHookstate } from '@ir-engine/hyperflux'
@@ -76,7 +76,7 @@ export default function PaginatedList<T>({
                 }
                 style={buttonStyle}
               >
-                <ArrowLeftIcon />
+                <MdArrowLeft className="inline-block shrink-0 text-2xl" />
               </Button>
             </div>
             {[-2, -1, 0, 1, 2].map((idx) => {
@@ -115,7 +115,7 @@ export default function PaginatedList<T>({
                 }
                 style={buttonStyle}
               >
-                <ArrowRightIcon />
+                <MdArrowRight className="inline-block shrink-0 text-2xl" />
               </Button>
             </div>
           </div>

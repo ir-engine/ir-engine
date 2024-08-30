@@ -36,7 +36,7 @@ import { UserName, userPath } from '@ir-engine/common/src/schemas/user/user.sche
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application, HookContext } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 import { getRepoManifestJson1, getTestRepoCommits, getTestRepoData } from '../../util/mockOctokitResponses'
 
@@ -83,7 +83,10 @@ describe('project-commits.test', () => {
     )
   })
 
-  after(() => destroyEngine())
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
+  })
 
   it('should get commits of the project', async () => {
     nock('https://api.github.com')
