@@ -59,6 +59,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const onExportPrefab = async () => {
     const editorState = getState(EditorState)
     const fileName = defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
+    const savefileName = 'custom-prefabs' + '/' + prefabName.value + '.gltf'
     const srcProject = editorState.projectName!
     const fileURL = pathJoin(config.client.fileServer, 'projects', srcProject, fileName)
     try {
@@ -92,7 +93,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
         })
         setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
         getMutableState(SelectionState).selectedEntities.set([])
-        await exportRelativeGLTF(prefabEntity, srcProject, fileName)
+        await exportRelativeGLTF(prefabEntity, srcProject, savefileName)
 
         const resources = await API.instance.service(staticResourcePath).find({
           query: { key: 'projects/' + srcProject + '/' + fileName }
