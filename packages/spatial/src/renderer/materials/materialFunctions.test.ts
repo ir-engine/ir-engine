@@ -70,7 +70,8 @@ import {
   materialPrototypeMatches,
   removePlugin,
   setMeshMaterial,
-  setPlugin
+  setPlugin,
+  updateMaterialPrototype
 } from './materialFunctions'
 
 const prototypeDefaultArgs: PrototypeArgumentValue = {
@@ -956,16 +957,156 @@ describe('materialFunctions', () => {
     })
   }) //:: extractDefaults
 
-  /**
-  // Big
-  describe('updateMaterialPrototype', () => {}) //:: updateMaterialPrototype
-  */
+  describe('updateMaterialPrototype', () => {
+    let materialEntity = UndefinedEntity
+
+    beforeEach(() => {
+      createEngine()
+      mockSpatialEngine()
+      materialEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(materialEntity)
+      return destroyEngine()
+    })
+
+    class MockMaterial {
+      constructor() {}
+    }
+
+    it('should return undefined if the `@param materialEntity` does not have a MaterialStateComponent', () => {
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), false)
+      // Run and Check the result
+      const result = updateMaterialPrototype(materialEntity)
+      assert.equal(result, undefined)
+    })
+
+    it('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity is falsy', () => {
+      // Set the data as expected
+      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: UndefinedEntity })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), false)
+      // Run and Check the result
+      const result = updateMaterialPrototype(materialEntity)
+      assert.equal(result, undefined)
+    })
+
+    it('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity does not have a NameComponent', () => {
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
+      assert.equal(hasComponent(prototypeEntity, NameComponent), false)
+      // Run and Check the result
+      const result = updateMaterialPrototype(materialEntity)
+      assert.equal(result, undefined)
+    })
+
+    it('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity does not have a MaterialPrototypeComponent', () => {
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      const prototypeName = 'testPrototypeName'
+      setComponent(prototypeEntity, NameComponent, prototypeName)
+      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
+      assert.equal(hasComponent(prototypeEntity, NameComponent), true)
+      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), false)
+      // Run and Check the result
+      const result = updateMaterialPrototype(materialEntity)
+      assert.equal(result, undefined)
+    })
+
+    it('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity.MaterialPrototypeComponent does not have a prototypeConstructor field with the NameComponent of the prototypeEntity', () => {
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      const prototypeName = 'testPrototypeName'
+      const prototypeConstructor = {} // { [prototypeName]: MockMaterial }
+      setComponent(prototypeEntity, NameComponent, prototypeName)
+      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: prototypeConstructor })
+      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
+      assert.equal(hasComponent(prototypeEntity, NameComponent), true)
+      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), true)
+      const hasConstructorWithPrototypeName = Object.keys(prototypeConstructor).includes(prototypeName)
+      assert.equal(hasConstructorWithPrototypeName, false)
+      // Run and Check the result
+      const result = updateMaterialPrototype(materialEntity)
+      assert.equal(result, undefined)
+    })
+
+    /** @todo Does not work as expected */
+    it.skip('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity.MaterialPrototypeComponent does not have any prototypeArguments', () => {
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      const prototypeName = 'testPrototypeName'
+      const prototypeConstructor = { [prototypeName]: MockMaterial }
+      setComponent(prototypeEntity, NameComponent, prototypeName)
+      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: prototypeConstructor })
+      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
+      assert.equal(hasComponent(prototypeEntity, NameComponent), true)
+      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), true)
+      const hasConstructorWithPrototypeName = Object.keys(prototypeConstructor).includes(prototypeName)
+      assert.equal(hasConstructorWithPrototypeName, true)
+      /** @todo prototypeArguments check */
+      // Run and Check the result
+      const result = updateMaterialPrototype(materialEntity)
+      assert.equal(result, undefined)
+    })
+
+    it('should return undefined if `@param materialEntity`.MaterialStateComponent.material.type is equal to the prototypeEntity.NameComponent', () => {
+      // Set the data as expected
+      const prototypeEntity = createEntity()
+      const prototypeName = 'testPrototypeName'
+      const prototypeConstructor = { [prototypeName]: MockMaterial }
+      setComponent(prototypeEntity, NameComponent, prototypeName)
+      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: prototypeConstructor })
+      const material = new Material()
+      material.type = prototypeName
+      setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
+      assert.equal(hasComponent(prototypeEntity, NameComponent), true)
+      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), true)
+      const hasConstructorWithPrototypeName = Object.keys(prototypeConstructor).includes(prototypeName)
+      assert.equal(hasConstructorWithPrototypeName, true)
+      /** @todo prototypeArguments check */
+      assert.equal(
+        getComponent(materialEntity, MaterialStateComponent).material.type,
+        getComponent(prototypeEntity, NameComponent)
+      )
+      // Run and Check the result
+      const result = updateMaterialPrototype(materialEntity)
+      assert.equal(result, undefined)
+    })
+
+    /** @todo
+    it("should create a material by calling its prototypeConstructor with its prototypeArguments", () => {})
+    it("should assign a function to result.customProgramCacheKey that will ???", () => {})
+    it("should assign the `@param materialEntity`.MaterialStateComponent.uuid to the result.uuid", () => {})
+    it("should assign the `@param materialEntity`.MaterialStateComponent.defines['USE_COLOR'] to the resulting material if the existing material also had that property", () => {})
+    it("should assign the `@param materialEntity`.MaterialStateComponent.userData to the resulting material, except for its `type` property", () => {})
+    it("should assign the resulting material to the `@param materialEntity`.MaterialStateComponent", () => {})
+    it("should assign the defaults contained in `@param materialEntity`.MaterialStateComponent.prototypeEntity.MaterialPrototypeComponent.prototypeArguments to the `@param materialEntity`.MaterialStateComponent.parameters", () => {})
+    it("should return the resulting material when it completed its process successfully", () => {})
+    */
+  }) //:: updateMaterialPrototype
 
   /**
-  // @todo Wait until GLTF loader PR is merged ???
+  // @deprecated until the GLTF ECS Loader is merged : https://github.com/ir-engine/ir-engine/pull/11
   describe('loadMaterialGLTF', () => {}) //:: loadMaterialGLTF
-
-  // @deprecated
   describe('assignMaterial', () => {}) //:: assignMaterial
   describe('createAndAssignMaterial', () => {}) //:: createAndAssignMaterial
   describe('createMaterialEntity', () => {}) //:: createMaterialEntity
