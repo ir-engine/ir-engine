@@ -38,6 +38,7 @@ import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { ImportSettingsState } from '@ir-engine/editor/src/services/ImportSettingsState'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
@@ -108,7 +109,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       return
     }
     exporting.set(true)
-    const fileName = `${srcPath.value}.${exportType.value}`
+    const fileName = `${getState(ImportSettingsState).importFolder}${srcPath.value}.${exportType.value}`.replace(
+      '/',
+      ''
+    )
     exportRelativeGLTF(entity, srcProject.value, fileName).then(() => {
       const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
       commitProperty(ModelComponent, 'src')(nuPath)
