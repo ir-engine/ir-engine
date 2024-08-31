@@ -47,10 +47,10 @@ export const ClientContextState = defineState({
  * from url's query params
  */
 export function clientContextParams(params: LogParamsObject) {
-  const locationState = getState(ClientContextState)
+  const contextState = getState(ClientContextState)
   return {
     ...params,
     event_id: uuidv4(),
-    ...locationState
+    ...contextState
   }
 }
