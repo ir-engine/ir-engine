@@ -183,9 +183,11 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
     newMaterial.defines = newMaterial.defines ?? {}
     newMaterial.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
   }
-  newMaterial.userData = {
-    ...newMaterial.userData,
-    ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
+  if (material.userData) {
+    newMaterial.userData = {
+      ...newMaterial.userData,
+      ...Object.fromEntries(Object.entries(material.userData).filter(([k, _v]) => k !== 'type'))
+    }
   }
   setComponent(materialEntity, MaterialStateComponent, {
     material: newMaterial,
