@@ -32,12 +32,15 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
+  hasComponent,
+  removeComponent,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { Material } from 'three'
+import { BoxGeometry, Material, Mesh } from 'three'
 import { assertArrayEqual, assertArrayNotEqual } from '../../physics/components/RigidBodyComponent.test'
+import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialInstanceComponent,
   MaterialPrototypeComponent,
@@ -144,7 +147,6 @@ describe('MaterialStateComponent', () => {
     })
   }) //:: onSet
 
-  /** @todo How does onRemove work for MaterialStateComponent and MaterialInstanceComponent? */
   describe.skip('onRemove', () => {
     let testEntity = UndefinedEntity
 
@@ -159,7 +161,49 @@ describe('MaterialStateComponent', () => {
       return destroyEngine()
     })
 
-    it('should call the T.removeFromParent function for every object in the group that has a parent', () => {})
+    /** @todo How to set it up correctly ?? */
+    it('it should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list, using its MaterialInstanceComponent.uuid', () => {
+      // Set the data as expected
+      const instance1 = createEntity()
+      const instance2 = createEntity()
+      const instances = [instance1, instance2] as Entity[]
+      const mesh1 = new Mesh(new BoxGeometry())
+      const mesh2 = new Mesh(new BoxGeometry())
+      const meshes = [mesh1, mesh2] as Mesh[]
+      const material1 = new Material()
+      const material2 = new Material()
+      const materials = [material1, material2] as Material[]
+      const uuid1 = UUIDComponent.generateUUID()
+      const uuid2 = UUIDComponent.generateUUID()
+      const uuids = [uuid1, uuid2]
+      material1.uuid = uuid1
+      material2.uuid = uuid2
+      for (const id in instances) setComponent(instances[id], MaterialStateComponent, { material: materials[id] })
+      for (const id in instances) setComponent(instances[id], MeshComponent, meshes[id])
+      setComponent(testEntity, MaterialInstanceComponent, { uuid: uuids })
+      setComponent(testEntity, MaterialStateComponent, { instances: instances })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, MaterialInstanceComponent), true)
+      for (const entity of getComponent(testEntity, MaterialStateComponent).instances) {
+        assert.equal(hasComponent(entity, MaterialStateComponent), true)
+        assert.equal(hasComponent(entity, MeshComponent), true)
+        assert.notEqual(
+          (getComponent(entity, MeshComponent).material as Material).uuid,
+          getComponent(entity, MaterialStateComponent).material.uuid
+        )
+      }
+      // Run and Check the result
+      removeComponent(testEntity, MaterialInstanceComponent)
+      for (const entity of getComponent(testEntity, MaterialStateComponent).instances) {
+        assert.equal(
+          (getComponent(entity, MeshComponent).material as Material).uuid,
+          getComponent(entity, MaterialStateComponent).material.uuid
+        )
+      }
+    })
+
+    /** @todo When the previous test case is done */
+    // it("should not do anything if the entity does not have a MaterialStateComponent", () => {})
   }) //:: onRemove
 }) //:: MaterialStateComponent
 
@@ -239,14 +283,12 @@ describe('MaterialInstanceComponent', () => {
     })
   }) //:: onSet
 
-  /** @todo How does onRemove work for MaterialStateComponent and MaterialInstanceComponent? */
   describe.skip('onRemove', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
-      setComponent(testEntity, MaterialInstanceComponent)
     })
 
     afterEach(() => {
@@ -254,7 +296,7 @@ describe('MaterialInstanceComponent', () => {
       return destroyEngine()
     })
 
-    it('should call the T.removeFromParent function for every object in the group that has a parent', () => {})
+    it('should ???', () => {})
   }) //:: onRemove
 }) //:: MaterialInstanceComponent
 
