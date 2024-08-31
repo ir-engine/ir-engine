@@ -23,32 +23,41 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { serverSettingPath } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
+import type { Knex } from 'knex'
 
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import FilesPanelContainer from './container'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export const FilesPanelTitle = () => {
-  const { t } = useTranslation()
+  const gaTrackingIdColumnExists = await knex.schema.hasColumn(serverSettingPath, 'gaTrackingId')
 
-  return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <span>{'Files'}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+  if (gaTrackingIdColumnExists === true) {
+    await knex.schema.alterTable(serverSettingPath, async (table) => {
+      table.dropColumn('gaTrackingId')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export default FilesPanelTitle
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export const FilesPanelTab: TabData = {
-  id: 'filesPanel',
-  closable: true,
-  title: <FilesPanelTitle />,
-  content: <FilesPanelContainer />
+  const gaTrackingIdColumnExists = await knex.schema.hasColumn(serverSettingPath, 'gaTrackingId')
+
+  if (gaTrackingIdColumnExists === false) {
+    await knex.schema.alterTable(serverSettingPath, async (table) => {
+      table.string('gaTrackingId', 255).nullable()
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

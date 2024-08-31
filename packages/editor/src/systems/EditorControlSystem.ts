@@ -126,6 +126,10 @@ const onKeyF = () => {
 
 const onEscape = () => {
   EditorControlFunctions.replaceSelection([])
+  const element = document.activeElement
+  if (element instanceof HTMLElement) {
+    element.blur()
+  }
 }
 
 const onKeyW = () => {
