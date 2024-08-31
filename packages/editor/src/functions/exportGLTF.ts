@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import exportModelGLTF from '@ir-engine/engine/src/assets/functions/exportModelGLTF'
-
-import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { uploadProjectFiles } from './assetFunctions'
 
 export default async function exportGLTF(entity: Entity, path: string) {
