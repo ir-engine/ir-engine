@@ -31,8 +31,8 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent
 } from '@ir-engine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -140,8 +140,8 @@ export const MaterialInstanceComponent = defineComponent({
     for (const uuid of uuids) {
       const materialEntity = UUIDComponent.getEntityByUUID(uuid)
       if (!hasComponent(materialEntity, MaterialStateComponent)) continue
-      const materialComponent = getMutableComponent(materialEntity, MaterialStateComponent)
-      if (materialComponent.instances.value)
+      const materialComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
+      if (materialComponent?.instances.value)
         materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
     }
   }
