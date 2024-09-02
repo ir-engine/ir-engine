@@ -1215,6 +1215,7 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
+      "downloadProjectUnavailable": "Cannot Download From Project Directory",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
