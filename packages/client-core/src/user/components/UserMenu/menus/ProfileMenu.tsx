@@ -97,6 +97,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
+  /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
   //const loginLink = useHookstate('')
 
   const authSetting = useFind(authenticationSettingPath).data.at(0)
@@ -369,7 +370,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const refreshApiKey = () => {
     AuthService.updateApiKey()
   }
-
+  /** Feature that was needed for multi cam mocap that is not currently necessary*/
   /*   const createLoginLink = () => {
     AuthService.createLoginToken().then((token) => loginLink.set(`${config.client.serverUrl}/login/${token.token}`))
   } */
