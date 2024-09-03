@@ -95,7 +95,7 @@ export const FileIcon = ({
           alt="file-thumbnail"
         />
       ) : FallbackIcon ? (
-        <FallbackIcon className={twMerge(color, 'h-full w-full p-4')} />
+        <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full w-full')} />
       ) : (
         <img
           className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'object-contain')}
