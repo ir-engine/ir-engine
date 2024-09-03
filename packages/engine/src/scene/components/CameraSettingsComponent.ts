@@ -51,8 +51,6 @@ export const CameraSettingsComponent = defineComponent({
       component.minCameraDistance.set(Math.max(json.minCameraDistance, 1.5))
     if (typeof json.maxCameraDistance === 'number') component.maxCameraDistance.set(json.maxCameraDistance)
     if (typeof json.startCameraDistance === 'number') component.startCameraDistance.set(json.startCameraDistance)
-    if (typeof json.cameraMode === 'number') component.cameraMode.set(json.cameraMode)
-    if (typeof json.cameraModeDefault === 'number') component.cameraModeDefault.set(json.cameraModeDefault)
     if (typeof json.minPhi === 'number') component.minPhi.set(json.minPhi)
     if (typeof json.maxPhi === 'number') component.maxPhi.set(json.maxPhi)
   },
@@ -66,8 +64,6 @@ export const CameraSettingsComponent = defineComponent({
       minCameraDistance: component.minCameraDistance.value,
       maxCameraDistance: component.maxCameraDistance.value,
       startCameraDistance: component.startCameraDistance.value,
-      cameraMode: component.cameraMode.value,
-      cameraModeDefault: component.cameraModeDefault.value,
       minPhi: component.minPhi.value,
       maxPhi: component.maxPhi.value
     }
