@@ -230,6 +230,7 @@ const ThumbnailJobReactor = () => {
     cameraEntity: UndefinedEntity,
     modelEntity: UndefinedEntity,
     lightEntity: UndefinedEntity,
+    skyboxEntity: UndefinedEntity,
     thumbnailCanvas: null as HTMLCanvasElement | null
   })
   const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
@@ -262,6 +263,10 @@ const ThumbnailJobReactor = () => {
     if (state.lightEntity.value) {
       removeEntity(state.lightEntity.value)
       state.lightEntity.set(UndefinedEntity)
+    }
+    if (state.skyboxEntity.value) {
+      removeEntity(state.skyboxEntity.value)
+      state.skyboxEntity.set(UndefinedEntity)
     }
     if (state.thumbnailCanvas.get(NO_PROXY)) {
       state.thumbnailCanvas.get(NO_PROXY)?.remove()
@@ -364,6 +369,11 @@ const ThumbnailJobReactor = () => {
     setComponent(lightEntity, VisibleComponent)
     setComponent(lightEntity, DirectionalLightComponent, { intensity: 1, color: new Color(0xffffff) })
 
+    const skyboxEntity = createEntity()
+    setComponent(lightEntity, NameComponent, 'thumbnail job skybox for ' + src)
+    setComponent(lightEntity, VisibleComponent)
+    setComponent(lightEntity, SkyboxComponent)
+
     if (fileType === 'model') {
       setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
     } else if (fileType === 'material') {
@@ -402,7 +412,7 @@ const ThumbnailJobReactor = () => {
 
             const skybox = getOptionalComponent(child, SkyboxComponent)
             if (skybox) {
-              setComponent(entity, SkyboxComponent, serializeComponent(child, SkyboxComponent))
+              setComponent(skyboxEntity, SkyboxComponent, serializeComponent(child, SkyboxComponent))
               removeComponent(child, SkyboxComponent)
             }
           })
@@ -439,6 +449,7 @@ const ThumbnailJobReactor = () => {
 
     state.modelEntity.set(entity)
     state.lightEntity.set(lightEntity)
+    state.skyboxEntity.set(skyboxEntity)
   }, [fileType, id])
 
   // Render model to canvas
@@ -461,6 +472,7 @@ const ThumbnailJobReactor = () => {
 
     const modelEntity = state.modelEntity.value
     const lightEntity = state.lightEntity.value
+    const skyboxEntity = state.skyboxEntity.value
 
     const sceneID = getModelSceneID(modelEntity)
     if (!sceneState.value[sceneID]) return
@@ -526,7 +538,7 @@ const ThumbnailJobReactor = () => {
       viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
 
       viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-      setComponent(cameraEntity, RendererComponent, { scenes: [modelEntity, lightEntity] })
+      setComponent(cameraEntity, RendererComponent, { scenes: [modelEntity, lightEntity, skyboxEntity] })
 
       const renderer = getComponent(cameraEntity, RendererComponent)
       const { scene, canvas, scenes } = renderer
@@ -556,6 +568,7 @@ const ThumbnailJobReactor = () => {
   }, [
     state.cameraEntity,
     state.modelEntity,
+    state.skyboxEntity,
     lightComponent?.light,
     sceneState.keys,
     errorComponent?.keys,
