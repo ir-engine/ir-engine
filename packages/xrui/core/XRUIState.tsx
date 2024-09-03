@@ -26,101 +26,102 @@ Ethereal Engine. All Rights Reserved.
 import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 import { defineState, getMutableState, getState, useMutableState, useState } from '@ir-engine/hyperflux'
 import Dexie, { Table } from 'dexie'
-import { decompress } from 'fflate'
 import React, { useEffect } from 'react'
 import { CanvasTexture, CompressedTexture, Matrix4 } from 'three'
 import { Bounds } from './classes/Bounds'
 import { Edges } from './classes/Edges'
 
-export type StateHash = string & OpaqueType<'StateHash'>
+export type SnapshotHash = string & OpaqueType<'SnapshotHash'>
 export type TextureHash = string & OpaqueType<'Texturehash'>
 
-export interface XRUILayerStateData {
-  hash: StateHash
-  cssTransform: Matrix4 | undefined
-  bounds: Bounds
-  margin: Edges
-  padding: Edges
-  border: Edges
-  fullWidth: number
-  fullHeight: number
-  pixelRatio: number
-  textureWidth: number
-  textureHeight: number
-  renderAttempts: number
+export interface HTMLSnapshotData {
+  hash: string
+  clonedElement: HTMLElement
+  fontFamilies: string[]
+  metrics: {
+    bounds: Bounds
+    padding: Edges
+    margin: Edges
+    border: Edges
+    fullWidth: number
+    fullHeight: number
+    textureWidth: number
+    textureHeight: number
+  }
   pseudo: {
     hover: boolean
     active: boolean
     focus: boolean
     target: boolean
   }
+  cssTransform: Matrix4 | undefined
+  referenceCount: number
+  readyForSerialization: boolean
   svgDoc?: string
   svgURL?: string
   textureHash?: TextureHash
 }
 
-export interface XRUILayerTextureData {
+export interface HTMLTextureData {
   hash: TextureHash
   timestamp: number
-  texture?: Uint8Array
-  canvas?: HTMLCanvasElement
-  ktx2Url?: string
+  storedTextureBuffer?: Uint8Array
   canvasTexture?: CanvasTexture
   compressedTexture?: CompressedTexture
 }
 
-export class XRUILayerStore extends Dexie {
-  states!: Table<XRUILayerStateData>
-  textures!: Table<XRUILayerTextureData>
+export class XRUIStore extends Dexie {
+  snapshots!: Table<HTMLSnapshotData>
+  textures!: Table<HTMLTextureData>
   constructor() {
     super('xrui-layer-store')
     this.version(1).stores({
-      states: '&hash',
+      snapshots: '&hash',
       textures: '&hash, timestamp'
     })
   }
 }
 
-export const XRUILayerState = defineState({
-  name: 'XRUILayerState',
+export const XRUIState = defineState({
+  name: 'XRUIState',
 
   initial: () => {
     return {
-      store: new XRUILayerStore(),
-      states: {} as Record<StateHash, XRUILayerStateData>,
-      textures: {} as Record<TextureHash, XRUILayerTextureData>,
+      store: new XRUIStore(),
+      snapshots: {} as Record<string, HTMLSnapshotData>,
+      textures: {} as Record<TextureHash, HTMLTextureData>,
       unsavedTextures: [] as TextureHash[],
       cleanupIntermediateData: true // set false to keep memory-heavy intermediate data (e.g., svg docs) for debugging
     }
   },
 
   async saveStore() {
-    const state = getMutableState(XRUILayerState)
+    const state = getMutableState(XRUIState)
     const textureEntries = state.unsavedTextures.map(
-      (v) => [v.value, state.textures[v.value].value] as [TextureHash, XRUILayerTextureData]
+      (v) => [v.value, state.textures[v.value].value] as [TextureHash, HTMLTextureData]
     )
     state.unsavedTextures.set([])
-    return XRUILayerState._loadIntoStore({}, Object.fromEntries(textureEntries))
+    return XRUIState._loadIntoStore({}, Object.fromEntries(textureEntries))
   },
 
   async _loadIntoStore(
-    states: Record<StateHash, XRUILayerStateData>,
-    textures: Record<TextureHash, XRUILayerTextureData>
+    snapshots: Record<SnapshotHash, HTMLSnapshotData>,
+    textures: Record<TextureHash, HTMLTextureData>
   ) {
-    const state = getMutableState(XRUILayerState)
+    const state = getMutableState(XRUIState)
     // load into textureData
-    state.states.merge(states)
+    state.snapshots.merge(snapshots)
     state.textures.merge(textures)
     const loadedTextureHashes = Object.keys(textures)
     // upload all the known state data, except for svg url
-    const stateData = Object.values(state.states.value).map((v) => {
+    const snapshotData = Object.values(state.snapshots.value).map((v) => {
       return {
         ...v,
         svgDoc: undefined,
         svgURL: undefined
       }
-    }) as XRUILayerStateData[]
-    // only upload the non-derivative texture data
+    }) as HTMLSnapshotData[]
+    // only upload the compressed texture data
     const textureData = Object.values(state.textures.value)
       .filter((v) => {
         return loadedTextureHashes.includes(v.hash)
@@ -129,129 +130,77 @@ export const XRUILayerState = defineState({
         return {
           hash: v.hash,
           timestamp: v.timestamp,
-          texture: v.texture,
+          texture: undefined,
           canvas: undefined,
           ktx2Url: undefined,
-          canvasTexture: undefined,
-          compressedTexture: undefined
+          canvasTexture: undefined
         }
-      }) as XRUILayerTextureData[]
+      }) as HTMLTextureData[]
     // load into db
-    return Promise.all([state.store.states.value.bulkPut(stateData), state.store.textures.value.bulkPut(textureData)])
+    return Promise.all([
+      state.store.snapshots.value.bulkPut(snapshotData),
+      state.store.textures.value.bulkPut(textureData)
+    ])
   },
 
   getActiveStateHashes() {
-    return Object.keys(getState(XRUILayerState).states)
+    return Object.keys(getState(XRUIState).snapshots)
   },
 
   reactor: () => {
-    const state = useMutableState(XRUILayerState)
+    const state = useMutableState(XRUIState)
 
     useEffect(() => {
       if (state.unsavedTextures.length > 0) {
-        XRUILayerState.saveStore()
+        XRUIState.saveStore()
       }
     }, [state.unsavedTextures])
 
     return (
       <>
-        {state.states.keys.map((hash: StateHash) => (
-          <XRUILayerStateReactor key={hash} hash={hash} />
+        {state.snapshots.keys.map((hash: SnapshotHash) => (
+          <XRUISnapshotReactor key={hash} hash={hash} />
         ))}
         {state.textures.keys.map((hash: TextureHash) => (
-          <XRUILayerTextureReactor key={hash} hash={hash} />
+          <XRUITextureReactor key={hash} hash={hash} />
         ))}
       </>
     )
-  },
-
-  async requestStoredData(hash: StateHash, abortSignal?: AbortSignal) {
-    const stateData = XRUILayerState.getStateData(hash)
-
-    if (!this._statesRequestedFromStore.has(hash)) {
-      this._statesRequestedFromStore.add(hash)
-      if (state?.textureHash) {
-        stateData.texture = this.getTextureState(state.textureHash)
-      }
-    }
-    const textureData = stateData.texture
-    if (
-      textureData &&
-      textureData.hash &&
-      !textureData.canvas &&
-      !textureData.ktx2Url &&
-      !this._texturesRequestedFromStore.has(textureData?.hash)
-    ) {
-      this._texturesRequestedFromStore.add(textureData.hash)
-      const storedTexture = await this.store.textures.get(textureData.hash)
-      if (storedTexture?.texture && !textureData.canvas) {
-        const data = await new Promise<Uint8Array>((resolve, reject) => {
-          decompress(storedTexture.texture!, { consume: true }, (err, data) => {
-            if (err) return reject(err)
-            resolve(data)
-          })
-        })
-        if (!textureData.canvas) {
-          textureData.ktx2Url = URL.createObjectURL(new Blob([data.buffer], { type: 'image/ktx2' }))
-        }
-      }
-    }
-    return stateData
-  },
-
-  getStateData(hash: StateHash) {
-    const state = getMutableState(XRUILayerState)
-    let data = state.states[hash].value
-    if (!data) {
-      data = {
-        hash,
-        cssTransform: undefined,
-        bounds: new Bounds(),
-        margin: new Edges(),
-        padding: new Edges(),
-        border: new Edges(),
-        fullWidth: 0,
-        fullHeight: 0,
-        renderAttempts: 0,
-        textureWidth: 32,
-        textureHeight: 32,
-        pixelRatio: 1,
-        pseudo: {
-          hover: false,
-          active: false,
-          focus: false,
-          target: false
-        },
-        textureHash: undefined
-      }
-      state.states[hash].set(data)
-    }
-    return state.states[hash]
-  },
-
-  useStateData(hash: StateHash) {
-    const state = useMutableState(XRUILayerState)
-    XRUILayerState.getStateData(hash) // create if it doesn't exist
-    return state.states[hash]
-  },
-
-  useTextureData(textureHash: TextureHash) {
-    const state = useMutableState(XRUILayerState)
-    let data = state.textures[textureHash].value
-    if (!data) {
-      data = {
-        hash: textureHash,
-        timestamp: 0,
-        texture: undefined,
-        canvas: undefined,
-        ktx2Url: undefined,
-        canvasTexture: undefined,
-        compressedTexture: undefined
-      }
-      state.textures[textureHash].set(data)
-    }
-    return state.textures[textureHash]
   }
+
+  // async requestStoredData(hash: SnapshotHash, abortSignal?: AbortSignal) {
+  //   const stateData = XRUILayerState.getStateData(hash)
+
+  //   if (!this._statesRequestedFromStore.has(hash)) {
+  //     this._statesRequestedFromStore.add(hash)
+  //     if (state?.textureHash) {
+  //       stateData.texture = this.getTextureState(state.textureHash)
+  //     }
+  //   }
+  //   const textureData = stateData.texture
+  //   if (
+  //     textureData &&
+  //     textureData.hash &&
+  //     !textureData.canvas &&
+  //     !textureData.ktx2Url &&
+  //     !this._texturesRequestedFromStore.has(textureData?.hash)
+  //   ) {
+  //     this._texturesRequestedFromStore.add(textureData.hash)
+  //     const storedTexture = await this.store.textures.get(textureData.hash)
+  //     if (storedTexture?.texture && !textureData.canvas) {
+  //       const data = await new Promise<Uint8Array>((resolve, reject) => {
+  //         decompress(storedTexture.texture!, { consume: true }, (err, data) => {
+  //           if (err) return reject(err)
+  //           resolve(data)
+  //         })
+  //       })
+  //       if (!textureData.canvas) {
+  //         textureData.ktx2Url = URL.createObjectURL(new Blob([data.buffer], { type: 'image/ktx2' }))
+  //       }
+  //     }
+  //   }
+  //   return stateData
+  // },
 
   /**
    * Export the cache data for this
@@ -316,16 +265,16 @@ export const XRUILayerState = defineState({
 // const _packr = new Packr({ structuredClone: true })
 // const _unpackr = new Unpackr({ structuredClone: true })
 
-function XRUILayerStateReactor(props: { hash: StateHash }) {
-  const state = XRUILayerState.useStateData(props.hash)
+function XRUISnapshotReactor(props: { hash: SnapshotHash }) {
+  const state = useMutableState(XRUIState).snapshots[props.hash]
   const textureHash = state.textureHash.value
   const pendingStoreLookup = useState(true)
 
   // try fetch from store if we are missing texture hash
   useEffect(() => {
     if (!textureHash) {
-      const layerState = getState(XRUILayerState)
-      layerState.store.states.get(props.hash).then((data) => {
+      const layerState = getState(XRUIState)
+      layerState.store.snapshots.get(props.hash).then((data) => {
         if (data?.textureHash && !state.textureHash.value) {
           state.textureHash.set(data.textureHash)
         }

@@ -34,7 +34,7 @@ import { getAllEmbeddedStyles } from './serialization/getAllEmbeddedStyles'
 import { KTX2Encoder, UASTCFlags } from './textures/KTX2Encoder'
 import { WebLayer } from './WebLayer'
 import { WebRenderer } from './WebRenderer'
-import { StateHash, TextureHash, XRUILayerState } from './XRUILayerState'
+import { SnapshotHash, TextureHash, XRUIState } from './XRUIState'
 
 const scratchMatrix = new Matrix4()
 
@@ -81,7 +81,7 @@ export class WebLayerManagerBase {
     promise: any
   }[]
   rasterizeQueue = [] as {
-    hash: StateHash
+    hash: SnapshotHash
     svgUrl: string
     // layer?: WebLayer
     // char?: string
@@ -161,7 +161,7 @@ export class WebLayerManagerBase {
         if (this._autosaveTimer) clearTimeout(this._autosaveTimer)
         if (this.autosave && this._unsavedTextureData.size)
           this._autosaveTimer = setTimeout(() => {
-            XRUILayerState.saveStore()
+            XRUIState.saveStore()
           }, this.autosaveDelay / this._unsavedTextureData.size)
       })
     }
@@ -204,7 +204,7 @@ export class WebLayerManagerBase {
     const textureWidth = Math.max(nextPowerOf2(fullWidth * pixelRatio), 32)
     const textureHeight = Math.max(nextPowerOf2(fullHeight * pixelRatio), 32)
 
-    const result = {} as { stateKey: StateHash | HTMLMediaElement; svgUrl?: string; needsRasterize: boolean }
+    const result = {} as { stateKey: SnapshotHash | HTMLMediaElement; svgUrl?: string; needsRasterize: boolean }
     let svgDoc!: string
 
     const computedStyle = getComputedStyle(layerElement)
@@ -269,7 +269,7 @@ export class WebLayerManagerBase {
     }
 
     // update the layer state data
-    const data = await XRUILayerState.requestStoredData(result.stateKey)
+    const data = await XRUIState.requestStoredData(result.stateKey)
     data.cssTransform = cssTransform?.clone()
     data.bounds.left = left
     data.bounds.top = top
@@ -296,7 +296,7 @@ export class WebLayerManagerBase {
     return result
   }
 
-  async rasterize(stateHash: StateHash, svgUrl: SVGUrl) {
+  async rasterize(stateHash: SnapshotHash, svgUrl: SVGUrl) {
     const stateData = this.getLayerState(stateHash)
     const svgImage = this._imagePool.pop() || new Image()
 
@@ -403,7 +403,7 @@ export class WebLayerManagerBase {
     return canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height)
   }
 
-  addToRasterizeQueue(hash: StateHash, url: string): ReturnType<typeof WebLayerManagerBase.prototype.rasterize> {
+  addToRasterizeQueue(hash: SnapshotHash, url: string): ReturnType<typeof WebLayerManagerBase.prototype.rasterize> {
     const inQueue = this.rasterizeQueue.find((v) => v.hash === hash)
     if (inQueue) return inQueue.promise
     let resolve!: (v: any) => any
@@ -414,7 +414,7 @@ export class WebLayerManagerBase {
     return promise as Promise<void>
   }
 
-  optimizeImageData(stateHash: StateHash) {}
+  optimizeImageData(stateHash: SnapshotHash) {}
 
-  addToOptimizeQueue(hash: StateHash) {}
+  addToOptimizeQueue(hash: SnapshotHash) {}
 }

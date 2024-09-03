@@ -35,7 +35,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { State, getState, useImmediateEffect } from '@ir-engine/hyperflux'
+import { State, getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -53,13 +53,13 @@ import {
   Texture,
   Vector3
 } from 'three'
+import { XRUIState } from '../XRUIState'
 import { Bounds } from '../classes/Bounds'
-import { Edges } from '../classes/Edges'
 import { TimestampedValue, Transition } from '../classes/Transition'
 import { getViewportBounds } from '../dom-utils'
-import { XRLayoutComponent } from './XRLayoutComponent'
+import { LayoutComponent, SizeMode } from './LayoutComponent'
 
-export interface XRUIBorderRadius {
+export interface BorderRadius {
   topLeft: number
   topRight: number
   bottomRight: number
@@ -68,20 +68,8 @@ export interface XRUIBorderRadius {
 
 export const PIXELS_TO_METERS = 0.001
 
-export interface NodeSnapshot {
-  hash: string
-  clonedElement: HTMLElement
-  fontFamilies: string[]
-  metrics: {
-    bounds: Bounds
-    padding: Edges
-    margin: Edges
-    border: Edges
-  }
-}
-
-export const XRUILayerComponent = defineComponent({
-  name: 'XRUILayerComponent',
+export const HTMLComponent = defineComponent({
+  name: 'HTMLComponent',
 
   onInit: (entity) => {
     return {
@@ -96,7 +84,7 @@ export const XRUILayerComponent = defineComponent({
       texture: null as Texture | null,
       textureTransition: Transition.defineScalarTransition(),
 
-      borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } as XRUIBorderRadius,
+      borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } as BorderRadius,
       borderRadiusTransition: Transition.defineBorderRadiusTransition(),
 
       backgroundColor: new Color(0xffffff),
@@ -109,24 +97,36 @@ export const XRUILayerComponent = defineComponent({
 
       domRect: new Bounds(),
 
-      autoUpdateLayout: true,
+      layoutOverride: {
+        position: undefined as Vector3 | undefined,
+        positionOrigin: undefined as Vector3 | undefined,
+        alignmentOrigin: undefined as Vector3 | undefined,
+        rotation: undefined as Vector3 | undefined,
+        rotationOrigin: undefined as Vector3 | undefined,
+        size: undefined as Vector3 | undefined,
+        sizeMode: { x: undefined, y: undefined, z: undefined } as Partial<SizeMode>
+      },
 
       __internal: {
-        snapshot: null as NodeSnapshot | null,
+        snapshotHash: '' as string,
         layerBuffer: [] as TimestampedValue<Mesh>[],
-        currentBorderRadius: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } as XRUIBorderRadius
+        currentBorderRadius: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } as BorderRadius
       }
     }
   },
 
   reactor: () => {
     const entity = useEntityContext()
-    const layer = useComponent(entity, XRUILayerComponent)
-    const layout = useOptionalComponent(entity, XRLayoutComponent)
-    const parentLayerEntity = useAncestorWithComponents(entity, [XRUILayerComponent])
-    const parentLayoutEntity = useAncestorWithComponents(entity, [XRLayoutComponent])
-    const parentLayer = useOptionalComponent(parentLayerEntity, XRUILayerComponent)
-    const parentLayout = useOptionalComponent(parentLayerEntity ?? parentLayoutEntity, XRLayoutComponent)
+    const layer = useComponent(entity, HTMLComponent)
+    const layout = useOptionalComponent(entity, LayoutComponent)
+    const parentLayerEntity = useAncestorWithComponents(entity, [HTMLComponent])
+    const parentLayoutEntity = useAncestorWithComponents(entity, [LayoutComponent])
+    const parentLayer = useOptionalComponent(parentLayerEntity, HTMLComponent)
+    const parentLayout = useOptionalComponent(parentLayerEntity ?? parentLayoutEntity, LayoutComponent)
+    const layerState = useMutableState(XRUIState)
+
+    const snapshotData = layerState.snapshots[layer.__internal.snapshotHash.value]
+    const textureData = layerState.textures[snapshotData.textureHash.ornull?.value ?? '']
 
     const geometry = React.useMemo(() => {
       return createRoundedRectangleGeometry(layout?.size.value ?? new Vector3(), layer.borderRadius.value)
@@ -136,7 +136,7 @@ export const XRUILayerComponent = defineComponent({
     useImmediateEffect(() => {
       if (!hasComponent(entity, VisibleComponent)) setComponent(entity, VisibleComponent)
       if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
-      if (!hasComponent(entity, XRLayoutComponent)) setComponent(entity, XRLayoutComponent)
+      if (!hasComponent(entity, LayoutComponent)) setComponent(entity, LayoutComponent)
       addObjectToGroup(entity, layer.stackGroup.value as Group)
       const mesh = new Mesh(
         geometry,
@@ -181,20 +181,22 @@ export const XRUILayerComponent = defineComponent({
       mesh.renderOrder = layer.__internal.layerBuffer.length - 1
     }, [layer.texture, geometry])
 
-    // process changes to DOM
-    React.useEffect(() => {
-      if (!layer.__internal.snapshot.value) return
-      if (!layout) return
+    // process changes to snapshot texture data
+    // React.useEffect(() => {
+    //   if (!layer.__internal.snapshot.value) return
+    //   if (!layout) return
 
-      layer.ready.set(false)
+    //   layer.ready.set(false)
 
-      const snapshot = layer.__internal.snapshot
+    //   const snapshot = layer.__internal.snapshot.value
 
-      return () => {
-        abort = true
-        // cancel unfinished update
-      }
-    }, [layer.element, !!layout, parentLayer?.domRect, layer.autoUpdateLayout])
+    //   const layerState.states[snapshot.hash]
+
+    //   return () => {
+    //     abort = true
+    //     // cancel unfinished update
+    //   }
+    // }, [layer.element, !!layout, parentLayer?.domRect, layer.autoUpdateLayout])
 
     // update layout
     React.useEffect(() => {})
@@ -203,7 +205,7 @@ export const XRUILayerComponent = defineComponent({
   }
 })
 
-function createRoundedRectangleGeometry(size: Vector3, borderRadius: XRUIBorderRadius): THREE.ShapeGeometry {
+function createRoundedRectangleGeometry(size: Vector3, borderRadius: BorderRadius): THREE.ShapeGeometry {
   const shape = new Shape()
   const { topLeft, topRight, bottomRight, bottomLeft } = borderRadius
   const width = size.x
@@ -240,7 +242,7 @@ function createRoundedRectangleGeometry(size: Vector3, borderRadius: XRUIBorderR
 }
 
 export function updateLayoutFromDomRects(
-  layout: State<ComponentType<typeof XRLayoutComponent>>,
+  layout: State<ComponentType<typeof LayoutComponent>>,
   rect: Bounds,
   parentRect: Bounds
 ) {

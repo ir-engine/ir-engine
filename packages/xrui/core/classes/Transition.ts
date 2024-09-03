@@ -23,20 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { Easing } from '@tweenjs/tween.js'
-import { Vector3 } from 'three'
-import { XRUIBorderRadius } from '../components/XRUILayerComponent'
+import { Quaternion, Vector3 } from 'three'
+import { HTMLBorderRadius } from '../components/HTMLComponent'
 
 export interface TimestampedValue<V> {
   timestamp: number
   value: V
 }
 
-export interface TransitionData<V> {
-  buffer: TimestampedValue<V>[]
+export interface TransitionData<T> {
+  buffer: TimestampedValue<T>[]
+  current: T
   maxBufferSize: number
   duration: number
   easingFunction: (t: number) => number
-  interpolationFunction: (a: V, b: V, t: number, out?: V) => V
+  interpolationFunction: (a: T, b: T, t: number, out?: T) => T
 }
 
 export const Transition = {
@@ -86,12 +87,28 @@ export const Transition = {
     )
   },
 
-  defineBorderRadiusTransition: (config?: TransitionData<XRUIBorderRadius>) => {
+  defineQuaternionTransition: (config?: TransitionData<Quaternion>) => {
+    return Transition.defineTransition(
+      Object.assign(
+        {
+          buffer: [{ timestamp: 0, value: new Quaternion() }],
+          interpolationFunction: (a: Quaternion, b: Quaternion, t: number, out?: Quaternion) => {
+            out = out || new Quaternion()
+            out.copy(a).slerp(b, t)
+            return out
+          }
+        },
+        config
+      )
+    )
+  },
+
+  defineBorderRadiusTransition: (config?: TransitionData<HTMLBorderRadius>) => {
     return Transition.defineTransition(
       Object.assign(
         {
           buffer: [{ timestamp: 0, value: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } }],
-          interpolationFunction: (a: XRUIBorderRadius, b: XRUIBorderRadius, t: number, out?: XRUIBorderRadius) => {
+          interpolationFunction: (a: HTMLBorderRadius, b: HTMLBorderRadius, t: number, out?: HTMLBorderRadius) => {
             out = out || { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 }
             out.topLeft = a.topLeft + (b.topLeft - a.topLeft) * t
             out.topRight = a.topRight + (b.topRight - a.topRight) * t
@@ -105,7 +122,7 @@ export const Transition = {
     )
   },
 
-  apply<V>(value: V, timestamp: number, data: TransitionData<V>): V {
+  applyNewTarget<V>(value: V, timestamp: number, data: TransitionData<V>) {
     // Add new sample
     data.buffer.push({ timestamp, value })
 
@@ -117,8 +134,6 @@ export const Transition = {
     if (data.buffer.length > data.maxBufferSize) {
       Transition.resampleBuffer(data)
     }
-
-    return Transition.computeFilteredValue(timestamp, data)
   },
 
   resampleBuffer<V>(data: TransitionData<V>) {
@@ -155,15 +170,12 @@ export const Transition = {
     return data.interpolationFunction(a, b, t)
   },
 
-  computeFilteredValue<V>(timestamp: number, data: TransitionData<V>): V {
+  computeCurrentValue<V>(timestamp: number, data: TransitionData<V>) {
     // Finite Impulse Response Filter
-    let result = data.interpolationFunction(data.buffer[0].value, data.buffer[0].value, 0)
-
+    const current = data.interpolationFunction(data.buffer[0].value, data.buffer[0].value, 0, data.current)
     for (let i = 0; i < data.buffer.length; i++) {
       const t = data.easingFunction((timestamp - data.buffer[i].timestamp) / data.duration)
-      data.interpolationFunction(result, data.buffer[i].value, t, result)
+      data.interpolationFunction(current, data.buffer[i].value, t, current)
     }
-
-    return result
   }
 }

@@ -24,69 +24,87 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { createEntity, setComponent, useComponent } from '@ir-engine/ecs'
+import { useMutableState } from '@ir-engine/hyperflux'
 import React from 'react'
+import { HTMLSnapshotData, XRUIState } from '../XRUIState'
 import { Bounds } from '../classes/Bounds'
 import { Edges } from '../classes/Edges'
-import { NodeSnapshot, XRUILayerComponent } from '../components/XRUILayerComponent'
+import { HTMLComponent } from '../components/HTMLComponent'
 import { bufferToHex } from '../hex-utils'
 
 export function useXRUILayer() {
   const entity = React.useMemo(() => {
     const entity = createEntity()
-    setComponent(entity, XRUILayerComponent)
+    setComponent(entity, HTMLComponent)
     return entity
   }, [])
 
-  const state = useComponent(entity, XRUILayerComponent)
+  const layer = useComponent(entity, HTMLComponent)
+
+  const layerState = useMutableState(XRUIState)
+
+  React.useEffect(() => {
+    return () => {
+      layer.__internal.snapshotHash.set('')
+      // XRUILayerComponent will destroy the entity when exit transition completes
+    }
+  }, [])
 
   // generate snapshot for serialization and rasterization
   React.useLayoutEffect(() => {
-    const el = state.element.value as HTMLElement
-    if (!el) {
-      state.__internal.snapshot.set(null)
-      return
-    }
+    const el = layer.element.value as HTMLElement
 
     // generate a snapshot that includes the element and its children, excluding descendent elements with the xr-layer attribute
-    const snapshot = createNodeSnapshot(el) as NodeSnapshot
-    snapshot.metrics = extractDOMMetrics(el)
+    const snapshot = createLayerSnapshot(el) as HTMLSnapshotData
+    snapshot.metrics = extractLayerMetrics(el)
 
     // generate a hash of the unprocessed snapshot for caching purposes
     let abort = false
+    let cleanup = () => {}
     const serializer = new XMLSerializer()
     const textEncoder = new TextEncoder()
     const unprocessedSerializedDOM = serializer.serializeToString(snapshot.clonedElement as HTMLElement)
     crypto.subtle
       .digest('SHA-1', textEncoder.encode(unprocessedSerializedDOM))
       .then((hash) => {
-        snapshot.hash = bufferToHex(hash)
+        snapshot.hash =
+          bufferToHex(hash) + '?w=' + fullWidth + ';h=' + fullHeight + ';tw=' + textureWidth + ';th=' + textureHeight
       })
       .then(() => {
         // if the snapshot is still valid, set it
-        if (!abort) state.__internal.snapshot.set(snapshot)
+        if (!abort) {
+          layer.__internal.snapshotHash.set(snapshot.hash)
+          const snapshotState = layerState.snapshots[snapshot.hash]
+          if (!snapshotState.value) snapshotState.set(snapshot)
+          snapshotState.referenceCount.set(snapshotState.referenceCount.value + 1)
+          cleanup = () => {
+            snapshotState.referenceCount.set(snapshotState.referenceCount.value - 1)
+          }
+        }
       })
 
     return () => {
       abort = true
+      cleanup()
     }
   })
 
   return {
     ref: (v: HTMLElement | null) => {
-      v?.setAttribute('xr-layer', 'true')
-      state.element.set(v)
+      v?.setAttribute('xrui-layer', 'true')
+      layer.element.set(v)
     },
     entity,
-    state
+    state: layer
   }
 }
 
-function createNodeSnapshot(node: Node): Pick<NodeSnapshot, 'clonedElement' | 'fontFamilies'> {
+function createLayerSnapshot(node: Node): Pick<HTMLSnapshotData, 'clonedElement' | 'fontFamilies'> {
   // If the node is an element and has the xr-layer attribute
   const fonts = new Set<string>()
   let clone: Node
 
-  if (node.nodeType === Node.ELEMENT_NODE && (node as Element).hasAttribute('xr-layer')) {
+  if (node.nodeType === Node.ELEMENT_NODE && (node as Element).hasAttribute('xrui-layer')) {
     // Create an invisible placeholder that retains layout
     const placeholder = document.createElement('div')
     const computedStyle = getComputedStyle(node as Element)
@@ -115,13 +133,20 @@ function createNodeSnapshot(node: Node): Pick<NodeSnapshot, 'clonedElement' | 'f
 
     clone = placeholder
   } else if (node.nodeType === Node.ELEMENT_NODE) {
+    const el = node as Element
     // Otherwise, clone the node and recursively clone its children
-    const computedStyle = getComputedStyle(node as Element)
+    const computedStyle = getComputedStyle(el)
     const fontFamily = computedStyle.fontFamily.split(',').map((f) => f.trim())
     for (const font of fontFamily) fonts.add(font)
     clone = node.cloneNode(false) // Shallow clone
+    // remove xrui-attributes
+    for (const attr of el.attributes) {
+      if (attr.name.startsWith('xrui-')) {
+        ;(clone as Element).removeAttribute(attr.name)
+      }
+    }
     for (const child of node.childNodes) {
-      const snapshot = createNodeSnapshot(child)
+      const snapshot = createLayerSnapshot(child)
       clone.appendChild(snapshot.clonedElement)
       snapshot.fontFamilies.forEach(fonts.add, fonts)
     }
@@ -136,9 +161,10 @@ function createNodeSnapshot(node: Node): Pick<NodeSnapshot, 'clonedElement' | 'f
   }
 }
 
-function extractDOMMetrics(element: HTMLElement) {
+function extractLayerMetrics(element: HTMLElement) {
   const computedStyle = getComputedStyle(element)
-  return {
+
+  const metrics = {
     bounds: new Bounds().copy(element.getBoundingClientRect()),
     margin: new Edges().copy({
       top: Number.parseFloat(computedStyle.marginTop),
@@ -159,4 +185,14 @@ function extractDOMMetrics(element: HTMLElement) {
       left: Number.parseFloat(computedStyle.borderLeftWidth)
     })
   }
+
+  const totalWidth = metrics.bounds.width + metrics.margin.left + metrics.margin.right
+  const totalHeight = metrics.bounds.height + metrics.margin.top + metrics.margin.bottom
+  // const textureWidth = /
+
+  // const pixelRatio = layer.computedPixelRatio
+  // const textureWidth = Math.max(nextPowerOf2(fullWidth * pixelRatio), 32)
+  // const textureHeight = Math.max(nextPowerOf2(fullHeight * pixelRatio), 32)
+
+  return { ...metrics, totalWidth, totalHeight }
 }
