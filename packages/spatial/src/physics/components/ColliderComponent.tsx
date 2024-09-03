@@ -66,15 +66,15 @@ export const ColliderComponent = defineComponent({
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
   },
 
-  toJSON(entity, component) {
+  toJSON: (component) => {
     return {
-      shape: component.shape.value,
-      mass: component.mass.value,
-      massCenter: component.massCenter.value,
-      friction: component.friction.value,
-      restitution: component.restitution.value,
-      collisionLayer: component.collisionLayer.value,
-      collisionMask: component.collisionMask.value
+      shape: component.shape,
+      mass: component.mass,
+      massCenter: component.massCenter,
+      friction: component.friction,
+      restitution: component.restitution,
+      collisionLayer: component.collisionLayer,
+      collisionMask: component.collisionMask
     }
   },
 

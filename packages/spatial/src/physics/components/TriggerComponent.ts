@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import matches from 'ts-matches'
 
 import { defineComponent, EntityUUID } from '@ir-engine/ecs'
-import { NO_PROXY } from '@ir-engine/hyperflux'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
@@ -77,9 +76,9 @@ export const TriggerComponent = defineComponent({
     }
   },
 
-  toJSON(entity, component) {
+  toJSON: (component) => {
     return {
-      triggers: component.triggers.get(NO_PROXY)
+      triggers: component.triggers
     }
   }
 })

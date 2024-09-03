@@ -301,22 +301,22 @@ export const defineComponent = <
 
 export const getOptionalMutableComponent = <
   Schema extends ComponentSchema,
-  SchemaInstanceType,
+  InitializationType,
   ComponentType,
   JSON,
   SetJSON
 >(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> | undefined => {
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
   const componentState = component.stateMap[entity]!
   return componentState.promised ? undefined : componentState
 }
 
-export const getMutableComponent = <Schema extends ComponentSchema, SchemaInstanceType, ComponentType, JSON, SetJSON>(
+export const getMutableComponent = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> => {
   const componentState = getOptionalMutableComponent(entity, component)
   if (!componentState || componentState.promised) {
@@ -328,17 +328,17 @@ export const getMutableComponent = <Schema extends ComponentSchema, SchemaInstan
   return componentState
 }
 
-export const getOptionalComponent = <Schema extends ComponentSchema, SchemaInstanceType, ComponentType, JSON, SetJSON>(
+export const getOptionalComponent = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType | undefined => {
   const componentState = component.stateMap[entity]!
   return componentState?.promised ? undefined : (componentState?.get(NO_PROXY_STEALTH) as ComponentType)
 }
 
-export const getComponent = <Schema extends ComponentSchema, SchemaInstanceType, ComponentType, JSON, SetJSON>(
+export const getComponent = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
   if (!bitECS.hasComponent(HyperFlux.store, component, entity)) {
     console.warn(
@@ -352,21 +352,21 @@ export const getComponent = <Schema extends ComponentSchema, SchemaInstanceType,
 
 export const createInitialComponentValue = <
   Schema extends ComponentSchema,
-  SchemaInstanceType,
+  InitializationType,
   ComponentType,
   JSON,
   SetJSON
 >(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
   if (schemaIsJSONSchema(component.schema)) {
-    const schema = Value.Create(component.schema) as SchemaInstanceType
+    const schema = Value.Create(component.schema) as InitializationType
     if (component.onInit) return component.onInit(schema) as ComponentType
     else return schema as unknown as ComponentType
   } else if (schemaIsECSSchema(component.schema) && component.onInit) {
-    return component.onInit(entity as SchemaInstanceType)
-  } else if (component.onInit) return component.onInit(undefined as SchemaInstanceType) as ComponentType
+    return component.onInit(entity as InitializationType)
+  } else if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
   else return null as ComponentType
 }
 
@@ -382,9 +382,9 @@ export const createInitialComponentValue = <
  * @param args `@todo` Explain what `setComponent(   args)` is
  * @returns The component that was attached.
  */
-export const setComponent = <Schema extends ComponentSchema, SchemaInstanceType, ComponentType, JSON, SetJSON>(
+export const setComponent = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>,
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>,
   args: SetJSON | undefined = undefined
 ): ComponentType => {
   if (!entity) {
@@ -463,9 +463,9 @@ export const updateComponent = <C extends Component>(
   })
 }
 
-export const hasComponent = <Schema extends ComponentSchema, SchemaInstanceType, ComponentType, JSON, SetJSON>(
+export const hasComponent = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): boolean => {
   if (!component) throw new Error('[hasComponent]: component is undefined')
   if (!entity) return false
@@ -477,9 +477,9 @@ export const hasComponent = <Schema extends ComponentSchema, SchemaInstanceType,
  * @param entity
  * @param components
  */
-export function hasComponents<Schema extends ComponentSchema, SchemaInstanceType, ComponentType, JSON, SetJSON>(
+export function hasComponents<Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  components: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>[]
+  components: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>[]
 ): boolean {
   if (!components) throw new Error('[hasComponent]: component is undefined')
   if (components.length < 1 || !entity) return false
@@ -578,9 +578,9 @@ export function _use(promise) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<Schema extends ComponentSchema, SchemaInstanceType, ComponentType, JSON, SetJSON>(
+export function useComponent<Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
@@ -595,9 +595,9 @@ export function useComponent<Schema extends ComponentSchema, SchemaInstanceType,
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useOptionalComponent<Schema extends ComponentSchema, SchemaInstanceType, ComponentType, JSON, SetJSON>(
+export function useOptionalComponent<Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   entity: Entity,
-  component: Component<Schema, SchemaInstanceType, ComponentType, JSON, SetJSON, unknown>
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): State<ComponentType> | undefined {
   if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType>
   // The linter infers this correctly, but tsc doesn't

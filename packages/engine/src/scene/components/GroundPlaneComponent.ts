@@ -56,10 +56,10 @@ export const GroundPlaneComponent = defineComponent({
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
   },
 
-  toJSON(entity, component) {
+  toJSON: (component) => {
     return {
-      color: component.color.value,
-      visible: component.visible.value
+      color: component.color,
+      visible: component.visible
     }
   },
 
