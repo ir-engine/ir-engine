@@ -35,9 +35,9 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
   if (!cameraRotationTransition) {
     setComponent(entity, TargetCameraRotationComponent, {
       phi: phi,
-      phiVelocity: { value: 0 },
+      phiVelocity: 0,
       theta: theta,
-      thetaVelocity: { value: 0 },
+      thetaVelocity: 0,
       time: time
     })
   } else {

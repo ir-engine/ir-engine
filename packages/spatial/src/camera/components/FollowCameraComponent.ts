@@ -33,7 +33,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EntitySchema, S, Vec3Schema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
@@ -59,12 +59,12 @@ export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',
 
   schema: S.Object({
-    firstPersonOffset: Vec3Schema(),
-    thirdPersonOffset: Vec3Schema(),
-    currentOffset: Vec3Schema(),
+    firstPersonOffset: S.Vec3(),
+    thirdPersonOffset: S.Vec3(),
+    currentOffset: S.Vec3(),
     offsetSmoothness: S.Number(0.1),
-    targetEntity: EntitySchema,
-    currentTargetPosition: Vec3Schema(),
+    targetEntity: S.Entity(),
+    currentTargetPosition: S.Vec3(),
     targetPositionSmoothness: S.Number(0),
     mode: S.Enum(FollowCameraMode, FollowCameraMode.ThirdPerson),
     allowedModes: S.Array(S.Enum(FollowCameraMode), [
@@ -100,26 +100,11 @@ export const FollowCameraComponent = defineComponent({
         maxDistance: S.Number(-1),
         targetHit: S.Bool(false)
       }),
-      cameraRays: S.Array(Vec3Schema(), [])
+      cameraRays: S.Array(S.Vec3(), [])
     }),
     accumulatedZoomTriggerDebounceTime: S.Number(-1),
     lastZoomStartDistance: S.Number(0)
   }),
-
-  // onInit: (initial) => {
-  //   return {
-  //     ...initial,
-  //     firstPersonOffset: Vec3SchemaToVec3(initial.firstPersonOffset),
-  //     thirdPersonOffset: Vec3SchemaToVec3(initial.thirdPersonOffset),
-  //     currentOffset: Vec3SchemaToVec3(initial.currentOffset),
-  //     currentTargetPosition: Vec3SchemaToVec3(initial.currentTargetPosition),
-  //     raycastProps: {
-  //       ...initial.raycastProps,
-  //       cameraRays: initial.raycastProps.cameraRays as Vector3[]
-  //       // camRayCastClock: initial.raycastProps.camRayCastClock() as Clock
-  //     }
-  //   }
-  // },
 
   reactor: () => {
     const entity = useEntityContext()

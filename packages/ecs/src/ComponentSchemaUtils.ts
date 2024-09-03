@@ -35,7 +35,7 @@ import {
   Type
 } from '@sinclair/typebox'
 import { Quaternion, Vector3 } from 'three'
-import { UndefinedEntity } from './Entity'
+import { Entity, UndefinedEntity } from './Entity'
 
 const buildOptions = (init: any | undefined, options?: SchemaOptions) => {
   return init !== undefined
@@ -46,14 +46,16 @@ const buildOptions = (init: any | undefined, options?: SchemaOptions) => {
     : options
 }
 
-export interface TTypedClass<T> extends TSchema {
+export interface TTypedSchema<T> extends TSchema {
   [Kind]: 'Object'
   static: T
   type: T
 }
 
 export const TypedClass = <T, TProps extends TProperties>(properties: TProps, init: () => T, options?: ObjectOptions) =>
-  S.Object(properties, init, options) as unknown as TTypedClass<T>
+  S.Object(properties, init, options) as unknown as TTypedSchema<T>
+
+const EntitySchema = () => Type.Number({ default: UndefinedEntity, $id: 'Entity' }) as unknown as TTypedSchema<Entity>
 
 export const S = {
   Number: (init?: number, options?: NumberOptions) => Type.Number(buildOptions(init, options)),
@@ -77,33 +79,26 @@ export const S = {
   Func: <T extends TSchema[], U extends TSchema>(parameters: [...T], returns: U, options?: SchemaOptions) =>
     Type.Function(parameters, returns, options),
 
-  Call: (options?: SchemaOptions) => Type.Function([], Type.Void(), options)
+  Call: (options?: SchemaOptions) => Type.Function([], Type.Void(), options),
+
+  Entity: () => EntitySchema(),
+
+  Vec3: (init = { x: 0, y: 0, z: 0 }, options?: ObjectOptions) =>
+    TypedClass<Vector3, TProperties>(
+      {
+        x: S.Number(),
+        y: S.Number(),
+        z: S.Number()
+      },
+      () => new Vector3(init.x, init.y, init.z),
+      {
+        ...options,
+        $id: 'Vec3'
+      }
+    )
 }
 
-const OpaqueTypeSchema = <T extends TSchema>(t: T) =>
-  S.Object({
-    __opaqueType: Type.Readonly(t)
-  })
-
-export const EntitySchema = Type.Intersect([OpaqueTypeSchema(Type.Literal('entity')), S.Number()], {
-  default: UndefinedEntity
-})
-
-export const Vec3Schema = (init = { x: 0, y: 0, z: 0 }, options?: ObjectOptions) =>
-  TypedClass<Vector3, TProperties>(
-    {
-      x: S.Number(),
-      y: S.Number(),
-      z: S.Number()
-    },
-    () => new Vector3(init.x, init.y, init.z),
-    {
-      ...options,
-      $id: 'Vector3'
-    }
-  )
-
-export const Vec3SchemaToVec3 = (vec3: Static<ReturnType<typeof Vec3Schema>>) => new Vector3(vec3.x, vec3.y, vec3.z)
+export const Vec3SchemaToVec3 = (vec3: Static<ReturnType<typeof S.Vec3>>) => new Vector3(vec3.x, vec3.y, vec3.z)
 
 export const QuaternionSchema = (options?: {
   x: NumberOptions

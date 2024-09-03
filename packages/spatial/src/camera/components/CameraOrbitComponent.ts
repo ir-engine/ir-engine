@@ -23,37 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
-import matches from 'ts-matches'
-
-import { defineComponent, Entity } from '@ir-engine/ecs'
+import { defineComponent } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 
 export const CameraOrbitComponent = defineComponent({
   name: 'CameraOrbitComponent',
 
-  onInit: (entity) => {
-    return {
-      focusedEntities: [] as Entity[],
-      isPanning: false,
-      cursorDeltaX: 0,
-      cursorDeltaY: 0,
-      minimumZoom: 0.1,
-      isOrbiting: false,
-      refocus: false,
-      cameraOrbitCenter: new Vector3(),
-      disabled: false
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.focusedEntities) component.focusedEntities.set(json.focusedEntities)
-    if (matches.boolean.test(json.isPanning)) component.isPanning.set(json.isPanning)
-    if (matches.number.test(json.cursorDeltaX)) component.cursorDeltaX.set(json.cursorDeltaX)
-    if (matches.number.test(json.cursorDeltaY)) component.cursorDeltaY.set(json.cursorDeltaY)
-    if (matches.number.test(json.minimumZoom)) component.minimumZoom.set(json.minimumZoom)
-    if (matches.boolean.test(json.isOrbiting)) component.isOrbiting.set(json.isOrbiting)
-    if (matches.boolean.test(json.refocus)) component.refocus.set(json.refocus)
-    if (matches.boolean.test(json.disabled)) component.disabled.set(json.disabled)
-  }
+  schema: S.Object({
+    focusedEntities: S.Array(S.Entity()),
+    isPanning: S.Bool(false),
+    cursorDeltaX: S.Number(0),
+    cursorDeltaY: S.Number(0),
+    minimumZoom: S.Number(0.1),
+    isOrbiting: S.Bool(false),
+    refocus: S.Bool(false),
+    cameraOrbitCenter: S.Vec3(),
+    disabled: S.Bool(false)
+  })
 })
