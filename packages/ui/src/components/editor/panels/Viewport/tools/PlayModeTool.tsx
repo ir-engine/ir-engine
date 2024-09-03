@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { spawnLocalAvatarInWorld } from '@ir-engine/common/src/world/receiveJoinWorld'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
@@ -34,7 +35,6 @@ import { transformGizmoControlledQuery } from '@ir-engine/editor/src/systems/Giz
 import { VisualScriptActions, visualScriptQuery } from '@ir-engine/engine'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
-import { spawnLocalAvatarInWorld } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { WorldNetworkAction } from '@ir-engine/network'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -76,7 +76,7 @@ export const onStartPlayMode = () => {
     spawnLocalAvatarInWorld({
       parentUUID: currentScene,
       avatarSpawnPose,
-      avatarID: avatarDetails.id!,
+      avatarURL: avatarDetails.modelResource!.url!,
       name: authState.user.name //.value
     })
 

@@ -27,7 +27,6 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   Engine,
   EntityUUID,
@@ -40,7 +39,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import { PeerID, UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
 import {
   Network,
   NetworkPeerFunctions,

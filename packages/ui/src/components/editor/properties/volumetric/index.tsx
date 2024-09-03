@@ -41,7 +41,7 @@ import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/
 import { UVOL1Component } from '@ir-engine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@ir-engine/engine/src/scene/components/UVOL2Component'
 import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'
-import { getState } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { getState } from '@ir-engine/hyperflux'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import { MdVideocam } from 'react-icons/md'
 

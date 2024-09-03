@@ -153,7 +153,6 @@ const server = {
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
   storageProviderExternalEndpoint: process.env.STORAGE_PROVIDER_EXTERNAL_ENDPOINT!,
-  gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
     endpoint: process.env.HUB_ENDPOINT!
   },

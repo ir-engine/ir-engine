@@ -29,7 +29,7 @@ import { UserType, userPath } from '@ir-engine/common/src/schemas/user/user.sche
 import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
-import { createFeathersKoaApp } from '@ir-engine/server-core/src/createApp'
+import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
@@ -74,7 +74,8 @@ describe('project-setting.test', () => {
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
     cleanup(project.name)
-    await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should create project-setting', async () => {

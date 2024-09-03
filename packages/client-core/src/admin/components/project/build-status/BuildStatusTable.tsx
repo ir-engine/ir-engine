@@ -27,8 +27,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiEye } from 'react-icons/hi2'
 
+import { useFind } from '@ir-engine/common'
 import { buildStatusPath, BuildStatusType } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
 import { PopoverState } from '../../../../common/services/PopoverState'

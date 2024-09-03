@@ -33,7 +33,7 @@ import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../declarations'
-import { createFeathersKoaApp } from '../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../createApp'
 import checkScope from './check-scope'
 
 const mockUserHookContext = (user: UserType, app: Application) => {
@@ -52,8 +52,9 @@ describe('check-scope', () => {
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should return false if user does not have scope', async () => {
