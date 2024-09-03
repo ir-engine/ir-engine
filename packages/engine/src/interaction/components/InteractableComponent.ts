@@ -273,8 +273,6 @@ export const InteractableComponent = defineComponent({
     if (json.label) component.label.set(json.label)
     if (typeof json.uiActivationType === 'number' && component.uiActivationType.value !== json.uiActivationType)
       component.uiActivationType.set(json.uiActivationType)
-    if (typeof json.canInteract === 'boolean' && component.canInteract.value !== json.canInteract)
-      component.canInteract.set(json.canInteract)
     if (typeof json.clickInteract === 'boolean' && component.clickInteract.value !== json.clickInteract)
       component.clickInteract.set(json.clickInteract)
     if (typeof json.uiInteractable === 'boolean' && component.uiInteractable.value !== json.uiInteractable)
