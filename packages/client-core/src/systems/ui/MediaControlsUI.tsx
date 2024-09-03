@@ -59,9 +59,6 @@ type MediaControlsProps = {
 const MediaControlsView = (props: MediaControlsProps) => {
   const mediaComponent = useHookstate(getMutableComponent(props.entity, MediaComponent))
 
-  const controlsPercent = '10%'
-  const oneUnitInPixels = 1000
-
   const buttonClick = () => {
     //early out if the mediaElement is null
     if (!hasComponent(props.entity, MediaElementComponent)) return
@@ -70,13 +67,14 @@ const MediaControlsView = (props: MediaControlsProps) => {
     isPaused ? mediaComponent.paused.set(false) : mediaComponent.paused.set(true)
   }
 
+  /** @todo does not currently support tailwind css */
   return (
     <div
       xr-layer="true"
       id="container"
       style={{
-        width: `${oneUnitInPixels}px`,
-        height: `${oneUnitInPixels}px`,
+        width: `1000px`,
+        height: `1000px`,
         display: 'flex',
         alignItems: 'center',
         justifyItems: 'center',
@@ -93,8 +91,8 @@ const MediaControlsView = (props: MediaControlsProps) => {
           boxShadow: '#fff2 0 0 30px',
           color: 'lightgrey',
           fontSize: '25px',
-          width: controlsPercent,
-          height: controlsPercent,
+          width: '10%',
+          height: '10%',
           transform: 'translateZ(0.01px)'
         }}
         onClick={buttonClick}
