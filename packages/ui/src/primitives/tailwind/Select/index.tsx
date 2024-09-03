@@ -33,6 +33,7 @@ import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { useHookstate } from '@ir-engine/hyperflux'
 
 import Input from '../Input'
+import LoadingView from '../LoadingView'
 
 export type OptionValueType = string | number
 
@@ -56,6 +57,7 @@ export interface SelectProps<T extends OptionValueType> {
   errorBorder?: boolean
   searchDisabled?: boolean
   inputContainerClassName?: string
+  loading?: boolean
 }
 
 const Select = <T extends OptionValueType>({
@@ -75,7 +77,8 @@ const Select = <T extends OptionValueType>({
   inputClassName,
   errorBorder,
   searchDisabled,
-  inputContainerClassName
+  inputContainerClassName,
+  loading
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -155,17 +158,21 @@ const Select = <T extends OptionValueType>({
         onClick={toggleDropdown}
         onMouseDown={handleMouseDown}
         endComponent={
-          <MdOutlineKeyboardArrowDown
-            size="1.5em"
-            className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
-              disabled ? 'opacity-50' : ''
-            }`}
-            onClick={() => {
-              if (!disabled) {
-                toggleDropdown()
-              }
-            }}
-          />
+          loading ? (
+            <LoadingView spinnerOnly className="mr-2 h-6 w-6" />
+          ) : (
+            <MdOutlineKeyboardArrowDown
+              size="1.5em"
+              className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
+                disabled ? 'opacity-50' : ''
+              }`}
+              onClick={() => {
+                if (!disabled) {
+                  toggleDropdown()
+                }
+              }}
+            />
+          )
         }
         containerClassName={inputContainerClassName}
       />
