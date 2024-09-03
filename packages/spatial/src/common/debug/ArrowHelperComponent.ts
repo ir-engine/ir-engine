@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ArrowHelper, ColorRepresentation, Vector3 } from 'three'
 
-import { useDidMount } from '@ir-engine/common/src/utils/useDidMount'
 import { defineComponent, Entity, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { useDidMount } from '@ir-engine/hyperflux'
 
 import { useDisposable } from '../../resources/resourceHooks'
 import { matchesColor, matchesVector3 } from '../functions/MatchesUtils'

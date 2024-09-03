@@ -33,6 +33,7 @@ import {
   staticResourcePath,
   StaticResourceType,
   uploadAssetPath,
+  userAvatarPath,
   UserID,
   UserName,
   userPath,
@@ -71,8 +72,14 @@ export const AvatarService = {
     await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName, isPublic, newAvatar.id)
 
     if (!isPublic) {
-      AvatarNetworkState.updateUserAvatarId(newAvatar.id)
+      await AvatarService.updateUserAvatarId(newAvatar.id)
     }
+  },
+
+  async updateUserAvatarId(id: AvatarID) {
+    await API.instance
+      .service(userAvatarPath)
+      .patch(null, { avatarId: id }, { query: { userId: Engine.instance.store.userID } })
   },
 
   async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {
@@ -143,7 +150,7 @@ export const AvatarService = {
 
     const userAvatarId = getState(AvatarNetworkState)[Engine.instance.userID] as AvatarID
     if (userAvatarId === avatar.id) {
-      AvatarNetworkState.updateUserAvatarId(avatar.id)
+      await AvatarService.updateUserAvatarId(avatar.id)
     }
   },
 

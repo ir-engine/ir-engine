@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ChannelID, InstanceID, LocationID, RoomCode, UserID } from '@ir-engine/common/src/schema.type.module'
 import {
+  NetworkID,
   PeerID,
+  UserID,
   Validator,
   defineAction,
   defineState,
@@ -75,12 +76,12 @@ export const NetworkState = defineState({
   name: 'NetworkState',
   initial: {
     hostIds: {
-      media: null as InstanceID | null,
-      world: null as InstanceID | null
+      media: null as NetworkID | null,
+      world: null as NetworkID | null
     },
     // todo - move to Network.schemas
     networkSchema: {} as { [key: string]: SerializationSchema },
-    networks: {} as { [key: InstanceID]: Network },
+    networks: {} as { [key: NetworkID]: Network },
     config: {
       /** Allow connections to a world instance server */
       world: false,
@@ -137,14 +138,6 @@ export type MediaTagType =
 
 // export type MediaType = typeof webcamMediaType | typeof screenshareMediaType
 
-export type MediaStreamAppData = {
-  mediaTag: MediaTagType
-  peerID: PeerID
-  direction: TransportDirection
-  channelId: ChannelID
-  clientDirection?: 'recv' | 'send'
-}
-
 export type PeerMediaType = {
   /** @deprecated - use ProducersConsumerState instead */
   paused: boolean
@@ -158,13 +151,9 @@ export type PeerMediaType = {
     parameters: any
     rtcpFeedback: any[]
   }>
-  /** @deprecated */
-  channelId: ChannelID
 }
 
 export const SceneUser = 'scene' as UserID
-
-export type TransportDirection = 'send' | 'receive'
 
 export const addNetwork = (network: Network) => {
   getMutableState(NetworkState).networks[network.id].set(network)
@@ -172,15 +161,4 @@ export const addNetwork = (network: Network) => {
 
 export const removeNetwork = (network: Network) => {
   getMutableState(NetworkState).networks[network.id].set(none)
-}
-
-export type NetworkConnectionParams = {
-  token: string
-  locationId?: LocationID
-  instanceID?: InstanceID
-  channelId?: ChannelID
-  roomCode?: RoomCode
-  /** Address and port are used by ingress to route traffic */
-  address?: string
-  port?: string
 }

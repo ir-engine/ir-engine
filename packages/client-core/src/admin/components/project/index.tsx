@@ -34,9 +34,9 @@ import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
-import BuildStatusTable from './build-status/BuildStatusTable'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
+import BuildStatusTable from './build-status/BuildStatusTable'
 
 export default function AdminProject() {
   const { t } = useTranslation()

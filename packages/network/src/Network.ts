@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { InstanceID, UserID } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs'
-import { Action, PeerID, Topic, getState } from '@ir-engine/hyperflux'
-
+import { Action, HyperFlux, NetworkID, PeerID, Topic, UserID, getState } from '@ir-engine/hyperflux'
 import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
 import { NetworkPeer } from './NetworkState'
 import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
@@ -99,7 +96,7 @@ export type Network<Ext = unknown> = {
   /**
    * The ID of this network, equivalent to the InstanceID of an instance
    */
-  id: InstanceID
+  id: NetworkID
 
   /**
    * The network is ready for sending messages and data
@@ -123,7 +120,7 @@ export type Network<Ext = unknown> = {
 
 /** Interface for the Transport. */
 export const createNetwork = <Ext = unknown>(
-  id: InstanceID,
+  id: NetworkID,
   hostPeerID: PeerID,
   topic: Topic,
   extension?: Ext
@@ -169,7 +166,7 @@ export const createNetwork = <Ext = unknown>(
     id,
     ready: false,
     get isHosting() {
-      return Engine.instance.store.peerID === network.hostPeerID
+      return HyperFlux.store.peerID === network.hostPeerID
     },
     topic
   } as Network<Ext>

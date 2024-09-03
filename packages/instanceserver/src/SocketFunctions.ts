@@ -30,7 +30,7 @@ import {
   userPath,
   UserType
 } from '@ir-engine/common/src/schema.type.module'
-import { AuthError, AuthTask } from '@ir-engine/engine/src/avatar/functions/receiveJoinWorld'
+import { AuthError, AuthTask } from '@ir-engine/common/src/world/receiveJoinWorld'
 import { getState } from '@ir-engine/hyperflux'
 import { Application } from '@ir-engine/server-core/declarations'
 import multiLogger from '@ir-engine/server-core/src/ServerLogger'

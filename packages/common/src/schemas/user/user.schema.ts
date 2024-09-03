@@ -29,6 +29,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 
+import { UserID } from '@ir-engine/hyperflux'
 import { TypedString } from '../../types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { ScopeType } from '../scope/scope.schema'
@@ -41,6 +42,8 @@ import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
 import { userLoginSchema } from './user-login.schema'
 
+export type { UserID }
+
 export const userPath = 'user'
 
 export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
@@ -52,7 +55,6 @@ export const userScopeSchema = Type.Object(
   { $id: 'UserScope', additionalProperties: false }
 )
 
-export type UserID = OpaqueType<'UserID'> & string
 export type InviteCode = OpaqueType<'InviteCode'> & string
 export type UserName = OpaqueType<'UserName'> & string
 

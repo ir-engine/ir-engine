@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind } from '@ir-engine/common'
 import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'
 import { ProjectHistoryType } from '@ir-engine/common/src/schemas/projects/project-history.schema'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
@@ -406,7 +406,10 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
       <TablePagination
         totalPages={Math.ceil(projectHistoryQuery.total / projectHistoryQuery.limit)}
         currentPage={projectHistoryQuery.page}
-        onPageChange={(newPage) => projectHistoryQuery.setPage(newPage)}
+        onPageChange={(newPage) => {
+          projectHistoryQuery.setPage(newPage)
+          projectHistoryQuery.refetch()
+        }}
       />
     </div>
   )

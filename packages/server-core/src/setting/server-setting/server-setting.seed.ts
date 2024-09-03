@@ -53,7 +53,6 @@ const server = {
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER ?? 's3',
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER!,
-  gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID || null!,
   hub: JSON.stringify({
     endpoint: process.env.HUB_ENDPOINT
   }),
