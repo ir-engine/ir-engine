@@ -372,7 +372,12 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
   })
 
   const bufferDef = typeof bufferIndex === 'number' ? json.buffers![bufferIndex] : null
-  const [result] = useFile(bufferDef?.uri || '', UndefinedEntity, () => {}, loader.value)
+  const [result] = useFile(
+    bufferDef?.uri ? LoaderUtils.resolveURL(bufferDef.uri, options.path) : '',
+    UndefinedEntity,
+    () => {},
+    loader.value
+  )
 
   useEffect(() => {
     if (!bufferDef) return
