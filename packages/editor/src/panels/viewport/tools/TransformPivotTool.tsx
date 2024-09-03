@@ -23,19 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { TransformPivot } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-
 import { setTransformPivot, toggleTransformPivot } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
+import { TransformPivot } from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { t } from 'i18next'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegDotCircle } from 'react-icons/fa'
-import Button from '../../../../../primitives/tailwind/Button'
-import Select from '../../../../../primitives/tailwind/Select'
-import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 const transformPivotOptions = [
   {
@@ -71,7 +69,7 @@ const TransformPivotTool = () => {
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   return (
-    <div id="transform-pivot" className="flex items-center">
+    <div className="flex items-center">
       <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
         <Button
           startIcon={<FaRegDotCircle className="text-theme-input" />}
