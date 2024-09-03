@@ -406,7 +406,10 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
       <TablePagination
         totalPages={Math.ceil(projectHistoryQuery.total / projectHistoryQuery.limit)}
         currentPage={projectHistoryQuery.page}
-        onPageChange={(newPage) => projectHistoryQuery.setPage(newPage)}
+        onPageChange={(newPage) => {
+          projectHistoryQuery.setPage(newPage)
+          projectHistoryQuery.refetch()
+        }}
       />
     </div>
   )
