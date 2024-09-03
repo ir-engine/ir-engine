@@ -96,7 +96,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   transform.matrixWorld.multiplyMatrices(rigidBodyTransform.matrixWorld, transform.matrix)
 
   /** set all children dirty deeply, but set this entity to clean */
-
+  iterateEntityNode(entity, setDirty)
   TransformComponent.dirtyTransforms[entity] = false
 }
 
