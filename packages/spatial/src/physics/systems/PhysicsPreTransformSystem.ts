@@ -83,8 +83,12 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   const transform = getComponent(entity, TransformComponent)
 
   const rigidBodyEntity = getAncestorWithComponents(entity, [RigidBodyComponent])
-  if (rigidBodyEntity === entity) return
+
   const rigidBodyTransform = getComponent(rigidBodyEntity, TransformComponent)
+  if (rigidBodyEntity === entity) {
+    iterateEntityNode(entity, setDirty)
+    return
+  }
   parentMatrixInverse.copy(rigidBodyTransform.matrixWorld).invert()
   localMatrix.compose(position, rotation, Vector3_One).premultiply(parentMatrixInverse)
   localMatrix.decompose(position, rotation, scale)
@@ -92,7 +96,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   transform.matrixWorld.multiplyMatrices(rigidBodyTransform.matrixWorld, transform.matrix)
 
   /** set all children dirty deeply, but set this entity to clean */
-  iterateEntityNode(entity, setDirty)
+
   TransformComponent.dirtyTransforms[entity] = false
 }
 
