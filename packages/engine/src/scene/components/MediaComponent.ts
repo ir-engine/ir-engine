@@ -150,7 +150,7 @@ export const MediaComponent = defineComponent({
       paused: true,
       ended: true,
       waiting: false,
-      track: 0,
+      track: -1,
       trackDurations: [] as number[]
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
@@ -375,7 +375,7 @@ export function MediaReactor() {
 
       //check if we haven't set up for single play yet, or if our sources don't match the new resources
       //** todo  make this more robust in a refactor, feels very error prone with edge cases */
-      if (nextTrack === -1 && mediaElement?.element?.src === media.resources.value[0]) return
+      if (nextTrack === -1) return
 
       let path = media.resources.value[nextTrack]
 
@@ -577,11 +577,15 @@ export function setTime(element: State<HTMLMediaElement>, time: number) {
 }
 
 export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayMode) {
-  if (currentMode === PlayMode.single || trackCount === 0) return -1
+  if (trackCount === 0) return -1
 
   let nextTrack = 0
-
-  if (currentMode == PlayMode.random) {
+  if (currentMode == PlayMode.single) {
+    nextTrack = currentTrack + 1
+    if (nextTrack >= trackCount) {
+      return -1
+    }
+  } else if (currentMode == PlayMode.random) {
     // todo: smart random, i.e., lower probability of recently played tracks
     nextTrack = Math.floor(Math.random() * trackCount)
   } else if (currentMode == PlayMode.singleloop) {
