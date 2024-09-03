@@ -37,7 +37,6 @@ import {
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { FogComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
-import { useHookstate } from '@ir-engine/hyperflux'
 import { FogShaders } from '../FogSystem'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from './FogShaders'
 import { VisibleComponent } from './VisibleComponent'
@@ -94,18 +93,12 @@ export const FogSettingsComponent = defineComponent({
     const entity = useEntityContext()
     const fog = useComponent(entity, FogSettingsComponent)
     const isVisible = useOptionalComponent(entity, VisibleComponent)
-    const retriggerFogType = useHookstate(0)
 
     useEffect(() => {
-      if (isVisible) {
-        retriggerFogType.set((old) => old++)
-      } else {
-        removeFogShader()
-        removeComponent(entity, FogComponent)
+      if (!isVisible) {
+        return
       }
-    }, [isVisible])
 
-    useEffect(() => {
       const fogData = fog.value
       switch (fogData.type) {
         case FogType.Linear:
@@ -137,7 +130,7 @@ export const FogSettingsComponent = defineComponent({
         removeFogShader()
         removeComponent(entity, FogComponent)
       }
-    }, [fog.type, retriggerFogType])
+    }, [fog.type, isVisible])
 
     useEffect(() => {
       getOptionalComponent(entity, FogComponent)?.color.set(fog.color.value)
