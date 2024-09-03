@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   AnimationSystemGroup,
-  Engine,
   Entity,
   defineComponent,
   getComponent,
@@ -57,6 +56,7 @@ import {
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AudioState } from '../../audio/AudioState'
 import {
   DRACOTarget,
@@ -454,7 +454,7 @@ function NewVolumetricComponentReactor() {
       handleMediaAutoplay({
         audioContext,
         media,
-        paused: playlistComponent?.paused!
+        paused: playlistComponent!.paused!
       })
       return
     }
@@ -611,7 +611,7 @@ function NewVolumetricComponentReactor() {
         component.geometry.targets.set(['corto'])
         if (!getState(AssetLoaderState).cortoLoader) {
           const loader = new CORTOLoader()
-          loader.setDecoderPath(Engine.instance.store.publicPath + '/loader_decoders/')
+          loader.setDecoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/')
           loader.preload()
           const assetLoaderState = getMutableState(AssetLoaderState)
           assetLoaderState.cortoLoader.set(loader)

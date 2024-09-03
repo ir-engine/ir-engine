@@ -34,7 +34,6 @@ import {
   NormalAnimationBlendMode
 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getComponent,
@@ -43,7 +42,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'

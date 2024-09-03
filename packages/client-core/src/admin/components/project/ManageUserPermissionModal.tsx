@@ -32,21 +32,21 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
+import { useFind } from '@ir-engine/common'
 import {
   InviteCode,
   ProjectPermissionType,
   ProjectType,
   projectPermissionPath
 } from '@ir-engine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { ImmutableObject, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
-export default function ManageUserPermissionModal({ project }: { project: ProjectType }) {
+export default function ManageUserPermissionModal({ project }: { project: ImmutableObject<ProjectType> }) {
   const { t } = useTranslation()
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const userInviteCode = useHookstate('' as InviteCode)

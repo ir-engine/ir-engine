@@ -57,7 +57,6 @@ export const serverSettingSchema = Type.Object(
     localStorageProvider: Type.String(),
     performDryRun: Type.Boolean(),
     storageProvider: Type.String(),
-    gaTrackingId: Type.String(),
     hub: Type.Ref(serverHubSchema),
     url: Type.String(),
     certPath: Type.String(),
@@ -92,7 +91,6 @@ export const serverSettingDataSchema = Type.Pick(
     'localStorageProvider',
     'performDryRun',
     'storageProvider',
-    'gaTrackingId',
     'hub',
     'url',
     'certPath',
@@ -128,7 +126,6 @@ export const serverSettingQueryProperties = Type.Pick(serverSettingSchema, [
   'localStorageProvider',
   'performDryRun',
   'storageProvider',
-  'gaTrackingId',
   // 'hub', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
   'url',
   'certPath',

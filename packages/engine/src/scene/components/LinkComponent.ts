@@ -26,11 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, getMutableState, getState, matches } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isClient, matches } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 

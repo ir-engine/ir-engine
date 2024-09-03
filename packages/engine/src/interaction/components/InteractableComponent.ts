@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { MathUtils, Vector2, Vector3 } from 'three'
 import matches from 'ts-matches'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   ECSState,
   Entity,
@@ -46,7 +45,7 @@ import {
   hasComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { getState, isClient, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'

@@ -31,13 +31,15 @@ import {
   getOptionalComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { FogComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { FogShaders } from '../FogSystem'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from './FogShaders'
+import { VisibleComponent } from './VisibleComponent'
 
 export enum FogType {
   Disabled = 'disabled',
@@ -90,8 +92,13 @@ export const FogSettingsComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const fog = useComponent(entity, FogSettingsComponent)
+    const isVisible = useOptionalComponent(entity, VisibleComponent)
 
     useEffect(() => {
+      if (!isVisible) {
+        return
+      }
+
       const fogData = fog.value
       switch (fogData.type) {
         case FogType.Linear:
@@ -115,11 +122,15 @@ export const FogSettingsComponent = defineComponent({
           break
 
         default:
-          removeComponent(entity, FogComponent)
           removeFogShader()
+          removeComponent(entity, FogComponent)
           break
       }
-    }, [fog.type])
+      return () => {
+        removeFogShader()
+        removeComponent(entity, FogComponent)
+      }
+    }, [fog.type, isVisible])
 
     useEffect(() => {
       getOptionalComponent(entity, FogComponent)?.color.set(fog.color.value)

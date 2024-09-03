@@ -71,7 +71,7 @@ import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { AssetType } from '@ir-engine/common/src/constants/AssetType'
+import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
