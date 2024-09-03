@@ -67,6 +67,7 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { FogSettingsComponent } from '@ir-engine/spatial/src/renderer/components/FogSettingsComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
 import { useEffect } from 'react'
@@ -110,7 +111,14 @@ export const ComponentShelfCategoriesState = defineState({
         // MediaSettingsComponent
         CameraSettingsComponent
       ],
-      Visual: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, TextComponent, LookAtComponent]
+      Visual: [
+        EnvMapBakeComponent,
+        ScenePreviewCameraComponent,
+        SkyboxComponent,
+        TextComponent,
+        LookAtComponent,
+        FogSettingsComponent
+      ]
     } as Record<string, Component[]>
   },
   reactor: () => {
