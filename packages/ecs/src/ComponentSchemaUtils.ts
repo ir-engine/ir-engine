@@ -52,7 +52,7 @@ export interface TTypedClass<T> extends TSchema {
   type: T
 }
 
-export const TypedClass = <T, TProps extends TProperties>(properties: TProps, init: T, options?: ObjectOptions) =>
+export const TypedClass = <T, TProps extends TProperties>(properties: TProps, init: () => T, options?: ObjectOptions) =>
   S.Object(properties, init, options) as unknown as TTypedClass<T>
 
 export const S = {
@@ -72,7 +72,7 @@ export const S = {
     init: Initial,
     items: T,
     ...args: ConstructorParameters<Initial>
-  ) => TypedClass<InstanceType<Initial>, T>(items, new init(...args), () => new init(...args)),
+  ) => TypedClass<InstanceType<Initial>, T>(items, () => new init(...args)),
 
   Func: <T extends TSchema[], U extends TSchema>(parameters: [...T], returns: U, options?: SchemaOptions) =>
     Type.Function(parameters, returns, options),
@@ -96,7 +96,7 @@ export const Vec3Schema = (init = { x: 0, y: 0, z: 0 }, options?: ObjectOptions)
       y: S.Number(),
       z: S.Number()
     },
-    new Vector3(init.x, init.y, init.z),
+    () => new Vector3(init.x, init.y, init.z),
     {
       ...options,
       $id: 'Vector3'
