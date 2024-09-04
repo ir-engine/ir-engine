@@ -523,7 +523,7 @@ describe('Physics : Rapier->ECS API', () => {
       })
     })
 
-    describe('wakeUp', ()=> {
+    describe('wakeUp', () => {
       let testEntity = UndefinedEntity
       let physicsWorld: PhysicsWorld
 
