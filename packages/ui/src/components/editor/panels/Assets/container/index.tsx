@@ -629,21 +629,22 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
-        <div className="ml-2"></div>
-        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-          <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-            <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
-          </Tooltip>
-        </div>
+      <div className="flex h-full flex-col">
+        <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+          <div className="ml-2"></div>
+          <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+            <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+              <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
+            </Tooltip>
+          </div>
 
-        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-          <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-            <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
-          </Tooltip>
-        </div>
+          <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+            <Tooltip content={t('editor:layout.filebrowser.refresh')}>
+              <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
+            </Tooltip>
+          </div>
 
-        {/* <div className="flex items-center">
+          {/* <div className="flex items-center">
           <Tooltip title={t('editor:layout.scene-assets.settings')}>
             <Button
               variant="transparent"
@@ -654,73 +655,74 @@ const AssetPanel = () => {
           </Tooltip>
         </div> */}
 
-        <ViewModeSettings />
+          <ViewModeSettings />
 
-        <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-          <AssetsBreadcrumb
-            parentCategories={parentCategories.get(NO_PROXY) as Category[]}
-            selectedCategory={selectedCategory.value}
-            onSelectCategory={handleSelectCategory}
-          />
-          <Input
-            placeholder={t('editor:layout.scene-assets.search-placeholder')}
-            value={searchText.value}
-            onChange={(e) => {
-              searchText.set(e.target.value)
-            }}
-            labelClassname="text-sm text-red-500"
-            containerClassName="flex h-full w-auto"
-            className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
-            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
-          />
-        </div>
+          <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+            <AssetsBreadcrumb
+              parentCategories={parentCategories.get(NO_PROXY) as Category[]}
+              selectedCategory={selectedCategory.value}
+              onSelectCategory={handleSelectCategory}
+            />
+            <Input
+              placeholder={t('editor:layout.scene-assets.search-placeholder')}
+              value={searchText.value}
+              onChange={(e) => {
+                searchText.set(e.target.value)
+              }}
+              labelClassname="text-sm text-red-500"
+              containerClassName="flex h-full w-auto"
+              className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+              startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
+            />
+          </div>
 
-        <Button
-          startIcon={<HiOutlinePlusCircle className="text-lg" />}
-          rounded="none"
-          className="h-full whitespace-nowrap bg-theme-highlight px-2"
-          size="small"
-          onClick={() =>
-            inputFileWithAddToScene({
-              projectName: originalPath as string,
-              directoryPath: `projects/${originalPath}/assets/`
-            })
-              .then(handleRefresh)
-              .catch((err) => {
-                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+          <Button
+            startIcon={<HiOutlinePlusCircle className="text-lg" />}
+            rounded="none"
+            className="h-full whitespace-nowrap bg-theme-highlight px-2"
+            size="small"
+            onClick={() =>
+              inputFileWithAddToScene({
+                projectName: originalPath as string,
+                directoryPath: `projects/${originalPath}/assets/`
               })
-          }
-        >
-          {t('editor:layout.filebrowser.uploadAssets')}
-        </Button>
-      </div>
-      <FileUploadProgress />
-      <div className="flex h-full w-full" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
-        <CategoriesList
-          categories={categories.value as Category[]}
-          selectedCategory={selectedCategory.value}
-          collapsedCategories={collapsedCategories}
-          onSelectCategory={handleSelectCategory}
-          style={{ width: width.value }}
-        />
-        <div className="flex w-[20px] cursor-pointer items-center">
-          <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
-        </div>
-        <div className="flex h-full w-full flex-col overflow-auto">
-          <InfiniteScroll
-            disableEvent={
-              staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
+                .then(handleRefresh)
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
             }
-            onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
           >
-            <div className="mt-auto flex h-full w-full flex-wrap gap-2">
-              <ResourceItems />
-            </div>
-            {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          </InfiniteScroll>
-          <div className="mx-auto mb-10" />
+            {t('editor:layout.filebrowser.uploadAssets')}
+          </Button>
         </div>
-        {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
+        <FileUploadProgress />
+        <div className="flex h-full w-full overflow-hidden" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
+          <CategoriesList
+            categories={categories.value as Category[]}
+            selectedCategory={selectedCategory.value}
+            collapsedCategories={collapsedCategories}
+            onSelectCategory={handleSelectCategory}
+            style={{ width: width.value }}
+          />
+          <div className="flex w-[20px] cursor-pointer items-center">
+            <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
+          </div>
+          <div className="flex h-full w-full flex-col overflow-auto">
+            <InfiniteScroll
+              disableEvent={
+                staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
+              }
+              onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
+            >
+              <div className="mt-auto flex h-full w-full flex-wrap gap-2">
+                <ResourceItems />
+              </div>
+              {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
+            </InfiniteScroll>
+            {/* <div className="mx-auto mb-10" /> */}
+          </div>
+          {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
+        </div>
       </div>
     </>
   )
