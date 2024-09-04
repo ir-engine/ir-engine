@@ -54,7 +54,7 @@ import {
 	NoColorSpace
 } from 'three';
 
-import { cleanStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
+import { cleanStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 
 /**
  * The KHR_mesh_quantization extension allows these extra attribute component types
@@ -1338,12 +1338,16 @@ export class GLTFWriter {
 			}
 		} else {
 			//only save urls without serializing any images into bufferviews
-			imageDef.uri = image.src
-			const extension = image.src?.split('.').at(-1) ?? 'png'
-			imageDef.mimeType = `image/${extension}`
-			if (imageDef.mimeType === 'image/jpg') 
-				imageDef.mimeType = 'image/jpeg'
-
+			const src = image.src?.split("?")[0]
+			imageDef.uri = src
+			const extension = src?.split('.').at(-1) ?? 'png'
+			if (extension === 'mp4') {
+				imageDef.mimeType = 'video/mp4'
+			} else {
+				imageDef.mimeType = `image/${extension}`
+				if (imageDef.mimeType === 'image/jpg') 
+					imageDef.mimeType = 'image/jpeg'
+			}
 		}
 		const index = json.images.push( imageDef ) - 1;
 		cachedImages[ key ] = index;

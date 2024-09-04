@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import { useDidMount } from '@ir-engine/common/src/utils/useDidMount'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs'
-import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, useDidMount, useHookstate } from '@ir-engine/hyperflux'
 
 import { DisposableObject, ResourceManager } from './ResourceState'
 

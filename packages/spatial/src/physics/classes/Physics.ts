@@ -61,8 +61,7 @@ import {
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { defineState, none, useHookstate } from '@ir-engine/hyperflux'
-import { NO_PROXY, getMutableState, getState } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -523,7 +522,10 @@ function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Ent
   colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
   colliderDesc.setRotation(quaternionRelativeToRoot)
 
-  colliderDesc.setSensor(hasComponent(entity, TriggerComponent))
+  if (hasComponent(entity, TriggerComponent)) {
+    colliderDesc.setSensor(true)
+    colliderDesc.setCollisionGroups(getInteractionGroups(CollisionGroups.Trigger, collisionMask))
+  }
 
   // TODO expose these
   colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)

@@ -29,7 +29,7 @@ import { builderInfoPath } from '@ir-engine/common/src/schemas/projects/builder-
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { engineVersion } from '../project/project-helper'
 
 describe('builder-info.test', () => {
@@ -41,7 +41,8 @@ describe('builder-info.test', () => {
   })
 
   after(async () => {
-    await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should get the builder info', async () => {

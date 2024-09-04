@@ -27,7 +27,6 @@ import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
   createEngine,
   createEntity,
@@ -42,7 +41,7 @@ import {
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
 import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
@@ -65,6 +64,7 @@ import { TransformComponent } from '../../SpatialModule'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
@@ -1018,6 +1018,7 @@ describe('ClientInputHeuristics', () => {
         sorted = [] as IntersectionData[]
 
         setComponent(sourceEntity, TransformComponent, { position: new Vector3(1, 1, 1) })
+        computeTransformMatrix(sourceEntity)
         ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const afterTwo = sorted.length
         assert.equal(afterTwo, 1)

@@ -98,7 +98,7 @@ import { ZSTDDecoder } from './zstddec.module.js';
 import WebWorker from 'web-worker'
 import { FileLoader } from '../base/FileLoader';
 import { Loader } from '../base/Loader';
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 
 const _taskCache = new WeakMap();
 

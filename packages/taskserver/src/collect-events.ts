@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getState } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { getState } from '@ir-engine/hyperflux'
 import config from '@ir-engine/server-core/src/appconfig'
 import { default as multiLogger, default as serverLogger } from '@ir-engine/server-core/src/ServerLogger'
 import { ServerState } from '@ir-engine/server-core/src/ServerState'

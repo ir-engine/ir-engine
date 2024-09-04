@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import React, { useImperativeHandle } from 'react'
 
-import { AssetExt } from '@ir-engine/common/src/constants/AssetType'
+import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 

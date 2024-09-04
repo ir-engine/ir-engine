@@ -34,9 +34,12 @@ import { API } from '@ir-engine/common'
 import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { AssetsPanelCategories } from '@ir-engine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
-import { FilesViewModeSettings } from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFunctions'
+import { FileIcon } from '@ir-engine/editor/src/panels/files/fileicon'
+import { FileUploadProgress } from '@ir-engine/editor/src/panels/files/loaders'
+import DeleteFileModal from '@ir-engine/editor/src/panels/files/modals/DeleteFileModal'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { FilesViewModeSettings } from '@ir-engine/editor/src/services/FilesState'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -57,9 +60,6 @@ import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import { Popup } from '../../../../tailwind/Popup'
 import InputGroup from '../../../input/Group'
-import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
-import { FileIcon } from '../../Files/icon'
-import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
 
 const ASSETS_PAGE_LIMIT = 10
@@ -676,7 +676,7 @@ const AssetPanel = () => {
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full w-auto"
+            containerClassName="flex h-full w-auto"
             className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />

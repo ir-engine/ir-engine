@@ -28,10 +28,10 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import { useGet, useMutation } from '@ir-engine/common'
 import { ProjectSettingType, projectPath, projectSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useGet, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
@@ -183,7 +183,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           {displayedSettings.value.map((setting: ProjectSettingType, index: number) => (
             <div className="my-2 flex flex-row items-end gap-2" key={index}>
               <Input
-                containerClassname="w-1/4"
+                containerClassName="w-1/4"
                 label={t('admin:components.setting.project.keyName')}
                 value={setting.key}
                 endComponent={
@@ -199,7 +199,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 onChange={(e) => handleSettingsKeyChange(e, setting, index)}
               />
               <Input
-                containerClassname="w-1/4"
+                containerClassName="w-1/4"
                 label={t('admin:components.setting.project.value')}
                 value={setting.value || ''}
                 endComponent={

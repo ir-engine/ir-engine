@@ -30,7 +30,7 @@ import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('api job service', () => {
   let app: Application
@@ -38,8 +38,9 @@ describe('api job service', () => {
     app = createFeathersKoaApp()
     await app.setup()
   })
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should register the service', () => {
