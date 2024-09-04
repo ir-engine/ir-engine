@@ -23,14 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode, useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { ReactNode, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { State, useHookstate } from '@ir-engine/hyperflux'
-import { HiMagnifyingGlass } from 'react-icons/hi2'
-import Input from '../../tailwind/Input'
-
+import { useHookstate } from '@ir-engine/hyperflux'
 import Text from '../Text'
 
 export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -38,14 +34,11 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
     id?: string
     tabLabel: string | ReactNode
     title?: string
+    topComponent?: ReactNode
     bottomComponent?: ReactNode
     rightComponent?: ReactNode
     ref?: React.RefObject<HTMLDivElement>
     disabled?: boolean
-    search?: State<{
-      local: string
-      query: string
-    }>
   }[]
   backgroundTheme?: string
   tabcontainerClassName?: string
@@ -64,17 +57,7 @@ const Tabs = ({
   onTabChange,
   ...props
 }: TabProps): JSX.Element => {
-  const { t } = useTranslation()
-
-  const twTabcontainerClassName = twMerge('flex gap-4', tabcontainerClassName)
-  const twTabClassName = twMerge(
-    'p-3 text-sm text-theme-secondary disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
-    tabClassName
-  )
   const currentTab = useHookstate(0)
-  const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
-
-  useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
   useEffect(() => {
     if (currentTabIndex) {
@@ -101,45 +84,24 @@ const Tabs = ({
     }
   }, [currentTab])
 
-  const currentTabData = tabsData[currentTab.value]
-
   return (
     <div className="relative overflow-y-auto">
       {tabsData[currentTab.value]?.title && (
-        <Text component="h2" fontSize="xl" className="mb-6">
+        <Text fontSize="xl" className="mb-6">
           {tabsData[currentTab.value]?.title}
         </Text>
       )}
-      <div className="mb-4 flex justify-between">
-        <Input
-          disabled={!currentTabData.search?.value}
-          placeholder={t('common:components.search')}
-          value={currentTabData.search?.value.local ?? ''}
-          onChange={(event) => {
-            currentTabData.search!.local.set(event.target.value)
-
-            if (debouncedSearchQueryRef) {
-              clearTimeout(debouncedSearchQueryRef.current)
-            }
-
-            debouncedSearchQueryRef.current = setTimeout(() => {
-              currentTabData.search!.query.set(event.target.value)
-            }, 100)
-          }}
-          className="bg-theme-surface-main"
-          containerClassName="w-1/5 block"
-          startComponent={<HiMagnifyingGlass />}
-        />
-      </div>
+      {tabsData[currentTab.value]?.topComponent}
       <div className={'sticky top-0 flex justify-between'}>
-        <div className={twMerge(twTabcontainerClassName, tabcontainerClassName)} {...props}>
+        <div className={twMerge('flex gap-4', tabcontainerClassName)} {...props}>
           {tabsData.map((tab, index) => (
             <button
               key={index}
               className={twMerge(
-                twTabClassName,
+                'p-3 text-sm text-theme-secondary disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
                 currentTab.value === index ? 'border-b border-b-blue-primary font-semibold text-theme-primary' : '',
-                tab.disabled ? 'border-none' : ''
+                tab.disabled ? 'border-none' : '',
+                tabClassName
               )}
               disabled={tab.disabled}
               onClick={() => {
