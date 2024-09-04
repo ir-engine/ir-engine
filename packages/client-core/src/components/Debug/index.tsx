@@ -23,12 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
 import {
   defineState,
   getMutableState,
@@ -36,144 +31,55 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-
+import Tabs, { TabProps } from '@ir-engine/ui/src/primitives/tailwind/Tabs'
+import React, { useEffect } from 'react'
+import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
 import { SystemDebug } from './SystemDebug'
-import styles from './styles.module.scss'
 
 export const DebugState = defineState({
   name: 'DebugState',
   initial: {
     enabled: false,
-    activeTab: 'None'
+    activeTabIndex: 0
   },
-  extension: syncStateWithLocalStorage(['enabled', 'activeTab'])
+  extension: syncStateWithLocalStorage(['enabled', 'activeTabIndex'])
 })
 
-export const DebugTabs = {
-  Entities: EntityDebug,
-  Systems: SystemDebug,
-  State: StateDebug
+const DebugTabs = {
+  None: <></>,
+  All: (
+    <>
+      <EntityDebug />
+      <SystemDebug />
+      <StateDebug />
+    </>
+  ),
+  Entities: <EntityDebug />,
+  Systems: <SystemDebug />,
+  State: <StateDebug />
 }
 
-export const Debug = () => {
+const tabsData: TabProps['tabsData'] = Object.keys(DebugTabs).map((tabLabel) => ({
+  tabLabel,
+  bottomComponent: DebugTabs[tabLabel]
+}))
+
+const Debug = () => {
   useHookstate(getMutableState(ECSState).frameTime).value
-  const rendererState = useMutableState(RendererState)
-  const activeTab = useMutableState(DebugState).activeTab
-
-  const { t } = useTranslation()
-
-  const onClickRespawn = (): void => {
-    respawnAvatar(AvatarComponent.getSelfAvatarEntity())
-  }
-
-  const toggleDebug = () => {
-    rendererState.physicsDebug.set(!rendererState.physicsDebug.value)
-  }
-
-  const toggleAvatarDebug = () => {
-    rendererState.avatarDebug.set(!rendererState.avatarDebug.value)
-  }
-
-  const toggleNodeHelpers = () => {
-    getMutableState(RendererState).nodeHelperVisibility.set(!getMutableState(RendererState).nodeHelperVisibility.value)
-  }
-
-  const toggleGridHelper = () => {
-    getMutableState(RendererState).gridVisibility.set(!getMutableState(RendererState).gridVisibility.value)
-  }
-
-  const ActiveTabComponent = DebugTabs[activeTab.value]
+  const activeTabIndex = useMutableState(DebugState).activeTabIndex
 
   return (
-    <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
-      <div className={styles.debugOptionContainer}>
-        <h1>{t('common:debug.debugOptions')}</h1>
-        <div className={styles.optionBlock}>
-          <div className={styles.flagContainer}>
-            <button
-              type="button"
-              onClick={toggleDebug}
-              className={styles.flagBtn + (rendererState.physicsDebug.value ? ' ' + styles.active : '')}
-              title={t('common:debug.debug')}
-            >
-              <Icon type="SquareFoot" fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={() => rendererState.bvhDebug.set(!rendererState.bvhDebug.value)}
-              className={styles.flagBtn + (rendererState.bvhDebug.value ? ' ' + styles.active : '')}
-              title={t('common:debug.debug')}
-            >
-              <Icon type="AllOutIcon" fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={toggleAvatarDebug}
-              className={styles.flagBtn + (rendererState.avatarDebug.value ? ' ' + styles.active : '')}
-              title={t('common:debug.debug')}
-            >
-              <Icon type="Person" fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={toggleNodeHelpers}
-              className={styles.flagBtn + (rendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
-              title={t('common:debug.nodeHelperDebug')}
-            >
-              <Icon type="SelectAll" fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={toggleGridHelper}
-              className={styles.flagBtn + (rendererState.gridVisibility.value ? ' ' + styles.active : '')}
-              title={t('common:debug.gridDebug')}
-            >
-              <Icon type="GridOn" fontSize="small" />
-            </button>
-            <button
-              type="button"
-              onClick={() => rendererState.forceBasicMaterials.set(!rendererState.forceBasicMaterials.value)}
-              className={styles.flagBtn + (rendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
-              title={t('common:debug.forceBasicMaterials')}
-            >
-              <Icon type="FormatColorReset" fontSize="small" />
-            </button>
-            <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
-              <Icon type="Refresh" />
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="pointer-events-auto fixed top-0 z-[1000] m-1 overflow-y-auto rounded bg-neutral-700 p-0.5">
+      <DebugButtons />
       <StatsPanel show />
-      <div className={styles.jsonPanel}>
-        {['None']
-          .concat(Object.keys(DebugTabs))
-          .concat('All')
-          .map((tab, i) => (
-            <button
-              key={i}
-              onClick={() => activeTab.set(tab)}
-              className={styles.flagBtn + (activeTab.value === tab ? ' ' + styles.active : '')}
-              style={{ width: '100px' }}
-            >
-              {tab}
-            </button>
-          ))}
-      </div>
-      {activeTab.value === 'All' ? (
-        <>
-          {Object.values(DebugTabs).map((Tab, i) => (
-            <Tab key={i} />
-          ))}
-        </>
-      ) : (
-        ActiveTabComponent && <ActiveTabComponent />
-      )}
+      <Tabs
+        tabsData={tabsData}
+        currentTabIndex={activeTabIndex.value}
+        onTabChange={(tabIndex) => activeTabIndex.set(tabIndex)}
+      />
     </div>
   )
 }
