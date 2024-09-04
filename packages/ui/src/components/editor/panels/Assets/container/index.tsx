@@ -204,15 +204,15 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-auto min-w-40 cursor-pointer flex-col items-center text-center"
+      className="resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center"
     >
-      <span
-        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
+      <div
+        className={`mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
-      </span>
+      </div>
 
       <Tooltip content={name}>
         <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
@@ -525,7 +525,7 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $limit: ASSETS_PAGE_LIMIT,
+        $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
         $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
@@ -561,6 +561,15 @@ const AssetPanel = () => {
     return () => abortSignal()
   }, [searchText, selectedCategory, staticResourcesPagination.skip])
 
+  const calculateItemsToFetch = () => {
+    const parentElement = document.getElementById('asset-panel')
+    const containerHeight = parentElement ? parentElement.offsetHeight : 0
+    const item = document.querySelector('#asset-items .resource-file') as HTMLElement
+    const itemHeight = item ? item.offsetHeight : 160
+    const itemsInView = Math.ceil(containerHeight / itemHeight)
+    return itemsInView
+  }
+
   const ResourceItems = () => (
     <>
       {searchedStaticResources.length === 0 && (
@@ -570,18 +579,20 @@ const AssetPanel = () => {
       )}
       {searchedStaticResources.length > 0 && (
         <>
-          {searchedStaticResources.value.map((resource) => (
-            <ResourceFile
-              key={resource.id}
-              resource={resource as StaticResourceType}
-              selected={resource.url === assetsPreviewContext.selectAssetURL.value}
-              onClick={(props: AssetSelectionChangePropsType) => {
-                assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
-                ClickPlacementState.setSelectedAsset(props.resourceUrl)
-              }}
-              onChange={() => staticResourcesFindApi()}
-            />
-          ))}
+          <div id="asset-items" className="relative mt-auto flex h-full w-full flex-wrap gap-2">
+            {searchedStaticResources.value.map((resource) => (
+              <ResourceFile
+                key={resource.id}
+                resource={resource as StaticResourceType}
+                selected={resource.url === assetsPreviewContext.selectAssetURL.value}
+                onClick={(props: AssetSelectionChangePropsType) => {
+                  assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
+                  ClickPlacementState.setSelectedAsset(props.resourceUrl)
+                }}
+                onChange={() => staticResourcesFindApi()}
+              />
+            ))}
+          </div>
         </>
       )}
     </>
@@ -706,12 +717,14 @@ const AssetPanel = () => {
         <div className="flex w-[20px] cursor-pointer items-center">
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
-        <div className="flex h-full w-full flex-col overflow-auto">
+        <div id="asset-panel" className="flex h-full w-full flex-col overflow-auto">
           <InfiniteScroll
             disableEvent={
               staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
             }
-            onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
+            onScrollBottom={() => {
+              staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
+            }}
           >
             <div className="mt-auto flex h-full w-full flex-wrap gap-2">
               <ResourceItems />
