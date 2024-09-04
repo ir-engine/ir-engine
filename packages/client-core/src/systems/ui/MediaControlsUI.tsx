@@ -106,10 +106,12 @@ const MediaControlsView = (props: MediaControlsProps) => {
             background-color: grey;
         }`}
         </style>
-        {mediaComponent.paused.value ? (
-          <PlayArrow style={{ fill: 'white', width: `100%`, height: `100%` }} />
-        ) : (
-          <Pause style={{ fill: 'white', width: `100%`, height: `100%` }} />
+        const mediaStyles = { fill: 'white', width: `100%`, height: `100%` };
+        {mediaComponent.paused.value && (
+          <PlayArrow style={mediaStyles} />
+        )}
+        {!mediaComponent.paused.value && (
+          <Pause style={mediaStyles} />
         )}
       </button>
     </div>
