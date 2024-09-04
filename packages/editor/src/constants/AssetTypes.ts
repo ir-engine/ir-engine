@@ -26,10 +26,33 @@ Infinite Reality Engine. All Rights Reserved.
 import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { NativeTypes } from 'react-dnd-html5-backend'
 
+export type SceneElementType = {
+  componentJsonID: string
+  label: string
+  Icon: JSX.Element
+  type: typeof ItemTypes.Component
+}
+
+export type DnDFileType = {
+  dataTransfer: DataTransfer
+  files: File[]
+  items: DataTransferItemList
+}
+
+export type FileDataType = {
+  key: string
+  path: string
+  name: string
+  fullName: string
+  size?: string
+  thumbnailURL?: string
+  url: string
+  type: string
+  isFolder: boolean
+}
+
 /**
  * ItemTypes object containing types of items used.
- *
- * @type {Object}
  */
 export const ItemTypes = {
   File: NativeTypes.FILE,

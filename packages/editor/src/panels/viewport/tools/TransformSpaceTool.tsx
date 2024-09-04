@@ -23,19 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-
 import { setTransformSpace, toggleTransformSpace } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
+import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { t } from 'i18next'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiGlobeSimple } from 'react-icons/pi'
-import Button from '../../../../../primitives/tailwind/Button'
-import Select from '../../../../../primitives/tailwind/Select'
-import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 const transformSpaceOptions = [
   {
@@ -56,7 +54,7 @@ const TransformSpaceTool = () => {
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
   return (
-    <div id="transform-space" className="flex items-center">
+    <div className="flex items-center">
       <Tooltip content={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
         <Button
           startIcon={<PiGlobeSimple className="text-theme-input" />}

@@ -28,12 +28,12 @@ import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunct
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { useMutableState } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
-import Button from '../../../../../primitives/tailwind/Button'
-import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 function Placer() {
   return (
