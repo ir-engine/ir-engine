@@ -53,6 +53,7 @@ import { RendererComponent } from '../WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'
 import { FogShaders } from './FogShaders'
 import { FogComponent } from './SceneComponents'
+import { VisibleComponent } from './VisibleComponent'
 
 const FogSettingsComponentDefaults = {
   type: FogType.Disabled as FogType,
@@ -238,6 +239,7 @@ describe('FogSettingsComponent', () => {
       createEngine()
       initializeSpatialEngine()
       testEntity = createEntity()
+      setComponent(testEntity, VisibleComponent)
     })
 
     afterEach(() => {
@@ -370,6 +372,7 @@ describe('FogSettingsComponent', () => {
 
       entity = createEntity()
       setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+      setComponent(entity, VisibleComponent)
       setComponent(entity, FogSettingsComponent)
       setComponent(entity, EntityTreeComponent)
 
