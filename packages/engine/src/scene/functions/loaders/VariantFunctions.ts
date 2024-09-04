@@ -23,7 +23,7 @@ import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/co
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getGLTFAsync } from '../../../assets/functions/resourceLoaderHooks'
 import { InstancingComponent } from '../../components/InstancingComponent'
 import { ModelComponent } from '../../components/ModelComponent'

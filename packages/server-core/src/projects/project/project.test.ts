@@ -41,7 +41,7 @@ import { copyFolderRecursiveSync, deleteFolderRecursive } from '@ir-engine/commo
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application, HookContext } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 import { useGit } from '../../util/gitHelperFunctions'
 
@@ -97,7 +97,8 @@ describe('project.test', () => {
   })
 
   afterEach(async () => {
-    await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   describe('create', () => {

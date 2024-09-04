@@ -51,7 +51,7 @@ const ShowContextMenu = ({
   anchorEvent,
   children,
   ...props
-}: { onClose: () => void; anchorEvent: React.MouseEvent<HTMLElement> } & Omit<PopupProps, 'trigger' | 'onClose'>) => {
+}: { onClose: () => void; anchorEvent: React.MouseEvent } & Omit<PopupProps, 'trigger' | 'onClose'>) => {
   const offset = useHookstate({ x: anchorEvent.clientX, y: anchorEvent.clientY })
   const ref = useRef<HTMLDivElement>(null)
 
@@ -87,6 +87,6 @@ export const ContextMenu = ({
   anchorEvent,
   children,
   ...props
-}: { onClose: () => void; anchorEvent?: React.MouseEvent<HTMLElement> } & Omit<PopupProps, 'trigger' | 'onClose'>) => {
+}: { onClose: () => void; anchorEvent?: React.MouseEvent } & Omit<PopupProps, 'trigger' | 'onClose'>) => {
   return anchorEvent ? <ShowContextMenu anchorEvent={anchorEvent} children={children} {...props} /> : null
 }

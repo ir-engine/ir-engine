@@ -237,7 +237,7 @@ describe('storageprovider', () => {
       })
 
       after(async function () {
-        await destroyEngine()
+        destroyEngine()
         await providerAfterTest(provider, testFolderName)
         // clean up the test directory
         await fs.remove(testRootPath)

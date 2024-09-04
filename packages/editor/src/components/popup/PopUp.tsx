@@ -23,14 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import InfoSharp from '@mui/icons-material/InfoSharp'
 import React, { useEffect, useState } from 'react'
+import { MdInfo } from 'react-icons/md'
 
 import './PopUp.css'
 
 // Import the external CSS file
 
-const PopUp = ({ tag, message, visibleDuration = 3000, icon: Icon = InfoSharp, className }) => {
+const PopUp = ({
+  tag,
+  message,
+  visibleDuration = 3000,
+  icon = <MdInfo className="inline-block shrink-0 text-2xl" />,
+  className
+}) => {
   const [visible, setVisible] = useState(true)
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -42,9 +48,7 @@ const PopUp = ({ tag, message, visibleDuration = 3000, icon: Icon = InfoSharp, c
 
   return (
     <div className={`popup-container ${className}`} style={{ opacity: visible ? 1 : 0 }}>
-      <div className={`popup-icon-box ${className}`}>
-        <Icon />
-      </div>
+      <div className={`popup-icon-box ${className}`}>{icon}</div>
       <div className={`popup-content ${className}`}>{message}</div>
     </div>
   )

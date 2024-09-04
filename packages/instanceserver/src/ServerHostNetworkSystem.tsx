@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { API } from '@ir-engine/common'
+import { RecordingAPIState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { RecordingID, recordingResourceUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { RecordingAPIState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import { PeerID, getMutableState, none } from '@ir-engine/hyperflux'
 import { NetworkPeerFunctions, NetworkState, updatePeers } from '@ir-engine/network'
 

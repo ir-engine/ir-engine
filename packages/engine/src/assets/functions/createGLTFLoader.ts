@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 import { Group, WebGLRenderer } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { getState, isClient } from '@ir-engine/hyperflux'
 
-import { Engine } from '@ir-engine/ecs'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { CachedImageLoadExtension } from '../loaders/gltf/extensions/CachedImageLoadExtension'
 import EEECSImporterExtension from '../loaders/gltf/extensions/EEECSImporterExtension'
@@ -43,10 +42,11 @@ import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
 import { loadDRACODecoderNode, NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
+import { DomainConfigState } from '../state/DomainConfigState'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
-  ktxLoader.setTranscoderPath(Engine.instance.store.publicPath + '/loader_decoders/basis/')
+  ktxLoader.setTranscoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/basis/')
   const renderer = new WebGLRenderer()
   ktxLoader.detectSupport(renderer)
   renderer.dispose()
@@ -79,7 +79,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   if (isClient) {
     initializeKTX2Loader(loader)
     const dracoLoader = new DRACOLoader()
-    dracoLoader.setDecoderPath(Engine.instance.store.publicPath + '/loader_decoders/')
+    dracoLoader.setDecoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)
     loader.setDRACOLoader(dracoLoader)
   } else {

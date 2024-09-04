@@ -29,6 +29,7 @@ import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
 
+import { NetworkConnectionParams } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
 import {
   channelPath,
   ChannelType,
@@ -55,14 +56,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, HyperFlux, Identifiable, State } from '@ir-engine/hyperflux'
-import {
-  addNetwork,
-  NetworkConnectionParams,
-  NetworkPeerFunctions,
-  NetworkState,
-  NetworkTopics,
-  updatePeers
-} from '@ir-engine/network'
+import { addNetwork, NetworkPeerFunctions, NetworkState, NetworkTopics, updatePeers } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { Application } from '@ir-engine/server-core/declarations'
 import config from '@ir-engine/server-core/src/appconfig'

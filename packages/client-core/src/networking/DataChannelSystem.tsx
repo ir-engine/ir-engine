@@ -39,17 +39,14 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
+import { DataChannelRegistryState, DataChannelType, NetworkState, NetworkTopics } from '@ir-engine/network'
+
 import {
-  DataChannelRegistryState,
-  DataChannelType,
   MediasoupDataConsumerActions,
   MediasoupDataProducerConsumerState,
-  MediasoupDataProducersConsumersObjectsState,
-  MediasoupTransportState,
-  NetworkState,
-  NetworkTopics
-} from '@ir-engine/network'
-
+  MediasoupDataProducersConsumersObjectsState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
+import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
 import { ClientNetworkingSystem } from './ClientNetworkingSystem'
 
