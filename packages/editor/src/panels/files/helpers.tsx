@@ -38,6 +38,7 @@ import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import React, { ReactNode, createContext, useContext } from 'react'
+import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
 import { handleUploadFiles } from '../../functions/assetFunctions'
 import { FilesState } from '../../services/FilesState'
 
@@ -46,24 +47,6 @@ import { FilesState } from '../../services/FilesState'
 export const FILES_PAGE_LIMIT = 100 as const
 
 export const availableTableColumns = ['name', 'type', 'dateModified', 'size'] as const
-
-export type DnDFileType = {
-  dataTransfer: DataTransfer
-  files: File[]
-  items: DataTransferItemList
-}
-
-export type FileDataType = {
-  key: string
-  path: string
-  name: string
-  fullName: string
-  size?: string
-  thumbnailURL?: string
-  url: string
-  type: string
-  isFolder: boolean
-}
 
 /* HOOKS */
 

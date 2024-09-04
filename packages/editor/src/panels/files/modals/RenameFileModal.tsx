@@ -33,7 +33,7 @@ import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import { FileDataType } from '../helpers'
+import { FileDataType } from '../../../constants/AssetTypes'
 
 export default function RenameFileModal({ projectName, file }: { projectName: string; file: FileDataType }) {
   const { t } = useTranslation()
