@@ -140,7 +140,7 @@
     "transformSnapTool": {
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
-      "info-translate": "Translate objects by a unit of measurement.",
+      "info-translate": "Grid and translation snap size (meters).",
       "info-rotate": "Snap rotation angle"
     },
     "placement": {
@@ -179,7 +179,8 @@
     },
     "grid": {
       "info-toggleGridVisibility": "Toggle Grid Visibility",
-      "info-gridSpacing": "Set grid spacing meters",
+      "info-gridSpacing": "Set grid spacing (meters)",
+      "info-gridHeight": "Set grid height (meters)",
       "info-incrementHeight": "Increment Grid Height",
       "info-decrementHeight": "Decrement Grid Height"
     },
