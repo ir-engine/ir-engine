@@ -58,7 +58,7 @@ type MediaControlsProps = {
 
 const MediaControlsView = (props: MediaControlsProps) => {
   const mediaComponent = useHookstate(getMutableComponent(props.entity, MediaComponent))
-
+  const mediaStyles = { fill: 'white', width: `100%`, height: `100%` }
   const buttonClick = () => {
     //early out if the mediaElement is null
     if (!hasComponent(props.entity, MediaElementComponent)) return
@@ -106,13 +106,9 @@ const MediaControlsView = (props: MediaControlsProps) => {
             background-color: grey;
         }`}
         </style>
-        const mediaStyles = { fill: 'white', width: `100%`, height: `100%` };
-        {mediaComponent.paused.value && (
-          <PlayArrow style={mediaStyles} />
-        )}
-        {!mediaComponent.paused.value && (
-          <Pause style={mediaStyles} />
-        )}
+
+        {mediaComponent.paused.value && <PlayArrow style={mediaStyles} />}
+        {!mediaComponent.paused.value && <Pause style={mediaStyles} />}
       </button>
     </div>
   )
