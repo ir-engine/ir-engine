@@ -19,11 +19,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Id, NullableId } from '@feathersjs/feathers'
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { UserType, userPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { UserParams } from '@ir-engine/server-core/src/user/user/user.class'
-import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -45,9 +44,9 @@ import AddEditUserModal from './AddEditUserModal'
 export const removeUsers = async (
   modalProcessing: State<boolean>,
   adminUserRemove: {
-    (id: Id, params?: UserParams | undefined): Promise<UserType>
-    (id: null, params?: UserParams | undefined): Promise<UserType[]>
-    (id: NullableId, params?: UserParams | undefined): Promise<any>
+    (id: Id): Promise<UserType>
+    (id: null): Promise<UserType[]>
+    (id: NullableId): Promise<any>
   },
   users: UserType[]
 ) => {

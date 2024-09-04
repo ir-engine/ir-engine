@@ -27,12 +27,10 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { AssetsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Assets'
-import { FilesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Files'
 import { HierarchyPanelTab } from '@ir-engine/ui/src/components/editor/panels/Hierarchy'
 import { MaterialsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Materials'
 import { PropertiesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@ir-engine/ui/src/components/editor/panels/Scenes'
-import { ViewportPanelTab } from '@ir-engine/ui/src/components/editor/panels/Viewport'
 import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/VisualScript'
 
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -50,16 +48,20 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
+import { API } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { Engine, EntityUUID } from '@ir-engine/ecs'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import { EntityUUID } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
+import { FilesPanelTab } from '../panels/files'
+import { ViewportPanelTab } from '../panels/viewport'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -139,7 +141,7 @@ const EditorContainer = () => {
     if (!scenePath.value) return
 
     const abortController = new AbortController()
-    Engine.instance.api
+    API.instance
       .service(staticResourcePath)
       .find({
         query: { key: scenePath.value, type: 'scene', $limit: 1 }
@@ -167,12 +169,19 @@ const EditorContainer = () => {
     }
   }, [scenePath.value])
 
-  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+  useEffect(() => {
+    initializeSpatialEngine()
+    return () => {
+      destroySpatialEngine()
+    }
+  }, [])
+
+  const originEntity = useMutableState(EngineState).originEntity.value
 
   useEffect(() => {
-    if (!sceneAssetID.value || !currentLoadedSceneURL.value || !viewerEntity) return
+    if (!sceneAssetID.value || !currentLoadedSceneURL.value || !originEntity) return
     return setCurrentEditorScene(currentLoadedSceneURL.value, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, currentLoadedSceneURL.value])
+  }, [originEntity, currentLoadedSceneURL.value])
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 

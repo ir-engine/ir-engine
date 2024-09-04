@@ -116,11 +116,8 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                   quaternion={elem.quaternion.value}
                   unit="°"
-                  onChange={(euler) => {
-                    commitProperty(
-                      SplineComponent,
-                      `elements.${index}.quaternion` as any
-                    )(new Quaternion().setFromEuler(euler))
+                  onChange={(quat) => {
+                    commitProperty(SplineComponent, `elements.${index}.quaternion` as any)(quat)
                   }}
                 />
               </InputGroup>

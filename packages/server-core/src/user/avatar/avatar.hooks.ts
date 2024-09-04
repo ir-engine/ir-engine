@@ -39,8 +39,8 @@ import {
 } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { userAvatarPath } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
 import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import setLoggedInUser from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -234,7 +234,7 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
+    all: [schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
       iffElse(isAction('admin'), verifyScope('globalAvatars', 'read'), ensureUserAccessibleAvatars),
       persistQuery,
@@ -245,14 +245,14 @@ export default {
     get: [persistQuery, discardQuery('skipUser')],
     create: [
       iff(isProvider('external') && !checkRefreshMode() && isPublicAvatar(), verifyScope('globalAvatars', 'write')),
-      () => schemaHooks.validateData(avatarDataValidator),
+      schemaHooks.validateData(avatarDataValidator),
       schemaHooks.resolveData(avatarDataResolver),
       setLoggedInUser('userId')
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), checkUserHasPermissionOrIsOwner),
-      () => schemaHooks.validateData(avatarPatchValidator),
+      schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],
     remove: [

@@ -26,14 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import assert, { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
+import { getMutableState, getState, PeerID, UserID } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { TransformComponent } from '@ir-engine/spatial'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import {
@@ -545,7 +544,7 @@ describe('DataReader', () => {
     const networkId = 5678 as NetworkId
     const userID = 'user id' as UserID
     const peerID = 'peer id' as PeerID
-    Engine.instance.userID = userID
+    Engine.instance.store.userID = userID
     const userIndex = 0
     const peerIndex = 0
 
@@ -624,7 +623,7 @@ describe('DataReader', () => {
     const networkId = 5678 as NetworkId
     const userID = 'user Id' as UserID
     const peerID = 'peer ID' as PeerID
-    Engine.instance.userID = userID
+    Engine.instance.store.userID = userID
     const userIndex = 0
     const peerIndex = 0
 
@@ -691,7 +690,7 @@ describe('DataReader', () => {
     const peerID = 'peer id' as PeerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.userID = userID
+    Engine.instance.store.userID = userID
     const userIndex = 0
     const peerIndex = 0
     const peer2Index = 1
@@ -850,7 +849,7 @@ describe('DataReader', () => {
     const write = createDataWriter()
     const network = NetworkState.worldNetwork as Network
 
-    Engine.instance.userID = 'userId' as UserID
+    Engine.instance.store.userID = 'userId' as UserID
     const userId = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
     const userIndex = 0

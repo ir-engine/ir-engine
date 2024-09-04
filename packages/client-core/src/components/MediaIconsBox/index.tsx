@@ -34,9 +34,9 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { Engine, defineQuery, getOptionalComponent } from '@ir-engine/ecs'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
-import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
@@ -47,10 +47,10 @@ import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWithTooltip'
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import multiLogger from '@ir-engine/common/src/logger'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'

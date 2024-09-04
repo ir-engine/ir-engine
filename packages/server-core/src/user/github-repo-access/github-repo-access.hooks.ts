@@ -51,20 +51,20 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(githubRepoAccessQueryValidator),
+      schemaHooks.validateQuery(githubRepoAccessQueryValidator),
       schemaHooks.resolveQuery(githubRepoAccessQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyScope('projects', 'read'))],
     get: [iff(isProvider('external'), verifyScope('projects', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('projects', 'write')),
-      () => schemaHooks.validateData(githubRepoAccessDataValidator),
+      schemaHooks.validateData(githubRepoAccessDataValidator),
       schemaHooks.resolveData(githubRepoAccessDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('projects', 'write')),
-      () => schemaHooks.validateData(githubRepoAccessPatchValidator),
+      schemaHooks.validateData(githubRepoAccessPatchValidator),
       schemaHooks.resolveData(githubRepoAccessPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('projects', 'write'))]

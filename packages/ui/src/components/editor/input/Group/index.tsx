@@ -131,7 +131,7 @@ export function InputGroup({
           </Tooltip>
         )}
       </div>
-      <div className={twMerge('w-60', className)}>{children}</div>
+      <div className={twMerge('w-3/5', className)}>{children}</div>
     </div>
   )
 }

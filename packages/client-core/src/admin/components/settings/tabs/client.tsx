@@ -37,8 +37,7 @@ import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
-import { Engine } from '@ir-engine/ecs'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { API, useFind } from '@ir-engine/common'
 
 const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -100,11 +99,12 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     event.preventDefault()
     const newSettings = {
       ...settingsState.get(NO_PROXY),
+      homepageLinkButtonEnabled: Boolean(settingsState.value!.homepageLinkButtonEnabled),
       createdAt: undefined!,
       updatedAt: undefined!
     } as any as ClientSettingType
 
-    Engine.instance.api
+    API.instance
       .service(clientSettingPath)
       .patch(id, newSettings)
       .then(() => {
@@ -193,6 +193,13 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           label={t('admin:components.setting.description')}
           value={settings.siteDescription.value || ''}
           onChange={(e) => settings.siteDescription.set(e.target.value)}
+        />
+
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.googleAnalyticsMeasurementId')}
+          value={settings.gaMeasurementId.value || ''}
+          onChange={(e) => settings.gaMeasurementId.set(e.target.value)}
         />
 
         <Toggle

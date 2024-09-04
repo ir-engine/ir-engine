@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { Resizable } from 're-resizable'
 import React, { useEffect } from 'react'
 
+import { useFind } from '@ir-engine/common'
 import { ChannelID, channelPath, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 import UserIcon from './assets/user.svg'
 import { ChatState } from './ChatState'

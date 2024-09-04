@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { CanvasTexture, Texture } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 
 import { GLTFLoaderPlugin } from '../GLTFLoader'

@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 // import { generateAvatarThumbnail } from './generateAvatarThumbnail'
 // import fs from 'fs'
@@ -43,7 +43,8 @@ describe('avatar-helper', () => {
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 })

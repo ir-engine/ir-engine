@@ -27,14 +27,15 @@ import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
+import { API } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
-import { Engine, EntityUUID, getComponent, getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, getComponent, getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
 import { uploadProjectFiles } from '@ir-engine/editor/src/functions/assetFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ImportSettingsState } from '@ir-engine/editor/src/services/ImportSettingsState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import exportMaterialsGLTF from '@ir-engine/engine/src/assets/functions/exportMaterialsGLTF'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMaterialsFromScene } from '@ir-engine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
@@ -140,7 +141,7 @@ export default function MaterialLibraryPanel() {
               )
               const adjustedLibraryName = libraryName.length > 0 ? libraryName.substring(1) : ''
               const key = `projects/${projectName}${importSettings.importFolder}${adjustedLibraryName}`
-              const resources = await Engine.instance.api.service(staticResourcePath).find({
+              const resources = await API.instance.service(staticResourcePath).find({
                 query: { key: key }
               })
               if (resources.data.length === 0) {
@@ -148,9 +149,7 @@ export default function MaterialLibraryPanel() {
               }
               const resource = resources.data[0]
               const tags = ['Material']
-              await Engine.instance.api
-                .service(staticResourcePath)
-                .patch(resource.id, { tags: tags, project: projectName })
+              await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: projectName })
               console.log('exported material data to ', ...urls)
             }}
           >

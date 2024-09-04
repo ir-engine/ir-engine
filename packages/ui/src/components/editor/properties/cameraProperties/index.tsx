@@ -40,9 +40,9 @@ import {
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { Button } from '@mui/material'
 import { HiOutlineCamera } from 'react-icons/hi'
 import { Box3, Vector3 } from 'three'
+import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -154,7 +154,12 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           value={cameraSettings.fov.value}
         />
       </InputGroup>
-      <Button onClick={calculateClippingPlanes}>Calculate Clipping Planes</Button>
+      <div className="my-1 flex flex-wrap items-center justify-end">
+        <Button className="flex flex-wrap items-center justify-end" onClick={calculateClippingPlanes}>
+          Calculate Clipping Planes
+        </Button>
+      </div>
+
       <InputGroup name="cameraNearClip" label={'Projection distance'} containerClassName="gap-2">
         <div className="flex gap-2">
           <NumericInput

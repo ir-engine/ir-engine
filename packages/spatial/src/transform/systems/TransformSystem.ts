@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 
-import { insertionSort } from '@ir-engine/common/src/utils/insertionSort'
 import {
   AnimationSystemGroup,
   defineQuery,
@@ -41,6 +40,7 @@ import { NetworkState } from '@ir-engine/network'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { insertionSort } from '../../common/functions/insertionSort'
 import { EngineState } from '../../EngineState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../renderer/components/GroupComponent'

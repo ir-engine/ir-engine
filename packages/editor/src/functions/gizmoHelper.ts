@@ -863,7 +863,7 @@ function pointerMove(gizmoEntity) {
     }
   } else if (mode === TransformMode.rotate) {
     const newRotation = applyRotation(entity, gizmoControlComponent, axis, space)
-    EditorControlFunctions.rotateObject([entity], [_tempEuler.setFromQuaternion(newRotation, 'XYZ')])
+    EditorControlFunctions.rotateObject([entity], [newRotation])
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -890,7 +890,7 @@ function pointerMove(gizmoEntity) {
           rotationMatrix
         )
         EditorControlFunctions.positionObject([cEntity], [newPosition])
-        EditorControlFunctions.rotateObject([cEntity], [_tempEuler.setFromQuaternion(newRotation, 'XYZ')])
+        EditorControlFunctions.rotateObject([cEntity], [newRotation])
         EditorControlFunctions.scaleObject([cEntity], [newScale], true)
       }
     }

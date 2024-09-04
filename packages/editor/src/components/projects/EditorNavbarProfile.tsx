@@ -23,16 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Person from '@mui/icons-material/Person'
-import { IconButton } from '@mui/material'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
 
 import { PopupMenuServices } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-
-import styles from './styles.module.scss'
+import { MdPerson } from 'react-icons/md'
 
 export const EditorNavbarProfile = () => {
   const name = useHookstate(getMutableState(AuthState).user.name)
@@ -43,10 +41,14 @@ export const EditorNavbarProfile = () => {
 
   return (
     <>
-      <IconButton onClick={handleClick} className={styles.profileButton} disableRipple>
+      <Button
+        onClick={handleClick}
+        className="flex items-center"
+        endIcon={<MdPerson className="text-2xl" />}
+        variant="transparent"
+      >
         <span>{name.value}</span>
-        <Person />
-      </IconButton>
+      </Button>
     </>
   )
 }
