@@ -57,7 +57,7 @@ const GridTool = () => {
           className="px-0"
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.grid.info-gridSpacing')}>
+      <Tooltip content={t('editor:toolbar.grid.info-gridHeight')}>
         <NumericInput
           value={rendererState.gridHeight.value}
           onChange={(value) => rendererState.gridHeight.set(value)}
