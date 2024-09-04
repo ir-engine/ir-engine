@@ -1225,6 +1225,7 @@
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
+      "fileNameLengthError": "File name must be between 4 and 64 characters.",
       "fileProperties": {
         "header": "Info for {{fileName}}",
         "header-plural": "Info for {{itemCount}} Items",
