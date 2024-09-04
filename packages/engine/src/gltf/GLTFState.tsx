@@ -50,7 +50,6 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   removeEntity,
@@ -1020,18 +1019,18 @@ const PrimitiveReactor = (props: {
             entity={props.entity}
             isArray={meshDef.primitives.length > 1}
           />
-          {/* <PrimitiveExtensionReactor
-        nodeIndex={props.nodeIndex}
-        primitiveIndex={index}
-        documentID={props.documentID}
-        entity={props.entity}
-        /> */}
+          <PrimitiveExtensionReactor
+            nodeIndex={props.nodeIndex}
+            primitiveIndex={index}
+            documentID={props.documentID}
+            entity={props.entity}
+          />
           {primitive.targets && (
             <MorphTargetReactor
               key={'targets' + index}
               documentID={props.documentID}
               entity={props.entity}
-              targets={(primitive as GLTF.IMeshPrimitive).targets}
+              targets={primitive.targets as Record<string, number>[]}
               nodeIndex={props.nodeIndex}
               primitiveIndex={index}
             />
@@ -1119,11 +1118,11 @@ export const MorphTargetReactor = (props: {
   const options = getParserOptions(props.entity)
   const morphTargets = GLTFLoaderFunctions.useLoadMorphTargets(options, props.targets)
 
+  const mesh = useOptionalComponent(props.entity, MeshComponent)
   useEffect(() => {
     if (!morphTargets) return
 
-    const mesh = getOptionalMutableComponent(props.entity, MeshComponent)
-    if (!mesh) return
+    if (!mesh?.value) return
 
     if (morphTargets.POSITION) mesh.geometry.morphAttributes.position.set(morphTargets.POSITION)
     if (morphTargets.NORMAL) mesh.geometry.morphAttributes.normal.set(morphTargets.NORMAL)
@@ -1138,7 +1137,7 @@ export const MorphTargetReactor = (props: {
         mesh.morphTargetInfluences[i].set(meshDef.weights[i])
       }
     }
-  }, [morphTargets])
+  }, [morphTargets, !!mesh?.value])
 
   return null
 }
