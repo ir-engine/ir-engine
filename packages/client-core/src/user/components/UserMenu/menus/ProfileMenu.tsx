@@ -30,7 +30,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
 import Avatar from '@ir-engine/client-core/src/common/components/Avatar'
-import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
 import ConfirmDialog from '@ir-engine/client-core/src/common/components/ConfirmDialog'
 import { AppleIcon } from '@ir-engine/client-core/src/common/components/Icons/AppleIcon'
 import { DiscordIcon } from '@ir-engine/client-core/src/common/components/Icons/DiscordIcon'
@@ -41,16 +40,17 @@ import { XIcon } from '@ir-engine/client-core/src/common/components/Icons/XIcon'
 import InputText from '@ir-engine/client-core/src/common/components/InputText'
 import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import Text from '@ir-engine/client-core/src/common/components/Text'
+import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
+import { useFind } from '@ir-engine/common'
 import config, { validateEmail, validatePhoneNumber } from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import {
+  UserName,
   authenticationSettingPath,
   clientSettingPath,
-  UserName,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Checkbox from '@ir-engine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'
@@ -64,13 +64,13 @@ import { initialAuthState, initialOAuthConnectedState } from '../../../../common
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useZendesk } from '../../../../hooks/useZendesk'
 import { clientContextParams } from '../../../../util/contextParams'
+import { UserMenus } from '../../../UserUISystem'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { AvatarService } from '../../../services/AvatarService'
 import { useUserHasAccessHook } from '../../../userHasAccess'
-import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 

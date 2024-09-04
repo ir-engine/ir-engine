@@ -23,9 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export * from './functions/ActionFunctions'
-export * from './functions/ReactorFunctions'
-export * from './functions/StateFunctions'
-export * from './functions/StoreFunctions'
-export * from './functions/useImmediateEffect'
-export * from './functions/useReactiveRef'
+export * from './src/EventDispatcher'
+export * from './src/functions/ActionFunctions'
+export * from './src/functions/EnvironmentConstants'
+export * from './src/functions/ReactorFunctions'
+export * from './src/functions/StateFunctions'
+export * from './src/functions/StoreFunctions'
+export * from './src/functions/createHookableFunction'
+export * from './src/hooks/useDidMount'
+export * from './src/hooks/useForceUpdate'
+export * from './src/hooks/useImmediateEffect'
+export * from './src/hooks/usePrevious'
+export * from './src/hooks/useReactiveRef'
+
+export type * from './src/types/DeepReadonly'
+export type * from './src/types/OpaqueType'
+export type * from './src/types/Types'

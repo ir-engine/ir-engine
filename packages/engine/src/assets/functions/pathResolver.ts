@@ -23,7 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
+/**
+ * Captures org name, project name and asset path from a URL.
+ * For eg: `/path/to/projects/project123/assets/images/logo.png` will capture following groups
+ * - `@org123` => Group 1
+ * - `project123` => Group 2
+ * - `assets/images/logo.png` => Group 3
+ */
+export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/([^\/]*)\/((?:assets\/|).*)$)/
 
 export function getBasePath(path: string) {
   const regex = new RegExp(`(.*/(?:projects|static-resources)/[^/]*)`)

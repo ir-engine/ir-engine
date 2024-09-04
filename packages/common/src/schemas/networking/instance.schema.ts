@@ -27,8 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
-
+import { NetworkID } from '@ir-engine/hyperflux'
 import { TypedString } from '../../types/TypeboxUtils'
 import { ChannelID } from '../social/channel.schema'
 import { LocationID, locationSchema, RoomCode } from '../social/location.schema'
@@ -38,7 +37,7 @@ export const instancePath = 'instance'
 
 export const instanceMethods = ['create', 'find', 'get', 'patch', 'remove'] as const
 
-export type InstanceID = OpaqueType<'InstanceID'> & string
+export type InstanceID = NetworkID
 
 // Main data model schema
 export const instanceSchema = Type.Object(

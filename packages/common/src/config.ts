@@ -40,6 +40,7 @@ export function validatePhoneNumber(phone: string): boolean {
   return /^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(phone)
 }
 
+/** @deprecated - use import from @ir-engine/hyperflux instead */
 export const isDev = globalThis.process.env.APP_ENV === 'development'
 
 /**
