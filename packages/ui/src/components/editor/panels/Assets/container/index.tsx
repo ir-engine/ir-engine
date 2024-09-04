@@ -204,7 +204,7 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-auto min-w-40 cursor-pointer flex-col items-center text-center"
+      className="mb-3 flex h-auto w-40 cursor-pointer flex-col items-center text-center"
     >
       <span
         className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
@@ -215,7 +215,7 @@ const ResourceFile = (props: {
       </span>
 
       <Tooltip content={name}>
-        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
+        <span className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
       </Tooltip>
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
