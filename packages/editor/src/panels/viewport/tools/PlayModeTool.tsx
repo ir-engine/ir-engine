@@ -41,11 +41,11 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
-import Button from '../../../../../primitives/tailwind/Button'
-import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 /**
  * Returns true if we stopped play mode, false if we were not in play mode
