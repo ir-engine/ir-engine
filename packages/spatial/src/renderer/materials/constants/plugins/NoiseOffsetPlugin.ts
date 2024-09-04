@@ -78,32 +78,32 @@ export const NoiseOffsetPlugin = defineComponent({
             uniform float frequency;
             uniform float amplitude;
             uniform float time;
-    
+
             vec3 sampleNoise(vec3 pos) {
                 float zSlice = (pos.z * textureSize);
                 vec2 slicePos = vec2(zSlice / textureSize, fract(zSlice / textureSize));
                 vec2 noisePos = slicePos + pos.xy / textureSize;
                 return vec3(texture2D(noiseTexture, noisePos).r);
             }
-    
+
             vec3 turbulence(vec3 position) {
               vec3 sum = vec3(0.0);
               float frequencyMutliplied = frequency;
               float amplitudeMultiplied = amplitude;
-    
+
               for (int i = 0; i < 4; i++) {
                   vec3 p = position * frequencyMutliplied;
                   p.z += time * 0.0015;
-    
+
                   sum += sampleNoise(p).rgb * amplitudeMultiplied;
-              
+
                   frequencyMutliplied *= 2.0;
                   amplitudeMultiplied *= 7.0;
               }
-            
+
               return sum;
             }
-    
+
             void main() {
           `
         )
