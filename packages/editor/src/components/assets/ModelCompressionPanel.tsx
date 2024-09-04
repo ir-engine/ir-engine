@@ -54,7 +54,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
-import { FileDataType } from '../../panels/files/helpers'
+import { FileDataType } from '../../constants/AssetTypes'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 export const createLODVariants = async (

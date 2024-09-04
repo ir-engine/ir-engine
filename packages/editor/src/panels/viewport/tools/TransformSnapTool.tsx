@@ -23,20 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-
-import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-
 import { toggleSnapMode } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
+import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { LuUtilityPole } from 'react-icons/lu'
 import { MdOutlineCenterFocusWeak } from 'react-icons/md'
-import Button from '../../../../../primitives/tailwind/Button'
-import Select from '../../../../../primitives/tailwind/Select'
-import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 
 const translationSnapOptions = [
   { label: '0.1m', value: 0.1 },
@@ -82,7 +80,7 @@ const TransformSnapTool = () => {
   }
 
   return (
-    <div id="transform-snap" className="flex items-center">
+    <div className="flex items-center">
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}>
         <Button
           startIcon={<LuUtilityPole className="text-theme-input" />}
