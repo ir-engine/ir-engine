@@ -42,6 +42,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useRef, useState } from 'react'
@@ -542,6 +543,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
           )}
         </div>
       </ContextMenu>
+      <PopupMenu />
     </main>
   )
 }

@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { EditorNavbar } from '../components/projects/EditorNavbar'
 import Projects from '../components/projects/ProjectsPage'
 
@@ -34,7 +33,6 @@ export const ProjectPage = ({ studioPath }: { studioPath: string }) => {
     <>
       <EditorNavbar />
       <Projects studioPath={studioPath} />
-      <PopupMenu />
     </>
   )
 }

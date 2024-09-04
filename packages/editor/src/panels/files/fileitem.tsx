@@ -41,13 +41,12 @@ import { useTranslation } from 'react-i18next'
 import { IoIosArrowForward } from 'react-icons/io'
 import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
-import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { FileDataType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileContextMenu } from './contextmenu'
 import { FileIcon } from './fileicon'
 import {
   FILES_PAGE_LIMIT,
-  FileDataType,
   availableTableColumns,
   canDropOnFileBrowser,
   useCurrentFiles,

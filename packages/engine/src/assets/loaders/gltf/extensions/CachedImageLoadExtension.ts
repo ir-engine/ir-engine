@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { LoaderUtils, Texture, TextureLoader } from 'three'
+import { LoaderUtils, Texture } from 'three'
 
+import { AssetLoader, getLoader } from '../../../classes/AssetLoader'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
@@ -49,7 +50,7 @@ class CachedImageLoadExtension extends ImporterExtension implements GLTFLoaderPl
     if (!CachedImageLoadExtension.cache.has(url))
       CachedImageLoadExtension.cache.set(
         url,
-        this.parser.loadTextureImage(textureIndex, sourceIdx, new TextureLoader())
+        this.parser.loadTextureImage(textureIndex, sourceIdx, getLoader(AssetLoader.getAssetType(url)))
       )
     return CachedImageLoadExtension.cache.get(url)!
   }
