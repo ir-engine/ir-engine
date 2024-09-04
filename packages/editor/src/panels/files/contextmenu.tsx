@@ -35,21 +35,20 @@ import { useTranslation } from 'react-i18next'
 import { Vector3 } from 'three'
 import ImageCompressionPanel from '../../components/assets/ImageCompressionPanel'
 import ModelCompressionPanel from '../../components/assets/ModelCompressionPanel'
+import { FileDataType } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { FilesState, SelectedFilesState } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
-import { FileDataType, fileConsistsOfContentType, useCurrentFiles } from './helpers'
+import { fileConsistsOfContentType, useCurrentFiles } from './helpers'
 import DeleteFileModal from './modals/DeleteFileModal'
 import FilePropertiesModal from './modals/FilePropertiesModal'
 import RenameFileModal from './modals/RenameFileModal'
 
 function PasteFileButton({
-  file: fFile,
   newPath,
   setAnchorEvent
 }: {
-  file?: FileDataType
   newPath?: string
   setAnchorEvent: (event: React.MouseEvent | undefined) => void
 }) {
@@ -191,7 +190,7 @@ export function FileContextMenu({
         >
           {t('editor:layout.filebrowser.copyAsset')}
         </Button>
-        <PasteFileButton file={file} newPath={file.isFolder ? file.key : undefined} setAnchorEvent={setAnchorEvent} />
+        <PasteFileButton newPath={file.isFolder ? file.key : undefined} setAnchorEvent={setAnchorEvent} />
         <Button
           variant="outline"
           size="small"
