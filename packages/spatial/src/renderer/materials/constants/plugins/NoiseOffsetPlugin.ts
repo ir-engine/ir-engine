@@ -43,8 +43,8 @@ export type NoiseOffsetParameters = {
   offsetAxis: Uniform
 }
 
-export const NoiseOffsetPlugin = defineComponent({
-  name: 'NoiseOffsetPlugin',
+export const NoiseOffsetPluginComponent = defineComponent({
+  name: 'NoiseOffsetPluginComponent',
   onInit: (entity) => {
     return {
       textureSize: new Uniform(64),
@@ -60,7 +60,7 @@ export const NoiseOffsetPlugin = defineComponent({
     useEffect(() => {
       const materialComponent = getComponent(entity, MaterialStateComponent)
       const callback = (shader) => {
-        const plugin = getComponent(entity, NoiseOffsetPlugin)
+        const plugin = getComponent(entity, NoiseOffsetPluginComponent)
 
         shader.uniforms.textureSize = plugin.textureSize
         shader.uniforms.frequency = plugin.frequency
@@ -127,15 +127,15 @@ export const NoiseOffsetPlugin = defineComponent({
         )
       }
       setPlugin(materialComponent.material as Material, callback)
-    })
+    }, [])
     return null
   }
 })
 
-const noisePluginQuery = defineQuery([NoiseOffsetPlugin])
+const noisePluginQuery = defineQuery([NoiseOffsetPluginComponent])
 const execute = () => {
   for (const entity of noisePluginQuery()) {
-    const noisePlugin = getComponent(entity, NoiseOffsetPlugin)
+    const noisePlugin = getComponent(entity, NoiseOffsetPluginComponent)
     const elapsedSeconds = getState(ECSState).elapsedSeconds
     noisePlugin.time.value = elapsedSeconds
   }
