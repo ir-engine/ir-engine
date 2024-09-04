@@ -52,7 +52,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -226,7 +226,7 @@ export const EnvmapComponent = defineComponent({
     }, [component.envmap])
 
     const bakeEntity = UUIDComponent.getEntityByUUID(component.envMapSourceEntityUUID.value)
-
+    if (bakeEntity === UndefinedEntity) return null
     if (component.type.value !== EnvMapSourceType.Bake) return null
 
     return <EnvBakeComponentReactor key={bakeEntity} envmapEntity={entity} bakeEntity={bakeEntity} />
