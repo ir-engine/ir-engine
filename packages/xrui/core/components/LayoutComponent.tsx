@@ -94,7 +94,7 @@ export const LayoutComponent = defineComponent({
       /** Computed effective size after considering parent size, sizeMode, and defaults. */
       effectiveSize: new Vector3(),
 
-      /** Default values for all properties. Used when the property is null. */
+      /** Default values for all properties. Used when the corresponding property is null. */
       defaults: {
         position: new Vector3(),
         positionOrigin: new Vector3(),

@@ -57,7 +57,7 @@ import { XRUIState } from '../XRUIState'
 import { Bounds } from '../classes/Bounds'
 import { TimestampedValue, Transition } from '../classes/Transition'
 import { getViewportBounds } from '../dom-utils'
-import { LayoutComponent, SizeMode } from './LayoutComponent'
+import { LayoutComponent } from './LayoutComponent'
 
 export interface BorderRadius {
   topLeft: number
@@ -96,16 +96,6 @@ export const HTMLComponent = defineComponent({
       ready: false,
 
       domRect: new Bounds(),
-
-      layoutOverride: {
-        position: undefined as Vector3 | undefined,
-        positionOrigin: undefined as Vector3 | undefined,
-        alignmentOrigin: undefined as Vector3 | undefined,
-        rotation: undefined as Vector3 | undefined,
-        rotationOrigin: undefined as Vector3 | undefined,
-        size: undefined as Vector3 | undefined,
-        sizeMode: { x: undefined, y: undefined, z: undefined } as Partial<SizeMode>
-      },
 
       __internal: {
         snapshotHash: '' as string,
@@ -241,7 +231,7 @@ function createRoundedRectangleGeometry(size: Vector3, borderRadius: BorderRadiu
   return new ShapeGeometry(shape)
 }
 
-export function updateLayoutFromDomRects(
+export function updateDefaultLayoutFromDOM(
   layout: State<ComponentType<typeof LayoutComponent>>,
   rect: Bounds,
   parentRect: Bounds
@@ -249,32 +239,32 @@ export function updateLayoutFromDomRects(
   const widthRatio = rect.width / parentRect.width
   const heightRatio = rect.height / parentRect.height
 
-  layout.positionOrigin.value.setScalar(0)
-  layout.alignmentOrigin.value.setScalar(0)
+  layout.defaults.positionOrigin.value.setScalar(0)
+  layout.defaults.alignmentOrigin.value.setScalar(0)
 
   if (widthRatio === 1) {
-    layout.sizeMode.x.set('proportional')
-    layout.size.x.set(1)
+    layout.defaults.sizeMode.x.set('proportional')
+    layout.defaults.size.x.set(1)
   } else {
-    layout.sizeMode.x.set('literal')
-    layout.size.x.set(rect.width)
+    layout.defaults.sizeMode.x.set('literal')
+    layout.defaults.size.x.set(rect.width)
   }
 
   if (heightRatio === 1) {
-    layout.sizeMode.y.set('proportional')
-    layout.size.y.set(1)
+    layout.defaults.sizeMode.y.set('proportional')
+    layout.defaults.size.y.set(1)
   } else {
-    layout.sizeMode.y.set('literal')
-    layout.size.y.set(rect.height)
+    layout.defaults.sizeMode.y.set('literal')
+    layout.defaults.size.y.set(rect.height)
   }
 
-  layout.size.z.set(0)
+  layout.defaults.size.z.set(0)
 
-  layout.position.value
+  layout.defaults.position.value
     .set(rect.left - (parentRect?.left ?? 0), rect.top - (parentRect?.top ?? 0), 0)
     .multiplyScalar(PIXELS_TO_METERS)
-  layout.rotation.value.set(0, 0, 0, 1)
-  layout.rotationOrigin.value.set(0.5, 0.5, 0)
+  layout.defaults.rotation.value.set(0, 0, 0, 1)
+  layout.defaults.rotationOrigin.value.set(0.5, 0.5, 0)
 }
 
 const viewportBounds = new Bounds()

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { Easing } from '@tweenjs/tween.js'
 import { Quaternion, Vector3 } from 'three'
-import { HTMLBorderRadius } from '../components/HTMLComponent'
+import { BorderRadius } from '../components/HTMLComponent'
 
 export interface TimestampedValue<V> {
   timestamp: number
@@ -103,12 +103,12 @@ export const Transition = {
     )
   },
 
-  defineBorderRadiusTransition: (config?: TransitionData<HTMLBorderRadius>) => {
+  defineBorderRadiusTransition: (config?: TransitionData<BorderRadius>) => {
     return Transition.defineTransition(
       Object.assign(
         {
           buffer: [{ timestamp: 0, value: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } }],
-          interpolationFunction: (a: HTMLBorderRadius, b: HTMLBorderRadius, t: number, out?: HTMLBorderRadius) => {
+          interpolationFunction: (a: BorderRadius, b: BorderRadius, t: number, out?: BorderRadius) => {
             out = out || { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 }
             out.topLeft = a.topLeft + (b.topLeft - a.topLeft) * t
             out.topRight = a.topRight + (b.topRight - a.topRight) * t

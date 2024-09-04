@@ -45,6 +45,7 @@ export interface HTMLSnapshotData {
     border: Edges
     fullWidth: number
     fullHeight: number
+    pixelRatio: number
     textureWidth: number
     textureHeight: number
   }

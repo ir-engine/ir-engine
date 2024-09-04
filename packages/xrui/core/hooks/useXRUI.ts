@@ -161,7 +161,7 @@ function createLayerSnapshot(node: Node): Pick<HTMLSnapshotData, 'clonedElement'
   }
 }
 
-function extractLayerMetrics(element: HTMLElement) {
+function extractLayerMetrics(element: HTMLElement): HTMLSnapshotData['metrics'] {
   const computedStyle = getComputedStyle(element)
 
   const metrics = {
@@ -184,15 +184,22 @@ function extractLayerMetrics(element: HTMLElement) {
       bottom: Number.parseFloat(computedStyle.borderBottomWidth),
       left: Number.parseFloat(computedStyle.borderLeftWidth)
     })
-  }
+  } as HTMLSnapshotData['metrics']
 
-  const totalWidth = metrics.bounds.width + metrics.margin.left + metrics.margin.right
-  const totalHeight = metrics.bounds.height + metrics.margin.top + metrics.margin.bottom
-  // const textureWidth = /
+  metrics.fullWidth =
+    metrics.bounds.width + metrics.margin.left + metrics.margin.right + metrics.border.left + metrics.border.right
+  metrics.fullHeight =
+    metrics.bounds.height + metrics.margin.top + metrics.margin.bottom + metrics.border.top + metrics.border.bottom
+  metrics.textureWidth = Math.max(nextPowerOf2(metrics.fullWidth), 32)
+  metrics.textureHeight = Math.max(nextPowerOf2(metrics.fullHeight), 32)
 
-  // const pixelRatio = layer.computedPixelRatio
-  // const textureWidth = Math.max(nextPowerOf2(fullWidth * pixelRatio), 32)
-  // const textureHeight = Math.max(nextPowerOf2(fullHeight * pixelRatio), 32)
+  return metrics
+}
 
-  return { ...metrics, totalWidth, totalHeight }
+function nearestPowerOf2(n: number) {
+  return 1 << (31 - Math.clz32(n))
+}
+
+function nextPowerOf2(n: number) {
+  return nearestPowerOf2((n - 1) * 2)
 }
