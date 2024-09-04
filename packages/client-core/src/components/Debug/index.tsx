@@ -72,7 +72,7 @@ const Debug = () => {
   const activeTabIndex = useMutableState(DebugState).activeTabIndex
 
   return (
-    <div className="pointer-events-auto fixed top-0 z-[1000] m-1 overflow-y-auto rounded bg-neutral-700 p-0.5">
+    <div className="pointer-events-auto fixed top-0 z-[1000] m-1 max-h-[95vh] overflow-y-auto rounded bg-neutral-700 p-0.5">
       <DebugButtons />
       <StatsPanel show />
       <Tabs
