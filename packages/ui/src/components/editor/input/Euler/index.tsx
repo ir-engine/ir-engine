@@ -43,8 +43,8 @@ type EulerInputProps = {
   unit?: string
 }
 
-const temp_Euler = new Euler()
-const temp_Quat = new Quaternion()
+const tempEuler = new Euler()
+const tempQuat = new Quaternion()
 
 /**
  * FileIEulerInputnput used to show EulerInput.
