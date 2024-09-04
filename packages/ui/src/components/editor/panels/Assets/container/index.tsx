@@ -204,7 +204,7 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center"
+      className="resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center"
     >
       <div
         className={`mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ${
@@ -556,7 +556,8 @@ const AssetPanel = () => {
   const calculateItemsToFetch = () => {
     const parentElement = document.getElementById('asset-panel')
     const containerHeight = parentElement ? parentElement.offsetHeight : 0
-    const itemHeight = 160
+    const item = document.querySelector('#asset-items .resource-file') as HTMLElement
+    const itemHeight = item ? item.offsetHeight : 160
     const itemsInView = Math.ceil(containerHeight / itemHeight)
     return itemsInView
   }
@@ -578,18 +579,20 @@ const AssetPanel = () => {
       )}
       {searchedStaticResources.length > 0 && (
         <>
-          {searchedStaticResources.value.map((resource) => (
-            <ResourceFile
-              key={resource.id}
-              resource={resource as StaticResourceType}
-              selected={resource.url === assetsPreviewContext.selectAssetURL.value}
-              onClick={(props: AssetSelectionChangePropsType) => {
-                assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
-                ClickPlacementState.setSelectedAsset(props.resourceUrl)
-              }}
-              onChange={() => staticResourcesFindApi()}
-            />
-          ))}
+          <div id="asset-items" className="relative mt-auto flex h-full w-full flex-wrap gap-2">
+            {searchedStaticResources.value.map((resource) => (
+              <ResourceFile
+                key={resource.id}
+                resource={resource as StaticResourceType}
+                selected={resource.url === assetsPreviewContext.selectAssetURL.value}
+                onClick={(props: AssetSelectionChangePropsType) => {
+                  assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
+                  ClickPlacementState.setSelectedAsset(props.resourceUrl)
+                }}
+                onChange={() => staticResourcesFindApi()}
+              />
+            ))}
+          </div>
         </>
       )}
     </>
