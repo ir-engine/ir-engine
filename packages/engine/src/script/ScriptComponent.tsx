@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cleanStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { useEffect } from 'react'
+import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { addError, clearErrors, removeError } from '../scene/functions/ErrorFunctions'
 
 export function validateScriptUrl(entity, url: string): boolean {
