@@ -89,8 +89,8 @@ type ComponentSchema = TSchema | bitECS.ISchema
  */
 export interface ComponentPartial<
   Schema extends ComponentSchema = any,
-  InitializationType = Schema extends TSchema ? Static<Schema> : Entity,
-  ComponentType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema>,
+  InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema>,
+  ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = never
@@ -150,8 +150,8 @@ export interface ComponentPartial<
  */
 export interface Component<
   Schema extends ComponentSchema = any,
-  InitializationType = Schema extends TSchema ? Static<Schema> : Entity,
-  ComponentType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema>,
+  InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema>,
+  ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = string
@@ -171,11 +171,27 @@ export interface Component<
 }
 
 export type ECSComponentType<S extends bitECS.ISchema> = {
-  [key in keyof S]: S[key] extends bitECS.ISchema ? ECSComponentType<S[key]> : number
+  [key in keyof S]: S[key] extends bitECS.ISchema
+    ? ECSComponentType<S[key]>
+    : S[key] extends readonly [infer Type, number]
+    ? Type extends bitECS.Type
+      ? bitECS.ArrayByType[Type]
+      : unknown
+    : number
 }
 
-/** @todo Describe this type */
-export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
+/** Reimplementation of bitECS.ComponentType, bitECS.ComponentType seems to have incorrect typing for List types */
+export type SoAComponentType<S extends bitECS.ISchema> = {
+  [key in keyof S]: S[key] extends bitECS.Type
+    ? bitECS.ArrayByType[S[key]]
+    : S[key] extends readonly [infer RT, number]
+    ? RT extends bitECS.Type
+      ? Array<bitECS.ArrayByType[RT]>
+      : unknown
+    : S[key] extends bitECS.ISchema
+    ? SoAComponentType<S[key]>
+    : unknown
+}
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
 export type ComponentType<C extends Component> = InferStateValueType<NonNullable<C['stateMap'][Entity]>>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
@@ -228,8 +244,8 @@ const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECS.ISchema =
  */
 export const defineComponent = <
   Schema extends ComponentSchema = any,
-  InitializationType = Schema extends TSchema ? Static<Schema> : Entity,
-  ComponentType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema>,
+  InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema>,
+  ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
@@ -249,11 +265,7 @@ export const defineComponent = <
     if (json === undefined || json === null) return
     if (schemaIsJSONSchema(def.schema)) {
       if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
-      else {
-        // const schema = def.schema[Kind] === 'Object' ? Type.Partial(def.schema as TObject) : def.schema
-        // const schemaValue = Value.Cast(schema, json)
-        component.merge(json as SetPartialStateAction<ComponentType>)
-      }
+      else component.merge(json as SetPartialStateAction<ComponentType>)
     }
   }
   Component.onRemove = () => {}
@@ -355,14 +367,29 @@ export const getComponent = <Schema extends ComponentSchema, InitializationType,
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
 }
 
+const ArrayByType = {
+  [bitECS.Types.i8]: Int8Array,
+  [bitECS.Types.ui8]: Uint8Array,
+  [bitECS.Types.ui8c]: Uint8ClampedArray,
+  [bitECS.Types.i16]: Int16Array,
+  [bitECS.Types.ui16]: Uint16Array,
+  [bitECS.Types.i32]: Int32Array,
+  [bitECS.Types.ui32]: Uint32Array,
+  [bitECS.Types.f32]: Float32Array,
+  [bitECS.Types.f64]: Float64Array,
+  [bitECS.Types.eid]: Uint32Array
+}
+
 const makeSchemaObject = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   object: Record<string, any>,
   entity: Entity,
   store: any
 ) => {
   const obj = Object.entries(object).reduce((accum, [key, value]) => {
-    if (typeof value === 'object') accum[key] = makeSchemaObject(value, entity, store[key])
-    else accum[key] = undefined
+    const isArray = Array.isArray(value)
+    if (!isArray && typeof value === 'object') accum[key] = makeSchemaObject(value, entity, store[key])
+    else if (isArray && value.length === 2) accum[key] = new ArrayByType[value[0]](value[1])
+    else accum[key] = 0
     return accum
   }, {})
 
@@ -375,7 +402,12 @@ const makeSchemaObject = <Schema extends ComponentSchema, InitializationType, Co
       return value
     },
     set(target, key, value) {
-      return true
+      if (store[key]) {
+        target[key] = value
+        store[key][entity] = value
+        return true
+      }
+      return false
     }
   })
 
@@ -387,8 +419,7 @@ const createProxyForECSSchema = <Schema extends ComponentSchema, InitializationT
   component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ) => {
   const obj = makeSchemaObject(component.schema!, entity, component)
-
-  return obj
+  return obj as InitializationType
 }
 
 export const createInitialComponentValue = <
@@ -405,12 +436,10 @@ export const createInitialComponentValue = <
     const schema = Value.Create(component.schema) as InitializationType
     if (component.onInit) return component.onInit(schema) as ComponentType
     else return schema as unknown as ComponentType
-  } else if (schemaIsECSSchema(component.schema) && component.onInit) {
-    return component.onInit(entity as InitializationType)
-    // const proxy = createProxyForECSSchema(entity, component)
-    // if (component.onInit) return component.onInit(entity as InitializationType)
-    // else
-    // return proxy as ComponentType
+  } else if (schemaIsECSSchema(component.schema)) {
+    const proxy = createProxyForECSSchema(entity, component)
+    if (component.onInit) return component.onInit(proxy)
+    else return proxy as unknown as ComponentType
   } else if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
   else return null as ComponentType
 }

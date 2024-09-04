@@ -37,6 +37,81 @@ export interface ProxyExtensions {
   store: Vector3Store | QuaternionStore
 }
 
+export const Vec3Proxy = (vec3Store: { x: number; y: number; z: number }) => {
+  const vector3 = new Vector3()
+  return defineProperties(vector3, {
+    x: {
+      get() {
+        return vec3Store.x
+      },
+      set(n) {
+        return (vec3Store.x = n)
+      },
+      configurable: true
+    },
+    y: {
+      get() {
+        return vec3Store.y
+      },
+      set(n) {
+        return (vec3Store.y = n)
+      },
+      configurable: true
+    },
+    z: {
+      get() {
+        return vec3Store.z
+      },
+      set(n) {
+        return (vec3Store.z = n)
+      },
+      configurable: true
+    }
+  })
+}
+
+export const QuaternionProxy = (quatStore: { x: number; y: number; z: number; w: number }) => {
+  const quat = new Quaternion()
+  return defineProperties(quat, {
+    x: {
+      get() {
+        return quatStore.x
+      },
+      set(n) {
+        return (quatStore.x = n)
+      },
+      configurable: true
+    },
+    y: {
+      get() {
+        return quatStore.y
+      },
+      set(n) {
+        return (quatStore.y = n)
+      },
+      configurable: true
+    },
+    z: {
+      get() {
+        return quatStore.z
+      },
+      set(n) {
+        return (quatStore.z = n)
+      },
+      configurable: true
+    },
+    w: {
+      get() {
+        return quatStore.w
+      },
+      set(n) {
+        return (quatStore.w = n)
+      },
+      configurable: true
+    }
+  })
+}
+
 export const proxifyVector3 = (
   store: Vector3Store,
   entity: Entity,

@@ -35,7 +35,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { useEffect } from 'react'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { QuaternionProxy, Vec3Proxy } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
@@ -58,7 +58,7 @@ export const RigidBodyComponent = defineComponent({
   jsonID: 'EE_rigidbody',
   schema: SCHEMA,
 
-  onInit(entity) {
+  onInit(initial) {
     return {
       type: 'fixed' as Body,
       ccd: false,
@@ -70,14 +70,14 @@ export const RigidBodyComponent = defineComponent({
       // internal
       /** @deprecated  @todo make the physics api properly reactive to remove this property  */
       initialized: false,
-      previousPosition: proxifyVector3(this.previousPosition, entity),
-      previousRotation: proxifyQuaternion(this.previousRotation, entity),
-      position: proxifyVector3(this.position, entity),
-      rotation: proxifyQuaternion(this.rotation, entity),
-      targetKinematicPosition: proxifyVector3(this.targetKinematicPosition, entity),
-      targetKinematicRotation: proxifyQuaternion(this.targetKinematicRotation, entity),
-      linearVelocity: proxifyVector3(this.linearVelocity, entity),
-      angularVelocity: proxifyVector3(this.angularVelocity, entity),
+      previousPosition: Vec3Proxy(initial.previousPosition),
+      previousRotation: QuaternionProxy(initial.previousRotation),
+      position: Vec3Proxy(initial.position),
+      rotation: QuaternionProxy(initial.rotation),
+      targetKinematicPosition: Vec3Proxy(initial.targetKinematicPosition),
+      targetKinematicRotation: QuaternionProxy(initial.targetKinematicRotation),
+      linearVelocity: Vec3Proxy(initial.linearVelocity),
+      angularVelocity: Vec3Proxy(initial.angularVelocity),
       /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
       targetKinematicLerpMultiplier: 0
     }
