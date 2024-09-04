@@ -35,7 +35,10 @@ import {
   UndefinedEntity,
   createEntity,
   getComponent,
+  getOptionalComponent,
+  removeComponent,
   removeEntity,
+  serializeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -43,7 +46,14 @@ import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoade
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
-import { NO_PROXY, defineState, getMutableState, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  startReactor,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -63,7 +73,19 @@ import {
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, SphereGeometry, Vector3 } from 'three'
+import {
+  Color,
+  Euler,
+  Material,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  Quaternion,
+  Sphere,
+  SphereGeometry,
+  Texture,
+  Vector3
+} from 'three'
 
 import config from '@ir-engine/common/src/config'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
@@ -72,7 +94,9 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -402,11 +426,14 @@ const ThumbnailJobReactor = () => {
       const reactor = startReactor(() => {
         const modelComponent = useOptionalComponent(entity, ModelComponent)
 
+        const gltfState = useMutableState(GLTFDocumentState)
+        const sceneId = getModelSceneID(entity)
+
         useEffect(() => {
-          if (!modelComponent?.scene.value) {
+          if (!gltfState[sceneId].value) {
             return
           }
-          /*
+
           iterateEntityNode(entity, (child) => {
             const dirLight = getOptionalComponent(child, DirectionalLightComponent)
             if (dirLight) {
@@ -418,30 +445,43 @@ const ThumbnailJobReactor = () => {
             if (skybox) {
               setComponent(skyboxEntity, SkyboxComponent, serializeComponent(child, SkyboxComponent))
               removeComponent(child, SkyboxComponent)
+              SkyboxComponent.reactorMap.get(skyboxEntity)?.run()
+              skyboxLoaded.set(true)
             }
           })
-          */
+
+          //for testing
+          if (!modelComponent?.scene.value) {
+            return
+          }
 
           const componentJson = modelComponent.scene.value.children[0].userData.componentJson
           componentJson.forEach((component) => {
             if (component.name == SkyboxComponent.jsonID) {
               setComponent(skyboxEntity, SkyboxComponent, component.props)
               const test = getComponent(skyboxEntity, SkyboxComponent)
+              SkyboxComponent.reactorMap.get(skyboxEntity)?.run()
 
               const subReactor = startReactor(() => {
-                const [texture, error] = useTexture(component.props.equirectangularPath, entity)
+                const backgroundComponent = useOptionalComponent(skyboxEntity, BackgroundComponent)
 
                 useEffect(() => {
+                  if (!backgroundComponent?.value) {
+                    return
+                  }
+                  const texture = getComponent(skyboxEntity, BackgroundComponent) as Texture
                   skyboxLoaded.set(true)
                   subReactor.stop()
-                }, [texture])
+                  reactor.stop()
+                }, [backgroundComponent?.value])
+
                 return null
               })
             }
           })
 
           reactor.stop()
-        }, [modelComponent?.scene])
+        }, [gltfState[sceneId]])
 
         return null
       })
