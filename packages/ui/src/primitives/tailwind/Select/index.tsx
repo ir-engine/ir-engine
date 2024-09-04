@@ -33,7 +33,6 @@ import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { useHookstate } from '@ir-engine/hyperflux'
 
 import Input from '../Input'
-import LoadingView from '../LoadingView'
 
 export type OptionValueType = string | number
 
@@ -57,7 +56,7 @@ export interface SelectProps<T extends OptionValueType> {
   errorBorder?: boolean
   searchDisabled?: boolean
   inputContainerClassName?: string
-  loading?: boolean
+  endComponent?: JSX.Element
 }
 
 const Select = <T extends OptionValueType>({
@@ -78,7 +77,7 @@ const Select = <T extends OptionValueType>({
   errorBorder,
   searchDisabled,
   inputContainerClassName,
-  loading
+  endComponent
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -158,8 +157,8 @@ const Select = <T extends OptionValueType>({
         onClick={toggleDropdown}
         onMouseDown={handleMouseDown}
         endComponent={
-          loading ? (
-            <LoadingView spinnerOnly className="mr-2 h-6 w-6" />
+          endComponent ? (
+            endComponent
           ) : (
             <MdOutlineKeyboardArrowDown
               size="1.5em"
