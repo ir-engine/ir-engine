@@ -1010,23 +1010,33 @@ const PrimitiveReactor = (props: {
 
   return (
     <>
-      {/* {typeof primitive.extensions === 'object' && (
-        <PrimitiveExtensionReactor
-          nodeIndex={props.nodeIndex}
-          primitiveIndex={props.primitiveIndex}
-          documentID={props.documentID}
-          entity={entity}
-        />
-      )} */}
       {meshDef.primitives.map((primitive, index) => (
-        <MaterialInstanceReactor
-          key={index}
-          nodeIndex={props.nodeIndex}
-          primitiveIndex={index}
-          documentID={props.documentID}
-          entity={props.entity}
-          isArray={meshDef.primitives.length > 1}
-        />
+        <>
+          <MaterialInstanceReactor
+            key={index}
+            nodeIndex={props.nodeIndex}
+            primitiveIndex={index}
+            documentID={props.documentID}
+            entity={props.entity}
+            isArray={meshDef.primitives.length > 1}
+          />
+          {/* <PrimitiveExtensionReactor
+        nodeIndex={props.nodeIndex}
+        primitiveIndex={index}
+        documentID={props.documentID}
+        entity={props.entity}
+        /> */}
+          {primitive.targets && (
+            <MorphTargetReactor
+              key={'targets' + index}
+              documentID={props.documentID}
+              entity={props.entity}
+              targets={(primitive as GLTF.IMeshPrimitive).targets}
+              nodeIndex={props.nodeIndex}
+              primitiveIndex={index}
+            />
+          )}
+        </>
       ))}
     </>
   )
