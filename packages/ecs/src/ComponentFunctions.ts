@@ -380,6 +380,30 @@ const ArrayByType = {
   [bitECS.Types.eid]: Uint32Array
 }
 
+const createSchemaProxy = (obj, store, entity: Entity) => {
+  const proxy = new Proxy(obj, {
+    get(target, key, receiver) {
+      if (typeof target[key] === 'object') {
+        return target[key]
+      }
+      const value = ArrayBuffer.isView(target) ? store[entity][key] : store[key]?.[entity]
+      return value
+    },
+    set(target, key, value) {
+      if (store[key]) {
+        target[key] = value
+        // If array, get array from store, then index
+        if (ArrayBuffer.isView(target)) store[entity][key] = value
+        else store[key][entity] = value
+        return true
+      }
+      return false
+    }
+  })
+
+  return proxy
+}
+
 const makeSchemaObject = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   object: Record<string, any>,
   entity: Entity,
@@ -388,30 +412,13 @@ const makeSchemaObject = <Schema extends ComponentSchema, InitializationType, Co
   const obj = Object.entries(object).reduce((accum, [key, value]) => {
     const isArray = Array.isArray(value)
     if (!isArray && typeof value === 'object') accum[key] = makeSchemaObject(value, entity, store[key])
-    else if (isArray && value.length === 2) accum[key] = new ArrayByType[value[0]](value[1])
+    else if (isArray && value.length === 2)
+      accum[key] = createSchemaProxy(new ArrayByType[value[0]](value[1]), store[key], entity)
     else accum[key] = 0
     return accum
   }, {})
 
-  const proxy = new Proxy(obj, {
-    get(target, key, receiver) {
-      if (typeof target[key] === 'object') {
-        return target[key]
-      }
-      const value = store[key]?.[entity]
-      return value
-    },
-    set(target, key, value) {
-      if (store[key]) {
-        target[key] = value
-        store[key][entity] = value
-        return true
-      }
-      return false
-    }
-  })
-
-  return proxy
+  return createSchemaProxy(obj, store, entity)
 }
 
 const createProxyForECSSchema = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(

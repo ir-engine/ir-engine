@@ -242,6 +242,7 @@ describe('ComponentFunctions', async () => {
       const mat = TransformComponent.matrix[entity]
       assert(transformComponent.matrix[12] === 14)
       assert(transformComponent.matrix[12] === TransformComponent.matrix[entity][12])
+      assert(transformComponent.matrix[12] === mat[12])
     })
   })
 
