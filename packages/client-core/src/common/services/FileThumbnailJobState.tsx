@@ -35,10 +35,7 @@ import {
   UndefinedEntity,
   createEntity,
   getComponent,
-  getOptionalComponent,
-  removeComponent,
   removeEntity,
-  serializeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -76,7 +73,6 @@ import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -240,6 +236,7 @@ const ThumbnailJobReactor = () => {
   const errorComponent = useOptionalComponent(state.modelEntity.value, ErrorComponent)
 
   const materialLoaded = useHookstate(false)
+  const skyboxLoaded = useHookstate(false)
 
   const tryCatch = (fn: any) => {
     try {
@@ -370,9 +367,9 @@ const ThumbnailJobReactor = () => {
     setComponent(lightEntity, DirectionalLightComponent, { intensity: 1, color: new Color(0xffffff) })
 
     const skyboxEntity = createEntity()
-    setComponent(lightEntity, NameComponent, 'thumbnail job skybox for ' + src)
-    setComponent(lightEntity, VisibleComponent)
-    setComponent(lightEntity, SkyboxComponent)
+    setComponent(skyboxEntity, NameComponent, 'thumbnail job skybox for ' + src)
+    setComponent(skyboxEntity, VisibleComponent)
+    //setComponent(skyboxEntity, SkyboxComponent)
 
     if (fileType === 'model') {
       setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
@@ -396,6 +393,12 @@ const ThumbnailJobReactor = () => {
     } else if (fileType === 'lookDev') {
       setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
 
+      if (skyboxLoaded.value) {
+        skyboxLoaded.set(false)
+      }
+
+      //addMediaNode(src, skyboxEntity)
+
       const reactor = startReactor(() => {
         const modelComponent = useOptionalComponent(entity, ModelComponent)
 
@@ -403,6 +406,7 @@ const ThumbnailJobReactor = () => {
           if (!modelComponent?.scene.value) {
             return
           }
+          /*
           iterateEntityNode(entity, (child) => {
             const dirLight = getOptionalComponent(child, DirectionalLightComponent)
             if (dirLight) {
@@ -414,6 +418,25 @@ const ThumbnailJobReactor = () => {
             if (skybox) {
               setComponent(skyboxEntity, SkyboxComponent, serializeComponent(child, SkyboxComponent))
               removeComponent(child, SkyboxComponent)
+            }
+          })
+          */
+
+          const componentJson = modelComponent.scene.value.children[0].userData.componentJson
+          componentJson.forEach((component) => {
+            if (component.name == SkyboxComponent.jsonID) {
+              setComponent(skyboxEntity, SkyboxComponent, component.props)
+              const test = getComponent(skyboxEntity, SkyboxComponent)
+
+              const subReactor = startReactor(() => {
+                const [texture, error] = useTexture(component.props.equirectangularPath, entity)
+
+                useEffect(() => {
+                  skyboxLoaded.set(true)
+                  subReactor.stop()
+                }, [texture])
+                return null
+              })
             }
           })
 
@@ -469,6 +492,7 @@ const ThumbnailJobReactor = () => {
       return
 
     if (fileType === 'material' && !materialLoaded.value) return
+    if (fileType === 'lookDev' && !skyboxLoaded.value) return
 
     const modelEntity = state.modelEntity.value
     const lightEntity = state.lightEntity.value
@@ -550,6 +574,7 @@ const ThumbnailJobReactor = () => {
       function cleanup() {
         jobState.set(jobState.get(NO_PROXY).slice(1))
         materialLoaded.set(false)
+        skyboxLoaded.set(false)
       }
       canvas!.toBlob((blob: Blob) => {
         try {
@@ -572,7 +597,8 @@ const ThumbnailJobReactor = () => {
     lightComponent?.light,
     sceneState.keys,
     errorComponent?.keys,
-    materialLoaded
+    materialLoaded,
+    skyboxLoaded
   ])
 
   return null
