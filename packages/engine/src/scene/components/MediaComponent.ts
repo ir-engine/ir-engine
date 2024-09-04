@@ -330,6 +330,18 @@ export function MediaReactor() {
       clearErrors(entity, MediaComponent)
 
       const paths = media.resources.value
+
+      // If no paths or currently play path has been removed stop the track from playing
+      // and signal to move to next track if one exists
+      if (hasComponent(entity, MediaElementComponent)) {
+        const mediaElement = getComponent(entity, MediaElementComponent).element
+        if (paths.length === 0 || !paths.includes(mediaElement.src)) {
+          mediaElement.pause()
+          removeComponent(entity, MediaElementComponent)
+          media.ended.set(true)
+        }
+      }
+
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
