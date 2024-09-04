@@ -554,7 +554,8 @@ const AssetPanel = () => {
   }
 
   const calculateItemsToFetch = () => {
-    const containerHeight = window.innerHeight
+    const parentElement = document.getElementById('asset-panel')
+    const containerHeight = parentElement ? parentElement.offsetHeight : 0
     const itemHeight = 160
     const itemsInView = Math.ceil(containerHeight / itemHeight)
     return itemsInView
@@ -713,7 +714,7 @@ const AssetPanel = () => {
         <div className="flex w-[20px] cursor-pointer items-center">
           <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
         </div>
-        <div className="flex h-full w-full flex-col overflow-auto">
+        <div id="asset-panel" className="flex h-full w-full flex-col overflow-auto">
           <InfiniteScroll
             disableEvent={
               staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
