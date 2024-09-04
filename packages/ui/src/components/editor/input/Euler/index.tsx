@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Q_IDENTITY } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Euler, Quaternion, MathUtils as _Math } from 'three'
 import NumericInput from '../Numeric'
 import { Vector3Scrubber } from '../Vector3'
@@ -46,29 +46,21 @@ type EulerInputProps = {
 const tempEuler = new Euler()
 const tempQuat = new Quaternion()
 
-/**
- * FileIEulerInputnput used to show EulerInput.
- *
- * @type {Object}
- */
 export const EulerInput = (props: EulerInputProps) => {
   const quaternion = useHookstate(props.quaternion)
-  const euler = useHookstate(temp_Euler.setFromQuaternion(props.quaternion, 'YXZ'))
+  const euler = useHookstate(tempEuler.setFromQuaternion(props.quaternion, 'YXZ'))
 
   useEffect(() => {
-    euler.set(temp_Euler.setFromQuaternion(quaternion.value, 'YXZ'))
+    euler.set(tempEuler.setFromQuaternion(quaternion.value, 'YXZ'))
   }, [props.quaternion])
 
-  const onSetEuler = useCallback(
-    (component: keyof typeof euler) => (value: number) => {
-      const radVal = value * DEG2RAD
-      euler[component].value !== radVal &&
-        (euler[component].set(radVal),
-        quaternion.set(temp_Quat.setFromEuler(euler.value)),
-        props.onChange?.(quaternion.value))
-    },
-    [euler, quaternion, props.quaternion]
-  )
+  const onSetEuler = (component: keyof typeof euler) => (value: number) => {
+    const radVal = value * DEG2RAD
+    euler[component].value !== radVal &&
+      (euler[component].set(radVal),
+      quaternion.set(tempQuat.setFromEuler(euler.value)),
+      props.onChange?.(quaternion.value))
+  }
 
   return (
     <div className="flex flex-wrap justify-end gap-1.5">
