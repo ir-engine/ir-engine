@@ -33,7 +33,7 @@ import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { FileDataType } from '../helpers'
+import { FileDataType } from '../../../constants/AssetTypes'
 
 export default function DeleteFileModal({
   files,
