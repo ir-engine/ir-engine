@@ -64,7 +64,7 @@ const MediaControlsView = (props: MediaControlsProps) => {
     if (!hasComponent(props.entity, MediaElementComponent)) return
 
     const isPaused = mediaComponent.paused.value
-    isPaused ? mediaComponent.paused.set(false) : mediaComponent.paused.set(true)
+    mediaComponent.paused.set(!isPaused)
   }
 
   /** @todo does not currently support tailwind css */
