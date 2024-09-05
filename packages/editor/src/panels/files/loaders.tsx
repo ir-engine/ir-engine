@@ -43,11 +43,16 @@ const DownloadProjectState = defineState({
   initial: () => ({
     total: 0,
     progress: 0,
+    isFetching: false,
     isDownloading: false
   })
 })
 
 export const handleDownloadProject = async (projectName: string, selectedDirectory: string) => {
+  const downloadState = getMutableState(DownloadProjectState)
+
+  downloadState.isFetching.set(true) // start Fetching
+
   const data = await API.instance
     .service(archiverPath)
     .get(null, { query: { project: projectName } })
@@ -57,11 +62,17 @@ export const handleDownloadProject = async (projectName: string, selectedDirecto
     })
   if (!data) return
 
-  const downloadState = getMutableState(DownloadProjectState)
+  const response = await fetch(`${config.client.fileServer}/${data}`)
+
+  downloadState.isFetching.set(false) // Fetch completed
+
+  if (!response.ok) {
+    NotificationService.dispatchNotify(`Failed to fetch project ${response.status} `, { variant: 'error' })
+    return
+  }
 
   downloadState.isDownloading.set(true)
 
-  const response = await fetch(`${config.client.fileServer}/${data}`)
   const totalBytes = parseInt(response.headers.get('Content-Length') || '0', 10)
   downloadState.total.set(totalBytes)
 
@@ -78,7 +89,8 @@ export const handleDownloadProject = async (projectName: string, selectedDirecto
   }
 
   const blob = new Blob(chunks)
-  downloadState.isDownloading.set(false)
+  downloadState.isDownloading.set(false) // Mark as completed
+  downloadState.isFetching.set(false) // redundant set
   downloadState.progress.set(0)
   downloadState.total.set(0)
 
@@ -97,22 +109,36 @@ export function ProjectDownloadProgress() {
   const { t } = useTranslation()
   const downloadState = useMutableState(DownloadProjectState)
   const isDownloading = downloadState.isDownloading.value
+  const isFetching = downloadState.isFetching.value
+
   const completed = bytesToSize(downloadState.progress.value)
   const total = bytesToSize(downloadState.total.value)
   const progress = (downloadState.progress.value / downloadState.total.value) * 100
 
-  return isDownloading ? (
-    <div className="flex h-auto w-full justify-center pb-2 pt-2">
-      <div className="flex w-1/2">
-        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
-          {t('editor:layout.filebrowser.downloadingProject', { completed, total })}
-        </span>
-        <div className="basis-1/2">
-          <Progress value={progress} />
+  return (
+    <>
+      {isDownloading && (
+        <div className="flex h-auto w-full justify-center pb-2 pt-2">
+          <div className="flex w-1/2">
+            <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+              {t('editor:layout.filebrowser.downloadingProject', { completed, total })}
+            </span>
+            <div className="basis-1/2">
+              <Progress value={progress} />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  ) : null
+      )}
+      {isFetching && (
+        <LoadingView
+          titleClassname="mt-0"
+          containerClassName="flex-row mt-1"
+          className="mx-2 my-auto h-6 w-6"
+          title={t('editor:layout.filebrowser.fetchingProject')}
+        />
+      )}
+    </>
+  )
 }
 
 export function FileUploadProgress() {
