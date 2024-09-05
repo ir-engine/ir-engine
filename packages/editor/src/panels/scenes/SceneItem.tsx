@@ -26,37 +26,33 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
-import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
-import { useHookstate } from '@ir-engine/hyperflux'
-import RenameSceneModal from '@ir-engine/ui/src/components/editor/panels/Scenes/modals/RenameScene'
+import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import { default as React, useEffect, useRef } from 'react'
+import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import { LuTrash } from 'react-icons/lu'
 import { MdOutlineEdit } from 'react-icons/md'
-import { twMerge } from 'tailwind-merge'
 
 type SceneItemProps = {
   scene: StaticResourceType
-  moveMenuUp?: boolean
   handleOpenScene: () => void
   refetchProjectsData: () => void
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
 }
 
-export const SceneItem = ({
+export default function SceneItem({
   scene,
-  moveMenuUp,
   handleOpenScene,
   refetchProjectsData,
   onRenameScene,
   onDeleteScene
-}: SceneItemProps) => {
+}: SceneItemProps) {
   const { t } = useTranslation()
 
   const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
@@ -73,30 +69,6 @@ export const SceneItem = ({
     }
     PopoverState.hidePopupover()
   }
-
-  const showContentMenu = useHookstate(false)
-  const menuPosition = useHookstate({ top: 0, left: 0 })
-
-  const threeDotsContainRef = useRef<HTMLDivElement>(null)
-
-  useClickOutside(threeDotsContainRef, () => showContentMenu.set(false))
-
-  useEffect(() => {
-    if (!threeDotsContainRef.current) return
-
-    let animationFrameId: number
-
-    const updatePosition = () => {
-      if (!threeDotsContainRef.current) return
-      const rect = threeDotsContainRef.current.getBoundingClientRect()
-      menuPosition.set({ top: rect.bottom, left: rect.left })
-      animationFrameId = requestAnimationFrame(updatePosition)
-    }
-
-    updatePosition()
-
-    return () => cancelAnimationFrame(animationFrameId)
-  }, [threeDotsContainRef])
 
   return (
     <div
@@ -117,67 +89,59 @@ export const SceneItem = ({
             {t('editor:hierarchy.lbl-edited')} {t('common:timeAgo', { time: timeAgo(new Date(scene.updatedAt)) })}
           </Text>
         </div>
-        <div className="relative h-6 w-6" ref={threeDotsContainRef}>
-          <Button
-            variant="transparent"
-            size="small"
-            className="px-2 py-1.5"
-            startIcon={<BsThreeDotsVertical className="text-neutral-100" />}
-            onClick={() => showContentMenu.set((v) => !v)}
-          />
-          <ul
-            className={twMerge(
-              'fixed z-10 block w-max translate-x-5 rounded-lg bg-theme-primary px-4 py-3 pr-10',
-              showContentMenu.value ? 'visible' : 'hidden',
-              moveMenuUp ? '-translate-y-10' : ''
-            )}
-            style={{
-              top: menuPosition.top.value,
-              left: menuPosition.left.value
-            }}
+        <div className="relative h-6 w-6">
+          <Popup
+            trigger={
+              <Button
+                variant="transparent"
+                size="small"
+                className="px-2 py-1.5"
+                startIcon={<BsThreeDotsVertical className="text-neutral-100" />}
+              />
+            }
           >
-            <li className="h-8">
-              <Button
-                variant="transparent"
-                size="medium"
-                className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
-                startIcon={<MdOutlineEdit />}
-                onClick={() => {
-                  showContentMenu.set(false)
-                  PopoverState.showPopupover(
-                    <RenameSceneModal
-                      sceneName={sceneName}
-                      scene={scene}
-                      onRenameScene={onRenameScene}
-                      refetchProjectsData={refetchProjectsData}
-                    />
-                  )
-                }}
-              >
-                {t('editor:hierarchy.lbl-rename')}
-              </Button>
-            </li>
-            <li className="h-8">
-              <Button
-                variant="transparent"
-                size="medium"
-                className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
-                startIcon={<LuTrash />}
-                onClick={() => {
-                  showContentMenu.set(false)
-                  PopoverState.showPopupover(
-                    <ConfirmDialog
-                      title={t('editor:hierarchy.lbl-deleteScene')}
-                      text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
-                      onSubmit={async () => deleteSelectedScene(scene)}
-                    />
-                  )
-                }}
-              >
-                {t('editor:hierarchy.lbl-delete')}
-              </Button>
-            </li>
-          </ul>
+            <ul className="fixed z-10 block w-max translate-x-5 rounded-lg bg-theme-primary px-4 py-3 pr-10">
+              <li className="h-8">
+                <Button
+                  variant="transparent"
+                  size="medium"
+                  className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
+                  startIcon={<MdOutlineEdit />}
+                  onClick={() => {
+                    PopoverState.showPopupover(
+                      <RenameSceneModal
+                        sceneName={sceneName}
+                        scene={scene}
+                        onRenameScene={onRenameScene}
+                        refetchProjectsData={refetchProjectsData}
+                      />
+                    )
+                  }}
+                >
+                  {t('editor:hierarchy.lbl-rename')}
+                </Button>
+              </li>
+              <li className="h-8">
+                <Button
+                  variant="transparent"
+                  size="medium"
+                  className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
+                  startIcon={<LuTrash />}
+                  onClick={() => {
+                    PopoverState.showPopupover(
+                      <ConfirmDialog
+                        title={t('editor:hierarchy.lbl-deleteScene')}
+                        text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
+                        onSubmit={async () => deleteSelectedScene(scene)}
+                      />
+                    )
+                  }}
+                >
+                  {t('editor:hierarchy.lbl-delete')}
+                </Button>
+              </li>
+            </ul>
+          </Popup>
         </div>
       </div>
     </div>

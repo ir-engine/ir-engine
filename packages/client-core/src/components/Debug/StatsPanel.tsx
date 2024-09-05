@@ -28,9 +28,9 @@ import { useTranslation } from 'react-i18next'
 
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RenderInfoState } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
-
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Stats from './stats'
-import styles from './styles.module.scss'
 
 export const StatsPanel = (props: { show: boolean }) => {
   const renderInfoState = useMutableState(RenderInfoState)
@@ -75,18 +75,14 @@ export const StatsPanel = (props: { show: boolean }) => {
   }
 
   return (
-    <div className={styles.statsContainer}>
-      <h1>{t('common:debug.stats')}</h1>
-      <div ref={statsRef} className={styles.statsBlock} />
-      <button
-        onClick={toggleStats}
-        className={styles.flagBtn + (renderInfoState.visible.value ? ' ' + styles.active : '')}
-        style={{ width: '100px' }}
-      >
+    <div className="m-1 flex flex-col gap-0.5 rounded bg-neutral-600 p-1">
+      <Text>{t('common:debug.stats')}</Text>
+      <div className="flex gap-1 [&>div]:relative" ref={statsRef} />
+      <Button variant="secondary" onClick={toggleStats} size="small">
         {renderInfoState.visible.value ? 'Hide' : 'Show'}
-      </button>
+      </Button>
       {info && (
-        <ul style={{ listStyle: 'none' }}>
+        <ul className="list-none text-sm text-theme-secondary">
           <li>
             {t('editor:viewport.state.memory')}
             <ul style={{ listStyle: 'none' }}>
@@ -100,7 +96,7 @@ export const StatsPanel = (props: { show: boolean }) => {
           </li>
           <li>
             {t('editor:viewport.state.render')}:
-            <ul style={{ listStyle: 'none' }}>
+            <ul className="ml-2 list-none">
               <li>
                 {t('editor:viewport.state.FPS')}: {Math.round(info.fps)}
               </li>

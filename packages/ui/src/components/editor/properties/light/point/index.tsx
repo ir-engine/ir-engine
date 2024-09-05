@@ -35,6 +35,7 @@ import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
+import LightShadowProperties from '../shadowProperties'
 
 export const PointLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -89,7 +90,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(PointLightComponent, 'decay')}
         />
       </InputGroup>
-      {/* <LightShadowProperties entity={props.entity} component={PointLightComponent} /> */}
+      <LightShadowProperties entity={props.entity} component={PointLightComponent} />
     </NodeEditor>
   )
 }
