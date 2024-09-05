@@ -104,7 +104,7 @@ export const ComponentShelfCategoriesState = defineState({
         HemisphereLightComponent
       ],
       FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
-      Scripting: [ScriptComponent],
+      Scripting: [],
       Settings: [
         SceneSettingsComponent,
         RenderSettingsComponent,
@@ -122,7 +122,10 @@ export const ComponentShelfCategoriesState = defineState({
     } as Record<string, Component[]>
   },
   reactor: () => {
-    const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+    const [visualScriptPanelEnabled, scriptPanelEnabled] = useFeatureFlags([
+      FeatureFlags.Studio.Panel.VisualScript,
+      FeatureFlags.Studio.Panel.Script
+    ])
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
       if (visualScriptPanelEnabled) {
@@ -134,5 +137,15 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [visualScriptPanelEnabled])
+    useEffect(() => {
+      if (scriptPanelEnabled) {
+        cShelfState.Scripting.merge([ScriptComponent])
+        return () => {
+          cShelfState.Scripting.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == ScriptComponent.name))
+          })
+        }
+      }
+    }, [scriptPanelEnabled])
   }
 })

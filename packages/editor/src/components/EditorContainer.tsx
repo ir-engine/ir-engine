@@ -89,9 +89,10 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab, ScriptPanelTab]
+const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEnabled: boolean }): LayoutData => {
+  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+  flags.scriptPanelEnabled && tabs.push(ScriptPanelTab)
 
   return {
     dockbox: {
@@ -196,7 +197,10 @@ const EditorContainer = () => {
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
-  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+  const [visualScriptPanelEnabled, scriptPanelEnabled] = useFeatureFlags([
+    FeatureFlags.Studio.Panel.VisualScript,
+    FeatureFlags.Studio.Panel.Script
+  ])
 
   useEffect(() => {
     return () => {
@@ -235,7 +239,7 @@ const EditorContainer = () => {
               <DockContainer>
                 <DockLayout
                   ref={dockPanelRef}
-                  defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
+                  defaultLayout={defaultLayout({ visualScriptPanelEnabled, scriptPanelEnabled })}
                   style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
                 />
               </DockContainer>

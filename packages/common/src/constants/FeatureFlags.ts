@@ -41,6 +41,7 @@ export const FeatureFlags = {
       GLTFTransform: 'ir.studio.model.gltfTransform'
     },
     Panel: {
+      Script: 'ir.editor.panel.script',
       VisualScript: 'ir.editor.panel.visualScript'
     },
     UI: {
