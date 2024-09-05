@@ -77,6 +77,7 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
+    setComponent(rootEntity, VisibleComponent)
     mockEngineRenderer(rootEntity)
     setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))
 

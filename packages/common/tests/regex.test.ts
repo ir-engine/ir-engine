@@ -24,10 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import assert from 'assert'
 import {
-  ABSOLUTE_URL_PROTOCOL_REGEX,
   ASSETS_REGEX,
   BUILDER_CHART_REGEX,
-  CSS_URL_REGEX,
   EMAIL_REGEX,
   GITHUB_URL_REGEX,
   INSTALLATION_SIGNED_REGEX,
@@ -38,7 +36,6 @@ import {
   PROJECT_REGEX,
   PROJECT_THUMBNAIL_REGEX,
   PUBLIC_SIGNED_REGEX,
-  STATIC_ASSET_REGEX,
   USER_ID_REGEX,
   VALID_FILENAME_REGEX,
   VALID_HEIRARCHY_SEARCH_REGEX,
@@ -173,126 +170,6 @@ describe('regex.test', () => {
       ]
       invalidSceneNames.forEach((filename) => {
         assert.ok(!VALID_SCENE_NAME_REGEX.test(filename), `Expected '${filename}' to be invalid scene names`)
-      })
-    })
-  })
-
-  describe('CSS_URL_REGEX', () => {
-    it('should match for CSS sources with valid URLs', () => {
-      const positiveCases = [
-        {
-          source: '@import url("https://example.com/styles.css");',
-          urlResource: 'https://example.com/styles.css'
-        },
-        {
-          source: 'background: url("https://example.com/image.jpg");',
-          urlResource: 'https://example.com/image.jpg'
-        },
-        {
-          source: "background: url('https://example.com/image.jpg');",
-          urlResource: 'https://example.com/image.jpg'
-        },
-        {
-          source: 'background: url(https://example.com/image.jpg);',
-          urlResource: 'https://example.com/image.jpg'
-        }
-      ]
-
-      positiveCases.forEach(({ source, urlResource }) => {
-        const matches = source.matchAll(CSS_URL_REGEX)
-
-        const matchesArray = Array.from(matches)
-        assert.ok(matchesArray.length > 0, `Expected '${source}' to match CSS_URL_REGEX`)
-
-        for (const match of matchesArray) {
-          assert.equal(
-            match[2] ?? match[3],
-            urlResource,
-            `Expected URL resource: ${urlResource} in '${source}'. Found ${match[2] ?? match[3]}`
-          )
-        }
-      })
-    })
-
-    it('should not match invalid CSS imports & URLs', () => {
-      const negativeCases = [
-        'color: #fff;',
-        'background: urll(https://example.com/image.jpg);', // Misspelled 'url'
-        'url(https://example.com/image', // Missing closing parenthesis
-        'background: url();' // Empty URL
-      ]
-
-      negativeCases.forEach((source) => {
-        const matches = source.matchAll(CSS_URL_REGEX)
-        const matchesArray = Array.from(matches)
-        assert.ok(matchesArray.length === 0, `Expected '${source}' to not match CSS_URL_REGEX`)
-      })
-    })
-  })
-
-  describe('ABSOLUTE_URL_REGEX', () => {
-    it('should match absolute URLs', () => {
-      const positiveCases = ['http://example.com', 'https://example.com', 'ftp://example.com', '//example.com']
-
-      positiveCases.forEach((url) => {
-        assert.match(url, ABSOLUTE_URL_PROTOCOL_REGEX, `Expected '${url}' to match ABSOLUTE_URL_REGEX`)
-      })
-    })
-
-    it('should not match relative URLs', () => {
-      assert.doesNotMatch(
-        'example.com',
-        ABSOLUTE_URL_PROTOCOL_REGEX,
-        `Expected 'example.com' to not match ABSOLUTE_URL_REGEX`
-      )
-    })
-  })
-
-  describe('STATIC_ASSET_REGEX', () => {
-    it('should match static asset URLs', () => {
-      const positiveCases = [
-        {
-          url: 'https://example.com/projects/ir-engine/default-project/assets/images/logo.png',
-          orgName: 'ir-engine',
-          projectName: 'default-project',
-          assetPath: 'assets/images/logo.png'
-        },
-        {
-          url: 'https://example.com/static-resources/ir-engine/default-project/assets/images/logo.png',
-          orgName: 'ir-engine',
-          projectName: 'default-project',
-          assetPath: 'assets/images/logo.png'
-        },
-        {
-          url: 'https://example.com/projects/ir-engine/default-project/assets/animations/emotes.glb',
-          orgName: 'ir-engine',
-          projectName: 'default-project',
-          assetPath: 'assets/animations/emotes.glb'
-        },
-        {
-          url: 'https://example.com/projects/ir-engine/default-project/assets/animations/locomotion.glb',
-          orgName: 'ir-engine',
-          projectName: 'default-project',
-          assetPath: 'assets/animations/locomotion.glb'
-        }
-      ]
-      positiveCases.forEach(({ url, orgName, projectName, assetPath }) => {
-        const match = STATIC_ASSET_REGEX.exec(url)
-        assert.ok(match, `Expected '${url}' to match STATIC_ASSET_REGEX`)
-        assert.equal(match?.[1], orgName, `Expected org name name '${orgName}' in '${url}'. Found ${match?.[1]}`)
-        assert.equal(match?.[2], projectName, `Expected project name '${projectName}' in '${url}'. Found ${match?.[2]}`)
-        assert.equal(match?.[3], assetPath, `Expected asset path '${assetPath}' in '${url}'. Found ${match?.[3]}`)
-      })
-    })
-
-    it('should not match non-static asset URLs', () => {
-      const negativeCases = [
-        'https://example.com/static-resources/',
-        'https://example.com/project/subdir/assets',
-        'https://example.com/ir-engine/default-project/assets/animations/emotes.glb'
-      ]
-      negativeCases.forEach((url) => {
-        assert.doesNotMatch(url, STATIC_ASSET_REGEX, `Expected '${url}' to not match STATIC_ASSET_REGEX`)
       })
     })
   })

@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import matches, { Validator } from 'ts-matches'
+import matches from 'ts-matches'
 
-import { AvatarID } from '@ir-engine/common/src/schema.type.module'
 import { matchesEntityUUID } from '@ir-engine/ecs'
 import { defineAction } from '@ir-engine/hyperflux'
 import { NetworkTopics } from '@ir-engine/network'
@@ -37,7 +36,7 @@ export class AvatarNetworkAction {
   static spawn = defineAction(
     SpawnObjectActions.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN',
-      avatarID: matches.string as Validator<unknown, AvatarID>,
+      avatarURL: matches.string,
       name: matches.string
     })
   )
@@ -53,10 +52,10 @@ export class AvatarNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static setAvatarID = defineAction({
-    type: 'ee.engine.avatar.SET_AVATAR_ID',
+  static setAvatarURL = defineAction({
+    type: 'ee.engine.avatar.SET_AVATAR_URL',
     entityUUID: matchesEntityUUID,
-    avatarID: matches.string as Validator<unknown, AvatarID>,
+    avatarURL: matches.string,
     $cache: {
       removePrevious: true
     },
@@ -64,7 +63,7 @@ export class AvatarNetworkAction {
   })
 
   static setName = defineAction({
-    type: 'ee.engine.avatar.SET_AVATAR_ID',
+    type: 'ee.engine.avatar.SET_AVATAR_NAME',
     entityUUID: matchesEntityUUID,
     name: matches.string,
     $cache: {

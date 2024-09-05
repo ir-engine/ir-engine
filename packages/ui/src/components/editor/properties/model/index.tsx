@@ -33,13 +33,13 @@ import { ProjectState } from '@ir-engine/client-core/src/common/services/Project
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import config from '@ir-engine/common/src/config'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { recursiveHipsLookup } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
@@ -82,7 +82,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   ])
 
   const getRelativePath = useCallback(() => {
-    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3].split('/')[1]
+    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3]
     if (!relativePath) {
       return 'assets/new-model'
     } else {

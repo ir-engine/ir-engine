@@ -24,3 +24,4 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export { API } from './src/API'
+export * from './src/utils/FeathersHooks'

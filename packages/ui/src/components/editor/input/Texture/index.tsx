@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { Fragment, useEffect } from 'react'
 import { ColorSpace, DisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
 
-import { AssetType } from '@ir-engine/common/src/constants/AssetType'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { ImageFileTypes, VideoFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
 

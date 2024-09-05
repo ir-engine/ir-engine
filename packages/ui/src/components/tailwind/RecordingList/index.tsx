@@ -26,13 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { HiPlay, HiPlusCircle, HiStop } from 'react-icons/hi2'
 
+import { useFind } from '@ir-engine/common'
+import { PlaybackState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { RecordingID, recordingPath, RecordingType } from '@ir-engine/common/src/schema.type.module'
-import { PlaybackState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
-import Icon from '../../../primitives/mui/Icon'
-import IconButtonWithTooltip from '../../../primitives/mui/IconButtonWithTooltip'
+import { MdAccessibility, MdDirectionsRun, MdVideocam } from 'react-icons/md'
+import Tooltip from '../../../primitives/tailwind/Tooltip'
 
 function formatHHMMSS(time) {
   const sec_num = parseInt(time, 10) // don't forget the second param
@@ -79,17 +79,23 @@ const RecordingsList = (props: {
           <div className="bg-grey flex flex-row">
             {hasEntityResource && (
               <div className="bg-grey">
-                <IconButtonWithTooltip id="Entity" title={'Entity'} icon={<Icon type={'Accessibility'} />} />
+                <Tooltip content="Entity">
+                  <MdAccessibility className="text-2xl" />
+                </Tooltip>
               </div>
             )}
             {hasVideoResource && (
               <div className="bg-grey">
-                <IconButtonWithTooltip id="Video" title={'Video'} icon={<Icon type={'Videocam'} />} />
+                <Tooltip content="Video">
+                  <MdVideocam className="text-2xl" />
+                </Tooltip>
               </div>
             )}
             {hasMocapResource && (
               <div className="bg-grey">
-                <IconButtonWithTooltip id="Mocap" title={'Mocap'} icon={<Icon type={'DirectionsRun'} />} />
+                <Tooltip content="Mocap">
+                  <MdDirectionsRun className="text-2xl" />
+                </Tooltip>
               </div>
             )}
           </div>

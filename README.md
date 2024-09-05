@@ -1,8 +1,4 @@
-# Ethereal Engine is now Infinite Reality Engine and has been moved!
-
-## You can find the project now at https://github.com/ir-engine/ir-engine
-
-![iR Square Black Small](https://github.com/EtherealEngine/etherealengine/assets/5104160/51d93122-3325-46d9-b111-2562fd8802c1)
+![IR-engine-black-square](https://github.com/user-attachments/assets/0f6fbf86-20ff-40b2-8524-5d93ff8b6ab8)
 
 >  Manifest your dreams on the open social spatial web.
 
@@ -51,31 +47,15 @@ technology and shared simulations should be as easy and natural as making a webs
 - WebGL client deployable to iOS, Android and desktop
 - Free, open source, CPAL licensed
 
-## Demos
-
-Guest Demos
-
-- ***[Apartment - CCO from Sketchfab](https://app.etherealengine.com/location/apartment)***
-- ***[Star Station - our dev coommunity hangout](https://app.etherealengine.com/location/sky-station)***
-- ***[Globe Concert Hall - collab with WildCapture.io](https://app.etherealengine.com/location/globe-theater)***
-
-
-Host Demos 
-
-- [Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
-- [iR Studio - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/studio)
-
 ## Project API
 
-### [Library of EE Projects](https://github.com/EtherealEngine/project-manifest)
+### [Library of EE Projects](https://github.com/ir-engine/project-manifest)
 
 Create composable plug-ins for iR Engine experiences with the Projects API
 
-### [Create your own projects](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/project/intro)
-
 ## Launch iR Engine with Control Center Install - ***RECOMMENDED***
 
-### [Use Metaverse Control Plane Managment GUI](https://github.com/etherealengine/etherealengine-Control-Center)
+### [Use Metaverse Control Plane Managment GUI](https://github.com/ir-engine/ir-engine-launcher)
 
 Best for simple self hosting, advanced editor content creation, and XRProject Pack Project development.
 
@@ -108,17 +88,14 @@ for more details.
 
 ### Documentation
 
-* [General iR Engine documentation](https://etherealengine.github.io/etherealengine-docs/docs)
-* [Auto-generated (typedoc) API reference](https://etherealengine.github.io/etherealengine-docs/typedoc/)
-* [Avatar](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/avatars/intro), [Scene](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/project/intro) & [Asset Pipeline](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/assets/intro)
-* [Why are we building iR Engine?](https://etherealengine.github.io/etherealengine-docs/docs/)
+[WIP Aug 30, 2024]
 
 ## Contributing
 
 * We expect contributors and community members to follow our
   [Code of Conduct](CODE_OF_CONDUCT.md).
 * See the **[Contributing Guide](CONTRIBUTING.md)** and corresponding
-  [wiki entry](https://github.com/EtherealEngine/etherealengine/wiki/Testing-&-Contributing)
+  [wiki entry](https://github.com/ir-engine/ir-engine/wiki/Testing-&-Contributing)
   for more details.
 * Version numbering of the iR Engine monorepo follows the
   [Semantic versioning](http://semver.org/) approach.

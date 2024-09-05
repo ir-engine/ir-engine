@@ -37,7 +37,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 
 import { Application, HookContext } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('project-branches.test', () => {
   let app: Application
@@ -53,9 +53,7 @@ describe('project-branches.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
 
-  before(async () => {
     const name = ('test-project-branches-user-name-' + uuidv4()) as UserName
 
     const avatar = await app.service(avatarPath).create({
@@ -84,7 +82,10 @@ describe('project-branches.test', () => {
     )
   })
 
-  after(() => destroyEngine())
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
+  })
 
   it('should get the project branches', async () => {
     nock('https://api.github.com')

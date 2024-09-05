@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
 import { EntityUUID, generateEntityUUID, SetComponentType, UUIDComponent } from '@ir-engine/ecs'
 import {
   Component,
@@ -44,7 +43,7 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, getNestedObject, getState } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
 import { MAT4_IDENTITY } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -767,7 +766,7 @@ const toggleSelection = (entities: EntityUUID[]) => {
     }
   }
 
-  SelectionState.updateSelection(entities)
+  SelectionState.updateSelection(selectedEntities)
 }
 
 const addToSelection = (entities: EntityUUID[]) => {

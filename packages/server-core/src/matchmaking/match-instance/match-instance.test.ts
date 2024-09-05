@@ -39,7 +39,7 @@ import { matchTicketAssignmentPath } from '@ir-engine/matchmaking/src/match-tick
 import { MatchTicketType, matchTicketPath } from '@ir-engine/matchmaking/src/match-ticket.schema'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 interface User {
   id: string
@@ -178,7 +178,8 @@ describe.skip('matchmaking match-instance service', () => {
     cleanupPromises.push(app.service(locationPath).remove(location.id, {}))
 
     await Promise.all(cleanupPromises)
-    return destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   afterEach(() => {

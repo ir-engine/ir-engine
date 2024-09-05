@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { UserID } from '@ir-engine/hyperflux'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'

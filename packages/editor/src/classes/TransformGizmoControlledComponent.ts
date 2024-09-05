@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 
-import { Engine, UndefinedEntity } from '@ir-engine/ecs'
+import { Engine, Entity, UndefinedEntity } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -153,11 +153,14 @@ export const TransformGizmoControlledComponent = defineComponent({
         case TransformPivot.Origin:
           newPosition.setScalar(0)
           break
-        case TransformPivot.Selection:
-          TransformComponent.getWorldPosition(controlledEntities[controlledEntities.length - 1], newPosition)
+        case TransformPivot.FirstSelected:
+          TransformComponent.getWorldPosition(controlledEntities[0], newPosition)
           break
         case TransformPivot.Center:
-        case TransformPivot.Bottom:
+          getMidpointWorldPosition(controlledEntities, newPosition)
+          break
+        case TransformPivot.BoundingBox:
+        case TransformPivot.BoundingBoxBottom:
           box.makeEmpty()
 
           for (let i = 0; i < controlledEntities.length; i++) {
@@ -166,7 +169,7 @@ export const TransformGizmoControlledComponent = defineComponent({
           }
           box.getCenter(newPosition)
 
-          if (editorHelperState.transformPivot.value === TransformPivot.Bottom) newPosition.y = box.min.y
+          if (editorHelperState.transformPivot.value === TransformPivot.BoundingBoxBottom) newPosition.y = box.min.y
           break
       }
 
@@ -176,3 +179,13 @@ export const TransformGizmoControlledComponent = defineComponent({
     return null
   }
 })
+
+const getMidpointWorldPosition = (entities: Entity[], outVec3: Vector3) => {
+  outVec3.set(0, 0, 0)
+  const position = new Vector3()
+  for (const entity of entities) {
+    TransformComponent.getWorldPosition(entity, position)
+    outVec3.add(position)
+  }
+  outVec3.divideScalar(entities.length)
+}
