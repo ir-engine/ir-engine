@@ -69,6 +69,7 @@ export const TransformComponent = defineComponent({
   onInit: (initial) => {
     const entity = initial.entity
     const dirtyTransforms = TransformComponent.dirtyTransforms
+    initial.scale = { x: 1, y: 1, z: 1 }
     const component = {
       position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
       rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),

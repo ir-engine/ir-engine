@@ -409,12 +409,18 @@ const createSchemaObjProxy = (obj, store, entity: Entity) => {
       if (typeof target[key] === 'object') {
         return target[key]
       } else if (key === 'entity') return entity
-      const value = store[key]?.[entity]
-      return value
+      return store[key]?.[entity]
     },
     set(target, key, value) {
+      if (typeof value === 'object') {
+        for (const innerKey in value) {
+          target[key][innerKey] = value[innerKey]
+        }
+        return true
+      }
       target[key] = value
-      return (store[key][entity] = value)
+      store[key][entity] = value
+      return true
     }
   })
 
