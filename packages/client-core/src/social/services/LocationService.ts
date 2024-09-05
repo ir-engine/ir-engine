@@ -149,21 +149,31 @@ export const LocationService = {
   },
   getLocationByName: async (locationName: string) => {
     LocationState.fetchingCurrentSocialLocation()
-    const locationResult = (await API.instance.service(locationPath).find({
-      query: {
-        slugifiedName: locationName
-      }
-    })) as Paginated<LocationType>
+    try {
+      const locationResult = (await API.instance.service(locationPath).find({
+        query: {
+          slugifiedName: locationName
+        }
+      })) as Paginated<LocationType>
 
-    if (locationResult && locationResult.total > 0) {
-      if (
-        locationResult.data[0].locationSetting?.locationType === 'private' &&
-        !locationResult.data[0].locationAuthorizedUsers?.find((authUser) => authUser.userId === Engine.instance.userID)
-      ) {
-        LocationState.socialLocationNotAuthorized()
-      } else LocationState.socialLocationRetrieved(locationResult.data[0])
-    } else {
-      LocationState.socialLocationNotFound()
+      if (locationResult && locationResult.total > 0) {
+        if (
+          locationResult.data[0].locationSetting?.locationType === 'private' &&
+          !locationResult.data[0].locationAuthorizedUsers?.find(
+            (authUser) => authUser.userId === Engine.instance.userID
+          )
+        ) {
+          LocationState.socialLocationNotAuthorized()
+        } else LocationState.socialLocationRetrieved(locationResult.data[0])
+      } else {
+        LocationState.socialLocationNotFound()
+      }
+    } catch (err) {
+      if (err.message.includes('Unable to find projectId'))
+        NotificationService.dispatchNotify('You do not have access to this location.', {
+          variant: 'error',
+          persist: true
+        })
     }
   },
   getLobby: async () => {
