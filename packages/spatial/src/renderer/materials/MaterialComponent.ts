@@ -40,7 +40,7 @@ import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeComp
 
 import { v4 as uuidv4 } from 'uuid'
 import { NoiseOffsetPluginComponent } from './constants/plugins/NoiseOffsetPlugin'
-import { TransparencyDitheringPlugin } from './constants/plugins/TransparencyDitheringComponent'
+import { TransparencyDitheringPluginComponent } from './constants/plugins/TransparencyDitheringComponent'
 import { setMeshMaterial } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
@@ -86,7 +86,7 @@ export const MaterialPrototypeDefinitions = [
   ShadowMaterial
 ] as MaterialPrototypeDefinition[]
 
-export const MaterialPlugins = { TransparencyDitheringPlugin, NoiseOffsetPluginComponent } as Record<
+export const MaterialPlugins = { TransparencyDitheringPluginComponent, NoiseOffsetPluginComponent } as Record<
   string,
   Component<any, any, any>
 >
