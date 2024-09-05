@@ -109,7 +109,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         name="Dynamically Load Children"
         label={t('editor:properties.lbl-dynamicLoad')}
         labelClassName="font-normal text-[#6B6D78]"
-        className="w-auto"
+        className="flex w-auto flex-row-reverse flex-nowrap items-center gap-1"
+        containerClassName="mb-4"
       >
         <BooleanInput
           value={hasComponent(props.entity, SceneDynamicLoadTagComponent)}
