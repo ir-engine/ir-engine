@@ -137,6 +137,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
       if (entity) entities.push(entity)
     }
     setSelectedNode(entities)
+    if (!selectionState.selectedEntities.value.length) {
+      setFirstClickedNode(null)
+    }
   }, [selectionState.selectedEntities])
 
   useHotkeys(`${cmdOrCtrlString}+d`, (e) => {
@@ -458,10 +461,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
 
     if (!selectionState.selectedEntities.value.includes(getComponent(renamingNode.entity, UUIDComponent))) {
       onRenameSubmit(renamingNode.entity, renamingNode.name)
-    }
-
-    if (!selectionState.selectedEntities.value.length) {
-      setFirstClickedNode(null)
     }
   }, [selectionState.selectedEntities, renamingNode])
   /* Rename functions */
