@@ -146,6 +146,42 @@ export const QuaternionProxy = (quatStore: QuaternionStore) => {
         return (quatStore.w = n)
       },
       configurable: true
+    },
+    _x: {
+      get() {
+        return quatStore.x
+      },
+      set(n) {
+        return (quatStore.x = n)
+      },
+      configurable: true
+    },
+    _y: {
+      get() {
+        return quatStore.y
+      },
+      set(n) {
+        return (quatStore.y = n)
+      },
+      configurable: true
+    },
+    _z: {
+      get() {
+        return quatStore.z
+      },
+      set(n) {
+        return (quatStore.z = n)
+      },
+      configurable: true
+    },
+    _w: {
+      get() {
+        return quatStore.w
+      },
+      set(n) {
+        return (quatStore.w = n)
+      },
+      configurable: true
     }
   })
 }
@@ -185,6 +221,46 @@ export const QuaternionProxyDirty = (quatStore: QuaternionStore, entity: Entity,
       configurable: true
     },
     w: {
+      get() {
+        return quatStore.w
+      },
+      set(n) {
+        dirty[entity] = true
+        return (quatStore.w = n)
+      },
+      configurable: true
+    },
+    _x: {
+      get() {
+        return quatStore.x
+      },
+      set(n) {
+        dirty[entity] = true
+        return (quatStore.x = n)
+      },
+      configurable: true
+    },
+    _y: {
+      get() {
+        return quatStore.y
+      },
+      set(n) {
+        dirty[entity] = true
+        return (quatStore.y = n)
+      },
+      configurable: true
+    },
+    _z: {
+      get() {
+        return quatStore.z
+      },
+      set(n) {
+        dirty[entity] = true
+        return (quatStore.z = n)
+      },
+      configurable: true
+    },
+    _w: {
       get() {
         return quatStore.w
       },

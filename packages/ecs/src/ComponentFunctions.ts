@@ -263,7 +263,7 @@ export const defineComponent = <
   Component.isComponent = true
   Component.onSet = (entity, component, json) => {
     if (json === undefined || json === null) return
-    if (schemaIsJSONSchema(def.schema)) {
+    if (schemaIsJSONSchema(def.schema) || def.onInit) {
       if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
       else component.merge(json as SetPartialStateAction<ComponentType>)
     }
