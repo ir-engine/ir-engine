@@ -32,32 +32,32 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
-import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
-import { getCursorSpawnPosition } from '@ir-engine/editor/src/functions/screenSpaceFunctions'
-import { DnDFileType, FileDataType } from '@ir-engine/editor/src/panels/files/helpers'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { TabData } from 'rc-dock'
 import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
-import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import Text from '../../../../../primitives/tailwind/Text'
-import { SceneElementType } from '../../Properties/elementList'
-import GizmoTool from '../tools/GizmoTool'
-import GridTool from '../tools/GridTool'
-import PlayModeTool from '../tools/PlayModeTool'
-import RenderModeTool from '../tools/RenderTool'
-import SceneHelpersTool from '../tools/SceneHelpersTool'
-import TransformPivotTool from '../tools/TransformPivotTool'
-import TransformSnapTool from '../tools/TransformSnapTool'
-import TransformSpaceTool from '../tools/TransformSpaceTool'
+import { DnDFileType, FileDataType, ItemTypes, SceneElementType, SupportedFileTypes } from '../../constants/AssetTypes'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { addMediaNode } from '../../functions/addMediaNode'
+import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
+import { EditorState } from '../../services/EditorServices'
+import GizmoTool from './tools/GizmoTool'
+import GridTool from './tools/GridTool'
+import PlayModeTool from './tools/PlayModeTool'
+import RenderModeTool from './tools/RenderTool'
+import SceneHelpersTool from './tools/SceneHelpersTool'
+import TransformPivotTool from './tools/TransformPivotTool'
+import TransformSnapTool from './tools/TransformSnapTool'
+import TransformSpaceTool from './tools/TransformSpaceTool'
 
 const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
   const projectName = useMutableState(EditorState).projectName
@@ -136,7 +136,7 @@ const SceneLoadingProgress = ({ rootEntity }) => {
   )
 }
 
-const ViewPortPanelContainer = () => {
+function ViewportContainer() {
   const { sceneName, rootEntity } = useMutableState(EditorState)
 
   const { t } = useTranslation()
@@ -180,4 +180,19 @@ const ViewPortPanelContainer = () => {
   )
 }
 
-export default ViewPortPanelContainer
+export const ViewportPanelTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <PanelDragContainer>
+      <PanelTitle>{t('editor:viewport.title')}</PanelTitle>
+    </PanelDragContainer>
+  )
+}
+
+export const ViewportPanelTab: TabData = {
+  id: 'viewPanel',
+  closable: true,
+  title: <ViewportPanelTitle />,
+  content: <ViewportContainer />
+}

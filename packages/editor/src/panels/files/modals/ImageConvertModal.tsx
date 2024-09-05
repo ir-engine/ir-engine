@@ -37,7 +37,7 @@ import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { FileDataType } from '../helpers'
+import { FileDataType } from '../../../constants/AssetTypes'
 
 export default function ImageConvertModal({
   file,
