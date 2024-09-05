@@ -91,8 +91,8 @@ const onEditorError = (error) => {
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEnabled: boolean }): LayoutData => {
   const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
-  flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
-  flags.scriptPanelEnabled && tabs.push(ScriptPanelTab)
+  flags.visualScriptPanelEnabled ?? tabs.push(VisualScriptPanelTab)
+  flags.scriptPanelEnabled ?? tabs.push(ScriptPanelTab)
 
   return {
     dockbox: {

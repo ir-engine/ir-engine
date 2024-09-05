@@ -1077,13 +1077,13 @@
       "assets": "Assets"
     },
     "visualScript":{
-      "name": "'Visual Script Component'",
+      "name": "Visual Script",
       "description": "Adds a visual script to the entity",
       "lbl-disabled": "Disable Visual Script",
       "lbl-run": "Play Visual Script"
     },
     "script":{
-      "name": "Script Component",
+      "name": "Script",
       "description": " adds a script to the entity",
       "lbl-scriptPath": "Script path",
       "error":{
