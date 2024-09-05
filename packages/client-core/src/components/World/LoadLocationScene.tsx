@@ -41,11 +41,8 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     LocationState.setLocationName(props.locationName)
-  }, [])
-
-  useEffect(() => {
     if (locationState.locationName.value) LocationService.getLocationByName(locationState.locationName.value)
-  }, [locationState.locationName.value])
+  }, [])
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {
