@@ -337,7 +337,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const skinnedMesh = obj as SkinnedMesh
   if (skinnedMesh.isSkinnedMesh) setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
-  else setComponent(objEntity, FrustumCullCameraComponent)
+  else if (mesh.isMesh) setComponent(objEntity, FrustumCullCameraComponent)
 
   if (obj.userData['componentJson']) {
     for (const json of obj.userData['componentJson']) {
