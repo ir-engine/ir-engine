@@ -100,21 +100,16 @@ jobs:
       - run: rm -rf packages/taskserver
       - run: npm run build-client
 
-  test:
+  test_engine:
     needs: install-modules
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         package:
-          - client
-          - client-core
-          - common
           - ecs
-          - editor
           - engine
           - hyperflux
-          - matchmaking
           - network
           - spatial
           - visual-script
@@ -127,15 +122,51 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - run: rm -rf packages/client
+      - run: rm -rf packages/common
+      - run: rm -rf packages/client-core
+      - run: rm -rf packages/editor
+      - run: rm -rf packages/ui
+      - run: rm -rf packages/instanceserver
+      - run: rm -rf packages/server
+      - run: rm -rf packages/server-core
+      - run: rm -rf packages/taskserver
       - run: cd packages/${{ matrix.package }} && npm run test
 
-  test_docker:
+  test_client:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - client
+          - client-core
+          - common
+          - editor
+          - ui
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - run: rm -rf packages/instanceserver
+      - run: rm -rf packages/server
+      - run: rm -rf packages/server-core
+      - run: rm -rf packages/taskserver
+      - run: cd packages/${{ matrix.package }} && npm run test
+
+  test_server:
     needs: install-modules
     runs-on: ubuntu-latest
     strategy:
       matrix:
         package:
           - instanceserver
+          - matchmaking
           - server
           - server-core
           - taskserver
