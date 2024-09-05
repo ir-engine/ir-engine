@@ -25,7 +25,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Material, Uniform, Vector3 } from 'three'
 
-import { defineComponent, defineQuery, getComponent, PresentationSystemGroup, useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  PresentationSystemGroup,
+  useEntityContext
+} from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
@@ -58,7 +65,8 @@ export const NoiseOffsetPluginComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialStateComponent)
+      const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+      if (!materialComponent) return
       const callback = (shader) => {
         const plugin = getComponent(entity, NoiseOffsetPluginComponent)
 
@@ -135,7 +143,8 @@ export const NoiseOffsetPluginComponent = defineComponent({
 const noisePluginQuery = defineQuery([NoiseOffsetPluginComponent])
 const execute = () => {
   for (const entity of noisePluginQuery()) {
-    const noisePlugin = getComponent(entity, NoiseOffsetPluginComponent)
+    const noisePlugin = getOptionalComponent(entity, NoiseOffsetPluginComponent)
+    if (!noisePlugin) continue
     const elapsedSeconds = getState(ECSState).elapsedSeconds
     noisePlugin.time.value = elapsedSeconds
   }
