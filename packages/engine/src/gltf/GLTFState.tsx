@@ -29,6 +29,7 @@ import {
   AnimationClip,
   AnimationMixer,
   Bone,
+  BufferAttribute,
   BufferGeometry,
   Group,
   LoaderUtils,
@@ -999,7 +1000,6 @@ const PrimitiveReactor = (props: {
     proxifyParentChildRelationships(mesh)
 
     mesh.name = node.name ?? 'Node-' + props.nodeIndex
-
     return () => {
       removeComponent(props.entity, SkinnedMeshComponent)
       removeComponent(props.entity, MeshComponent)
@@ -1025,18 +1025,16 @@ const PrimitiveReactor = (props: {
             documentID={props.documentID}
             entity={props.entity}
           />
-          {primitive.targets && (
-            <MorphTargetReactor
-              key={'targets' + index}
-              documentID={props.documentID}
-              entity={props.entity}
-              targets={primitive.targets as Record<string, number>[]}
-              nodeIndex={props.nodeIndex}
-              primitiveIndex={index}
-            />
-          )}
         </>
       ))}
+      {
+        <MorphTargetReactor
+          key={'targets'}
+          documentID={props.documentID}
+          entity={props.entity}
+          nodeIndex={props.nodeIndex}
+        />
+      }
     </>
   )
 }
@@ -1101,13 +1099,7 @@ const MaterialInstanceReactor = (props: {
   return null
 }
 
-export const MorphTargetReactor = (props: {
-  documentID: string
-  entity: Entity
-  nodeIndex: number
-  primitiveIndex: number
-  targets: Record<string, number>[]
-}) => {
+export const MorphTargetReactor = (props: { documentID: string; entity: Entity; nodeIndex: number }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
 
   const nodes = documentState.nodes!.get(NO_PROXY)!
@@ -1116,18 +1108,61 @@ export const MorphTargetReactor = (props: {
   const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
   const options = getParserOptions(props.entity)
-  const morphTargets = GLTFLoaderFunctions.useLoadMorphTargets(options, props.targets)
+
+  const morphTargets = [] as (Record<string, BufferAttribute[]> | null)[]
+  const loadedMorphTargets = useHookstate(null! as Record<string, BufferAttribute[]> | null)
+  meshDef.primitives.map((primitive) =>
+    morphTargets.push(GLTFLoaderFunctions.useLoadMorphTargets(options, primitive.targets as any))
+  )
+  useEffect(() => {
+    if (morphTargets.some((geometry) => !geometry) || loadedMorphTargets.value) return
+    console.log('loaded morph targets', morphTargets)
+    const morphAttributes = {} as Record<string, BufferAttribute[]>
+    for (const morphTarget of morphTargets) {
+      for (const name in morphTarget) {
+        if (!morphAttributes[name]) morphAttributes[name] = []
+        morphTarget[name].forEach((target) => morphAttributes[name].push(target))
+      }
+    }
+    loadedMorphTargets.set(morphTargets[0])
+    for (const name in morphAttributes) {
+      const newAttributesLength = morphAttributes[name].length / morphTargets.length
+      console.log(newAttributesLength, morphAttributes[name].length)
+      console.log(name)
+      for (let j = newAttributesLength; j < morphAttributes[name].length; j++) {
+        const mergeIntoIndex = j % newAttributesLength
+        console.log(j + ' goes into ' + mergeIntoIndex)
+        const newArray = new Float32Array(
+          morphAttributes[name][j].array.length + morphAttributes[name][mergeIntoIndex].array.length
+        )
+        newArray.set([...morphAttributes[name][mergeIntoIndex].array, ...morphAttributes[name][j].array])
+        //console.log(newArray)
+        morphAttributes[name][mergeIntoIndex].array = newArray
+        const newAttribute = new BufferAttribute(
+          morphAttributes[name][mergeIntoIndex].array,
+          morphAttributes[name][mergeIntoIndex].itemSize
+        )
+        console.log(morphAttributes[name][mergeIntoIndex].array.length)
+        loadedMorphTargets[name][mergeIntoIndex].set(newAttribute)
+      }
+    }
+    console.log(loadedMorphTargets.value)
+  }, [morphTargets])
 
   const mesh = useOptionalComponent(props.entity, MeshComponent)
   useEffect(() => {
-    if (!morphTargets) return
+    if (!loadedMorphTargets.value) return
 
     if (!mesh?.value) return
 
-    if (morphTargets.POSITION) mesh.geometry.morphAttributes.position.set(morphTargets.POSITION)
-    if (morphTargets.NORMAL) mesh.geometry.morphAttributes.normal.set(morphTargets.NORMAL)
-    if (morphTargets.COLOR_0) mesh.geometry.morphAttributes.color.set(morphTargets.COLOR_0)
+    if (loadedMorphTargets.value.POSITION)
+      mesh.geometry.morphAttributes.position.set(loadedMorphTargets.get(NO_PROXY)!.POSITION)
+    if (loadedMorphTargets.value.NORMAL)
+      mesh.geometry.morphAttributes.normal.set(loadedMorphTargets.get(NO_PROXY)!.NORMAL)
+    if (loadedMorphTargets.value.COLOR_0)
+      mesh.geometry.morphAttributes.color.set(loadedMorphTargets.get(NO_PROXY)!.COLOR_0)
 
+    console.log(mesh.geometry.morphAttributes)
     mesh.geometry.morphTargetsRelative.set(true)
 
     mesh.get(NO_PROXY).updateMorphTargets()
@@ -1137,7 +1172,7 @@ export const MorphTargetReactor = (props: {
         mesh.morphTargetInfluences[i].set(meshDef.weights[i])
       }
     }
-  }, [morphTargets, !!mesh?.value])
+  }, [loadedMorphTargets, !!mesh?.value])
 
   return null
 }
