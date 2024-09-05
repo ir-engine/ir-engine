@@ -254,6 +254,8 @@ const execute = () => {
   const keyDeltaX =
     (buttons.KeyA?.pressed ? -1 : 0) +
     (buttons.KeyD?.pressed ? 1 : 0) +
+    (buttons.ArrowLeft?.pressed ? -1 : 0) +
+    (buttons.ArrowRight?.pressed ? 1 : 0) +
     (buttons[StandardGamepadButton.StandardGamepadDPadLeft]?.pressed ? -1 : 0) +
     (buttons[StandardGamepadButton.StandardGamepadDPadRight]?.pressed ? 1 : 0)
   const keyDeltaZ =
