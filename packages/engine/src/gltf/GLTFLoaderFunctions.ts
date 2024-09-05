@@ -656,6 +656,50 @@ const useLoadMaterial = (
   return result.get(NO_PROXY) as MeshStandardMaterial | null
 }
 
+const useMergeMorphTargets = (options: GLTFParserOptions, nodeIndex: number) => {
+  const json = options.document
+  const node = json.nodes![nodeIndex]!
+  const mesh = json.meshes![node.mesh!]
+
+  const morphTargets = [] as (Record<string, BufferAttribute[]> | null)[]
+  const loadedMorphTargets = useHookstate(null! as Record<string, BufferAttribute[]> | null)
+
+  mesh.primitives.map((primitive) =>
+    morphTargets.push(GLTFLoaderFunctions.useLoadMorphTargets(options, primitive.targets as any))
+  )
+
+  useEffect(() => {
+    if (morphTargets.some((geometry) => !geometry) || loadedMorphTargets.value) return
+    const morphAttributes = {} as Record<string, BufferAttribute[]>
+    for (const morphTarget of morphTargets) {
+      for (const name in morphTarget) {
+        if (!morphAttributes[name]) morphAttributes[name] = []
+        morphTarget[name].forEach((target) => morphAttributes[name].push(target))
+      }
+    }
+    loadedMorphTargets.set(morphTargets[0])
+    for (const name in morphAttributes) {
+      const newAttributesLength = morphAttributes[name].length / morphTargets.length
+      for (let j = newAttributesLength; j < morphAttributes[name].length; j++) {
+        const mergeIntoIndex = j % newAttributesLength
+        // console.log(j + ' goes into ' + mergeIntoIndex)
+        const newArray = new Float32Array(
+          morphAttributes[name][j].array.length + morphAttributes[name][mergeIntoIndex].array.length
+        )
+        newArray.set([...morphAttributes[name][mergeIntoIndex].array, ...morphAttributes[name][j].array])
+        morphAttributes[name][mergeIntoIndex].array = newArray
+        const newAttribute = new BufferAttribute(
+          morphAttributes[name][mergeIntoIndex].array,
+          morphAttributes[name][mergeIntoIndex].itemSize
+        )
+        loadedMorphTargets[name][mergeIntoIndex].set(newAttribute)
+      }
+    }
+  }, [morphTargets])
+
+  return loadedMorphTargets.get(NO_PROXY) as Record<string, BufferAttribute[]> | null
+}
+
 const useLoadMorphTargets = (options: GLTFParserOptions, targetsList: Record<string, number>[]) => {
   const result = useHookstate(null as null | Record<string, BufferAttribute[]>)
 
@@ -1194,6 +1238,7 @@ export const GLTFLoaderFunctions = {
   useLoadBuffer,
   useLoadMaterial,
   useLoadMorphTargets,
+  useMergeMorphTargets,
   useAssignTexture,
   useLoadTexture,
   useLoadImageSource,
