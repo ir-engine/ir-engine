@@ -569,7 +569,10 @@ const AssetPanel = () => {
     }
   }
 
-  useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
+  useEffect(() => {
+    staticResourcesPagination.skip.set(0)
+    searchedStaticResources.set([])
+  }, [searchText, selectedCategory])
 
   useEffect(() => {
     const abortSignal = staticResourcesFindApi()
