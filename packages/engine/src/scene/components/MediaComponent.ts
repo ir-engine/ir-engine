@@ -34,14 +34,15 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { State, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -108,21 +109,22 @@ export const MediaElementComponent = defineComponent({
     const mediaElementComponent = useComponent(entity, MediaElementComponent)
 
     useLayoutEffect(() => {
+      const media = mediaElementComponent.get({ noproxy: true })
       return () => {
-        const element = mediaElementComponent.element.get({ noproxy: true }) as HTMLMediaElement
-        mediaElementComponent.hls.value?.destroy()
-        mediaElementComponent.hls.set(none)
-        const audioNodeGroup = AudioNodeGroups.get(element)
-        if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
-        AudioNodeGroups.delete(element)
-        element.pause()
-        element.removeAttribute('src')
-        element.load()
-        element.remove()
-        mediaElementComponent.element.set(none)
-        mediaElementComponent.abortController.value.abort()
+        if (!entityExists(entity) || !hasComponent(entity, MediaElementComponent)) {
+          const element = media.element as HTMLMediaElement
+          media.hls?.destroy()
+          const audioNodeGroup = AudioNodeGroups.get(element)
+          if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
+          AudioNodeGroups.delete(element)
+          element.pause()
+          element.removeAttribute('src')
+          element.load()
+          element.remove()
+          media.abortController.abort()
+        }
       }
-    }, [])
+    }, [mediaElementComponent])
   },
 
   errors: ['MEDIA_ERROR', 'HLS_ERROR']
@@ -329,6 +331,18 @@ export function MediaReactor() {
       clearErrors(entity, MediaComponent)
 
       const paths = media.resources.value
+
+      // If no paths or currently play path has been removed stop the track from playing
+      // and signal to move to next track if one exists
+      if (hasComponent(entity, MediaElementComponent)) {
+        const mediaElement = getComponent(entity, MediaElementComponent).element
+        if (paths.length === 0 || !paths.includes(mediaElement.src)) {
+          mediaElement.pause()
+          removeComponent(entity, MediaElementComponent)
+          media.ended.set(true)
+        }
+      }
+
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
