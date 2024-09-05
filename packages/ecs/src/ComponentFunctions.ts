@@ -430,12 +430,11 @@ const createSchemaObjProxy = (obj, store, entity: Entity) => {
 const makeSchemaObject = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
   object: Record<string, any>,
   entity: Entity,
-  store: any,
-  addEntity = true
+  store: any
 ) => {
   const obj = Object.entries(object).reduce((accum, [key, value]) => {
     const isArray = Array.isArray(value)
-    if (!isArray && typeof value === 'object') accum[key] = makeSchemaObject(value, entity, store[key], false)
+    if (!isArray && typeof value === 'object') accum[key] = makeSchemaObject(value, entity, store[key])
     else if (isArray && value.length === 2)
       accum[key] = createSchemaArrProxy(new ArrayByType[value[0]](value[1]), store[key], entity)
     else accum[key] = 0
