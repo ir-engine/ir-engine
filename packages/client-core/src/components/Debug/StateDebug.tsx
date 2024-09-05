@@ -34,20 +34,22 @@ import {
   useHookstate
 } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-
-import styles from './styles.module.scss'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const labelRenderer = (data: Record<string | number, any>) => {
   return (keyPath: (string | number)[], ...args) => {
     const key = keyPath[0]
     if (keyPath.length === 2 && typeof key === 'number') {
-      return <strong>{Array.isArray(data[key].type) ? data[key].type[0] : data[key].type}</strong>
+      return <Text fontWeight="medium">{Array.isArray(data[key].type) ? data[key].type[0] : data[key].type}</Text>
     }
     if (keyPath.length === 4 && typeof key === 'number') {
       const actions = data[keyPath[2]].actions
-      return <strong>{Array.isArray(actions[key].type) ? actions[key].type[0] : actions[key].type}</strong>
+      return (
+        <Text fontWeight="medium">{Array.isArray(actions[key].type) ? actions[key].type[0] : actions[key].type}</Text>
+      )
     }
-    return <strong>{key}</strong>
+    return <Text fontWeight="medium">{key}</Text>
   }
 }
 
@@ -85,18 +87,19 @@ export function StateDebug() {
   const networks = useHookstate(getMutableState(NetworkState).networks).get(NO_PROXY)
 
   return (
-    <>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.state')}</h1>
-        <input
+    <div className="m-1 bg-neutral-600 p-1">
+      <div className="my-0.5">
+        <Text>{t('common:debug.state')}</Text>
+        <Input
+          containerClassName="my-0.5"
           type="text"
           placeholder="Search..."
           value={stateSearch.value}
-          onChange={(e) => stateSearch.set(e.target.value)}
+          onChange={(event) => stateSearch.set(event.target.value)}
         />
         <JSONTree data={state} />
       </div>
-      <div className={styles.jsonPanel}>
+      <div className="my-0.5">
         <h1>{t('common:debug.eventSourcedState')}</h1>
         <JSONTree
           data={eventSourcedHistory}
@@ -104,11 +107,11 @@ export function StateDebug() {
           shouldExpandNodeInitially={() => false}
         />
       </div>
-      <div className={styles.jsonPanel}>
+      <div className="my-0.5">
         <h1>{t('common:debug.networks')}</h1>
         <JSONTree data={networks} shouldExpandNodeInitially={() => false} />
       </div>
-      <div className={styles.jsonPanel}>
+      <div className="my-0.5">
         <h1>{t('common:debug.actionsHistory')}</h1>
         <JSONTree
           data={actionHistory}
@@ -116,7 +119,7 @@ export function StateDebug() {
           shouldExpandNodeInitially={() => false}
         />
       </div>
-      <div className={styles.jsonPanel}>
+      <div className="my-0.5">
         <h1>{t('common:debug.actionsCached')}</h1>
         <JSONTree
           data={cachedHistory}
@@ -124,6 +127,6 @@ export function StateDebug() {
           shouldExpandNodeInitially={() => false}
         />
       </div>
-    </>
+    </div>
   )
 }
