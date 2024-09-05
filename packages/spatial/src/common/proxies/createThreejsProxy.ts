@@ -29,16 +29,19 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 
 const { defineProperties } = Object
 
-type Vector3Store = { x: number; y: number; z: number }
-type QuaternionStore = { x: number; y: number; z: number; w: number }
-type Mat4Store = Float64Array
+type Vector3Proxy = { x: number; y: number; z: number }
+type QuaternionProxy = { x: number; y: number; z: number; w: number }
+type Mat4Proxy = Float64Array
+
+type Vector3Store = { x: Float64Array; y: Float64Array; z: Float64Array }
+type QuaternionStore = { x: Float64Array; y: Float64Array; z: Float64Array; w: Float64Array }
 
 export interface ProxyExtensions {
   entity: number
-  store: Vector3Store | QuaternionStore
+  store: Vector3Proxy | QuaternionProxy
 }
 
-export const Vec3Proxy = (vec3Store: Vector3Store) => {
+export const Vec3Proxy = (vec3Store: Vector3Proxy) => {
   const vector3 = new Vector3()
   return defineProperties(vector3, {
     x: {
@@ -71,9 +74,9 @@ export const Vec3Proxy = (vec3Store: Vector3Store) => {
   })
 }
 
-export const Vec3ProxyDirty = (vec3Store: Vector3Store, entity: Entity, dirty: Record<Entity, boolean>) => {
+export const Vec3ProxyDirty = (vec3Store: Vector3Proxy, entity: Entity, dirty: Record<Entity, boolean>) => {
+  const vector3 = new Vector3()
   dirty[entity] = true
-  const vector3 = new Vector3()
   return defineProperties(vector3, {
     x: {
       get() {
@@ -108,7 +111,7 @@ export const Vec3ProxyDirty = (vec3Store: Vector3Store, entity: Entity, dirty: R
   })
 }
 
-export const QuaternionProxy = (quatStore: QuaternionStore) => {
+export const QuaternionProxy = (quatStore: QuaternionProxy) => {
   const quat = new Quaternion()
   return defineProperties(quat, {
     x: {
@@ -186,9 +189,9 @@ export const QuaternionProxy = (quatStore: QuaternionStore) => {
   })
 }
 
-export const QuaternionProxyDirty = (quatStore: QuaternionStore, entity: Entity, dirty: Record<Entity, boolean>) => {
-  dirty[entity] = true
+export const QuaternionProxyDirty = (quatStore: QuaternionProxy, entity: Entity, dirty: Record<Entity, boolean>) => {
   const quat = new Quaternion()
+  dirty[entity] = true
   return defineProperties(quat, {
     x: {
       get() {
@@ -273,7 +276,7 @@ export const QuaternionProxyDirty = (quatStore: QuaternionStore, entity: Entity,
   })
 }
 
-export const Mat4Proxy = (mat4Store: Mat4Store) => {
+export const Mat4Proxy = (mat4Store: Mat4Proxy) => {
   const mat4 = new Matrix4()
   mat4Store.set(mat4.elements)
 

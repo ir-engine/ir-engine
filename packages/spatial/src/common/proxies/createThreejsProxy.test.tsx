@@ -69,7 +69,7 @@ describe('createThreejsProxy', () => {
     assert((TransformComponent.position.x[entity] as number) === 14)
   })
 
-  it.only('Creates a Mat4 proxy', () => {
+  it('Creates a Mat4 proxy', () => {
     const TransformComponent = defineComponent({
       name: 'Vector3Component',
       schema: {
