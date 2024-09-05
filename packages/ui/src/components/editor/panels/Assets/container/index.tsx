@@ -159,6 +159,7 @@ const ResourceFile = (props: {
   selected: boolean
   onClick: (props: AssetSelectionChangePropsType) => void
   onChange: () => void
+  className: string
 }) => {
   const { t } = useTranslation()
 
@@ -204,7 +205,7 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center"
+      className={`mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center ${props.className}`}
     >
       <div
         className={`mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ${
@@ -490,6 +491,17 @@ const AssetPanel = () => {
     parentCategories.set(parentCategoryBreadcrumbs)
   }, [categories, selectedCategory])
 
+  const calculateItemsToFetch = (): number => {
+    const parentElement = document.getElementById('asset-panel')?.getBoundingClientRect()
+    const containerHeight = parentElement ? parentElement.width : 0
+    const containerWidth = parentElement ? parentElement.height : 0
+
+    const itemsInRow = Math.floor(containerWidth / Math.floor(160 * window.devicePixelRatio))
+    const itemHeight = Math.floor(160 * window.devicePixelRatio)
+    const numberOfRows = Math.ceil(containerHeight / itemHeight)
+    return ASSETS_PAGE_LIMIT + itemsInRow * numberOfRows
+  }
+
   const staticResourcesFindApi = () => {
     const abortController = new AbortController()
 
@@ -525,7 +537,7 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
+        $limit: calculateItemsToFetch(),
         $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
@@ -561,15 +573,6 @@ const AssetPanel = () => {
     return () => abortSignal()
   }, [searchText, selectedCategory, staticResourcesPagination.skip])
 
-  const calculateItemsToFetch = () => {
-    const parentElement = document.getElementById('asset-panel')
-    const containerHeight = parentElement ? parentElement.offsetHeight : 0
-    const item = document.querySelector('#asset-items .resource-file') as HTMLElement
-    const itemHeight = item ? item.offsetHeight : 160
-    const itemsInView = Math.ceil(containerHeight / itemHeight)
-    return itemsInView
-  }
-
   const ResourceItems = () => (
     <>
       {searchedStaticResources.length === 0 && (
@@ -590,6 +593,7 @@ const AssetPanel = () => {
                   ClickPlacementState.setSelectedAsset(props.resourceUrl)
                 }}
                 onChange={() => staticResourcesFindApi()}
+                className="resource-file"
               />
             ))}
           </div>
@@ -718,12 +722,14 @@ const AssetPanel = () => {
           <div className="flex w-[20px] cursor-pointer items-center">
             <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
           </div>
-          <div className="flex h-full w-full flex-col overflow-auto">
+          <div id="asset-panel" className="flex h-full w-full flex-col overflow-auto">
             <InfiniteScroll
               disableEvent={
                 staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
               }
-              onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
+              onScrollBottom={() =>
+                staticResourcesPagination.skip.set((prevSkip) => prevSkip + calculateItemsToFetch())
+              }
             >
               <div className="mt-auto flex h-full w-full flex-wrap gap-2">
                 <ResourceItems />
