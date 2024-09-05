@@ -90,7 +90,7 @@ const RenderModeTool = () => {
           />
         </Tooltip>
       ))}
-      <Popup trigger={<Button variant="transparent" className="p-2" startIcon={<RiArrowDownSLine />} />}>
+      <Popup keepInside trigger={<Button variant="transparent" className="p-2" startIcon={<RiArrowDownSLine />} />}>
         <div className="w-52 rounded-md bg-theme-primary p-2">
           <InputGroup
             name="Use Post Processing"
