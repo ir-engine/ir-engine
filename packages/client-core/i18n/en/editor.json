@@ -140,7 +140,7 @@
     "transformSnapTool": {
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
-      "info-translate": "Translate objects by a unit of measurement.",
+      "info-translate": "Grid and translation snap size (meters).",
       "info-rotate": "Snap rotation angle"
     },
     "placement": {
@@ -179,7 +179,8 @@
     },
     "grid": {
       "info-toggleGridVisibility": "Toggle Grid Visibility",
-      "info-gridSpacing": "Set grid spacing meters",
+      "info-gridSpacing": "Set grid spacing (meters)",
+      "info-gridHeight": "Set grid height (meters)",
       "info-incrementHeight": "Increment Grid Height",
       "info-decrementHeight": "Decrement Grid Height"
     },
@@ -1215,10 +1216,12 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
+      "downloadProjectUnavailable": "Cannot Download From Project Directory",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
       "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "fetchingProject": "Fetching Project",
       "downloadingProject": "Downloading Project ({{completed}}/{{total}})",
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
