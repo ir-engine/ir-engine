@@ -495,11 +495,15 @@ const AssetPanel = () => {
     const parentElement = document.getElementById('asset-panel')?.getBoundingClientRect()
     const containerHeight = parentElement ? parentElement.width : 0
     const containerWidth = parentElement ? parentElement.height : 0
+    const item = document.getElementsByClassName('resource-file')[0]?.getBoundingClientRect()
 
-    const itemsInRow = Math.floor(containerWidth / Math.floor(160 * window.devicePixelRatio))
-    const itemHeight = Math.floor(160 * window.devicePixelRatio)
+    const defaultSize = 160
+    const itemHeight = Math.floor((item ? item.height : defaultSize) * window.devicePixelRatio)
+    const itemWidth = Math.floor((item ? item.width : defaultSize) * window.devicePixelRatio)
+
+    const itemsInRow = Math.ceil(containerWidth / itemWidth)
     const numberOfRows = Math.ceil(containerHeight / itemHeight)
-    return ASSETS_PAGE_LIMIT + itemsInRow * numberOfRows
+    return itemsInRow * numberOfRows
   }
 
   const staticResourcesFindApi = () => {
@@ -537,7 +541,7 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $limit: calculateItemsToFetch(),
+        $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
         $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
@@ -728,7 +732,7 @@ const AssetPanel = () => {
                 staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
               }
               onScrollBottom={() =>
-                staticResourcesPagination.skip.set((prevSkip) => prevSkip + calculateItemsToFetch())
+                staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
               }
             >
               <div className="mt-auto flex h-full w-full flex-wrap gap-2">
@@ -736,7 +740,7 @@ const AssetPanel = () => {
               </div>
               {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
             </InfiniteScroll>
-            {/* <div className="mx-auto mb-10" /> */}
+            <div className="mx-auto mb-10" />
           </div>
           {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
         </div>
