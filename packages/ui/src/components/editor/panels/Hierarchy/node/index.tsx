@@ -358,6 +358,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
                     autoFocus
+                    maxLength={64}
                   />
                 </div>
               ) : (
