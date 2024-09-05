@@ -39,7 +39,7 @@ function customBuild() {
   return esbuild({minify: true})
 }
 
-const externals = ["react"]
+const externals = ["react", "react-reconciler", "react-reconciler/constants","ts-matches", "ts-toolbelt", "uuid", "@hookstate/core", "@hookstate/identifiable"]
 
 const inputFile = `index.ts`
 const packageName = "hyperflux"
@@ -66,7 +66,8 @@ export default [
         format: 'cjs',
         ...productionConfig
       },
-    ]
+    ],
+    external: externals
   },
   {
     input: inputFile,
