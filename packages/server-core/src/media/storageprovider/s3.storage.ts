@@ -87,6 +87,8 @@ function handler(event) {
     var request = event.request;
     var projectsRegexRoot = __$projectsRegex$__
     var projectsRegex = new RegExp(projectsRegexRoot)
+    var avatarsRegexRoot = __$avatarsRegex$__
+    var avatarsRegex = new RegExp(avatarsRegexRoot)
     var recordingsRegexRoot = __$recordingsRegex$__
     var recordingsRegex = new RegExp(recordingsRegexRoot)
     var publicRegexRoot = __$publicRegex$__
@@ -95,8 +97,8 @@ function handler(event) {
     
     if (publicRegex.test(request.uri)) {
         request.uri = '/client' + request.uri
-    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || tempRegex.test(request.uri)) {
-        // Projects, temp files, and recordings paths should be passed as-is
+    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri) || avatarsRegex.test(request.uri) || tempRegex.test(request.uri)) {
+        // Projects, temp files, avatars, and recordings paths should be passed as-is
     } else {
       // Anything that is not a static/public file, or a project or recording file, is assumed to be some sort
       // of engine route and passed to index.html to be handled by the router
@@ -505,6 +507,7 @@ export class S3Provider implements StorageProviderInterface {
   getFunctionCode(routes: string[]) {
     const projectsRegex = '^/projects/'
     const recordingsRegex = '^/recordings/'
+    const avatarsRegex = '^/avatars/'
     let publicRegex = ''
     fs.readdirSync(path.join(appRootPath.path, 'packages', 'client', 'dist'), { withFileTypes: true }).forEach(
       (dirent) => {
@@ -522,6 +525,7 @@ export class S3Provider implements StorageProviderInterface {
     )
     if (publicRegex.length > 0) publicRegex = publicRegex.slice(0, publicRegex.length - 1)
     return CFFunctionTemplate.replace('__$projectsRegex$__', `'${projectsRegex}'`)
+      .replace('__$avatarsRegex$__', `'${avatarsRegex}'`)
       .replace('__$recordingsRegex$__', `'${recordingsRegex}'`)
       .replace('__$publicRegex$__', `'${publicRegex}'`)
   }
