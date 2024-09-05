@@ -168,7 +168,6 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   const prototypeComponent = getOptionalComponent(prototypeEntity, MaterialPrototypeComponent)
   if (!prototypeComponent) return
   const prototypeConstructor = prototypeComponent.prototypeConstructor[prototypeName]
-  if (!prototypeConstructor || !prototypeComponent.prototypeArguments) return
   const material = materialComponent.material
   if (!material || material.type === prototypeName) return
   const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments) }

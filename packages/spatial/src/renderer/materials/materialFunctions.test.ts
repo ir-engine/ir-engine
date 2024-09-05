@@ -1043,28 +1043,6 @@ describe('materialFunctions', () => {
       assert.equal(result, undefined)
     })
 
-    /** @todo Does not work as expected */
-    it.skip('should return undefined if the `@param materialEntity`.MaterialStateComponent.prototypeEntity.MaterialPrototypeComponent does not have any prototypeArguments', () => {
-      // Set the data as expected
-      const prototypeEntity = createEntity()
-      const prototypeName = 'testPrototypeName'
-      const prototypeConstructor = { [prototypeName]: MockMaterial }
-      setComponent(prototypeEntity, NameComponent, prototypeName)
-      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: prototypeConstructor })
-      setComponent(materialEntity, MaterialStateComponent, { prototypeEntity: prototypeEntity })
-      // Sanity check before running
-      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
-      assert.equal(Boolean(getComponent(materialEntity, MaterialStateComponent).prototypeEntity), true)
-      assert.equal(hasComponent(prototypeEntity, NameComponent), true)
-      assert.equal(hasComponent(prototypeEntity, MaterialPrototypeComponent), true)
-      const hasConstructorWithPrototypeName = Object.keys(prototypeConstructor).includes(prototypeName)
-      assert.equal(hasConstructorWithPrototypeName, true)
-      /** @todo prototypeArguments check */
-      // Run and Check the result
-      const result = updateMaterialPrototype(materialEntity)
-      assert.equal(result, undefined)
-    })
-
     it('should return undefined if `@param materialEntity`.MaterialStateComponent.material.type is equal to the prototypeEntity.NameComponent', () => {
       // Set the data as expected
       const prototypeEntity = createEntity()
