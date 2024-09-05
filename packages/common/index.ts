@@ -23,28 +23,4 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { defineState, getMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { useEffect } from 'react'
-
-export const FeatureFlagsState = defineState({
-  name: 'ee.engine.FeatureFlagsState',
-  initial: {} as Record<string, boolean>,
-  enabled(flagName: string) {
-    const state = getMutableState(FeatureFlagsState)[flagName].value
-    return typeof state === 'boolean' ? state : true
-  },
-  reactor: () => {
-    const featureFlagQuery = useFind(featureFlagSettingPath, { query: { paginate: false } })
-
-    useEffect(() => {
-      const data = featureFlagQuery.data
-      getMutableState(FeatureFlagsState).merge(
-        Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
-      )
-    }, [featureFlagQuery.data])
-
-    return null
-  }
-})
+export { API } from './src/API'

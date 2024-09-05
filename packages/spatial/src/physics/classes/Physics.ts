@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import RAPIER, {
@@ -57,17 +57,17 @@ import {
   hasComponent,
   setComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
-import { UUIDComponent } from '@etherealengine/ecs'
-import { defineState, none, useHookstate } from '@etherealengine/hyperflux'
-import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { UUIDComponent } from '@ir-engine/ecs'
+import { defineState, none, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, getMutableState, getState } from '@ir-engine/hyperflux/functions/StateFunctions'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { getAncestorWithComponent, useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { getAncestorWithComponents, useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -143,7 +143,7 @@ function destroyWorld(id: EntityUUID) {
 }
 
 function getWorld(entity: Entity) {
-  const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
   if (!sceneEntity) return
   const sceneUUID = getOptionalComponent(sceneEntity, UUIDComponent)
   if (!sceneUUID) return
@@ -151,7 +151,7 @@ function getWorld(entity: Entity) {
 }
 
 function useWorld(entity: Entity) {
-  const sceneEntity = useAncestorWithComponent(entity, SceneComponent)
+  const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
   const sceneUUID = useOptionalComponent(sceneEntity, UUIDComponent)?.value
   const worlds = useHookstate(getMutableState(RapierWorldState))
   return sceneUUID ? (worlds[sceneUUID].get(NO_PROXY) as PhysicsWorld) : undefined
@@ -265,6 +265,12 @@ function createRigidBody(world: PhysicsWorld, entity: Entity) {
 function isSleeping(world: PhysicsWorld, entity: Entity) {
   const rigidBody = world.Rigidbodies.get(entity)
   return !rigidBody || rigidBody.isSleeping()
+}
+
+function wakeUp(world: PhysicsWorld, entity: Entity) {
+  const rigidBody = world.Rigidbodies.get(entity)
+  if (!rigidBody) return
+  rigidBody.wakeUp()
 }
 
 const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
@@ -523,7 +529,10 @@ function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Ent
   colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
   colliderDesc.setRotation(quaternionRelativeToRoot)
 
-  colliderDesc.setSensor(hasComponent(entity, TriggerComponent))
+  if (hasComponent(entity, TriggerComponent)) {
+    colliderDesc.setSensor(true)
+    colliderDesc.setCollisionGroups(getInteractionGroups(CollisionGroups.Trigger, collisionMask))
+  }
 
   // TODO expose these
   colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
@@ -921,6 +930,7 @@ export const Physics = {
   createRigidBody,
   removeRigidbody,
   isSleeping,
+  wakeUp,
   setRigidBodyType,
   setRigidbodyPose,
   enabledCcd,

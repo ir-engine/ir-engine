@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,24 +14,28 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@ir-engine/ecs'
 import {
-  EntityTreeComponent,
-  getAncestorWithComponent
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
@@ -90,17 +94,6 @@ export const TransformComponent = defineComponent({
     if (json?.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
-
-    const transform = getComponent(entity, TransformComponent)
-    composeMatrix(entity)
-    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-    const parentEntity = entityTree?.parentEntity
-    if (parentEntity) {
-      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-      if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
-    } else {
-      transform.matrixWorld.copy(transform.matrix)
-    }
   },
 
   toJSON: (entity, component) => {
@@ -111,8 +104,28 @@ export const TransformComponent = defineComponent({
     }
   },
 
-  onRemove: (entity) => {
-    delete TransformComponent.dirtyTransforms[entity]
+  reactor: () => {
+    const entity = useEntityContext()
+    const transformComponent = useComponent(entity, TransformComponent)
+
+    useImmediateEffect(() => {
+      const transform = transformComponent.value as TransformComponentType
+      composeMatrix(entity)
+      const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+      const parentEntity = entityTree?.parentEntity
+      if (parentEntity) {
+        const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+        if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+      } else {
+        transform.matrixWorld.copy(transform.matrix)
+      }
+
+      return () => {
+        delete TransformComponent.dirtyTransforms[entity]
+      }
+    }, [])
+
+    return null
   },
 
   getWorldPosition: (entity: Entity, vec3: Vector3) => {
@@ -130,7 +143,7 @@ export const TransformComponent = defineComponent({
   },
 
   getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
-    const relativeEntity = getAncestorWithComponent(entity, SceneComponent)
+    const relativeEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
     return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
   },
@@ -192,7 +205,7 @@ export const TransformComponent = defineComponent({
   },
 
   getSceneScale: (entity: Entity, vec3: Vector3) => {
-    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!sceneEntity) return vec3.set(1, 1, 1)
 
     TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)
@@ -214,7 +227,7 @@ export const TransformComponent = defineComponent({
   },
 
   /**
-   * Updates the matrixWorld property of the transform component
+   * Updates the local matrix and transform from the matrixWorld property of the transform component
    * @param entity
    */
   updateFromWorldMatrix: (entity: Entity) => {

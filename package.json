@@ -1,15 +1,15 @@
 {
-  "name": "etherealengine",
-  "description": "Engine, Server & Devops powering Ethereal Engine. Please support at https://opencollective.com/etherealengine",
+  "name": "ir-engine",
+  "description": "Engine, Server & Devops powering Infinite Reality Engine. Please support at https://opencollective.com/etherealengine",
   "version": "0.0.0",
-  "homepage": "etherealengine.org",
+  "homepage": "ir-engine.org",
   "private": true,
   "bin": {
-    "etherealengine": "npx/cli.js"
+    "ir-engine": "npx/cli.js"
   },
   "workspaces": [
     "packages/*",
-    "packages/projects/projects/*"
+    "packages/projects/projects/**"
   ],
   "keywords": [
     "three",
@@ -24,8 +24,8 @@
     "vr"
   ],
   "author": {
-    "name": "Ethereal Engine",
-    "email": "info@etherealengine.org"
+    "name": "Infinite Reality Engine",
+    "email": "info@ir-engine.org"
   },
   "entrypoint": {},
   "contributors": [],
@@ -41,10 +41,11 @@
   "scripts": {
     "build-client": "cd packages/client && npm run build",
     "check": "npm run lint && npm run check-errors && npm run check-eslint && npm run test && npm run build-client",
-    "check-errors": "tsc --noemit && lerna run --scope '@etherealengine/*' check-errors && lerna run --ignore '@etherealengine/*' check-errors",
+    "check-errors": "lerna run --scope '@ir-engine/*' check-errors && lerna run --ignore '@ir-engine/*' check-errors",
     "check-eslint": "eslint --quiet .",
     "checkout-dev": "lerna exec 'git checkout dev' --parallel --no-bail",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
+    "clone-project": "cross-env ts-node --swc scripts/clone-project.ts",
     "create-root-package-json": "cross-env ts-node --swc scripts/create-root-package-json",
     "create-project": "cross-env ts-node --swc scripts/create-project",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
@@ -57,7 +58,7 @@
     "dev-docker": "cd scripts && ./start-containers.sh",
     "dev-docker-windows": "cd scripts && docker-compose up -d && docker-compose up -d -f docker-compose-minio.yml",
     "dev-tabs": "npm run dev-docker && cd scripts && ./dev-tabs.sh",
-    "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --ignore @etherealengine/* --no-bail",
+    "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --no-bail",
     "dev-reinit": "./scripts/checkenv.sh && npm run dev-docker && cd packages/server && npm run dev-reinit-db",
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker-windows && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
@@ -67,19 +68,18 @@
     "format-staged": "lint-staged",
     "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "install-manifest": "cross-env ts-node --swc scripts/install-manifest.ts",
-    "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
+    "lint": "prettier --check \"packages/**/*.{ts,tsx}\" \"scripts/*.ts\"",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true LOCAL=true concurrently -n agones,server,worldserver,mediaserver,client npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/instanceserver && npm run start\" \"cd packages/instanceserver && npm run start-channel\" \"cd packages/client && npm run local\"",
     "make-user-admin": "cross-env ts-node --swc scripts/make-user-admin.ts",
     "migrate": "cd packages/server-core && npm run migrate",
     "migrate:rollback": "cd packages/server-core && npm run migrate:rollback",
     "migrate:unlock": "cd packages/server-core && npm run migrate:unlock",
     "postinstall": "patch-package --exclude ./node_modules/@mui/",
-    "precommit": "no-master-commits -b main",
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "publish": "lerna publish from-package --yes --registry https://registry.npmjs.org",
     "publish-npm": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://registry.npmjs.org",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
-    "test": "cross-env TEST=true lerna run --scope '@etherealengine/*' --ignore '@etherealengine/server-core' test && lerna run --scope '@etherealengine/server-core' test && lerna run --ignore '@etherealengine/*' test",
+    "test": "cross-env TEST=true lerna run --scope '@ir-engine/*' --ignore '@ir-engine/server-core' test && lerna run --scope '@ir-engine/server-core' test && lerna run --ignore '@ir-engine/*' test",
     "test-e2e": "ts-node --swc scripts/run_e2e_tests.ts",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
@@ -103,10 +103,10 @@
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
-      "prettier --write"
+      "prettier --write \"**/*.{ts,tsx}\""
     ],
     "*.scss": [
-      "stylelint --fix"
+      "stylelint \"**/*.scss\" --fix"
     ]
   },
   "devDependencies": {
@@ -133,7 +133,6 @@
     "lerna": "6.5.1",
     "lint-staged": "13.2.0",
     "mocha": "10.2.0",
-    "no-master-commits": "1.1.1",
     "nyc": "^15.1.0",
     "package-json-type": "1.0.3",
     "pre-commit": "1.2.2",

@@ -72,7 +72,7 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, hyphens, and underscores."
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
   },
   "viewport": {
     "title": "Viewport",
@@ -129,9 +129,11 @@
       "lbl-selection": "Selection",
       "info-selection": "The center pivot of the final asset you selected in the sequence.",
       "lbl-center": "Center",
-      "info-center": "A pivot that sits at an equal distance between all selections.",
-      "lbl-bottom": "Bottom",
-      "info-bottom": "A pivot that sits equally between all selections and at the bottom of your final selection in the sequence.",
+      "info-center": "A pivot that sits at an equal distance between all selections (centroid).",
+      "lbl-bbox": "BoundingBox",
+      "info-bbox": "A pivot that uses the center point of a bounding box containing all selected entities' positions.",
+      "lbl-bbox-bottom": "BBoxBottom",
+      "info-bbox-bottom": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
       "lbl-origin": "Origin",
       "info-origin": "Sets pivot mode to the world origin (0,0,0)"
     },

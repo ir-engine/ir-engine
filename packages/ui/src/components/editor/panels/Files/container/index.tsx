@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,17 +14,17 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
-import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import {
   FileBrowserContentType,
   StaticResourceType,
@@ -32,32 +32,27 @@ import {
   fileBrowserPath,
   projectPath,
   staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { bytesToSize } from '@etherealengine/common/src/utils/btyesToSize'
-import { unique } from '@etherealengine/common/src/utils/miscUtils'
-import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+} from '@ir-engine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
+import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
+import { unique } from '@ir-engine/common/src/utils/miscUtils'
+import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   FilesViewModeSettings,
   FilesViewModeState,
   availableTableColumns
-} from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
-import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
-import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
-import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
-import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { handleUploadFiles, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { ClickPlacementState } from '@etherealengine/editor/src/systems/ClickPlacementSystem'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import {
-  useFind,
-  useMutation,
-  useRealtime,
-  useSearch
-} from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+} from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'
+import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
+import ImageCompressionPanel from '@ir-engine/editor/src/components/assets/ImageCompressionPanel'
+import ModelCompressionPanel from '@ir-engine/editor/src/components/assets/ModelCompressionPanel'
+import { DndWrapper } from '@ir-engine/editor/src/components/dnd/DndWrapper'
+import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { handleUploadFiles, inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFunctions'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
+import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { ImmutableArray, NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -218,7 +213,7 @@ function GeneratingThumbnailsProgress() {
   return (
     <LoadingView
       titleClassname="mt-0"
-      containerClassname="flex-row mt-1"
+      containerClassName="flex-row mt-1"
       className="mx-2 my-auto h-6 w-6"
       title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
     />
@@ -738,63 +733,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
-  const ViewModeSettings = () => {
-    const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
-    return (
-      <Popup
-        contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
-        position={'bottom left'}
-        trigger={
-          <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-            <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
-          </Tooltip>
-        }
-      >
-        {filesViewMode.value === 'icons' ? (
-          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
-            <Slider
-              min={10}
-              max={100}
-              step={0.5}
-              value={viewModeSettings.icons.iconSize.value}
-              onChange={viewModeSettings.icons.iconSize.set}
-              onRelease={viewModeSettings.icons.iconSize.set}
-            />
-          </InputGroup>
-        ) : (
-          <>
-            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
-              <Slider
-                min={10}
-                max={100}
-                step={0.5}
-                value={viewModeSettings.list.fontSize.value}
-                onChange={viewModeSettings.list.fontSize.set}
-                onRelease={viewModeSettings.list.fontSize.set}
-              />
-            </InputGroup>
-
-            <div>
-              <div className="mt-1 flex flex-auto text-white">
-                <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-              </div>
-              <div className="flex-col">
-                {availableTableColumns.map((column) => (
-                  <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
-                    <BooleanInput
-                      value={viewModeSettings.list.selectedTableColumns[column].value}
-                      onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                    />
-                  </InputGroup>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </Popup>
-    )
-  }
-
   return (
     <>
       <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
@@ -836,7 +774,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full w-auto"
+            containerClassName="flex h-full w-auto"
             className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />

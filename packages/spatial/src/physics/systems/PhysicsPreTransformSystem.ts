@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,23 +14,27 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineQuery, defineSystem, Entity, getComponent } from '@etherealengine/ecs'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { getState } from '@etherealengine/hyperflux'
+import { defineQuery, defineSystem, Entity, getComponent } from '@ir-engine/ecs'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { getState } from '@ir-engine/hyperflux'
 
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
-import { EntityTreeComponent, getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponents,
+  iterateEntityNode
+} from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
@@ -38,7 +42,8 @@ import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
 const localMatrix = new Matrix4()
-const parentMatrixInverse = new Matrix4()
+const sceneRelParentMatrix = new Matrix4()
+const sceneMatrixInverse = new Matrix4()
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
@@ -46,6 +51,12 @@ const mat4 = new Matrix4()
 
 const setDirty = (entity: Entity) => (TransformComponent.dirtyTransforms[entity] = true)
 
+/**
+ * Lerp the transform of a rigidbody entity from the previous frame to the current frame.
+ * - considers the transforms of the entity and all parent entities, including the physics world scene entity
+ * @param entity
+ * @param alpha
+ */
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
   Interpolate the remaining time after the fixed pipeline is complete.
@@ -78,13 +89,25 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const transform = getComponent(entity, TransformComponent)
 
-  const rigidBodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
-  const rigidBodyTransform = getComponent(rigidBodyEntity, TransformComponent)
-  parentMatrixInverse.copy(rigidBodyTransform.matrixWorld).invert()
-  localMatrix.compose(position, rotation, Vector3_One).premultiply(parentMatrixInverse)
+  const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+  const parentTransform = getComponent(parentEntity, TransformComponent)
+
+  /** get parent world matrix relative to the physics world */
+  TransformComponent.getMatrixRelativeToScene(parentEntity, sceneRelParentMatrix)
+  sceneMatrixInverse.copy(sceneRelParentMatrix).invert()
+
+  /** convert the rigidbody pose from physics world space to local space */
+  localMatrix.compose(position, rotation, Vector3_One).premultiply(sceneMatrixInverse)
   localMatrix.decompose(position, rotation, scale)
+
+  /** apply the local space scale */
   transform.matrix.compose(position, rotation, transform.scale)
-  transform.matrixWorld.multiplyMatrices(rigidBodyTransform.matrixWorld, transform.matrix)
+
+  /** convert the local space transform to scene space */
+  transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+
+  /** convert the scene space transform to world space */
+  transform.matrixWorld.premultiply(sceneRelParentMatrix)
 
   /** set all children dirty deeply, but set this entity to clean */
   iterateEntityNode(entity, setDirty)
@@ -141,12 +164,13 @@ const copyTransformToCollider = (entity: Entity) => {
   const world = Physics.getWorld(entity)
   if (!world) return
   computeTransformMatrix(entity)
-  const rigidbodyEntity = getAncestorWithComponent(entity, RigidBodyComponent)
+  const rigidbodyEntity = getAncestorWithComponents(entity, [RigidBodyComponent])
   if (!rigidbodyEntity) return
   const colliderDesc = Physics.createColliderDesc(world, entity, rigidbodyEntity)
   if (!colliderDesc) return
   Physics.removeCollider(world, entity)
   Physics.attachCollider(world, colliderDesc, rigidbodyEntity, entity)
+  Physics.wakeUp(world, rigidbodyEntity)
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent, EntityTreeComponent])

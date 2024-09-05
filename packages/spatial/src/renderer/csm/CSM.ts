@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
@@ -38,12 +38,11 @@ import {
   Vector3
 } from 'three'
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
-import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
@@ -52,7 +51,6 @@ import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { RendererState } from '../RendererState'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
@@ -321,8 +319,7 @@ export class CSM {
     if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.target.position, this.sourceLight.position)
     if (this.needsUpdate) {
       this.injectInclude()
-      // Only update uniforms if WebGLRendererSystem isn't already updating them every frame
-      this.updateFrustums(!getState(RendererState).updateCSMFrustums)
+      this.updateFrustums()
       for (const light of this.lights) {
         light.shadow.map?.dispose()
         light.shadow.map = null as any
@@ -396,7 +393,6 @@ export class CSM {
 
     if (this.fade) material.defines.CSM_FADE = ''
 
-    const breaksVec2 = []
     const shaders = this.shaders
 
     shaders.delete(material)
@@ -408,10 +404,12 @@ export class CSM {
 
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const far = Math.min(camera.far, this.maxFar)
-        this.getExtendedBreaks(breaksVec2)
+        const near = Math.min(this.maxFar, camera.near)
 
-        shader.uniforms.CSM_cascades = { value: breaksVec2 }
-        shader.uniforms.cameraNear = { value: camera.near }
+        if (!shader.uniforms.CSM_cascades) shader.uniforms.CSM_cascades = { value: [] }
+        this.getExtendedBreaks(shader.uniforms.CSM_cascades.value)
+
+        shader.uniforms.cameraNear = { value: near }
         shader.uniforms.shadowFar = { value: far }
 
         shaders.set(material, shader)
@@ -448,8 +446,7 @@ export class CSM {
 
       if (shader !== null) {
         const uniforms = shader.uniforms
-        this.getExtendedBreaks(uniforms.CSM_cascades.value)
-        uniforms.cameraNear.value = camera.near
+        uniforms.cameraNear.value = Math.min(this.maxFar, camera.near)
         uniforms.shadowFar.value = far
       }
 
@@ -463,7 +460,7 @@ export class CSM {
     }
   }
 
-  getExtendedBreaks(target: Vector2[]): void {
+  getExtendedBreaks(target: Vector2[]): Vector2[] {
     while (target.length < this.breaks.length) {
       target.push(new Vector2())
     }
@@ -471,18 +468,20 @@ export class CSM {
     target.length = this.breaks.length
 
     for (let i = 0; i < this.cascades; i++) {
-      const amount = this.breaks[i]
+      const amount = this.breaks[i] || 0
       const prev = this.breaks[i - 1] || 0
       target[i].x = prev
       target[i].y = amount
     }
+
+    return target
   }
 
-  updateFrustums(updateUniforms = true): void {
+  updateFrustums(): void {
     this.getBreaks()
     this.initCascades()
     this.updateShadowBounds()
-    if (updateUniforms) this.updateUniforms()
+    this.updateUniforms()
   }
 
   remove(): void {

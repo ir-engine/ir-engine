@@ -23,14 +23,14 @@ else
   echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 fi
 
-docker context create etherealengine-$PACKAGE-context
-docker buildx create --driver=docker-container etherealengine-$PACKAGE-context --name etherealengine-$PACKAGE --driver-opt "image=moby/buildkit:v0.12.0"
+docker context create ir-engine-$PACKAGE-context
+docker buildx create --driver=docker-container ir-engine-$PACKAGE-context --name ir-engine-$PACKAGE --driver-opt "image=moby/buildkit:v0.12.0"
 
 BUILD_START_TIME=$(date +"%d-%m-%yT%H-%M-%S")
 echo "Starting ${PACKAGE} build at ${BUILD_START_TIME}"
 if [ "$DOCKERFILE" != "client-serve-static" ]; then
   docker buildx build \
-    --builder etherealengine-$PACKAGE \
+    --builder ir-engine-$PACKAGE \
     --push \
     -t $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-$PACKAGE:${TAG}__${START_TIME} \
     -t $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-$PACKAGE:latest_$STAGE \
@@ -74,6 +74,7 @@ if [ "$DOCKERFILE" != "client-serve-static" ]; then
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
     --build-arg VITE_SOURCEMAPS=$VITE_SOURCEMAPS \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
+    --build-arg VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
     --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
@@ -82,7 +83,7 @@ if [ "$DOCKERFILE" != "client-serve-static" ]; then
     --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 else
   docker buildx build \
-    --builder etherealengine-$PACKAGE \
+    --builder ir-engine-$PACKAGE \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
     --cache-to type=registry,mode=max,image-manifest=true,ref=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-$PACKAGE:latest_${STAGE}_cache \
     --cache-from type=registry,ref=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-$PACKAGE:latest_${STAGE}_cache \
@@ -123,6 +124,7 @@ else
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
     --build-arg VITE_SOURCEMAPS=$VITE_SOURCEMAPS \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
+    --build-arg VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
     --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \

@@ -15,15 +15,15 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: etherealengine-matchmaking-matchfunction
-  namespace: etherealengine-matchmaking
+  name: ir-engine-matchmaking-matchfunction
+  namespace: ir-engine-matchmaking
   labels:
-    app: etherealengine-matchmaking
+    app: ir-engine-matchmaking
     component: matchfunction
 spec:
   containers:
-  - name: etherealengine-matchmaking-matchfunction
-    image: REGISTRY_PLACEHOLDER/etherealengine-matchmaking-matchfunction:latest
+  - name: ir-engine-matchmaking-matchfunction
+    image: REGISTRY_PLACEHOLDER/ir-engine-matchmaking-matchfunction:latest
     imagePullPolicy: Always
     ports:
     - name: grpc
@@ -32,14 +32,14 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: etherealengine-matchmaking-matchfunction
-  namespace: etherealengine-matchmaking
+  name: ir-engine-matchmaking-matchfunction
+  namespace: ir-engine-matchmaking
   labels:
-    app: etherealengine-matchmaking
+    app: ir-engine-matchmaking
     component: matchfunction
 spec:
   selector:
-    app: etherealengine-matchmaking
+    app: ir-engine-matchmaking
     component: matchfunction
   clusterIP: None
   type: ClusterIP

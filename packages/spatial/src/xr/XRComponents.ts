@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,22 +14,27 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import type { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 
-import { Engine, UndefinedEntity } from '@etherealengine/ecs'
-import { defineComponent, setComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState, matches } from '@etherealengine/hyperflux'
+import { Engine, UndefinedEntity } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { NO_PROXY, getState, matches, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -285,12 +290,21 @@ export const XRAnchorComponent = defineComponent({
       anchor: XRAnchor
     }
   ) => {
-    component.anchor.value?.delete()
     component.anchor.set(data.anchor)
   },
 
-  onRemove: (entity, component) => {
-    component.anchor.value.delete()
+  reactor: () => {
+    const entity = useEntityContext()
+    const xrAnchorComponent = useComponent(entity, XRAnchorComponent)
+
+    useImmediateEffect(() => {
+      const anchor = xrAnchorComponent.anchor.get(NO_PROXY)
+      return () => {
+        anchor?.delete()
+      }
+    }, [xrAnchorComponent.anchor])
+
+    return null
   }
 })
 
@@ -307,18 +321,28 @@ export const XRSpaceComponent = defineComponent({
   onSet: (entity, component, args: { space: XRSpace; baseSpace: XRSpace }) => {
     component.space.set(args.space)
     component.baseSpace.set(args.baseSpace)
+  },
 
-    let parentEntity = UndefinedEntity
-    switch (args.baseSpace) {
-      case ReferenceSpace.localFloor:
-        parentEntity = Engine.instance.localFloorEntity
-        break
-      case ReferenceSpace.viewer:
-        parentEntity = Engine.instance.cameraEntity
-        break
-    }
+  reactor: () => {
+    const entity = useEntityContext()
+    const xrSpaceComponent = useComponent(entity, XRSpaceComponent)
 
-    setComponent(entity, EntityTreeComponent, { parentEntity })
-    setComponent(entity, TransformComponent)
+    useImmediateEffect(() => {
+      const baseSpace = xrSpaceComponent.baseSpace.value
+      let parentEntity = UndefinedEntity
+      switch (baseSpace) {
+        case ReferenceSpace.localFloor:
+          parentEntity = Engine.instance.localFloorEntity
+          break
+        case ReferenceSpace.viewer:
+          parentEntity = Engine.instance.cameraEntity
+          break
+      }
+
+      setComponent(entity, EntityTreeComponent, { parentEntity })
+      setComponent(entity, TransformComponent)
+    }, [])
+
+    return null
   }
 })

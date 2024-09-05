@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
@@ -41,8 +41,8 @@ import {
   Vector3
 } from 'three'
 
-import config from '@etherealengine/common/src/config'
-import { PresentationSystemGroup } from '@etherealengine/ecs'
+import config from '@ir-engine/common/src/config'
+import { PresentationSystemGroup } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -50,23 +50,23 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { destroyEntityTree, EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { ObjectDirection } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { destroyEntityTree, EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -172,26 +172,23 @@ export const HyperspaceTagComponent = defineComponent({
     return {
       // all internals
       sceneVisible: true,
-      transition: createTransitionState(0.5, 'OUT'),
-      hyperspaceEffectEntity: UndefinedEntity,
-      ambientLightEntity: UndefinedEntity
+      transition: createTransitionState(0.5, 'OUT')
     }
-  },
-
-  onRemove(entity, component) {
-    removeEntity(component.ambientLightEntity.value)
-    destroyEntityTree(component.hyperspaceEffectEntity.value)
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const [galaxyTexture] = useTexture(
-      `${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`,
+      `${config.client.fileServer}/projects/ir-engine/default-project/assets/galaxyTexture.jpg`,
       entity
     )
+    const hyperspaceEffectEntityState = useHookstate(createEntity)
+    const ambientLightEntityState = useHookstate(createEntity)
 
     useEffect(() => {
-      const hyperspaceEffectEntity = createEntity()
+      const hyperspaceEffectEntity = hyperspaceEffectEntityState.value
+      const ambientLightEntity = ambientLightEntityState.value
+
       const hyperspaceEffect = new PortalEffect(hyperspaceEffectEntity)
       addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
       setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
@@ -200,7 +197,6 @@ export const HyperspaceTagComponent = defineComponent({
       setComponent(hyperspaceEffectEntity, EntityTreeComponent, { parentEntity: entity })
       setComponent(hyperspaceEffectEntity, VisibleComponent)
 
-      const ambientLightEntity = createEntity()
       const light = new AmbientLight('#aaa')
       light.layers.enable(ObjectLayers.Portal)
       addObjectToGroup(ambientLightEntity, light)
@@ -222,14 +218,16 @@ export const HyperspaceTagComponent = defineComponent({
         new Vector3(0, 0, 1).applyQuaternion(cameraTransform.rotation).setY(0).normalize()
       )
 
-      getMutableComponent(entity, HyperspaceTagComponent).hyperspaceEffectEntity.set(hyperspaceEffectEntity)
-      getMutableComponent(entity, HyperspaceTagComponent).ambientLightEntity.set(ambientLightEntity)
+      return () => {
+        removeEntity(ambientLightEntity)
+        destroyEntityTree(hyperspaceEffectEntity)
+      }
     }, [])
 
     useEffect(() => {
       if (!galaxyTexture) return
 
-      const hyperspaceEffectEntity = getComponent(entity, HyperspaceTagComponent).hyperspaceEffectEntity
+      const hyperspaceEffectEntity = hyperspaceEffectEntityState.value
       const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
       hyperspaceEffect.texture = galaxyTexture
     }, [galaxyTexture])
@@ -238,8 +236,9 @@ export const HyperspaceTagComponent = defineComponent({
       () => {
         if (!hasComponent(entity, HyperspaceTagComponent)) return
 
-        const { transition, hyperspaceEffectEntity } = getComponent(entity, HyperspaceTagComponent)
+        const hyperspaceEffectEntity = hyperspaceEffectEntityState.value
         if (!hyperspaceEffectEntity) return
+        const { transition } = getComponent(entity, HyperspaceTagComponent)
 
         const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
         const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)

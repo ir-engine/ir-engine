@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
@@ -38,9 +38,9 @@ import {
   Vector3
 } from 'three'
 
-import config from '@etherealengine/common/src/config'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { AnimationSystemGroup, Engine, UUIDComponent } from '@etherealengine/ecs'
+import config from '@ir-engine/common/src/config'
+import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { AnimationSystemGroup, Engine, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -49,47 +49,44 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import { Vector3_Back } from '@etherealengine/spatial/src/common/constants/MathConstants'
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem, useExecute } from '@ir-engine/ecs/src/SystemFunctions'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { Vector3_Back } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
-} from '@etherealengine/spatial/src/common/functions/PriorityQueue'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/lights/DirectionalLightComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { CSM } from '@etherealengine/spatial/src/renderer/csm/CSM'
-//import { CSMHelper } from '@etherealengine/spatial/src/renderer/csm/CSMHelper'
-import {
-  getShadowsEnabled,
-  useShadowsEnabled
-} from '@etherealengine/spatial/src/renderer/functions/RenderSettingsFunction'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+} from '@ir-engine/spatial/src/common/functions/PriorityQueue'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/DirectionalLightComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { CSM } from '@ir-engine/spatial/src/renderer/csm/CSM'
+//import { CSMHelper } from '@ir-engine/spatial/src/renderer/csm/CSMHelper'
+import { getShadowsEnabled, useShadowsEnabled } from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  useChildWithComponent
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
-import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+  useChildWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
+import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { TransformSystem } from '@etherealengine/spatial'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { RenderModes } from '@etherealengine/spatial/src/renderer/constants/RenderModes'
-import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
+import { TransformSystem } from '@ir-engine/spatial'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
+import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useHasModelOrIndependentMesh } from '../components/ModelComponent'
@@ -243,7 +240,7 @@ function _CSMReactor() {
    *   considering multi-scene support and spatial volumes.
    *   note: use index 0 (origin entity), index 1 is local floor entity,
    */
-  const renderSettingsEntity = useChildWithComponent(renderer.scenes[0], RenderSettingsComponent)
+  const renderSettingsEntity = useChildWithComponents(renderer.scenes[0], [RenderSettingsComponent])
   const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
 
@@ -450,7 +447,9 @@ const reactor = () => {
 
   const useShadows = useShadowsEnabled()
 
-  const [shadowTexture] = useTexture(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`)
+  const [shadowTexture] = useTexture(
+    `${config.client.fileServer}/projects/ir-engine/default-project/assets/drop-shadow.png`
+  )
 
   useEffect(() => {
     if (!shadowTexture) return

@@ -39,25 +39,25 @@ else
 fi
 
 if [ -z "$MYSQL_DATABASE" ]; then
-  MYSQL_DATABASE=etherealengine
+  MYSQL_DATABASE=ir-engine
 else
   MYSQL_DATABASE=$MYSQL_DATABASE
 fi
 
 if [ -z "$VITE_APP_HOST" ]; then
-  VITE_APP_HOST=local.etherealengine.org
+  VITE_APP_HOST=local.ir-engine.org
 else
   VITE_APP_HOST=$VITE_APP_HOST
 fi
 
 if [ -z "$VITE_SERVER_HOST" ]; then
-  VITE_SERVER_HOST=api-local.etherealengine.org
+  VITE_SERVER_HOST=api-local.ir-engine.org
 else
   VITE_SERVER_HOST=$VITE_SERVER_HOST
 fi
 
 if [ -z "$VITE_FILE_SERVER" ]; then
-  VITE_FILE_SERVER=https://localhost:9000/etherealengine-minikube-static-resources
+  VITE_FILE_SERVER=https://localhost:9000/ir-engine-minikube-static-resources
 else
   VITE_FILE_SERVER=$VITE_FILE_SERVER
 fi
@@ -69,7 +69,7 @@ else
 fi
 
 if [ -z "$VITE_INSTANCESERVER_HOST" ]; then
-  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.org
+  VITE_INSTANCESERVER_HOST=instanceserver-local.ir-engine.org
 else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
@@ -122,9 +122,15 @@ else
   VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED
 fi
 
+if [ -z "$VITE_AVATURN_URL" ]; then
+  VITE_TERMS_OF_SERVICE_ADDRESS=https://www.ir.world/terms-of-service
+else
+  VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS
+fi
+
 # ./generate-certs.sh
 
-docker start etherealengine_minikube_db
+docker start ir-engine_minikube_db
 eval $(minikube docker-env)
 
 mkdir -p ./project-package-jsons/projects/default-project
@@ -132,7 +138,7 @@ cp packages/projects/default-project/package.json ./project-package-jsons/projec
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
 docker buildx build \
-  -t etherealengine \
+  -t ir-engine \
   --cache-to type=inline \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
@@ -149,6 +155,7 @@ docker buildx build \
   --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
   --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
   --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
+  --build-arg VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS \
   --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
@@ -158,4 +165,4 @@ docker buildx build \
   --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
   --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
 
-#DOCKER_BUILDKIT=1 docker build -t etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+#DOCKER_BUILDKIT=1 docker build -t ir-engine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
