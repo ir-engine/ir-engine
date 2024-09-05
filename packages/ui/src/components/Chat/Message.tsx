@@ -38,11 +38,11 @@ import {
   toggleWebcamPaused
 } from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { useFind, useGet, useMutation } from '@ir-engine/common'
 import { ChannelID, channelPath, ChannelType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useFind, useGet, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 import AttachFileIcon from './assets/attach-file2.svg'
 import SendIcon from './assets/send.svg'

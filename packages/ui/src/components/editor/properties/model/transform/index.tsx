@@ -26,9 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useCallback, useEffect } from 'react'
 import { DoubleSide, Mesh } from 'three'
 
+import { API } from '@ir-engine/common'
+import { transformModel as clientSideTransformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { ComponentType, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import exportGLTF from '@ir-engine/editor/src/functions/exportGLTF'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -36,11 +37,9 @@ import {
   DefaultModelTransformParameters,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
-import { useHookstate } from '@ir-engine/hyperflux'
-import { NO_PROXY, State, useMutableState } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -136,7 +135,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
         if (clientside) {
           nuPath = await clientSideTransformModel(variant as ModelTransformParameters)
         } else {
-          await Engine.instance.api.service(modelTransformPath).create(variant)
+          await API.instance.service(modelTransformPath).create(variant)
         }
       }
 
@@ -184,7 +183,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      const transformedPath = await API.instance.service(modelTransformPath).create(transformParms.value)
       console.log('transformed model into ' + transformedPath)
       onChangeModel(transformedPath)
     }

@@ -31,7 +31,7 @@ import commonStyles from '@ir-engine/client-core/src/common/components/common.mo
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { createEntity, generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
-import { defaultAnimationPath, preloadedAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
+import { preloadedAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@ir-engine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
@@ -45,6 +45,8 @@ import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
+import { getState } from '@ir-engine/hyperflux'
 import styles from './index.module.scss'
 
 interface Props {
@@ -54,6 +56,8 @@ interface Props {
   onAvatarError?: (error: string) => void
   onAvatarLoaded?: () => void
 }
+
+const defaultAnimationPath = '/projects/ir-engine/default-project/assets/animations/'
 
 const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: Props) => {
   const { t } = useTranslation()
@@ -68,7 +72,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
     setComponent(sceneEntity, LoopAnimationComponent, {
-      animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
+      animationPack:
+        getState(DomainConfigState).cloudDomain + defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
     setComponent(sceneEntity, ModelComponent, { src: avatarUrl, convertToVRM: true })

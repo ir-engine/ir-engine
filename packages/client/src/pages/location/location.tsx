@@ -24,16 +24,31 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { Suspense, useRef } from 'react'
+import React, { Suspense, useEffect, useRef } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
+import '../../engine'
+
+import Debug from '@ir-engine/client-core/src/components/Debug'
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
 import LocationPage from '@ir-engine/client-core/src/world/Location'
+import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+
+import '../mui.styles.scss' /** @todo Remove when MUI is removed */
+import '../styles.scss'
 
 const LocationRoutes = () => {
   const ref = useRef<HTMLElement>(document.body)
+
+  useEffect(() => {
+    initializeSpatialEngine()
+    return () => {
+      destroySpatialEngine()
+    }
+  }, [])
+
   useEngineCanvas(ref)
 
   const projectsLoaded = useEngineInjection()
@@ -48,6 +63,7 @@ const LocationRoutes = () => {
       <Routes>
         <Route path=":locationName" element={<LocationPage online />} />
       </Routes>
+      <Debug />
     </Suspense>
   )
 }

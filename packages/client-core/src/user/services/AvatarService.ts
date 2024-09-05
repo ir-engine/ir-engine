@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
+import { API } from '@ir-engine/common'
 import {
   AvatarID,
   avatarPath,
@@ -32,6 +33,7 @@ import {
   staticResourcePath,
   StaticResourceType,
   uploadAssetPath,
+  userAvatarPath,
   UserID,
   UserName,
   userPath,
@@ -62,7 +64,7 @@ export const AvatarState = defineState({
 
 export const AvatarService = {
   async createAvatar(model: File, thumbnail: File, avatarName: string, isPublic: boolean) {
-    const newAvatar = await Engine.instance.api.service(avatarPath).create({
+    const newAvatar = await API.instance.service(avatarPath).create({
       name: avatarName,
       isPublic
     })
@@ -70,8 +72,14 @@ export const AvatarService = {
     await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName, isPublic, newAvatar.id)
 
     if (!isPublic) {
-      AvatarNetworkState.updateUserAvatarId(newAvatar.id)
+      await AvatarService.updateUserAvatarId(newAvatar.id)
     }
+  },
+
+  async updateUserAvatarId(id: AvatarID) {
+    await API.instance
+      .service(userAvatarPath)
+      .patch(null, { avatarId: id }, { query: { userId: Engine.instance.store.userID } })
   },
 
   async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {
@@ -79,7 +87,7 @@ export const AvatarService = {
     const skip = avatarState.skip.value
     const newSkip =
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
-    const result = (await Engine.instance.api.service(avatarPath).find({
+    const result = (await API.instance.service(avatarPath).find({
       query: {
         name: {
           $like: `%${search}%`
@@ -133,7 +141,7 @@ export const AvatarService = {
       }
     }
 
-    const avatar = await Engine.instance.api.service(avatarPath).patch(originalAvatar.id, payload)
+    const avatar = await API.instance.service(avatarPath).patch(originalAvatar.id, payload)
     getMutableState(AvatarState).avatarList.set((prevAvatarList) => {
       const index = prevAvatarList.findIndex((item) => item.id === avatar.id)
       prevAvatarList[index] = avatar
@@ -142,12 +150,12 @@ export const AvatarService = {
 
     const userAvatarId = getState(AvatarNetworkState)[Engine.instance.userID] as AvatarID
     if (userAvatarId === avatar.id) {
-      AvatarNetworkState.updateUserAvatarId(avatar.id)
+      await AvatarService.updateUserAvatarId(avatar.id)
     }
   },
 
   async removeStaticResource(id: string) {
-    return Engine.instance.api.service(staticResourcePath).remove(id)
+    return API.instance.service(staticResourcePath).remove(id)
   },
 
   async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: AvatarID) {
@@ -163,16 +171,14 @@ export const AvatarService = {
 
   async getAvatar(id: AvatarID) {
     try {
-      return Engine.instance.api.service(avatarPath).get(id)
+      return API.instance.service(avatarPath).get(id)
     } catch (err) {
       return null
     }
   },
 
   async updateUsername(userId: UserID, name: UserName) {
-    const { name: updatedName } = (await Engine.instance.api
-      .service(userPath)
-      .patch(userId, { name: name })) as UserType
+    const { name: updatedName } = (await API.instance.service(userPath).patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg').toString(), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
     dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))

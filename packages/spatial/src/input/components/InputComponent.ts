@@ -40,7 +40,7 @@ import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '../../EngineState'
 
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { getAncestorWithComponent, isAncestor } from '../../transform/components/EntityTree'
+import { getAncestorWithComponents, isAncestor } from '../../transform/components/EntityTree'
 import {
   AnyAxis,
   AnyButton,
@@ -126,8 +126,8 @@ export const InputComponent = defineComponent({
   },
 
   getInputEntities(entityContext: Entity): Entity[] {
-    const inputSinkEntity = getAncestorWithComponent(entityContext, InputSinkComponent)
-    const closestInputEntity = getAncestorWithComponent(entityContext, InputComponent)
+    const inputSinkEntity = getAncestorWithComponents(entityContext, [InputSinkComponent])
+    const closestInputEntity = getAncestorWithComponents(entityContext, [InputComponent])
     const inputSinkInputEntities = getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
     const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
     return inputEntities.filter(
@@ -158,6 +158,10 @@ export const InputComponent = defineComponent({
     return InputComponent.getMergedAxesForInputSources(inputSourceEntities, inputAlias)
   },
 
+  /**
+   * @description Returns an object that:
+   * - Contains all of the buttons described by the InputSourceComponent.buttons of all `@param inputSourceEntities`
+   * - Has synchronized the state of the buttons described by all entries of `@param inputAlias` into fields of the same name.  */
   getMergedButtonsForInputSources<AliasType extends InputAlias = typeof DefaultButtonAlias>(
     inputSourceEntities: Entity[],
     inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType

@@ -30,13 +30,16 @@ import { useTranslation } from 'react-i18next'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { API } from '@ir-engine/common'
 import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@ir-engine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
-import { FilesViewModeSettings } from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFunctions'
+import { FileIcon } from '@ir-engine/editor/src/panels/files/fileicon'
+import { FileUploadProgress } from '@ir-engine/editor/src/panels/files/loaders'
+import DeleteFileModal from '@ir-engine/editor/src/panels/files/modals/DeleteFileModal'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { FilesViewModeSettings } from '@ir-engine/editor/src/services/FilesState'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -57,9 +60,6 @@ import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import { Popup } from '../../../../tailwind/Popup'
 import InputGroup from '../../../input/Group'
-import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
-import { FileIcon } from '../../Files/icon'
-import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
 
 const ASSETS_PAGE_LIMIT = 10
@@ -491,6 +491,8 @@ const AssetPanel = () => {
   }, [categories, selectedCategory])
 
   const staticResourcesFindApi = () => {
+    const abortController = new AbortController()
+
     searchTimeoutCancelRef.current?.()
     loading.set(true)
 
@@ -527,10 +529,12 @@ const AssetPanel = () => {
         $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
-      Engine.instance.api
+      API.instance
         .service(staticResourcePath)
         .find({ query })
         .then((resources) => {
+          if (abortController.signal.aborted) return
+
           if (staticResourcesPagination.skip.value > 0) {
             searchedStaticResources.merge(resources.data)
           } else {
@@ -543,10 +547,19 @@ const AssetPanel = () => {
 
     debouncedSearchQuery()
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
+
+    return () => {
+      abortController.abort()
+    }
   }
 
   useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
-  useEffect(() => staticResourcesFindApi(), [searchText, selectedCategory, staticResourcesPagination.skip])
+
+  useEffect(() => {
+    const abortSignal = staticResourcesFindApi()
+
+    return () => abortSignal()
+  }, [searchText, selectedCategory, staticResourcesPagination.skip])
 
   const ResourceItems = () => (
     <>
@@ -656,7 +669,7 @@ const AssetPanel = () => {
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full w-auto"
+            containerClassName="flex h-full w-auto"
             className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
@@ -695,7 +708,9 @@ const AssetPanel = () => {
         </div>
         <div className="flex h-full w-full flex-col overflow-auto">
           <InfiniteScroll
-            disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value}
+            disableEvent={
+              staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
+            }
             onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
           >
             <div className="mt-auto flex h-full w-full flex-wrap gap-2">

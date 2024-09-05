@@ -23,22 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import React, { useEffect, useLayoutEffect } from 'react'
 
-import { AvatarID, avatarPath, AvatarType, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { EntityUUID, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { AvatarColliderComponent } from '@ir-engine/engine/src/avatar/components/AvatarControllerComponent'
+import { loadAvatarModelAsset, unloadAvatarForUser } from '@ir-engine/engine/src/avatar/functions/avatarFunctions'
+import { spawnAvatarReceptor } from '@ir-engine/engine/src/avatar/functions/spawnAvatarReceptor'
+import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
+import { defineState, getMutableState, isClient, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { WorldNetworkAction } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-
-import { AvatarColliderComponent } from '../components/AvatarControllerComponent'
-import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'
-import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
-import { AvatarNetworkAction } from './AvatarNetworkActions'
 
 export const AvatarState = defineState({
   name: 'ee.engine.avatar.AvatarState',
@@ -46,17 +41,17 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      avatarID: AvatarID
+      avatarURL: string
       name: string
     }
   >,
 
   receptors: {
     onSpawn: AvatarNetworkAction.spawn.receive((action) => {
-      getMutableState(AvatarState)[action.entityUUID].set({ avatarID: action.avatarID, name: action.name })
+      getMutableState(AvatarState)[action.entityUUID].set({ avatarURL: action.avatarURL, name: action.name })
     }),
-    onSetAvatarID: AvatarNetworkAction.setAvatarID.receive((action) => {
-      getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
+    onSetAvatarID: AvatarNetworkAction.setAvatarURL.receive((action) => {
+      getMutableState(AvatarState)[action.entityUUID].merge({ avatarURL: action.avatarURL })
     }),
     onSetAvatarName: AvatarNetworkAction.setName.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].merge({ name: action.name })
@@ -64,30 +59,6 @@ export const AvatarState = defineState({
     onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].set(none)
     })
-  },
-
-  selectRandomAvatar() {
-    Engine.instance.api
-      .service(avatarPath)
-      .find({})
-      .then((avatars: Paginated<AvatarType>) => {
-        const randomAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
-        AvatarState.updateUserAvatarId(randomAvatar.id)
-      })
-  },
-
-  updateUserAvatarId(avatarId: AvatarID) {
-    Engine.instance.api
-      .service(userAvatarPath)
-      .patch(null, { avatarId: avatarId }, { query: { userId: Engine.instance.userID } })
-      .then(() => {
-        dispatchAction(
-          AvatarNetworkAction.setAvatarID({
-            avatarID: avatarId as AvatarID,
-            entityUUID: (Engine.instance.userID + '_avatar') as any as EntityUUID
-          })
-        )
-      })
   },
 
   reactor: () => {
@@ -103,8 +74,7 @@ export const AvatarState = defineState({
 })
 
 const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
-  const { avatarID, name } = useHookstate(getMutableState(AvatarState)[entityUUID])
-  const userAvatarDetails = useHookstate(null as string | null)
+  const { avatarURL, name } = useHookstate(getMutableState(AvatarState)[entityUUID])
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
 
   useLayoutEffect(() => {
@@ -113,35 +83,16 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   }, [entity])
 
   useEffect(() => {
-    let aborted = false
-
-    Engine.instance.api
-      .service(avatarPath)
-      .get(avatarID.value!)
-      .then((avatarDetails) => {
-        if (aborted) return
-
-        if (!avatarDetails.modelResource?.url) return
-
-        userAvatarDetails.set(avatarDetails.modelResource.url)
-      })
-
-    return () => {
-      aborted = true
-    }
-  }, [avatarID])
-
-  useEffect(() => {
     if (!isClient) return
-    if (!entity || !userAvatarDetails.value) return
+    if (!entity || !avatarURL.value) return
 
-    loadAvatarModelAsset(entity, userAvatarDetails.value)
+    loadAvatarModelAsset(entity, avatarURL.value)
 
     return () => {
       if (!entityExists(entity)) return
       unloadAvatarForUser(entity)
     }
-  }, [userAvatarDetails, entity])
+  }, [avatarURL, entity])
 
   useEffect(() => {
     if (!entity) return

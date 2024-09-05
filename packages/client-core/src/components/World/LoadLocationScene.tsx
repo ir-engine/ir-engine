@@ -27,10 +27,10 @@ import { t } from 'i18next'
 import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
+import { useFind, useGet } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
-import { useFind, useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
@@ -41,11 +41,8 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     LocationState.setLocationName(props.locationName)
-  }, [])
-
-  useEffect(() => {
     if (locationState.locationName.value) LocationService.getLocationByName(locationState.locationName.value)
-  }, [locationState.locationName.value])
+  }, [])
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {

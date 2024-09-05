@@ -27,9 +27,9 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
+import { useFind, useMutation } from '@ir-engine/common'
 import { emailSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -88,7 +88,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     if (!id || !smtp.value || !auth.value || !from.value || !subject.value) return
 
     patchEmailSetting(id, {
-      smtp: { ...smtp.value, auth: auth.value },
+      smtp: { ...smtp.value, auth: auth.value, secure: Boolean(smtp.value.secure), port: Number(smtp.value.port) },
       from: from.value,
       subject: subject.value
     })

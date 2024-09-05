@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AddOutlined, CancelOutlined } from '@mui/icons-material'
+import { MdOutlineAdd, MdOutlineCancel } from 'react-icons/md'
+
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useReactFlow } from 'reactflow'
@@ -140,7 +141,7 @@ export const SidePanel = ({
                     handleApplyTemplate(template)
                   }}
                 >
-                  <AddOutlined />
+                  <MdOutlineAdd className="inline-block shrink-0 text-2xl" />
                 </Button>
                 <StringInput
                   className="h-7"
@@ -159,7 +160,7 @@ export const SidePanel = ({
                     handleDeleteTemplate(template)
                   }}
                 >
-                  <CancelOutlined />
+                  <MdOutlineCancel className="inline-block shrink-0 text-2xl" />
                 </Button>
               </div>
             )
@@ -193,7 +194,7 @@ export const SidePanel = ({
                         handleDeleteVariable(variable)
                       }}
                     >
-                      <CancelOutlined />
+                      <MdOutlineCancel className="inline-block shrink-0 text-2xl" />
                     </Button>
                   </div>
                   <SelectInput

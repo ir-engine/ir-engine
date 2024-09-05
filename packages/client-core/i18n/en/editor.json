@@ -129,16 +129,18 @@
       "lbl-selection": "Selection",
       "info-selection": "The center pivot of the final asset you selected in the sequence.",
       "lbl-center": "Center",
-      "info-center": "A pivot that sits at an equal distance between all selections.",
-      "lbl-bottom": "Bottom",
-      "info-bottom": "A pivot that sits equally between all selections and at the bottom of your final selection in the sequence.",
+      "info-center": "A pivot that sits at an equal distance between all selections (centroid).",
+      "lbl-bbox": "BoundingBox",
+      "info-bbox": "A pivot that uses the center point of a bounding box containing all selected entities' positions.",
+      "lbl-bbox-bottom": "BBoxBottom",
+      "info-bbox-bottom": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
       "lbl-origin": "Origin",
       "info-origin": "Sets pivot mode to the world origin (0,0,0)"
     },
     "transformSnapTool": {
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
-      "info-translate": "Translate objects by a unit of measurement.",
+      "info-translate": "Grid and translation snap size (meters).",
       "info-rotate": "Snap rotation angle"
     },
     "placement": {
@@ -177,7 +179,8 @@
     },
     "grid": {
       "info-toggleGridVisibility": "Toggle Grid Visibility",
-      "info-gridSpacing": "Set grid spacing meters",
+      "info-gridSpacing": "Set grid spacing (meters)",
+      "info-gridHeight": "Set grid height (meters)",
       "info-incrementHeight": "Increment Grid Height",
       "info-decrementHeight": "Decrement Grid Height"
     },
@@ -1197,7 +1200,7 @@
       "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
-      "tab-name": "Project Files",
+      "tab-name": "Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
       "copyAsset": "Copy",
@@ -1214,15 +1217,18 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
+      "downloadProjectUnavailable": "Cannot Download From Project Directory",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
       "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "fetchingProject": "Fetching Project",
       "downloadingProject": "Downloading Project ({{completed}}/{{total}})",
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
+      "fileNameLengthError": "File name must be between 4 and 64 characters.",
       "fileProperties": {
         "header": "Info for {{fileName}}",
         "header-plural": "Info for {{itemCount}} Items",

@@ -31,7 +31,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 const testProject = 'test-project'
@@ -61,9 +61,10 @@ describe('upload-asset', () => {
     })
   })
 
-  after(() => {
+  after(async () => {
     restoreFetch()
-    return destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   // describe('addAssetAsStaticResource', () => {

@@ -65,6 +65,7 @@ export const videoSettingsSchema = Type.Object(
 export const screenshareSettingsSchema = Type.Object(
   {
     codec: Type.String(),
+    maxResolution: Type.String(),
     lowResMaxBitrate: Type.Number(),
     midResMaxBitrate: Type.Number(),
     highResMaxBitrate: Type.Number()
@@ -158,6 +159,7 @@ export const clientSettingSchema = Type.Object(
     appSubtitle: Type.String(),
     appDescription: Type.String(),
     appSocialLinks: Type.Array(Type.Ref(clientSocialLinkSchema)),
+    gaMeasurementId: Type.String(),
     themeSettings: Type.Record(Type.String(), Type.Ref(clientThemeOptionsSchema)),
     themeModes: Type.Record(Type.String(), Type.String()),
     key8thWall: Type.String(),
@@ -202,6 +204,7 @@ export const clientSettingDataSchema = Type.Pick(
     'appSubtitle',
     'appDescription',
     'appSocialLinks',
+    'gaMeasurementId',
     'themeSettings',
     'themeModes',
     'key8thWall',
@@ -243,6 +246,7 @@ export const clientSettingQueryProperties = Type.Pick(clientSettingSchema, [
   'appTitle',
   'appSubtitle',
   'appDescription',
+  'gaMeasurementId',
   // 'appSocialLinks', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
   // 'themeSettings',
   // 'themeModes',

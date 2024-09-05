@@ -27,15 +27,12 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { EntityUUID, generateEntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { SystemDefinitions } from '@ir-engine/ecs/src/SystemFunctions'
-import { PeerID, ReactorReconciler } from '@ir-engine/hyperflux'
-import { applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux/functions/ActionFunctions'
+import { applyIncomingActions, dispatchAction, PeerID, ReactorReconciler, UserID } from '@ir-engine/hyperflux'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { createMockNetwork } from '../tests/createMockNetwork'
@@ -45,6 +42,7 @@ import './EntityNetworkState'
 
 import { NetworkPeerFunctions } from './functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
+import { NetworkId } from './NetworkId'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from './NetworkObjectComponent'
 import { NetworkState } from './NetworkState'
 import { NetworkWorldUserStateSystem } from './NetworkUserState'
@@ -71,7 +69,7 @@ describe('EntityNetworkState', () => {
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.userID = userId
+      Engine.instance.store.userID = userId
       const network = NetworkState.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
@@ -117,7 +115,7 @@ describe('EntityNetworkState', () => {
       const peerID = 'peer id' as PeerID
       const peerID2 = Engine.instance.store.peerID
 
-      Engine.instance.userID = userId
+      Engine.instance.store.userID = userId
 
       const network = NetworkState.worldNetwork as Network
 
@@ -165,7 +163,7 @@ describe('EntityNetworkState', () => {
       const peerID2 = 'peer id 2' as PeerID
       const peerID3 = 'peer id 3' as PeerID
 
-      Engine.instance.userID = userId
+      Engine.instance.store.userID = userId
       const network = NetworkState.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
@@ -210,7 +208,7 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
 
-      Engine.instance.userID = userId
+      Engine.instance.store.userID = userId
       const network = NetworkState.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1)
@@ -247,7 +245,7 @@ describe('EntityNetworkState', () => {
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.userID = userId
+      Engine.instance.store.userID = userId
       const network = NetworkState.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0)
@@ -317,7 +315,7 @@ describe('EntityNetworkState', () => {
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.userID = userId // user being the action dispatcher
+    Engine.instance.store.userID = userId // user being the action dispatcher
     const network = NetworkState.worldNetwork as Network
 
     NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0)
@@ -385,7 +383,7 @@ describe('EntityNetworkState', () => {
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.userID = userId // user being the action dispatcher
+    Engine.instance.store.userID = userId // user being the action dispatcher
     const network = NetworkState.worldNetwork as Network
 
     NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0)
