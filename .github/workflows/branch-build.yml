@@ -144,7 +144,6 @@ jobs:
           - client-core
           - common
           - editor
-          - ui
     defaults:
       run:
         shell: bash
