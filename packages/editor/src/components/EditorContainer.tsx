@@ -30,7 +30,6 @@ import { AssetsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Asset
 import { HierarchyPanelTab } from '@ir-engine/ui/src/components/editor/panels/Hierarchy'
 import { MaterialsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Materials'
 import { PropertiesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Properties'
-import { ScenePanelTab } from '@ir-engine/ui/src/components/editor/panels/Scenes'
 import { ScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/Script'
 import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/VisualScript'
 
@@ -62,6 +61,7 @@ import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import { FilesPanelTab } from '../panels/files'
+import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
 import './EditorContainer.css'
 
