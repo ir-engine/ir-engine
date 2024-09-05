@@ -41,252 +41,252 @@ export interface ProxyExtensions {
   store: Vector3Proxy | QuaternionProxy
 }
 
-export const Vec3Proxy = (vec3Store: Vector3Proxy) => {
+export const Vec3Proxy = (vec3Proxy: Vector3Proxy) => {
   const vector3 = new Vector3()
   return defineProperties(vector3, {
     x: {
       get() {
-        return vec3Store.x
+        return vec3Proxy.x
       },
       set(n) {
-        return (vec3Store.x = n)
+        return (vec3Proxy.x = n)
       },
       configurable: true
     },
     y: {
       get() {
-        return vec3Store.y
+        return vec3Proxy.y
       },
       set(n) {
-        return (vec3Store.y = n)
+        return (vec3Proxy.y = n)
       },
       configurable: true
     },
     z: {
       get() {
-        return vec3Store.z
+        return vec3Proxy.z
       },
       set(n) {
-        return (vec3Store.z = n)
+        return (vec3Proxy.z = n)
       },
       configurable: true
     }
   })
 }
 
-export const Vec3ProxyDirty = (vec3Store: Vector3Proxy, entity: Entity, dirty: Record<Entity, boolean>) => {
+export const Vec3ProxyDirty = (vec3Proxy: Vector3Proxy, entity: Entity, dirty: Record<Entity, boolean>) => {
   const vector3 = new Vector3()
   dirty[entity] = true
   return defineProperties(vector3, {
     x: {
       get() {
-        return vec3Store.x
+        return vec3Proxy.x
       },
       set(n) {
         dirty[entity] = true
-        return (vec3Store.x = n)
+        return (vec3Proxy.x = n)
       },
       configurable: true
     },
     y: {
       get() {
-        return vec3Store.y
+        return vec3Proxy.y
       },
       set(n) {
         dirty[entity] = true
-        return (vec3Store.y = n)
+        return (vec3Proxy.y = n)
       },
       configurable: true
     },
     z: {
       get() {
-        return vec3Store.z
+        return vec3Proxy.z
       },
       set(n) {
         dirty[entity] = true
-        return (vec3Store.z = n)
+        return (vec3Proxy.z = n)
       },
       configurable: true
     }
   })
 }
 
-export const QuaternionProxy = (quatStore: QuaternionProxy) => {
+export const QuaternionProxy = (quatProxy: QuaternionProxy) => {
   const quat = new Quaternion()
   return defineProperties(quat, {
     x: {
       get() {
-        return quatStore.x
+        return quatProxy.x
       },
       set(n) {
-        return (quatStore.x = n)
+        return (quatProxy.x = n)
       },
       configurable: true
     },
     y: {
       get() {
-        return quatStore.y
+        return quatProxy.y
       },
       set(n) {
-        return (quatStore.y = n)
+        return (quatProxy.y = n)
       },
       configurable: true
     },
     z: {
       get() {
-        return quatStore.z
+        return quatProxy.z
       },
       set(n) {
-        return (quatStore.z = n)
+        return (quatProxy.z = n)
       },
       configurable: true
     },
     w: {
       get() {
-        return quatStore.w
+        return quatProxy.w
       },
       set(n) {
-        return (quatStore.w = n)
+        return (quatProxy.w = n)
       },
       configurable: true
     },
     _x: {
       get() {
-        return quatStore.x
+        return quatProxy.x
       },
       set(n) {
-        return (quatStore.x = n)
+        return (quatProxy.x = n)
       },
       configurable: true
     },
     _y: {
       get() {
-        return quatStore.y
+        return quatProxy.y
       },
       set(n) {
-        return (quatStore.y = n)
+        return (quatProxy.y = n)
       },
       configurable: true
     },
     _z: {
       get() {
-        return quatStore.z
+        return quatProxy.z
       },
       set(n) {
-        return (quatStore.z = n)
+        return (quatProxy.z = n)
       },
       configurable: true
     },
     _w: {
       get() {
-        return quatStore.w
+        return quatProxy.w
       },
       set(n) {
-        return (quatStore.w = n)
+        return (quatProxy.w = n)
       },
       configurable: true
     }
   })
 }
 
-export const QuaternionProxyDirty = (quatStore: QuaternionProxy, entity: Entity, dirty: Record<Entity, boolean>) => {
+export const QuaternionProxyDirty = (quatProxy: QuaternionProxy, entity: Entity, dirty: Record<Entity, boolean>) => {
   const quat = new Quaternion()
   dirty[entity] = true
   return defineProperties(quat, {
     x: {
       get() {
-        return quatStore.x
+        return quatProxy.x
       },
       set(n) {
         dirty[entity] = true
-        return (quatStore.x = n)
+        return (quatProxy.x = n)
       },
       configurable: true
     },
     y: {
       get() {
-        return quatStore.y
+        return quatProxy.y
       },
       set(n) {
         dirty[entity] = true
-        return (quatStore.y = n)
+        return (quatProxy.y = n)
       },
       configurable: true
     },
     z: {
       get() {
-        return quatStore.z
+        return quatProxy.z
       },
       set(n) {
         dirty[entity] = true
-        return (quatStore.z = n)
+        return (quatProxy.z = n)
       },
       configurable: true
     },
     w: {
       get() {
-        return quatStore.w
+        return quatProxy.w
       },
       set(n) {
         dirty[entity] = true
-        return (quatStore.w = n)
+        return (quatProxy.w = n)
       },
       configurable: true
     },
     _x: {
       get() {
-        return quatStore.x
+        return quatProxy.x
       },
       set(n) {
         dirty[entity] = true
-        return (quatStore.x = n)
+        return (quatProxy.x = n)
       },
       configurable: true
     },
     _y: {
       get() {
-        return quatStore.y
+        return quatProxy.y
       },
       set(n) {
         dirty[entity] = true
-        return (quatStore.y = n)
+        return (quatProxy.y = n)
       },
       configurable: true
     },
     _z: {
       get() {
-        return quatStore.z
+        return quatProxy.z
       },
       set(n) {
         dirty[entity] = true
-        return (quatStore.z = n)
+        return (quatProxy.z = n)
       },
       configurable: true
     },
     _w: {
       get() {
-        return quatStore.w
+        return quatProxy.w
       },
       set(n) {
         dirty[entity] = true
-        return (quatStore.w = n)
+        return (quatProxy.w = n)
       },
       configurable: true
     }
   })
 }
 
-export const Mat4Proxy = (mat4Store: Mat4Proxy) => {
+export const Mat4Proxy = (mat4Proxy: Mat4Proxy) => {
   const mat4 = new Matrix4()
-  mat4Store.set(mat4.elements)
+  mat4Proxy.set(mat4.elements)
 
   return defineProperties(mat4, {
     elements: {
       get() {
-        return mat4Store
+        return mat4Proxy
       },
       set(n) {
-        return (mat4Store = n)
+        return (mat4Proxy = n)
       },
       configurable: true
     }
