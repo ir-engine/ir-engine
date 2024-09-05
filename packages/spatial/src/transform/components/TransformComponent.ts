@@ -38,7 +38,7 @@ import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spati
 
 import { ECSSchema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { isZero } from '../../common/functions/MathFunctions'
-import { QuaternionProxy, Vec3Proxy } from '../../common/proxies/createThreejsProxy'
+import { Mat4Proxy, QuaternionProxyDirty, Vec3ProxyDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 export type TransformComponentType = {
@@ -67,21 +67,14 @@ export const TransformComponent = defineComponent({
   schema: TransformECS,
 
   onInit: (initial) => {
+    const entity = initial.entity
     const dirtyTransforms = TransformComponent.dirtyTransforms
     const component = {
-      position: Vec3Proxy(initial.position),
-      rotation: QuaternionProxy(initial.rotation),
-      scale: Vec3Proxy(initial.scale),
-      // position: proxifyVector3WithDirty(TransformComponent.position, initial, dirtyTransforms) as Vector3,
-      // rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, initial, dirtyTransforms) as Quaternion,
-      // scale: proxifyVector3WithDirty(
-      //   TransformComponent.scale,
-      //   initial,
-      //   dirtyTransforms,
-      //   new Vector3(1, 1, 1)
-      // ) as Vector3,
-      matrix: new Matrix4(),
-      matrixWorld: new Matrix4()
+      position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
+      rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
+      scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms),
+      matrix: Mat4Proxy(initial.matrix),
+      matrixWorld: Mat4Proxy(initial.matrixWorld)
     } as TransformComponentType
     return component
   },

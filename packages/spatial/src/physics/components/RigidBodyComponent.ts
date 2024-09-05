@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
-
 import { useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -34,23 +32,21 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
+import { ECSSchema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEffect } from 'react'
 import { QuaternionProxy, Vec3Proxy } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
-const { f64 } = Types
-const Vector3Schema = { x: f64, y: f64, z: f64 }
-const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
 const SCHEMA = {
-  previousPosition: Vector3Schema,
-  previousRotation: QuaternionSchema,
-  position: Vector3Schema,
-  rotation: QuaternionSchema,
-  targetKinematicPosition: Vector3Schema,
-  targetKinematicRotation: QuaternionSchema,
-  linearVelocity: Vector3Schema,
-  angularVelocity: Vector3Schema
+  previousPosition: ECSSchema.Vec3,
+  previousRotation: ECSSchema.Quaternion,
+  position: ECSSchema.Vec3,
+  rotation: ECSSchema.Quaternion,
+  targetKinematicPosition: ECSSchema.Vec3,
+  targetKinematicRotation: ECSSchema.Quaternion,
+  linearVelocity: ECSSchema.Vec3,
+  angularVelocity: ECSSchema.Vec3
 }
 
 export const RigidBodyComponent = defineComponent({

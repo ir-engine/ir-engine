@@ -29,7 +29,7 @@ import assert from 'assert'
 import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 
-import { Vector3 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
@@ -243,6 +243,14 @@ describe('ComponentFunctions', async () => {
       assert(transformComponent.matrix[12] === 14)
       assert(transformComponent.matrix[12] === TransformComponent.matrix[entity][12])
       assert(transformComponent.matrix[12] === mat[12])
+
+      const mat4Elements = new Matrix4().elements
+      transformComponent.matrix.set(mat4Elements)
+
+      for (let i = 0; i < mat4Elements.length; i++) {
+        assert(transformComponent.matrix[i] === mat4Elements[i])
+        assert(TransformComponent.matrix[entity][i] === mat4Elements[i])
+      }
     })
   })
 

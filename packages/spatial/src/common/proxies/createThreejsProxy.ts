@@ -23,21 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 const { defineProperties } = Object
 
-type Vector3Store = { x: Float64Array; y: Float64Array; z: Float64Array }
-type QuaternionStore = { x: Float64Array; y: Float64Array; z: Float64Array; w: Float64Array }
+type Vector3Store = { x: number; y: number; z: number }
+type QuaternionStore = { x: number; y: number; z: number; w: number }
+type Mat4Store = Float64Array
 
 export interface ProxyExtensions {
   entity: number
   store: Vector3Store | QuaternionStore
 }
 
-export const Vec3Proxy = (vec3Store: { x: number; y: number; z: number }) => {
+export const Vec3Proxy = (vec3Store: Vector3Store) => {
   const vector3 = new Vector3()
   return defineProperties(vector3, {
     x: {
@@ -70,7 +71,44 @@ export const Vec3Proxy = (vec3Store: { x: number; y: number; z: number }) => {
   })
 }
 
-export const QuaternionProxy = (quatStore: { x: number; y: number; z: number; w: number }) => {
+export const Vec3ProxyDirty = (vec3Store: Vector3Store, entity: Entity, dirty: Record<Entity, boolean>) => {
+  dirty[entity] = true
+  const vector3 = new Vector3()
+  return defineProperties(vector3, {
+    x: {
+      get() {
+        return vec3Store.x
+      },
+      set(n) {
+        dirty[entity] = true
+        return (vec3Store.x = n)
+      },
+      configurable: true
+    },
+    y: {
+      get() {
+        return vec3Store.y
+      },
+      set(n) {
+        dirty[entity] = true
+        return (vec3Store.y = n)
+      },
+      configurable: true
+    },
+    z: {
+      get() {
+        return vec3Store.z
+      },
+      set(n) {
+        dirty[entity] = true
+        return (vec3Store.z = n)
+      },
+      configurable: true
+    }
+  })
+}
+
+export const QuaternionProxy = (quatStore: QuaternionStore) => {
   const quat = new Quaternion()
   return defineProperties(quat, {
     x: {
@@ -106,6 +144,70 @@ export const QuaternionProxy = (quatStore: { x: number; y: number; z: number; w:
       },
       set(n) {
         return (quatStore.w = n)
+      },
+      configurable: true
+    }
+  })
+}
+
+export const QuaternionProxyDirty = (quatStore: QuaternionStore, entity: Entity, dirty: Record<Entity, boolean>) => {
+  dirty[entity] = true
+  const quat = new Quaternion()
+  return defineProperties(quat, {
+    x: {
+      get() {
+        return quatStore.x
+      },
+      set(n) {
+        dirty[entity] = true
+        return (quatStore.x = n)
+      },
+      configurable: true
+    },
+    y: {
+      get() {
+        return quatStore.y
+      },
+      set(n) {
+        dirty[entity] = true
+        return (quatStore.y = n)
+      },
+      configurable: true
+    },
+    z: {
+      get() {
+        return quatStore.z
+      },
+      set(n) {
+        dirty[entity] = true
+        return (quatStore.z = n)
+      },
+      configurable: true
+    },
+    w: {
+      get() {
+        return quatStore.w
+      },
+      set(n) {
+        dirty[entity] = true
+        return (quatStore.w = n)
+      },
+      configurable: true
+    }
+  })
+}
+
+export const Mat4Proxy = (mat4Store: Mat4Store) => {
+  const mat4 = new Matrix4()
+  mat4Store.set(mat4.elements)
+
+  return defineProperties(mat4, {
+    elements: {
+      get() {
+        return mat4Store
+      },
+      set(n) {
+        return (mat4Store = n)
       },
       configurable: true
     }
