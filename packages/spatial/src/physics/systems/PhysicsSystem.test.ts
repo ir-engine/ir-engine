@@ -76,10 +76,6 @@ describe('PhysicsSystem', () => {
       physicsWorld.timestep = 1 / 60
 
       testEntity = createEntity()
-      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
-      setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-      setComponent(testEntity, ColliderComponent)
     })
 
     afterEach(() => {
@@ -90,11 +86,18 @@ describe('PhysicsSystem', () => {
     const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
 
     it('should step the physics', () => {
+      // Setup the data as expected
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      setComponent(testEntity, ColliderComponent)
       const testImpulse = new Vector3(1, 2, 3)
+      // Sanity check before running
       const beforeBody = physicsWorld.Rigidbodies.get(testEntity)
       assert.ok(beforeBody)
       const before = beforeBody.linvel()
       assertVecApproxEq(before, Vector3_Zero, 3)
+      // Run and Check after
       Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
       physicsSystemExecute()
       const afterBody = physicsWorld.Rigidbodies.get(testEntity)
@@ -118,7 +121,13 @@ describe('PhysicsSystem', () => {
     }
 
     it('should update poses on the ECS', () => {
+      // Setup the data as expected
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      setComponent(testEntity, ColliderComponent)
       const testImpulse = new Vector3(1, 2, 3)
+      // Sanity check before running
       const before = cloneRigidBodyPoseData(testEntity)
       const body = getComponent(testEntity, RigidBodyComponent)
       assertVecApproxEq(before.previousPosition, body.previousPosition.clone(), 3)
@@ -130,9 +139,9 @@ describe('PhysicsSystem', () => {
       assertVecApproxEq(before.linearVelocity, body.linearVelocity.clone(), 3)
       assertVecApproxEq(before.angularVelocity, body.angularVelocity.clone(), 3)
 
+      // Run and Check after
       Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
       physicsSystemExecute()
-
       const after = cloneRigidBodyPoseData(testEntity)
       assertVecAnyApproxNotEq(after.previousPosition, before.previousPosition, 3)
       assertVecAnyApproxNotEq(after.previousRotation, before.previousRotation, 3)
@@ -144,7 +153,7 @@ describe('PhysicsSystem', () => {
       assertVecAnyApproxNotEq(after.angularVelocity, before.angularVelocity, 3)
     })
 
-    it('should update collisions on the ECS', () => {
+    it('should call Physics.simulate to update collisions on the ECS', () => {
       const entity1 = createEntity()
       setComponent(entity1, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(entity1, TransformComponent)
