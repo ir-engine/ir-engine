@@ -198,7 +198,7 @@ const initializeInstance = async ({
    * If it's not, then throw an error and don't connect, because something is wrong.
    */
 
-  const existingInstanceResult = (await app.service(instancePath).find({
+  const existingInstanceResult = (await app.service(instancePath)._find({
     query: existingInstanceQuery,
     headers
   })) as Paginated<InstanceType>
