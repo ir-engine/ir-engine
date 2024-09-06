@@ -23,15 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
-
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { locationPath, LocationType } from '@ir-engine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
+import { validate as isValidUUID } from 'uuid'
 
 import { userHasAccess } from '../../../user/userHasAccess'
 import { locationColumns, LocationRowType } from '../../common/constants/location'
@@ -58,14 +58,15 @@ export default function LocationTable({ search }: { search: string }) {
     {
       $or: [
         {
+          id: isValidUUID(search) ? search : undefined
+        },
+        {
           name: {
             $like: `%${search}%`
           }
         },
         {
-          sceneId: {
-            $like: `%${search}%`
-          }
+          sceneId: isValidUUID(search) ? search : undefined
         }
       ]
     },

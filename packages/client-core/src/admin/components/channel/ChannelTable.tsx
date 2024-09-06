@@ -34,7 +34,7 @@ import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/f
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-
+import { validate as isValidUUID } from 'uuid'
 import { channelColumns, ChannelRowType } from '../../common/constants/channel'
 import DataTable from '../../common/Table'
 import AddEditChannelModal from './AddEditChannelModal'
@@ -64,9 +64,7 @@ export default function ChannelTable({
     {
       $or: [
         {
-          id: {
-            $like: `%${search}%`
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
           name: {
