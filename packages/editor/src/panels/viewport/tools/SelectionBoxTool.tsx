@@ -1,28 +1,3 @@
-/*
-CPAL-1.0 License
-
-The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at
-https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
-The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
-Exhibit A has been modified to be consistent with Exhibit B.
-
-Software distributed under the License is distributed on an "AS IS" basis,
-WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
-specific language governing rights and limitations under the License.
-
-The Original Code is Infinite Reality Engine.
-
-The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Infinite Reality Engine team.
-
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
-Infinite Reality Engine. All Rights Reserved.
-*/
-
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect, useState } from 'react'
 export const selectionBox = defineState({
@@ -69,8 +44,62 @@ export default function SelectionBox({
 
   const handleMouseUp = () => {
     setIsDragging(false)
+    //updateSelectionEntity()
   }
+  // const updateSelectionEntity = () => {
+  //   //get screen space bounding box
 
+  // }
+  // function convertScreenToNDC(x, y, width, height) {
+  //   const ndcX = (x / window.innerWidth) * 2 - 1;
+  //   const ndcY = -(y / window.innerHeight) * 2 + 1;
+
+  //   const ndcX2 = ((x + width) / window.innerWidth) * 2 - 1;
+  //   const ndcY2 = -((y + height) / window.innerHeight) * 2 + 1;
+
+  //   return {
+  //     left: Math.min(ndcX, ndcX2),
+  //     right: Math.max(ndcX, ndcX2),
+  //     top: Math.max(ndcY, ndcY2),
+  //     bottom: Math.min(ndcY, ndcY2),
+  //   };
+  // }
+  // function projectBoundingBoxToScreen(camera, object){
+  //   const box = new THREE.Box3().setFromObject(object); // Get bounding box for object
+  //   const points = [
+  //     new THREE.Vector3(box.min.x, box.min.y, box.min.z),
+  //     new THREE.Vector3(box.min.x, box.min.y, box.max.z),
+  //     new THREE.Vector3(box.min.x, box.max.y, box.min.z),
+  //     new THREE.Vector3(box.min.x, box.max.y, box.max.z),
+  //     new THREE.Vector3(box.max.x, box.min.y, box.min.z),
+  //     new THREE.Vector3(box.max.x, box.min.y, box.max.z),
+  //     new THREE.Vector3(box.max.x, box.max.y, box.min.z),
+  //     new THREE.Vector3(box.max.x, box.max.y, box.max.z),
+  //   ];
+
+  //   // Project each corner of the 3D bounding box to 2D screen space
+  //   const projectedPoints = points.map((point) => {
+  //     const projected = point.clone().project(camera);
+  //     return {
+  //       x: (projected.x + 1) / 2 * window.innerWidth,
+  //       y: -(projected.y - 1) / 2 * window.innerHeight,
+  //     };
+  //   });
+
+  //   return projectedPoints;
+  // }
+  // function isBoundingBoxInSelection(selectionBox, projectedPoints) {
+  //   const { left, right, top, bottom } = selectionBox;
+
+  //   // Check if any of the points of the bounding box are inside the selection box
+  //   for (let point of projectedPoints) {
+  //     if (point.x >= left && point.x <= right && point.y <= top && point.y >= bottom) {
+  //       return true; // One of the points is inside the selection box
+  //     }
+  //   }
+
+  //   return false; // No points intersect the selection box
+  // }
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove as any)
     document.addEventListener('mouseup', handleMouseUp)
