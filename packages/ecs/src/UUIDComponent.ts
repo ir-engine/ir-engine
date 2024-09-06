@@ -28,6 +28,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { hookstate, NO_PROXY_STEALTH, State, useHookstate } from '@ir-engine/hyperflux'
 
 import { defineComponent, setComponent } from './ComponentFunctions'
+import { S } from './ComponentSchemaUtils'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity } from './EntityFunctions'
 
@@ -35,7 +36,7 @@ export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',
   jsonID: 'EE_uuid',
 
-  onInit: () => '' as EntityUUID,
+  schema: S.EntityUUID(),
 
   onSet: (entity, component, uuid: EntityUUID) => {
     if (!uuid) throw new Error('UUID cannot be empty')

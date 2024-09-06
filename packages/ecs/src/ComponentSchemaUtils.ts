@@ -28,15 +28,15 @@ import {
   NumberOptions,
   ObjectOptions,
   SchemaOptions,
-  Static,
   StringOptions,
+  TLiteralValue,
   TProperties,
   TSchema,
   Type
 } from '@sinclair/typebox'
 import { Types } from 'bitecs'
-import { Quaternion, Vector3 } from 'three'
-import { Entity, UndefinedEntity } from './Entity'
+import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 
 const buildOptions = (init: any | undefined, options?: SchemaOptions) => {
   return init !== undefined
@@ -58,18 +58,31 @@ export const TypedClass = <T, TProps extends TProperties>(properties: TProps, in
 
 const EntitySchema = () => Type.Number({ default: UndefinedEntity, $id: 'Entity' }) as unknown as TTypedSchema<Entity>
 
+const EntityUUIDSchema = () => Type.String({ default: '', $id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>
+
 export const S = {
   Number: (init?: number, options?: NumberOptions) => Type.Number(buildOptions(init, options)),
   Bool: (init?: boolean, options?: SchemaOptions) => Type.Boolean(buildOptions(init, options)),
   String: (init?: string, options?: StringOptions) => Type.String(buildOptions(init, options)),
   Enum: <T extends Record<string, string | number>>(item: T, init?: string | number, options?: SchemaOptions) =>
     Type.Enum(item, buildOptions(init, options)),
+  Literal: <T extends TLiteralValue>(item: T, init?: T, options?: SchemaOptions) =>
+    Type.Literal(item, buildOptions(init, options)),
 
   Object: <T extends TProperties, Initial>(properties: T, init?: Initial, options?: ObjectOptions) =>
     Type.Object(properties, buildOptions(init, options)),
 
   Array: <T extends TSchema, Initial extends any[]>(items: T, init?: Initial, options?: ArrayOptions) =>
     Type.Array(items, buildOptions(init, options)),
+
+  Union: <T extends TSchema[], Initial>(schemas: [...T], init?: Initial, options?: SchemaOptions) =>
+    Type.Union(schemas, buildOptions(init, options)),
+
+  LiteralUnion: <T extends TLiteralValue>(items: T[], init?: T, options?: SchemaOptions) =>
+    S.Union(
+      items.map((lit) => S.Literal(lit)),
+      buildOptions(init, options)
+    ),
 
   Class: <T extends TProperties, Initial extends new (...params: any[]) => any>(
     init: Initial,
@@ -80,9 +93,14 @@ export const S = {
   Func: <T extends TSchema[], U extends TSchema>(parameters: [...T], returns: U, options?: SchemaOptions) =>
     Type.Function(parameters, returns, options),
 
+  Nullable: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
+    S.Union([schema, Type.Null()], buildOptions(init, options)),
+
   Call: (options?: SchemaOptions) => Type.Function([], Type.Void(), options),
 
   Entity: () => EntitySchema(),
+
+  EntityUUID: () => EntityUUIDSchema(),
 
   Vec3: (init = { x: 0, y: 0, z: 0 }, options?: ObjectOptions) =>
     TypedClass<Vector3, TProperties>(
@@ -96,42 +114,38 @@ export const S = {
         ...options,
         $id: 'Vec3'
       }
+    ),
+
+  Quaternion: (init = { x: 0, y: 0, z: 0, w: 1 }, options?: ObjectOptions) =>
+    TypedClass<Quaternion, TProperties>(
+      {
+        x: S.Number(),
+        y: S.Number(),
+        z: S.Number(),
+        w: S.Number()
+      },
+      () => new Quaternion(init.x, init.y, init.z, init.w),
+      {
+        ...options,
+        $id: 'Quaternion'
+      }
+    ),
+
+  Mat4: (init = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], options?: ObjectOptions) =>
+    TypedClass<Matrix4, TProperties>(
+      {
+        elements: Type.Array(Type.Number(), {
+          maxItems: 16,
+          minItems: 16
+        })
+      },
+      () => new Matrix4().fromArray(init),
+      {
+        ...options,
+        $id: 'Mat4'
+      }
     )
 }
-
-export const Vec3SchemaToVec3 = (vec3: Static<ReturnType<typeof S.Vec3>>) => new Vector3(vec3.x, vec3.y, vec3.z)
-
-export const QuaternionSchema = (options?: {
-  x: NumberOptions
-  y: NumberOptions
-  z: NumberOptions
-  w: NumberOptions
-}) =>
-  S.Object(
-    {
-      x: Type.Number(),
-      y: Type.Number(),
-      z: Type.Number(),
-      w: Type.Number()
-    },
-    {
-      default: new Quaternion(
-        options?.x?.default ?? 0,
-        options?.y?.default ?? 0,
-        options?.z?.default ?? 0,
-        options?.w?.default ?? 0
-      )
-    }
-  )
-
-export const Matrix4Schema = () =>
-  Type.Object({
-    elements: Type.Array(Type.Number(), {
-      default: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      maxItems: 16,
-      minItems: 16
-    })
-  })
 
 const { f64 } = Types
 export const ECSSchema = {
