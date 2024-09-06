@@ -178,8 +178,12 @@ describe('MaterialStateComponent', () => {
       const uuids = [uuid1, uuid2]
       material1.uuid = uuid1
       material2.uuid = uuid2
-      for (const id in instances) setComponent(instances[id], MaterialStateComponent, { material: materials[id] })
-      for (const id in instances) setComponent(instances[id], MeshComponent, meshes[id])
+      for (const id in instances) {
+        setComponent(instances[id], UUIDComponent, uuids[id])
+        setComponent(instances[id], MaterialStateComponent, { material: materials[id] })
+        setComponent(instances[id], MaterialInstanceComponent, { uuid: uuids })
+        setComponent(instances[id], MeshComponent, meshes[id])
+      }
       setComponent(testEntity, MaterialInstanceComponent, { uuid: uuids })
       setComponent(testEntity, MaterialStateComponent, { instances: instances })
       // Sanity check before running
@@ -193,8 +197,9 @@ describe('MaterialStateComponent', () => {
         )
       }
       // Run and Check the result
-      removeComponent(testEntity, MaterialInstanceComponent)
-      for (const entity of getComponent(testEntity, MaterialStateComponent).instances) {
+      removeComponent(testEntity, MaterialStateComponent)
+      for (const uuid of getComponent(testEntity, MaterialInstanceComponent).uuid) {
+        const entity = UUIDComponent.getEntityByUUID(uuid)
         assert.equal(
           (getComponent(entity, MeshComponent).material as Material).uuid,
           getComponent(entity, MaterialStateComponent).material.uuid
