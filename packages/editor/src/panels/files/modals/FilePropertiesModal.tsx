@@ -297,7 +297,7 @@ export default function FilePropertiesModal() {
                 </>
               ) : (
                 <>
-                  <Text className="text-theme-input">
+                  <Text className="block h-auto w-full overflow-auto whitespace-normal break-words text-theme-input">
                     {files.length > 1 && !sharedFields.value.includes('description')
                       ? t('editor:layout.filebrowser.fileProperties.mixedValues')
                       : resourceDigest.description.value || <em>{t('common:components.none')}</em>}
