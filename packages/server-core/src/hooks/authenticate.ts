@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -133,7 +133,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
 /**
  * A method to check if the service requesting is whitelisted.
- * In that scenario we dont need to perform authentication check.
+ * In that scenario we don't need to perform authentication check.
  */
 const checkWhitelist = (context: HookContext<Application>): boolean => {
   for (const item of config.authentication.whiteList) {

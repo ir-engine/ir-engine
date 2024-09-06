@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,6 +30,7 @@ import path from 'path'
 import url from 'url'
 
 import { oembedPath } from '@ir-engine/common/src/schemas/media/oembed.schema'
+import { allowedDomainsPath } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
 import { routePath } from '@ir-engine/common/src/schemas/route/route.schema'
 import { acceptInvitePath } from '@ir-engine/common/src/schemas/user/accept-invite.schema'
 import { discordBotAuthPath } from '@ir-engine/common/src/schemas/user/discord-bot-auth.schema'
@@ -269,6 +270,7 @@ const authentication = {
     'oauth/:provider',
     'oauth/:provider/callback',
     'authentication',
+    allowedDomainsPath,
     oembedPath,
     githubRepoAccessWebhookPath,
     { path: identityProviderPath, methods: ['create'] },

@@ -58,11 +58,13 @@ import {
   userPath,
   userSettingPath
 } from '@ir-engine/common/src/schema.type.module'
+import type { HasAccessType } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
 import {
   HyperFlux,
   defineState,
   getMutableState,
   getState,
+  stateNamespaceKey,
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
@@ -131,6 +133,117 @@ const resolveWalletUser = (credentials: any): UserType => {
   }
 }
 
+const waitForToken = async (win, clientUrl): Promise<string> => {
+  return new Promise((resolve) => {
+    win.postMessage(
+      JSON.stringify({
+        key: `${stateNamespaceKey}.AuthState.authUser`,
+        method: 'get'
+      }),
+      clientUrl
+    )
+    const getIframeResponse = function (e) {
+      if (e.origin !== clientUrl) return
+      if (e?.data) {
+        try {
+          const value = JSON.parse(e.data)
+          if (value?.accessToken != null) {
+            window.removeEventListener('message', getIframeResponse)
+            resolve(value?.accessToken)
+          }
+        } catch {
+          resolve('')
+        }
+      } else resolve(e)
+    }
+    window.addEventListener('message', getIframeResponse)
+  })
+}
+
+const getToken = async (): Promise<string> => {
+  let gotResponse = false
+  const iframe = document.getElementById('root-cookie-accessor') as HTMLFrameElement
+  let win
+  try {
+    win = iframe!.contentWindow
+  } catch (e) {
+    win = iframe!.contentWindow
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e?.data) {
+      try {
+        const value = JSON.parse(e.data)
+        if (value?.invalidDomain != null) {
+          localStorage.setItem('invalidCrossOriginDomain', 'true')
+        }
+      } catch (err) {
+        console.log('ERROR MESSAGE', err)
+        //
+      }
+    }
+  })
+
+  const clientUrl = config.client.clientUrl
+  let iteration = 0
+  const hasAccess = (await new Promise((resolve) => {
+    const checkAccessInterval = setInterval(() => {
+      if (iteration > 4) {
+        clearInterval(checkAccessInterval)
+        resolve({ cookieSet: false, hasStorageAccess: false })
+      }
+      if (!gotResponse) {
+        iteration++
+        win.postMessage(JSON.stringify({ method: 'checkAccess' }), clientUrl)
+      } else clearInterval(checkAccessInterval)
+    }, 100)
+    const hasAccessListener = async function (e) {
+      gotResponse = true
+      window.removeEventListener('message', hasAccessListener)
+      if (!e.data) resolve({ hasStorageAccess: false, cookieSet: false })
+      const data = JSON.parse(e.data)
+      if (data.skipCrossOriginCookieCheck != null || data.storageAccessPermission === 'denied')
+        localStorage.setItem('skipCrossOriginCookieCheck', 'true')
+      resolve(data)
+    }
+    window.addEventListener('message', hasAccessListener)
+  })) as HasAccessType
+
+  if (!hasAccess.cookieSet || !hasAccess.hasStorageAccess) {
+    const skipCheck = localStorage.getItem('skipCrossOriginCookieCheck')
+    const invalidCrossOriginDomain = localStorage.getItem('invalidCrossOriginDomain')
+    if (skipCheck === 'true' || invalidCrossOriginDomain === 'true') {
+      const authState = getMutableState(AuthState)
+      const accessToken = authState?.authUser?.accessToken?.value
+      return Promise.resolve(accessToken?.length > 0 ? accessToken : '')
+    } else {
+      iframe.style.display = 'block'
+      return await new Promise((resolve) => {
+        const clickResponseListener = async function (e) {
+          try {
+            window.removeEventListener('message', clickResponseListener)
+            const parsed = !e.data ? {} : JSON.parse(e.data)
+            if (parsed.skipCrossOriginCookieCheck != null) {
+              localStorage.setItem('skipCrossOriginCookieCheck', parsed.skipCrossOriginCookieCheck)
+              iframe.style.display = 'none'
+              resolve('')
+            } else {
+              const token = await waitForToken(win, clientUrl)
+              iframe.style.display = 'none'
+              resolve(token)
+            }
+          } catch (err) {
+            //Do nothing
+          }
+        }
+        window.addEventListener('message', clickResponseListener)
+      })
+    }
+  } else {
+    return waitForToken(win, clientUrl)
+  }
+}
+
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
@@ -165,6 +278,26 @@ export interface LinkedInLoginForm {
   email: string
 }
 
+export const writeAuthUserToIframe = () => {
+  if (localStorage.getItem('skipCrossOriginCookieCheck') === 'true') return
+  const iframe = document.getElementById('root-cookie-accessor') as HTMLFrameElement
+  let win
+  try {
+    win = iframe!.contentWindow
+  } catch (e) {
+    win = iframe!.contentWindow
+  }
+
+  win.postMessage(
+    JSON.stringify({
+      key: `${stateNamespaceKey}.${AuthState.name}.authUser`,
+      method: 'set',
+      data: getState(AuthState).authUser
+    }),
+    config.client.clientUrl
+  )
+}
+
 /**
  * Resets the current user's accessToken to a new random guest token.
  */
@@ -178,8 +311,8 @@ async function _resetToGuestToken(options = { reset: true }) {
     userId: '' as UserID
   })
   const accessToken = newProvider.accessToken!
-  console.log(`Created new guest accessToken: ${accessToken}`)
   await API.instance.authentication.setAccessToken(accessToken as string)
+  writeAuthUserToIframe()
   return accessToken
 }
 
@@ -188,20 +321,16 @@ export const AuthService = {
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
     // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
-    // The client and auth settigns will not be needed on these routes
+    // The client and auth settings will not be needed on these routes
     if (location.pathname.startsWith('/auth')) return
     const authState = getMutableState(AuthState)
     try {
-      const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
+      const rootDomainToken = await getToken()
 
-      if (forceClientAuthReset) {
-        await API.instance.authentication.reset()
-      }
-      if (accessToken) {
-        await API.instance.authentication.setAccessToken(accessToken as string)
-      } else {
-        await _resetToGuestToken({ reset: false })
-      }
+      if (forceClientAuthReset) await API.instance.authentication.reset()
+
+      if (rootDomainToken?.length > 0) await API.instance.authentication.setAccessToken(rootDomainToken as string)
+      else await _resetToGuestToken({ reset: false })
 
       let res: AuthenticationResult
       try {
@@ -227,13 +356,15 @@ export const AuthService = {
         const authUser = resolveAuthUser(res)
         // authUser is now { accessToken, authentication, identityProvider }
         authState.merge({ authUser })
-        await AuthService.loadUserData(authUser.identityProvider?.userId)
+        writeAuthUserToIframe()
+        await AuthService.loadUserData(authUser.identityProvider.userId)
       } else {
         logger.warn('No response received from reAuthenticate()!')
       }
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      writeAuthUserToIframe()
 
       // if (window.location.pathname !== '/') {
       //   window.location.href = '/';
@@ -417,6 +548,7 @@ export const AuthService = {
 
       const authUser = resolveAuthUser(res)
       authState.merge({ authUser })
+      writeAuthUserToIframe()
       await AuthService.loadUserData(authUser.identityProvider?.userId)
       authState.merge({ isProcessing: false, error: '' })
       let timeoutTimer = 0
@@ -425,8 +557,7 @@ export const AuthService = {
       // in properly. This interval waits to make sure the token has been updated before redirecting
       const waitForTokenStored = setInterval(() => {
         timeoutTimer += TIMEOUT_INTERVAL
-        const authData = authState
-        const storedToken = authData.authUser?.accessToken?.value
+        const storedToken = authState.authUser?.accessToken?.value
         if (storedToken === accessToken) {
           clearInterval(waitForTokenStored)
           window.location.href = redirectSuccess
@@ -465,6 +596,25 @@ export const AuthService = {
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
+      writeAuthUserToIframe()
+      await new Promise<void>((resolve) => {
+        const clientUrl = config.client.clientUrl
+        const getIframeResponse = function (e) {
+          if (e.origin !== clientUrl) return
+          if (e?.data) {
+            try {
+              const value = JSON.parse(e.data)
+              if (value?.cookieWasSet === `${stateNamespaceKey}.${AuthState.name}.authUser`) {
+                window.removeEventListener('message', getIframeResponse)
+                resolve()
+              }
+            } catch {
+              resolve()
+            }
+          }
+        }
+        window.addEventListener('message', getIframeResponse)
+      })
       window.location.reload()
     }
   },
@@ -687,8 +837,6 @@ export const AuthService = {
   useAPIListeners: () => {
     useEffect(() => {
       const userPatchedListener = (user: UserPublicPatch | UserPatch) => {
-        console.log('USER PATCHED %o', user)
-
         if (!user.id) return
 
         const selfUser = getMutableState(AuthState).user
@@ -699,8 +847,6 @@ export const AuthService = {
       }
 
       const userAvatarPatchedListener = async (userAvatar: UserAvatarPatch) => {
-        console.log('USER AVATAR PATCHED %o', userAvatar)
-
         if (!userAvatar.userId) return
 
         const selfUser = getMutableState(AuthState).user
