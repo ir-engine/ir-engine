@@ -225,7 +225,13 @@ export default function FilesToolbar() {
       </div>
 
       <div id="downloadProject" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-        <Tooltip content={t('editor:layout.filebrowser.downloadProject')}>
+        <Tooltip
+          content={
+            showDownloadButtons
+              ? t('editor:layout.filebrowser.downloadProject')
+              : t('editor:layout.filebrowser.downloadProjectUnavailable')
+          }
+        >
           <Button
             variant="transparent"
             startIcon={<FiDownload />}

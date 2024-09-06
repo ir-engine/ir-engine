@@ -257,7 +257,8 @@
       "lbl-load": "Load Into Scene",
       "lbl-loadOptions": "Load Options",
       "lbl-unload": "Unload",
-      "lbl-reload": "Reload"
+      "lbl-reload": "Reload",
+      "lbl-confimation": "Prefab Created"
     },
     "persistent-anchor": {
       "name": "Persistent Anchor",
@@ -532,7 +533,15 @@
         "uastcZstandard": "UASTC Zstandard",
         "uastcZstandardTooltip": "Use UASTC Zstandard supercompression",
         "useMeshoptimizer": "Use Meshoptimizer",
-        "maxCodebooks": "Max Codebooks"
+        "maxCodebooks": "Max Codebooks",
+        "status": {
+          "initializing": "Initializing transform...",
+          "processingtexture": "Processing texture {{numerator}} of {{denominator}}...",
+          "finalizing": "Finalizing transform...",
+          "writingfiles": "Writing files...",
+          "complete": "Complete."
+        },
+        "progress": "LOD {{currentLOD}} of {{totalLODs}}: {{caption}}"
       },
       "lods": {
         "label": "Level of Detail",
@@ -1216,15 +1225,18 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
+      "downloadProjectUnavailable": "Cannot Download From Project Directory",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
       "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "fetchingProject": "Fetching Project",
       "downloadingProject": "Downloading Project ({{completed}}/{{total}})",
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
+      "fileNameLengthError": "File name must be between 4 and 64 characters.",
       "fileProperties": {
         "header": "Info for {{fileName}}",
         "header-plural": "Info for {{itemCount}} Items",
