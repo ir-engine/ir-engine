@@ -86,7 +86,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
-  const locationType = useHookstate(location?.locationSetting.locationType || 'public')
+  const locationType = useHookstate(location?.locationSetting.locationType || 'private')
 
   useEffect(() => {
     if (location) {
