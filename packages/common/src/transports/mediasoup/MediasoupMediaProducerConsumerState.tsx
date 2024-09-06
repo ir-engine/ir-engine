@@ -148,6 +148,30 @@ export const MediasoupMediaProducersConsumersObjectsState = defineState({
   }
 })
 
+export type MediasoupMediaProducerType = {
+  producerID: string
+  peerID: PeerID
+  mediaTag: DataChannelType
+  transportID: string
+  channelID: ChannelID
+  paused?: boolean
+  globalMute?: boolean
+}
+
+export type MediasoupMediaConsumerType = {
+  consumerID: string
+  peerID: PeerID
+  mediaTag: DataChannelType
+  transportID: string
+  channelID: ChannelID
+  producerID: string
+  paused?: boolean
+  producerPaused?: boolean
+  kind?: 'audio' | 'video'
+  rtpParameters: any
+  type: string
+}
+
 export const MediasoupMediaProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerState',
 
@@ -155,30 +179,10 @@ export const MediasoupMediaProducerConsumerState = defineState({
     NetworkID,
     {
       producers: {
-        [producerID: string]: {
-          producerID: string
-          peerID: PeerID
-          mediaTag: DataChannelType
-          transportID: string
-          channelID: ChannelID
-          paused?: boolean
-          globalMute?: boolean
-        }
+        [producerID: string]: MediasoupMediaProducerType
       }
       consumers: {
-        [consumerID: string]: {
-          consumerID: string
-          peerID: PeerID
-          mediaTag: DataChannelType
-          transportID: string
-          channelID: ChannelID
-          producerID: string
-          paused?: boolean
-          producerPaused?: boolean
-          kind?: 'audio' | 'video'
-          rtpParameters: any
-          type: string
-        }
+        [consumerID: string]: MediasoupMediaConsumerType
       }
     }
   >,

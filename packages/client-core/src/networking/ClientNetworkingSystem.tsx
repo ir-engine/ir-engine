@@ -73,7 +73,7 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
 
   return (
     <>
-      {transportState.keys.map((transportID: string) => (
+      {transportState.keys?.map((transportID: string) => (
         <TransportReactor key={transportID} transportID={transportID} networkID={props.networkID} />
       ))}
     </>

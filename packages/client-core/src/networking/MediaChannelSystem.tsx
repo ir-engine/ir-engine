@@ -41,7 +41,7 @@ const ConsumerReactor = (props: { consumerID: string; networkID: InstanceID }) =
   const consumer = useMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers[consumerID].value
 
   useEffect(() => {
-    receiveConsumerHandler(consumer as typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE)
+    receiveConsumerHandler(networkID, consumer)
   }, [])
 
   return null
@@ -52,7 +52,7 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
   const mediaProducerConsumerState = useMutableState(MediasoupMediaProducerConsumerState)[networkID]
   return (
     <>
-      {mediaProducerConsumerState.consumers.keys.map((consumerID) => (
+      {mediaProducerConsumerState?.consumers?.keys?.map((consumerID) => (
         <ConsumerReactor key={consumerID} consumerID={consumerID} networkID={networkID} />
       ))}
     </>

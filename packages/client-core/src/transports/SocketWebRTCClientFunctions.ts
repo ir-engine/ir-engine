@@ -93,6 +93,7 @@ import {
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
 import {
   MediasoupMediaConsumerActions,
+  MediasoupMediaConsumerType,
   MediasoupMediaProducerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
@@ -944,21 +945,19 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
   }
 }
 
-export const receiveConsumerHandler = async (
-  action: typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE
-) => {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+export const receiveConsumerHandler = async (networkID: NetworkID, consumerState: MediasoupMediaConsumerType) => {
+  const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
 
-  const { peerID, mediaTag, channelID, paused } = action
+  const { peerID, mediaTag, channelID, paused } = consumerState
 
   await waitForTransports(network)
   const transport = MediasoupTransportState.getTransport(network.id, 'recv') as WebRTCTransportExtension
 
   const consumer = (await transport.consume({
-    id: action.consumerID,
-    producerId: action.producerID,
-    rtpParameters: action.rtpParameters as any,
-    kind: action.kind!,
+    id: consumerState.consumerID,
+    producerId: consumerState.producerID,
+    rtpParameters: consumerState.rtpParameters as any,
+    kind: consumerState.kind!,
     appData: { peerID, mediaTag, channelId: channelID }
   })) as unknown as ConsumerExtension
 

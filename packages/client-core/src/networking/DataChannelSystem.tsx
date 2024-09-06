@@ -177,7 +177,7 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
       {dataChannelRegistry.keys.map((dataChannelType) => (
         <DataChannel key={dataChannelType} networkID={networkID} dataChannelType={dataChannelType as DataChannelType} />
       ))}
-      {dataProducerConsumerState.consumers.keys.map((consumerID) => (
+      {dataProducerConsumerState?.consumers?.keys.map((consumerID) => (
         <ConsumerReactor key={consumerID} consumerID={consumerID} networkID={props.networkID} />
       ))}
     </>
