@@ -52,6 +52,9 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { BodyTypes } from '../types/PhysicsTypes'
 import { PhysicsSystem } from './PhysicsSystem'
 
+/** @description Number of steps per second that the physics will run */
+const steps = 60
+
 describe('PhysicsSystem', () => {
   describe('IDs', () => {
     it("should define the PhysicsSystem's UUID with the expected value", () => {
@@ -73,7 +76,7 @@ describe('PhysicsSystem', () => {
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
       physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
-      physicsWorld.timestep = 1 / 60
+      physicsWorld.timestep = 1 / steps
 
       testEntity = createEntity()
     })
@@ -174,7 +177,37 @@ describe('PhysicsSystem', () => {
       assert.equal(hasComponent(entity2, CollisionComponent), true)
     })
 
-    // it('should ??? ', () => {})
+    it('should remove the CollisionComponents when there are no longer any entities colliding', () => {
+      const entity1 = createEntity()
+      setComponent(entity1, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      setComponent(entity1, TransformComponent)
+      setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      setComponent(entity1, ColliderComponent, { mass: 1 })
+      const entity2 = createEntity()
+      setComponent(entity2, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      setComponent(entity2, TransformComponent) // Will check for overlapping collision
+      setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(entity2, ColliderComponent)
+      // Sanity check before
+      assert.equal(hasComponent(entity1, CollisionComponent), false)
+      assert.equal(hasComponent(entity2, CollisionComponent), false)
+      physicsSystemExecute()
+      assert.equal(hasComponent(entity1, CollisionComponent), true)
+      assert.equal(hasComponent(entity2, CollisionComponent), true)
+
+      // Run and Check after
+      const NoCollisionStepID = 10 // @note entity1's body will move out of range from entity2 in 10 steps (due to gravity)
+      for (let id = 0; id < steps; ++id) {
+        physicsSystemExecute()
+        if (id < NoCollisionStepID) {
+          assert.equal(hasComponent(entity1, CollisionComponent), true)
+          assert.equal(hasComponent(entity2, CollisionComponent), true)
+        } else {
+          assert.equal(hasComponent(entity1, CollisionComponent), false)
+          assert.equal(hasComponent(entity2, CollisionComponent), false)
+        }
+      }
+    })
   }) //:: execute
 
   /**
