@@ -27,6 +27,7 @@ import { useLayoutEffect } from 'react'
 import { ColorRepresentation, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { matches } from '@ir-engine/hyperflux'
 import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
@@ -41,6 +42,11 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
   jsonID: 'EE_ground_plane',
+
+  schema: S.Object({
+    color: S.Color(0xffffff),
+    visible: S.Bool(true)
+  }),
 
   onInit(entity) {
     return {

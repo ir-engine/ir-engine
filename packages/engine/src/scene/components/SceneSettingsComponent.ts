@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 
 export const DefaultKillHeight = -10
 
@@ -32,39 +32,13 @@ export const SceneSettingsComponent = defineComponent({
   name: 'SceneSettingsComponent',
   jsonID: 'EE_scene_settings',
 
-  onInit() {
-    return {
-      thumbnailURL: '',
-      loadingScreenURL: '',
-      primaryColor: '#000000',
-      backgroundColor: '#FFFFFF',
-      alternativeColor: '#000000',
-      sceneKillHeight: DefaultKillHeight,
-      spectateEntity: null as null | EntityUUID
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.thumbnailURL === 'string') component.thumbnailURL.set(json.thumbnailURL)
-    if (typeof json.loadingScreenURL === 'string') component.loadingScreenURL.set(json.loadingScreenURL)
-    if (typeof json.primaryColor === 'string') component.primaryColor.set(json.primaryColor)
-    if (typeof json.backgroundColor === 'string') component.backgroundColor.set(json.backgroundColor)
-    if (typeof json.alternativeColor === 'string') component.alternativeColor.set(json.alternativeColor)
-    if (typeof json.sceneKillHeight === 'number') component.sceneKillHeight.set(json.sceneKillHeight)
-    if (typeof json.spectateEntity === 'string') component.spectateEntity.set(json.spectateEntity)
-  },
-
-  toJSON: (component) => {
-    return {
-      thumbnailURL: component.thumbnailURL,
-      loadingScreenURL: component.loadingScreenURL,
-      primaryColor: component.primaryColor,
-      backgroundColor: component.backgroundColor,
-      alternativeColor: component.alternativeColor,
-      sceneKillHeight: component.sceneKillHeight,
-      spectateEntity: component.spectateEntity
-    }
-  }
+  schema: S.Object({
+    thumbnailURL: S.String(''),
+    loadingScreenURL: S.String(''),
+    primaryColor: S.String('#000000'),
+    backgroundColor: S.String('#FFFFFF'),
+    alternativeColor: S.String('#000000'),
+    sceneKillHeight: S.Number(DefaultKillHeight),
+    spectateEntity: S.Nullable(S.EntityUUID())
+  })
 })

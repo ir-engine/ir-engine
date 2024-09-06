@@ -58,6 +58,7 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Group
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -79,44 +80,31 @@ import { ReflectionProbeComponent } from './ReflectionProbeComponent'
 
 const tempColor = new Color()
 
+const envMapSourceType = S.LiteralUnion(
+  Object.keys(EnvMapSourceType) as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType][],
+  EnvMapSourceType.None
+)
+
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
   jsonID: 'EE_envmap',
 
-  onInit: () => {
-    return {
-      type: EnvMapSourceType.None as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType],
-      envMapTextureType:
-        EnvMapTextureType.Equirectangular as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType],
-      envMapSourceColor: new Color(0xfff) as Color,
-      envMapSourceURL: '',
-      envMapSourceEntityUUID: '' as EntityUUID,
-      envMapIntensity: 1,
-      // internal
-      envmap: null as Texture | null
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (typeof json?.type === 'string') component.type.set(json.type)
-    if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
-    if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(new Color(json.envMapSourceColor))
-    if (typeof json?.envMapSourceURL === 'string') component.envMapSourceURL.set(json.envMapSourceURL)
-    if (typeof json?.envMapSourceEntityUUID === 'string')
-      component.envMapSourceEntityUUID.set(json.envMapSourceEntityUUID)
-    if (typeof json?.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
-  },
-
-  toJSON: (component) => {
-    return {
-      type: component.type,
-      envMapTextureType: component.envMapTextureType,
-      envMapSourceColor: component.envMapSourceColor,
-      envMapSourceURL: component.envMapSourceURL,
-      envMapSourceEntityUUID: component.envMapSourceEntityUUID,
-      envMapIntensity: component.envMapIntensity
-    }
-  },
+  schema: S.Object({
+    type: S.LiteralUnion(
+      Object.keys(EnvMapSourceType) as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType][],
+      EnvMapSourceType.None
+    ),
+    envMapTextureType: S.LiteralUnion(
+      Object.keys(EnvMapTextureType) as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType][],
+      EnvMapTextureType.Equirectangular
+    ),
+    envMapSourceColor: S.Color(0xfff),
+    envMapSourceURL: S.String(''),
+    envMapSourceEntityUUID: S.EntityUUID(),
+    envMapIntensity: S.Number(1),
+    // internal
+    envmap: S.Nullable(S.Type<Texture>())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
@@ -289,16 +277,12 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
 
 export const BoxProjectionPlugin = defineComponent({
   name: 'BoxProjectionPlugin',
-  onInit: (entity) => {
-    return {
-      cubeMapSize: new Uniform(new Vector3()),
-      cubeMapPos: new Uniform(new Vector3())
-    }
-  },
-  onSet: (entity, component, json) => {
-    if (json?.cubeMapSize) component.cubeMapSize.set(json.cubeMapSize)
-    if (json?.cubeMapPos) component.cubeMapPos.set(json.cubeMapPos)
-  },
+
+  schema: S.Object({
+    cubeMapSize: S.Class(Uniform, {}, new Vector3()),
+    cubeMapPos: S.Class(Uniform, {}, new Vector3())
+  }),
+
   reactor: () => {
     const entity = useEntityContext()
 

@@ -24,12 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { MathUtils, Vector2, Vector3 } from 'three'
-import matches from 'ts-matches'
 
 import {
   ECSState,
   Entity,
-  EntityUUID,
   getComponent,
   getMutableComponent,
   removeComponent,
@@ -61,6 +59,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
@@ -234,71 +233,37 @@ const removeInteractableUI = (entity: Entity) => {
 export const InteractableComponent = defineComponent({
   name: 'InteractableComponent',
   jsonID: 'EE_interactable',
-  onInit: () => {
-    return {
-      //TODO reimpliment the frustum culling for interactables
 
-      //TODO check if highlight works properly on init and with non clickInteract
-      //TODO simplify button logic in inputUpdate
+  schema: S.Object({
+    //TODO reimpliment the frustum culling for interactables
 
-      //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
+    //TODO check if highlight works properly on init and with non clickInteract
+    //TODO simplify button logic in inputUpdate
 
-      //TODO canInteract for grabbed state on grabbable?
-      uiInteractable: true,
-      uiEntity: UndefinedEntity,
-      label: 'E',
-      uiVisibilityOverride: XRUIVisibilityOverride.none as XRUIVisibilityOverride,
-      uiActivationType: XRUIActivationType.proximity as XRUIActivationType,
-      activationDistance: 2,
-      clickInteract: false,
-      highlighted: false,
-      callbacks: [] as Array<{
+    //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
+
+    //TODO canInteract for grabbed state on grabbable?
+    uiInteractable: S.Bool(true),
+    uiEntity: S.Entity(),
+    label: S.String('E'),
+    uiVisibilityOverride: S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none),
+    uiActivationType: S.Enum(XRUIActivationType, XRUIActivationType.proximity),
+    activationDistance: S.Number(2),
+    clickInteract: S.Bool(false),
+    highlighted: S.Bool(false),
+    callbacks: S.Array(
+      S.Object({
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
          */
-        callbackID: null | string
+        callbackID: S.Nullable(S.String()),
         /**
          * empty string represents self
          */
-        target: null | EntityUUID
-      }>
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.label) component.label.set(json.label)
-    if (typeof json.uiActivationType === 'number' && component.uiActivationType.value !== json.uiActivationType)
-      component.uiActivationType.set(json.uiActivationType)
-    if (typeof json.clickInteract === 'boolean' && component.clickInteract.value !== json.clickInteract)
-      component.clickInteract.set(json.clickInteract)
-    if (typeof json.uiInteractable === 'boolean' && component.uiInteractable.value !== json.uiInteractable)
-      component.uiInteractable.set(json.uiInteractable)
-    if (json.activationDistance) component.activationDistance.set(json.activationDistance)
-    if (
-      matches
-        .arrayOf(
-          matches.shape({
-            callbackID: matches.nill.orParser(matches.string),
-            target: matches.nill.orParser(matches.string)
-          })
-        )
-        .test(json.callbacks)
-    ) {
-      component.callbacks.set(json.callbacks)
-    }
-  },
-
-  toJSON: (component) => {
-    return {
-      label: component.label,
-      clickInteract: component.clickInteract,
-      activationDistance: component.activationDistance,
-      uiActivationType: component.uiActivationType,
-      uiInteractable: component.uiInteractable,
-      callbacks: component.callbacks
-    }
-  },
+        target: S.Nullable(S.EntityUUID())
+      })
+    )
+  }),
 
   reactor: () => {
     if (!isClient) return null

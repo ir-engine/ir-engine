@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { UserID } from '@ir-engine/hyperflux'
 import {
   ArrayOptions,
   Kind,
@@ -31,11 +32,12 @@ import {
   StringOptions,
   TLiteralValue,
   TProperties,
+  TRecord,
   TSchema,
   Type
 } from '@sinclair/typebox'
 import { Types } from 'bitecs'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 
 const buildOptions = (init: any | undefined, options?: SchemaOptions) => {
@@ -61,6 +63,12 @@ const EntitySchema = (def?: Entity) =>
 
 const EntityUUIDSchema = () => Type.String({ default: '', $id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>
 
+const UserIDSchema = () => Type.String({ default: '', $id: 'UserUUID' }) as unknown as TTypedSchema<UserID>
+
+const isColorObj = (color?: ColorRepresentation): color is Color => {
+  return color !== undefined && (color as Color).r !== undefined
+}
+
 export const S = {
   Number: (init?: number, options?: NumberOptions) => Type.Number(buildOptions(init, options)),
   Bool: (init?: boolean, options?: SchemaOptions) => Type.Boolean(buildOptions(init, options)),
@@ -74,7 +82,10 @@ export const S = {
     Type.Object(properties, buildOptions(init, options)),
 
   Record: <K extends TSchema, V extends TSchema, Initial>(key: K, value: V, init?: Initial, options?: ObjectOptions) =>
-    Type.Record(key, value, buildOptions(init, options)),
+    Type.Record(key, value, buildOptions(init ?? {}, options)) as TRecord<K, V>,
+
+  Partial: <T extends TSchema, Initial>(properties: T, init?: Initial, options?: SchemaOptions) =>
+    Type.Partial(properties, buildOptions(init, options)),
 
   Array: <T extends TSchema, Initial extends any[]>(items: T, init?: Initial, options?: ArrayOptions) =>
     Type.Array(items, buildOptions(init ?? [], options)),
@@ -83,7 +94,7 @@ export const S = {
     Type.Union(schemas, buildOptions(init, options)),
 
   LiteralUnion: <T extends TLiteralValue>(items: T[], init?: T, options?: SchemaOptions) =>
-    S.Union([...items.map((lit) => S.Literal(lit))], buildOptions(init, options)),
+    S.Union([...items.map((lit) => S.Literal(lit))], init, options),
 
   Class: <T extends TProperties, Initial extends new (...params: any[]) => any>(
     init: Initial,
@@ -94,17 +105,20 @@ export const S = {
   Func: <T extends TSchema[], U extends TSchema>(parameters: [...T], returns: U, options?: SchemaOptions) =>
     Type.Function(parameters, returns, options),
 
+  Call: (options?: SchemaOptions) => Type.Function([], Type.Void(), options),
+
   Nullable: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
-    S.Union([schema, Type.Null()], buildOptions(init, options)),
+    S.Union([schema, Type.Null()], init, options),
 
   Optional: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
-    S.Union([schema, Type.Undefined()], buildOptions(init, options)),
-
-  Call: (options?: SchemaOptions) => Type.Function([], Type.Void(), options),
+    // Typebox Optional doesn't allow for default value
+    Type.Union([schema, Type.Undefined()], { default: init, ...options }),
 
   Entity: (def?: Entity) => EntitySchema(),
 
   EntityUUID: () => EntityUUIDSchema(),
+
+  UserID: () => UserIDSchema(),
 
   Vec3: (init = { x: 0, y: 0, z: 0 }, options?: ObjectOptions) =>
     TypedClass<Vector3, TProperties>(
@@ -117,6 +131,19 @@ export const S = {
       {
         ...options,
         $id: 'Vec3'
+      }
+    ),
+
+  Vec2: (init = { x: 0, y: 0 }, options?: ObjectOptions) =>
+    TypedClass<Vector2, TProperties>(
+      {
+        x: S.Number(),
+        y: S.Number()
+      },
+      () => new Vector2(init.x, init.y),
+      {
+        ...options,
+        $id: 'Vec2'
       }
     ),
 
@@ -150,10 +177,25 @@ export const S = {
       }
     ),
 
-  // Only use if you have to (ie. HTML element types, Three types), provides no real type safety
-  Type: <T>(options?: ObjectOptions) => S.Object({}, buildOptions(null, options)) as unknown as TTypedSchema<T>,
+  Color: (init?: ColorRepresentation, options?: ObjectOptions) =>
+    TypedClass<Color, TProperties>(
+      {
+        r: S.Number(),
+        g: S.Number(),
+        b: S.Number()
+      },
+      () => (isColorObj(init) ? new Color(init.r, init.g, init.b) : new Color(init)),
+      {
+        ...options,
+        $id: 'Color'
+      }
+    ),
 
-  Any: () => Type.Any()
+  // Only use if you have to (ie. HTML element types, Three types), provides no real type safety or auto serialization
+  Type: <T>(init?: T, options?: ObjectOptions) =>
+    S.Object({}, init ? () => init : null, options) as unknown as TTypedSchema<T>,
+  Any: () => Type.Any(),
+  Void: () => Type.Void()
 }
 
 export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'], 'none')

@@ -24,50 +24,44 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 'three'
+import {
+  ACESFilmicToneMapping,
+  BasicShadowMap,
+  CineonToneMapping,
+  CustomToneMapping,
+  LinearToneMapping,
+  NoToneMapping,
+  PCFShadowMap,
+  PCFSoftShadowMap,
+  ReinhardToneMapping,
+  VSMShadowMap
+} from 'three'
 
-import { EntityUUID } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+
+const ToneMappingSchema = S.LiteralUnion(
+  [NoToneMapping, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, CustomToneMapping],
+  LinearToneMapping
+)
+
+const ShadowMapSchema = S.LiteralUnion([BasicShadowMap, PCFShadowMap, PCFSoftShadowMap, VSMShadowMap], PCFSoftShadowMap)
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',
   jsonID: 'EE_render_settings',
 
-  onInit(entity) {
-    return {
-      primaryLight: '' as EntityUUID,
-      csm: true,
-      cascades: 5,
-      toneMapping: LinearToneMapping as ToneMapping,
-      toneMappingExposure: 0.8,
-      shadowMapType: PCFSoftShadowMap as ShadowMapType
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.primaryLight === 'string') component.primaryLight.set(json.primaryLight)
-    if (typeof json.csm === 'boolean') component.csm.set(json.csm)
-    if (typeof json.cascades === 'number') component.cascades.set(json.cascades)
-    if (typeof json.toneMapping === 'number') component.toneMapping.set(json.toneMapping)
-    if (typeof json.toneMappingExposure === 'number') component.toneMappingExposure.set(json.toneMappingExposure)
-    if (typeof json.shadowMapType === 'number') component.shadowMapType.set(json.shadowMapType)
-  },
-
-  toJSON: (component) => {
-    return {
-      primaryLight: component.primaryLight,
-      csm: component.csm,
-      cascades: component.cascades,
-      toneMapping: component.toneMapping,
-      toneMappingExposure: component.toneMappingExposure,
-      shadowMapType: component.shadowMapType
-    }
-  },
+  schema: S.Object({
+    primaryLight: S.EntityUUID(),
+    csm: S.Bool(true),
+    cascades: S.Number(5),
+    toneMapping: ToneMappingSchema,
+    toneMappingExposure: S.Number(0.8),
+    shadowMapType: ShadowMapSchema
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

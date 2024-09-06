@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   AnimationSystemGroup,
+  ComponentType,
   Entity,
   defineComponent,
   getComponent,
@@ -38,6 +39,7 @@ import {
   useExecute,
   useOptionalComponent
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { NO_PROXY, State, getMutableState, getState } from '@ir-engine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useRef } from 'react'
@@ -179,10 +181,64 @@ const resetState = {
   paused: true
 }
 
+export const TextureTypeSchema = S.LiteralUnion(['normal', 'metallicRoughness', 'emissive', 'occlusion', 'baseColor'])
+
+/** @todo figure out how get this type to work */
+const PreTrackBufferingCallbackSchema = S.Optional(
+  S.Func([S.Type<State<ComponentType<typeof NewVolumetricComponent>>>()], S.Void())
+)
+
 export const NewVolumetricComponent = defineComponent({
   name: 'NewVolumetricComponent',
   jsonID: 'EE_NewVolumetric',
-  onInit: (entity) => structuredClone(initialState),
+
+  schema: S.Object({
+    useVideoTextureForBaseColor: S.Bool(false), // legacy for UVOL1
+    useLoadingEffect: S.Bool(true),
+    volume: S.Number(1),
+    checkForEnoughBuffers: S.Bool(true),
+    notEnoughBuffers: S.Bool(true),
+    time: S.Object({
+      start: S.Number(0),
+      checkpointAbsolute: S.Number(-1),
+      checkpointRelative: S.Number(0),
+      currentTime: S.Number(0),
+      bufferedUntil: S.Number(0),
+      duration: S.Number(0)
+    }),
+    geometry: S.Object({
+      targets: S.Array(S.String()),
+      initialBufferLoaded: S.Bool(false),
+      firstFrameLoaded: S.Bool(false),
+      currentTarget: S.Number(0),
+      userTarget: S.Number(-1)
+    }),
+    geometryType: S.Enum(GeometryType),
+    textureBuffer: S.Type<Map<string, Map<string, CompressedTexture[]>>>(
+      new Map<string, Map<string, CompressedTexture[]>>()
+    ),
+    setIntervalId: S.Number(-1),
+    texture: S.Partial(
+      S.Record(
+        TextureTypeSchema,
+        S.Object({
+          initialBufferLoaded: S.Bool(),
+          firstFrameLoaded: S.Bool(),
+          targets: S.Array(S.String()),
+          currentTarget: S.Number(),
+          userTarget: S.Number()
+        })
+      )
+    ),
+    textureInfo: S.Object({
+      textureTypes: S.Array(TextureTypeSchema),
+      initialBufferLoaded: S.Partial(S.Record(TextureTypeSchema, S.Bool())),
+      firstFrameLoaded: S.Partial(S.Record(TextureTypeSchema, S.Bool()))
+    }),
+    paused: S.Bool(true),
+    preTrackBufferingCallback: S.Optional(S.Func([S.Any()], S.Void()))
+  }),
+
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.useLoadingEffect === 'boolean') {
@@ -601,7 +657,7 @@ function NewVolumetricComponentReactor() {
         )
         component.texture.set({
           baseColor: {
-            targets: [],
+            targets: [] as string[],
             initialBufferLoaded: false,
             firstFrameLoaded: false,
             currentTarget: 0,

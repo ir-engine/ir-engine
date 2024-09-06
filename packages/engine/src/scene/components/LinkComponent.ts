@@ -29,10 +29,11 @@ import { Vector3 } from 'three'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, getMutableState, getState, isClient, matches } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
@@ -70,32 +71,15 @@ export const LinkComponent = defineComponent({
   name: 'LinkComponent',
   jsonID: 'EE_link',
 
-  onInit: (entity) => {
-    return {
-      url: '',
-      sceneNav: false,
-      location: ''
-    }
-  },
+  schema: S.Object({
+    url: S.String(''),
+    sceneNav: S.Bool(false),
+    location: S.String('')
+  }),
+
   linkCallbackName,
   linkCallback,
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    matches.string.test(json.url) && component.url.set(json.url as string)
-    matches.boolean.test(json.sceneNav) && component.sceneNav.set(json.sceneNav as boolean)
-    matches.string.test(json.location) && component.location.set(json.location as string)
-  },
-
   interactMessage,
-
-  toJSON: (component) => {
-    return {
-      url: component.url,
-      sceneNav: component.sceneNav,
-      location: component.location
-    }
-  },
 
   errors: ['INVALID_URL'],
 

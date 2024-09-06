@@ -25,12 +25,30 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { MathUtils } from 'three'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 
 type TransitionType = 'IN' | 'OUT'
+
+const TransitionTypeSchema = S.LiteralUnion(['IN', 'OUT'])
+
+export const TransitionStateSchema = (init: ReturnType<typeof createTransitionState>) =>
+  S.Object(
+    {
+      state: TransitionTypeSchema,
+      alpha: S.Number(),
+      setState: S.Func([TransitionTypeSchema], S.Void()),
+      update: S.Func([S.Number(), S.Func([S.Number()], S.Void())], S.Void())
+    },
+    init,
+    {
+      default: () => ({}),
+      $id: 'TransitionState'
+    }
+  )
 
 export const createTransitionState = (transitionPeriodSeconds: number, initialState: TransitionType = 'OUT') => {
   let currentState = initialState

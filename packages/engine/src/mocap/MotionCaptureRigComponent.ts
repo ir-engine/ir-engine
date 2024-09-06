@@ -30,15 +30,18 @@ import { useEffect } from 'react'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSSchema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { Types } from 'bitecs'
+
+const NormalizedLandmarkSchema = {
+  x: Types.f64,
+  y: Types.f64,
+  z: Types.f64,
+  visibility: Types.i8
+}
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
-  onInit: () => {
-    return {
-      prevWorldLandmarks: null as NormalizedLandmark[] | null,
-      prevScreenLandmarks: null as NormalizedLandmark[] | null
-    }
-  },
+
   schema: {
     rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, ECSSchema.Quaternion])) as Record<
       VRMHumanBoneName,
@@ -51,7 +54,17 @@ export const MotionCaptureRigComponent = defineComponent({
     hipPosition: ECSSchema.Vec3,
     hipRotation: ECSSchema.Quaternion,
     footOffset: 'f64',
+    prevWorldLandmarks: NormalizedLandmarkSchema,
+    prevScreenLandmarks: NormalizedLandmarkSchema,
     solvingLowerBody: 'ui8'
+  },
+
+  onInit: (initial) => {
+    return {
+      /** @todo if these have a fixed max length we can move them into the ecs schema */
+      prevWorldLandmarks: null as NormalizedLandmark[] | null,
+      prevScreenLandmarks: null as NormalizedLandmark[] | null
+    }
   },
 
   reactor: function () {

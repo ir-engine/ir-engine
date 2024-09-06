@@ -65,6 +65,7 @@ import { isIPhone, isMobile } from '@ir-engine/spatial/src/common/functions/isMo
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { getLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -86,6 +87,7 @@ import {
 } from '../constants/UVOLTypes'
 import getFirstMesh from '../util/meshUtils'
 import { MediaElementComponent } from './MediaComponent'
+import { TextureTypeSchema } from './NewVolumetricComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
 import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
@@ -278,64 +280,45 @@ function sortAndMergeBufferMetadata(rangesState: State<BufferMetadata[]>, gapTol
   rangesState.set(mergedRanges)
 }
 
+const BufferMetadataSchema = S.Object({
+  start: S.Number(),
+  end: S.Number(),
+  fetchTime: S.Number()
+})
+
+const InfoItemSchema = S.Object({
+  targets: S.Array(S.String()),
+  userTarget: S.Number(-1), // -1 implies 'auto'
+  currentTarget: S.Number(0),
+  buffered: S.Array(BufferMetadataSchema)
+})
+
 export const UVOL2Component = defineComponent({
   name: 'UVOL2Component',
 
-  onInit: (entity) => {
-    return {
-      canPlay: false,
-      manifestPath: '',
-      data: {} as PlayerManifest,
-      useVideoTexture: true,
-      hasAudio: false,
-      bufferedUntil: 0,
-      geometryInfo: {
-        targets: [] as string[],
-        userTarget: -1, // -1 implies 'auto'
-        currentTarget: 0,
-        buffered: [] as BufferMetadata[]
-      },
-      textureInfo: {
-        textureTypes: [] as TextureType[],
-        baseColor: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        },
-        normal: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        },
-        metallicRoughness: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        },
-        emissive: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        },
-        occlusion: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        }
-      },
-      initialGeometryBuffersLoaded: false,
-      initialTextureBuffersLoaded: false,
-      firstGeometryFrameLoaded: false,
-      firstTextureFrameLoaded: false,
-      loadingEffectStarted: false,
-      loadingEffectEnded: false
-    }
-  },
+  schema: S.Object({
+    canPlay: S.Bool(false),
+    manifestPath: S.String(''),
+    data: S.Type<PlayerManifest>({} as PlayerManifest),
+    useVideoTexture: S.Bool(true),
+    hasAudio: S.Bool(false),
+    bufferedUntil: S.Number(0),
+    geometryInfo: InfoItemSchema,
+    textureInfo: S.Object({
+      textureTypes: S.Array(TextureTypeSchema),
+      baseColor: InfoItemSchema,
+      normal: InfoItemSchema,
+      metallicRoughness: InfoItemSchema,
+      emissive: InfoItemSchema,
+      occlusion: InfoItemSchema
+    }),
+    initialGeometryBuffersLoaded: S.Bool(false),
+    initialTextureBuffersLoaded: S.Bool(false),
+    firstGeometryFrameLoaded: S.Bool(false),
+    firstTextureFrameLoaded: S.Bool(false),
+    loadingEffectStarted: S.Bool(false),
+    loadingEffectEnded: S.Bool(false)
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return

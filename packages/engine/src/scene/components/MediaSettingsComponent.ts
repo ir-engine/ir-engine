@@ -26,45 +26,27 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+
+const DistanceModelTypeSchema = S.LiteralUnion(['exponential', 'inverse', 'linear'], 'linear')
 
 export const MediaSettingsComponent = defineComponent({
   name: 'MediaSettingsComponent',
   jsonID: 'EE_media_settings',
 
-  onInit(entity): typeof MediaSettingsState._TYPE {
-    return typeof MediaSettingsState.initial === 'function'
-      ? (MediaSettingsState.initial as any)()
-      : JSON.parse(JSON.stringify(MediaSettingsState.initial))
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.immersiveMedia === 'boolean') component.immersiveMedia.set(json.immersiveMedia)
-    if (typeof json.refDistance === 'number') component.refDistance.set(json.refDistance)
-    if (typeof json.rolloffFactor === 'number') component.rolloffFactor.set(json.rolloffFactor)
-    if (typeof json.maxDistance === 'number') component.maxDistance.set(json.maxDistance)
-    if (typeof json.distanceModel === 'string') component.distanceModel.set(json.distanceModel)
-    if (typeof json.coneInnerAngle === 'number') component.coneInnerAngle.set(json.coneInnerAngle)
-    if (typeof json.coneOuterAngle === 'number') component.coneOuterAngle.set(json.coneOuterAngle)
-    if (typeof json.coneOuterGain === 'number') component.coneOuterGain.set(json.coneOuterGain)
-  },
-
-  toJSON: (component) => {
-    return {
-      immersiveMedia: component.immersiveMedia,
-      refDistance: component.refDistance,
-      rolloffFactor: component.rolloffFactor,
-      maxDistance: component.maxDistance,
-      distanceModel: component.distanceModel,
-      coneInnerAngle: component.coneInnerAngle,
-      coneOuterAngle: component.coneOuterAngle,
-      coneOuterGain: component.coneOuterGain
-    }
-  },
+  schema: S.Object({
+    immersiveMedia: S.Bool(false),
+    refDistance: S.Number(20),
+    rolloffFactor: S.Number(1),
+    maxDistance: S.Number(10000),
+    distanceModel: DistanceModelTypeSchema,
+    coneInnerAngle: S.Number(360),
+    coneOuterAngle: S.Number(0),
+    coneOuterGain: S.Number(0)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

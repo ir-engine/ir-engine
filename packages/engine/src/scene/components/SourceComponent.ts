@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { hookstate, none, useImmediateEffect } from '@ir-engine/hyperflux'
 
@@ -33,11 +34,10 @@ const entitiesBySource = {} as Record<string, Entity[]>
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  onInit: (entity) => '',
+  schema: S.String(''),
 
   onSet: (entity, component, src) => {
     if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
-
     component.set(src)
   },
 

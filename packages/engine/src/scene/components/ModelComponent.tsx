@@ -33,6 +33,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
@@ -72,17 +73,15 @@ export const ModelComponent = defineComponent({
   name: 'ModelComponent',
   jsonID: 'EE_model',
 
-  onInit: (entity) => {
-    return {
-      src: '',
-      cameraOcclusion: true,
-      /** optional, only for bone matchable avatars */
-      convertToVRM: false,
-      scene: null as Group | null,
-      asset: null as VRM | GLTF | null,
-      dereference: false
-    }
-  },
+  schema: S.Object({
+    src: S.String(''),
+    cameraOcclusion: S.Bool(true),
+    /** optional, only for bone matchable avatars */
+    convertToVRM: S.Bool(false),
+    scene: S.Nullable(S.Type<Group>()),
+    asset: S.Nullable(S.Type<VRM | GLTF>()),
+    dereference: S.Bool(false)
+  }),
 
   toJSON: (component) => {
     return {
@@ -90,15 +89,6 @@ export const ModelComponent = defineComponent({
       cameraOcclusion: component.cameraOcclusion,
       convertToVRM: component.convertToVRM
     }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.src === 'string') component.src.set(json.src)
-    if (typeof (json as any).avoidCameraOcclusion === 'boolean')
-      component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
-    if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
-    if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],

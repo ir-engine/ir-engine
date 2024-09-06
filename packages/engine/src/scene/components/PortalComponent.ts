@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { BackSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { EntityUUID } from '@ir-engine/ecs'
 import {
@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, getMutableState, getState, matches, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { Vector3_Right } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
@@ -54,6 +54,7 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
@@ -80,62 +81,19 @@ export const PortalComponent = defineComponent({
   name: 'PortalComponent',
   jsonID: 'EE_portal',
 
-  onInit: (entity) => {
-    return {
-      linkedPortalId: '' as EntityUUID,
-      location: '',
-      effectType: 'None',
-      previewType: PortalPreviewTypeSimple as string,
-      previewImageURL: '',
-      redirect: false,
-      spawnPosition: new Vector3(),
-      spawnRotation: new Quaternion(),
-      remoteSpawnPosition: new Vector3(),
-      remoteSpawnRotation: new Quaternion(),
-      mesh: null as Mesh<SphereGeometry, MeshBasicMaterial> | null
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.string.test(json.linkedPortalId)) component.linkedPortalId.set(json.linkedPortalId)
-    if (matches.string.test(json.location)) component.location.set(json.location)
-    if (matches.string.test(json.effectType)) component.effectType.set(json.effectType)
-    if (matches.string.test(json.previewType)) component.previewType.set(json.previewType)
-    if (matches.string.test(json.previewImageURL)) component.previewImageURL.set(json.previewImageURL)
-    if (matches.boolean.test(json.redirect)) component.redirect.set(json.redirect)
-    if (matches.object.test(json.spawnPosition)) component.spawnPosition.value.copy(json.spawnPosition)
-    if (matches.object.test(json.spawnRotation)) {
-      if (json.spawnRotation.w) component.spawnRotation.value.copy(json.spawnRotation)
-      // backwards compat
-      else
-        component.spawnRotation.value.copy(
-          new Quaternion().setFromEuler(new Euler().setFromVector3(json.spawnRotation as any))
-        )
-    }
-  },
-
-  toJSON: (component) => {
-    return {
-      location: component.location,
-      linkedPortalId: component.linkedPortalId,
-      redirect: component.redirect,
-      effectType: component.effectType,
-      previewType: component.previewType,
-      previewImageURL: component.previewImageURL,
-      spawnPosition: {
-        x: component.spawnPosition.x,
-        y: component.spawnPosition.y,
-        z: component.spawnPosition.z
-      } as Vector3,
-      spawnRotation: {
-        x: component.spawnRotation.x,
-        y: component.spawnRotation.y,
-        z: component.spawnRotation.z,
-        w: component.spawnRotation.w
-      } as Quaternion
-    }
-  },
+  schema: S.Object({
+    linkedPortalId: S.EntityUUID(),
+    location: S.String(''),
+    effectType: S.String('None'),
+    previewType: S.String(PortalPreviewTypeSimple),
+    previewImageURL: S.String(''),
+    redirect: S.Bool(false),
+    spawnPosition: S.Vec3(),
+    spawnRotation: S.Quaternion(),
+    remoteSpawnPosition: S.Vec3(),
+    remoteSpawnRotation: S.Quaternion(),
+    mesh: S.Nullable(S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

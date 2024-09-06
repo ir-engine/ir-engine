@@ -41,6 +41,7 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { SplineComponent } from '../SplineComponent'
 
 const ARC_SEGMENTS = 200
@@ -57,15 +58,7 @@ const redMeshMaterial = () => new MeshBasicMaterial({ color: 'red', opacity: 0.2
 
 export const SplineHelperComponent = defineComponent({
   name: 'SplineHelperComponent',
-
-  onInit: (entity) => ({
-    layerMask: ObjectLayerMasks.NodeHelper
-  }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
-  },
+  schema: S.Object({ layerMask: S.Number(ObjectLayerMasks.NodeHelper) }),
 
   reactor: function () {
     const entity = useEntityContext()

@@ -34,12 +34,13 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
@@ -47,17 +48,9 @@ export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
   jsonID: 'EE_scene_preview_camera',
 
-  onInit: (entity) => {
-    const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
-
-    return {
-      camera
-    }
-  },
-
-  toJSON: () => {
-    return {} as any
-  },
+  schema: S.Object({
+    camera: S.Class(PerspectiveCamera, {}, 80, 16 / 9, 0.2, 8000)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

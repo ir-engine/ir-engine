@@ -32,15 +32,20 @@ import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
   jsonID: 'EE_spline',
 
-  onInit: (entity) => {
-    return {
-      elements: [
+  schema: S.Object({
+    elements: S.Array(
+      S.Object({
+        position: S.Vec3(),
+        quaternion: S.Quaternion()
+      }),
+      [
         { position: new Vector3(-1, 0, -1), quaternion: new Quaternion() },
         {
           position: new Vector3(1, 0, -1),
@@ -54,14 +59,10 @@ export const SplineComponent = defineComponent({
           position: new Vector3(-1, 0, 1),
           quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, (3 * Math.PI) / 2)
         }
-      ] as Array<{
-        position: Vector3
-        quaternion: Quaternion
-      }>,
-      // internal
-      curve: new CatmullRomCurve3([], true)
-    }
-  },
+      ]
+    ),
+    curve: S.Class(CatmullRomCurve3, {}, [], true)
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return
@@ -72,10 +73,6 @@ export const SplineComponent = defineComponent({
           quaternion: new Quaternion().copy(e.quaternion)
         }))
       )
-  },
-
-  toJSON: (component) => {
-    return { elements: component.elements }
   },
 
   reactor: () => {

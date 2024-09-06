@@ -30,18 +30,18 @@ import {
   DoubleSide,
   LinearFilter,
   Mesh,
+  MirroredRepeatWrapping,
   PlaneGeometry,
+  RepeatWrapping,
   ShaderMaterial,
-  Side,
   SphereGeometry,
   Texture,
   Uniform,
   Vector2,
-  VideoTexture,
-  Wrapping
+  VideoTexture
 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getOptionalComponent,
@@ -49,7 +49,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineState, NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
@@ -59,10 +59,11 @@ import { MeshComponent, useMeshComponent } from '@ir-engine/spatial/src/renderer
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
-import { ContentFitType } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
+import { ContentFitTypeSchema } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { clearErrors } from '../functions/ErrorFunctions'
-import { getTextureSize, PLANE_GEO, resizeVideoMesh, SPHERE_GEO } from './ImageComponent'
+import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
@@ -87,75 +88,36 @@ class VideoTexturePriorityQueue extends VideoTexture {
   update() {}
 }
 
+const WrappingSchema = S.LiteralUnion(
+  [RepeatWrapping, ClampToEdgeWrapping, MirroredRepeatWrapping],
+  ClampToEdgeWrapping
+)
+
+const ProjectionSchema = S.LiteralUnion(['Flat', 'Equirectangular360'], 'Flat')
+
 export const VideoComponent = defineComponent({
   name: 'EE_video',
   jsonID: 'EE_video',
 
-  onInit: (entity) => {
-    return {
-      side: DoubleSide as Side,
-      size: new Vector2(1, 1),
-      uvOffset: new Vector2(0, 0),
-      uvScale: new Vector2(1, 1),
-      alphaUVOffset: new Vector2(0, 0),
-      alphaUVScale: new Vector2(1, 1),
-      wrapS: ClampToEdgeWrapping as Wrapping,
-      wrapT: ClampToEdgeWrapping as Wrapping,
-      useAlpha: false,
-      useAlphaUVTransform: false,
-      alphaThreshold: 0.5,
-      fit: 'contain' as ContentFitType,
-      projection: 'Flat' as 'Flat' | 'Equirectangular360',
-      mediaUUID: '' as EntityUUID,
-      // internal
-      videoMeshEntity: UndefinedEntity,
-      texture: null as VideoTexturePriorityQueue | null,
-      userData: { ignoreOnExport: true }
-    }
-  },
-
-  toJSON: (component) => {
-    return {
-      /**
-       * An entity with with an attached MediaComponent;if an empty string, then the current entity is assumed
-       */
-      mediaUUID: component.mediaUUID,
-      side: component.side,
-      size: component.size,
-      uvOffset: component.uvOffset,
-      uvScale: component.uvScale,
-      alphaUVOffset: component.alphaUVOffset,
-      alphaUVScale: component.alphaUVScale,
-      wrapS: component.wrapS,
-      wrapT: component.wrapT,
-      useAlpha: component.useAlpha,
-      useAlphaUVTransform: component.useAlphaUVTransform,
-      alphaThreshold: component.alphaThreshold,
-      fit: component.fit,
-      projection: component.projection
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
-    if (typeof json.side === 'number') component.side.set(json.side)
-    if (typeof json.size === 'object') component.size.set(new Vector2(json.size.x, json.size.y))
-    if (typeof json.uvOffset === 'object') component.uvOffset.set(new Vector2(json.uvOffset.x, json.uvOffset.y))
-    if (typeof json.uvScale === 'object') component.uvScale.set(new Vector2(json.uvScale.x, json.uvScale.y))
-    if (typeof json.alphaUVOffset === 'object')
-      component.alphaUVOffset.set(new Vector2(json.alphaUVOffset.x, json.alphaUVOffset.y))
-    if (typeof json.alphaUVScale === 'object')
-      component.alphaUVScale.set(new Vector2(json.alphaUVScale.x, json.alphaUVScale.y))
-    if (typeof json.wrapS === 'number') component.wrapS.set(json.wrapS)
-    if (typeof json.wrapT === 'number') component.wrapT.set(json.wrapT)
-    if (typeof json.useAlpha === 'boolean') component.useAlpha.set(json.useAlpha)
-    if (typeof json.useAlphaUVTransform === 'boolean') component.useAlphaUVTransform.set(json.useAlphaUVTransform)
-    if (typeof json.alphaThreshold === 'number') component.alphaThreshold.set(json.alphaThreshold)
-    if (typeof json.fit === 'string') component.fit.set(json.fit)
-    if (typeof json.projection === 'string' && (json.projection === 'Flat' || json.projection === 'Equirectangular360'))
-      component.projection.set(json.projection)
-  },
+  schema: S.Object({
+    side: SideSchema(DoubleSide),
+    size: S.Vec2({ x: 1, y: 1 }),
+    uvOffset: S.Vec2({ x: 0, y: 0 }),
+    uvScale: S.Vec2({ x: 1, y: 1 }),
+    alphaUVOffset: S.Vec2({ x: 0, y: 0 }),
+    alphaUVScale: S.Vec2({ x: 1, y: 1 }),
+    wrapS: WrappingSchema,
+    wrapT: WrappingSchema,
+    useAlpha: S.Bool(false),
+    useAlphaUVTransform: S.Bool(false),
+    alphaThreshold: S.Number(0.5),
+    fit: ContentFitTypeSchema('contain'),
+    projection: ProjectionSchema,
+    mediaUUID: S.EntityUUID(),
+    // internal
+    videoMeshEntity: S.Entity(),
+    texture: S.Nullable(S.Type<VideoTexturePriorityQueue>())
+  }),
 
   onRemove: (entity, component) => {
     if (VideoComponent.uniqueVideoEntities.includes(entity)) {

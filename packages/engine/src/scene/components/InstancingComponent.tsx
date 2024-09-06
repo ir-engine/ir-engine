@@ -26,19 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { InstancedBufferAttribute } from 'three'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 
 export const InstancingComponent = defineComponent({
   name: 'InstancingComponent',
   jsonID: 'EE_instancing',
-  onInit: (entity) => ({
-    instanceMatrix: new InstancedBufferAttribute(new Float32Array(16), 16)
-  }),
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.instanceMatrix instanceof InstancedBufferAttribute) {
-      component.instanceMatrix.set(json.instanceMatrix)
-    } else if (Array.isArray(json.instanceMatrix)) {
-      component.instanceMatrix.value.set(json.instanceMatrix)
-    }
-  }
+
+  schema: S.Object({
+    instanceMatrix: S.Class(InstancedBufferAttribute, {}, new Float32Array(16), 16)
+  })
 })

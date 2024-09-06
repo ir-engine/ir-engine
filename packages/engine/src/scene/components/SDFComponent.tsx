@@ -27,7 +27,6 @@ import { DepthPass, ShaderPass } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
   Camera,
-  Color,
   DepthTexture,
   NearestFilter,
   RGBAFormat,
@@ -47,6 +46,7 @@ import { SDFShader } from '@ir-engine/spatial/src/renderer/effects/sdf/SDFShader
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
@@ -61,37 +61,12 @@ export const SDFComponent = defineComponent({
   name: 'SDFComponent',
   jsonID: 'EE_sdf',
 
-  onInit: (entity) => {
-    return {
-      color: new Color(0xffffff),
-      scale: new Vector3(0.25, 0.001, 0.25),
-      enable: false,
-      mode: SDFMode.TORUS
-    }
-  },
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.color?.isColor) {
-      component.color.set(json.color)
-    }
-    if (typeof json.enable === 'boolean') {
-      component.enable.set(json.enable)
-    }
-    if (typeof json.mode === 'number') {
-      component.mode.set(json.mode)
-    }
-    if (typeof json.scale === 'number') {
-      component.scale.set(json.scale)
-    }
-  },
-  toJSON: (component) => {
-    return {
-      color: component.color,
-      enable: component.enable,
-      scale: component.scale,
-      mode: component.mode
-    }
-  },
+  schema: S.Object({
+    color: S.Color(0xffffff),
+    scale: S.Vec3({ x: 0.25, y: 0.001, z: 0.25 }),
+    enable: S.Bool(false),
+    mode: S.Enum(SDFMode, SDFMode.TORUS)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

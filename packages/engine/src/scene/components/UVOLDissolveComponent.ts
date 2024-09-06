@@ -35,19 +35,16 @@ import {
 } from 'three'
 
 import { defineComponent, getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 export const UVOLDissolveComponent = defineComponent({
   name: 'UVOLDissolveComponent',
-  onInit: (entity) => ({
-    currentTime: 0,
-    duration: 2
-  }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.duration === 'number') component.duration.set(json.duration)
-  },
+  schema: S.Object({
+    currentTime: S.Number(0),
+    duration: S.Number(2)
+  }),
 
   /**
    * If material is a shader material,

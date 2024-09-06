@@ -29,12 +29,13 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 import { useEffect } from 'react'
-import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
+import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { isClient, matches } from '@ir-engine/hyperflux'
+import { isClient } from '@ir-engine/hyperflux'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 
 /**
@@ -51,6 +52,7 @@ type TroikaColor = string | number | Color
  * @notes troika.Text direction type, as declared by `troika-three-text` in its Text.direction `@member` property.
  */
 export type TroikaTextDirection = 'auto' | 'ltr' | 'rtl'
+const TroikaTextDirectionSchema = S.LiteralUnion(['auto', 'ltr', 'rtl'], 'auto')
 
 /**
  * @description
@@ -58,6 +60,7 @@ export type TroikaTextDirection = 'auto' | 'ltr' | 'rtl'
  * @notes troika.Text alignment type, as declared by `troika-three-text` in its Text.textAlign `@member` property.
  */
 export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
+const TroikaTextAlignmentSchema = S.LiteralUnion(['left', 'center', 'right', 'justify'], 'left')
 
 /**
  * @description
@@ -67,6 +70,7 @@ export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
  * @notes troika.Text wrap, as declared by `troika-three-text` in its Text.whiteSpace `@member` property.
  */
 export type TroikaTextWrap = 'normal' | 'nowrap'
+const TroikaTextWrapSchema = S.LiteralUnion(['normal', 'nowrap'], 'normal')
 
 /**
  * @description
@@ -76,6 +80,7 @@ export type TroikaTextWrap = 'normal' | 'nowrap'
  * @notes troika.Text wrapping kind, as declared by `troika-three-text` in its Text.overflowWrap `@member` property.
  */
 export type TroikaTextWrapKind = 'normal' | 'break-word'
+const TroikaTextWrapKindSchema = S.LiteralUnion(['normal', 'break-word'], 'normal')
 
 /**
  * @description
@@ -84,6 +89,7 @@ export type TroikaTextWrapKind = 'normal' | 'break-word'
  * @notes troika.Text line height format, as declared by `troika-three-text`in its Text.lineHeight `@member` property.
  */
 export type TroikaTextLineHeight = number | 'normal'
+const TroikaTextLineHeightSchema = S.Union([S.Number(), S.Literal('normal')], 'normal')
 
 /**
  * @summary
@@ -175,159 +181,50 @@ export const TextComponent = defineComponent({
   name: 'TextComponent',
   jsonID: 'EE_text_spatial',
 
-  onInit: (entity) => {
-    return {
-      // Text contents to render
-      text: DefaultText,
-      textOpacity: 100, // range[0..100], sent to troika as [0..1] :number
-      textWidth: Infinity,
-      textIndent: 0,
-      textAlign: 'left' as TroikaTextAlignment,
-      textWrap: true, // Maps to: troika.Text.whiteSpace as TroikaTextWrap
-      textWrapKind: 'normal' as TroikaTextWrapKind, // Maps to troika.Text.overflowWrap
-      textAnchor: new Vector2(
-        /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
-        /* Y */ 100 // range[0..100+], sent to troika as [0..100]% :string
-      ), // lower-left by default
-      textDepthOffset: 0, // For Z-fighting adjustments. Similar to anchor.Z
-      textCurveRadius: 0,
-      letterSpacing: 0,
-      lineHeight: 'normal' as TroikaTextLineHeight,
-      textDirection: 'auto' as TroikaTextDirection,
+  schema: S.Object({
+    // Text contents to render
+    text: S.String(DefaultText),
+    textOpacity: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
+    textWidth: S.Number(Infinity),
+    textIndent: S.Number(0),
+    textAlign: TroikaTextAlignmentSchema,
+    textWrap: S.Bool(true), // Maps to: troika.Text.whiteSpace as TroikaTextWrap
+    textWrapKind: TroikaTextWrapKindSchema, // Maps to troika.Text.overflowWrap
+    textAnchor: S.Vec2({ x: 0, y: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    textDepthOffset: S.Number(0), // For Z-fighting adjustments. Similar to anchor.Z
+    textCurveRadius: S.Number(0),
+    letterSpacing: S.Number(0),
+    lineHeight: TroikaTextLineHeightSchema,
+    textDirection: TroikaTextDirectionSchema,
 
-      // Font Properties
-      font: FontDefault, // font: string|null
-      fontSize: 0.2,
-      fontColor: new Color(0xffffff),
-      fontMaterial: 0 as FontMaterialKind, // Default to whatever value is marked at id=0 in FontMaterialKind
-      // Font Outline Properties
-      outlineOpacity: 0, // range[0..100], sent to troika as [0..1] :number
-      outlineWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
-      outlineBlur: 0, // range[0..100+], sent to troika as [0..100]% :string
-      outlineOffset: new Vector2(
-        /* X */ 0, // range[0..100+], sent to troika as [0..100]% :string
-        /* Y */ 0 // range[0..100+], sent to troika as [0..100]% :string
-      ),
-      outlineColor: new Color(0x000000),
-      // Font Stroke Properties
-      strokeOpacity: 0, // range[0..100], sent to troika as [0..1] :number
-      strokeWidth: 0, // range[0..100+], sent to troika as [0..100]% :string
-      strokeColor: new Color(0x444444),
-
-      // Advanced Configuration
-      textOrientation: '+x+y',
-      clipActive: false, // sends []: Array<number> to Text.clipRect when true
-      clipRectMin: new Vector2(-1024, -1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
-      clipRectMax: new Vector2(1024, 1024), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
-      gpuAccelerated: true,
-      glyphResolution: 6, // Maps to troika.Text.sdfGlyphSize. Sent to troika as 2^N :number
-      glyphDetail: 1, // Maps to troika.Text.glyphGeometryDetail
-
-      // Internal State
-      troikaMesh: null as TextMesh | null
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    // Text contents/properties
-    if (matches.string.test(json.text)) component.text.set(json.text)
-    if (matches.number.test(json.textOpacity)) component.textOpacity.set(json.textOpacity)
-    if (matches.number.test(json.textWidth)) component.textWidth.set(json.textWidth)
-    if (matches.number.test(json.textIndent)) component.textIndent.set(json.textIndent)
-    if (matches.string.test(json.textAlign)) component.textAlign.set(json.textAlign)
-    if (matches.boolean.test(json.textWrap)) component.textWrap.set(json.textWrap)
-    if (matches.string.test(json.textWrapKind)) component.textWrapKind.set(json.textWrapKind)
-    if (matches.object.test(json.textAnchor) && json.textAnchor.isVector2) component.textAnchor.set(json.textAnchor)
-    if (matches.number.test(json.textDepthOffset)) component.textDepthOffset.set(json.textDepthOffset)
-    if (matches.number.test(json.textCurveRadius)) component.textCurveRadius.set(json.textCurveRadius)
-    if (matches.number.test(json.letterSpacing)) component.letterSpacing.set(json.letterSpacing)
-    if (matches.number.test(json.lineHeight) || (matches.string.test(json.lineHeight) && json.lineHeight === 'normal'))
-      component.lineHeight.set(json.lineHeight)
-    if (matches.string.test(json.textDirection)) component.textDirection.set(json.textDirection)
     // Font Properties
-    if (matches.string.test(json.font)) component.font.set(json.font)
-    else if (matches.nill.test(json.font)) component.font.set(null)
-    if (matches.number.test(json.fontSize)) component.fontSize.set(json.fontSize)
+    font: S.Nullable(S.String()), // font: string|null
+    fontSize: S.Number(0.2),
+    fontColor: S.Color(0xffffff),
+    fontMaterial: S.Enum(FontMaterialKind, FontMaterialKind.Basic), // Default to whatever value is marked at id=0 in FontMaterialKind
+    // Font Outline Properties
+    outlineOpacity: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
+    outlineWidth: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    outlineBlur: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    outlineOffset: S.Vec2({ x: 0, y: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    outlineColor: S.Color(0x000000),
+    // Font Stroke Properties
+    strokeOpacity: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
+    strokeWidth: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    strokeColor: S.Color(0x444444),
 
-    if (matches.object.test(json.fontColor) && json.fontColor.isColor) {
-      component.fontColor.set(json.fontColor)
-    } else if (matches.number.test(json.fontColor)) {
-      component.fontColor.set(new Color(json.fontColor))
-    }
+    // Advanced Configuration
+    textOrientation: S.String('+x+y'),
+    clipActive: S.Bool(false), // sends []: Array<number> to Text.clipRect when true
+    clipRectMin: S.Vec2({ x: -1024, y: -1024 }), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
+    clipRectMax: S.Vec2({ x: 1024, y: 1024 }), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
+    gpuAccelerated: S.Bool(true),
+    glyphResolution: S.Number(6), // Maps to troika.Text.sdfGlyphSize. Sent to troika as 2^N :number
+    glyphDetail: S.Number(1), // Maps to troika.Text.glyphGeometryDetail
 
-    if (matches.number.test(json.fontMaterial) && json.fontMaterial in FontMaterialKind)
-      component.fontMaterial.set(json.fontMaterial)
-    if (matches.number.test(json.outlineOpacity)) component.outlineOpacity.set(json.outlineOpacity)
-    if (matches.number.test(json.outlineWidth)) component.outlineWidth.set(json.outlineWidth)
-    if (matches.number.test(json.outlineBlur)) component.outlineBlur.set(json.outlineBlur)
-    if (matches.object.test(json.outlineOffset) && json.outlineOffset.isVector2)
-      component.outlineOffset.set(json.outlineOffset)
-
-    if (matches.object.test(json.outlineColor) && json.outlineColor.isColor) {
-      component.outlineColor.set(json.outlineColor)
-    } else if (matches.number.test(json.outlineColor)) {
-      component.outlineColor.set(new Color(json.outlineColor))
-    }
-
-    if (matches.number.test(json.strokeOpacity)) component.strokeOpacity.set(json.strokeOpacity)
-    if (matches.number.test(json.strokeWidth)) component.strokeWidth.set(json.strokeWidth)
-
-    if (matches.object.test(json.strokeColor) && json.strokeColor.isColor) {
-      component.strokeColor.set(json.strokeColor)
-    } else if (matches.number.test(json.strokeColor)) {
-      component.strokeColor.set(new Color(json.strokeColor))
-    }
-
-    // Advanced configuration
-    if (matches.string.test(json.textOrientation)) component.textOrientation.set(json.textOrientation)
-    if (matches.boolean.test(json.gpuAccelerated)) component.gpuAccelerated.set(json.gpuAccelerated)
-    if (matches.boolean.test(json.clipActive)) component.clipActive.set(json.clipActive)
-    if (matches.object.test(json.clipRectMin) && json.clipRectMin.isVector2) component.clipRectMin.set(json.clipRectMin)
-    if (matches.object.test(json.clipRectMax) && json.clipRectMax.isVector2) component.clipRectMax.set(json.clipRectMax)
-    if (matches.number.test(json.glyphResolution)) component.glyphResolution.set(json.glyphResolution)
-    if (matches.number.test(json.glyphDetail)) component.glyphDetail.set(json.glyphDetail)
-  },
-
-  toJSON: (component) => {
-    return {
-      // Text contents/properties
-      text: component.text,
-      textOpacity: component.textOpacity,
-      textWidth: component.textWidth,
-      textIndent: component.textIndent,
-      textAlign: component.textAlign,
-      textWrap: component.textWrap,
-      textWrapKind: component.textWrapKind,
-      textAnchor: component.textAnchor,
-      textDepthOffset: component.textDepthOffset,
-      textCurveRadius: component.textCurveRadius,
-      lineHeight: component.lineHeight,
-      letterSpacing: component.letterSpacing,
-      textDirection: component.textDirection,
-      // Font Properties
-      font: component.font,
-      fontSize: component.fontSize,
-      fontColor: component.fontColor,
-      fontMaterial: component.fontMaterial,
-      outlineOpacity: component.outlineOpacity,
-      outlineWidth: component.outlineWidth,
-      outlineBlur: component.outlineBlur,
-      outlineOffset: component.outlineOffset,
-      outlineColor: component.outlineColor,
-      strokeOpacity: component.strokeOpacity,
-      strokeWidth: component.strokeWidth,
-      strokeColor: component.strokeColor,
-      // Advanced configuration
-      textOrientation: component.textOrientation,
-      clipActive: component.clipActive,
-      clipRectMin: component.clipRectMin,
-      clipRectMax: component.clipRectMax,
-      gpuAccelerated: component.gpuAccelerated,
-      glyphResolution: component.glyphResolution,
-      glyphDetail: component.glyphDetail
-    }
-  },
+    // Internal State
+    troikaMesh: S.Nullable(S.Type<TextMesh>())
+  }),
 
   reactor: function () {
     if (!isClient) return null

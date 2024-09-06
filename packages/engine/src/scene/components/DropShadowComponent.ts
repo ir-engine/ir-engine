@@ -23,26 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
-
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-import { matches } from '@ir-engine/hyperflux'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 
 export const DropShadowComponent = defineComponent({
   name: 'DropShadowComponent',
-  onInit: (entity) => {
-    return {
-      radius: 0,
-      center: new Vector3(),
-      entity: 0 as Entity
-    }
-  },
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.center)) component.center.set(json.center)
-    if (matches.number.test(json.radius)) component.radius.set(json.radius)
-    if (matches.number.test(json.entity)) component.entity.set(json.entity)
-  }
+  schema: S.Object({
+    radius: S.Number(0),
+    center: S.Vec3(),
+    entity: S.Entity()
+  })
 })
