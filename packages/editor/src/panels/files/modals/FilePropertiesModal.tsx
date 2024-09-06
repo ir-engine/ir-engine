@@ -35,6 +35,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
 import { FilesState, SelectedFilesState } from '../../../services/FilesState'
@@ -69,7 +70,7 @@ export default function FilePropertiesModal() {
   }
 
   const onChange = (fieldName: string, state: State<string | undefined>) => {
-    return (e: React.ChangeEvent<HTMLInputElement>) => {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (!modifiedFields.value.includes(fieldName)) {
         modifiedFields.set([...modifiedFields.value, fieldName])
       }
@@ -101,6 +102,7 @@ export default function FilePropertiesModal() {
           tags: newTags,
           licensing: resourceDigest.licensing.value,
           attribution: resourceDigest.attribution.value,
+          description: resourceDigest.description.value,
           project: projectName
         })
       }
@@ -274,6 +276,42 @@ export default function FilePropertiesModal() {
                 )}
               </span>
             </div>
+            <span className="flex flex-col items-start">
+              <label className="mb-2">Description</label> {/* Assuming "Description" is your label */}
+              {editedField.value === 'description' ? (
+                <>
+                  <TextArea
+                    className="resize-vertical max-h-[20em] min-h-[5em] w-full overflow-y-auto rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={resourceDigest.description.value ?? ''}
+                    onChange={onChange('description', resourceDigest.description)}
+                    placeholder="Enter description here..."
+                  />
+                  <Button
+                    title={t('common:components.save')}
+                    variant="transparent"
+                    size="small"
+                    startIcon={<RiSave2Line />}
+                    onClick={() => editedField.set(null)}
+                    className="mt-2"
+                  />
+                </>
+              ) : (
+                <>
+                  <Text className="block h-auto w-full overflow-auto whitespace-normal break-words text-theme-input">
+                    {files.length > 1 && !sharedFields.value.includes('description')
+                      ? t('editor:layout.filebrowser.fileProperties.mixedValues')
+                      : resourceDigest.description.value || <em>{t('common:components.none')}</em>}
+                  </Text>
+                  <Button
+                    title={t('common:components.edit')}
+                    variant="transparent"
+                    size="small"
+                    startIcon={<HiPencil />}
+                    onClick={() => editedField.set('description')}
+                  />
+                </>
+              )}
+            </span>
             <div className="mt-10 flex flex-col gap-2">
               <Text className="text-theme-gray3" fontSize="sm">
                 {t('editor:layout.filebrowser.fileProperties.addTag')}
