@@ -195,6 +195,13 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           onChange={(e) => settings.siteDescription.set(e.target.value)}
         />
 
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.googleAnalyticsMeasurementId')}
+          value={settings.gaMeasurementId.value || ''}
+          onChange={(e) => settings.gaMeasurementId.set(e.target.value)}
+        />
+
         <Toggle
           containerClassName="justify-start col-span-full"
           label={t('admin:components.setting.homepageLinkButtonEnabled')}

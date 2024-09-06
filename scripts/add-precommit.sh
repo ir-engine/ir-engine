@@ -2,15 +2,15 @@
 
 read -r -d '' pre_commit_commands << EOM
 #!/bin/bash
-echo \"running pre-commit\"
+echo "running pre-commit"
 npx lint-staged
-echo \"pre-commit done\"
+echo "pre-commit done"
 EOM
 
 add_precommit() {
   directory=$1;
   if [ -d ".git" ]; then
-    if [ ! -e ".git/hooks/pre-commit" ]; then
+    if [ -e ".git/hooks/pre-commit" ]; then
       rm .git/hooks/pre-commit
     fi
     echo "$pre_commit_commands" > .git/hooks/pre-commit
