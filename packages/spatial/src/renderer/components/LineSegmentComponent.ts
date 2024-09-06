@@ -24,20 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import {
-  BufferGeometry,
-  Color,
-  ColorRepresentation,
-  LineBasicMaterial,
-  LineSegments,
-  Material,
-  NormalBufferAttributes
-} from 'three'
+import { BufferGeometry, Color, LineBasicMaterial, LineSegments, Material, NormalBufferAttributes } from 'three'
 
-import { defineComponent, Entity, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 
-import { matchesColor, matchesGeometry, matchesMaterial } from '../../common/functions/MatchesUtils'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { NameComponent } from '../../common/NameComponent'
 import { useDisposable, useResource } from '../../resources/resourceHooks'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -48,28 +40,14 @@ import { setVisibleComponent } from './VisibleComponent'
 export const LineSegmentComponent = defineComponent({
   name: 'LineSegmentComponent',
 
-  onInit: (entity) => {
-    return {
-      name: 'line-segment',
-      geometry: null! as BufferGeometry,
-      material: new LineBasicMaterial() as Material & { color: Color },
-      color: undefined as undefined | ColorRepresentation,
-      layerMask: ObjectLayers.NodeHelper,
-      entity: undefined as undefined | Entity
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.name === 'string') component.name.set(json.name)
-
-    if (matchesGeometry.test(json.geometry)) component.geometry.set(json.geometry)
-    else throw new Error('LineSegmentComponent: Geometry required for LineSegmentComponent')
-
-    if (matchesMaterial.test(json.material)) component.material.set(json.material)
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
-  },
+  schema: S.Object({
+    name: S.String('line-segment'),
+    geometry: S.Type<BufferGeometry>(),
+    material: S.Class(LineBasicMaterial as unknown as typeof Material & { color: Color }, {}),
+    color: S.Optional(S.Color()),
+    layerMask: S.Number(ObjectLayers.NodeHelper),
+    entity: S.Optional(S.Entity())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

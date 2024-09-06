@@ -26,11 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { ColliderHitEvent } from '../types/PhysicsTypes'
 
 export const CollisionComponent = defineComponent({
   name: 'CollisionComponent',
-  onInit(entity) {
-    return new Map<Entity, ColliderHitEvent>()
-  }
+  schema: S.Class(Map<Entity, ColliderHitEvent>, {})
 })

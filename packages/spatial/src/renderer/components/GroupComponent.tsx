@@ -40,6 +40,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { NO_PROXY, none } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
@@ -48,10 +49,7 @@ export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
-
-  onInit: (entity: Entity) => {
-    return [] as Object3D[]
-  },
+  schema: S.Array(S.Type<Object3D>()),
 
   reactor: () => {
     const entity = useEntityContext()

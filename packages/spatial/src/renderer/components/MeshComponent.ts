@@ -36,6 +36,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useResource } from '../../resources/resourceHooks'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -43,13 +44,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const MeshComponent = defineComponent({
   name: 'MeshComponent',
   jsonID: 'EE_mesh',
-
-  onInit: (entity) => null! as Mesh,
-
-  onSet: (entity, component, mesh: Mesh) => {
-    if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
-    component.set(mesh)
-  },
+  schema: S.Type<Mesh>(),
 
   reactor: () => {
     const entity = useEntityContext()

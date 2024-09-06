@@ -25,8 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
-import { defineComponent, EntityUUID, getComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, getComponent, useEntityContext } from '@ir-engine/ecs'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { useEffect } from 'react'
@@ -46,26 +47,33 @@ export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 a
 
 export const TransparencyDitheringRoot = defineComponent({
   name: 'TransparencyDitheringRoot',
-  onInit: (entity) => {
-    return { materials: [] as EntityUUID[] }
-  },
-  onSet: (entity, component, json) => {
-    if (json?.materials) component.materials.set(json.materials)
-  }
+  schema: S.Object({ materials: S.Array(S.EntityUUID()) })
 })
 
 export const TransparencyDitheringPlugin = defineComponent({
   name: 'TransparencyDithering',
-  onInit: (entity) => {
-    return {
-      centers: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())),
-      exponents: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
-      distances: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
-      useWorldCalculation: new Uniform(
-        Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
-      )
-    }
-  },
+  schema: S.Object({
+    centers: S.Class(
+      Uniform,
+      {},
+      Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())
+    ),
+    exponents: S.Class(
+      Uniform,
+      {},
+      Array.from({ length: MAX_DITHER_POINTS }, () => 1)
+    ),
+    distances: S.Class(
+      Uniform,
+      {},
+      Array.from({ length: MAX_DITHER_POINTS }, () => 1)
+    ),
+    useWorldCalculation: S.Class(
+      Uniform,
+      {},
+      Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
+    )
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

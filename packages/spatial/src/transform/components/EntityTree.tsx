@@ -43,6 +43,7 @@ import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src
 import { none, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { TransformComponent } from './TransformComponent'
 
 type EntityTreeSetType = {
@@ -59,15 +60,13 @@ type EntityTreeSetType = {
 export const EntityTreeComponent = defineComponent({
   name: 'EntityTreeComponent',
 
-  onInit: (entity) => {
-    return {
-      // api
-      parentEntity: UndefinedEntity,
-      // internal
-      childIndex: undefined as undefined | number,
-      children: [] as Entity[]
-    }
-  },
+  schema: S.Object({
+    // api
+    parentEntity: S.Entity(),
+    // internal
+    childIndex: S.Optional(S.Number()),
+    children: S.Array(S.Entity())
+  }),
 
   onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {
     if (!json) return

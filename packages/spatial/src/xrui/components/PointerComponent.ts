@@ -34,7 +34,6 @@ import {
   RingGeometry,
   SphereGeometry
 } from 'three'
-import matches from 'ts-matches'
 
 import {
   defineComponent,
@@ -48,6 +47,7 @@ import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { WebContainer3D } from '@ir-engine/xrui'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { getState } from '@ir-engine/hyperflux'
 import { EngineState } from '../../EngineState'
 import { NameComponent } from '../../common/NameComponent'
@@ -61,20 +61,13 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 export const PointerComponent = defineComponent({
   name: 'PointerComponent',
 
-  onInit: (entity) => {
-    return {
-      inputSource: null! as XRInputSource,
-      lastHit: null as ReturnType<typeof WebContainer3D.prototype.hitTest> | null,
-      // internal
-      pointer: null! as PointerObject,
-      cursor: null as Mesh<BufferGeometry, MeshBasicMaterial> | null
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.inputSource)) component.inputSource.set(json.inputSource)
-  },
+  schema: S.Object({
+    inputSource: S.Type<XRInputSource>(),
+    lastHit: S.Nullable(S.Type<ReturnType<typeof WebContainer3D.prototype.hitTest>>()),
+    // internal
+    pointer: S.Type<PointerObject>(),
+    cursor: S.Nullable(S.Type<Mesh<BufferGeometry, MeshBasicMaterial>>())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

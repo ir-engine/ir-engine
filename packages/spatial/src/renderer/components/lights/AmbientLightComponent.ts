@@ -24,13 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AmbientLight, ColorRepresentation } from 'three'
+import { AmbientLight } from 'three'
 
 import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches } from '@ir-engine/hyperflux'
 
-import { matchesColor } from '../../../common/functions/MatchesUtils'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LightTagComponent } from './LightTagComponent'
@@ -39,25 +38,10 @@ export const AmbientLightComponent = defineComponent({
   name: 'AmbientLightComponent',
   jsonID: 'EE_ambient_light',
 
-  onInit: (entity) => {
-    return {
-      color: 0xffffff as ColorRepresentation,
-      intensity: 1
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
-  },
-
-  toJSON: (component) => {
-    return {
-      color: component.color,
-      intensity: component.intensity
-    }
-  },
+  schema: S.Object({
+    color: S.Color(0xffffff),
+    intensity: S.Number(1)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

@@ -25,21 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import type { WebContainer3D } from '@ir-engine/xrui'
 import { useLayoutEffect } from 'react'
 
 export const XRUIComponent = defineComponent({
   name: 'XRUIComponent',
-
-  onInit: (entity) => {
-    return null! as WebContainer3D
-  },
-
-  onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') {
-      component.set(json)
-    }
-  },
+  schema: S.Type<WebContainer3D>(),
 
   reactor: () => {
     const entity = useEntityContext()

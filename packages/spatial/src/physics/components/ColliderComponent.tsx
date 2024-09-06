@@ -23,17 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
-
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { useState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useLayoutEffect } from 'react'
 import { useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { Shape, Shapes } from '../types/PhysicsTypes'
+import { ShapeSchema, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
 import { TriggerComponent } from './TriggerComponent'
 
@@ -41,42 +40,15 @@ export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
   jsonID: 'EE_collider',
 
-  onInit(entity) {
-    return {
-      shape: 'box' as Shape,
-      mass: 1,
-      massCenter: new Vector3(),
-      friction: 0.5,
-      restitution: 0.5,
-      collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.shape === 'string') component.shape.set(json.shape)
-    if (typeof json.mass === 'number') component.mass.set(json.mass)
-    if (typeof json.massCenter === 'object')
-      component.massCenter.set(new Vector3(json.massCenter.x, json.massCenter.y, json.massCenter.z))
-    if (typeof json.friction === 'number') component.friction.set(json.friction)
-    if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
-    if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
-    if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
-  },
-
-  toJSON: (component) => {
-    return {
-      shape: component.shape,
-      mass: component.mass,
-      massCenter: component.massCenter,
-      friction: component.friction,
-      restitution: component.restitution,
-      collisionLayer: component.collisionLayer,
-      collisionMask: component.collisionMask
-    }
-  },
+  schema: S.Object({
+    shape: ShapeSchema('box'),
+    mass: S.Number(1),
+    massCenter: S.Vec3(),
+    friction: S.Number(0.5),
+    restitution: S.Number(0.5),
+    collisionLayer: S.Enum(CollisionGroups, CollisionGroups.Default),
+    collisionMask: S.Number(DefaultCollisionMask)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

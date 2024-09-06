@@ -31,23 +31,13 @@ import { defineComponent, getComponent, removeComponent, setComponent } from '@i
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 
 export const AnimateScaleComponent = defineComponent({
   name: 'AnimateScaleComponent',
-
-  onInit(entity) {
-    return {
-      multiplier: 1.05
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.multiplier === 'number') component.multiplier.set(json.multiplier)
-  },
+  schema: S.Object({ multiplier: S.Number(1.05) }),
 
   reactor: function () {
     const entity = useEntityContext()

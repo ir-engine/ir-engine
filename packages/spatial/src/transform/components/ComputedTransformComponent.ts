@@ -26,19 +26,17 @@ Infinite Reality Engine. All Rights Reserved.
 import { matches } from 'ts-matches'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from './TransformComponent'
 
 export const ComputedTransformComponent = defineComponent({
   name: 'ComputedTransformComponent',
 
-  onInit(entity) {
-    return {
-      referenceEntities: [] as Entity[],
-      computeFunction: () => {}
-    }
-  },
+  schema: S.Object({
+    referenceEntities: S.Array(S.Entity()),
+    computeFunction: S.Call()
+  }),
 
   onSet(entity, component, json) {
     if (!json) return

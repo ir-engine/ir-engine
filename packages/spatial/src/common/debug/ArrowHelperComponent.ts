@@ -23,41 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ArrowHelper, ColorRepresentation, Vector3 } from 'three'
+import { ArrowHelper } from 'three'
 
-import { defineComponent, Entity, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { useDidMount } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useDisposable } from '../../resources/resourceHooks'
-import { matchesColor, matchesVector3 } from '../functions/MatchesUtils'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const ArrowHelperComponent = defineComponent({
   name: 'ArrowHelperComponent',
 
-  onInit: (entity) => {
-    return {
-      name: 'arrow-helper',
-      dir: new Vector3(0, 0, 1),
-      origin: new Vector3(0, 0, 0),
-      length: 0.5,
-      color: 0xffffff as ColorRepresentation,
-      headLength: undefined as undefined | number,
-      headWidth: undefined as undefined | number,
-      entity: undefined as undefined | Entity
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.name === 'string') component.name.set(json.name)
-    if (matchesVector3.test(json.dir)) component.dir.set(json.dir)
-    if (matchesVector3.test(json.origin)) component.origin.set(json.origin)
-    if (typeof json.length === 'number') component.length.set(json.length)
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (typeof json.headLength === 'number') component.headLength.set(json.headLength)
-    if (typeof json.headWidth === 'number') component.headWidth.set(json.headWidth)
-  },
+  schema: S.Object({
+    name: S.String('arrow-helper'),
+    dir: S.Vec3({ x: 0, y: 0, z: 1 }),
+    origin: S.Vec3({ x: 0, y: 0, z: 0 }),
+    length: S.Number(0.5),
+    color: S.Color(0xffffff),
+    headLength: S.Optional(S.Number()),
+    headWidth: S.Optional(S.Number()),
+    entity: S.Optional(S.Entity())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

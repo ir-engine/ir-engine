@@ -58,6 +58,7 @@ import {
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { getNestedChildren } from '../transform/components/EntityTree'
@@ -87,40 +88,42 @@ declare module 'postprocessing' {
   }
 }
 
+export const EffectSchema = S.Object({ isActive: S.Bool() })
+
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
 
-  onInit() {
-    const scene = new Scene()
-    scene.matrixAutoUpdate = false
-    scene.matrixWorldAutoUpdate = false
-    scene.layers.set(ObjectLayers.Scene)
+  schema: S.Object({
+    /** Is resize needed? */
+    needsResize: S.Bool(false),
 
-    return {
-      /** Is resize needed? */
-      needsResize: false,
+    renderPass: S.Nullable(S.Type<RenderPass>()),
+    normalPass: S.Nullable(S.Type<NormalPass>()),
+    renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
+    effects: S.Record(S.String(), EffectSchema),
 
-      renderPass: null as null | RenderPass,
-      normalPass: null as null | NormalPass,
-      renderContext: null as WebGLRenderingContext | WebGL2RenderingContext | null,
-      effects: {} as Record<string, Effect>,
+    supportWebGL2: S.Bool(false),
+    canvas: S.Nullable(S.Type<HTMLCanvasElement>()),
 
-      supportWebGL2: false,
-      canvas: null as null | HTMLCanvasElement,
+    renderer: S.Nullable(S.Type<WebGLRenderer>()),
+    effectComposer: S.Nullable(S.Type<EffectComposer>()),
 
-      renderer: null as null | WebGLRenderer,
-      effectComposer: null as null | EffectComposer,
+    scenes: S.Array(S.Entity()),
+    scene: S.Class(Scene, {}),
 
-      scenes: [] as Entity[],
-      scene,
+    /** @todo deprecate and replace with engine implementation */
+    xrManager: S.Nullable(S.Type<WebXRManager>()),
+    webGLLostContext: S.Nullable(S.Type<WEBGL_lose_context>()),
 
-      /** @todo deprecate and replace with engine implementation */
-      xrManager: null as null | WebXRManager,
-      webGLLostContext: null as null | WEBGL_lose_context,
+    csm: S.Nullable(S.Type<CSM>()),
+    csmHelper: S.Nullable(S.Type<CSMHelper>())
+  }),
 
-      csm: null as CSM | null,
-      csmHelper: null as CSMHelper | null
-    }
+  onInit(initial) {
+    initial.scene.matrixAutoUpdate = false
+    initial.scene.matrixWorldAutoUpdate = false
+    initial.scene.layers.set(ObjectLayers.Scene)
+    return initial
   },
 
   /**
