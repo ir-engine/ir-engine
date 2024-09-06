@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import {
@@ -81,15 +81,10 @@ export const TransformComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    const rotation = json?.rotation
-      ? typeof json.rotation.w === 'number'
-        ? json.rotation
-        : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
-      : undefined
-
-    if (json?.position) component.position.value.copy(json.position)
-    if (rotation) component.rotation.value.copy(rotation)
-    if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+    if (!json) return
+    if (json.position) component.position.value.copy(json.position)
+    if (json.rotation) component.rotation.value.copy(json.rotation)
+    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
   },
 
   toJSON: (component) => {

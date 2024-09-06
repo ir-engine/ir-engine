@@ -170,6 +170,7 @@ export interface Component<
   errors: ErrorTypes[]
 }
 
+// ECS schema to JS type
 export type ECSComponentType<S extends bitECS.ISchema> = {
   [key in keyof S]: S[key] extends bitECS.ISchema
     ? ECSComponentType<S[key]>
