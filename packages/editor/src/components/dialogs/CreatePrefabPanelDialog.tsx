@@ -155,7 +155,12 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
             onChange={(event) => defaultPrefabFolder.set(event.target.value)}
             label="Default Save Folder"
           />
-          <Input value={prefabName.value} onChange={(event) => prefabName.set(event.target.value)} label="Name" />
+          <Input
+            value={prefabName.value}
+            onChange={(event) => prefabName.set(event.target.value)}
+            label="Name"
+            maxLength={64}
+          />
 
           <Button
             size="small"
