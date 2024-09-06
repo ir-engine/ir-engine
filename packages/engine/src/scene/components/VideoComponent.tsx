@@ -44,7 +44,6 @@ import {
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
-  getComponent,
   getOptionalComponent,
   setComponent,
   useComponent,
@@ -420,9 +419,9 @@ function VideoReactor() {
 
   useEffect(() => {
     if (!mediaEntity || !mediaElement) return
-    const sourceVideoComponent = getComponent(mediaEntity, VideoComponent)
+    const sourceVideoComponent = getOptionalComponent(mediaEntity, VideoComponent)
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
-    const sourceTexture = sourceVideoComponent.texture
+    const sourceTexture = sourceVideoComponent?.texture
     if (video.texture.value) {
       ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
       clearErrors(entity, VideoComponent)
