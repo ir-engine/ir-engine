@@ -88,7 +88,11 @@
     "entities": "Entities",
     "networks": "Networks",
     "actionsHistory": "Actions History",
-    "actionsCached": "Actions Cached"
+    "actionsCached": "Actions Cached",
+    "physicsDebug": "Physics Debug",
+    "bvhDebug": "BVH Debug",
+    "avatarDebug": "Avatar Debug",
+    "respawn": "Respawn"
   },
   "recording": {
     "videoRecorder": "Video recorder",
