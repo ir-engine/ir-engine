@@ -40,7 +40,7 @@ export default function SearchBar({
     local: string
     query: string
   }>
-  size: 'small' | 'medium' | 'large'
+  size?: 'small' | 'medium' | 'large'
 }) {
   const { t } = useTranslation()
   const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
