@@ -31,7 +31,7 @@ import logger from '@ir-engine/common/src/logger'
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import {
-  defineActionQueue,
+  NetworkID,
   dispatchAction,
   getMutableState,
   getState,
@@ -42,6 +42,7 @@ import {
 import { DataChannelRegistryState, DataChannelType, NetworkState, NetworkTopics } from '@ir-engine/network'
 
 import {
+  DataConsumerType,
   MediasoupDataConsumerActions,
   MediasoupDataProducerConsumerState,
   MediasoupDataProducersConsumersObjectsState
@@ -50,10 +51,7 @@ import { MediasoupTransportState } from '@ir-engine/common/src/transports/medias
 import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
 import { ClientNetworkingSystem } from './ClientNetworkingSystem'
 
-export async function createDataConsumer(
-  network: SocketWebRTCClientNetwork,
-  dataChannel: DataChannelType
-): Promise<void> {
+function createDataConsumer(network: SocketWebRTCClientNetwork, dataChannel: DataChannelType) {
   dispatchAction(
     MediasoupDataConsumerActions.requestConsumer({
       dataChannel,
@@ -64,7 +62,7 @@ export async function createDataConsumer(
   )
 }
 
-export async function createDataProducer(
+async function createDataProducer(
   network: SocketWebRTCClientNetwork,
   args = {
     ordered: false,
@@ -103,17 +101,17 @@ export async function createDataProducer(
   logger.info(`DataProducer created for ${args.label} on network ${network.id}`)
 }
 
-export const consumerData = async (action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+const consumerData = async (networkID: NetworkID, consumer: DataConsumerType) => {
+  const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
 
   const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv') as WebRTCTransportExtension
 
   const dataConsumer = await recvTransport.consumeData({
-    id: action.consumerID,
-    sctpStreamParameters: action.sctpStreamParameters,
-    label: action.dataChannel,
-    protocol: action.protocol,
-    appData: action.appData,
+    id: consumer.consumerID,
+    sctpStreamParameters: consumer.sctpStreamParameters,
+    label: consumer.dataChannel,
+    protocol: consumer.protocol,
+    appData: consumer.appData,
     // this is unused, but for whatever reason mediasoup will throw an error if it's not defined
     dataProducerId: ''
   })
@@ -137,21 +135,10 @@ export const consumerData = async (action: typeof MediasoupDataConsumerActions.c
 
   getMutableState(MediasoupDataProducersConsumersObjectsState).consumers[dataConsumer.id].set(dataConsumer)
 
-  logger.info(`DataConsumer created for ${action.dataChannel} on network ${network.id}`)
+  logger.info(`DataConsumer created for ${consumer.dataChannel} on network ${network.id}`)
 }
 
-const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
-
-const execute = () => {
-  /** @todo replace this with event sourcing */
-  for (const action of dataConsumerCreatedActionQueue()) {
-    setTimeout(() => {
-      consumerData(action)
-    }, 100)
-  }
-}
-
-export const DataChannel = (props: { networkID: InstanceID; dataChannelType: DataChannelType }) => {
+const DataChannel = (props: { networkID: InstanceID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
 
@@ -170,19 +157,34 @@ export const DataChannel = (props: { networkID: InstanceID; dataChannelType: Dat
   return null
 }
 
+const ConsumerReactor = (props: { consumerID: string; networkID: InstanceID }) => {
+  const { consumerID, networkID } = props
+
+  useEffect(() => {
+    const consumer = getState(MediasoupDataProducerConsumerState)[networkID].consumers[consumerID]
+    consumerData(networkID, consumer)
+  }, [])
+
+  return null
+}
+
 const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const dataChannelRegistry = useMutableState(DataChannelRegistryState)
+  const dataProducerConsumerState = useMutableState(MediasoupDataProducerConsumerState)[props.networkID]
   return (
     <>
       {dataChannelRegistry.keys.map((dataChannelType) => (
         <DataChannel key={dataChannelType} networkID={networkID} dataChannelType={dataChannelType as DataChannelType} />
       ))}
+      {dataProducerConsumerState.consumers.keys.map((consumerID) => (
+        <ConsumerReactor key={consumerID} consumerID={consumerID} networkID={props.networkID} />
+      ))}
     </>
   )
 }
 
-export const DataChannels = () => {
+const reactor = () => {
   const networkIDs = Object.entries(useHookstate(getMutableState(NetworkState).networks).value)
     .filter(([networkID, network]) => network.topic === NetworkTopics.world)
     .map(([networkID, network]) => networkID)
@@ -205,6 +207,5 @@ export const DataChannels = () => {
 export const DataChannelSystem = defineSystem({
   uuid: 'ee.client.DataChannelSystem',
   insert: { after: ClientNetworkingSystem },
-  execute,
-  reactor: DataChannels
+  reactor
 })

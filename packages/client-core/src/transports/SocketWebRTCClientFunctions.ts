@@ -59,6 +59,7 @@ import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import {
   Action,
   Identifiable,
+  NetworkID,
   PeerID,
   State,
   Topic,
@@ -99,7 +100,8 @@ import {
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
-  MediasoupTransportState
+  MediasoupTransportState,
+  TransportType
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -509,22 +511,23 @@ export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
   })
 }
 
-export const onTransportCreated = async (action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
-  if (!network) return console.warn('Network not found', action.$network)
+export const onTransportCreated = async (networkID: NetworkID, transportDefinition: TransportType) => {
+  const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork | undefined
+  if (!network) return console.warn('Network not found', networkID)
 
   const channelId = getChannelIdFromTransport(network)
-  const { transportID, direction, sctpParameters, iceParameters, iceCandidates, iceServers, dtlsParameters } = action
+  const { transportID, direction, sctpParameters, iceParameters, iceCandidates, iceServers, dtlsParameters } =
+    transportDefinition
 
   let transport: MediaSoupTransport
 
   const transportOptions = {
-    id: action.transportID,
-    sctpParameters: sctpParameters as any,
-    iceParameters: iceParameters as any,
-    iceCandidates: iceCandidates as any,
-    dtlsParameters: dtlsParameters as any,
-    iceServers: iceServers as any
+    id: transportDefinition.transportID,
+    sctpParameters,
+    iceParameters,
+    iceCandidates,
+    dtlsParameters,
+    iceServers
   }
 
   if (direction === 'recv') {

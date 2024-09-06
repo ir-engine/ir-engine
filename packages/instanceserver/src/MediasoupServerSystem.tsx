@@ -65,7 +65,6 @@ const dataRequestConsumerActionQueue = defineActionQueue(MediasoupDataConsumerAc
 
 const requestTransportActionQueue = defineActionQueue(MediasoupTransportActions.requestTransport.matches)
 const requestTransportConnectActionQueue = defineActionQueue(MediasoupTransportActions.requestTransportConnect.matches)
-const transportCloseActionQueue = defineActionQueue(MediasoupTransportActions.transportClosed.matches)
 
 const execute = () => {
   for (const action of requestConsumerActionQueue()) {

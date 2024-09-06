@@ -114,6 +114,24 @@ export const MediasoupDataProducersConsumersObjectsState = defineState({
   }
 })
 
+export type DataProducerType = {
+  producerID: string
+  transportID: string
+  protocol: string
+  sctpStreamParameters: any
+  dataChannel: DataChannelType
+  appData: any
+}
+
+export type DataConsumerType = {
+  consumerID: string
+  transportID: string
+  dataChannel: DataChannelType
+  sctpStreamParameters: any
+  appData: any
+  protocol: string
+}
+
 export const MediasoupDataProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.DataProducerConsumerState',
 
@@ -121,24 +139,10 @@ export const MediasoupDataProducerConsumerState = defineState({
     NetworkID,
     {
       producers: {
-        [producerID: string]: {
-          producerID: string
-          transportID: string
-          protocol: string
-          sctpStreamParameters: any
-          dataChannel: DataChannelType
-          appData: any
-        }
+        [producerID: string]: DataProducerType
       }
       consumers: {
-        [consumerID: string]: {
-          consumerID: string
-          transportID: string
-          dataChannel: DataChannelType
-          sctpStreamParameters: any
-          appData: any
-          protocol: string
-        }
+        [consumerID: string]: DataConsumerType
       }
     }
   >,

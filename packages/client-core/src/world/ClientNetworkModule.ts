@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ClientNetworkingSystem } from '../networking/ClientNetworkingSystem'
 import { DataChannelSystem } from '../networking/DataChannelSystem'
+import { MediaChannelSystem } from '../networking/MediaChannelSystem'
 import { FilteredUsersSystem } from '../transports/FilteredUsersSystem'
 
-export { ClientNetworkingSystem, DataChannelSystem, FilteredUsersSystem }
+export { ClientNetworkingSystem, DataChannelSystem, FilteredUsersSystem, MediaChannelSystem }
