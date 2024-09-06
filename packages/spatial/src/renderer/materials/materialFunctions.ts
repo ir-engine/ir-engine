@@ -171,6 +171,7 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   const material = materialComponent.material
   if (!material || material.type === prototypeName) return
   const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments) }
+  if (!prototypeConstructor) return
   const newMaterial = new prototypeConstructor(fullParameters) as Material
   if (newMaterial.plugins) {
     newMaterial.customProgramCacheKey = () =>
