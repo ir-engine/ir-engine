@@ -153,8 +153,7 @@ export const AvatarRigComponent = defineComponent({
       if (!rigComponent?.avatarURL?.value) return
       setComponent(entity, GLTFComponent, { src: rigComponent.avatarURL.value })
       return () => {
-        console.log('cleaning up gltf!')
-        //removeComponent(entity, GLTFComponent)
+        removeComponent(entity, GLTFComponent)
       }
     }, [rigComponent?.avatarURL?.value])
 

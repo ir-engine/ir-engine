@@ -972,7 +972,6 @@ const PrimitiveReactor = (props: {
   }, [])
 
   useLayoutEffect(() => {
-    //check if theres an undefined value in geometries
     if (!finalGeometry) return
 
     //For debug visualization of material indices

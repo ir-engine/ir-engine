@@ -109,7 +109,7 @@ const cache = new GLTFRegistry()
 const useLoadPrimitives = (options: GLTFParserOptions, nodeIndex: number) => {
   const finalGeometry = useHookstate(null as BufferGeometry | null)
   const json = options.document
-  const node = json.nodes![nodeIndex]!
+  const node = json.nodes![nodeIndex]
   const mesh = json.meshes![node.mesh!]
 
   const geometries = mesh.primitives.map(
@@ -664,9 +664,9 @@ const useMergeMorphTargets = (options: GLTFParserOptions, nodeIndex: number) => 
   const morphTargets = [] as (Record<string, BufferAttribute[]> | null)[]
   const loadedMorphTargets = useHookstate(null! as Record<string, BufferAttribute[]> | null)
 
-  mesh.primitives.map((primitive) =>
-    morphTargets.push(GLTFLoaderFunctions.useLoadMorphTargets(options, primitive.targets as any))
-  )
+  mesh.primitives.map((primitive) => {
+    if (primitive.targets) morphTargets.push(GLTFLoaderFunctions.useLoadMorphTargets(options, primitive.targets as any))
+  })
 
   useEffect(() => {
     if (morphTargets.some((geometry) => !geometry) || loadedMorphTargets.value) return
