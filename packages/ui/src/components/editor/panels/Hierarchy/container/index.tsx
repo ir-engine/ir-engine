@@ -113,7 +113,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | Entity>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
-  const [prevClickedNode, setPrevClickedNode] = useState<Entity | null>(null)
+  const [firstClickedNode, setFirstClickedNode] = useState<Entity | null>(null)
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
@@ -137,6 +137,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
       if (entity) entities.push(entity)
     }
     setSelectedNode(entities)
+    if (!selectionState.selectedEntities.value.length) {
+      setFirstClickedNode(null)
+    }
   }, [selectionState.selectedEntities])
 
   useHotkeys(`${cmdOrCtrlString}+d`, (e) => {
@@ -276,8 +279,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         if ((e.ctrlKey && usesCtrlKey()) || (e.metaKey && !usesCtrlKey())) {
           if (entity === rootEntity) return
           EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
-        } else if (e.shiftKey && prevClickedNode) {
-          const startIndex = entityHierarchy.value.findIndex((n) => n.entity === prevClickedNode)
+        } else if (e.shiftKey && firstClickedNode) {
+          const startIndex = entityHierarchy.value.findIndex((n) => n.entity === firstClickedNode)
           const endIndex = entityHierarchy.value.findIndex((n) => n.entity === entity)
           const range = entityHierarchy.value.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1)
           const entityUuids = range.filter((n) => n.entity).map((n) => getComponent(n.entity!, UUIDComponent))
@@ -287,8 +290,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
           if (!selected) {
             EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
           }
+          setFirstClickedNode(entity)
         }
-        setPrevClickedNode(entity)
       } else if (e.detail === 2) {
         if (entity && getOptionalComponent(entity, CameraOrbitComponent)) {
           const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
@@ -297,7 +300,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         }
       }
     },
-    [prevClickedNode, entityHierarchy]
+    [firstClickedNode, entityHierarchy]
   )
 
   const onToggle = useCallback(
