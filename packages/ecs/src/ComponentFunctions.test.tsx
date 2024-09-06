@@ -29,7 +29,7 @@ import assert from 'assert'
 import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 
-import { Vector3 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
@@ -42,7 +42,7 @@ import {
   useComponent,
   useOptionalComponent
 } from './ComponentFunctions'
-import { S } from './ComponentSchemaUtils'
+import { ECSSchema, S } from './ComponentSchemaUtils'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
@@ -190,6 +190,67 @@ describe('ComponentFunctions', async () => {
       assert(
         vector3Component.x === setValue.x && vector3Component.y === setValue.y && vector3Component.z === setValue.z
       )
+    })
+
+    it('ECS Schema is proxied', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: ECSSchema.Vec3
+      })
+
+      const entity = createEntity()
+      setComponent(entity, Vector3Component)
+      const vector3Component = getComponent(entity, Vector3Component)
+      vector3Component.x = 12
+      assert(vector3Component.x === 12)
+      assert(vector3Component.x === Vector3Component.x[entity])
+    })
+
+    it('ECS Schema is proxied, nested objects', () => {
+      const TransformComponent = defineComponent({
+        name: 'Vector3Component',
+        schema: {
+          position: ECSSchema.Vec3,
+          rotation: ECSSchema.Quaternion,
+          scale: ECSSchema.Vec3
+        }
+      })
+
+      const entity = createEntity()
+      setComponent(entity, TransformComponent)
+      const transformComponent = getComponent(entity, TransformComponent)
+      transformComponent.position.x = 12
+      assert(transformComponent.position.x === 12)
+      assert(transformComponent.position.x === TransformComponent.position.x[entity])
+    })
+
+    it('ECS Schema is proxied, arrays', () => {
+      const TransformComponent = defineComponent({
+        name: 'Vector3Component',
+        schema: {
+          position: ECSSchema.Vec3,
+          rotation: ECSSchema.Quaternion,
+          scale: ECSSchema.Vec3,
+          matrix: ECSSchema.Mat4
+        }
+      })
+
+      const entity = createEntity()
+      setComponent(entity, TransformComponent)
+      const transformComponent = getComponent(entity, TransformComponent)
+      transformComponent.matrix[12] = 14
+      const mat = TransformComponent.matrix[entity]
+      assert(transformComponent.matrix[12] === 14)
+      assert(transformComponent.matrix[12] === TransformComponent.matrix[entity][12])
+      assert(transformComponent.matrix[12] === mat[12])
+
+      const mat4Elements = new Matrix4().elements
+      transformComponent.matrix.set(mat4Elements)
+
+      for (let i = 0; i < mat4Elements.length; i++) {
+        assert(transformComponent.matrix[i] === mat4Elements[i])
+        assert(TransformComponent.matrix[entity][i] === mat4Elements[i])
+      }
     })
   })
 

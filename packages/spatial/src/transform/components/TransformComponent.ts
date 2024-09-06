@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import {
@@ -37,8 +36,9 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { ECSSchema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { isZero } from '../../common/functions/MathFunctions'
-import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { Mat4Proxy, QuaternionProxyDirty, Vec3ProxyDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 export type TransformComponentType = {
@@ -49,17 +49,16 @@ export type TransformComponentType = {
   matrixWorld: Matrix4
 }
 
-const { f64 } = Types
-export const Vector3ECS = { x: f64, y: f64, z: f64 }
-export const QuaternionECS = { x: f64, y: f64, z: f64, w: f64 }
 export const PoseECS = {
-  position: Vector3ECS,
-  rotation: QuaternionECS
+  position: ECSSchema.Vec3,
+  rotation: ECSSchema.Quaternion
 }
 export const TransformECS = {
-  position: Vector3ECS,
-  rotation: QuaternionECS,
-  scale: Vector3ECS
+  position: ECSSchema.Vec3,
+  rotation: ECSSchema.Quaternion,
+  scale: ECSSchema.Vec3,
+  matrix: ECSSchema.Mat4,
+  matrixWorld: ECSSchema.Mat4
 }
 
 export const TransformComponent = defineComponent({
@@ -67,33 +66,25 @@ export const TransformComponent = defineComponent({
   jsonID: 'EE_transform',
   schema: TransformECS,
 
-  onInit: (entity) => {
+  onInit: (initial) => {
+    const entity = initial.entity
     const dirtyTransforms = TransformComponent.dirtyTransforms
+    initial.scale = { x: 1, y: 1, z: 1 }
     const component = {
-      position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms) as Vector3,
-      rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
-      scale: proxifyVector3WithDirty(
-        TransformComponent.scale,
-        entity,
-        dirtyTransforms,
-        new Vector3(1, 1, 1)
-      ) as Vector3,
-      matrix: new Matrix4(),
-      matrixWorld: new Matrix4()
+      position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
+      rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
+      scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms),
+      matrix: Mat4Proxy(initial.matrix),
+      matrixWorld: Mat4Proxy(initial.matrixWorld)
     } as TransformComponentType
     return component
   },
 
   onSet: (entity, component, json) => {
-    const rotation = json?.rotation
-      ? typeof json.rotation.w === 'number'
-        ? json.rotation
-        : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
-      : undefined
-
-    if (json?.position) component.position.value.copy(json.position)
-    if (rotation) component.rotation.value.copy(rotation)
-    if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+    if (!json) return
+    if (json.position) component.position.value.copy(json.position)
+    if (json.rotation) component.rotation.value.copy(json.rotation)
+    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
   },
 
   toJSON: (component) => {

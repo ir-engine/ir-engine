@@ -41,6 +41,7 @@ import ECS, {
 } from '@ir-engine/ecs'
 import { matches, PeerID, UserID, Validator } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
+import { ProxyWithECS } from '@ir-engine/spatial/src/common/proxies/ECSSchemaProxy'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId
@@ -52,35 +53,20 @@ export const NetworkObjectComponent = defineComponent({
     networkId: ECS.Types.ui32
   },
 
-  onInit: (entity) => {
-    return {
-      /** The user who is authority over this object. */
-      ownerId: '' as UserID,
-      ownerPeer: '' as PeerID,
-      /** The peer who is authority over this object. */
-      authorityPeerID: '' as PeerID,
-      /** The network id for this object (this id is only unique per owner) */
-      networkId: 0 as NetworkId
-    }
-  },
-
-  toJSON: (component) => {
-    return {
-      ownerId: component.ownerId,
-      ownerPeer: component.ownerPeer,
-      authorityPeerID: component.authorityPeerID,
-      networkId: component.networkId
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (typeof json?.ownerId === 'string') component.ownerId.set(json.ownerId)
-    if (typeof json?.ownerPeer === 'string') component.ownerPeer.set(json.ownerPeer)
-    if (typeof json?.authorityPeerID === 'string') component.authorityPeerID.set(json.authorityPeerID)
-    if (typeof json?.networkId === 'number') {
-      component.networkId.set(json.networkId)
-      NetworkObjectComponent.networkId[entity] = json.networkId
-    }
+  onInit: (initial) => {
+    return ProxyWithECS(
+      initial,
+      {
+        /** The user who is authority over this object. */
+        ownerId: '' as UserID,
+        ownerPeer: '' as PeerID,
+        /** The peer who is authority over this object. */
+        authorityPeerID: '' as PeerID,
+        /** The network id for this object (this id is only unique per owner) */
+        networkId: 0 as NetworkId
+      },
+      'networkId'
+    )
   },
 
   reactor: function () {

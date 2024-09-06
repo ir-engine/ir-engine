@@ -28,8 +28,8 @@ import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ECSSchema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { QuaternionECS, Vector3ECS } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
@@ -40,16 +40,16 @@ export const MotionCaptureRigComponent = defineComponent({
     }
   },
   schema: {
-    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionECS])) as Record<
+    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, ECSSchema.Quaternion])) as Record<
       VRMHumanBoneName,
-      typeof QuaternionECS
+      typeof ECSSchema.Quaternion
     >,
-    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionECS])) as Record<
+    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, ECSSchema.Quaternion])) as Record<
       VRMHumanBoneName,
-      typeof QuaternionECS
+      typeof ECSSchema.Quaternion
     >,
-    hipPosition: Vector3ECS,
-    hipRotation: QuaternionECS,
+    hipPosition: ECSSchema.Vec3,
+    hipRotation: ECSSchema.Quaternion,
     footOffset: 'f64',
     solvingLowerBody: 'ui8'
   },
