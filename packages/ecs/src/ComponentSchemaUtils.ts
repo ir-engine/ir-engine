@@ -56,7 +56,8 @@ export interface TTypedSchema<T> extends TSchema {
 export const TypedClass = <T, TProps extends TProperties>(properties: TProps, init: () => T, options?: ObjectOptions) =>
   S.Object(properties, init, options) as unknown as TTypedSchema<T>
 
-const EntitySchema = () => Type.Number({ default: UndefinedEntity, $id: 'Entity' }) as unknown as TTypedSchema<Entity>
+const EntitySchema = (def?: Entity) =>
+  Type.Number({ default: def ?? UndefinedEntity, $id: 'Entity' }) as unknown as TTypedSchema<Entity>
 
 const EntityUUIDSchema = () => Type.String({ default: '', $id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>
 
@@ -72,17 +73,17 @@ export const S = {
   Object: <T extends TProperties, Initial>(properties: T, init?: Initial, options?: ObjectOptions) =>
     Type.Object(properties, buildOptions(init, options)),
 
+  Record: <K extends TSchema, V extends TSchema, Initial>(key: K, value: V, init?: Initial, options?: ObjectOptions) =>
+    Type.Record(key, value, buildOptions(init, options)),
+
   Array: <T extends TSchema, Initial extends any[]>(items: T, init?: Initial, options?: ArrayOptions) =>
-    Type.Array(items, buildOptions(init, options)),
+    Type.Array(items, buildOptions(init ?? [], options)),
 
   Union: <T extends TSchema[], Initial>(schemas: [...T], init?: Initial, options?: SchemaOptions) =>
     Type.Union(schemas, buildOptions(init, options)),
 
   LiteralUnion: <T extends TLiteralValue>(items: T[], init?: T, options?: SchemaOptions) =>
-    S.Union(
-      items.map((lit) => S.Literal(lit)),
-      buildOptions(init, options)
-    ),
+    S.Union([...items.map((lit) => S.Literal(lit))], buildOptions(init, options)),
 
   Class: <T extends TProperties, Initial extends new (...params: any[]) => any>(
     init: Initial,
@@ -96,9 +97,12 @@ export const S = {
   Nullable: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
     S.Union([schema, Type.Null()], buildOptions(init, options)),
 
+  Optional: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
+    S.Union([schema, Type.Undefined()], buildOptions(init, options)),
+
   Call: (options?: SchemaOptions) => Type.Function([], Type.Void(), options),
 
-  Entity: () => EntitySchema(),
+  Entity: (def?: Entity) => EntitySchema(),
 
   EntityUUID: () => EntityUUIDSchema(),
 
@@ -144,8 +148,15 @@ export const S = {
         ...options,
         $id: 'Mat4'
       }
-    )
+    ),
+
+  // Only use if you have to (ie. HTML element types, Three types), provides no real type safety
+  Type: <T>(options?: ObjectOptions) => S.Object({}, buildOptions(null, options)) as unknown as TTypedSchema<T>,
+
+  Any: () => Type.Any()
 }
+
+export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'], 'none')
 
 const { f64 } = Types
 export const ECSSchema = {

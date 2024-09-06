@@ -31,10 +31,10 @@ import {
   Engine,
   removeEntity,
   setComponent,
-  UndefinedEntity,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -87,31 +87,23 @@ const cleanupGizmo = (gizmoObj: Object3D) => {
 export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',
 
-  onInit(entity) {
-    const visual = {
-      gizmo: {
-        translate: UndefinedEntity,
-        rotate: UndefinedEntity,
-        scale: UndefinedEntity
-      },
-      picker: {
-        translate: UndefinedEntity,
-        rotate: UndefinedEntity,
-        scale: UndefinedEntity
-      },
-
-      helper: {
-        translate: UndefinedEntity,
-        rotate: UndefinedEntity,
-        scale: UndefinedEntity
-      }
-    }
-    return visual
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-  },
+  schema: S.Object({
+    gizmo: S.Object({
+      translate: S.Entity(),
+      rotate: S.Entity(),
+      scale: S.Entity()
+    }),
+    picker: S.Object({
+      translate: S.Entity(),
+      rotate: S.Entity(),
+      scale: S.Entity()
+    }),
+    helper: S.Object({
+      translate: S.Entity(),
+      rotate: S.Entity(),
+      scale: S.Entity()
+    })
+  }),
 
   reactor: function (props) {
     const gizmoVisualEntity = useEntityContext()

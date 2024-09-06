@@ -26,11 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { SkinnedMesh } from 'three'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 
 export const SkinnedMeshComponent = defineComponent({
   name: 'SkinnedMeshComponent',
 
-  onInit: (entity) => null! as SkinnedMesh,
+  schema: S.Type<SkinnedMesh>(),
 
   onSet: (entity, component, mesh: SkinnedMesh) => {
     if (!mesh || !mesh.isSkinnedMesh) throw new Error('SkinnedMeshComponent: Invalid skinned mesh')

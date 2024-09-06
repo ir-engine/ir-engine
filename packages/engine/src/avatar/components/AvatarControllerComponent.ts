@@ -37,11 +37,12 @@ import {
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getState, matches } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
@@ -53,38 +54,22 @@ export const eyeOffset = 0.25
 export const AvatarControllerComponent = defineComponent({
   name: 'AvatarControllerComponent',
 
-  onInit(entity) {
-    return {
-      /** The camera entity that should be updated by this controller */
-      cameraEntity: getState(EngineState).viewerEntity || UndefinedEntity,
-      movementCaptured: [] as Array<Entity>,
-      isJumping: false,
-      isWalking: false,
-      isInAir: false,
-      /** velocity along the Y axis */
-      verticalVelocity: 0,
-      /** Is the gamepad-driven jump active */
-      gamepadJumpActive: false,
-      /** gamepad-driven input, in the local XZ plane */
-      gamepadLocalInput: new Vector3(),
-      /** gamepad-driven movement, in the world XZ plane */
-      gamepadWorldMovement: new Vector3()
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (matches.number.test(json.cameraEntity)) component.cameraEntity.set(json.cameraEntity)
-    if (matches.array.test(json.movementCaptured)) component.movementCaptured.set(json.movementCaptured)
-    if (matches.boolean.test(json.isJumping)) component.isJumping.set(json.isJumping)
-    if (matches.boolean.test(json.isWalking)) component.isWalking.set(json.isWalking)
-    if (matches.boolean.test(json.isInAir)) component.isInAir.set(json.isInAir)
-    if (matches.number.test(json.verticalVelocity)) component.verticalVelocity.set(json.verticalVelocity)
-    if (matches.boolean.test(json.gamepadJumpActive)) component.gamepadJumpActive.set(json.gamepadJumpActive)
-    if (matches.object.test(json.gamepadLocalInput)) component.gamepadLocalInput.set(json.gamepadLocalInput)
-    if (matches.object.test(json.gamepadWorldMovement)) component.gamepadWorldMovement.set(json.gamepadWorldMovement)
-  },
+  schema: S.Object({
+    /** The camera entity that should be updated by this controller */
+    cameraEntity: S.Entity(getState(EngineState).viewerEntity || UndefinedEntity),
+    movementCaptured: S.Array(S.Entity()),
+    isJumping: S.Bool(false),
+    isWalking: S.Bool(false),
+    isInAir: S.Bool(false),
+    /** velocity along the Y axis */
+    verticalVelocity: S.Number(0),
+    /** Is the gamepad-driven jump active */
+    gamepadJumpActive: S.Bool(false),
+    /** gamepad-driven input, in the local XZ plane */
+    gamepadLocalInput: S.Vec3(),
+    /** gamepad-driven movement, in the world XZ plane */
+    gamepadWorldMovement: S.Vec3()
+  }),
 
   captureMovement(capturedEntity: Entity, entity: Entity): void {
     const component = getComponent(capturedEntity, AvatarControllerComponent)
@@ -150,13 +135,5 @@ export const AvatarControllerComponent = defineComponent({
 
 export const AvatarColliderComponent = defineComponent({
   name: 'AvatarColliderComponent',
-  onInit(entity) {
-    return {
-      colliderEntity: UndefinedEntity
-    }
-  },
-  onSet(entity, component, json) {
-    if (!json) return
-    if (matches.number.test(json.colliderEntity)) component.colliderEntity.set(json.colliderEntity)
-  }
+  schema: S.Object({ colliderEntity: S.Entity() })
 })

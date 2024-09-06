@@ -26,20 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { AnimationClip, AnimationMixer } from 'three'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
 
-  onInit: (entity) => {
-    return {
-      mixer: null! as AnimationMixer,
-      animations: [] as AnimationClip[]
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.mixer) component.mixer.set(json.mixer)
-    if (json.animations) component.animations.set(json.animations as AnimationClip[])
-  }
+  schema: S.Object({
+    mixer: S.Type<AnimationMixer>(),
+    animations: S.Array(S.Type<AnimationClip>())
+  })
 })

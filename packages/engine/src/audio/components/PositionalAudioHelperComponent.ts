@@ -34,27 +34,26 @@ import {
   MathUtils
 } from 'three'
 
-import { defineComponent, Entity, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY, useDidMount } from '@ir-engine/hyperflux'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
 import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
   name: 'PositionalAudioHelperComponent',
 
-  onInit: (entity) => {
-    return {
-      name: 'positional-audio-helper',
-      audio: null! as AudioNodeGroup,
-      range: 1,
-      divisionsInnerAngle: 16,
-      divisionsOuterAngle: 2,
-      divisions: 0,
-      entity: undefined as undefined | Entity
-    }
-  },
+  schema: S.Object({
+    name: S.String('positional-audio-helper'),
+    audio: S.Type<AudioNodeGroup>(),
+    range: S.Number(1),
+    divisionsInnerAngle: S.Number(16),
+    divisionsOuterAngle: S.Number(2),
+    divisions: S.Number(0),
+    entity: S.Entity()
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return

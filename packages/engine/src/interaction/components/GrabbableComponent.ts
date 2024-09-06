@@ -33,6 +33,7 @@ import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 
+import { S, XRHandedness } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
 import { InteractableComponent, XRUIVisibilityOverride } from './InteractableComponent'
@@ -105,19 +106,10 @@ export const onDrop = () => {
 export const GrabbedComponent = defineComponent({
   name: 'GrabbedComponent',
 
-  onInit(entity) {
-    return {
-      attachmentPoint: 'none' as XRHandedness,
-      grabberEntity: null! as Entity
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.attachmentPoint === 'string') component.attachmentPoint.set(json.attachmentPoint)
-    if (typeof json.grabberEntity === 'number') component.grabberEntity.set(json.grabberEntity)
-  }
+  schema: S.Object({
+    attachmentPoint: XRHandedness,
+    grabberEntity: S.Entity()
+  })
 })
 
 /**
@@ -127,16 +119,8 @@ export const GrabbedComponent = defineComponent({
 export const GrabberComponent = defineComponent({
   name: 'GrabberComponent',
 
-  onInit(entity) {
-    return {
-      left: null as Entity | null,
-      right: null as Entity | null
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.left === 'number' || json.left === null) component.left.set(json.left)
-    if (typeof json.right === 'number' || json.right === null) component.right.set(json.right)
-  }
+  schema: S.Object({
+    left: S.Nullable(S.Entity()),
+    right: S.Nullable(S.Entity())
+  })
 })

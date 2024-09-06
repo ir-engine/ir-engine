@@ -31,14 +31,19 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { none } from '@ir-engine/hyperflux'
 
 export const ResourcePendingComponent = defineComponent({
   name: 'ResourcePendingComponent',
 
-  onInit(entity) {
-    return {} as Record<string, { progress: number; total: number }>
-  },
+  schema: S.Record(
+    S.String(),
+    S.Object({
+      progress: S.Number(),
+      total: S.Number()
+    })
+  ),
 
   setResource(entity: Entity, url: string, progress: number, total: number) {
     setComponent(entity, ResourcePendingComponent)

@@ -24,19 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 
 export const AvatarPendingComponent = defineComponent({
   name: 'AvatarPendingComponent',
 
-  onInit(entity) {
-    return {
-      url: ''
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (json.url) component.url.set(json.url)
-  }
+  schema: S.Object({
+    url: S.String('')
+  })
 })
