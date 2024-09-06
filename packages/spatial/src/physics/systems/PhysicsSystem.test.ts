@@ -27,6 +27,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import {
   Entity,
+  SimulationSystemGroup,
   SystemDefinitions,
   SystemUUID,
   UUIDComponent,
@@ -38,12 +39,15 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
+import { getState, startReactor } from '@ir-engine/hyperflux'
+import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -56,11 +60,21 @@ import { PhysicsSystem } from './PhysicsSystem'
 const steps = 60
 
 describe('PhysicsSystem', () => {
-  describe('IDs', () => {
-    it("should define the PhysicsSystem's UUID with the expected value", () => {
-      assert.equal(PhysicsSystem, 'ee.engine.PhysicsSystem' as SystemUUID)
+  describe('Fields', () => {
+    const System = SystemDefinitions.get(PhysicsSystem)
+
+    it("should define the System's UUID with the expected value", () => {
+      const Expected = 'ee.engine.PhysicsSystem'
+      assert.equal(PhysicsSystem, Expected as SystemUUID)
+      assert.equal(System!.uuid, Expected)
     })
-  })
+
+    it('should initialize the InputExecutionSystemGroup.insert field with the expected value', () => {
+      assert.notEqual(System!.insert, undefined)
+      assert.notEqual(System!.insert!.with, undefined)
+      assert.equal(System!.insert!.with!, SimulationSystemGroup)
+    })
+  }) //:: Fields
 
   describe('execute', () => {
     let testEntity = UndefinedEntity
@@ -210,8 +224,90 @@ describe('PhysicsSystem', () => {
     })
   }) //:: execute
 
-  /**
-  // @note The reactor is currently just binding data onMount and onUnmount
-  // describe('reactor', () => {})
-  */
-})
+  describe('reactor', () => {
+    describe('mount/unmount', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: PhysicsWorld
+      let physicsWorldEntity = UndefinedEntity
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorldEntity = createEntity()
+        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(physicsWorldEntity, SceneComponent)
+        setComponent(physicsWorldEntity, TransformComponent)
+        setComponent(physicsWorldEntity, EntityTreeComponent)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld.timestep = 1 / steps
+
+        testEntity = createEntity()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        return destroyEngine()
+      })
+
+      const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)!.reactor!
+
+      it('should set NetworkState.networkSchema[PhysicsSerialization.ID] when it mounts', () => {
+        const before = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+        assert.equal(before, undefined)
+        // Run and Check the result
+        const root = startReactor(physicsSystemReactor)
+        const after = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+        assert.notEqual(after, undefined)
+      })
+
+      it('should set NetworkState.networkSchema[PhysicsSerialization.ID] to none when it unmounts', () => {
+        const before = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+        assert.equal(before, undefined)
+        // Run and Check the result
+        const root = startReactor(physicsSystemReactor)
+        const after = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+        assert.notEqual(after, undefined)
+        root.stop()
+        const result = getState(NetworkState).networkSchema[PhysicsSerialization.ID]
+        assert.equal(result, undefined)
+      })
+    }) //:: mount/unmount
+
+    describe('PhysicsSceneReactor', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: PhysicsWorld
+      let physicsWorldEntity = UndefinedEntity
+
+      beforeEach(async () => {
+        createEngine()
+        // await Physics.load()
+        physicsWorldEntity = createEntity()
+        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(physicsWorldEntity, EntityTreeComponent)
+        setComponent(physicsWorldEntity, TransformComponent)
+
+        testEntity = createEntity()
+      })
+
+      afterEach(() => {
+        removeEntity(physicsWorldEntity)
+        removeEntity(testEntity)
+        return destroyEngine()
+      })
+
+      const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)?.reactor
+
+      it.skip("should create a new physics world whenever the UUIDComponent of a SceneComponent's entityContext changes", () => {
+        // Sanity check before running
+        assert.equal(hasComponent(physicsWorldEntity, SceneComponent), false)
+        assert.throws(() => Physics.destroyWorld(getComponent(physicsWorldEntity, UUIDComponent)))
+        // Run and Check the result
+        const root = startReactor(physicsSystemReactor!)
+        setComponent(physicsWorldEntity, SceneComponent)
+        root.run()
+        assert.equal(hasComponent(physicsWorldEntity, SceneComponent), true)
+        assert.doesNotThrow(() => Physics.destroyWorld(getComponent(physicsWorldEntity, UUIDComponent)))
+      })
+    }) //:: PhysicsSceneReactor
+  }) //:: reactor
+}) //:: PhysicsSystem
