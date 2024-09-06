@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
-import { FileDataType } from '../panels/files/helpers'
+import { FileDataType } from '../constants/AssetTypes'
 
 export const FilesViewModeState = defineState({
   name: 'FilesViewModeState',

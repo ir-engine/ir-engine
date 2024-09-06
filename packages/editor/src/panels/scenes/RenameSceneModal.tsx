@@ -32,8 +32,8 @@ import { renameScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 import { useHookstate } from '@ir-engine/hyperflux'
-import Input from '../../../../../primitives/tailwind/Input'
-import Modal from '../../../../../primitives/tailwind/Modal'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 type Props = {
   sceneName: string

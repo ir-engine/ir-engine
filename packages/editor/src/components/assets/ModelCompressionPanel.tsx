@@ -28,7 +28,10 @@ import { twMerge } from 'tailwind-merge'
 import { LoaderUtils } from 'three'
 
 import { API } from '@ir-engine/common'
-import { transformModel as clientSideTransformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
+import {
+  transformModel as clientSideTransformModel,
+  ModelTransformStatus
+} from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
@@ -50,18 +53,33 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
-import { FileDataType } from '../../panels/files/helpers'
+import { FileDataType } from '../../constants/AssetTypes'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
+
+const progressCaptions: Record<ModelTransformStatus, string> = {
+  [ModelTransformStatus.Initializing]: 'editor:properties.model.transform.status.initializing',
+  [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
+  [ModelTransformStatus.Finalizing]: 'editor:properties.model.transform.status.finalizing',
+  [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
+  [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
+}
 
 export const createLODVariants = async (
   lods: LODVariantDescriptor[],
   clientside: boolean,
   heuristic: Heuristic,
-  exportCombined = false
+  exportCombined = false,
+  onProgress: (
+    progress: number,
+    status: ModelTransformStatus,
+    numerator: number,
+    denominator: number,
+    currentLOD: number,
+    totalLODS: number
+  ) => void = () => {}
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
     ...lod.params
@@ -70,10 +88,16 @@ export const createLODVariants = async (
   const transformMetadata = [] as Record<string, any>[]
   for (const [i, variant] of lodVariantParams.entries()) {
     if (clientside) {
-      await clientSideTransformModel(variant, (key, data) => {
-        if (!transformMetadata[i]) transformMetadata[i] = {}
-        transformMetadata[i][key] = data
-      })
+      await clientSideTransformModel(
+        variant,
+        (key, data) => {
+          if (!transformMetadata[i]) transformMetadata[i] = {}
+          transformMetadata[i][key] = data
+        },
+        (progress, status, numerator, denominator) => {
+          onProgress((progress + i) / lods.length, status, numerator ?? 0, denominator ?? 0, i, lods.length)
+        }
+      )
     } else {
       await API.instance.service(modelTransformPath).create(variant)
     }
@@ -115,6 +139,10 @@ export default function ModelCompressionPanel({
 }) {
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
+  const compressionProgress = useHookstate({
+    progress: 0,
+    caption: ''
+  })
   const selectedLODIndex = useHookstate(0)
   const selectedPreset = useHookstate(defaultParams)
   const presetList = useHookstate(structuredClone(LODList))
@@ -130,6 +158,10 @@ export default function ModelCompressionPanel({
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
+    compressionProgress.set({
+      progress: 0,
+      caption: ''
+    })
     for (const file of selectedFiles) {
       await compressModel(file)
     }
@@ -187,7 +219,24 @@ export default function ModelCompressionPanel({
     }
 
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(fileLODs, clientside, heuristic, exportCombined)
+    await createLODVariants(
+      fileLODs,
+      clientside,
+      heuristic,
+      exportCombined,
+      (progress, status, numerator, denominator, currentLOD, totalLODs) => {
+        let caption = t(progressCaptions[status]!, {
+          numerator: numerator + 1,
+          denominator
+        })
+        caption = t('editor:properties.model.transform.progress', {
+          currentLOD: currentLOD + 1,
+          totalLODs,
+          caption
+        })
+        compressionProgress.set({ progress, caption })
+      }
+    )
   }
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
@@ -316,9 +365,19 @@ export default function ModelCompressionPanel({
           />
         </div>
 
-        <div className="flex justify-end px-8">
+        <div className="flex justify-end justify-items-stretch px-8">
           {compressionLoading.value ? (
-            <LoadingView spinnerOnly className="mx-0 h-12 w-12" />
+            <div className="flex w-full flex-col">
+              <div className="h-4 w-full overflow-hidden rounded bg-white">
+                <div
+                  className="h-4 w-full origin-left bg-blue-primary transition-transform"
+                  style={{
+                    transform: `scaleX(${compressionProgress.progress.value})`
+                  }}
+                />
+              </div>
+              {compressionProgress.caption.value}
+            </div>
           ) : (
             <Button variant="primary" onClick={compressContentInBrowser}>
               {t('editor:properties.model.transform.compress')}

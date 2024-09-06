@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { SceneItem } from '@ir-engine/client-core/src/admin/components/scene/SceneItem'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useRealtime } from '@ir-engine/common'
 import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
@@ -32,13 +31,16 @@ import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/too
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
-import Button from '../../../../../primitives/tailwind/Button'
-import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import SceneItem from './SceneItem'
 
-export default function ScenesPanel() {
+function ScenesPanel() {
   const { t } = useTranslation()
   const editorState = useMutableState(EditorState)
   const scenesQuery = useFind(staticResourcePath, {
@@ -104,7 +106,6 @@ export default function ScenesPanel() {
                   onRenameScene={(newName) => {
                     editorState.scenePath.set(newName)
                   }}
-                  moveMenuUp={true}
                   handleOpenScene={() => onClickScene(scene)}
                   refetchProjectsData={scenesQuery.refetch}
                 />
@@ -115,4 +116,24 @@ export default function ScenesPanel() {
       </div>
     </div>
   )
+}
+
+const ScenePanelTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div>
+      <PanelDragContainer>
+        <PanelTitle>{t('editor:properties.scene.name')}</PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
+}
+
+export const ScenePanelTab: TabData = {
+  id: 'scenePanel',
+  closable: true,
+  cached: true,
+  title: <ScenePanelTitle />,
+  content: <ScenesPanel />
 }
