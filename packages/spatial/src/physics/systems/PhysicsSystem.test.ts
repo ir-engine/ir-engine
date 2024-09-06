@@ -145,24 +145,21 @@ describe('PhysicsSystem', () => {
     })
 
     it('should update collisions on the ECS', () => {
-      const t = 10
-      const testImpulse = new Vector3(t, t, t)
       const entity1 = createEntity()
+      setComponent(entity1, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(entity1, TransformComponent)
       setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
-      setComponent(entity1, ColliderComponent)
-      setComponent(entity1, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      setComponent(entity1, ColliderComponent, { mass: 1 })
       const entity2 = createEntity()
-      setComponent(entity2, TransformComponent, { position: new Vector3(2, 2, 2) })
-      setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
-      setComponent(entity2, ColliderComponent)
       setComponent(entity2, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      setComponent(entity2, TransformComponent) // Will check for overlapping collision
+      setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(entity2, ColliderComponent)
       // Sanity check before
       assert.equal(hasComponent(entity1, CollisionComponent), false)
       assert.equal(hasComponent(entity2, CollisionComponent), false)
 
       // Run and Check after
-      Physics.applyImpulse(physicsWorld, entity1, testImpulse)
       physicsSystemExecute()
       assert.equal(hasComponent(entity1, CollisionComponent), true)
       assert.equal(hasComponent(entity2, CollisionComponent), true)
