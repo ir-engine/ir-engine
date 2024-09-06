@@ -2545,13 +2545,13 @@ describe('Physics : Rapier->ECS API', () => {
         assert.equal(testEntity1, entity1)
         assert.equal(testEntity2, entity2)
         // Check before
-        assert.ok(!hasComponent(entity1, CollisionComponent))
-        assert.ok(!hasComponent(entity2, CollisionComponent))
+        assert.equal(hasComponent(entity1, CollisionComponent), false)
+        assert.equal(hasComponent(entity2, CollisionComponent), false)
 
         // Run and Check after
         event(collider1.handle, collider2.handle, true)
-        assert.ok(hasComponent(entity1, CollisionComponent))
-        assert.ok(hasComponent(entity2, CollisionComponent))
+        assert.equal(hasComponent(entity1, CollisionComponent), true)
+        assert.equal(hasComponent(entity2, CollisionComponent), true)
       })
 
       describe('when `started` is set to `true` ...', () => {

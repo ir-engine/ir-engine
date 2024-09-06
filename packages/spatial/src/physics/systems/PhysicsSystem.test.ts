@@ -145,26 +145,31 @@ describe('PhysicsSystem', () => {
     })
 
     it('should update collisions on the ECS', () => {
-      const testImpulse = new Vector3(1, 2, 3)
+      const t = 10
+      const testImpulse = new Vector3(t, t, t)
       const entity1 = createEntity()
       setComponent(entity1, TransformComponent)
       setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
       setComponent(entity1, ColliderComponent)
+      setComponent(entity1, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       const entity2 = createEntity()
-      setComponent(entity2, TransformComponent)
+      setComponent(entity2, TransformComponent, { position: new Vector3(2, 2, 2) })
       setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
       setComponent(entity2, ColliderComponent)
-      // Check before
-      assert.ok(!hasComponent(entity1, CollisionComponent))
-      assert.ok(!hasComponent(entity2, CollisionComponent))
+      setComponent(entity2, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      // Sanity check before
+      assert.equal(hasComponent(entity1, CollisionComponent), false)
+      assert.equal(hasComponent(entity2, CollisionComponent), false)
 
       // Run and Check after
       Physics.applyImpulse(physicsWorld, entity1, testImpulse)
       physicsSystemExecute()
-      assert.ok(hasComponent(entity1, ColliderComponent))
-      assert.ok(hasComponent(entity2, ColliderComponent))
+      assert.equal(hasComponent(entity1, CollisionComponent), true)
+      assert.equal(hasComponent(entity2, CollisionComponent), true)
     })
-  })
+
+    // it('should ??? ', () => {})
+  }) //:: execute
 
   /**
   // @note The reactor is currently just binding data onMount and onUnmount
