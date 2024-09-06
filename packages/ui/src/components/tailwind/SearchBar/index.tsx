@@ -30,19 +30,27 @@ import { State } from '@ir-engine/hyperflux'
 
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
+import { twMerge } from 'tailwind-merge'
 
 export default function SearchBar({
-  search
+  search,
+  size = 'large'
 }: {
   search: State<{
     local: string
     query: string
   }>
+  size: 'small' | 'medium' | 'large'
 }) {
   const { t } = useTranslation()
   const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
+  const variants = {
+    small: 'px-1 py-0.5 ps-8',
+    medium: 'p-2 ps-8',
+    large: 'px-2 py-5 ps-10'
+  }
 
   return (
     <div className="mb-4 flex justify-between">
@@ -60,7 +68,7 @@ export default function SearchBar({
             search!.query.set(event.target.value)
           }, 100)
         }}
-        className="bg-theme-surface-main"
+        className={twMerge('bg-theme-surface-main', variants[size])}
         containerClassName="w-1/5 block"
         startComponent={<HiMagnifyingGlass />}
       />
