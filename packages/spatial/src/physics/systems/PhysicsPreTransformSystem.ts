@@ -106,8 +106,9 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /** convert the local space transform to scene space */
   transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
 
+  /** @todo Whatever this math is doing is incorrect and we'll fix it v0.9. */
   /** convert the scene space transform to world space */
-  transform.matrixWorld.premultiply(sceneRelParentMatrix)
+  //transform.matrixWorld.premultiply(sceneRelParentMatrix)
 
   /** set all children dirty deeply, but set this entity to clean */
   iterateEntityNode(entity, setDirty)
