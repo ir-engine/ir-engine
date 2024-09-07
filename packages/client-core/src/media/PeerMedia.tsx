@@ -50,7 +50,10 @@ import {
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
 
 /**
- * Sets media stream state for a peer
+ * Peer media reactor
+ * - Manages the media stream for a peer
+ * @param props 
+ * @returns 
  */
 const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   const consumerState = useHookstate(
@@ -156,6 +159,12 @@ const SelfMedia = () => {
   return null
 }
 
+/**
+ * Network producer reactor
+ * - Requests consumer for a peer's producer
+ * @param props 
+ * @returns 
+ */
 export const NetworkProducer = (props: { networkID: InstanceID; producerID: string }) => {
   const { networkID, producerID } = props
   const producerState = useHookstate(

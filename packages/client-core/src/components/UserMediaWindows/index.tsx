@@ -27,7 +27,7 @@ import React from 'react'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, PeerID, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
@@ -53,7 +53,7 @@ export const useMediaWindows = () => {
   const selfUser = useMutableState(AuthState).user
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
-  const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
+  const consumers = Object.entries(peerMediaChannelState.get(NO_PROXY)) as [
     PeerID,
     { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
   ][]

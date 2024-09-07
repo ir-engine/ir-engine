@@ -32,11 +32,6 @@ import React, { RefObject, useEffect, useRef } from 'react'
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import {
-  globalMuteProducer,
-  globalUnmuteProducer,
-  pauseConsumer,
-  resumeConsumer,
-  setPreferredConsumerLayer,
   toggleMicrophonePaused,
   toggleScreenshareAudioPaused,
   toggleScreenshareVideoPaused,
@@ -61,6 +56,7 @@ import Slider from '@ir-engine/ui/src/primitives/mui/Slider'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 
+import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { useTranslation } from 'react-i18next'
 import { useZendesk } from '../../hooks/useZendesk'
 import { MediaStreamState } from '../../transports/MediaStreams'
@@ -136,8 +132,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const audioTrackClones = useHookstate<any[]>([])
   const videoTrackClones = useHookstate<any[]>([])
-  const videoTrackId = useHookstate('')
-  const audioTrackId = useHookstate('')
 
   const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
   const soundIndicatorOn = useHookstate(false)
@@ -171,16 +165,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const mediaStreamState = useMutableState(MediaStreamState)
   const mediaSettingState = useMutableState(MediaSettingsState)
   const rendered = !mediaSettingState.immersiveMedia.value
-
-  useEffect(() => {
-    if (peerMediaChannelState.videoStream.value?.track)
-      videoTrackId.set(peerMediaChannelState.videoStream.value.track.id)
-  }, [peerMediaChannelState.videoStream.value?.track?.id])
-
-  useEffect(() => {
-    if (peerMediaChannelState.audioStream.value?.track)
-      audioTrackId.set(peerMediaChannelState.audioStream.value.track.id)
-  }, [peerMediaChannelState.audioStream.value?.track?.id])
 
   useEffect(() => {
     function onUserInteraction() {
@@ -230,7 +214,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       unmounted = true
       if (newHark) newHark.stop()
     }
-  }, [audioTrackId.value])
+  }, [audioStream])
 
   useEffect(() => {
     videoElement.id = `${peerID}_video`
@@ -261,7 +245,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     return () => {
       videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
     }
-  }, [videoTrackId.value])
+  }, [videoStream])
 
   useEffect(() => {
     if (!isSelf && !videoProducerPaused && videoStream != null && videoElement != null) {
@@ -316,10 +300,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       toggleScreenshareVideoPaused()
     } else {
       if (!videoStreamPaused) {
-        pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, videoStream!.id)
         peerMediaChannelState.videoStreamPaused.set(true)
       } else {
-        resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, videoStream!.id)
         peerMediaChannelState.videoStreamPaused.set(false)
       }
     }
@@ -334,10 +318,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       toggleScreenshareAudioPaused()
     } else {
       if (!audioStreamPaused) {
-        pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, audioStream!.id)
         peerMediaChannelState.audioStreamPaused.set(true)
       } else {
-        resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, audioStream!.id)
         peerMediaChannelState.audioStreamPaused.set(false)
       }
     }
@@ -348,10 +332,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     const audioStreamProducer = audioStream as ConsumerExtension
     if (!audioProducerGlobalMute) {
-      globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
+      MediasoupMediaProducerConsumerState.globalMuteProducer(mediaNetwork, audioStreamProducer.producerId)
       peerMediaChannelState.audioProducerGlobalMute.set(true)
     } else if (audioProducerGlobalMute) {
-      globalUnmuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
+      MediasoupMediaProducerConsumerState.globalUnmuteProducer(mediaNetwork, audioStreamProducer.producerId)
       peerMediaChannelState.audioProducerGlobalMute.set(false)
     }
   }
@@ -534,9 +518,9 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
       // (immersive video bubbles are bigger than the flat bubbles, so low-quality video will be more noticeable).
       // If we're not, then the highest layer is still probably more than necessary, so use the n-1 layer unless the
       // n layer is under a specified constant
-      setPreferredConsumerLayer(
+      MediasoupMediaProducerConsumerState.setPreferredConsumerLayer(
         mediaNetwork,
-        videoStream as ConsumerExtension,
+        videoStream.id,
         (immersiveMedia.value && maxLayer) > 1
           ? maxLayer - 1
           : (!isScreen && resolution.height.ideal) > MAX_RES_TO_USE_TOP_LAYER
@@ -545,7 +529,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
       )
     }
     // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons
-    else setPreferredConsumerLayer(mediaNetwork, videoStream as ConsumerExtension, 0)
+    else MediasoupMediaProducerConsumerState.setPreferredConsumerLayer(mediaNetwork, videoStream.id, 0)
   }, [videoStream, isPiP])
 
   return (

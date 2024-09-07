@@ -34,10 +34,7 @@ import {
   PeerMediaStreamInterface
 } from '@ir-engine/client-core/src/transports/PeerMediaChannelState'
 import {
-  ConsumerExtension,
   SocketWebRTCClientNetwork,
-  pauseConsumer,
-  resumeConsumer,
   toggleMicrophonePaused,
   toggleScreenshareAudioPaused,
   toggleScreenshareVideoPaused,
@@ -46,6 +43,7 @@ import {
 import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
+import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { PeerID, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
@@ -120,10 +118,10 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
       toggleScreenshareVideoPaused()
     } else {
       if (!videoStreamPaused) {
-        pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, videoStream!.id)
         peerMediaChannelState.videoStreamPaused.set(true)
       } else {
-        resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, videoStream!.id)
         peerMediaChannelState.videoStreamPaused.set(false)
       }
     }
@@ -138,10 +136,10 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
       toggleScreenshareAudioPaused()
     } else {
       if (!audioStreamPaused) {
-        pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, audioStream!.id)
         peerMediaChannelState.audioStreamPaused.set(true)
       } else {
-        resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, audioStream!.id)
         peerMediaChannelState.audioStreamPaused.set(false)
       }
     }

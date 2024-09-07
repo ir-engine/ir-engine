@@ -14,7 +14,8 @@ import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/fu
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { MediaStreamState } from '../../transports/MediaStreams'
+import logger from '@ir-engine/common/src/logger'
+import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { WebcamInputComponent } from './WebcamInputComponent'
 
 /*
@@ -59,6 +60,25 @@ let audioContext: AudioContext = null!
 let faceWorker: Comlink.Remote<any> = null!
 let faceVideo: HTMLVideoElement = null!
 let faceCanvas: OffscreenCanvas = null!
+
+export const toggleFaceTracking = async () => {
+  const mediaStreamState = getMutableState(MediaStreamState)
+  if (mediaStreamState.faceTracking.value) {
+    mediaStreamState.faceTracking.set(false)
+    stopFaceTracking()
+    stopLipsyncTracking()
+  } else {
+    try {
+      await Promise.all([MediaStreamService.startCamera(), MediaStreamService.startMic()])
+    } catch (e) {
+      logger.error(e, 'Error starting camera or mic')
+      return
+    }
+    mediaStreamState.faceTracking.set(true)
+    startFaceTracking()
+    startLipsyncTracking()
+  }
+}
 
 export const stopFaceTracking = () => {
   faceTrackingTimers.forEach((timer) => {

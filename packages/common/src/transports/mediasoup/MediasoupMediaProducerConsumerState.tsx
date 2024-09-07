@@ -44,7 +44,7 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
-import { DataChannelType, MediaTagType, NetworkActions, NetworkState } from '@ir-engine/network'
+import { DataChannelType, MediaTagType, Network, NetworkActions, NetworkState } from '@ir-engine/network'
 import { MediaStreamAppData } from '../../interfaces/NetworkInterfaces'
 import {
   MediasoupTransportActions,
@@ -205,6 +205,90 @@ export const MediasoupMediaProducerConsumerState = defineState({
     if (!consumer) return
 
     return getState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.consumerID]
+  },
+
+  pauseConsumer: (network: Network, consumerID: string) => {
+    dispatchAction(
+      MediasoupMediaConsumerActions.consumerPaused({
+        consumerID,
+        paused: true,
+        $network: network.id,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
+  },
+
+  resumeConsumer: (network: Network, consumerID: string) => {
+    dispatchAction(
+      MediasoupMediaConsumerActions.consumerPaused({
+        consumerID,
+        paused: false,
+        $network: network.id,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
+  },
+
+  pauseProducer: (network: Network, producerID: string) => {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID,
+        globalMute: false,
+        paused: true,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
+  },
+
+  resumeProducer: (network: Network, producerID: string) => {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID,
+        globalMute: false,
+        paused: false,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
+  },
+
+  globalMuteProducer: (network: Network, producerID: string) => {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID,
+        globalMute: true,
+        paused: true,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
+  },
+
+  globalUnmuteProducer: (network: Network, producerID: string) => {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID,
+        globalMute: false,
+        paused: false,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
+  },
+
+  setPreferredConsumerLayer: (network: Network, consumerID: string, layer: number) => {
+    dispatchAction(
+      MediasoupMediaConsumerActions.consumerLayers({
+        consumerID,
+        layer,
+        $network: network.id,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
   },
 
   receptors: {
