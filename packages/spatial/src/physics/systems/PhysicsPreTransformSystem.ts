@@ -195,3 +195,11 @@ export const PhysicsPreTransformSystem = defineSystem({
   insert: { after: TransformDirtyUpdateSystem },
   execute
 })
+
+export const _PhysicsPreTransformFunctions = {
+  setDirty,
+  lerpTransformFromRigidbody,
+  copyTransformToRigidBody,
+  copyTransformToCollider,
+  filterAwakeCleanRigidbodies
+}
