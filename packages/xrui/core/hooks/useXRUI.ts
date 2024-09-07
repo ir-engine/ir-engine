@@ -68,7 +68,15 @@ export function useXRUILayer() {
       .digest('SHA-1', textEncoder.encode(unprocessedSerializedDOM))
       .then((hash) => {
         snapshot.hash =
-          bufferToHex(hash) + '?w=' + fullWidth + ';h=' + fullHeight + ';tw=' + textureWidth + ';th=' + textureHeight
+          bufferToHex(hash) +
+          '?w=' +
+          snapshot.metrics.fullWidth +
+          ';h=' +
+          snapshot.metrics.fullHeight +
+          ';tw=' +
+          snapshot.metrics.textureWidth +
+          ';th=' +
+          snapshot.metrics.textureHeight
       })
       .then(() => {
         // if the snapshot is still valid, set it

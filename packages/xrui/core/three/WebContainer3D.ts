@@ -25,8 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Object3D, Raycaster, Vector3 } from 'three'
 
-import { Bounds, downloadBlob, getBounds, toDOM, traverseChildElements } from '../dom-utils'
 import { WebLayerOptions, WebRenderer } from '../WebRenderer'
+import { Bounds } from '../classes/Bounds'
+import { getBounds, toDOM, traverseChildElements } from '../dom-utils'
 import { ON_BEFORE_UPDATE, WebLayer3D } from './WebLayer3D'
 import { WebLayerManager } from './WebLayerManager'
 
@@ -310,16 +311,16 @@ export class WebContainer3D extends Object3D {
   /**
    * Export the cache data for this
    */
-  async downloadCache(filter?: (layer: WebLayer3D) => boolean) {
-    await this.manager.saveStore()
-    const states = new Set<string>()
-    this.rootLayer.traverseLayersPreOrder((layer) => {
-      if (filter) {
-        if (!filter(layer)) return
-      }
-      for (const hash of layer.allStateHashes) states.add(hash)
-    })
-    const blob = await this.manager.exportCache(Array.from(states))
-    downloadBlob(blob, 'web.' + this.rootLayer.element.id + '.cache')
-  }
+  // async downloadCache(filter?: (layer: WebLayer3D) => boolean) {
+  //   await this.manager.saveStore()
+  //   const states = new Set<string>()
+  //   this.rootLayer.traverseLayersPreOrder((layer) => {
+  //     if (filter) {
+  //       if (!filter(layer)) return
+  //     }
+  //     for (const hash of layer.allStateHashes) states.add(hash)
+  //   })
+  //   const blob = await this.manager.exportCache(Array.from(states))
+  //   downloadBlob(blob, 'web.' + this.rootLayer.element.id + '.cache')
+  // }
 }

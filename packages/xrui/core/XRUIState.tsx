@@ -57,7 +57,8 @@ export interface HTMLSnapshotData {
   }
   cssTransform: Matrix4 | undefined
   referenceCount: number
-  readyForSerialization: boolean
+  pendingStoreLookup: boolean
+  pendingSerialization: boolean
   svgDoc?: string
   svgURL?: string
   textureHash?: TextureHash
@@ -66,6 +67,7 @@ export interface HTMLSnapshotData {
 export interface HTMLTextureData {
   hash: TextureHash
   timestamp: number
+  pendingStoreLookup: boolean
   storedTextureBuffer?: Uint8Array
   canvasTexture?: CanvasTexture
   compressedTexture?: CompressedTexture
@@ -122,7 +124,7 @@ export const XRUIState = defineState({
         svgURL: undefined
       }
     }) as HTMLSnapshotData[]
-    // only upload the compressed texture data
+    // only upload the texture buffer
     const textureData = Object.values(state.textures.value)
       .filter((v) => {
         return loadedTextureHashes.includes(v.hash)
@@ -131,10 +133,7 @@ export const XRUIState = defineState({
         return {
           hash: v.hash,
           timestamp: v.timestamp,
-          texture: undefined,
-          canvas: undefined,
-          ktx2Url: undefined,
-          canvasTexture: undefined
+          storedTextureBuffer: v.storedTextureBuffer
         }
       }) as HTMLTextureData[]
     // load into db
@@ -306,29 +305,46 @@ function XRUISnapshotReactor(props: { hash: SnapshotHash }) {
         svgImage.onerror = (error) => {
           reject(error)
         }
-        svgImage.width = state.bounds.value.width
-        svgImage.height = state.bounds.value.height
+        svgImage.width = state.metrics.fullWidth.value
+        svgImage.height = state.metrics.fullHeight.value
         svgImage.src = state.svgURL.value!
       })
         .then(() => {
           if (!svgImage.complete || svgImage.currentSrc !== state.svgURL.value || abort) return
           return svgImage.decode()
         })
-        .then(() => {
-          const serializer = new XMLSerializer()
-          const serializedDom = serializer.serializeToString(clonedElement)
-
-          // Step 2: Extract and load necessary fonts
-          const fontFamilies = extractFontFamilies(clonedElement)
-          await loadFontsForSvg(fontFamilies)
-        })
+        .then(() => {})
 
       return () => {
         abort = true
         svgImage.src = ''
       }
     }
-  }, [textureHash, pendingStoreLookup, state.svgDoc, state.bounds])
+  }, [textureHash, pendingStoreLookup, state.svgDoc])
+
+  return null
+}
+
+function XRUITextureReactor(props: { hash: TextureHash }) {
+  const state = useMutableState(XRUIState).textures[props.hash]
+  const pendingStoreLookup = useState(true)
+
+  // try fetch from store if we are missing texture data
+  useEffect(() => {
+    if (!state.storedTextureBuffer) {
+      const layerState = getState(XRUIState)
+      layerState.store.textures.get(props.hash).then((data) => {
+        if (data?.storedTextureBuffer) {
+          state.storedTextureBuffer.set(data.storedTextureBuffer)
+          state.canvasTexture.set(data.canvasTexture)
+          state.compressedTexture.set(data.compressedTexture)
+        }
+        pendingStoreLookup.set(false)
+      })
+    } else {
+      pendingStoreLookup.set(false)
+    }
+  }, [])
 
   return null
 }

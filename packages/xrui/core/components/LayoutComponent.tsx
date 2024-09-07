@@ -32,10 +32,11 @@ import {
   useExecute,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useEffect } from 'react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
 
@@ -115,7 +116,7 @@ export const LayoutComponent = defineComponent({
     const transform = useComponent(entity, TransformComponent)
 
     // Compute effective properties
-    useImmediateEffect(() => {
+    useEffect(() => {
       if (!xrLayout) return
 
       // Effective position (always absolute)
@@ -161,33 +162,21 @@ export const LayoutComponent = defineComponent({
     ])
 
     // apply new target to transitions when effective properties change
-    useImmediateEffect(() => {
+    useEffect(() => {
       if (!xrLayout) return
       const simulationTime = getState(ECSState).simulationTime
-      Transition.applyNewTarget(
-        xrLayout.effectivePosition.value,
-        simulationTime,
-        xrLayout.positionTransition.value as TransitionData<Vector3>
-      )
+      Transition.applyNewTarget(xrLayout.effectivePosition.value, simulationTime, xrLayout.positionTransition)
       Transition.applyNewTarget(
         xrLayout.effectivePositionOrigin.value,
         simulationTime,
-        xrLayout.positionOriginTransition.value as TransitionData<Vector3>
+        xrLayout.positionOriginTransition
       )
-      Transition.applyNewTarget(
-        xrLayout.effectiveAlignmentOrigin.value,
-        simulationTime,
-        xrLayout.alignmentTransition.value as TransitionData<Vector3>
-      )
-      Transition.applyNewTarget(
-        xrLayout.effectiveRotation.value,
-        simulationTime,
-        xrLayout.rotationTransition.value as TransitionData<Quaternion>
-      )
+      Transition.applyNewTarget(xrLayout.effectiveAlignmentOrigin.value, simulationTime, xrLayout.alignmentTransition)
+      Transition.applyNewTarget(xrLayout.effectiveRotation.value, simulationTime, xrLayout.rotationTransition)
       Transition.applyNewTarget(
         xrLayout.effectiveRotationOrigin.value,
         simulationTime,
-        xrLayout.rotationOriginTransition.value as TransitionData<Vector3>
+        xrLayout.rotationOriginTransition
       )
     }, [
       xrLayout?.positionTransition,

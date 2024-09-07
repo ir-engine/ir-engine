@@ -23,68 +23,81 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEngine } from '@ir-engine/ecs'
+import {
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  getMutableComponent,
+  removeEntity,
+  setComponent
+} from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { LayoutComponent } from './LayoutComponent'
 
 describe('LayoutComponent', () => {
-  let engine, entity
+  let entity
 
   beforeEach(() => {
-    engine = createEngine()
-    entity = engine.createEntity()
-    engine.addComponent(entity, LayoutComponent)
-    engine.addComponent(entity, TransformComponent)
+    createEngine()
+    entity = createEntity()
+    setComponent(entity, LayoutComponent)
+    setComponent(entity, TransformComponent)
   })
 
-  test('should initialize with default values', () => {
-    const layout = engine.getComponent(entity, LayoutComponent)
-    assert.strictEqual(layout.position.value, null)
-    assert.strictEqual(layout.size.value, null)
-    assert.strictEqual(layout.sizeMode.value, null)
-    assert.deepStrictEqual(layout.effectiveSize.value, new Vector3())
+  afterEach(() => {
+    removeEntity(entity)
+    destroyEngine()
   })
 
-  test('should compute effective position', () => {
-    const layout = engine.getComponent(entity, LayoutComponent)
+  it('should initialize with default values', () => {
+    const layout = getComponent(entity, LayoutComponent)
+    assert.strictEqual(layout.position, null)
+    assert.strictEqual(layout.size, null)
+    assert.strictEqual(layout.sizeMode, null)
+    assert.deepStrictEqual(layout.effectiveSize, new Vector3())
+  })
+
+  it('should compute effective position', () => {
+    const layout = getMutableComponent(entity, LayoutComponent)
     layout.position.set(new Vector3(1, 2, 3))
-    engine.update() // Trigger reactor
+    LayoutComponent.reactorMap.get(entity)?.run()
     assert.deepStrictEqual(layout.effectivePosition.value, new Vector3(1, 2, 3))
   })
 
-  test('should compute effective size based on sizeMode', () => {
-    const layout = engine.getComponent(entity, LayoutComponent)
+  it('should compute effective size based on sizeMode', () => {
+    const layout = getMutableComponent(entity, LayoutComponent)
     layout.size.set(new Vector3(0.5, 100, 0.75))
     layout.sizeMode.set({ x: 'proportional', y: 'literal', z: 'proportional' })
 
     // Create a parent entity with a LayoutComponent
-    const parentEntity = engine.createEntity()
-    engine.addComponent(parentEntity, LayoutComponent)
-    const parentLayout = engine.getComponent(parentEntity, LayoutComponent)
+    const parentEntity = createEntity()
+    setComponent(parentEntity, LayoutComponent)
+    const parentLayout = getMutableComponent(parentEntity, LayoutComponent)
     parentLayout.effectiveSize.set(new Vector3(1000, 1000, 1000))
 
-    // Set the parent-child relationship
-    engine.setParent(entity, parentEntity)
+    setComponent(entity, EntityTreeComponent, { parentEntity })
 
-    engine.update() // Trigger reactor
+    LayoutComponent.reactorMap.get(entity)?.run()
     assert.deepStrictEqual(layout.effectiveSize.value, new Vector3(500, 100, 750))
   })
 
-  test('should compute effective rotation', () => {
-    const layout = engine.getComponent(entity, LayoutComponent)
+  it('should compute effective rotation', () => {
+    const layout = getMutableComponent(entity, LayoutComponent)
     const rotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
     layout.rotation.set(rotation)
-    engine.update() // Trigger reactor
+    LayoutComponent.reactorMap.get(entity)?.run()
     assert.deepStrictEqual(layout.effectiveRotation.value, rotation)
   })
 
-  test('should use default values when properties are null', () => {
-    const layout = engine.getComponent(entity, LayoutComponent)
-    engine.update() // Trigger reactor
-    assert.deepStrictEqual(layout.effectivePosition.value, layout.defaults.position.value)
-    assert.deepStrictEqual(layout.effectiveRotation.value, layout.defaults.rotation.value)
-    assert.deepStrictEqual(layout.effectiveSize.value, layout.defaults.size.value)
+  it('should use default values when properties are null', () => {
+    const layout = getComponent(entity, LayoutComponent)
+    LayoutComponent.reactorMap.get(entity)?.run()
+    assert.deepStrictEqual(layout.effectivePosition, layout.defaults.position)
+    assert.deepStrictEqual(layout.effectiveRotation, layout.defaults.rotation)
+    assert.deepStrictEqual(layout.effectiveSize, layout.defaults.size)
   })
 })

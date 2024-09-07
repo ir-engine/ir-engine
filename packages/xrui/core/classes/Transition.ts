@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { State } from '@ir-engine/hyperflux'
 import { Easing } from '@tweenjs/tween.js'
 import { Quaternion, Vector3 } from 'three'
 import { BorderRadius } from '../components/HTMLComponent'
@@ -122,52 +123,56 @@ export const Transition = {
     )
   },
 
-  applyNewTarget<V>(value: V, timestamp: number, data: TransitionData<V>) {
+  applyNewTarget<V>(value: V, timestamp: number, data: State<TransitionData<any>>) {
     // Add new sample
-    data.buffer.push({ timestamp, value })
+    data.buffer.merge([{ timestamp, value }])
 
     // Remove samples older than the duration
-    const cutoffTime = timestamp - data.duration
-    data.buffer = data.buffer.filter((sample) => sample.timestamp >= cutoffTime)
+    const cutoffTime = timestamp - data.duration.value
+    const filteredBuffer = data.buffer.value.filter((sample) => sample.timestamp >= cutoffTime)
+    data.buffer.set(filteredBuffer)
 
     // If buffer exceeds max size, resample
-    if (data.buffer.length > data.maxBufferSize) {
+    if (data.buffer.length > data.maxBufferSize.value) {
       Transition.resampleBuffer(data)
     }
   },
 
-  resampleBuffer<V>(data: TransitionData<V>) {
-    const newBuffer: TimestampedValue<V>[] = []
-    const timeStep = data.duration / (data.maxBufferSize - 1)
-    const latestTimestamp = data.buffer[data.buffer.length - 1].timestamp
+  resampleBuffer(data: State<TransitionData<any>>) {
+    const newBuffer: TimestampedValue<any>[] = []
+    const timeStep = data.duration.value / (data.maxBufferSize.value - 1)
+    const latestTimestamp = data.buffer.value[data.buffer.value.length - 1].timestamp
 
-    for (let i = 0; i < data.maxBufferSize; i++) {
-      const timestamp = latestTimestamp - (data.maxBufferSize - 1 - i) * timeStep
+    for (let i = 0; i < data.maxBufferSize.value; i++) {
+      const timestamp = latestTimestamp - (data.maxBufferSize.value - 1 - i) * timeStep
       newBuffer.push({
         timestamp,
         value: Transition.interpolateBufferAtTime(timestamp, data)
       })
     }
 
-    data.buffer = newBuffer
+    data.buffer.set(newBuffer)
   },
 
-  interpolateBufferAtTime<V>(timestamp: number, data: TransitionData<V>): V {
+  interpolateBufferAtTime<S extends State<TransitionData<any>>>(
+    timestamp: number,
+    data: S
+  ): S['value']['buffer'][number]['value'] {
     // Find the two closest samples and interpolate between them
     let lowerIndex = 0
     let upperIndex = 0
-    for (let i = 0; i < data.buffer.length; i++) {
-      if (data.buffer[i].timestamp <= timestamp) {
+    for (let i = 0; i < data.buffer.value.length; i++) {
+      if (data.buffer.value[i].timestamp <= timestamp) {
         lowerIndex = i
         upperIndex = i + 1
       }
     }
-    const a = data.buffer[lowerIndex].value
-    const b = data.buffer[upperIndex].value
+    const a = data.buffer.value[lowerIndex].value
+    const b = data.buffer.value[upperIndex].value
     const t =
-      (timestamp - data.buffer[lowerIndex].timestamp) /
-      (data.buffer[upperIndex].timestamp - data.buffer[lowerIndex].timestamp)
-    return data.interpolationFunction(a, b, t)
+      (timestamp - data.buffer.value[lowerIndex].timestamp) /
+      (data.buffer.value[upperIndex].timestamp - data.buffer.value[lowerIndex].timestamp)
+    return data.value.interpolationFunction(a, b, t)
   },
 
   computeCurrentValue<V>(timestamp: number, data: TransitionData<V>) {
