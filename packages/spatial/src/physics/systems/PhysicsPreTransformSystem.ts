@@ -40,6 +40,7 @@ import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 const localMatrix = new Matrix4()
 const sceneRelParentMatrix = new Matrix4()
@@ -92,8 +93,11 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
   const parentTransform = getComponent(parentEntity, TransformComponent)
 
+  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+  const sceneMatrixWorld = getComponent(sceneEntity, TransformComponent).matrixWorld
+
   /** get parent world matrix relative to the physics world */
-  TransformComponent.getMatrixRelativeToScene(parentEntity, sceneRelParentMatrix)
+  TransformComponent.getMatrixRelativeToEntity(parentEntity, sceneEntity, sceneRelParentMatrix)
   sceneMatrixInverse.copy(sceneRelParentMatrix).invert()
 
   /** convert the rigidbody pose from physics world space to local space */
@@ -106,9 +110,8 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /** convert the local space transform to scene space */
   transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
 
-  /** @todo Whatever this math is doing is incorrect and we'll fix it v0.9. */
   /** convert the scene space transform to world space */
-  //transform.matrixWorld.premultiply(sceneRelParentMatrix)
+  transform.matrixWorld.premultiply(sceneMatrixWorld)
 
   /** set all children dirty deeply, but set this entity to clean */
   iterateEntityNode(entity, setDirty)
