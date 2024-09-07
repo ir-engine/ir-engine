@@ -29,10 +29,7 @@ import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { useMutableState } from '@ir-engine/hyperflux'
 
-import {
-  MediasoupMediaConsumerActions,
-  MediasoupMediaProducerConsumerState
-} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { receiveConsumerHandler } from '../transports/SocketWebRTCClientFunctions'
 import { ClientNetworkingSystem } from './ClientNetworkingSystem'
 
