@@ -23,59 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
-import { HiMagnifyingGlass } from 'react-icons/hi2'
+import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
 import BuildStatusTable from './build-status/BuildStatusTable'
-
-const ProjectSearchBar = ({
-  search
-}: {
-  search: State<{
-    local: string
-    query: string
-  }>
-}) => {
-  const { t } = useTranslation()
-  const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
-
-  useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
-
-  return (
-    <div className="mb-4 flex justify-between">
-      <Input
-        placeholder={t('common:components.search')}
-        value={search?.value.local ?? ''}
-        onChange={(event) => {
-          search!.local.set(event.target.value)
-
-          if (debouncedSearchQueryRef) {
-            clearTimeout(debouncedSearchQueryRef.current)
-          }
-
-          debouncedSearchQueryRef.current = setTimeout(() => {
-            search!.query.set(event.target.value)
-          }, 100)
-        }}
-        className="bg-theme-surface-main"
-        containerClassName="w-1/5 block"
-        startComponent={<HiMagnifyingGlass />}
-      />
-    </div>
-  )
-}
 
 export default function AdminProject() {
   const { t } = useTranslation()
@@ -140,7 +102,7 @@ export default function AdminProject() {
             tabLabel: t('admin:components.common.all'),
             rightComponent: <ProjectTopMenu />,
             bottomComponent: <ProjectTable search={search.query.value} />,
-            topComponent: <ProjectSearchBar search={search} />
+            topComponent: <SearchBar search={search} />
           },
           {
             title: t('admin:components.buildStatus.buildStatus'),
