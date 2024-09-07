@@ -411,7 +411,7 @@ describe('PhysicsPreTransformFunctions', () => {
       })
     })
 
-    describe.only('when there is a physics world ...', () => {
+    describe('when there is a physics world ...', () => {
       let testEntity = UndefinedEntity
       let rigidbodyEntity = UndefinedEntity
       let physicsWorldEntity = UndefinedEntity
