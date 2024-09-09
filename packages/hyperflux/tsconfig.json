@@ -11,7 +11,6 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
-
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "strict": false,

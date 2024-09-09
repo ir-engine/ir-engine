@@ -11,7 +11,7 @@
     ".": {
       "import": "./dist/hyperflux.js",
       "require": "./dist/hyperflux.cjs",
-      "types": "./dist/index.d.ts",
+      "types": "./dist/*.d.ts",
       "default": "./dist/hyperflux.js"
     }
   },
@@ -31,9 +31,9 @@
   "dependencies": {
     "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
     "@hookstate/identifiable": "^4.0.0",
+    "react": "18.2.0",
     "react-reconciler": "^0.29.0",
     "ts-matches": "5.3.0",
-    "react": "18.2.0",
     "ts-toolbelt": "^9.6.0",
     "uuid": "9.0.0"
   },
@@ -46,10 +46,13 @@
     "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-esbuild": "^6.1.1",
     "ts-matches": "5.3.0",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vite": "^5.4.0",
+    "vite-plugin-dts": "^4.2.1"
   },
   "scripts": {
     "test": "cross-env TEST=true mocha --config .mocharc.js",
-    "build": "tsc && rimraf dist && rollup -c"
+    "build": "tsc && rimraf dist && rollup -c",
+    "vite-build": "tsc && vite build"
   }
 }
