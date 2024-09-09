@@ -38,8 +38,6 @@ import {
   Vector3
 } from 'three'
 
-import config from '@ir-engine/common/src/config'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { AnimationSystemGroup, Engine, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
@@ -55,7 +53,7 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isClient, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Back } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
@@ -77,7 +75,7 @@ import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/compon
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  useChildWithComponent
+  useChildWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
@@ -88,6 +86,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { useHasModelOrIndependentMesh } from '../../gltf/GLTFComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
@@ -240,7 +239,7 @@ function _CSMReactor() {
    *   considering multi-scene support and spatial volumes.
    *   note: use index 0 (origin entity), index 1 is local floor entity,
    */
-  const renderSettingsEntity = useChildWithComponent(renderer.scenes[0], RenderSettingsComponent)
+  const renderSettingsEntity = useChildWithComponents(renderer.scenes[0], [RenderSettingsComponent])
   const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
 
@@ -448,7 +447,7 @@ const reactor = () => {
   const useShadows = useShadowsEnabled()
 
   const [shadowTexture] = useTexture(
-    `${config.client.fileServer}/projects/ir-engine/default-project/assets/drop-shadow.png`
+    `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/drop-shadow.png`
   )
 
   useEffect(() => {

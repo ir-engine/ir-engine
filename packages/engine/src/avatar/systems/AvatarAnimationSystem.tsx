@@ -27,7 +27,6 @@ import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import config from '@ir-engine/common/src/config'
 import {
   defineQuery,
   defineSystem,
@@ -63,6 +62,7 @@ import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components
 import React from 'react'
 import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
@@ -331,7 +331,9 @@ const Reactor = () => {
   const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
   const [gltfs] = useBatchGLTF(
     animations.map((animationFile) => {
-      return `${config.client.fileServer}/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
+      return `${
+        getState(DomainConfigState).cloudDomain
+      }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
     })
   )
   const manager = useMutableState(AnimationState)
@@ -358,19 +360,6 @@ const Reactor = () => {
     }
   }, [gltfs])
 
-  useEffect(() => {
-    const networkState = getMutableState(NetworkState)
-
-    networkState.networkSchema[IKSerialization.ID].set({
-      read: IKSerialization.readBlendWeight,
-      write: IKSerialization.writeBlendWeight
-    })
-
-    return () => {
-      networkState.networkSchema[IKSerialization.ID].set(none)
-    }
-  }, [])
-
   const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   useEffect(() => {
@@ -392,6 +381,19 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
+    useEffect(() => {
+      const networkState = getMutableState(NetworkState)
+
+      networkState.networkSchema[IKSerialization.ID].set({
+        read: IKSerialization.readBlendWeight,
+        write: IKSerialization.writeBlendWeight
+      })
+
+      return () => {
+        networkState.networkSchema[IKSerialization.ID].set(none)
+      }
+    }, [])
+
     if (!useMutableState(EngineState).viewerEntity.value) return null
     return <Reactor />
   }

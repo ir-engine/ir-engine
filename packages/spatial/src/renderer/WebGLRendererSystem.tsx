@@ -134,11 +134,6 @@ export const RendererComponent = defineComponent({
     if (json?.scenes) component.scenes.set(json.scenes)
   },
 
-  onRemove(entity, component) {
-    component.value.renderer?.dispose()
-    component.value.effectComposer?.dispose()
-  },
-
   reactor: () => {
     const entity = useEntityContext()
     const rendererComponent = useComponent(entity, RendererComponent)
@@ -200,6 +195,13 @@ export const RendererComponent = defineComponent({
         effectComposer.removePass(effectPass)
       }
     }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
+
+    useEffect(() => {
+      return () => {
+        rendererComponent.value.renderer?.dispose()
+        rendererComponent.value.effectComposer?.dispose()
+      }
+    }, [])
 
     return null
   }
@@ -321,7 +323,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.updateCSMFrustums && renderer.csm?.updateFrustums()
+    state.useShadows && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)

@@ -66,7 +66,7 @@ import { SourceComponent } from './SourceComponent'
  */
 export const ModelComponent = defineComponent({
   name: 'ModelComponent',
-  // jsonID: 'EE_model',
+  jsonID: 'EE_model_old',
 
   onInit: (entity) => {
     return {

@@ -27,7 +27,7 @@ import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, InterleavedBuffer
 import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
+import { isClient } from '@ir-engine/hyperflux'
 import { WorkerPool } from '@ir-engine/xrui/core/WorkerPool'
 
 const createWorker = () => {

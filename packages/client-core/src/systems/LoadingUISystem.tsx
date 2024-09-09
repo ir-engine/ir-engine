@@ -42,7 +42,6 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { defineState, getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -55,7 +54,7 @@ import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/re
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent, useChildWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
@@ -65,6 +64,7 @@ import type { WebLayer3D } from '@ir-engine/xrui'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
+import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { LoadingSystemState } from './state/LoadingState'
@@ -199,7 +199,7 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
 }
 
 const SceneSettingsReactor = (props: { sceneEntity: Entity }) => {
-  const sceneSettingsEntity = useChildWithComponent(props.sceneEntity, SceneSettingsComponent)
+  const sceneSettingsEntity = useChildWithComponents(props.sceneEntity, [SceneSettingsComponent])
   if (!sceneSettingsEntity) return null
   return <SceneSettingsChildReactor entity={sceneSettingsEntity} key={sceneSettingsEntity} />
 }
@@ -334,7 +334,7 @@ const Reactor = () => {
   const themeState = useMutableState(AppThemeState)
   const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
+  const sceneEntity = useLoadedSceneEntity(locationSceneID)
   const gltfDocumentState = useMutableState(GLTFDocumentState)
 
   useEffect(() => {

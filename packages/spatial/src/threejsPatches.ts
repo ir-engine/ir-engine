@@ -38,7 +38,6 @@ import {
 } from 'three'
 
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
-import { Object3DUtils } from '@ir-engine/common/src/utils/Object3DUtils'
 import { Entity, getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
 
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
@@ -47,6 +46,7 @@ import { MeshComponent } from './renderer/components/MeshComponent'
 import { Object3DComponent } from './renderer/components/Object3DComponent'
 import { SkinnedMeshComponent } from './renderer/components/SkinnedMeshComponent'
 import { EntityTreeComponent } from './transform/components/EntityTree'
+import { Object3DUtils } from './transform/Object3DUtils'
 
 //@ts-ignore
 Vector3.prototype.toJSON = function () {

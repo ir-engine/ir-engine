@@ -26,9 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import matches, { Validator } from 'ts-matches'
 
-import multiLogger from '@ir-engine/common/src/logger'
 import { Entity, EntityUUID, UUIDComponent, getComponent, useOptionalComponent } from '@ir-engine/ecs'
-import { State, defineAction, defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import {
+  HyperFlux,
+  State,
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  useHookstate
+} from '@ir-engine/hyperflux'
 import { SourceComponent } from '../scene/components/SourceComponent'
 
 export const GLTFDocumentState = defineState({
@@ -54,11 +61,13 @@ export const GLTFNodeState = defineState({
     const source = getComponent(entity, SourceComponent)
     const uuid = getComponent(entity, UUIDComponent)
     if (!source || !uuid) {
-      multiLogger.error('GLTFNodeState.getMutableNode: entity does not have SourceComponent or UUIDComponent')
+      HyperFlux.store
+        .logger('GLTFNodeState.getMutableNode')
+        .error('entity does not have SourceComponent or UUIDComponent')
     }
     const nodeLookup = getState(GLTFNodeState)[source][uuid]
     if (!nodeLookup) {
-      multiLogger.error('GLTFNodeState.getMutableNode: node not found in lookup')
+      HyperFlux.store.logger('GLTFNodeState.getMutableNode').error('node not found in lookup')
     }
     const gltf = getMutableState(GLTFDocumentState)[source]
     return gltf.nodes![nodeLookup.nodeIndex]

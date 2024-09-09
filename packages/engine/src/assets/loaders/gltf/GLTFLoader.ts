@@ -38,8 +38,7 @@ import {
   Texture
 } from 'three'
 
-import { parseStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
-
+import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 import { DRACOLoader } from './DRACOLoader'

@@ -83,11 +83,24 @@ const addLocationSearchToQuery = async (context: HookContext<InstanceService>) =
     paginate: false
   })) as any as LocationType[]
 
-  /** @TODO we should add a filter property to filter ended instances */
   context.params.query = {
     ...context.params.query,
-    ended: false,
     $or: [
+      {
+        id: {
+          $like: `%${search}%`
+        }
+      },
+      {
+        locationId: {
+          $like: `%${search}%`
+        }
+      },
+      {
+        channelId: {
+          $like: `%${search}%`
+        }
+      },
       {
         ipAddress: {
           $like: `%${search}%`
@@ -139,7 +152,7 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(instanceQueryValidator), schemaHooks.resolveQuery(instanceQueryResolver)],
+    all: [schemaHooks.validateQuery(instanceQueryValidator), schemaHooks.resolveQuery(instanceQueryResolver)],
     find: [
       iff(isProvider('external') && isAction('admin'), verifyScope('instance', 'read'), addLocationSearchToQuery),
       discardQuery('search'),
@@ -149,14 +162,14 @@ export default {
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('instance', 'write')),
-      () => schemaHooks.validateData(instanceDataValidator),
+      schemaHooks.validateData(instanceDataValidator),
       schemaHooks.resolveData(instanceDataResolver),
       addRoomCode
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('instance', 'write')),
-      () => schemaHooks.validateData(instancePatchValidator),
+      schemaHooks.validateData(instancePatchValidator),
       schemaHooks.resolveData(instancePatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('instance', 'write'))]

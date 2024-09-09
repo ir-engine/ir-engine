@@ -101,19 +101,22 @@ type Resource = {
   references: Entity[]
   asset?: ResourceAssetType
   assetRefs?: Record<ResourceType, string[]>
-  onLoads?: Record<string, (response: ResourceAssetType) => void>
+  onLoads?: Record<string, { entity: Entity; onLoad: (response: ResourceAssetType) => void }>
   metadata: Metadata
 }
 
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
 
-  initial: () => ({
-    resources: {} as Record<string, Resource>,
-    totalVertexCount: 0,
-    totalBufferCount: 0,
-    debug: false
-  }),
+  initial: () => {
+    Cache.clear()
+    return {
+      resources: {} as Record<string, Resource>,
+      totalVertexCount: 0,
+      totalBufferCount: 0,
+      debug: false
+    }
+  },
 
   debugLog: (...data: any[]) => {
     if (getState(ResourceState).debug) console.log(...data)

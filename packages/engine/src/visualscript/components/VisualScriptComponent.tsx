@@ -26,12 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 
-import { cleanStorageProviderURLs, parseStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
 import { Entity } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import {
+  cleanStorageProviderURLs,
+  parseStorageProviderURLs
+} from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { useMutableState } from '@ir-engine/hyperflux'
-import { useAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@ir-engine/visual-script'
 
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -86,7 +89,7 @@ export const VisualScriptComponent = defineComponent({
     const visualScriptState = useMutableState(VisualScriptState)
     const canPlay = visualScript.run.value && !visualScript.disabled.value
     const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true }) as IRegistry
-    const gltfAncestor = useAncestorWithComponent(entity, GLTFComponent)
+    const gltfAncestor = useAncestorWithComponents(entity, [GLTFComponent])
 
     const visualScriptRunner = useVisualScriptRunner({
       visualScriptJson: visualScript.visualScript.get({ noproxy: true }) as GraphJSON,

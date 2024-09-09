@@ -25,79 +25,61 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Group, LoaderUtils } from 'three'
+import { LoaderUtils } from 'three'
 
+import { API } from '@ir-engine/common'
+import {
+  transformModel as clientSideTransformModel,
+  ModelTransformStatus
+} from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
-import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
+import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { transformModel as clientSideTransformModel } from '@ir-engine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/engine/src/scene/functions/loadGLTFModel'
-import { getState, ImmutableArray, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import {
-  EntityTreeComponent,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { FileType } from '@ir-engine/ui/src/components/editor/panels/Files/container'
 import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
-import { EditorState } from '../../services/EditorServices'
 
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
+import { FileDataType } from '../../constants/AssetTypes'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
-const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
-  const entity = createEntity()
-  setComponent(entity, NameComponent, name)
-  setComponent(entity, VisibleComponent)
-  setComponent(entity, TransformComponent)
-  setComponent(entity, EntityTreeComponent, { parentEntity })
-
-  let sceneID = getState(EditorState).scenePath!
-  if (hasComponent(parentEntity, SourceComponent)) {
-    sceneID = getComponent(parentEntity, SourceComponent)
-  }
-  setComponent(entity, SourceComponent, sceneID)
-
-  const uuid = generateEntityUUID()
-  setComponent(entity, UUIDComponent, uuid)
-
-  // These additional properties and relations are required for
-  // the current GLTF exporter to successfully generate a GLTF.
-  const obj3d = new Group()
-  obj3d.entity = entity
-  addObjectToGroup(entity, obj3d)
-  proxifyParentChildRelationships(obj3d)
-  setComponent(entity, Object3DComponent, obj3d)
-
-  return entity
+const progressCaptions: Record<ModelTransformStatus, string> = {
+  [ModelTransformStatus.Initializing]: 'editor:properties.model.transform.status.initializing',
+  [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
+  [ModelTransformStatus.Finalizing]: 'editor:properties.model.transform.status.finalizing',
+  [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
+  [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
 }
 
 export const createLODVariants = async (
   lods: LODVariantDescriptor[],
   clientside: boolean,
   heuristic: Heuristic,
-  exportCombined = false
+  exportCombined = false,
+  onProgress: (
+    progress: number,
+    status: ModelTransformStatus,
+    numerator: number,
+    denominator: number,
+    currentLOD: number,
+    totalLODS: number
+  ) => void = () => {}
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
     ...lod.params
@@ -106,23 +88,31 @@ export const createLODVariants = async (
   const transformMetadata = [] as Record<string, any>[]
   for (const [i, variant] of lodVariantParams.entries()) {
     if (clientside) {
-      await clientSideTransformModel(variant, (key, data) => {
-        if (!transformMetadata[i]) transformMetadata[i] = {}
-        transformMetadata[i][key] = data
-      })
+      await clientSideTransformModel(
+        variant,
+        (key, data) => {
+          if (!transformMetadata[i]) transformMetadata[i] = {}
+          transformMetadata[i][key] = data
+        },
+        (progress, status, numerator, denominator) => {
+          onProgress((progress + i) / lods.length, status, numerator ?? 0, denominator ?? 0, i, lods.length)
+        }
+      )
     } else {
-      await Engine.instance.api.service(modelTransformPath).create(variant)
+      await API.instance.service(modelTransformPath).create(variant)
     }
   }
 
   if (exportCombined) {
-    const modelSrc = `${LoaderUtils.extractUrlBase(lods[0].params.src)}${lods[0].params.dst}.${
-      lods[0].params.modelFormat
-    }`
-    const result = createTempEntity('container')
+    const firstLODParams = lods[0].params
+
+    const result = createSceneEntity('container')
     setComponent(result, ModelComponent)
-    const variant = createTempEntity('LOD Variant', result)
-    setComponent(variant, ModelComponent, { src: modelSrc })
+    const variant = createSceneEntity('LOD Variant', result)
+    const modelSrcPath = `${LoaderUtils.extractUrlBase(firstLODParams.src)}${firstLODParams.dst}.${
+      firstLODParams.modelFormat
+    }`
+    setComponent(variant, ModelComponent, { src: modelSrcPath })
     setComponent(variant, VariantComponent, {
       levels: lods.map((lod, lodIndex) => ({
         src: `${LoaderUtils.extractUrlBase(lod.params.src)}${lod.params.dst}.${lod.params.modelFormat}`,
@@ -133,8 +123,9 @@ export const createLODVariants = async (
       })),
       heuristic
     })
-
-    await exportGLTF(result, lods[0].params.src.replace(/\.[^.]*$/, `-integrated.gltf`))
+    const destinationPath = firstLODParams.src.replace(/\.[^.]*$/, `-integrated.gltf`)
+    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
+    await exportGLTF(result, destinationPath)
     removeEntityNodeRecursively(result)
   }
 }
@@ -143,11 +134,15 @@ export default function ModelCompressionPanel({
   selectedFiles,
   refreshDirectory
 }: {
-  selectedFiles: ImmutableArray<FileType>
+  selectedFiles: readonly FileDataType[]
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
+  const compressionProgress = useHookstate({
+    progress: 0,
+    caption: ''
+  })
   const selectedLODIndex = useHookstate(0)
   const selectedPreset = useHookstate(defaultParams)
   const presetList = useHookstate(structuredClone(LODList))
@@ -163,6 +158,10 @@ export default function ModelCompressionPanel({
 
   const compressContentInBrowser = async () => {
     compressionLoading.set(true)
+    compressionProgress.set({
+      progress: 0,
+      caption: ''
+    })
     for (const file of selectedFiles) {
       await compressModel(file)
     }
@@ -198,7 +197,7 @@ export default function ModelCompressionPanel({
     localStorage.setItem('presets', JSON.stringify(presetList.value))
   }
 
-  const compressModel = async (file: FileType) => {
+  const compressModel = async (file: FileDataType) => {
     const clientside = true
     const exportCombined = true
 
@@ -206,7 +205,8 @@ export default function ModelCompressionPanel({
 
     if (selectedFiles.length > 1) {
       fileLODs = fileLODs.map((lod) => {
-        const src = file.url
+        const url = new URL(file.url)
+        const src = pathJoin(url.origin, url.pathname)
         const fileName = src.split('/').pop()!.split('.').shift()!
         const dst = fileName + lod.suffix
         return {
@@ -219,7 +219,24 @@ export default function ModelCompressionPanel({
     }
 
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(fileLODs, clientside, heuristic, exportCombined)
+    await createLODVariants(
+      fileLODs,
+      clientside,
+      heuristic,
+      exportCombined,
+      (progress, status, numerator, denominator, currentLOD, totalLODs) => {
+        let caption = t(progressCaptions[status]!, {
+          numerator: numerator + 1,
+          denominator
+        })
+        caption = t('editor:properties.model.transform.progress', {
+          currentLOD: currentLOD + 1,
+          totalLODs,
+          caption
+        })
+        compressionProgress.set({ progress, caption })
+      }
+    )
   }
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
@@ -241,8 +258,8 @@ export default function ModelCompressionPanel({
     if (firstFile == null) {
       return
     }
-
-    const fullSrc = firstFile.url
+    const url = new URL(firstFile.url)
+    const fullSrc = pathJoin(url.origin, url.pathname)
     const fileName = fullSrc.split('/').pop()!.split('.').shift()!
 
     const defaults = defaultLODs.map((defaultLOD) => {
@@ -348,9 +365,19 @@ export default function ModelCompressionPanel({
           />
         </div>
 
-        <div className="flex justify-end px-8">
+        <div className="flex justify-end justify-items-stretch px-8">
           {compressionLoading.value ? (
-            <LoadingView spinnerOnly className="mx-0 h-12 w-12" />
+            <div className="flex w-full flex-col">
+              <div className="h-4 w-full overflow-hidden rounded bg-white">
+                <div
+                  className="h-4 w-full origin-left bg-blue-primary transition-transform"
+                  style={{
+                    transform: `scaleX(${compressionProgress.progress.value})`
+                  }}
+                />
+              </div>
+              {compressionProgress.caption.value}
+            </div>
           ) : (
             <Button variant="primary" onClick={compressContentInBrowser}>
               {t('editor:properties.model.transform.compress')}

@@ -54,7 +54,7 @@ const cloneRepo = async () => {
 
   const [org, repo] = new URL(url).pathname.split('/').slice(1, 3)
 
-  const orgFolderPath = path.resolve(appRootPath.path, 'packages/projects/projects', '@' + org)
+  const orgFolderPath = path.resolve(appRootPath.path, 'packages/projects/projects', org)
   const orgExists = await fs.promises
     .access(orgFolderPath)
     .then(() => true)
@@ -75,9 +75,10 @@ const cloneRepo = async () => {
   }
 
   /** Checkout branch and rebase */
-  await execPromise(`git checkout ${branch} && git fetch -p && git rebase`, {
-    cwd: path.resolve(appRootPath.path, `packages/projects/projects/${org}/${repo}`)
-  })
+  /** @todo - this breaks with git-lfs */
+  // await execPromise(`git checkout ${branch} && git fetch -p && git rebase`, {
+  //   cwd: path.resolve(appRootPath.path, `packages/projects/projects/${org}/${repo}`)
+  // })
 }
 cli.main(async () => {
   try {

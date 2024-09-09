@@ -313,6 +313,7 @@
         "id": "Instance ID",
         "ipAddress": "IP Address",
         "currentUsers": "Current Users",
+        "isActive": "Is Active",
         "locationName": "Location",
         "channelId": "Channel",
         "podName": "Pod Name",
@@ -322,12 +323,16 @@
         "view": "View",
         "delete": "Delete"
       },
+      "active": "Active",
+      "ended": "Ended",
       "instances": "Instance",
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
       "count": "Count",
       "kick": "Kick",
       "ban": "Ban",
+      "unban" : "Unban",
+      "banned": "Banned till {{duration}}",
       "kickDuration": "Kick Duration",
       "confirmUserBan": "Are you sure you want to ban this user?",
       "noInstanceUsers": "No users in this instance"
@@ -453,6 +458,8 @@
       "secure": "Secure",
       "auth": "Auth",
       "from": "From",
+      "for": "For",
+      "to": "To",
       "subject": "Subject",
       "login": "Login",
       "friend": "Friend",
@@ -485,7 +492,7 @@
       "localStorageProvider": "Local Storage Provider",
       "performDryRun": "Perform Dry Run",
       "storageProvider": "Storage Provider",
-      "googleAnalyticsTrackingId": "Google Analytics Tracking ID",
+      "googleAnalyticsMeasurementId": "Google Analytics Measurement ID",
       "certPath": "CertPath",
       "keyPath": "KeyPath",
       "githubWebhookSecret": "Github Webhook Secret",
@@ -528,7 +535,12 @@
       "webRTCSettings": {
         "main": "WebRTC Settings",
         "useCustomICEServers": "Use custom iceServers configuration",
-        "iceServers": "iceServers (STUN/TURN configuration; must provide proper JSON)",
+        "iceServers": "iceServers (STUN/TURN configuration)",
+        "iceServer": "iceServer #",
+        "iceURL": "ICE URL #",
+        "username": "Username",
+        "credential": "Password",
+        "useFixedCredentials": "Use fixed username/password to authenticate STUN/TURN server",
         "useTimeLimitedCredentials": "Use time-limited credentials to authenticate STUN/TURN server",
         "webRTCStaticAuthSecretKey": "Shared static-auth-secret for authenticating STUN/TURN server",
         "usePrivateInstanceserverIP": "Return instanceservers' raw private IP address instead of DNS record"
@@ -578,6 +590,14 @@
       "zendesk": {
         "header": "Zendesk",
         "subtitle": "Edit Zendesk Settings"
+      },
+      "mailchimp": {
+        "header": "Mailchimp",
+        "subtitle": "Edit Mailchimp Settings", 
+        "key": "Key", 
+        "server": "Server",
+        "audienceId": "Audience Id",
+        "defaultTags": "Default Tags (comma separated)"
       },
       "keyName": "key Name",
       "kid": "Key Id"
@@ -687,6 +707,7 @@
     "server": {
       "servers": "Servers",
       "migrations": "Migrations",
+      "apiJobs": "API Jobs",
       "loading": "Fetching Server Info",
       "loadingLogs": "Fetching Server Logs",
       "name": "Name",
@@ -719,10 +740,20 @@
       "confirmPodDelete": "Do you want to delete pod",
       "viewLogs": "View Logs",
       "columns": {
+        "migrationsInfo": {
         "id": "ID",
         "name": "Name",
         "batch": "Batch",
         "migration_time": "Migration Time"
+        },
+        "apiJobs": {
+        "id": "ID",
+        "name": "Name",
+        "status": "Status",
+        "start_time": "Start Time",
+        "end_time": "End Time",
+        "return_data": "Return Data"
+        }
       }
     },
     "recording": {
@@ -745,6 +776,23 @@
         "route": "Route",
         "action": "Active"
       }
+    },
+    "history": {
+      "publishedLocation": "published the location",
+      "modifiedLocation": "modified the location",
+      "unpublishedLocation": "unpublished the location",
+      "fromScene": "from the scene",
+      "added": "added the",
+      "created": "created the",
+      "removed": "removed the",
+      "renamed": "renamed a",
+      "modified": "modified the",
+      "accessTo": "access to",
+      "updatedTags": "updated the tags for",
+      "createdThumbnail": "created a thumbnail: ",
+      "updatedThumbnail": "updated the thumbnail of the resource: ",
+      "removedThumbnail": "removed the thumbnail for the resource: ",
+      "updatePermission": "updated the permission of the user"
     }
   }
 }

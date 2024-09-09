@@ -27,8 +27,6 @@ import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneList, VRMHumanoid } from '@pix
 import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
 
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import config from '@ir-engine/common/src/config'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getMutableComponent,
@@ -38,7 +36,7 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -100,13 +98,6 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   }
 
   return avatarBoneMatching(foundModel)
-}
-
-export const isAvaturn = (url: string) => {
-  const fileExtensionRegex = /\.[0-9a-z]+$/i
-  const avaturnUrl = config.client.avaturnAPI
-  if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
-  return false
 }
 
 /**tries to load avatar model asset if an avatar is not already pending */

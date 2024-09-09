@@ -41,16 +41,16 @@ import {
   Vector2
 } from 'three'
 
-import config from '@ir-engine/common/src/config'
-import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
-import { EntityUUID } from '@ir-engine/ecs'
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 
-import { AssetType } from '@ir-engine/common/src/constants/AssetType'
+import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { getState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
@@ -60,22 +60,13 @@ export const SPHERE_GEO = () => new SphereGeometry(1, 64, 32)
 export const PLANE_GEO_FLIPPED = () => flipNormals(new PlaneGeometry(1, 1, 1, 1))
 export const SPHERE_GEO_FLIPPED = () => flipNormals(new SphereGeometry(1, 64, 32))
 
-export type ImageResource = {
-  source?: string
-  ktx2StaticResource?: StaticResourceType
-  pngStaticResource?: StaticResourceType
-  jpegStaticResource?: StaticResourceType
-  gifStaticResource?: StaticResourceType
-  id?: EntityUUID
-}
-
 export const ImageComponent = defineComponent({
   name: 'EE_image',
   jsonID: 'EE_image',
 
   onInit: (entity) => {
     return {
-      source: `${config.client.fileServer}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`,
+      source: `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`,
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
@@ -126,6 +117,8 @@ export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
 
   if (!width || !height) return
 
+  const transform = getComponent(mesh.entity, TransformComponent)
+
   const ratio = (height || 1) / (width || 1)
   const _width = Math.min(1.0, 1.0 / ratio)
   const _height = Math.min(1.0, ratio)
@@ -139,9 +132,10 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 
   if (!width || !height) return
 
+  const transform = getComponent(mesh.entity, TransformComponent)
   const ratio = (height || 1) / (width || 1)
-  const _width = Math.min(1.0, 1.0 / ratio)
-  const _height = Math.min(1.0, ratio)
+  const _width = Math.min(1.0, 1.0 / ratio) * transform.scale.x
+  const _height = Math.min(1.0, ratio) * transform.scale.y
   mesh.scale.set(_width, _height, 1)
 }
 

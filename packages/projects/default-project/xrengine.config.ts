@@ -27,7 +27,7 @@ import type { ProjectConfigInterface } from '@ir-engine/projects/ProjectConfigIn
 
 const config: ProjectConfigInterface = {
   onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/ir-engine_thumbnail.jpg',
+  thumbnail: '/static/IR_thumbnail.jpg',
   routes: {
     '/': {
       component: () => import('@ir-engine/client/src/pages/index'),

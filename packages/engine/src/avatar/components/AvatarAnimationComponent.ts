@@ -52,7 +52,6 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, getState, matches, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 
 import { GLTF } from '@gltf-transform/core'
 import { UUIDComponent } from '@ir-engine/ecs'
@@ -62,6 +61,7 @@ import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Ob
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
+import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { AnimationState } from '../AnimationManager'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
@@ -72,8 +72,6 @@ import {
   setupAvatarForUser,
   setupAvatarProportions
 } from '../functions/avatarFunctions'
-import { AvatarState } from '../state/AvatarNetworkState'
-import { AvatarComponent } from './AvatarComponent'
 import { VRMComponent } from './VRMComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -120,7 +118,6 @@ export const AvatarRigComponent = defineComponent({
       rawRig: null! as VRMHumanBones,
       /** contains ik solve data */
       ikMatrices: {} as Record<VRMHumanBoneName, Matrices>,
-      helperEntity: null as Entity | null,
       /** The VRM model */
       vrm: null! as VRM,
       avatarURL: null as string | null
@@ -133,11 +130,6 @@ export const AvatarRigComponent = defineComponent({
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
-  },
-
-  onRemove: (entity, component) => {
-    // ensure synchronously removed
-    if (component.helperEntity.value) removeComponent(component.helperEntity.value, ComputedTransformComponent)
   },
 
   reactor: function () {
@@ -188,7 +180,10 @@ export const AvatarRigComponent = defineComponent({
         setAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
-        if (entity === AvatarComponent.getSelfAvatarEntity()) AvatarState.selectRandomAvatar()
+        addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        return () => {
+          removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        }
       }
     }, [rigComponent.vrm])
 
@@ -198,7 +193,9 @@ export const AvatarRigComponent = defineComponent({
     }, [locomotionAnimationState])
 
     return null
-  }
+  },
+
+  errors: ['UNSUPPORTED_AVATAR']
 })
 
 const _rightHandPos = new Vector3(),

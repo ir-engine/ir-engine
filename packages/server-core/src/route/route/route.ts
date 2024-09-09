@@ -69,7 +69,6 @@ export const getInstalledRoutes = () => {
           .map((dirent) => `${orgname}/${dirent.name}`)
       })
       .flat()
-
     const data: InstalledRoutesInterface[] = []
     await Promise.all(
       projects.map(async (project) => {
@@ -78,6 +77,7 @@ export const getInstalledRoutes = () => {
             const projectConfig: ProjectConfigInterface = (
               await import(`@ir-engine/projects/projects/${project}/xrengine.config.ts`)
             ).default
+            if (!projectConfig.routes) return
             data.push({
               routes: Object.keys(projectConfig.routes!),
               project

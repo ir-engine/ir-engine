@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useDidMount } from '@ir-engine/common/src/utils/useDidMount'
 import {
   defineComponent,
   getComponent,
@@ -35,8 +34,9 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useState } from '@ir-engine/hyperflux'
+import { getMutableState, useDidMount, useState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
 import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
@@ -165,6 +165,11 @@ export const BoundingBoxHelperComponent = defineComponent({
   }
 })
 
+const defaultMax = new Vector3(0.5, 0.5, 0.5)
+const originalPosition = new Vector3()
+const originalRotation = new Quaternion()
+const originalScale = new Vector3()
+
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
@@ -199,6 +204,7 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
       transform.matrixWorld.identity()
       TransformComponent.updateFromWorldMatrix(entity)
+
       const meshes: Mesh[] = []
       //iterate through children and update their transforms to reflect identity from parent
       iterateEntityNode(entity, (childEntity: Entity) => {
@@ -209,13 +215,15 @@ export const ObjectGridSnapComponent = defineComponent({
           }
         }
       })
+
       //compute bounding box
-      const bbox = new Box3()
+      const bbox = snapComponent.bbox.value.makeEmpty()
       if (meshes.length > 0) {
-        bbox.setFromObject(meshes[0])
-        for (let i = 1; i < meshes.length; i++) {
+        for (let i = 0; i < meshes.length; i++) {
           bbox.expandByObject(meshes[i])
         }
+      } else {
+        bbox.set(Vector3_Zero, defaultMax)
       }
 
       //set entity transform back to original
@@ -225,7 +233,9 @@ export const ObjectGridSnapComponent = defineComponent({
         rotation: originalRotation,
         scale: originalScale
       })
+
       iterateEntityNode(entity, computeTransformMatrix, (childEntity) => hasComponent(childEntity, TransformComponent))
+
       //set bounding box in component
       snapComponent.bbox.set(bbox)
     }, [modelLoaded])

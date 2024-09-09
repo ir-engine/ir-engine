@@ -63,7 +63,8 @@ const execute = () => {
   const cameraAttached = XRState.isCameraAttachedToAvatar
 
   for (const entity of avatarQuery()) {
-    const materials = getComponent(entity, TransparencyDitheringRoot)?.materials
+    const transparencyDitheringRoot = getOptionalComponent(entity, TransparencyDitheringRoot)
+    const materials = transparencyDitheringRoot?.materials
     if (!materials) setComponent(entity, TransparencyDitheringRoot, { materials: [] })
 
     const avatarComponent = getComponent(entity, AvatarComponent)

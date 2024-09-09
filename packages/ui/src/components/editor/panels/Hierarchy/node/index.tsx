@@ -46,10 +46,9 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import { HierarchyTreeNodeType } from '@ir-engine/editor/src/components/hierarchy/HierarchyTreeWalker'
-import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
@@ -57,7 +56,6 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { twMerge } from 'tailwind-merge'
 import TransformPropertyGroup from '../../../properties/transform'
-import { DnDFileType } from '../../Files/container'
 
 /**
  * getNodeElId function provides id for node.
@@ -295,7 +293,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         .map((c) => getState(ComponentEditorsState)[c.name]?.iconComponent)
         .filter((icon) => !!icon)
     : []
-  const IconComponent = icons.length ? icons[icons.length - 1] : TransformPropertyGroup.iconComponent
+  const IconComponent = icons.length > 0 ? icons[0] : TransformPropertyGroup.iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
 
   return (
@@ -303,7 +301,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       style={fixedSizeListStyles}
       className={twMerge(
         'cursor-pointer',
-        selected ? 'text-white' : 'text-[#b2b5bd]',
+        selected ? 'border text-white' : 'text-[#b2b5bd]',
         selected && (props.index % 2 ? 'bg-[#1d1f23]' : 'bg-zinc-900'),
         !selected && (props.index % 2 ? 'bg-[#141619] hover:bg-[#1d1f23]' : 'bg-[#080808] hover:bg-zinc-900'),
         !visible && (props.index % 2 ? 'bg-[#191B1F]' : 'bg-[#0e0f11]'),
@@ -360,6 +358,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
                     autoFocus
+                    maxLength={64}
                   />
                 </div>
               ) : (

@@ -34,7 +34,7 @@ import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/us
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('channel-user service', () => {
   let app: Application
@@ -43,8 +43,9 @@ describe('channel-user service', () => {
     await app.setup()
   })
 
-  afterEach(() => {
-    return destroyEngine()
+  afterEach(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('registered the service', () => {

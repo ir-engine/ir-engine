@@ -38,8 +38,8 @@ import {
 } from '@ir-engine/ecs/src/SystemGroups'
 import { SystemState } from '@ir-engine/ecs/src/SystemState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-
-import styles from './styles.module.scss'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const col = new Color()
 const col2 = new Color()
@@ -53,20 +53,19 @@ const convertSystemExecutionTimeToColor = (systemDuration: number, targetTimeste
 }
 
 export const SystemDebug = () => {
-  const frameTime = useHookstate(getMutableState(ECSState).frameTime).value
+  useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
   const { t } = useTranslation()
 
   return (
-    <div className={styles.jsonPanel}>
-      <h1>{t('common:debug.systems')}</h1>
-      <button
+    <div className="m-1 bg-neutral-600 p-1">
+      <Text>{t('common:debug.systems')}</Text>
+      <Button
         onClick={() => performanceProfilingEnabled.set((val) => !val)}
-        className={styles.flagBtn + (performanceProfilingEnabled.value ? ' ' + styles.active : '')}
-        style={{ width: '100px' }}
+        variant={performanceProfilingEnabled.value ? 'secondary' : 'outline'}
       >
         {'Profile'}
-      </button>
+      </Button>
       <SystemDagView uuid={InputSystemGroup} />
       <SystemDagView uuid={SimulationSystemGroup} />
       <SystemDagView uuid={AnimationSystemGroup} />

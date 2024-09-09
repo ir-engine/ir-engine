@@ -37,6 +37,7 @@ import EmailTab from './tabs/email'
 import FeaturesTab from './tabs/features'
 import HelmTab from './tabs/helm'
 import InstanceServerTab from './tabs/instanceServer'
+import MailchimpTab from './tabs/mailchimp'
 import MetabaseTab from './tabs/metabase'
 import ProjectTab from './tabs/project'
 import RedisTab from './tabs/redis'
@@ -90,13 +91,17 @@ export const SettingsTabsData = [
     Component: FeaturesTab
   },
   {
+    id: 'metabase',
     label: t('admin:components.setting.metabase.header'),
     Component: MetabaseTab
   },
   {
-    id: 'metabase',
     label: t('admin:components.setting.zendesk.header'),
     Component: ZendeskTab
+  },
+  {
+    label: t('admin:components.setting.mailchimp.header'),
+    Component: MailchimpTab
   }
 ]
 

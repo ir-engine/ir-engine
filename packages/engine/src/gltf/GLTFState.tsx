@@ -41,7 +41,6 @@ import {
   Vector3
 } from 'three'
 
-import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   createEntity,
@@ -73,13 +72,12 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -102,13 +100,6 @@ import './MeshExtensionComponents'
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
   initial: {} as Record<string, Entity>, // sceneID => entity
-
-  useScene: (sceneID: string | undefined) => {
-    const scene = useGet(staticResourcePath, sceneID).data
-    const scenes = useMutableState(GLTFAssetState)
-    const sceneKey = scene?.url
-    return sceneKey ? scenes[sceneKey].value : null
-  },
 
   loadScene: (sceneURL: string, uuid: string) => {
     const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(EngineState).originEntity)
@@ -1153,7 +1144,7 @@ export const AnimationReactor = (props: {
 }
 
 export const getParserOptions = (entity: Entity) => {
-  const gltfEntity = getAncestorWithComponent(entity, GLTFComponent)
+  const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
   const documentID = GLTFComponent.getInstanceID(gltfEntity)
   const gltfComponent = getComponent(gltfEntity, GLTFComponent)
   const document = getState(GLTFDocumentState)[documentID]

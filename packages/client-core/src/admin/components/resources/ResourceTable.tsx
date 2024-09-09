@@ -27,15 +27,15 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiEye, HiTrash } from 'react-icons/hi2'
 
-import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
-import { useFind, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useSearch } from '@ir-engine/common'
+import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
-import { Engine } from '@ir-engine/ecs'
+import { API } from '@ir-engine/common'
 import { PopoverState } from '../../../common/services/PopoverState'
-import { resourceColumns } from '../../common/constants/resources'
 import DataTable from '../../common/Table'
+import { resourceColumns } from '../../common/constants/resources'
 import AddEditResourceModal from './AddEditResourceModal'
 
 const RESOURCE_PAGE_LIMIT = 25
@@ -87,7 +87,7 @@ export default function ResourceTable({ search }: { search: string }) {
                 <ConfirmDialog
                   text={`${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`}
                   onSubmit={async () => {
-                    await Engine.instance.api.service(staticResourcePath).remove(el.id)
+                    await API.instance.service(staticResourcePath).remove(el.id)
                   }}
                 />
               )

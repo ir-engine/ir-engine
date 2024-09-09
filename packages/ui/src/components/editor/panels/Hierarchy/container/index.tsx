@@ -49,8 +49,10 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 
 import { GLTF } from '@gltf-transform/core'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import CreatePrefabPanel from '@ir-engine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
@@ -68,7 +70,6 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -112,7 +113,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | Entity>(undefined)
   const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent<HTMLDivElement>>(undefined)
 
-  const [prevClickedNode, setPrevClickedNode] = useState<Entity | null>(null)
+  const [firstClickedNode, setFirstClickedNode] = useState<Entity | null>(null)
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
@@ -136,6 +137,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
       if (entity) entities.push(entity)
     }
     setSelectedNode(entities)
+    if (!selectionState.selectedEntities.value.length) {
+      setFirstClickedNode(null)
+    }
   }, [selectionState.selectedEntities])
 
   useHotkeys(`${cmdOrCtrlString}+d`, (e) => {
@@ -272,11 +276,11 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
         // Deselect material entity since we've just clicked on a hierarchy node
         getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-        if (e.ctrlKey) {
+        if ((e.ctrlKey && usesCtrlKey()) || (e.metaKey && !usesCtrlKey())) {
           if (entity === rootEntity) return
           EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
-        } else if (e.shiftKey && prevClickedNode) {
-          const startIndex = entityHierarchy.value.findIndex((n) => n.entity === prevClickedNode)
+        } else if (e.shiftKey && firstClickedNode) {
+          const startIndex = entityHierarchy.value.findIndex((n) => n.entity === firstClickedNode)
           const endIndex = entityHierarchy.value.findIndex((n) => n.entity === entity)
           const range = entityHierarchy.value.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1)
           const entityUuids = range.filter((n) => n.entity).map((n) => getComponent(n.entity!, UUIDComponent))
@@ -286,8 +290,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
           if (!selected) {
             EditorControlFunctions.replaceSelection([getComponent(entity, UUIDComponent)])
           }
+          setFirstClickedNode(entity)
         }
-        setPrevClickedNode(entity)
       } else if (e.detail === 2) {
         if (entity && getOptionalComponent(entity, CameraOrbitComponent)) {
           const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
@@ -296,7 +300,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
         }
       }
     },
-    [prevClickedNode, entityHierarchy]
+    [firstClickedNode, entityHierarchy]
   )
 
   const onToggle = useCallback(

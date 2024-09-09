@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { spawnPointPath } from '@ir-engine/common/src/schema.type.module'
 import { EntityUUID } from '@ir-engine/ecs'
 import {
   ComponentType,
@@ -42,7 +41,6 @@ import { defineState, getMutableState, getState, matches, useHookstate } from '@
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { Vector3_Right } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
-import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -56,7 +54,6 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
@@ -200,23 +197,24 @@ export const PortalComponent = defineComponent({
       }
     }, [portalComponent.previewType])
 
-    const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)
+    /** @todo - reimplement once spawn points are refactored */
+    // const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)
 
-    const [texture] = useTexture(portalDetails.data?.previewImageURL || '', entity)
+    // const [texture] = useTexture(portalDetails.data?.previewImageURL || '', entity)
 
-    useEffect(() => {
-      if (!texture || !portalComponent.mesh.value) return
+    // useEffect(() => {
+    //   if (!texture || !portalComponent.mesh.value) return
 
-      const material = portalComponent.mesh.value.material as MeshBasicMaterial
-      material.map = texture
-      material.needsUpdate = true
-    }, [texture, portalComponent.mesh])
+    //   const material = portalComponent.mesh.value.material as MeshBasicMaterial
+    //   material.map = texture
+    //   material.needsUpdate = true
+    // }, [texture, portalComponent.mesh])
 
-    useEffect(() => {
-      if (!portalDetails.data) return
-      portalComponent.remoteSpawnPosition.value.copy(portalDetails.data.position as Vector3)
-      portalComponent.remoteSpawnRotation.value.copy(portalDetails.data.rotation as Quaternion)
-    }, [portalDetails])
+    // useEffect(() => {
+    //   if (!portalDetails.data) return
+    //   portalComponent.remoteSpawnPosition.value.copy(portalDetails.data.position as Vector3)
+    //   portalComponent.remoteSpawnRotation.value.copy(portalDetails.data.rotation as Quaternion)
+    // }, [portalDetails])
 
     return null
   },

@@ -23,17 +23,18 @@ import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useMutation } from '@ir-engine/common'
 import {
   LocationData,
   LocationID,
-  locationPath,
+  LocationPatch,
   LocationType,
+  locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -60,7 +61,13 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
 
   const locationID = useHookstate(props.location?.id || null)
 
-  const locationQuery = useFind(locationPath, { query: { id: locationID.value } })
+  const params = {
+    query: {
+      id: locationID.value
+    }
+  }
+
+  const locationQuery = useFind(locationPath, locationID.value ? params : undefined)
   const location = locationID.value ? locationQuery.data[0] : undefined
 
   const locationMutation = useMutation(locationPath)
@@ -135,19 +142,15 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
 
     const locationData: LocationData = {
       name: name.value,
-      slugifiedName: '',
       sceneId: scene.value,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
-        id: '',
         locationId: '' as LocationID,
         locationType: locationType.value,
-        audioEnabled: audioEnabled.value,
-        screenSharingEnabled: screenSharingEnabled.value,
+        audioEnabled: Boolean(audioEnabled.value),
+        screenSharingEnabled: Boolean(screenSharingEnabled.value),
         faceStreamingEnabled: false,
-        videoEnabled: videoEnabled.value,
-        createdAt: '',
-        updatedAt: ''
+        videoEnabled: Boolean(videoEnabled.value)
       },
       isLobby: false,
       isFeatured: false
@@ -155,7 +158,9 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
 
     try {
       if (location?.id) {
-        await locationMutation.patch(location.id, locationData, { query: { projectId: location.projectId } })
+        await locationMutation.patch(location.id, locationData as LocationPatch, {
+          query: { projectId: location.projectId }
+        })
       } else {
         const response = await locationMutation.create(locationData)
         locationID.set(response.id)
@@ -182,7 +187,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
   }
 
   return (
-    <div className="relative z-50 max-h-[80vh] w-[50vw] bg-theme-surface-main">
+    <div className="relative z-50 w-[50vw] bg-theme-surface-main">
       <div className="relative rounded-lg shadow">
         <ModalHeader
           onClose={PopoverState.hidePopupover}

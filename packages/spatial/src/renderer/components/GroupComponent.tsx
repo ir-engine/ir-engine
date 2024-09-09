@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { FC, memo } from 'react'
+import React, { FC, memo, useLayoutEffect } from 'react'
 import { Camera, Object3D } from 'three'
 
 import {
@@ -38,7 +38,7 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
-import { none } from '@ir-engine/hyperflux'
+import { NO_PROXY, none } from '@ir-engine/hyperflux'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -53,12 +53,18 @@ export const GroupComponent = defineComponent({
     return [] as Object3D[]
   },
 
-  onRemove: (entity, component) => {
-    for (const obj of component.value) {
-      if (obj.parent) {
-        obj.removeFromParent()
+  reactor: () => {
+    const entity = useEntityContext()
+    const groupComponent = useComponent(entity, GroupComponent)
+
+    useLayoutEffect(() => {
+      const group = groupComponent.get(NO_PROXY)
+      return () => {
+        if (!hasComponent(entity, GroupComponent)) for (const obj of group) obj.removeFromParent()
       }
-    }
+    }, [groupComponent])
+
+    return null
   }
 })
 

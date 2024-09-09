@@ -26,10 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { AudioLoader } from 'three'
 
 import { getState } from '@ir-engine/hyperflux'
-import { isAbsolutePath } from '@ir-engine/spatial/src/common/functions/isAbsolutePath'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
-import { AssetExt, AssetType, FileToAssetExt, FileToAssetType } from '@ir-engine/common/src/constants/AssetType'
+import { AssetExt, AssetType, FileToAssetExt, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { Loader } from '../loaders/base/Loader'
@@ -39,6 +37,7 @@ import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
+import { DomainConfigState } from '../state/DomainConfigState'
 
 /**
  * Get asset type from the asset file extension.
@@ -90,10 +89,18 @@ export const getLoader = (assetType: AssetExt) => {
       return new FileLoader()
   }
 }
-
 export type AssetLoader = ReturnType<typeof getLoader> | Loader
+/**
+ * Matches absolute URLs. For eg: `http://example.com`, `https://example.com`, `ftp://example.com`, `//example.com`, etc.
+ * This Does NOT match relative URLs like `example.com`
+ */
+export const ABSOLUTE_URL_PROTOCOL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/
 
-const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
+export const isAbsolutePath = (path) => {
+  return ABSOLUTE_URL_PROTOCOL_REGEX.test(path)
+}
+
+const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(DomainConfigState).publicDomain + url)
 
 const loadAsset = async <T>(
   url: string,

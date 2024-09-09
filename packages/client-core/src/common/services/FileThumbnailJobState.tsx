@@ -23,13 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { API } from '@ir-engine/common'
 import {
   FileBrowserContentType,
   fileBrowserUploadPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import {
-  Engine,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -64,11 +64,11 @@ import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems
 import React, { useEffect } from 'react'
 import { Color, Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Sphere, SphereGeometry, Vector3 } from 'three'
 
+import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -108,7 +108,8 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
   if (!blob) return
   const thumbnailMode = 'automatic'
   const thumbnailKey = `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
-    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
+    .replace(projectName + '/', '')
+    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '_')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
   const thumbnailURL = new URL(
@@ -129,9 +130,7 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
   thumbnailURL.search = ''
   thumbnailURL.hash = ''
   const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
-  await Engine.instance.api
-    .service(staticResourcePath)
-    .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode })
+  await API.instance.service(staticResourcePath).patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode })
 }
 
 const seenResources = new Set<string>()
@@ -160,7 +159,7 @@ export const FileThumbnailJobState = defineState({
 
         if (resource.type === 'thumbnail') {
           //set thumbnail's thumbnail as itself
-          Engine.instance.api.service(staticResourcePath).patch(resource.id, { thumbnailKey: resource.key })
+          API.instance.service(staticResourcePath).patch(resource.id, { thumbnailKey: resource.key })
           continue
         }
 
