@@ -30,11 +30,12 @@ import { Engine } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, isClient, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -68,11 +69,6 @@ export const SkyboxComponent = defineComponent({
     })
   }),
 
-  /** @todo remove this wil proper useEffect cleanups, after resource reworking callbacks */
-  onRemove: (entity, component) => {
-    removeComponent(entity, BackgroundComponent)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     if (!isClient) return null
@@ -86,6 +82,10 @@ export const SkyboxComponent = defineComponent({
         skyboxState.cubemapPath.set(
           `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
         )
+      return () => {
+        if (entityExists(entity) && hasComponent(entity, BackgroundComponent))
+          removeComponent(entity, BackgroundComponent)
+      }
     }, [])
 
     useEffect(() => {
