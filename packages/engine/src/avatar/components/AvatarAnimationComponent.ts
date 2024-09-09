@@ -62,7 +62,7 @@ export const AvatarAnimationComponent = defineComponent({
 
   schema: S.Object({
     animationGraph: S.Object({
-      blendAnimation: S.Type<AnimationAction>(),
+      blendAnimation: S.Optional(S.Type<AnimationAction>()),
       fadingOut: S.Bool(false),
       blendStrength: S.Number(0),
       layer: S.Number(0)

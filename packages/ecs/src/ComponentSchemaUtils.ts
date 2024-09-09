@@ -188,7 +188,7 @@ export const S = {
     ),
 
   Color: (init?: ColorRepresentation, options?: ObjectOptions) =>
-    TypedClass<Color, TProperties>(
+    TypedClass<ColorRepresentation, TProperties>(
       {
         r: S.Number(),
         g: S.Number(),

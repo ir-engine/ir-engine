@@ -115,6 +115,18 @@ export const DirectionalLightComponent = defineComponent({
     cameraFar: S.Number(200)
   }),
 
+  // onSet: (entity, component, json) => {
+  //   if (!json) return
+  //   if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
+  //   if (matches.string.test(json.color) || matches.number.test(json.color)) component.color.value.set(json.color)
+  //   if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
+  //   if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
+  //   if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
+  //   /** backwards compat */
+  //   if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
+  //   if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
+  // },
+
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
@@ -173,10 +185,10 @@ export const DirectionalLightComponent = defineComponent({
           geometry: mergedGeometry?.clone(),
           color: directionalLightComponent.color.value
         })
-      }
 
-      return () => {
-        removeComponent(entity, LineSegmentComponent)
+        return () => {
+          removeComponent(entity, LineSegmentComponent)
+        }
       }
     }, [debugEnabled])
 

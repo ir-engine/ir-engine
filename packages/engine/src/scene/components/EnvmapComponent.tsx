@@ -137,7 +137,7 @@ export const EnvmapComponent = defineComponent({
       const [texture, unload] = createDisposable(
         DataTexture,
         entity,
-        getRGBArray(col),
+        getRGBArray(new Color(col)),
         resolution,
         resolution,
         RGBAFormat

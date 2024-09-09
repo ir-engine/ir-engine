@@ -29,7 +29,7 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 import { useEffect } from 'react'
-import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
+import { Color, ColorRepresentation, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -177,6 +177,11 @@ const DefaultText = 'type your text here'
 /**
  * @description A Text Component, used to manage the state of the NodeEditor view that customizes spatial text properties.
  */
+
+const toTroikaColor = (color: ColorRepresentation): TroikaColor => {
+  return typeof color === 'number' ? color : new Color(color).getHex()
+}
+
 export const TextComponent = defineComponent({
   name: 'TextComponent',
   jsonID: 'EE_text_spatial',
@@ -332,7 +337,7 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
-      troikaMesh.color = text.fontColor.value.getHex()
+      troikaMesh.color = toTroikaColor(text.fontColor.value)
       troikaMesh.sync()
     }, [text.fontColor])
 
@@ -376,7 +381,7 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
-      troikaMesh.outlineColor = text.outlineColor.value.getHex()
+      troikaMesh.outlineColor = toTroikaColor(text.outlineColor.value)
       troikaMesh.sync()
     }, [text.outlineColor])
 
@@ -394,7 +399,7 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
-      troikaMesh.strokeColor = text.strokeColor.value.getHex()
+      troikaMesh.strokeColor = toTroikaColor(text.strokeColor.value)
       troikaMesh.sync()
     }, [text.strokeColor])
 

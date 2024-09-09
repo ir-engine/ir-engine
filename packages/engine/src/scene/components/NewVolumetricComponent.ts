@@ -218,17 +218,15 @@ export const NewVolumetricComponent = defineComponent({
       new Map<string, Map<string, CompressedTexture[]>>()
     ),
     setIntervalId: S.Number(-1),
-    texture: S.Partial(
-      S.Record(
-        TextureTypeSchema,
-        S.Object({
-          initialBufferLoaded: S.Bool(),
-          firstFrameLoaded: S.Bool(),
-          targets: S.Array(S.String()),
-          currentTarget: S.Number(),
-          userTarget: S.Number()
-        })
-      )
+    texture: S.Record(
+      TextureTypeSchema,
+      S.Object({
+        initialBufferLoaded: S.Bool(),
+        firstFrameLoaded: S.Bool(),
+        targets: S.Array(S.String()),
+        currentTarget: S.Number(),
+        userTarget: S.Number()
+      })
     ),
     textureInfo: S.Object({
       textureTypes: S.Array(TextureTypeSchema),
@@ -464,7 +462,7 @@ export const NewVolumetricComponent = defineComponent({
 
     console.log('Setting track to initial state: ', initialState)
 
-    component.merge(structuredClone(resetState))
+    component.merge(structuredClone(resetState) as ComponentType<typeof NewVolumetricComponent>)
 
     volumeticMutables[entity].geometryBufferData = new BufferDataContainer()
 
@@ -663,7 +661,7 @@ function NewVolumetricComponentReactor() {
             currentTarget: 0,
             userTarget: -1
           }
-        })
+        } as any)
         component.geometry.targets.set(['corto'])
         if (!getState(AssetLoaderState).cortoLoader) {
           const loader = new CORTOLoader()

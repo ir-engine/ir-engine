@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
+import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
 
 import { Engine } from '@ir-engine/ecs'
 import {
@@ -103,7 +103,7 @@ export const SkyboxComponent = defineComponent({
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
-      setComponent(entity, BackgroundComponent, skyboxState.backgroundColor.value)
+      setComponent(entity, BackgroundComponent, new Color(skyboxState.backgroundColor.value))
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
     useEffect(() => {

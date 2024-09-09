@@ -42,7 +42,7 @@ export const DebugMeshComponent = defineComponent({
   schema: S.Object({
     name: S.String('debug-mesh'),
     geometry: S.Type<BufferGeometry>(),
-    material: S.Class(MeshBasicMaterial, {}),
+    material: S.Class(MeshBasicMaterial as typeof Material, {}),
     entity: S.Optional(S.Entity())
   }),
 

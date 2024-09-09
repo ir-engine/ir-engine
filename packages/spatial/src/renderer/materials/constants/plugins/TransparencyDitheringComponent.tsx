@@ -30,6 +30,7 @@ import { defineComponent, getComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { TProperties } from '@sinclair/typebox'
 import { useEffect } from 'react'
 import {
   ditheringAlphatestChunk,
@@ -53,22 +54,22 @@ export const TransparencyDitheringRoot = defineComponent({
 export const TransparencyDitheringPlugin = defineComponent({
   name: 'TransparencyDithering',
   schema: S.Object({
-    centers: S.Class(
+    centers: S.Class<TProperties, typeof Uniform<Vector3[]>>(
       Uniform,
       {},
       Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())
     ),
-    exponents: S.Class(
+    exponents: S.Class<TProperties, typeof Uniform<number[]>>(
       Uniform,
       {},
       Array.from({ length: MAX_DITHER_POINTS }, () => 1)
     ),
-    distances: S.Class(
+    distances: S.Class<TProperties, typeof Uniform<number[]>>(
       Uniform,
       {},
       Array.from({ length: MAX_DITHER_POINTS }, () => 1)
     ),
-    useWorldCalculation: S.Class(
+    useWorldCalculation: S.Class<TProperties, typeof Uniform<ditherCalculationType[]>>(
       Uniform,
       {},
       Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)

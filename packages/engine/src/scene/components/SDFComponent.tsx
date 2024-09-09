@@ -27,6 +27,7 @@ import { DepthPass, ShaderPass } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
   Camera,
+  Color,
   DepthTexture,
   NearestFilter,
   RGBAFormat,
@@ -94,11 +95,8 @@ export const SDFComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      SDFShader.shader.uniforms.uColor.value = new Vector3(
-        sdfComponent.color.value.r,
-        sdfComponent.color.value.g,
-        sdfComponent.color.value.b
-      )
+      const color = new Color(sdfComponent.color.value)
+      SDFShader.shader.uniforms.uColor.value = new Vector3(color.r, color.g, color.b)
     }, [sdfComponent.color])
 
     useEffect(() => {
