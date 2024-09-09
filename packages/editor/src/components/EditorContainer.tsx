@@ -247,7 +247,7 @@ const EditorContainer = () => {
         })}
       </div>
       <PopupMenu />
-      {
+      {!isWidgetVisible && initialized && (
         <div className="absolute bottom-3 right-4">
           <Tooltip
             position="left center"
@@ -266,7 +266,7 @@ const EditorContainer = () => {
             />
           </Tooltip>
         </div>
-      }
+      )}
     </main>
   )
 }
