@@ -835,6 +835,7 @@ export const handleRequestConsumer = async (
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { peerID: mediaPeerId, mediaTag, rtpCapabilities, channelID } = action
+  console.log('consume action', action)
   const forPeerID = action.$peer
 
   let producer
@@ -851,8 +852,10 @@ export const handleRequestConsumer = async (
 
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
   const router = network.routers.find((router) => router.id === transport?.internal.routerId)
+  console.log('router', router)
   if (!producer || !router || !transport || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
     logger.info('%o', { producer, router, transport })
+    console.log('canConsume', router.canConsume({ producerId: producer.producerID, rtpCapabilities }))
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.producerID}`
     logger.error(`recv-track: ${forPeerID} ${msg}`)
     return
