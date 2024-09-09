@@ -80,7 +80,7 @@ const getGLTFNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
 
 const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
   const nodeIndex = gltf.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === uuid)
-  if (!nodeIndex || nodeIndex < 0) return
+  if (nodeIndex === undefined || nodeIndex < 0) return
   return gltf.nodes?.find((n) => n.children?.includes(nodeIndex))
 }
 
@@ -520,7 +520,12 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
   }
 }
 
-const reparentObject = (entities: Entity[], before?: Entity | null, parent = getState(EditorState).rootEntity) => {
+const reparentObject = (
+  entities: Entity[],
+  before?: Entity | null,
+  after?: Entity | null,
+  parent = getState(EditorState).rootEntity
+) => {
   const scenes = getSourcesForEntities(entities)
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
@@ -531,9 +536,9 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
 
       const entityUUID = getComponent(entity, UUIDComponent)
       const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+
       const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
 
-      // Remove from current parent
       if (isCurrentlyChildOfRoot) {
         gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
       } else {
@@ -561,17 +566,27 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
       const isParentRoot = parent === getState(EditorState).rootEntity
 
       // Add to new parent
+
       if (isParentRoot) {
         if (before) {
-          const beforeIndex = gltf.data.nodes!.findIndex(
-            (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
-          )
-          gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
-          gltf.data.nodes?.splice(beforeIndex, 0, gltf.data.nodes?.[nodeIndex])
-          gltf.data.nodes?.splice(nodeIndex + 1, 1)
+          if (after) {
+            const afterIndex = gltf.data.nodes!.findIndex(
+              (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(after, UUIDComponent)
+            )
+            gltf.data.scenes![0].nodes.splice(afterIndex, 0, nodeIndex) // insert after
+            const nodeData = gltf.data.nodes?.splice(nodeIndex, 1) // remove old node from the list right before inserting to justify afterindex postion
+            gltf.data.nodes?.splice(afterIndex, 0, nodeData![0]) // insert after
+          }
+          // we have a before but no after, means its the first in the list
+          else {
+            gltf.data.scenes![0].nodes.unshift(nodeIndex)
+            const nodeData = gltf.data.nodes?.splice(nodeIndex, 1)
+            gltf.data.nodes?.unshift(nodeData![0])
+          }
         } else {
           gltf.data.scenes![0].nodes.push(nodeIndex)
-          gltf.data.nodes?.push(gltf.data.nodes[nodeIndex])
+          const nodeData = gltf.data.nodes?.splice(nodeIndex, 1)
+          gltf.data.nodes?.push(nodeData![0])
         }
       } else {
         const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)
@@ -581,9 +596,19 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           const beforeIndex = newParentNode.children.findIndex(
             (n) =>
               n ===
-              gltf.data.nodes!.find((n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent))
+              gltf.data.nodes!.findIndex(
+                (n) =>
+                  n ===
+                  gltf.data.nodes!.find(
+                    (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
+                  )
+              )
           )
-          newParentNode.children.splice(beforeIndex, 0, nodeIndex)
+          if (after) {
+            newParentNode.children.splice(beforeIndex, 0, nodeIndex) // we extract the index of the before entity and insert the node right before it
+          } else {
+            newParentNode.children.unshift(nodeIndex)
+          }
         } else {
           newParentNode.children.push(nodeIndex)
         }
