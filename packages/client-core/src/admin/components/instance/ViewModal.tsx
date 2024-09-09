@@ -35,13 +35,14 @@ import {
   userKickPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
-import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
+import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 const useKickUser = () => {
@@ -62,11 +63,22 @@ const useKickUser = () => {
   }
 }
 
+const useUnbanUser = () => {
+  const removeUserKick = useMutation(userKickPath).remove
+
+  return (kickData: { userId: UserID; instanceId: InstanceID }) => {
+    try {
+      removeUserKick(null, { query: { userId: kickData.userId, instanceId: kickData.instanceId } })
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  }
+}
+
 const useUsersInInstance = (instanceId: InstanceID) => {
   const instanceAttendances = useFind(instanceAttendancePath, {
     query: {
-      instanceId,
-      ended: false
+      instanceId
     }
   })
 
@@ -95,7 +107,14 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
   })
 
   const instanceUsersQuery = useUsersInInstance(instanceId as InstanceID)
+
+  const userKickQuery = useFind(userKickPath, {
+    query: {
+      instanceId
+    }
+  })
   const kickUser = useKickUser()
+  const unbanUser = useUnbanUser()
 
   return (
     <Modal
@@ -117,34 +136,57 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
               <AvatarImage src={el.avatar.thumbnailResource?.url ?? ''} />
               <Text>{el.name}</Text>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  kickData.merge({
-                    userId: el.id,
-                    instanceId: instanceId as InstanceID,
-                    duration: '8'
-                  })
-                  kickUser(kickData.value)
-                }}
-              >
-                {t('admin:components.instance.kick')}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  kickData.merge({
-                    userId: el.id,
-                    instanceId: instanceId as InstanceID,
-                    duration: 'INFINITY'
-                  })
-                  kickUser(kickData.value)
-                }}
-              >
-                {t('admin:components.instance.ban')}
-              </Button>
-            </div>
+            {userKickQuery.data.find((d: any) => d.userId === el.id) ? (
+              <div className="flex items-center justify-between gap-10">
+                <Badge
+                  className="rounded"
+                  variant="danger"
+                  label={t('admin:components.instance.banned', {
+                    duration: toDisplayDateTime(userKickQuery.data.find((d: any) => d.userId === el.id)!.duration)
+                  })}
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    unbanUser({
+                      userId: el.id,
+                      instanceId: instanceId as InstanceID
+                    })
+                  }}
+                >
+                  {t('admin:components.instance.unban')}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    kickData.merge({
+                      userId: el.id,
+                      instanceId: instanceId as InstanceID,
+                      duration: '8'
+                    })
+                    kickUser(kickData.value)
+                  }}
+                >
+                  {t('admin:components.instance.kick')}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    kickData.merge({
+                      userId: el.id,
+                      instanceId: instanceId as InstanceID,
+                      duration: 'INFINITY'
+                    })
+                    kickUser(kickData.value)
+                  }}
+                >
+                  {t('admin:components.instance.ban')}
+                </Button>
+              </div>
+            )}
           </div>
         ))}
       </div>
