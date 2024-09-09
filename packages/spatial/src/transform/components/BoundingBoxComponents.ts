@@ -56,6 +56,11 @@ export const BoundingBoxComponent = defineComponent({
     helper: S.Entity()
   }),
 
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (json.box?.isBox3) component.box.value.copy(json.box)
+  },
+
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
