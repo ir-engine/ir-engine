@@ -51,7 +51,7 @@ import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/Mes
 
 import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
@@ -72,9 +72,7 @@ export const ImageComponent = defineComponent({
   jsonID: 'EE_image',
 
   schema: S.Object({
-    source: S.String(
-      `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
-    ),
+    source: S.String(''),
     alphaMode: S.Enum(ImageAlphaMode, ImageAlphaMode.Opaque),
     alphaCutoff: S.Number(0.5),
     projection: S.Enum(ImageProjection, ImageProjection.Flat),
@@ -141,6 +139,13 @@ export function ImageReactor() {
     PLANE_GEO,
     () => new MeshBasicMaterial()
   )
+
+  useImmediateEffect(() => {
+    if (!image.source.value)
+      image.source.set(
+        `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
+      )
+  }, [])
 
   useEffect(() => {
     if (!error) return

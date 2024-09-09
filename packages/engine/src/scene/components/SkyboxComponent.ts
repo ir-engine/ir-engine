@@ -35,7 +35,7 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getState, isClient } from '@ir-engine/hyperflux'
+import { getState, isClient, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
@@ -54,9 +54,7 @@ export const SkyboxComponent = defineComponent({
   schema: S.Object({
     backgroundColor: S.Color(0x000000),
     equirectangularPath: S.String(''),
-    cubemapPath: S.String(
-      `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
-    ),
+    cubemapPath: S.String(''),
     backgroundType: S.Number(1),
     sky: S.Nullable(S.Type<Sky>()),
     skyboxProps: S.Object({
@@ -82,6 +80,13 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
 
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
+
+    useImmediateEffect(() => {
+      if (!skyboxState.cubemapPath.value)
+        skyboxState.cubemapPath.set(
+          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
+        )
+    }, [])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return

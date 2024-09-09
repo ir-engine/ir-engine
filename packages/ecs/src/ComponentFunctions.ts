@@ -53,6 +53,7 @@ import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
 import { Kind, Static, TSchema } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
+import { TRequiredSchema } from './ComponentSchemaUtils'
 
 /**
  * @description
@@ -77,8 +78,17 @@ type OnInitValidateNotState<T> = T extends State<any, object | unknown> ? 'onIni
 type SomeStringLiteral = 'a' | 'b' | 'c'
 /** @private Type that will be a `string` when T is an extension of `string`, but will be a dummy string union otherwise. */
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
+type Optional<T> = T | undefined
 
 type ComponentSchema = TSchema | bitECS.ISchema
+
+/** @todo figure out how to make these actually optional */
+type ComponentJSON<T> = PartialIfObject<T>
+// & T extends object
+//   ? { [K in keyof T]: T[K] extends TRequiredSchema<T[K]> ? T[K] : Optional<T[K]> }
+//   : T extends TRequiredSchema<T>
+//   ? T
+//   : Optional<T>
 
 /**
  * @description
@@ -92,7 +102,7 @@ export interface ComponentPartial<
   InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema> & { entity: Entity },
   ComponentType = InitializationType,
   JSON = ComponentType,
-  SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
+  SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = never
 > {
   /** @description Human readable label for the component. Displayed in the editor and debugging tools. */
@@ -153,7 +163,7 @@ export interface Component<
   InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema> & { entity: Entity },
   ComponentType = InitializationType,
   JSON = ComponentType,
-  SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
+  SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = string
 > {
   isComponent: true
@@ -248,7 +258,7 @@ export const defineComponent = <
   InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema> & { entity: Entity },
   ComponentType = InitializationType,
   JSON = ComponentType,
-  SetJSON = PartialIfObject<DeepReadonly<ComponentType>>,
+  SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
   ComponentExtras = Record<string, any>,
   SOAComponent = Schema extends TSchema ? SoAComponentType<any> : SoAComponentType<Schema>

@@ -29,6 +29,7 @@ import {
   NumberOptions,
   ObjectOptions,
   SchemaOptions,
+  Static,
   StringOptions,
   TLiteralValue,
   TProperties,
@@ -51,6 +52,12 @@ const buildOptions = (init: any | undefined, options?: SchemaOptions) => {
 
 export interface TTypedSchema<T> extends TSchema {
   [Kind]: 'Object'
+  static: T
+  type: T
+}
+
+export interface TRequiredSchema<T> extends TSchema {
+  [Kind]: 'Any'
   static: T
   type: T
 }
@@ -108,11 +115,14 @@ export const S = {
   Call: (options?: SchemaOptions) => Type.Function([], Type.Void(), options),
 
   Nullable: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
-    S.Union([schema, Type.Null()], init, options),
+    S.Union([schema, Type.Null()], init ?? null, options),
 
   Optional: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
     // Typebox Optional doesn't allow for default value
     Type.Union([schema, Type.Undefined()], { default: init, ...options }),
+
+  Required: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
+    Type.Required(schema, buildOptions(init, options)) as unknown as TRequiredSchema<Static<typeof schema>>,
 
   Entity: (def?: Entity) => EntitySchema(),
 
@@ -192,11 +202,14 @@ export const S = {
     ),
 
   // Only use if you have to (ie. HTML element types, Three types), provides no real type safety or auto serialization
-  Type: <T>(init?: T, options?: ObjectOptions) =>
-    S.Object({}, init ? () => init : null, options) as unknown as TTypedSchema<T>,
+  Type: <T>(init?: T, props = {}, options?: ObjectOptions) =>
+    S.Object(props, init ? () => init : null, options) as unknown as TTypedSchema<T>,
   Any: () => Type.Any(),
   Void: () => Type.Void()
 }
+
+const partRequired = S.Required(Type.Object({ test: Type.Number() }))
+type partRequiredType = Static<typeof partRequired>
 
 export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'], 'none')
 
