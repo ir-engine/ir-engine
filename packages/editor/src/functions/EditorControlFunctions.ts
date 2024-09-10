@@ -33,6 +33,7 @@ import {
   componentJsonDefaults,
   ComponentJSONIDMap,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   SerializedComponentType,
   updateComponent
@@ -565,6 +566,11 @@ const reparentObject = (
 
       const newParentUUID = getComponent(parent, UUIDComponent)
       const isParentRoot = parent === getState(EditorState).rootEntity
+
+      const entityTreeComponent = getMutableComponent(entity, EntityTreeComponent)
+      if (entityTreeComponent.parentEntity.value != parent) {
+        entityTreeComponent.parentEntity.set(parent)
+      }
 
       // Add to new parent
       if (isParentRoot) {
