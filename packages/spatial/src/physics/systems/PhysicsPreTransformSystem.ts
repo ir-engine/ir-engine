@@ -41,12 +41,12 @@ import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
-const localMatrix = new Matrix4()
-const parentMatrixInverse = new Matrix4()
-const position = new Vector3()
-const rotation = new Quaternion()
-const scale = new Vector3()
-const mat4 = new Matrix4()
+const _localMatrix = new Matrix4()
+const _parentMatrixInverse = new Matrix4()
+const _position = new Vector3()
+const _rotation = new Quaternion()
+const _scale = new Vector3()
+const _mat4 = new Matrix4()
 
 const setDirty = (entity: Entity) => (TransformComponent.dirtyTransforms[entity] = true)
 
@@ -72,22 +72,22 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   const rotationZ = RigidBodyComponent.rotation.z[entity]
   const rotationW = RigidBodyComponent.rotation.w[entity]
 
-  position.x = positionX * alpha + previousPositionX * (1 - alpha)
-  position.y = positionY * alpha + previousPositionY * (1 - alpha)
-  position.z = positionZ * alpha + previousPositionZ * (1 - alpha)
-  rotation.x = rotationX * alpha + previousRotationX * (1 - alpha)
-  rotation.y = rotationY * alpha + previousRotationY * (1 - alpha)
-  rotation.z = rotationZ * alpha + previousRotationZ * (1 - alpha)
-  rotation.w = rotationW * alpha + previousRotationW * (1 - alpha)
+  _position.x = positionX * alpha + previousPositionX * (1 - alpha)
+  _position.y = positionY * alpha + previousPositionY * (1 - alpha)
+  _position.z = positionZ * alpha + previousPositionZ * (1 - alpha)
+  _rotation.x = rotationX * alpha + previousRotationX * (1 - alpha)
+  _rotation.y = rotationY * alpha + previousRotationY * (1 - alpha)
+  _rotation.z = rotationZ * alpha + previousRotationZ * (1 - alpha)
+  _rotation.w = rotationW * alpha + previousRotationW * (1 - alpha)
 
   const transform = getComponent(entity, TransformComponent)
 
   const rigidBodyEntity = getAncestorWithComponents(entity, [RigidBodyComponent])
   const rigidBodyTransform = getComponent(rigidBodyEntity, TransformComponent)
-  parentMatrixInverse.copy(rigidBodyTransform.matrixWorld).invert()
-  localMatrix.compose(position, rotation, Vector3_One).premultiply(parentMatrixInverse)
-  localMatrix.decompose(position, rotation, scale)
-  transform.matrix.compose(position, rotation, transform.scale)
+  _parentMatrixInverse.copy(rigidBodyTransform.matrixWorld).invert()
+  _localMatrix.compose(_position, _rotation, Vector3_One).premultiply(_parentMatrixInverse)
+  _localMatrix.decompose(_position, _rotation, _scale)
+  transform.matrix.compose(_position, _rotation, transform.scale)
   transform.matrixWorld.multiplyMatrices(rigidBodyTransform.matrixWorld, transform.matrix)
 
   /** set all children dirty deeply, but set this entity to clean */
@@ -101,37 +101,37 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 
   // if the entity has a parent, we need to use the scene space
   computeTransformMatrix(entity)
-  TransformComponent.getMatrixRelativeToScene(entity, mat4)
-  mat4.decompose(position, rotation, scale)
+  TransformComponent.getMatrixRelativeToScene(entity, _mat4)
+  _mat4.decompose(_position, _rotation, _scale)
 
   RigidBodyComponent.position.x[entity] =
     RigidBodyComponent.previousPosition.x[entity] =
     RigidBodyComponent.targetKinematicPosition.x[entity] =
-      position.x
+      _position.x
   RigidBodyComponent.position.y[entity] =
     RigidBodyComponent.previousPosition.y[entity] =
     RigidBodyComponent.targetKinematicPosition.y[entity] =
-      position.y
+      _position.y
   RigidBodyComponent.position.z[entity] =
     RigidBodyComponent.previousPosition.z[entity] =
     RigidBodyComponent.targetKinematicPosition.z[entity] =
-      position.z
+      _position.z
   RigidBodyComponent.rotation.x[entity] =
     RigidBodyComponent.previousRotation.x[entity] =
     RigidBodyComponent.targetKinematicRotation.x[entity] =
-      rotation.x
+      _rotation.x
   RigidBodyComponent.rotation.y[entity] =
     RigidBodyComponent.previousRotation.y[entity] =
     RigidBodyComponent.targetKinematicRotation.y[entity] =
-      rotation.y
+      _rotation.y
   RigidBodyComponent.rotation.z[entity] =
     RigidBodyComponent.previousRotation.z[entity] =
     RigidBodyComponent.targetKinematicRotation.z[entity] =
-      rotation.z
+      _rotation.z
   RigidBodyComponent.rotation.w[entity] =
     RigidBodyComponent.previousRotation.w[entity] =
     RigidBodyComponent.targetKinematicRotation.w[entity] =
-      rotation.w
+      _rotation.w
 
   const rigidbody = getComponent(entity, RigidBodyComponent)
   Physics.setRigidbodyPose(world, entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
