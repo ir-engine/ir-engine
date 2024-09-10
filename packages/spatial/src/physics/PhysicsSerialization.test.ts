@@ -23,10 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UndefinedEntity, createEngine, createEntity, destroyEngine, removeEntity } from '@ir-engine/ecs'
-import { ViewCursor, createViewCursor } from '@ir-engine/network'
+import {
+  UndefinedEntity,
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getMutableComponent,
+  removeEntity,
+  setComponent
+} from '@ir-engine/ecs'
+import { ViewCursor, createViewCursor, writeComponent } from '@ir-engine/network'
 import assert from 'assert'
+import { Vector3 } from 'three'
 import { PhysicsSerialization, readBodyPosition } from './PhysicsSerialization'
+import { RigidBodyComponent } from './components/RigidBodyComponent'
 
 describe('PhysicsSerialization', () => {
   describe('ID', () => {
@@ -51,8 +61,17 @@ describe('PhysicsSerialization', () => {
 
       /** @todo ?? How to setup the ViewCursor so that it finds the data correctly ??? */
       it.skip('??', () => {
+        const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent)
+        getMutableComponent(testEntity, RigidBodyComponent).position.x.set(Expected.x)
+        getMutableComponent(testEntity, RigidBodyComponent).position.y.set(Expected.y)
+        getMutableComponent(testEntity, RigidBodyComponent).position.z.set(Expected.z)
         const cursor: ViewCursor = createViewCursor()
-        console.log(readBodyPosition(cursor, testEntity))
+        const write = writeComponent(RigidBodyComponent.position)
+        // write(cursor, testEntity)
+        const view = createViewCursor(cursor.buffer)
+        console.log(view)
+        console.log(readBodyPosition(view, testEntity))
       })
     }) //:: readBodyPosition
 
