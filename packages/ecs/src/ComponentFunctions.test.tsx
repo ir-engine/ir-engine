@@ -29,7 +29,7 @@ import assert from 'assert'
 import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 
-import { Matrix4, Vector3 } from 'three'
+import { DirectionalLight, Matrix4, Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
@@ -190,6 +190,20 @@ describe('ComponentFunctions', async () => {
       assert(
         vector3Component.x === setValue.x && vector3Component.y === setValue.y && vector3Component.z === setValue.z
       )
+    })
+
+    it('toJSON ignores NonSerialized fields', () => {
+      const ObjComponent = defineComponent({
+        name: 'ObjComponent',
+        schema: S.Object({
+          light: S.NonSerialized(S.Class(DirectionalLight, {}))
+        })
+      })
+
+      const entity = createEntity()
+      setComponent(entity, ObjComponent)
+      const objComponent = getComponent(entity, ObjComponent)
+      const json = ObjComponent.toJSON(objComponent)
     })
 
     it('ECS Schema is proxied', () => {

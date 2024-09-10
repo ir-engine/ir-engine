@@ -281,6 +281,7 @@ export const defineComponent = <
   }
   Component.onRemove = () => {}
   Component.toJSON = (component) => {
+    /** @todo this fails if any values in the component have functions as properties */
     if (schemaIsJSONSchema(def.schema) && def.onInit) {
       const schemaValue = Value.Parse(def.schema, component) as JSON
       return schemaValue
@@ -391,21 +392,24 @@ const ArrayByType = {
   [bitECS.Types.eid]: Uint32Array
 }
 
+const accessor = Symbol('proxied')
+
+// Uncommenting the target values makes debugging easier, but doubles memory usage of components
 const createSchemaArrProxy = (obj, store, entity: Entity) => {
   const proxy = new Proxy(obj, {
     get(target, key, receiver) {
       if (typeof store[entity][key] === 'function') {
         store[entity][key].bind(store[entity])
-        target[key].bind(target)
+        // target[key].bind(target)
         return (...args) => {
           store[entity][key](...args)
-          target[key](...args)
+          // target[key](...args)
         }
       } else if (key === 'entity') return entity
       return store[entity][key]
     },
     set(target, key, value) {
-      target[key] = value
+      // target[key] = value
       store[entity][key] = value
       return true
     }
@@ -429,7 +433,7 @@ const createSchemaObjProxy = (obj, store, entity: Entity) => {
         }
         return true
       }
-      target[key] = value
+      // target[key] = value
       store[key][entity] = value
       return true
     }
@@ -446,9 +450,10 @@ const makeSchemaObject = <Schema extends ComponentSchema, InitializationType, Co
   const obj = Object.entries(object).reduce((accum, [key, value]) => {
     const isArray = Array.isArray(value)
     if (!isArray && typeof value === 'object') accum[key] = makeSchemaObject(value, entity, store[key])
-    else if (isArray && value.length === 2)
-      accum[key] = createSchemaArrProxy(new ArrayByType[value[0]](value[1]), store[key], entity)
-    else accum[key] = 0
+    // else if (isArray && value.length === 2) accum[key] = createSchemaArrProxy(new ArrayByType[value[0]](value[1]), store[key], entity)
+    // else accum[key] = 0
+    else if (isArray && value.length === 2) accum[key] = createSchemaArrProxy([], store[key], entity)
+    else accum[key] = accessor
     return accum
   }, {})
 

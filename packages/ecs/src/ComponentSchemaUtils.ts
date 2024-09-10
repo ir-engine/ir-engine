@@ -62,6 +62,12 @@ export interface TRequiredSchema<T> extends TSchema {
   type: T
 }
 
+export interface TNonSerializedSchema<T> extends TSchema {
+  [Kind]: 'Any'
+  static: T
+  type: 'NonSerialized'
+}
+
 export const TypedClass = <T, TProps extends TProperties>(properties: TProps, init: () => T, options?: ObjectOptions) =>
   S.Object(properties, init, options) as unknown as TTypedSchema<T>
 
@@ -123,6 +129,8 @@ export const S = {
 
   Required: <T extends TSchema, Initial>(schema: T, init?: Initial, options?: SchemaOptions) =>
     Type.Required(schema, buildOptions(init, options)) as unknown as TRequiredSchema<Static<typeof schema>>,
+
+  NonSerialized: <T extends TSchema>(schema: T) => Type.Any(schema),
 
   Entity: (def?: Entity) => EntitySchema(),
 

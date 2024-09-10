@@ -66,8 +66,8 @@ import { VisibleComponent } from './VisibleComponent'
 type LineSegmentComponentData = {
   name: string
   geometry: BufferGeometry
-  material: Material & { color: Color }
-  color: undefined | ColorRepresentation
+  material: Material
+  color: ColorRepresentation | undefined
   layerMask: typeof ObjectLayers.NodeHelper
   entity: undefined | Entity
 }
@@ -293,13 +293,16 @@ describe('LineSegmentComponent', () => {
         geometry: geometry,
         material: material
       })
-      assert.notDeepEqual(getComponent(testEntity, LineSegmentComponent).material.color, Expected)
+      assert.notDeepEqual(
+        (getComponent(testEntity, LineSegmentComponent).material as MeshBasicMaterial).color,
+        Expected
+      )
       setComponent(testEntity, LineSegmentComponent, {
         color: Expected,
         geometry: geometry,
         material: material
       })
-      const result = getComponent(testEntity, LineSegmentComponent).material.color
+      const result = (getComponent(testEntity, LineSegmentComponent).material as MeshBasicMaterial).color
       assert.deepEqual(result, Expected)
     })
 

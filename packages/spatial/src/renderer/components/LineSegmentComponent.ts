@@ -43,7 +43,7 @@ export const LineSegmentComponent = defineComponent({
   schema: S.Object({
     name: S.String('line-segment'),
     geometry: S.Type<BufferGeometry>(),
-    material: S.Class(LineBasicMaterial as unknown as typeof Material & { color: Color }, {}),
+    material: S.Class(LineBasicMaterial as typeof Material, {}),
     color: S.Optional(S.Color()),
     layerMask: S.Number(ObjectLayers.NodeHelper),
     entity: S.Optional(S.Entity())
@@ -80,9 +80,11 @@ export const LineSegmentComponent = defineComponent({
     useEffect(() => {
       const color = component.color.value
       if (!color) return
-      const mat = component.material.get(NO_PROXY) as Material & { color: Color }
-      mat.color.set(color)
-      mat.needsUpdate = true
+      const mat = component.material.get(NO_PROXY) as Material & { color?: Color }
+      if (mat.color) {
+        mat.color.set(color)
+        mat.needsUpdate = true
+      }
     }, [component.color])
 
     useEffect(() => {
