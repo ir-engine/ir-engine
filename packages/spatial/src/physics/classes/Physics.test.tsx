@@ -76,19 +76,35 @@ import { Physics, PhysicsWorld, RapierWorldState } from './Physics'
 const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
 
 const Epsilon = 0.001
+/**
+ * @description Returns whether or not `@param A` and `@param B` are approximately equal, using `@param epsilon` as the margin of error.
+ * @note Will also be true when both A and B are not finite.
+ * @note Used as helper by multiple .test.ts* files */
 function floatApproxEq(A: number, B: number, epsilon = Epsilon): boolean {
-  return Math.abs(A - B) < epsilon
+  return !(Number.isFinite(A) && Number.isFinite(B)) ? true : Math.abs(A - B) < epsilon
 }
+
+/**
+ * @description
+ * Triggers an assert when `@param A` and `@param B` are not approximately equal, using `@param epsilon` as the margin of error.
+ * @note Used as helper by multiple .test.ts* files */
 export function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
+  assert.equal(floatApproxEq(A, B, epsilon), true, `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
 }
 
+/**
+ * @description
+ * Triggers an assert when `@param A` and `@param B` are approximately equal, using `@param epsilon` as the margin of error.
+ * @note Used as helper by multiple .test.ts* files */
 export function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(!floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
+  assert.equal(floatApproxEq(A, B, epsilon), false, `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
 }
 
+/**
+ * @description
+ * Triggers an assert when one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
+ * @note Used as helper by multiple .test.ts* files */
 export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by RigidBodyComponent.test.ts
   assertFloatApproxEq(A.x, B.x, epsilon)
   assertFloatApproxEq(A.y, B.y, epsilon)
   assertFloatApproxEq(A.z, B.z, epsilon)
@@ -97,30 +113,35 @@ export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
 
 /**
  * @description
- * Triggers an assert if one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
- * Does nothing for members that are equal */
+ * Triggers an assert when one or many of the (x,y,z,w) members of `@param A` is equal to `@param B`.
+ * Does nothing for members that are equal
+ * @note Used as helper by multiple .test.ts* files */
 export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by PhysicsSystem.test.ts
   !floatApproxEq(A.x, B.x, epsilon) && assertFloatApproxNotEq(A.x, B.x, epsilon)
   !floatApproxEq(A.y, B.y, epsilon) && assertFloatApproxNotEq(A.y, B.y, epsilon)
   !floatApproxEq(A.z, B.z, epsilon) && assertFloatApproxNotEq(A.z, B.z, epsilon)
   if (elems > 3) !floatApproxEq(A.w, B.w, epsilon) && assertFloatApproxEq(A.w, B.w, epsilon)
 }
 
+/**
+ * @description
+ * Triggers an assert when all the (x,y,z,w) members of `@param A` are equal to `@param B`.
+ * @note Used as helper by multiple .test.ts* files */
 export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by RigidBodyComponent.test.ts
   assertFloatApproxNotEq(A.x, B.x, epsilon)
   assertFloatApproxNotEq(A.y, B.y, epsilon)
   assertFloatApproxNotEq(A.z, B.z, epsilon)
   if (elems > 3) assertFloatApproxNotEq(A.w, B.w, epsilon)
 }
 
+/** @note Used as helper by multiple .test.ts* files */
 export function assertMatrixApproxEq(A, B, epsilon = Epsilon) {
   for (let id = 0; id < 16; ++id) {
     assertFloatApproxEq(A.elements[id], B.elements[id], epsilon)
   }
 }
 
+/** @note Used as helper by multiple .test.ts* files */
 export function assertMatrixAllApproxNotEq(A, B, epsilon = Epsilon) {
   for (let id = 0; id < 16; ++id) {
     assertFloatApproxNotEq(A.elements[id], B.elements[id], epsilon)
