@@ -129,14 +129,17 @@ const _box = new Box3()
 
 const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   const geometry = object.geometry
+  if (!geometry) return
 
-  if (geometry) {
-    if (geometry.boundingBox === null) {
-      geometry.computeBoundingBox()
-    }
-
-    _box.copy(geometry.boundingBox!)
-    _box.applyMatrix4(object.matrixWorld)
-    box.union(_box)
+  if (geometry.boundingBox === null) {
+    geometry.computeBoundingBox()
   }
+
+  _box.copy(geometry.boundingBox!)
+  _box.applyMatrix4(object.matrixWorld)
+  box.union(_box)
+}
+
+export const _BoundingBoxComponentFunctions = {
+  expandBoxByObject
 }
