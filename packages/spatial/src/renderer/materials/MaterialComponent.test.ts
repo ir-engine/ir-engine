@@ -33,12 +33,11 @@ import {
   destroyEngine,
   getComponent,
   hasComponent,
-  removeComponent,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { BoxGeometry, Material, Mesh } from 'three'
+import { BoxGeometry, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 import { assertArrayEqual, assertArrayNotEqual } from '../../physics/components/RigidBodyComponent.test'
 import { MeshComponent } from '../components/MeshComponent'
 import {
@@ -147,7 +146,7 @@ describe('MaterialStateComponent', () => {
     })
   }) //:: onSet
 
-  describe.skip('onRemove', () => {
+  describe('onRemove', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -162,48 +161,62 @@ describe('MaterialStateComponent', () => {
     })
 
     /** @todo How to set it up correctly ?? */
-    it('it should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list, using its MaterialInstanceComponent.uuid', () => {
+    it('it should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list', () => {
       // Set the data as expected
       const instance1 = createEntity()
       const instance2 = createEntity()
       const instances = [instance1, instance2] as Entity[]
-      const mesh1 = new Mesh(new BoxGeometry())
-      const mesh2 = new Mesh(new BoxGeometry())
+      const mesh1 = new Mesh(new BoxGeometry(), [new MeshStandardMaterial(), new MeshStandardMaterial()])
+      const mesh2 = new Mesh(new BoxGeometry(), [new MeshStandardMaterial(), new MeshStandardMaterial()])
       const meshes = [mesh1, mesh2] as Mesh[]
-      const material1 = new Material()
-      const material2 = new Material()
-      const materials = [material1, material2] as Material[]
+      const material1 = new MeshStandardMaterial()
+      const material2 = new MeshStandardMaterial()
       const uuid1 = UUIDComponent.generateUUID()
       const uuid2 = UUIDComponent.generateUUID()
       const uuids = [uuid1, uuid2]
       material1.uuid = uuid1
       material2.uuid = uuid2
+      setComponent(testEntity, MaterialStateComponent, { instances, material: material1 })
+      setComponent(testEntity, UUIDComponent, uuid1)
+      const otherMaterial = createEntity()
+      setComponent(otherMaterial, MaterialStateComponent, { instances, material: material2 })
+      setComponent(otherMaterial, UUIDComponent, uuid2)
+
       for (const id in instances) {
-        setComponent(instances[id], UUIDComponent, uuids[id])
-        setComponent(instances[id], MaterialStateComponent, { material: materials[id] })
         setComponent(instances[id], MaterialInstanceComponent, { uuid: uuids })
         setComponent(instances[id], MeshComponent, meshes[id])
       }
-      setComponent(testEntity, MaterialInstanceComponent, { uuid: uuids })
-      setComponent(testEntity, MaterialStateComponent, { instances: instances })
       // Sanity check before running
-      assert.equal(hasComponent(testEntity, MaterialInstanceComponent), true)
+      assert.equal(hasComponent(testEntity, MaterialStateComponent), true)
       for (const entity of getComponent(testEntity, MaterialStateComponent).instances) {
-        assert.equal(hasComponent(entity, MaterialStateComponent), true)
+        assert.equal(hasComponent(entity, MaterialInstanceComponent), true)
         assert.equal(hasComponent(entity, MeshComponent), true)
         assert.notEqual(
           (getComponent(entity, MeshComponent).material as Material).uuid,
-          getComponent(entity, MaterialStateComponent).material.uuid
+          getComponent(testEntity, MaterialStateComponent).material.uuid
         )
       }
+
+      const uuid = MaterialStateComponent.fallbackMaterial
+
+      // Set the data as expected
+      const fallbackEntity = createEntity()
+      setComponent(fallbackEntity, UUIDComponent, uuid)
+      setComponent(fallbackEntity, MaterialStateComponent, {
+        instances: [UndefinedEntity],
+        material: new MeshBasicMaterial()
+      })
+
       // Run and Check the result
-      removeComponent(testEntity, MaterialStateComponent)
-      for (const uuid of getComponent(testEntity, MaterialInstanceComponent).uuid) {
-        const entity = UUIDComponent.getEntityByUUID(uuid)
-        assert.equal(
-          (getComponent(entity, MeshComponent).material as Material).uuid,
-          getComponent(entity, MaterialStateComponent).material.uuid
-        )
+      removeEntity(testEntity)
+      for (const entity of instances) {
+        const uuid = getComponent(entity, MaterialInstanceComponent).uuid
+        for (let i = 0; i < uuid.length; i++) {
+          assert.equal(
+            (getComponent(entity, MeshComponent).material as Material[])[i].uuid,
+            getComponent(entity, MaterialInstanceComponent).uuid[i]
+          )
+        }
       }
     })
 
