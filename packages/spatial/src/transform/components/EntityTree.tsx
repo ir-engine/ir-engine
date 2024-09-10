@@ -532,32 +532,6 @@ export function getChildrenWithComponents(rootEntity: Entity, components: Compon
   }
 
   return children
-  // useLayoutEffect(() => {
-  //   let unmounted = false
-  //   const ChildSubReactor = (props: { entity: Entity }) => {
-  //     const tree = getOptionalComponent(props.entity, EntityTreeComponent)
-  //
-  //
-  //     if (!tree?.children) return null
-  //     return (
-  //       <>
-  //         {tree.children.map((e) => (
-  //           <ChildSubReactor key={e} entity={e} />
-  //         ))}
-  //       </>
-  //     )
-  //   }
-  //
-  //   const root = startReactor(function useQueryReactor() {
-  //     return <ChildSubReactor entity={rootEntity} key={rootEntity} />
-  //   })
-  //   return () => {
-  //     unmounted = true
-  //     root.stop()
-  //   }
-  // }, [rootEntity, componentsString])
-  //
-  // return children.value as Entity[]
 }
 
 /** @todo make a query component for useTreeQuery */
