@@ -33,6 +33,7 @@ import {
   componentJsonDefaults,
   ComponentJSONIDMap,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   SerializedComponentType,
   updateComponent
@@ -536,7 +537,7 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
 
       // Remove from current parent
       if (isCurrentlyChildOfRoot) {
-        gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
+        //gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
       } else {
         const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)
         if (!currentParentNode) continue
@@ -558,8 +559,13 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           .toArray()
       }
 
-      const newParentUUID = getComponent(parent, UUIDComponent)
+      const parentUUID = getComponent(parent, UUIDComponent)
       const isParentRoot = parent === getState(EditorState).rootEntity
+
+      const entityTreeComponent = getMutableComponent(entity, EntityTreeComponent)
+      if (entityTreeComponent.parentEntity.value != parent) {
+        entityTreeComponent.parentEntity.set(parent)
+      }
 
       // Add to new parent
       if (isParentRoot) {
@@ -567,26 +573,40 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           const beforeIndex = gltf.data.nodes!.findIndex(
             (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
           )
-          gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
+          let indexAdjustment = 0
+          if (beforeIndex <= nodeIndex) {
+            indexAdjustment = 1
+          }
           gltf.data.nodes?.splice(beforeIndex, 0, gltf.data.nodes?.[nodeIndex])
-          gltf.data.nodes?.splice(nodeIndex + 1, 1)
+          gltf.data.nodes?.splice(nodeIndex + indexAdjustment, 1)
         } else {
-          gltf.data.scenes![0].nodes.push(nodeIndex)
           gltf.data.nodes?.push(gltf.data.nodes[nodeIndex])
+          gltf.data.nodes?.splice(nodeIndex, 1)
         }
       } else {
-        const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)
-        if (!newParentNode) continue
-        if (!newParentNode.children) newParentNode.children = []
+        const parentNode = getGLTFNodeByUUID(gltf.data, parentUUID)
+        if (!parentNode) continue
+        if (!parentNode.children) parentNode.children = []
+
+        const childIndex = parentNode.children.findIndex((n) => {
+          return n === nodeIndex
+        })
+        if (childIndex >= 0) {
+          parentNode.children.splice(childIndex, 1)
+        }
+
         if (before) {
-          const beforeIndex = newParentNode.children.findIndex(
-            (n) =>
-              n ===
-              gltf.data.nodes!.find((n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent))
-          )
-          newParentNode.children.splice(beforeIndex, 0, nodeIndex)
+          const beforeIndex = parentNode.children.findIndex((n) => {
+            const beforeUuid = getComponent(before, UUIDComponent)
+            const nodeIndex = gltf.data.nodes!.findIndex((n) => {
+              const nUuid = n.extensions?.[UUIDComponent.jsonID]
+              return nUuid === beforeUuid
+            })
+            return n === nodeIndex
+          })
+          parentNode.children.splice(beforeIndex, 0, nodeIndex)
         } else {
-          newParentNode.children.push(nodeIndex)
+          parentNode.children.push(nodeIndex)
         }
       }
     }
