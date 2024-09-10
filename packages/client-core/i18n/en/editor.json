@@ -1248,6 +1248,7 @@
         "author": "Author",
         "attribution": "Attribution",
         "licensing": "Licensing",
+        "description": "Description",
         "tag": "Tag",
         "addTag": "Add New Tag",
         "add": "Add",
