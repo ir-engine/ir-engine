@@ -50,6 +50,10 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { BodyTypes } from '../types/PhysicsTypes'
 import { PhysicsPreTransformSystem, _PhysicsPreTransformFunctions } from './PhysicsPreTransformSystem'
 
+const _rotation = new Quaternion()
+const _position = new Vector3()
+const _scale = new Vector3()
+
 describe('PhysicsPreTransformFunctions', () => {
   function assertDirty(entity: Entity, id: number = 0): void {
     if (!id) {
@@ -105,44 +109,43 @@ describe('PhysicsPreTransformFunctions', () => {
     }
     const Alpha = 0.5
 
-    let testEntity = UndefinedEntity
-    let physicsWorldEntity = UndefinedEntity
-    let physicsWorld: PhysicsWorld
+    describe('when the entity has a RigidBodyComponent ...', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorldEntity = UndefinedEntity
+      let physicsWorld: PhysicsWorld
 
-    beforeEach(async () => {
-      createEngine()
-      await Physics.load()
-      physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
-      setComponent(physicsWorldEntity, EntityTreeComponent)
-      setComponent(physicsWorldEntity, TransformComponent)
-      setComponent(physicsWorldEntity, SceneComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorldEntity = createEntity()
+        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(physicsWorldEntity, EntityTreeComponent)
+        setComponent(physicsWorldEntity, TransformComponent)
+        setComponent(physicsWorldEntity, SceneComponent)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
-      testEntity = createEntity()
-      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
-      setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-      setComponent(testEntity, ColliderComponent)
-      // Set the Start..Final values for interpolation
-      const body = getComponent(testEntity, RigidBodyComponent)
-      body.previousPosition.set(Start.position.x, Start.position.y, Start.position.z)
-      body.previousRotation.set(Start.rotation.x, Start.rotation.y, Start.rotation.z, Start.rotation.w)
-      body.position.set(Final.position.x, Final.position.y, Final.position.z)
-      body.rotation.set(Final.rotation.x, Final.rotation.y, Final.rotation.z, Final.rotation.w)
-    })
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent)
+        // Set the Start..Final values for interpolation
+        const body = getComponent(testEntity, RigidBodyComponent)
+        body.previousPosition.set(Start.position.x, Start.position.y, Start.position.z)
+        body.previousRotation.set(Start.rotation.x, Start.rotation.y, Start.rotation.z, Start.rotation.w)
+        body.position.set(Final.position.x, Final.position.y, Final.position.z)
+        body.rotation.set(Final.rotation.x, Final.rotation.y, Final.rotation.z, Final.rotation.w)
+      })
 
-    afterEach(() => {
-      removeEntity(testEntity)
-      removeEntity(physicsWorldEntity)
-      return destroyEngine()
-    })
+      afterEach(() => {
+        removeEntity(testEntity)
+        removeEntity(physicsWorldEntity)
+        return destroyEngine()
+      })
 
-    describe.skip('when the entity has a RigidBodyComponent ...', () => {
       it("should update the entity's TransformComponent.position with an interpolation of the RigidBodyComponent.previousPosition and the RigidBodyComponent.position", () => {
         const Expected = new Vector3(2.5, 3.5, 4.5)
         const Initial = new Vector3(0, 0, 0)
-        // Set the data as expected
         // Sanity check before running
         assert.equal(hasComponent(testEntity, TransformComponent), true)
         assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
@@ -150,37 +153,83 @@ describe('PhysicsPreTransformFunctions', () => {
         assertVecApproxEq(before, Initial, 3)
         // Run and Check the result
         _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
-        const result = getComponent(testEntity, TransformComponent).position
-        /** @todo Why is this (0,0,0) ??? */
-        console.log(result.x)
-        console.log(result.y)
-        console.log(result.z)
+        getComponent(testEntity, TransformComponent).matrix.decompose(_position, _rotation, _scale)
+        const result = _position
         assertVecAllApproxNotEq(result, Initial, 3)
         assertVecApproxEq(result, Expected, 3)
       })
 
-      // it("should update the entity's TransformComponent.rotation with an interpolation of the RigidBodyComponent.previousrotation and the RigidBodyComponent.rotation", () => {})
+      it("should update the entity's TransformComponent.rotation with an interpolation of the RigidBodyComponent.previousRotation and the RigidBodyComponent.rotation", () => {
+        const Expected = new Quaternion(
+          0.05976796731237829,
+          -0.05501084265150082,
+          -0.006351678252007763,
+          0.9966047156416791
+        ).normalize()
+        const Initial = new Quaternion()
+        // Sanity check before running
+        assert.equal(hasComponent(testEntity, TransformComponent), true)
+        assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
+        const before = getComponent(testEntity, TransformComponent).rotation
+        assertVecApproxEq(before, Initial, 3)
+        // Run and Check the result
+        _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
+        getComponent(testEntity, TransformComponent).matrix.decompose(_position, _rotation, _scale)
+        const result = _rotation
+        assertVecAllApproxNotEq(result, Initial, 4)
+        assertVecApproxEq(result, Expected, 4)
+      })
     })
 
-    describe('when the entity does not have a RigidBodyComponent ...', () => {
-      // it("... should update the entity's ancestor TransformComponent.position with an interpolation of the RigidBodyComponent.previousPosition and the RigidBodyComponent.position", () => {})
-      // it("... should update the entity's ancestor TransformComponent.rotation with an interpolation of the RigidBodyComponent.previousrotation and the RigidBodyComponent.rotation", () => {})
-    })
+    describe('other cases ...', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorldEntity = UndefinedEntity
+      let physicsWorld: PhysicsWorld
 
-    it('should not set the `@param entity` transform to dirty', () => {
-      // Sanity check before running
-      assertNotDirty(testEntity)
-      // Run and Check the result
-      _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
-      assertNotDirty(testEntity)
-    })
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorldEntity = createEntity()
+        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(physicsWorldEntity, EntityTreeComponent)
+        setComponent(physicsWorldEntity, TransformComponent)
+        setComponent(physicsWorldEntity, SceneComponent)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
-    it('should deeply set all children transforms to dirty', () => {
-      // Sanity check before running
-      assertNotDirty(testEntity)
-      // Run and Check the result
-      _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
-      iterateEntityNode(testEntity, assertDirty)
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent)
+        // Set the Start..Final values for interpolation
+        const body = getComponent(testEntity, RigidBodyComponent)
+        body.previousPosition.set(Start.position.x, Start.position.y, Start.position.z)
+        body.previousRotation.set(Start.rotation.x, Start.rotation.y, Start.rotation.z, Start.rotation.w)
+        body.position.set(Final.position.x, Final.position.y, Final.position.z)
+        body.rotation.set(Final.rotation.x, Final.rotation.y, Final.rotation.z, Final.rotation.w)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        removeEntity(physicsWorldEntity)
+        return destroyEngine()
+      })
+
+      it('should not set the `@param entity` transform to dirty', () => {
+        // Sanity check before running
+        assertNotDirty(testEntity)
+        // Run and Check the result
+        _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
+        assertNotDirty(testEntity)
+      })
+
+      it('should deeply set all children transforms to dirty', () => {
+        // Sanity check before running
+        assertNotDirty(testEntity)
+        // Run and Check the result
+        _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
+        iterateEntityNode(testEntity, assertDirty)
+      })
     })
   }) //:: lerpTransformFromRigidbody
 
@@ -496,7 +545,7 @@ describe('PhysicsPreTransformFunctions', () => {
       })
     })
   }) //:: filterAwakeCleanRigidbodies
-})
+}) //:: PhysicsPreTransformFunctions
 
 describe('PhysicsPreTransformSystem', () => {
   describe('Fields', () => {
@@ -516,5 +565,5 @@ describe('PhysicsPreTransformSystem', () => {
     })
   }) //:: Fields
 
-  describe('execute', () => {}) //:: execute
+  // describe('execute', () => {}) //:: execute
 }) //:: PhysicsPreTransformSystem
