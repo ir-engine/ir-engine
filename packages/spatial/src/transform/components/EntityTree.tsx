@@ -259,12 +259,12 @@ export function iterateEntityNode<R>(
  * @param cb Callback function which will be called for every traverse; return true to stop traversal
  * @param tree Entity Tree
  */
-export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) => true|void): void {
+export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) => true | void): void {
   const entityTreeNode = getOptionalComponent(entity, EntityTreeComponent)
   if (entityTreeNode?.parentEntity) {
     const parent = entityTreeNode.parentEntity
     const earlyReturn = cb(parent)
-    if (earlyReturn === true) return 
+    if (earlyReturn === true) return
     traverseEntityNodeParent(parent, cb)
   }
 }
@@ -386,7 +386,7 @@ export function useTreeQuery(entity: Entity) {
  * @returns
  */
 export function useAncestorWithComponents(
-  entity: Entity, 
+  entity: Entity,
   components: ComponentType<any>[],
   closest: boolean = true,
   includeSelf: boolean = true
@@ -413,9 +413,11 @@ export function useAncestorWithComponents(
 
     const startEntity = includeSelf ? entity : parentEntity?.value ?? UndefinedEntity
 
-    const root = startEntity ? startReactor(function useQueryReactor() {
-      return <ParentSubReactor entity={startEntity} key={startEntity} />
-    }) : null
+    const root = startEntity
+      ? startReactor(function useQueryReactor() {
+          return <ParentSubReactor entity={startEntity} key={startEntity} />
+        })
+      : null
 
     return () => {
       unmounted = true
