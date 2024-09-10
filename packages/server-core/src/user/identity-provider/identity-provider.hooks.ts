@@ -256,6 +256,8 @@ async function addScopes(context: HookContext<IdentityProviderService>) {
     })
 
     await context.app.service(scopePath).create(data)
+
+    await context.app.service(userPath).patch(context.existingUser!.id, { isGuest: false })
   }
 }
 

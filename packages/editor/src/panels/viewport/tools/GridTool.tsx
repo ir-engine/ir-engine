@@ -23,21 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useMutableState } from '@ir-engine/hyperflux'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { MdBorderClear } from 'react-icons/md'
-
-import Button from '../../../../../primitives/tailwind/Button'
-import Tooltip from '../../../../../primitives/tailwind/Tooltip'
-import NumericInput from '../../../input/Numeric'
 
 const GridTool = () => {
   const { t } = useTranslation()
 
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
 
   const onToggleGridVisible = () => {
     rendererState.gridVisibility.set(!rendererState.gridVisibility.value)
@@ -59,7 +57,7 @@ const GridTool = () => {
           className="px-0"
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.grid.info-gridSpacing')}>
+      <Tooltip content={t('editor:toolbar.grid.info-gridHeight')}>
         <NumericInput
           value={rendererState.gridHeight.value}
           onChange={(value) => rendererState.gridHeight.set(value)}

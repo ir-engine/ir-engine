@@ -91,11 +91,11 @@ export const SettingsTabsData = [
     Component: FeaturesTab
   },
   {
+    id: 'metabase',
     label: t('admin:components.setting.metabase.header'),
     Component: MetabaseTab
   },
   {
-    id: 'metabase',
     label: t('admin:components.setting.zendesk.header'),
     Component: ZendeskTab
   },

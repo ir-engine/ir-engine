@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   userKickDataValidator,
@@ -32,6 +32,7 @@ import {
   userKickQueryValidator
 } from '@ir-engine/common/src/schemas/user/user-kick.schema'
 
+import verifyScope from '../../hooks/verify-scope'
 import {
   userKickDataResolver,
   userKickExternalResolver,
@@ -52,7 +53,7 @@ export default {
     create: [schemaHooks.validateData(userKickDataValidator), schemaHooks.resolveData(userKickDataResolver)],
     update: [],
     patch: [schemaHooks.validateData(userKickPatchValidator), schemaHooks.resolveData(userKickPatchResolver)],
-    remove: []
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
   },
 
   after: {
