@@ -518,6 +518,48 @@ export function useChildrenWithComponents(rootEntity: Entity, components: Compon
   return children.value as Entity[]
 }
 
+export function getChildrenWithComponents(rootEntity: Entity, components: ComponentType<any>[]): Entity[] {
+  const children = [] as Entity[]
+
+  const tree = getOptionalComponent(rootEntity, EntityTreeComponent)
+  if (!tree?.children) return [] as Entity[]
+
+  const results = tree.children.filter((childEntity) => hasComponents(childEntity, components))
+  children.push(...results)
+
+  for (const childEntity of tree.children) {
+    children.push(...getChildrenWithComponents(childEntity, components))
+  }
+
+  return children
+  // useLayoutEffect(() => {
+  //   let unmounted = false
+  //   const ChildSubReactor = (props: { entity: Entity }) => {
+  //     const tree = getOptionalComponent(props.entity, EntityTreeComponent)
+  //
+  //
+  //     if (!tree?.children) return null
+  //     return (
+  //       <>
+  //         {tree.children.map((e) => (
+  //           <ChildSubReactor key={e} entity={e} />
+  //         ))}
+  //       </>
+  //     )
+  //   }
+  //
+  //   const root = startReactor(function useQueryReactor() {
+  //     return <ChildSubReactor entity={rootEntity} key={rootEntity} />
+  //   })
+  //   return () => {
+  //     unmounted = true
+  //     root.stop()
+  //   }
+  // }, [rootEntity, componentsString])
+  //
+  // return children.value as Entity[]
+}
+
 /** @todo make a query component for useTreeQuery */
 // export function TreeQueryReactor (props: { Components: QueryComponents; ChildEntityReactor: FC; props?: any }) {
 
