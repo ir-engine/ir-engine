@@ -42,8 +42,8 @@ export async function up(knex: Knex): Promise<void> {
 
   const authSettings = await knex.table(authenticationSettingPath).first()
 
-  if (authSettings && process.env.JWT_ALGORITHM || process.env.JWT_PUBLIC_KEY) {
-    const data = {}
+  if (authSettings && (process.env.JWT_ALGORITHM || process.env.JWT_PUBLIC_KEY)) {
+    const data = {} as any
     if (process.env.JWT_ALGORITHM) data.jwtAlgorithm = process.env.JWT_ALGORITHM
     if (process.env.JWT_PUBLIC_KEY) data.jwtPublicKey = process.env.JWT_PUBLIC_KEY
     await knex.table(authenticationSettingPath).update(data)
