@@ -566,16 +566,20 @@ const reparentObject = (
       const isParentRoot = parent === getState(EditorState).rootEntity
 
       // Add to new parent
-
       if (isParentRoot) {
         if (before) {
+          const beforeIndex = gltf.data.nodes!.findIndex(
+            (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
+          )
           if (after) {
             const afterIndex = gltf.data.nodes!.findIndex(
               (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(after, UUIDComponent)
             )
-            gltf.data.scenes![0].nodes.splice(afterIndex, 0, nodeIndex) // insert after
+
+            const finalIndex = beforeIndex > nodeIndex ? afterIndex : beforeIndex
+            gltf.data.scenes![0].nodes.splice(finalIndex, 0, nodeIndex) // insert after
             const nodeData = gltf.data.nodes?.splice(nodeIndex, 1) // remove old node from the list right before inserting to justify afterindex postion
-            gltf.data.nodes?.splice(afterIndex, 0, nodeData![0]) // insert after
+            gltf.data.nodes?.splice(finalIndex, 0, nodeData![0]) // insert after
           }
           // we have a before but no after, means its the first in the list
           else {
