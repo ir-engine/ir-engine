@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useId } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import cx from 'clsx'
-
 export interface RadioProps {
   disabled?: boolean
   label: string
@@ -62,7 +60,7 @@ const RadioRoot = ({ disabled, label, name, onChange, value, description, defaul
             value={value}
           />
           <div
-            className={cx(
+            className={twMerge(
               'pointer-events-none',
               'col-start-1 row-start-1',
               'h-2 w-2 rounded-full peer-checked:bg-blue-500',
@@ -70,12 +68,7 @@ const RadioRoot = ({ disabled, label, name, onChange, value, description, defaul
             )}
           />
         </div>
-        <label
-          htmlFor={radioId}
-          className={cx('text-start hover:cursor-pointer', {
-            'text-gray-400': disabled
-          })}
-        >
+        <label htmlFor={radioId} className={twMerge('text-start hover:cursor-pointer', disabled && 'text-gray-400')}>
           {label}
         </label>
       </div>
