@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -27,24 +27,46 @@ import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authent
 import { Paginated } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
+import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { githubRepoAccessRefreshPath } from '@ir-engine/common/src/schemas/user/github-repo-access-refresh.schema'
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 
 import { Octokit } from 'octokit'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { createExecutorJob } from '../../k8s-job-helper'
 import { RedirectConfig } from '../../types/OauthStrategies'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import makeInitialAdmin from '../../util/make-initial-admin'
+import { getGithubRepoAccessRefreshJobBody } from '../github-repo-access-refresh/github-repo-access-refresh.class'
 import CustomOAuthStrategy, { CustomOAuthParams } from './custom-oauth'
 
 export class GithubStrategy extends CustomOAuthStrategy {
   constructor(app: Application) {
     super()
     this.app = app
+  }
+
+  async createRefreshJob(userId) {
+    const date = await getDateTimeSql()
+    const newJob = await this.app.service(apiJobPath).create({
+      name: '',
+      startTime: date,
+      endTime: date,
+      returnData: '',
+      status: 'pending'
+    })
+
+    const jobBody = await getGithubRepoAccessRefreshJobBody(this.app, newJob.id, userId)
+    await this.app.service(apiJobPath).patch(newJob.id, {
+      name: jobBody.metadata!.name
+    })
+    const jobLabelSelector = `ir-engine/userId=${userId},ir-engine/release=${process.env.RELEASE_NAME},ir-engine/autoUpdate=false`
+    await createExecutorJob(this.app, jobBody, jobLabelSelector, 1000, newJob.id, false)
   }
 
   async getEntityData(profile: any, entity: any, params: CustomOAuthParams): Promise<any> {
@@ -129,7 +151,9 @@ export class GithubStrategy extends CustomOAuthStrategy {
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
       await this.app.service(identityProviderPath)._remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
-      await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      if (!config.kubernetes.enabled)
+        await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      else await this.createRefreshJob(user.id)
       await this.userLoginEntry(entity, params)
 
       return super.updateEntity(entity, profile, params)
@@ -141,11 +165,15 @@ export class GithubStrategy extends CustomOAuthStrategy {
       profile.oauthRefreshToken = params.refresh_token
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
-      await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      if (!config.kubernetes.enabled)
+        await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      else await this.createRefreshJob(user.id)
       await this.userLoginEntry(newIP, params)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {
-      await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      if (!config.kubernetes.enabled)
+        await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      else await this.createRefreshJob(user.id)
       await this.userLoginEntry(existingEntity, params)
       return existingEntity
     } else {
