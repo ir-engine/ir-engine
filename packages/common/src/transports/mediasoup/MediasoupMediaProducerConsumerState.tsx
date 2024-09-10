@@ -461,7 +461,8 @@ export const NetworkMediaConsumer = (props: { networkID: NetworkID; consumerID: 
   useEffect(() => {
     const consumer = consumerObjectState.value as any
     console.log('consumerState', consumerState, consumerState.producerID, consumerState.producerID?.value)
-    const producerID = consumerState.producerID.value
+    const producerID = consumerState.producerID?.value
+    if (!producerID) return
     const producer = getState(MediasoupMediaProducersConsumersObjectsState).producers[producerID]
     if (!consumer || consumer.closed || consumer._closed || !producer || producer?.closed || producer?._closed) return
 
