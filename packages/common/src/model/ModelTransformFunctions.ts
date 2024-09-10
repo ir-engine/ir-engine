@@ -37,6 +37,7 @@ import {
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing, EXTMeshoptCompression, KHRTextureBasisu } from '@gltf-transform/extensions'
 import {
+  cloneDocument,
   dedup,
   draco,
   flatten,
@@ -46,8 +47,8 @@ import {
   prune,
   reorder,
   simplify,
-  textureResize,
-  TextureResizeOptions,
+  textureCompress as textureResize,
+  TextureCompressOptions as TextureResizeOptions,
   weld
 } from '@gltf-transform/functions'
 import { createHash } from 'crypto'
@@ -379,18 +380,33 @@ const fileTypeToMime = (fileType) => {
   }
 }
 
+export type Basis = {
+  document: Document
+  url: string
+}
+
+const loaderIO = ModelTransformLoader().then(({ io }) => io)
+
+export const loadBasis = (url: string): Promise<Basis> =>
+  loaderIO.then((io) => io.read(url)).then((document) => ({ document, url }))
+
 export const transformModel = async (
+  basis: Basis,
   args: ModelTransformParameters,
   onMetadata: (key: string, data: any) => void = (key, data) => {},
   onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
 ): Promise<string> => {
-  const resourceName = baseName(args.src).slice(0, baseName(args.src).lastIndexOf('.'))
-  const resourcePath = pathJoin(LoaderUtils.extractUrlBase(args.src), args.resourceUri || resourceName + '_resources')
+  const { document: srcDocument, url: srcURL } = basis
+
+  const document = cloneDocument(srcDocument)
+
+  const resourceName = baseName(srcURL).slice(0, baseName(srcURL).lastIndexOf('.'))
+  const resourcePath = pathJoin(LoaderUtils.extractUrlBase(srcURL), args.resourceUri || resourceName + '_resources')
 
   const fileUploadPath = (fUploadPath: string) => {
     const pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
     const [_, projectName, fileName] =
-      pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
+      pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(srcURL), fUploadPath))!
     return [projectName, fileName]
   }
 
@@ -407,11 +423,10 @@ export const transformModel = async (
     await promise
   }
 
-  const { io } = await ModelTransformLoader()
+  const io = await loaderIO
 
   onProgress?.(0, Status.Initializing)
 
-  const document = await io.read(args.src)
   const root = document.getRoot()
 
   await MeshoptEncoder.ready
@@ -441,20 +456,20 @@ export const transformModel = async (
   const instancedNodes = root
     .listNodes()
     .filter((node) => !!node.getMesh()?.getExtension('EXT_mesh_gpu_instancing'))
-    .map((node) => [node, node.getParent()])
+    .map((node) => [node, node.getParentNode()])
   instancedNodes.map(([node, parent]) => {
     node instanceof Node && parent?.removeChild(node)
   })
 
   /* PROCESS MESHES */
   if (args.weld.enabled) {
-    await document.transform(weld({ tolerance: args.weld.tolerance }))
+    await document.transform(weld())
   }
 
   if (args.simplifyRatio < 1) {
     const simplifyTransforms = [] as Transform[]
     //gltfTransform documentation recommends doing a weld before simply
-    if (!args.weld.enabled) simplifyTransforms.push(weld({ tolerance: 0.0001 }))
+    if (!args.weld.enabled) simplifyTransforms.push(weld())
     simplifyTransforms.push(
       simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: args.simplifyErrorThreshold })
     )
@@ -539,7 +554,7 @@ export const transformModel = async (
         nuTexture.setImage(oldImg!)
         nuTexture.setMimeType(texture.getMimeType())
         const resizeParms: TextureResizeOptions = {
-          size: [mergedParms.maxTextureSize, mergedParms.maxTextureSize]
+          resize: [mergedParms.maxTextureSize, mergedParms.maxTextureSize]
         }
         await imgDoc.transform(textureResize(resizeParms))
         const originalName = texture.getName()
@@ -621,7 +636,7 @@ export const transformModel = async (
                   Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!)
                 )
               } else if (element instanceof glBuffer) {
-                const bufferPath = pathJoin(LoaderUtils.extractUrlBase(args.src), element.getURI())
+                const bufferPath = pathJoin(LoaderUtils.extractUrlBase(srcURL), element.getURI())
                 const response = await fetch(bufferPath)
                 const arrayBuffer = await response.arrayBuffer()
                 const bufferData = new Uint8Array(arrayBuffer)
@@ -672,7 +687,7 @@ export const transformModel = async (
 
     await Promise.all(
       Object.entries(resources).map(async ([uri, data]) => {
-        const blob = new Blob([data], { type: fileTypeToMime(uri.split('.').pop()!)! })
+        const blob = new Blob([data as BlobPart], { type: fileTypeToMime(uri.split('.').pop()!)! })
         await doUpload(blob, uri)
       })
     )
@@ -696,6 +711,6 @@ export const transformModel = async (
     }
   }
   onMetadata('vertexCount', totalVertexCount)
-  result = pathJoin(LoaderUtils.extractUrlBase(args.src), result)
+  result = pathJoin(LoaderUtils.extractUrlBase(srcURL), result)
   return result
 }

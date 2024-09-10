@@ -27,7 +27,10 @@ import React, { useCallback, useEffect } from 'react'
 import { DoubleSide, Mesh } from 'three'
 
 import { API } from '@ir-engine/common'
-import { transformModel as clientSideTransformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
+import {
+  transformModel as clientSideTransformModel,
+  loadBasis
+} from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { ComponentType, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -59,7 +62,6 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const isBatchCompress = useHookstate<boolean>(false)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
-    src: modelState.src.value,
     modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : modelState.src.value.endsWith('.vrm') ? 'vrm' : 'glb'
   })
 
@@ -131,9 +133,11 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
           })
         : [transformParms.get(NO_PROXY)]
 
+      const basis = await loadBasis(modelSrc)
+
       for (const variant of variants) {
         if (clientside) {
-          nuPath = await clientSideTransformModel(variant as ModelTransformParameters)
+          nuPath = await clientSideTransformModel(basis, variant as ModelTransformParameters)
         } else {
           await API.instance.service(modelTransformPath).create(variant)
         }
