@@ -669,11 +669,12 @@ describe('EditorControlFunctions', () => {
       const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
-      EditorControlFunctions.reparentObject([node2Entity], null, nodeEntity)
+      EditorControlFunctions.reparentObject([node2Entity], null, null, nodeEntity)
 
       applyIncomingActions()
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
+      console.log('newSnapshot', newSnapshot)
       assert.equal(newSnapshot.scenes![0].nodes![0], 0)
       assert.equal(newSnapshot.scenes![0].nodes.length, 1)
       assert.equal(newSnapshot.nodes![0].children![0], 1)
@@ -715,7 +716,7 @@ describe('EditorControlFunctions', () => {
       const childEntity = UUIDComponent.getEntityByUUID(childUUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
-      EditorControlFunctions.reparentObject([childEntity], nodeEntity, rootEntity)
+      EditorControlFunctions.reparentObject([childEntity], nodeEntity, null, rootEntity)
 
       applyIncomingActions()
 
@@ -769,7 +770,7 @@ describe('EditorControlFunctions', () => {
       const childEntity = UUIDComponent.getEntityByUUID(childUUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
-      EditorControlFunctions.reparentObject([node2Entity], childEntity, nodeEntity)
+      EditorControlFunctions.reparentObject([node2Entity], childEntity, null, nodeEntity)
 
       applyIncomingActions()
 
@@ -825,6 +826,7 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       applyIncomingActions()
 
+      const node1Entity = UUIDComponent.getEntityByUUID(node1UUID)
       const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
       const node4Entity = UUIDComponent.getEntityByUUID(node4UUID)
 
@@ -842,10 +844,11 @@ describe('EditorControlFunctions', () => {
         (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(node2Entity, UUIDComponent)
       )
 
-      EditorControlFunctions.reparentObject([node4Entity], node2Entity, rootEntity)
+      EditorControlFunctions.reparentObject([node4Entity], node2Entity, node1Entity, rootEntity)
       applyIncomingActions()
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
+      console.log('newSnapshot', newSnapshot)
       assert.equal(newSnapshot.nodes?.length, 4)
       assert.equal(newSnapshot.nodes?.[beforeNodeIndex].name, targetNodeName)
     })
