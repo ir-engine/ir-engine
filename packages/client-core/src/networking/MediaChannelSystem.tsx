@@ -27,11 +27,79 @@ import React, { useEffect } from 'react'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, getState, NetworkID, useMutableState } from '@ir-engine/hyperflux'
 
-import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
-import { receiveConsumerHandler } from '../transports/SocketWebRTCClientFunctions'
+import logger from '@ir-engine/common/src/logger'
+import {
+  MediasoupMediaConsumerActions,
+  MediasoupMediaConsumerType,
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
+import { NetworkState } from '@ir-engine/network'
+import {
+  ConsumerExtension,
+  SocketWebRTCClientNetwork,
+  WebRTCTransportExtension
+} from '../transports/SocketWebRTCClientFunctions'
 import { ClientNetworkingSystem } from './ClientNetworkingSystem'
+
+export const receiveConsumerHandler = async (networkID: NetworkID, consumerState: MediasoupMediaConsumerType) => {
+  const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
+
+  const { peerID, mediaTag, channelID, paused } = consumerState
+
+  const transport = MediasoupTransportState.getTransport(network.id, 'recv') as WebRTCTransportExtension
+  if (!transport) return logger.error('No transport found for consumer')
+
+  const consumer = (await transport.consume({
+    id: consumerState.consumerID,
+    producerId: consumerState.producerID,
+    rtpParameters: consumerState.rtpParameters as any,
+    kind: consumerState.kind!,
+    appData: { peerID, mediaTag, channelId: channelID }
+  })) as unknown as ConsumerExtension
+
+  // if we do already have a consumer, we shouldn't have called this method
+  const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+    network.id,
+    peerID,
+    mediaTag
+  ) as ConsumerExtension
+
+  if (!existingConsumer) {
+    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
+    // okay, we're ready. let's ask the peer to send us media
+    if (!paused) MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
+    else MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
+  } else if (existingConsumer.track?.muted) {
+    dispatchAction(
+      MediasoupMediaConsumerActions.consumerClosed({
+        consumerID: existingConsumer.id,
+        $network: network.id,
+        $topic: network.topic,
+        $to: peerID
+      })
+    )
+    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
+    // okay, we're ready. let's ask the peer to send us media
+    if (!paused) {
+      MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
+    } else {
+      MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
+    }
+  } else {
+    dispatchAction(
+      MediasoupMediaConsumerActions.consumerClosed({
+        consumerID: consumer.id,
+        $network: network.id,
+        $topic: network.topic,
+        $to: peerID
+      })
+    )
+  }
+}
 
 const ConsumerReactor = (props: { consumerID: string; networkID: InstanceID }) => {
   const { consumerID, networkID } = props

@@ -3,6 +3,7 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import {
   MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
@@ -12,6 +13,8 @@ import { dispatchAction, getMutableState, getState, useHookstate, useMutableStat
 import {
   NetworkState,
   VideoConstants,
+  screenshareAudioDataChannelType,
+  screenshareVideoDataChannelType,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@ir-engine/network'
@@ -80,13 +83,13 @@ const NetworkConsumers = (props: { networkID: InstanceID }) => {
 const MicrophoneReactor = () => {
   const mediaNetworkState = useMediaNetwork()
   const mediaStreamState = useMutableState(MediaStreamState)
-  const microphoneEnabled = mediaStreamState.audioEnabled.value
-  const audioStream = mediaStreamState.audioStream.value
+  const microphoneEnabled = mediaStreamState.microphoneEnabled.value
+  const microphoneMediaStream = mediaStreamState.microphoneMediaStream.value
   const ready = mediaNetworkState?.ready?.value
   const camAudioProducer = mediaStreamState.camAudioProducer.value
 
   useEffect(() => {
-    const audioStream = mediaStreamState.audioStream.value
+    const audioStream = mediaStreamState.microphoneMediaStream.value
     if (!microphoneEnabled || !ready || !audioStream) return
 
     if (!camAudioProducer || camAudioProducer.closed) return
@@ -139,16 +142,16 @@ const MicrophoneReactor = () => {
        * - it already gets cleaned up when the network is left
        */
     }
-  }, [mediaStreamState.audioStream.value, microphoneEnabled, mediaNetworkState?.ready.value])
+  }, [mediaStreamState.microphoneMediaStream.value, microphoneEnabled, mediaNetworkState?.ready.value])
 
   useEffect(() => {
-    if (!ready || !audioStream) return
+    if (!ready || !microphoneMediaStream) return
 
     if (!camAudioProducer || camAudioProducer.closed) return
 
     const network = getState(NetworkState).networks[mediaNetworkState.id.value]
 
-    camAudioProducer.replaceTrack({ track: audioStream.getAudioTracks()[0] })
+    camAudioProducer.replaceTrack({ track: microphoneMediaStream.getAudioTracks()[0] })
     MediasoupMediaProducerConsumerState.resumeProducer(network, camAudioProducer.id)
     logger.info({ event_name: 'microphone', value: true })
 
@@ -157,14 +160,14 @@ const MicrophoneReactor = () => {
       logger.info({ event_name: 'microphone', value: false })
       camAudioProducer.track?.stop()
     }
-  }, [audioStream, camAudioProducer])
+  }, [microphoneMediaStream, camAudioProducer])
 
   return null
 }
 
-const getCodecEncodings = (service: string) => {
+const getCodecEncodings = (service: 'video' | 'screenshare') => {
   const mediaSettings = config.client.mediaSettings
-  const settings = service === 'video' ? mediaSettings.video : mediaSettings.screenshare
+  const settings = mediaSettings[service]
   let codec, encodings
   if (settings) {
     switch (settings.codec) {
@@ -194,13 +197,13 @@ const getCodecEncodings = (service: string) => {
 const WebcamReactor = () => {
   const mediaNetworkState = useMediaNetwork()
   const mediaStreamState = useMutableState(MediaStreamState)
-  const webcamEnabled = mediaStreamState.videoEnabled.value
-  const videoStream = mediaStreamState.videoStream.value
+  const webcamEnabled = mediaStreamState.webcamEnabled.value
+  const webcamMediaStream = mediaStreamState.webcamMediaStream.value
   const ready = mediaNetworkState?.ready?.value
   const camVideoProducer = mediaStreamState.camVideoProducer.value
 
   useEffect(() => {
-    if (!webcamEnabled || !ready || !videoStream) return
+    if (!webcamEnabled || !ready || !webcamMediaStream) return
 
     if (camVideoProducer && !camVideoProducer.closed) return
 
@@ -218,7 +221,7 @@ const WebcamReactor = () => {
 
     transport
       .produce({
-        track: videoStream!.getVideoTracks()[0],
+        track: webcamMediaStream!.getVideoTracks()[0],
         encodings,
         codecOptions: VideoConstants.CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
         codec,
@@ -239,17 +242,16 @@ const WebcamReactor = () => {
        * - it already gets cleaned up when the network is left
        */
     }
-  }, [videoStream, webcamEnabled, ready])
+  }, [webcamMediaStream, webcamEnabled, ready])
 
   useEffect(() => {
-    console.log('webcamEnabled', {webcamEnabled, ready, videoStream, camVideoProducer})
-    if (!ready || !videoStream) return
+    if (!ready || !webcamMediaStream) return
 
     if (!camVideoProducer || camVideoProducer.closed) return
 
     const network = getState(NetworkState).networks[mediaNetworkState.id.value]
 
-    camVideoProducer.replaceTrack({ track: videoStream.getVideoTracks()[0] })
+    camVideoProducer.replaceTrack({ track: webcamMediaStream.getVideoTracks()[0] })
     MediasoupMediaProducerConsumerState.resumeProducer(network, camVideoProducer.id)
     logger.info({ event_name: 'camera', value: true })
 
@@ -258,7 +260,147 @@ const WebcamReactor = () => {
       logger.info({ event_name: 'camera', value: false })
       camVideoProducer.track?.stop()
     }
-  }, [videoStream, camVideoProducer])
+  }, [webcamMediaStream, camVideoProducer])
+
+  return null
+}
+
+const ScreenshareReactor = () => {
+  const mediaNetworkState = useMediaNetwork()
+  const mediaStreamState = useMutableState(MediaStreamState)
+  const screenshareEnabled = mediaStreamState.screenshareEnabled.value
+  const screenshareMediaStream = mediaStreamState.screenshareMediaStream.value
+  const ready = mediaNetworkState?.ready?.value
+  const screenVideoProducer = mediaStreamState.screenVideoProducer.value
+  const screenAudioProducer = mediaStreamState.screenAudioProducer.value
+  const screenShareAudioPaused = mediaStreamState.screenShareAudioPaused.value
+
+  useEffect(() => {
+    if (!screenshareEnabled || !ready || !screenshareMediaStream) return
+
+    if (screenVideoProducer && !screenVideoProducer.closed) return
+
+    const videoTracks = screenshareMediaStream.getVideoTracks()
+    if (!videoTracks.length) return logger.error('No video tracks found for screen share')
+
+    const network = getState(NetworkState).networks[mediaNetworkState.id.value]
+
+    const channelConnectionState = getState(MediaInstanceState)
+    const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
+    const channelId = currentChannelInstanceConnection.channelId
+
+    const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
+
+    const { codec, encodings } = getCodecEncodings('screenshare')
+
+    const abortController = new AbortController()
+
+    transport
+      .produce({
+        track: mediaStreamState.screenshareMediaStream.value!.getVideoTracks()[0],
+        encodings,
+        codecOptions: VideoConstants.CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
+        codec,
+        appData: { mediaTag: screenshareVideoDataChannelType, channelId }
+      })
+      .then((producer) => {
+        if (abortController.signal.aborted) {
+          producer.close()
+          return
+        }
+
+        const videoProducer = producer as any as ProducerExtension
+
+        mediaStreamState.screenVideoProducer.set(videoProducer)
+
+        getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[videoProducer.id].set(videoProducer)
+
+        // handler for screen share stopped event (triggered by the browser's built-in screen sharing ui)
+        videoProducer!.track!.onended = () => {
+          mediaStreamState.screenshareEnabled.set(false)
+        }
+      })
+
+    // create a producer for audio, if we have it
+    const audioTracks = mediaStreamState.screenshareMediaStream.value!.getAudioTracks()
+    if (audioTracks.length) {
+      transport
+        .produce({
+          track: audioTracks[0],
+          appData: { mediaTag: screenshareAudioDataChannelType, channelId }
+        })
+        .then((producer) => {
+          if (abortController.signal.aborted) {
+            producer.close()
+            return
+          }
+          const audioProducer = producer as any as ProducerExtension
+          mediaStreamState.screenAudioProducer.set(audioProducer)
+          mediaStreamState.screenShareAudioPaused.set(false)
+          getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[audioProducer.id].set(audioProducer)
+        })
+    }
+
+    return () => {
+      abortController.abort()
+
+      if (mediaStreamState.screenVideoProducer.value) {
+        dispatchAction(
+          MediasoupMediaProducerActions.producerPaused({
+            producerID: mediaStreamState.screenVideoProducer.value.id,
+            globalMute: false,
+            paused: true,
+            $network: network.id,
+            $topic: network.topic
+          })
+        )
+        mediaStreamState.screenVideoProducer.value.pause()
+        dispatchAction(
+          MediasoupMediaProducerActions.producerClosed({
+            producerID: mediaStreamState.screenVideoProducer.value.id,
+            $network: network.id,
+            $topic: network.topic
+          })
+        )
+        mediaStreamState.screenVideoProducer.value.close()
+        mediaStreamState.screenVideoProducer.set(null)
+      }
+
+      if (mediaStreamState.screenAudioProducer.value) {
+        dispatchAction(
+          MediasoupMediaProducerActions.producerPaused({
+            producerID: mediaStreamState.screenAudioProducer.value.id,
+            globalMute: false,
+            paused: true,
+            $network: network.id,
+            $topic: network.topic
+          })
+        )
+        dispatchAction(
+          MediasoupMediaProducerActions.producerClosed({
+            producerID: mediaStreamState.screenAudioProducer.value.id,
+            $network: network.id,
+            $topic: network.topic
+          })
+        )
+        mediaStreamState.screenAudioProducer.value.close()
+        mediaStreamState.screenAudioProducer.set(null)
+        mediaStreamState.screenShareAudioPaused.set(true)
+      }
+    }
+  }, [screenshareMediaStream, screenshareEnabled, ready])
+
+  useEffect(() => {
+    if (!ready || !screenshareMediaStream) return
+
+    if (!screenShareAudioPaused || !screenAudioProducer || screenAudioProducer.closed) return
+
+    const network = getState(NetworkState).networks[mediaNetworkState.id.value]
+
+    if (screenShareAudioPaused) MediasoupMediaProducerConsumerState.pauseProducer(network, screenAudioProducer.id)
+    else MediasoupMediaProducerConsumerState.resumeConsumer(network, screenAudioProducer.id)
+    logger.info({ event_name: 'screenshare', value: screenShareAudioPaused })
+  }, [screenShareAudioPaused])
 
   return null
 }
@@ -276,6 +418,7 @@ const reactor = () => {
         ))}
       <WebcamReactor />
       <MicrophoneReactor />
+      <ScreenshareReactor />
     </>
   )
 }

@@ -177,7 +177,7 @@ const CaptureMode = () => {
 
   const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
 
-  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+  const videoStream = useHookstate(getMutableState(MediaStreamState).webcamMediaStream)
 
   useEffect(() => {
     detectingStatus.set('loading')

@@ -75,7 +75,6 @@ import {
   NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
-  VideoConstants,
   addNetwork,
   createNetwork,
   removeNetwork,
@@ -89,13 +88,7 @@ import {
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
-import {
-  MediasoupMediaConsumerActions,
-  MediasoupMediaConsumerType,
-  MediasoupMediaProducerActions,
-  MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState
-} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { MediasoupMediaProducerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
@@ -108,7 +101,7 @@ import { ChannelState } from '../social/services/ChannelService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { clientContextParams } from '../util/contextParams'
-import { MediaStreamService, MediaStreamState } from './MediaStreams'
+import { MediaStreamState } from './MediaStreams'
 
 const logger = multiLogger.child({
   component: 'client-core:SocketWebRTCClientFunctions',
@@ -600,13 +593,13 @@ export const onTransportCreated = async (networkID: NetworkID, transportDefiniti
 
         switch (appData.mediaTag) {
           case webcamVideoDataChannelType:
-            paused = mediaStreamState.videoEnabled.value
+            paused = !mediaStreamState.webcamEnabled.value
             break
           case webcamAudioDataChannelType:
-            paused = mediaStreamState.audioEnabled.value
+            paused = !mediaStreamState.microphoneEnabled.value
             break
           case screenshareVideoDataChannelType:
-            paused = mediaStreamState.screenShareVideoPaused.value
+            paused = false
             break
           case screenshareAudioDataChannelType:
             paused = mediaStreamState.screenShareAudioPaused.value
@@ -776,123 +769,24 @@ export const onTransportCreated = async (networkID: NetworkID, transportDefiniti
   getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
 }
 
-const getCodecEncodings = (service: string) => {
-  const mediaSettings = config.client.mediaSettings
-  const settings = service === 'video' ? mediaSettings.video : mediaSettings.screenshare
-  let codec, encodings
-  if (settings) {
-    switch (settings.codec) {
-      case 'VP9':
-        codec = VideoConstants.VP9_CODEC
-        encodings = VideoConstants.CAM_VIDEO_SVC_CODEC_OPTIONS
-        break
-      case 'h264':
-        codec = VideoConstants.H264_CODEC
-        encodings = VideoConstants.CAM_VIDEO_SIMULCAST_ENCODINGS
-        encodings[0].maxBitrate = settings.lowResMaxBitrate * 1000
-        encodings[1].maxBitrate = settings.midResMaxBitrate * 1000
-        encodings[2].maxBitrate = settings.highResMaxBitrate * 1000
-        break
-      case 'VP8':
-        codec = VideoConstants.VP8_CODEC
-        encodings = VideoConstants.CAM_VIDEO_SIMULCAST_ENCODINGS
-        encodings[0].maxBitrate = settings.lowResMaxBitrate * 1000
-        encodings[1].maxBitrate = settings.midResMaxBitrate * 1000
-        encodings[2].maxBitrate = settings.highResMaxBitrate * 1000
-    }
-  }
-
-  return { codec, encodings }
-}
-
-
-export const receiveConsumerHandler = async (networkID: NetworkID, consumerState: MediasoupMediaConsumerType) => {
-  const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
-
-  const { peerID, mediaTag, channelID, paused } = consumerState
-
-  const transport = MediasoupTransportState.getTransport(network.id, 'recv') as WebRTCTransportExtension
-  if (!transport) return logger.error('No transport found for consumer')
-
-  const consumer = (await transport.consume({
-    id: consumerState.consumerID,
-    producerId: consumerState.producerID,
-    rtpParameters: consumerState.rtpParameters as any,
-    kind: consumerState.kind!,
-    appData: { peerID, mediaTag, channelId: channelID }
-  })) as unknown as ConsumerExtension
-
-  // if we do already have a consumer, we shouldn't have called this method
-  const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-    network.id,
-    peerID,
-    mediaTag
-  ) as ConsumerExtension
-
-  if (!existingConsumer) {
-    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
-    // okay, we're ready. let's ask the peer to send us media
-    if (!paused) MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
-    else MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
-  } else if (existingConsumer.track?.muted) {
-    dispatchAction(
-      MediasoupMediaConsumerActions.consumerClosed({
-        consumerID: existingConsumer.id,
-        $network: network.id,
-        $topic: network.topic,
-        $to: peerID
-      })
-    )
-    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
-    // okay, we're ready. let's ask the peer to send us media
-    if (!paused) {
-      MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
-    } else {
-      MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
-    }
-  } else {
-    dispatchAction(
-      MediasoupMediaConsumerActions.consumerClosed({
-        consumerID: consumer.id,
-        $network: network.id,
-        $topic: network.topic,
-        $to: peerID
-      })
-    )
-  }
-}
-
 export const toggleMicrophonePaused = () => {
-  getMutableState(MediaStreamState).audioEnabled.set(val => !val)
+  getMutableState(MediaStreamState).microphoneEnabled.set((val) => !val)
 }
 
-export const toggleWebcamPaused = async () => {
-  getMutableState(MediaStreamState).videoEnabled.set(val => !val)
+export const toggleWebcamPaused = () => {
+  getMutableState(MediaStreamState).webcamEnabled.set((val) => !val)
 }
 
-export const toggleScreenshare = async () => {
-  const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
-  if (mediaStreamState.screenVideoProducer.value) await stopScreenshare(mediaNetwork)
-  else await startScreenshare(mediaNetwork)
+export const toggleScreenshare = () => {
+  getMutableState(MediaStreamState).screenshareEnabled.set((val) => !val)
 }
 
-export const toggleScreenshareAudioPaused = async () => {
-  const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
-  const audioPaused = mediaStreamState.screenShareAudioPaused.value
-  if (audioPaused)
-    MediasoupMediaProducerConsumerState.resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!.id)
-  else MediasoupMediaProducerConsumerState.pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!.id)
-  mediaStreamState.screenShareAudioPaused.set(!audioPaused)
+export const toggleScreenshareAudioPaused = () => {
+  getMutableState(MediaStreamState).screenShareAudioPaused.set((val) => !val)
 }
 
-export const toggleScreenshareVideoPaused = async () => {
-  const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
-  const videoPaused = mediaStreamState.screenShareVideoPaused.value
-  if (videoPaused) await startScreenshare(mediaNetwork)
-  else await stopScreenshare(mediaNetwork)
+export const toggleScreenshareVideoPaused = () => {
+  getMutableState(MediaStreamState).screenshareEnabled.set(false)
 }
 
 export function leaveNetwork(network: SocketWebRTCClientNetwork) {
@@ -913,136 +807,6 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
     }
   } catch (err) {
     logger.error(err, 'Error with leave()')
-  }
-}
-
-export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info({ event_name: 'screen_share', event_value: true })
-  const mediaStreamState = getMutableState(MediaStreamState)
-
-  // get a screen share track
-  try {
-    const localScreen = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
-      audio: true
-    })
-    if (!localScreen) {
-      logger.error('No screen share track found')
-      return
-    }
-    mediaStreamState.localScreen.set(localScreen)
-  } catch (e) {
-    /**
-     * @todo if the system disallows, we should provide an onscreen modal to show how a user can enable
-     * - apple disables screen sharing if the user has not enabled it in the system preferences for other browsers
-     */
-    logger.error(e, 'Error starting screen share')
-    return
-  }
-
-  const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
-  const channelId = currentChannelInstanceConnection.channelId
-
-  await waitForTransports(network)
-  const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
-
-  const { codec, encodings } = getCodecEncodings('screenshare')
-
-  // create a producer for video
-  const videoTracks = mediaStreamState.localScreen.value!.getVideoTracks()
-  if (!videoTracks.length) return logger.error('No video tracks found for screen share')
-
-  await Promise.all([
-    new Promise(async (resolve) => {
-      const videoProducer = (await transport.produce({
-        track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
-        encodings,
-        codecOptions: VideoConstants.CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
-        codec,
-        appData: { mediaTag: screenshareVideoDataChannelType, channelId }
-      })) as any as ProducerExtension
-      mediaStreamState.screenVideoProducer.set(videoProducer)
-
-      getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[videoProducer.id].set(videoProducer)
-
-      // handler for screen share stopped event (triggered by the
-      // browser's built-in screen sharing ui)
-      const producer = mediaStreamState.screenVideoProducer.value as ProducerExtension
-      producer!.track!.onended = async () => {
-        return stopScreenshare(network)
-      }
-
-      resolve(null)
-    }),
-    new Promise(async (resolve) => {
-      // create a producer for audio, if we have it
-      const audioTracks = mediaStreamState.localScreen.value!.getAudioTracks()
-      if (audioTracks.length) {
-        const audioProducer = (await transport.produce({
-          track: audioTracks[0],
-          appData: { mediaTag: screenshareAudioDataChannelType, channelId }
-        })) as any as ProducerExtension
-        mediaStreamState.screenAudioProducer.set(audioProducer)
-        mediaStreamState.screenShareAudioPaused.set(false)
-        getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[audioProducer.id].set(audioProducer)
-      }
-      resolve(null)
-    })
-  ])
-
-  // set unpaused once we have both video and audio producers
-  mediaStreamState.screenShareVideoPaused.set(false)
-}
-
-export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
-  logger.info({ event_name: 'screen_share', event_value: false })
-  const mediaStreamState = getMutableState(MediaStreamState)
-
-  console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)
-  if (mediaStreamState.screenVideoProducer.value) {
-    dispatchAction(
-      MediasoupMediaProducerActions.producerPaused({
-        producerID: mediaStreamState.screenVideoProducer.value.id,
-        globalMute: false,
-        paused: true,
-        $network: network.id,
-        $topic: network.topic
-      })
-    )
-    mediaStreamState.screenVideoProducer.value.pause()
-    mediaStreamState.screenShareVideoPaused.set(true)
-    dispatchAction(
-      MediasoupMediaProducerActions.producerClosed({
-        producerID: mediaStreamState.screenVideoProducer.value.id,
-        $network: network.id,
-        $topic: network.topic
-      })
-    )
-    mediaStreamState.screenVideoProducer.value.close()
-    mediaStreamState.screenVideoProducer.set(null)
-  }
-
-  if (mediaStreamState.screenAudioProducer.value) {
-    dispatchAction(
-      MediasoupMediaProducerActions.producerPaused({
-        producerID: mediaStreamState.screenAudioProducer.value.id,
-        globalMute: false,
-        paused: true,
-        $network: network.id,
-        $topic: network.topic
-      })
-    )
-    dispatchAction(
-      MediasoupMediaProducerActions.producerClosed({
-        producerID: mediaStreamState.screenAudioProducer.value.id,
-        $network: network.id,
-        $topic: network.topic
-      })
-    )
-    mediaStreamState.screenAudioProducer.value.close()
-    mediaStreamState.screenAudioProducer.set(null)
-    mediaStreamState.screenShareAudioPaused.set(true)
   }
 }
 
@@ -1106,28 +870,3 @@ type Primus = EventEmitter & {
   write: (data: any) => void
   _write: unknown
 }
-
-// export type WebRTCTransportExtension
-// export type ProducerExtension
-// export type ConsumerExtension
-// export const closeNetwork
-// export const initializeNetwork
-// export type SocketWebRTCClientNetwork
-// export const connectToInstance
-// export const getChannelIdFromTransport
-// export async function checkInstanceserverReady
-// export async function authenticatePrimus
-// export const connectToNetwork
-// export const waitForTransports
-// export const onTransportCreated
-// export async function createCamVideoProducer
-// export async function createCamAudioProducer
-// export const receiveConsumerHandler
-// export const toggleMicrophonePaused
-// export const toggleWebcamPaused
-// export const toggleScreenshare
-// export const toggleScreenshareAudioPaused
-// export const toggleScreenshareVideoPaused
-// export function leaveNetwork
-// export const startScreenshare
-// export const stopScreenshare

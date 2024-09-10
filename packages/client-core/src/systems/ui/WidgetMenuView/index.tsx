@@ -118,7 +118,7 @@ const WidgetButtons = () => {
   const mediaInstanceState = useMediaInstance()
 
   const mediaStreamState = useMutableState(MediaStreamState)
-  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isCamAudioEnabled = !!mediaStreamState.camAudioProducer.value && mediaStreamState.microphoneEnabled.value
 
   // TODO: add a notification hint function to the widget wrapper and move unread messages there
   // useEffect(() => {

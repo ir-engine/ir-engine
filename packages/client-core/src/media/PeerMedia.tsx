@@ -129,14 +129,14 @@ const SelfMedia = () => {
   const peerMediaChannelState = useMutableState(PeerMediaChannelState)[Engine.instance.store.peerID]
 
   useEffect(() => {
-    const audioEnabled = mediaStreamState.audioEnabled.value
-    peerMediaChannelState.cam.audioStream.set(audioEnabled ? mediaStreamState.camAudioProducer.value : null)
-  }, [mediaStreamState.camAudioProducer, mediaStreamState.audioEnabled])
+    const microphoneEnabled = mediaStreamState.microphoneEnabled.value
+    peerMediaChannelState.cam.audioStream.set(microphoneEnabled ? mediaStreamState.camAudioProducer.value : null)
+  }, [mediaStreamState.camAudioProducer, mediaStreamState.microphoneEnabled])
 
   useEffect(() => {
-    const videoEnabled = mediaStreamState.videoEnabled.value
-    peerMediaChannelState.cam.videoStream.set(videoEnabled ? mediaStreamState.camVideoProducer.value : null)
-  }, [mediaStreamState.camVideoProducer, mediaStreamState.videoEnabled])
+    const webcamEnabled = mediaStreamState.webcamEnabled.value
+    peerMediaChannelState.cam.videoStream.set(webcamEnabled ? mediaStreamState.camVideoProducer.value : null)
+  }, [mediaStreamState.camVideoProducer, mediaStreamState.webcamEnabled])
 
   useEffect(() => {
     peerMediaChannelState.screen.audioStream.set(mediaStreamState.screenAudioProducer.value)
@@ -145,6 +145,10 @@ const SelfMedia = () => {
   useEffect(() => {
     peerMediaChannelState.screen.videoStream.set(mediaStreamState.screenVideoProducer.value)
   }, [mediaStreamState.screenVideoProducer])
+
+  useEffect(() => {
+    peerMediaChannelState.screen.audioStreamPaused.set(mediaStreamState.screenShareAudioPaused.value)
+  }, [mediaStreamState.screenShareAudioPaused])
 
   return null
 }

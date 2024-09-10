@@ -69,7 +69,8 @@ export const toggleFaceTracking = async () => {
     stopLipsyncTracking()
   } else {
     try {
-      await Promise.all([MediaStreamService.startCamera(), MediaStreamService.startMic()])
+      mediaStreamState.webcamEnabled.set(true)
+      mediaStreamState.microphoneEnabled.set(true)
     } catch (e) {
       logger.error(e, 'Error starting camera or mic')
       return
@@ -126,7 +127,7 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = getMutableState(MediaStreamState).videoStream.value
+  faceVideo.srcObject = getMutableState(MediaStreamState).webcamMediaStream.value
   faceVideo.muted = true
   faceVideo.play()
 }
@@ -174,7 +175,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(getMutableState(MediaStreamState).audioStream.value!)
+  const inputStream = audioContext.createMediaStreamSource(getMutableState(MediaStreamState).microphoneMediaStream.value!)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)

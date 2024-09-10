@@ -91,10 +91,10 @@ export const MediaIconsBox = () => {
 
   const mediaStreamState = useMutableState(MediaStreamState)
   const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
-  const isCamVideoEnabled = !!mediaStreamState.camVideoProducer.value && mediaStreamState.videoEnabled.value
-  const isCamAudioEnabled = !!mediaStreamState.camAudioProducer.value && mediaStreamState.audioEnabled.value
+  const isCamVideoEnabled = !!mediaStreamState.camVideoProducer.value && mediaStreamState.webcamEnabled.value
+  const isCamAudioEnabled = !!mediaStreamState.camAudioProducer.value && mediaStreamState.microphoneEnabled.value
   const isScreenVideoEnabled =
-    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
+    mediaStreamState.screenVideoProducer.value != null
 
   const spectating =
     !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value &&

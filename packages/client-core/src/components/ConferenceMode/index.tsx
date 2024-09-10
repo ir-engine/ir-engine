@@ -54,10 +54,9 @@ const ConferenceMode = (): JSX.Element => {
     Object.values(consumers).filter((consumer) => consumer.mediaTag.value === screenshareVideoDataChannelType) || []
 
   const mediaStreamState = useMutableState(MediaStreamState)
-  const isScreenVideoEnabled =
-    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
+  const isScreenVideoEnabled = !!mediaStreamState.screenVideoProducer.value
   const isScreenAudioEnabled =
-    mediaStreamState.screenShareAudioPaused.value != null && !mediaStreamState.screenShareAudioPaused.value
+    !!mediaStreamState.screenAudioProducer.value && !mediaStreamState.screenShareAudioPaused.value
 
   let totalScreens = 1
 

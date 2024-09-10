@@ -42,29 +42,29 @@ export const MediaStreamState = defineState({
   name: 'MediaStreamState',
   initial: {
     /** Whether the video is enabled or not. */
-    videoEnabled: false,
+    webcamEnabled: false,
     /** Whether the audio is enabled or not. */
-    audioEnabled: false,
+    microphoneEnabled: false,
     /** Whether the face tracking is enabled or not. */
+    /** @deprecated - face tracking has been disabled */
     faceTracking: false,
     /** Video stream for streaming data. */
-    videoStream: null as MediaStream | null,
+    webcamMediaStream: null as MediaStream | null,
     /** Audio stream for streaming data. */
-    audioStream: null as MediaStream | null,
+    microphoneMediaStream: null as MediaStream | null,
     /** Audio Gain to be applied on media stream. */
     microphoneGainNode: null as GainNode | null,
     /** Local screen container. */
-    localScreen: null as MediaStream | null,
+    screenshareMediaStream: null as MediaStream | null,
     /** Producer using camera to get Video. */
     camVideoProducer: null as ProducerExtension | null,
     /** Producer using camera to get Audio. */
     camAudioProducer: null as ProducerExtension | null,
+    screenshareEnabled: false,
     /** Producer using screen to get Video. */
     screenVideoProducer: null as ProducerExtension | null,
     /** Producer using screen to get Audio. */
     screenAudioProducer: null as ProducerExtension | null,
-    /** Indication of whether the video while screen sharing is paused or not. */
-    screenShareVideoPaused: false,
     /** Indication of whether the audio while screen sharing is paused or not. */
     screenShareAudioPaused: false
   },
@@ -73,7 +73,7 @@ export const MediaStreamState = defineState({
     const state = useMutableState(MediaStreamState)
 
     useEffect(() => {
-      if (!state.videoEnabled.value) return
+      if (!state.webcamEnabled.value) return
 
       const { maxResolution } = config.client.mediaSettings!.video
       const constraints = {
@@ -83,39 +83,90 @@ export const MediaStreamState = defineState({
       logger.info('Getting video stream %o', constraints)
 
       const abortController = new AbortController()
-      navigator.mediaDevices.getUserMedia(constraints).then((videoStream) => {
-        if (abortController.signal.aborted) return
-        state.videoStream.set(videoStream)
-      })
+      navigator.mediaDevices
+        .getUserMedia(constraints)
+        .then((videoStream) => {
+          if (abortController.signal.aborted) {
+            videoStream.getVideoTracks().forEach((track) => track.stop())
+            return
+          }
+          state.webcamMediaStream.set(videoStream)
+        })
+        .catch((err) => {
+          logger.error(err)
+        })
+
       return () => {
         abortController.abort()
-        const stream = state.videoStream.value
+        const stream = state.webcamMediaStream.value
         if (!stream) return
 
         stream.getVideoTracks().forEach((track) => track.stop())
-        state.videoStream.set(null)
+        state.webcamMediaStream.set(null)
       }
-    }, [state.videoEnabled.value])
+    }, [state.webcamEnabled.value])
 
     useEffect(() => {
-      if (!state.audioEnabled.value) return
+      if (!state.microphoneEnabled.value) return
 
       logger.info('Getting audio stream %o', VideoConstants.localAudioConstraints)
 
       const abortController = new AbortController()
-      navigator.mediaDevices.getUserMedia(VideoConstants.localAudioConstraints).then((audioStream) => {
-        if (abortController.signal.aborted) return
-        state.audioStream.set(audioStream)
-      })
+      navigator.mediaDevices
+        .getUserMedia(VideoConstants.localAudioConstraints)
+        .then((audioStream) => {
+          if (abortController.signal.aborted) {
+            audioStream.getAudioTracks().forEach((track) => track.stop())
+            return
+          }
+          state.microphoneMediaStream.set(audioStream)
+        })
+        .catch((err) => {
+          logger.error(err)
+        })
+
       return () => {
         abortController.abort()
-        const stream = state.audioStream.value
+        const stream = state.microphoneMediaStream.value
         if (!stream) return
 
         stream.getAudioTracks().forEach((track) => track.stop())
-        state.audioStream.set(null)
+        state.microphoneMediaStream.set(null)
       }
-    }, [state.audioEnabled.value])
+    }, [state.microphoneEnabled.value])
+
+    useEffect(() => {
+      if (!state.screenshareEnabled.value) return
+
+      const abortController = new AbortController()
+
+      navigator.mediaDevices
+        .getDisplayMedia({
+          video: true,
+          audio: true
+        })
+        .then((stream) => {
+          if (abortController.signal.aborted) {
+            stream.getVideoTracks().forEach((track) => track.stop())
+            stream.getAudioTracks().forEach((track) => track.stop())
+            return
+          }
+          state.screenshareMediaStream.set(stream)
+        })
+        .catch((err) => {
+          logger.error(err)
+        })
+
+      return () => {
+        abortController.abort()
+        const stream = state.screenshareMediaStream.value
+        if (!stream) return
+
+        stream.getVideoTracks().forEach((track) => track.stop())
+        stream.getAudioTracks().forEach((track) => track.stop())
+        state.screenshareMediaStream.set(null)
+      }
+    }, [state.screenshareEnabled.value])
   }
 })
 
@@ -158,7 +209,7 @@ export const MediaStreamService = {
         const newVideoStream = await navigator.mediaDevices.getUserMedia({
           video: { deviceId: { exact: vidDevices[index].deviceId } }
         })
-        state.videoStream.set(newVideoStream)
+        state.webcamMediaStream.set(newVideoStream)
 
         if (!state.camVideoProducer.value) return
 
@@ -186,7 +237,7 @@ export const MediaStreamService = {
       const { deviceId } = state.camVideoProducer.value.track!.getSettings()
       if (deviceId) return deviceId
       // Firefox doesn't have deviceId in MediaTrackSettings object
-      const track = state.videoStream.value!.getVideoTracks()[0]
+      const track = state.webcamMediaStream.value!.getVideoTracks()[0]
       if (!track) return null
       const devices = await navigator.mediaDevices.enumerateDevices()
       const deviceInfo = devices.find((d) => d.label.startsWith(track.label))!
@@ -198,7 +249,7 @@ export const MediaStreamService = {
       const { deviceId } = state.camAudioProducer.value.track!.getSettings()
       if (deviceId) return deviceId
       // Firefox doesn't have deviceId in MediaTrackSettings object
-      const track = state.audioStream.value!.getAudioTracks()[0]
+      const track = state.microphoneMediaStream.value!.getAudioTracks()[0]
       if (!track) return null
       const devices = await navigator.mediaDevices.enumerateDevices()
       const deviceInfo = devices.find((d) => d.label.startsWith(track.label))!

@@ -222,13 +222,11 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     videoElement.muted = true
     videoElement.setAttribute('playsinline', 'true')
 
-    console.log({videoStream})
     if (!videoStream) return
 
     videoDisplayReady.set(false)
     if (isSelf) peerMediaChannelState.videoProducerPaused.set(false)
     const originalTrackEnabledInterval = setInterval(() => {
-      console.log({videoStreamEnabled: videoStream.track!.enabled})
       if (videoStream.track!.enabled) {
         clearInterval(originalTrackEnabledInterval)
 
@@ -249,7 +247,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
     return () => {
       videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-      console.log('video track clones stopped')
     }
   }, [videoStream])
 
@@ -662,7 +659,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                   />
                 </Tooltip>
               )}
-              {audioStream && !audioProducerPaused ? (
+              {audioStream && (
                 <Tooltip
                   title={
                     (isSelf && audioStream?.paused === false
@@ -691,7 +688,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                     }
                   />
                 </Tooltip>
-              ) : null}
+              )}
               <Tooltip title={t('user:person.openPictureInPicture') as string}>
                 <IconButton
                   size="large"
