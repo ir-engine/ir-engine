@@ -115,7 +115,7 @@ const createBatch = (doc: Document, batchExtension: EXTMeshGPUInstancing, mesh: 
   })
 }
 
-function pruneUnusedNodes(nodes: Node[], logger) {
+const pruneUnusedNodes = (nodes: Node[], logger) => {
   let node: Node | undefined
   let unusedNodes = 0
   while ((node = nodes.pop())) {
@@ -138,7 +138,7 @@ function pruneUnusedNodes(nodes: Node[], logger) {
   }
 }
 
-function removeUVsOnUntexturedMeshes(document: Document) {
+const removeUVsOnUntexturedMeshes = (document: Document) => {
   document
     .getRoot()
     .listMeshes()
@@ -247,7 +247,7 @@ const myInstance = async (document: Document) => {
     })
 }
 
-function unInstanceSingletons(document: Document) {
+const unInstanceSingletons = (document: Document) => {
   const root = document.getRoot()
   root
     .listNodes()
@@ -258,14 +258,7 @@ function unInstanceSingletons(document: Document) {
     })
 }
 
-export type ModelTransformArguments = {
-  src: string
-  dst: string
-  resourceUri: string
-  parms: ModelTransformParameters
-}
-
-export async function combineMaterials(document: Document) {
+export const combineMaterials = async (document: Document) => {
   const root = document.getRoot()
   const cache: Material[] = []
   console.log('combining materials...')
@@ -300,7 +293,7 @@ export async function combineMaterials(document: Document) {
   })
 }
 
-export async function combineMeshes(document: Document) {
+export const combineMeshes = async (document: Document) => {
   const root = document.getRoot()
   const prims = root.listMeshes().flatMap((mesh) => mesh.listPrimitives())
   const matMap = new Map<Material, Primitive[]>()
@@ -343,7 +336,7 @@ export async function combineMeshes(document: Document) {
   })
 }
 
-function hashBuffer(buffer: Uint8Array): string {
+const hashBuffer = (buffer: Uint8Array): string => {
   const hash = createHash('sha256')
   hash.update(buffer)
   return hash.digest('hex')
@@ -359,68 +352,42 @@ enum Status {
 
 export { Status as ModelTransformStatus }
 
-export async function transformModel(
+const mimeToFileType = (mimeType) => {
+  switch (mimeType) {
+    case 'image/jpg':
+    case 'image/jpeg':
+      return 'jpg'
+    case 'image/png':
+      return 'png'
+    case 'image/ktx2':
+      return 'ktx2'
+    default:
+      return null
+  }
+}
+
+const fileTypeToMime = (fileType) => {
+  switch (fileType) {
+    case 'jpg':
+      return 'image/jpg'
+    case 'png':
+      return 'image/png'
+    case 'ktx2':
+      return 'image/ktx2'
+    default:
+      return null
+  }
+}
+
+export const transformModel = async (
   args: ModelTransformParameters,
   onMetadata: (key: string, data: any) => void = (key, data) => {},
   onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
-): Promise<string> {
-  const parms = args
-
-  /**
-   *
-   * @param {string} mimeType
-   * @returns
-   */
-  const mimeToFileType = (mimeType) => {
-    switch (mimeType) {
-      case 'image/jpg':
-      case 'image/jpeg':
-        return 'jpg'
-      case 'image/png':
-        return 'png'
-      case 'image/ktx2':
-        return 'ktx2'
-      default:
-        return null
-    }
-  }
-
-  const fileTypeToMime = (fileType) => {
-    switch (fileType) {
-      case 'jpg':
-        return 'image/jpg'
-      case 'png':
-        return 'image/png'
-      case 'ktx2':
-        return 'image/ktx2'
-      default:
-        return null
-    }
-  }
-
+): Promise<string> => {
   const resourceName = baseName(args.src).slice(0, baseName(args.src).lastIndexOf('.'))
   const resourcePath = pathJoin(LoaderUtils.extractUrlBase(args.src), args.resourceUri || resourceName + '_resources')
 
-  const toValidFilename = (name: string) => {
-    const result = name.replace(/[\s]/g, '-')
-    return result
-  }
-  let pathIndex = 0
-  const toPath = (element: Texture | glBuffer, index?: number) => {
-    if (element instanceof Texture) {
-      if (element.getURI()) {
-        return baseName(element.getURI())
-      } else {
-        pathIndex++
-        return `${toValidFilename(element.getName())}-${pathIndex}-.${mimeToFileType(element.getMimeType())}`
-      }
-    } else if (element instanceof glBuffer) {
-      return `buffer-${index}-${Date.now()}.bin`
-    } else throw new Error('invalid element to find path')
-  }
-
   const fileUploadPath = (fUploadPath: string) => {
-    const relativePath = fUploadPath.replace(config.client.fileServer, '')
     const pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
     const [_, projectName, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
@@ -442,64 +409,12 @@ export async function transformModel(
 
   const { io } = await ModelTransformLoader()
 
-  let initialSrc = args.src
-  /* Meshopt Compression */
-  /*
-  if (args.meshoptCompression.enabled) {
-    const segments = args.src.split('.')
-    const ext = segments.pop()
-    const base = segments.join('.')
-    initialSrc = `${base}-meshopt.${ext}`
-    let packArgs = `-i ${args.src} -o ${initialSrc} -noq `
-    if (!args.meshoptCompression.options.mergeMaterials) {
-      packArgs += `-km `
-    }
-    if (!args.meshoptCompression.options.mergeNodes) {
-      packArgs += `-kn `
-    }
-    if (args.meshoptCompression.options.compression) {
-      packArgs += `-cc `
-    }
-    execFileSync(
-      GLTF_PACK,
-      packArgs.split(/\s+/).filter((x) => !!x)
-    )
-  }
-  */
-  /* /Meshopt Compression */
-
   onProgress?.(0, Status.Initializing)
 
-  const document = await io.read(initialSrc)
+  const document = await io.read(args.src)
   const root = document.getRoot()
 
   await MeshoptEncoder.ready
-  /*
-  let primitives = root.listMeshes()
-    .flatMap((mesh) => mesh.listPrimitives())
-  primitives = primitives.filter((primitive, index) => 
-    primitives.findIndex((primitive2) => primitive2.equals(primitive)) === index
-  )
-  for(const primitive of primitives) {
-    //STEP 1: Pre-process the mesh to improve index and vertex locality which increases compression ratio
-    const indices = new Uint32Array(primitive.getIndices()!.getArray()!)
-    const [remap, unique] = MeshoptEncoder.reorderMesh(indices, true, true)
-    const attributes = primitive.listAttributes()
-    for (const attribute of attributes) {
-      const oldAttributeArray = attribute.getArray()!
-      const reorderedAttributeArray = new Uint8Array(unique)
-      for (let i = 0; i < unique; i++) {
-        reorderedAttributeArray[i] = oldAttributeArray[remap[i]]
-      }
-      attribute.setArray(reorderedAttributeArray)
-      //STEP 2: Quantize data, either manually using integer or normalized integer format as a target, or using filter encoders
-  
-      //STEP 3: Encode data
-
-    }
-    
-  }
-  */
 
   if (args.meshoptCompression.enabled) {
     const meshoptCompression = document.createExtension(EXTMeshoptCompression).setRequired(true)
@@ -589,7 +504,7 @@ export async function transformModel(
   const totalProgressSteps = numTextures + 3 // init + [textures] + finalize + write
 
   /* PROCESS TEXTURES */
-  if (parms.textureFormat !== 'default') {
+  if (args.textureFormat !== 'default') {
     let ktx2Encoder: KTX2Encoder | null = null
     for (let i = 0; i < numTextures; i++) {
       const texture = textures[i]
@@ -603,7 +518,7 @@ export async function transformModel(
       const oldSize = texture.getSize()
       if (!oldSize) continue
       const resourceId = texture.getExtension<EEResourceID>(EEResourceIDExtension.EXTENSION_NAME)?.resourceId
-      const resourceParms = parms.resources.images.find(
+      const resourceParms = args.resources.images.find(
         (resource) => resource.enabled && resource.resourceId === resourceId
       )
       const mergedParms = {
@@ -663,87 +578,6 @@ export async function transformModel(
       } else {
         console.log('skipping texture ' + texture.getURI())
       }
-
-      /*
-
-      Old command line processing for image resizing
-
-      const fileName = toPath(texture)
-      const oldPath = toTmp(fileName)
-      const resizeExtension = mergedParms.textureFormat === 'ktx2' ? 'png' : mergedParms.textureFormat
-      const resizedPath = oldPath.replace(
-        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-        `-resized.${resizeExtension}`
-      )
-      if (!fs.existsSync(tmpDir)) {
-        fs.mkdirSync(tmpDir)
-      }
-      fs.writeFileSync(oldPath, oldImg!)
-      const xResizedName = fileName.replace(
-        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-        `-resized.${mergedParms.textureFormat}`
-      )
-      const nuFileName = fileName.replace(
-        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-        `-transformed.${mergedParms.textureFormat}`
-      )
-      const nuPath = `${tmpDir}/${nuFileName}`
-
-      try {
-        if (path.extname(oldPath) === '.ktx2') {
-          console.warn('cannot resize ktx2 compressed image at ' + oldPath)
-          continue
-        }
-        const img = await sharp(oldPath)
-        const metadata = await img.metadata()
-        let resizedDimension = 2
-        while (
-          resizedDimension * 2 <=
-          Math.min(mergedParms.maxTextureSize, Math.max(metadata.width, metadata.height))
-        ) {
-          resizedDimension *= 2
-        }
-        //resize the image to be no larger than the max texture size
-        await img
-          .resize(resizedDimension, resizedDimension, {
-            fit: 'fill'
-          })
-          .toFormat(resizeExtension)
-          .toFile(resizedPath.replace(/\.[\w\d]+$/, `.${resizeExtension}`))
-        console.log('handled image file ' + oldPath)
-      } catch (e) {
-        console.error('error while handling image ' + oldPath)
-        console.error(e)
-      }*/
-
-      /*
-      if (mergedParms.textureFormat === 'ktx2') {
-        //KTX2 Basisu Compression
-        document.createExtension(KHRTextureBasisu).setRequired(true)
-
-        
-        const basisArgs = `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${
-          mergedParms.textureCompressionType === 'uastc' ? '-uastc' : ''
-        } ${mergedParms.textureCompressionType === 'uastc' ? '-uastc_level ' + mergedParms.uastcLevel : ''} ${
-          mergedParms.textureCompressionType === 'etc1' ? '-comp_level ' + mergedParms.compLevel : ''
-        } ${
-          mergedParms.textureCompressionType === 'etc1' && mergedParms.maxCodebooks
-            ? '-max_endpoints 16128 -max_selectors 16128'
-            : ''
-        } ${mergedParms.linear ? '-linear' : ''} ${mergedParms.flipY ? '-y_flip' : ''} ${
-          mergedParms.mipmap ? '-mipmap' : ''
-        }`
-          .split(/\s+/)
-          .filter((x) => !!x)
-        execFileSync(BASIS_U, basisArgs)
-        execFileSync('mv', [`${serverDir}/${xResizedName}`, nuPath])
-        console.log('loaded ktx2 image ' + nuPath)
-      } else {
-        execFileSync('mv', [resizedPath, nuPath])
-      }
-      texture.setImage(fs.readFileSync(nuPath))
-      texture.setMimeType(fileTypeToMime(mergedParms.textureFormat) ?? texture.getMimeType())
-      */
     }
   }
   if (eeMaterialExtension) {
@@ -762,35 +596,18 @@ export async function transformModel(
   onProgress?.((totalProgressSteps - 2) / totalProgressSteps, Status.Finalizing)
 
   let result
-  if (['glb', 'vrm'].includes(parms.modelFormat)) {
+  const { modelFormat } = args
+  if (['glb', 'vrm'].includes(modelFormat)) {
     const data = await io.writeBinary(document)
-    let finalPath = args.dst.replace(/\.[^.]*$/, `.${parms.modelFormat}`)
-    if (!finalPath.endsWith(`.${parms.modelFormat}`)) {
-      finalPath += `.${parms.modelFormat}`
+    let finalPath = args.dst.replace(/\.[^.]*$/, `.${modelFormat}`)
+    if (!finalPath.endsWith(`.${modelFormat}`)) {
+      finalPath += `.${modelFormat}`
     }
     await doUpload(data, finalPath)
 
-    /*
-    const uploadArgs = {
-      path: savePath,
-      fileName,
-      body: data,
-      contentType: (await getContentType(args.dst)) || ''
-    }
-    result = await API.instance.service('file-browser').patch(null, uploadArgs)
-    */
-    /*dispatchAction(
-      BufferHandlerExtension.saveBuffer({
-        {
-          name: fileName,
-          byteLength: data.byteLength,
-
-        }
-      })
-    )*/
     result = finalPath
     console.log('Handled glb file')
-  } else if (parms.modelFormat === 'gltf') {
+  } else if (modelFormat === 'gltf') {
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
         async (elements) =>
@@ -852,20 +669,6 @@ export async function transformModel(
       resources[localPath] = resources[uri]
       delete resources[uri]
     })
-    /*
-    const doUpload = async (uri, data) => {
-      const [savePath, fileName] = fileUploadPath(uri)
-      const args = {
-        path: savePath,
-        fileName,
-        body: data,
-        contentType: (await getContentType(uri)) || ''
-      }
-      return API.instance.service(fileBrowserPath).patch(null, args)
-    }
-    await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
-    result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
-    */
 
     await Promise.all(
       Object.entries(resources).map(async ([uri, data]) => {
