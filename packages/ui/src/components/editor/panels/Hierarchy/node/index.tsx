@@ -48,10 +48,9 @@ import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { UUIDComponent } from '@ir-engine/ecs'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import { HierarchyTreeNodeType } from '@ir-engine/editor/src/components/hierarchy/HierarchyTreeWalker'
-import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
-import { DnDFileType, FileDataType } from '@ir-engine/editor/src/panels/files/helpers'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -359,6 +358,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
                     autoFocus
+                    maxLength={64}
                   />
                 </div>
               ) : (

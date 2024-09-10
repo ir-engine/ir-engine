@@ -27,9 +27,8 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlinePanTool } from 'react-icons/md'
 
-import { getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import {
   commitProperties,
   commitProperty,
@@ -63,13 +62,12 @@ type OptionsType = Array<{
   value: string
 }>
 
-const callbackQuery = defineQuery([CallbackComponent])
-
 export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const targets = useState<OptionsType>([
     { label: 'Self', value: getComponent(props.entity, UUIDComponent), callbacks: [] }
   ])
+  const callbackQuery = useQuery([CallbackComponent])
 
   const interactableComponent = useComponent(props.entity, InteractableComponent)
 
@@ -96,7 +94,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
         callbacks: []
       })
     }
-    for (const entity of callbackQuery()) {
+    for (const entity of callbackQuery) {
       if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
@@ -108,7 +106,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       })
     }
     targets.set(options)
-  }, [])
+  }, [callbackQuery])
 
   const updateLabel = (value: string) => {
     commitProperty(InteractableComponent, 'label')(value)

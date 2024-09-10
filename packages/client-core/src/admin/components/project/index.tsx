@@ -32,6 +32,7 @@ import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 
+import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import ProjectTable from './ProjectTable'
@@ -101,7 +102,7 @@ export default function AdminProject() {
             tabLabel: t('admin:components.common.all'),
             rightComponent: <ProjectTopMenu />,
             bottomComponent: <ProjectTable search={search.query.value} />,
-            search: search
+            topComponent: <SearchBar search={search} />
           },
           {
             title: t('admin:components.buildStatus.buildStatus'),

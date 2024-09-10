@@ -56,6 +56,7 @@ export interface SelectProps<T extends OptionValueType> {
   errorBorder?: boolean
   searchDisabled?: boolean
   inputContainerClassName?: string
+  endComponent?: JSX.Element
 }
 
 const Select = <T extends OptionValueType>({
@@ -75,7 +76,8 @@ const Select = <T extends OptionValueType>({
   inputClassName,
   errorBorder,
   searchDisabled,
-  inputContainerClassName
+  inputContainerClassName,
+  endComponent
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -155,17 +157,19 @@ const Select = <T extends OptionValueType>({
         onClick={toggleDropdown}
         onMouseDown={handleMouseDown}
         endComponent={
-          <MdOutlineKeyboardArrowDown
-            size="1.5em"
-            className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
-              disabled ? 'opacity-50' : ''
-            }`}
-            onClick={() => {
-              if (!disabled) {
-                toggleDropdown()
-              }
-            }}
-          />
+          endComponent ?? (
+            <MdOutlineKeyboardArrowDown
+              size="1.5em"
+              className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
+                disabled ? 'opacity-50' : ''
+              }`}
+              onClick={() => {
+                if (!disabled) {
+                  toggleDropdown()
+                }
+              }}
+            />
+          )
         }
         containerClassName={inputContainerClassName}
       />

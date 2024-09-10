@@ -142,7 +142,6 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
 
     const locationData: LocationData = {
       name: name.value,
-      slugifiedName: '',
       sceneId: scene.value,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {

@@ -54,8 +54,8 @@ import {
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-
-import styles from './styles.module.scss'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const renderEntityTreeRoots = () => {
   return Object.fromEntries(
@@ -180,33 +180,31 @@ export const EntityDebug = () => {
   )
 
   return (
-    <>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.scenes')}</h1>
+    <div className="m-1 bg-neutral-600 p-1">
+      <div className="my-1">
+        <Text>{t('common:debug.scenes')}</Text>
         <JSONTree data={entityTree.value} postprocessValue={(v: any) => v?.value ?? v} />
       </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entities')}</h1>
-        <input
-          style={{ color: 'black', backgroundColor: 'white' }}
-          type="text"
+      <div className="my-1">
+        <Text>{t('common:debug.entities')}</Text>
+        <Input
+          containerClassName="my-0.5"
           placeholder="Search..."
           value={entitySearch.value}
-          onChange={(e) => entitySearch.set(e.target.value)}
+          onChange={(event) => entitySearch.set(event.target.value)}
         />
-        <input
-          style={{ color: 'black', backgroundColor: 'white' }}
-          type="text"
+        <Input
+          containerClassName="my-0.5"
           placeholder="Query..."
           value={entityQuery.value}
           onChange={(e) => entityQuery.set(e.target.value)}
         />
         <JSONTree data={namedEntities.get(NO_PROXY)} />
       </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.erroredEntities')}</h1>
+      <div className="my-1">
+        <Text>{t('common:debug.erroredEntities')}</Text>
         <JSONTree data={erroredComponents.get(NO_PROXY)} />
       </div>
-    </>
+    </div>
   )
 }
