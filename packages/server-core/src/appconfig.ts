@@ -37,6 +37,7 @@ import { githubRepoAccessWebhookPath } from '@ir-engine/common/src/schemas/user/
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
+import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import multiLogger from './ServerLogger'
 import {
   APPLE_SCOPES,
@@ -256,9 +257,12 @@ type WhiteListItem = {
 const authentication = {
   service: identityProviderPath,
   entity: identityProviderPath,
-  secret: process.env.AUTH_SECRET!,
+  secret: process.env.AUTH_SECRET!.split(String.raw`\n`).join('\n'),
   authStrategies: ['jwt', 'apple', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
+  jwtAlgorithm: process.env.JWT_ALGORITHM,
+  jwtPublicKey: process.env.JWT_PUBLIC_KEY,
   jwtOptions: {
+    algorithm: process.env.JWT_ALGORITHM || 'HS256',
     expiresIn: '30 days'
   },
   bearerToken: {
@@ -275,7 +279,8 @@ const authentication = {
     { path: routePath, methods: ['find'] },
     { path: acceptInvitePath, methods: ['get'] },
     { path: discordBotAuthPath, methods: ['find'] },
-    { path: loginPath, methods: ['get'] }
+    { path: loginPath, methods: ['get'] },
+    { path: jwtPublicKeyPath, methods: ['find'] }
   ] as (string | WhiteListItem)[],
   callback: {
     apple: process.env.APPLE_CALLBACK_URL || `${client.url}/auth/oauth/apple`,
