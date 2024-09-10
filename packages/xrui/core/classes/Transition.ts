@@ -129,8 +129,7 @@ export const Transition = {
 
     // Remove samples older than the duration
     const cutoffTime = timestamp - data.duration.value
-    const filteredBuffer = data.buffer.value.filter((sample) => sample.timestamp >= cutoffTime)
-    data.buffer.set(filteredBuffer)
+    data.buffer.set((b) => b.filter((sample) => sample.timestamp >= cutoffTime))
 
     // If buffer exceeds max size, resample
     if (data.buffer.length > data.maxBufferSize.value) {

@@ -32,11 +32,10 @@ import {
   useExecute,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
 
@@ -103,31 +102,31 @@ export const LayoutComponent = defineComponent({
         rotation: new Quaternion(),
         rotationOrigin: new Vector3(),
         size: new Vector3(),
-        sizeMode: { x: 'proportional', y: 'proportional', z: 'proportional' } as SizeMode
+        sizeMode: { x: 'literal', y: 'literal', z: 'literal' } as SizeMode
       }
     }
   },
 
   reactor: () => {
     const entity = useEntityContext()
-    const xrLayout = useComponent(entity, LayoutComponent)
+    const layout = useComponent(entity, LayoutComponent)
     const parentEntity = useAncestorWithComponents(entity, [LayoutComponent])
     const parentLayout = useOptionalComponent(parentEntity, LayoutComponent)
     const transform = useComponent(entity, TransformComponent)
 
     // Compute effective properties
-    useEffect(() => {
-      if (!xrLayout) return
+    useImmediateEffect(() => {
+      if (!layout) return
 
       // Effective position (always absolute)
-      const position = xrLayout.position.value ?? xrLayout.defaults.position.value
-      xrLayout.effectivePosition.set(new Vector3(position.x, position.y, position.z))
+      const position = layout.position.value ?? layout.defaults.position.value
+      layout.effectivePosition.set(new Vector3(position.x, position.y, position.z))
 
       // Effective size (remains proportional or literal based on sizeMode)
-      const sizeMode = xrLayout.sizeMode.value ?? xrLayout.defaults.sizeMode.value
-      const size = xrLayout.size.value ?? xrLayout.defaults.size.value
+      const sizeMode = layout.sizeMode.value ?? layout.defaults.sizeMode.value
+      const size = layout.size.value ?? layout.defaults.size.value
       const parentSize = parentLayout?.effectiveSize.value ?? Vector3_Zero
-      xrLayout.effectiveSize.set(
+      layout.effectiveSize.set(
         new Vector3(
           sizeMode.x === 'proportional' ? size.x * parentSize.x : size.x,
           sizeMode.y === 'proportional' ? size.y * parentSize.y : size.y,
@@ -136,54 +135,46 @@ export const LayoutComponent = defineComponent({
       )
 
       // Effective position origin
-      const positionOrigin = xrLayout.positionOrigin.value ?? xrLayout.defaults.positionOrigin.value
-      xrLayout.effectivePositionOrigin.set(new Vector3(positionOrigin.x, positionOrigin.y, positionOrigin.z))
+      const positionOrigin = layout.positionOrigin.value ?? layout.defaults.positionOrigin.value
+      layout.effectivePositionOrigin.set(new Vector3(positionOrigin.x, positionOrigin.y, positionOrigin.z))
 
       // Effective alignment origin
-      const alignmentOrigin = xrLayout.alignmentOrigin.value ?? xrLayout.defaults.alignmentOrigin.value
-      xrLayout.effectiveAlignmentOrigin.set(new Vector3(alignmentOrigin.x, alignmentOrigin.y, alignmentOrigin.z))
+      const alignmentOrigin = layout.alignmentOrigin.value ?? layout.defaults.alignmentOrigin.value
+      layout.effectiveAlignmentOrigin.set(new Vector3(alignmentOrigin.x, alignmentOrigin.y, alignmentOrigin.z))
 
       // Effective rotation
-      const rotation = xrLayout.rotation.value ?? xrLayout.defaults.rotation.value
-      xrLayout.effectiveRotation.set(new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w))
+      const rotation = layout.rotation.value ?? layout.defaults.rotation.value
+      layout.effectiveRotation.set(new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w))
 
       // Effective rotation origin
-      const rotationOrigin = xrLayout.rotationOrigin.value ?? xrLayout.defaults.rotationOrigin.value
-      xrLayout.effectiveRotationOrigin.set(new Vector3(rotationOrigin.x, rotationOrigin.y, rotationOrigin.z))
+      const rotationOrigin = layout.rotationOrigin.value ?? layout.defaults.rotationOrigin.value
+      layout.effectiveRotationOrigin.set(new Vector3(rotationOrigin.x, rotationOrigin.y, rotationOrigin.z))
     }, [
-      xrLayout?.position,
-      xrLayout?.size,
-      xrLayout?.sizeMode,
-      parentLayout?.effectiveSize,
-      xrLayout?.positionOrigin,
-      xrLayout?.alignmentOrigin,
-      xrLayout?.rotation,
-      xrLayout?.rotationOrigin
+      layout?.position,
+      layout?.size,
+      layout?.sizeMode,
+      parentLayout?.effectiveSize.value,
+      layout?.positionOrigin,
+      layout?.alignmentOrigin,
+      layout?.rotation,
+      layout?.rotationOrigin
     ])
 
     // apply new target to transitions when effective properties change
-    useEffect(() => {
-      if (!xrLayout) return
+    useImmediateEffect(() => {
+      if (!layout) return
       const simulationTime = getState(ECSState).simulationTime
-      Transition.applyNewTarget(xrLayout.effectivePosition.value, simulationTime, xrLayout.positionTransition)
-      Transition.applyNewTarget(
-        xrLayout.effectivePositionOrigin.value,
-        simulationTime,
-        xrLayout.positionOriginTransition
-      )
-      Transition.applyNewTarget(xrLayout.effectiveAlignmentOrigin.value, simulationTime, xrLayout.alignmentTransition)
-      Transition.applyNewTarget(xrLayout.effectiveRotation.value, simulationTime, xrLayout.rotationTransition)
-      Transition.applyNewTarget(
-        xrLayout.effectiveRotationOrigin.value,
-        simulationTime,
-        xrLayout.rotationOriginTransition
-      )
+      Transition.applyNewTarget(layout.effectivePosition.value, simulationTime, layout.positionTransition)
+      Transition.applyNewTarget(layout.effectivePositionOrigin.value, simulationTime, layout.positionOriginTransition)
+      Transition.applyNewTarget(layout.effectiveAlignmentOrigin.value, simulationTime, layout.alignmentTransition)
+      Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
+      Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
     }, [
-      xrLayout?.positionTransition,
-      xrLayout?.positionOriginTransition,
-      xrLayout?.alignmentTransition,
-      xrLayout?.rotationTransition,
-      xrLayout?.rotationOriginTransition
+      layout?.positionTransition,
+      layout?.positionOriginTransition,
+      layout?.alignmentTransition,
+      layout?.rotationTransition,
+      layout?.rotationOriginTransition
     ])
 
     // Reusable objects for calculations
@@ -197,21 +188,21 @@ export const LayoutComponent = defineComponent({
     // Update transitions every frame
     useExecute(
       () => {
-        if (!xrLayout || !transform) return
+        if (!layout || !transform) return
         const frameTime = getState(ECSState).frameTime
 
-        Transition.computeCurrentValue(frameTime, xrLayout.positionTransition.value as TransitionData<Vector3>)
-        Transition.computeCurrentValue(frameTime, xrLayout.positionOriginTransition.value as TransitionData<Vector3>)
-        Transition.computeCurrentValue(frameTime, xrLayout.alignmentTransition.value as TransitionData<Vector3>)
-        Transition.computeCurrentValue(frameTime, xrLayout.rotationTransition.value as TransitionData<Quaternion>)
-        Transition.computeCurrentValue(frameTime, xrLayout.rotationOriginTransition.value as TransitionData<Vector3>)
+        Transition.computeCurrentValue(frameTime, layout.positionTransition.value as TransitionData<Vector3>)
+        Transition.computeCurrentValue(frameTime, layout.positionOriginTransition.value as TransitionData<Vector3>)
+        Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
+        Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
+        Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
         // The current values are now stored in the TransitionData.current property
-        const position = xrLayout.positionTransition.value.current
-        const positionOrigin = xrLayout.positionOriginTransition.value.current
-        const alignmentOrigin = xrLayout.alignmentTransition.value.current
-        const rotation = xrLayout.rotationTransition.value.current
-        const rotationOrigin = xrLayout.rotationOriginTransition.value.current
-        const size = xrLayout.effectiveSize.value
+        const position = layout.positionTransition.value.current
+        const positionOrigin = layout.positionOriginTransition.value.current
+        const alignmentOrigin = layout.alignmentTransition.value.current
+        const rotation = layout.rotationTransition.value.current
+        const rotationOrigin = layout.rotationOriginTransition.value.current
+        const size = layout.effectiveSize.value
 
         // Compute the final position
         if (parentLayout) {

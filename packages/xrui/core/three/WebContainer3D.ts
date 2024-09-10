@@ -307,20 +307,4 @@ export class WebContainer3D extends Object3D {
     this.removeFromParent()
     this.rootLayer.dispose()
   }
-
-  /**
-   * Export the cache data for this
-   */
-  // async downloadCache(filter?: (layer: WebLayer3D) => boolean) {
-  //   await this.manager.saveStore()
-  //   const states = new Set<string>()
-  //   this.rootLayer.traverseLayersPreOrder((layer) => {
-  //     if (filter) {
-  //       if (!filter(layer)) return
-  //     }
-  //     for (const hash of layer.allStateHashes) states.add(hash)
-  //   })
-  //   const blob = await this.manager.exportCache(Array.from(states))
-  //   downloadBlob(blob, 'web.' + this.rootLayer.element.id + '.cache')
-  // }
 }

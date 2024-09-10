@@ -77,7 +77,7 @@ describe('LayoutComponent', () => {
     const parentEntity = createEntity()
     setComponent(parentEntity, LayoutComponent)
     const parentLayout = getMutableComponent(parentEntity, LayoutComponent)
-    parentLayout.effectiveSize.set(new Vector3(1000, 1000, 1000))
+    parentLayout.size.set(new Vector3(1000, 1000, 1000))
 
     setComponent(entity, EntityTreeComponent, { parentEntity })
 
@@ -99,5 +99,74 @@ describe('LayoutComponent', () => {
     assert.deepStrictEqual(layout.effectivePosition, layout.defaults.position)
     assert.deepStrictEqual(layout.effectiveRotation, layout.defaults.rotation)
     assert.deepStrictEqual(layout.effectiveSize, layout.defaults.size)
+  })
+
+  it('should correctly compute nested layouts with different size modes and rotations', () => {
+    // Create a hierarchy of entities
+    const rootEntity = createEntity()
+    const childEntity = createEntity()
+    const grandchildEntity = createEntity()
+
+    // Set up components
+    setComponent(rootEntity, LayoutComponent)
+    setComponent(childEntity, LayoutComponent)
+    setComponent(grandchildEntity, LayoutComponent)
+
+    setComponent(rootEntity, TransformComponent)
+    setComponent(childEntity, TransformComponent)
+    setComponent(grandchildEntity, TransformComponent)
+
+    // Set up entity tree
+    setComponent(childEntity, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(grandchildEntity, EntityTreeComponent, { parentEntity: childEntity })
+
+    // Configure root layout
+    const rootLayout = getMutableComponent(rootEntity, LayoutComponent)
+    rootLayout.size.set(new Vector3(1000, 1000, 1000))
+    rootLayout.rotation.set(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 4))
+
+    // Configure child layout
+    const childLayout = getMutableComponent(childEntity, LayoutComponent)
+    childLayout.size.set(new Vector3(0.5, 200, 0.75))
+    childLayout.sizeMode.set({ x: 'proportional', y: 'literal', z: 'proportional' })
+    childLayout.position.set(new Vector3(100, 100, 100))
+
+    // Configure grandchild layout
+    const grandchildLayout = getMutableComponent(grandchildEntity, LayoutComponent)
+    grandchildLayout.size.set(new Vector3(50, 0.25, 50))
+    grandchildLayout.sizeMode.set({ x: 'literal', y: 'proportional', z: 'literal' })
+    grandchildLayout.position.set(new Vector3(25, 0, 25))
+    grandchildLayout.rotation.set(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 6))
+
+    // Run reactors
+    LayoutComponent.reactorMap.get(rootEntity)?.run()
+    LayoutComponent.reactorMap.get(childEntity)?.run()
+    LayoutComponent.reactorMap.get(grandchildEntity)?.run()
+
+    // Assert root layout
+    assert.deepStrictEqual(rootLayout.effectiveSize.value, new Vector3(1000, 1000, 1000))
+    assert.deepStrictEqual(
+      rootLayout.effectiveRotation.value,
+      new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 4)
+    )
+
+    // Assert child layout
+    assert.deepStrictEqual(childLayout.effectiveSize.value, new Vector3(500, 200, 750))
+    assert.deepStrictEqual(childLayout.effectivePosition.value, new Vector3(100, 100, 100))
+
+    // Assert grandchild layout
+    assert.deepStrictEqual(grandchildLayout.effectiveSize.value, new Vector3(50, 50, 50))
+    assert.deepStrictEqual(grandchildLayout.effectivePosition.value, new Vector3(25, 0, 25))
+
+    // Check if the final world position of the grandchild is correct
+    // This would require a method to compute world position based on the hierarchy
+    // For now, we'll just check if the components are set correctly
+    const grandchildTransform = getComponent(grandchildEntity, TransformComponent)
+    assert(grandchildTransform, 'Grandchild should have a TransformComponent')
+
+    // Clean up
+    removeEntity(grandchildEntity)
+    removeEntity(childEntity)
+    removeEntity(rootEntity)
   })
 })

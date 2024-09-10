@@ -25,6 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 export * from './core/WebLayer'
 export * from './core/WebRenderer'
+export * from './core/classes/Bounds'
+export * from './core/classes/Edges'
+export * from './core/classes/Transition'
 export * from './core/dom-utils'
 export * from './core/serialization-utils'
 export * from './core/three/WebContainer3D'

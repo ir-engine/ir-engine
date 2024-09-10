@@ -115,36 +115,53 @@ function createLayerSnapshot(node: Node): Pick<HTMLSnapshotData, 'clonedElement'
   if (node.nodeType === Node.ELEMENT_NODE && (node as Element).hasAttribute('xrui-layer')) {
     // Create an invisible placeholder that retains layout
     const placeholder = document.createElement('div')
-    const computedStyle = getComputedStyle(node as Element)
+    const placeholderStyle = placeholder.attributeStyleMap
+    const computedStyle = (node as Element).computedStyleMap()
 
     // Copy over essential styles to maintain layout integrity
-    placeholder.style.display = computedStyle.display
-    placeholder.style.position = computedStyle.position
-    placeholder.style.margin = computedStyle.margin
-    placeholder.style.padding = computedStyle.padding
-    placeholder.style.width = computedStyle.width
-    placeholder.style.height = computedStyle.height
-    placeholder.style.flex = computedStyle.flex
-    placeholder.style.gridArea = computedStyle.gridArea
-    placeholder.style.visibility = 'hidden' // Invisible but takes up space
-    placeholder.style.boxSizing = computedStyle.boxSizing
+    placeholderStyle.set('display', computedStyle.getAll('display'))
+    placeholderStyle.set('position', computedStyle.getAll('position'))
+    placeholderStyle.set('margin', computedStyle.getAll('margin'))
+    placeholderStyle.set('padding', computedStyle.getAll('padding'))
+    placeholderStyle.set('border', computedStyle.getAll('border'))
+    placeholderStyle.set('width', computedStyle.getAll('width'))
+    placeholderStyle.set('height', computedStyle.getAll('height'))
+    placeholderStyle.set('flex', computedStyle.getAll('flex'))
+    placeholderStyle.set('grid-area', computedStyle.getAll('grid-area'))
+    placeholderStyle.set('box-sizing', computedStyle.getAll('box-sizing'))
+    placeholderStyle.set('visibility', ['hidden']) // Invisible but takes up space
 
     // Special handling for Flexbox and Grid layouts
-    if (computedStyle.display.includes('flex') || computedStyle.display.includes('grid')) {
-      placeholder.style.minWidth = computedStyle.minWidth
-      placeholder.style.minHeight = computedStyle.minHeight
-      placeholder.style.maxWidth = computedStyle.maxWidth
-      placeholder.style.maxHeight = computedStyle.maxHeight
-      placeholder.style.alignSelf = computedStyle.alignSelf
-      placeholder.style.justifySelf = computedStyle.justifySelf
+    const displayStyle = computedStyle.get('display')?.toString() ?? ''
+    if (displayStyle.includes('flex') || displayStyle.includes('grid')) {
+      // Copy flex/grid specific properties
+      placeholderStyle.set('flex-grow', computedStyle.getAll('flex-grow'))
+      placeholderStyle.set('flex-shrink', computedStyle.getAll('flex-shrink'))
+      placeholderStyle.set('flex-basis', computedStyle.getAll('flex-basis'))
+      placeholderStyle.set('grid-column', computedStyle.getAll('grid-column'))
+      placeholderStyle.set('grid-row', computedStyle.getAll('grid-row'))
+      // Copy min/max dimensions
+      placeholderStyle.set('min-width', computedStyle.getAll('min-width'))
+      placeholderStyle.set('min-height', computedStyle.getAll('min-height'))
+      placeholderStyle.set('max-width', computedStyle.getAll('max-width'))
+      placeholderStyle.set('max-height', computedStyle.getAll('max-height'))
+      // Copy alignment properties
+      placeholderStyle.set('align-self', computedStyle.getAll('align-self'))
+      placeholderStyle.set('justify-self', computedStyle.getAll('justify-self'))
     }
 
     clone = placeholder
   } else if (node.nodeType === Node.ELEMENT_NODE) {
     const el = node as Element
     // Otherwise, clone the node and recursively clone its children
-    const computedStyle = getComputedStyle(el)
-    const fontFamily = computedStyle.fontFamily.split(',').map((f) => f.trim())
+    const computedStyle = el.computedStyleMap()
+    const fontFamilyValues = computedStyle.getAll('font-family')
+    const fontFamily = fontFamilyValues.flatMap((value) =>
+      value
+        .toString()
+        .split(',')
+        .map((f) => f.trim())
+    )
     for (const font of fontFamily) fonts.add(font)
     clone = node.cloneNode(false) // Shallow clone
     // remove xrui-attributes

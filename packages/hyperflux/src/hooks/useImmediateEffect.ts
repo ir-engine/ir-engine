@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DependencyList, EffectCallback, useLayoutEffect, useRef } from 'react'
+import { DependencyList, EffectCallback, useEffect, useLayoutEffect, useRef } from 'react'
 
 function depsDiff(deps1, deps2) {
   return !(
@@ -47,6 +47,8 @@ export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList
 
     cleanupRef.current = effect()
   }
+
+  useEffect(() => {}, deps)
 
   useLayoutEffect(() => {
     return () => {
