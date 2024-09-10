@@ -541,7 +541,6 @@ export const NetworkMediaConsumer = (props: { networkID: NetworkID; consumerID: 
       // TODO, for some reason this is triggering more often than it should, so check if it actually has been removed
       if (consumerObjectState.value || consumer.closed || consumer._closed) return
 
-      const network = getState(NetworkState).networks[networkID]
       consumer.close()
     }
   }, [consumerObjectState])

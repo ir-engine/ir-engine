@@ -86,8 +86,3 @@ export const removePeerMediaChannels = (peerID: PeerID) => {
   const state = getMutableState(PeerMediaChannelState)
   state[peerID].set(none)
 }
-
-export const clearPeerMediaChannels = () => {
-  console.log('clearPeerMediaChannels')
-  getMutableState(PeerMediaChannelState).set({})
-}

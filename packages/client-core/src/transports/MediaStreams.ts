@@ -24,21 +24,27 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { defineState, getMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { VideoConstants } from '@ir-engine/network'
 
 import config from '@ir-engine/common/src/config'
+import { useEffect } from 'react'
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
 
+/**
+ * @todo rename video to webcam
+ * @todo rename audio to microphone
+ */
+
 export const MediaStreamState = defineState({
   name: 'MediaStreamState',
   initial: {
-    /** Whether the video is paused or not. */
-    videoPaused: false,
-    /** Whether the audio is paused or not. */
-    audioPaused: false,
+    /** Whether the video is enabled or not. */
+    videoEnabled: false,
+    /** Whether the audio is enabled or not. */
+    audioEnabled: false,
     /** Whether the face tracking is enabled or not. */
     faceTracking: false,
     /** Video stream for streaming data. */
@@ -61,25 +67,59 @@ export const MediaStreamState = defineState({
     screenShareVideoPaused: false,
     /** Indication of whether the audio while screen sharing is paused or not. */
     screenShareAudioPaused: false
+  },
+
+  reactor: () => {
+    const state = useMutableState(MediaStreamState)
+
+    useEffect(() => {
+      if (!state.videoEnabled.value) return
+
+      const { maxResolution } = config.client.mediaSettings!.video
+      const constraints = {
+        video: VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
+      }
+
+      logger.info('Getting video stream %o', constraints)
+
+      const abortController = new AbortController()
+      navigator.mediaDevices.getUserMedia(constraints).then((videoStream) => {
+        if (abortController.signal.aborted) return
+        state.videoStream.set(videoStream)
+      })
+      return () => {
+        abortController.abort()
+        const stream = state.videoStream.value
+        if (!stream) return
+
+        stream.getVideoTracks().forEach((track) => track.stop())
+        state.videoStream.set(null)
+      }
+    }, [state.videoEnabled.value])
+
+    useEffect(() => {
+      if (!state.audioEnabled.value) return
+
+      logger.info('Getting audio stream %o', VideoConstants.localAudioConstraints)
+
+      const abortController = new AbortController()
+      navigator.mediaDevices.getUserMedia(VideoConstants.localAudioConstraints).then((audioStream) => {
+        if (abortController.signal.aborted) return
+        state.audioStream.set(audioStream)
+      })
+      return () => {
+        abortController.abort()
+        const stream = state.audioStream.value
+        if (!stream) return
+
+        stream.getAudioTracks().forEach((track) => track.stop())
+        state.audioStream.set(null)
+      }
+    }, [state.audioEnabled.value])
   }
 })
 
 export const MediaStreamService = {
-  /**
-   * Start the camera.
-   * @returns Whether the camera is started or not. */
-  async startCamera() {
-    logger.info('Start camera')
-    if (getMutableState(MediaStreamState).videoStream.value?.active) return false
-    return await MediaStreamService.getVideoStream()
-  },
-
-  async startMic() {
-    logger.info('Start Mic')
-    if (getMutableState(MediaStreamState).audioStream.value?.active) return false
-    return await MediaStreamService.getAudioStream()
-  },
-
   /**
    * Switch to sending video from the "next" camera device in device list (if there are multiple cameras).
    * @returns Whether camera cycled or not.
@@ -137,16 +177,6 @@ export const MediaStreamService = {
     cycle()
   },
 
-  /**
-   * Remove video and audio node from the consumer.
-   * @param consumer Consumer from which video and audio node will be removed.
-   */
-  removeVideoAudio(consumer: any): void {
-    document.querySelectorAll(consumer.id).forEach((v) => {
-      if (v.consumer === consumer) v?.parentNode.removeChild(v)
-    })
-  },
-
   /** Get device ID of device which is currently streaming media. */
   async getCurrentDeviceId(streamType: string) {
     const state = getMutableState(MediaStreamState)
@@ -174,66 +204,5 @@ export const MediaStreamService = {
       const deviceInfo = devices.find((d) => d.label.startsWith(track.label))!
       return deviceInfo.deviceId
     }
-  },
-
-  /**
-   * Get user video stream.
-   * @returns Whether stream is active or not.
-   */
-  async getVideoStream() {
-    const state = getMutableState(MediaStreamState)
-    try {
-      const { maxResolution } = config.client.mediaSettings!.video
-      const constraints = {
-        video: VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
-      }
-      const videoStream = await navigator.mediaDevices.getUserMedia(constraints)
-      logger.info('Getting video stream %o', constraints)
-      state.videoStream.set(videoStream)
-      if (state.camVideoProducer.value && !state.camVideoProducer.value.closed) {
-        await state.camVideoProducer.value.replaceTrack({
-          track: state.videoStream.value!.getVideoTracks()[0]
-        })
-      }
-      if (state.videoStream.value!.active) {
-        state.videoPaused.set(state.camVideoProducer.value != null)
-        return true
-      }
-      state.videoPaused.set(true)
-      return false
-    } catch (err) {
-      logger.error(err, 'Failed to get video stream')
-    }
-    return false
-  },
-
-  /**
-   * Get user video stream.
-   * @returns Whether stream is active or not.
-   */
-  async getAudioStream() {
-    const state = getMutableState(MediaStreamState)
-    try {
-      logger.info('Getting audio stream %o', VideoConstants.localAudioConstraints)
-      const audioStream = await navigator.mediaDevices.getUserMedia(VideoConstants.localAudioConstraints)
-      if (!audioStream.active) {
-        state.audioStream.set(null)
-        return false
-      }
-      state.audioStream.set(audioStream)
-      if (state.camAudioProducer.value && !state.camAudioProducer.value.closed)
-        await state.camAudioProducer.value.replaceTrack({
-          track: state.audioStream.value!.getAudioTracks()[0]
-        })
-      if (state.audioStream.value!.active) {
-        state.audioPaused.set(state.camAudioProducer.value != null)
-        return true
-      }
-      state.audioPaused.set(true)
-      return false
-    } catch (err) {
-      logger.error(err, 'Failed to get audio stream')
-    }
-    return false
   }
 }

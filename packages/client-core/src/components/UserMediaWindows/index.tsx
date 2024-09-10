@@ -113,26 +113,24 @@ export const useMediaWindows = () => {
 
   return windows.filter(
     ({ peerID }) =>
-      peerID === Engine.instance.store.peerID ||
-      mediaNetwork?.peers[peerID].userId === Engine.instance.userID ||
-      nearbyPeers.includes(peerID)
+      (peerID === Engine.instance.store.peerID ||
+        mediaNetwork?.peers[peerID].userId === Engine.instance.userID ||
+        nearbyPeers.includes(peerID)) &&
+      peerMediaChannelState.value[peerID]
   )
 }
 
 export const UserMediaWindows = () => {
   const { topShelfStyle } = useShelfStyles()
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
 
   const windows = useMediaWindows()
 
   return (
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
-        {windows
-          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
-          .map(({ peerID, type }) => (
-            <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
-          ))}
+        {windows.map(({ peerID, type }) => (
+          <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+        ))}
       </div>
     </div>
   )

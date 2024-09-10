@@ -221,29 +221,35 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     videoElement.autoplay = true
     videoElement.muted = true
     videoElement.setAttribute('playsinline', 'true')
-    if (videoStream != null) {
-      videoDisplayReady.set(false)
-      if (isSelf) peerMediaChannelState.videoProducerPaused.set(false)
-      const originalTrackEnabledInterval = setInterval(() => {
-        if (videoStream.track!.enabled) {
-          clearInterval(originalTrackEnabledInterval)
 
-          // if (!videoRef?.srcObject?.active || !videoRef?.srcObject?.getVideoTracks()[0].enabled) {
-          const newVideoTrack = videoStream.track!.clone()
-          videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-          videoTrackClones.set([newVideoTrack])
-          videoElement!.srcObject = new MediaStream([newVideoTrack])
-          if (isScreen) {
-            applyScreenshareToTexture(videoElement!)
-          }
-          videoDisplayReady.set(true)
-          // }
+    console.log({videoStream})
+    if (!videoStream) return
+
+    videoDisplayReady.set(false)
+    if (isSelf) peerMediaChannelState.videoProducerPaused.set(false)
+    const originalTrackEnabledInterval = setInterval(() => {
+      console.log({videoStreamEnabled: videoStream.track!.enabled})
+      if (videoStream.track!.enabled) {
+        clearInterval(originalTrackEnabledInterval)
+
+        // if (!videoRef?.srcObject?.active || !videoRef?.srcObject?.getVideoTracks()[0].enabled) {
+        const newVideoTrack = videoStream.track!.clone()
+        videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
+        videoTrackClones.set([newVideoTrack])
+        videoElement!.srcObject = new MediaStream([newVideoTrack])
+        if (isScreen) {
+          applyScreenshareToTexture(videoElement!)
         }
-      }, 100)
-    }
+        videoDisplayReady.set(true)
+        console.log({videoElement, newVideoTrack})
+        // }
+      }
+    }, 100)
+  
 
     return () => {
       videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
+      console.log('video track clones stopped')
     }
   }, [videoStream])
 

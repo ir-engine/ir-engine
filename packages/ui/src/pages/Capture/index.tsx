@@ -132,16 +132,6 @@ const sendResults = (results: MotionCaptureResults) => {
   network.bufferToAll(mocapDataChannelType, Engine.instance.store.peerID, data)
 }
 
-// const useVideoStatus = () => {
-//   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
-//   const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
-//   const videoActive = !!videoStream.value && !videoPaused.value
-//   const mediaNetworkState = useMediaNetwork()
-//   if (!mediaNetworkState?.ready?.value) return 'loading'
-//   if (!videoActive) return 'ready'
-//   return 'active'
-// }
-
 export const CaptureState = defineState({
   name: 'CaptureState',
   initial: {

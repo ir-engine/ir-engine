@@ -91,8 +91,8 @@ export const MediaIconsBox = () => {
 
   const mediaStreamState = useMutableState(MediaStreamState)
   const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
-  const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
-  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isCamVideoEnabled = !!mediaStreamState.camVideoProducer.value && mediaStreamState.videoEnabled.value
+  const isCamAudioEnabled = !!mediaStreamState.camAudioProducer.value && mediaStreamState.audioEnabled.value
   const isScreenVideoEnabled =
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
