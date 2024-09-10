@@ -107,7 +107,6 @@ describe.skip('matchmaking match-instance service', () => {
 
     location = await app.service(locationPath).create({
       name: `game-${gameMode}`,
-      slugifiedName: `game-${gameMode}`,
       maxUsersPerInstance: 20,
       sceneId: `test/game-${gameMode}`,
       locationSetting: commonlocationSetting,
