@@ -60,6 +60,9 @@ export const clientSettingSeedData = {
   appSubtitle: 'IR Engine',
   appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
   gaMeasurementId: process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID || '',
+  gtmContainerId: process.env.GOOGLE_TAG_MANAGER_CONTAINER_ID || '',
+  gtmAuth: process.env.GOOGLE_TAG_MANAGER_AUTH || '',
+  gtmPreview: process.env.GOOGLE_TAG_MANAGER_PREVIEW || '',
   appSocialLinks: JSON.stringify([
     { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
     { icon: 'static/github.svg', link: 'https://github.com/ir-engine' }

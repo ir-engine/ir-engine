@@ -39,6 +39,7 @@ import config from '@ir-engine/common/src/config'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import TagManager from '@sooro-io/react-gtm-module'
 import { initializei18n } from './util'
 
 const initializeLogs = async () => {
@@ -46,18 +47,25 @@ const initializeLogs = async () => {
   pipeLogs(API.instance)
 }
 
-const initializeGoogleAnalytics = async () => {
+const initializeGoogleServices = async () => {
   await waitForClientAuthenticated()
 
   //@ts-ignore
   const clientSettings = await API.instance.service(clientSettingPath).find({})
-
-  const gaMeasurementId = clientSettings?.data?.[0]?.gaMeasurementId
+  const [settings] = clientSettings.data
 
   // Initialize Google Analytics
-  if (gaMeasurementId) {
-    ReactGA.initialize(gaMeasurementId)
+  if (settings?.gaMeasurementId) {
+    ReactGA.initialize(settings.gaMeasurementId)
     ReactGA.send({ hitType: 'pageview', page: window.location.pathname })
+  }
+
+  if (settings?.gtmContainerId) {
+    TagManager.initialize({
+      gtmId: settings.gtmContainerId,
+      auth: settings?.gtmAuth,
+      preview: settings?.gtmPreview
+    })
   }
 }
 
@@ -78,7 +86,7 @@ export default function ({ children }): JSX.Element {
   const { t } = useTranslation()
 
   useEffect(() => {
-    initializeGoogleAnalytics()
+    initializeGoogleServices()
 
     const urlSearchParams = new URLSearchParams(window.location.search)
     const redirectUrl = urlSearchParams.get('redirectUrl')
