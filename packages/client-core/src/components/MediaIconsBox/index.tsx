@@ -56,8 +56,7 @@ import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 const sceneSettings = defineQuery([SceneSettingsComponent])
-const logger = multiLogger.child({ component: 'client-core:MediaIconsBox' })
-const clogger = multiLogger.child({ component: 'client-core:MediaIconsBox', modifier: clientContextParams })
+const logger = multiLogger.child({ component: 'client-core:MediaIconsBox', modifier: clientContextParams })
 
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
@@ -178,7 +177,7 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
           />
-          {isCamVideoEnabled && hasVideoDevice && (
+          {isCamVideoEnabled && numVideoDevices > 1 && (
             <IconButtonWithTooltip
               id="FlipVideo"
               title={t('user:menu.cycleCamera')}
@@ -196,7 +195,7 @@ export const MediaIconsBox = () => {
               className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
               onClick={() => {
                 window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
-                clogger.info({ event_name: 'motion_capture', event_value: isMotionCaptureEnabled })
+                logger.info({ event_name: 'motion_capture', event_value: isMotionCaptureEnabled })
               }}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
