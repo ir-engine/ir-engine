@@ -88,7 +88,6 @@ export interface LocationDatabaseType
 export const locationDataProperties = Type.Pick(locationSchema, [
   'name',
   'sceneId',
-  'slugifiedName',
   'isLobby',
   'isFeatured',
   'maxUsersPerInstance'

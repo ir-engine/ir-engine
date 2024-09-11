@@ -47,6 +47,7 @@ import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/componen
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { ScreenshareTargetComponent } from '@ir-engine/engine/src/scene/components/ScreenshareTargetComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
@@ -94,7 +95,8 @@ export const ComponentShelfCategoriesState = defineState({
         MountPointComponent,
         InteractableComponent,
         InputComponent,
-        GrabbableComponent
+        GrabbableComponent,
+        ScreenshareTargetComponent
       ],
       Lighting: [
         AmbientLightComponent,

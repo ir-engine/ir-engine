@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -31,12 +31,44 @@ import {
   GithubRepoAccessType
 } from '@ir-engine/common/src/schemas/user/github-repo-access.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import * as k8s from '@kubernetes/client-node'
 
+import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import { getJobBody } from '../../k8s-job-helper'
 import { getUserRepos } from '../../projects/project/github-helper'
 import logger from '../../ServerLogger'
 
 export interface GithubRepoAccessRefreshParams extends KnexAdapterParams {}
+
+export async function getGithubRepoAccessRefreshJobBody(
+  app: Application,
+  jobId: string,
+  userId: UserID
+): Promise<k8s.V1Job> {
+  const command = [
+    'npx',
+    'cross-env',
+    'ts-node',
+    '--swc',
+    'scripts/refresh-gh-repo-access.ts',
+    '--userId',
+    userId,
+    '--jobId',
+    jobId
+  ]
+
+  const labels = {
+    'ir-engine/ghRepoAccessRefresh': 'true',
+    'ir-engine/autoUpdate': 'false',
+    'ir-engine/userId': userId,
+    'ir-engine/release': process.env.RELEASE_NAME!
+  }
+
+  const name = `${process.env.RELEASE_NAME}-gh-repo-refresh-${userId.slice(0, 8)}-update`
+
+  return getJobBody(app, command, name, labels)
+}
 
 /**
  * A class for Github Repo Access Refresh service

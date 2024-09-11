@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useTheme } from '@mui/material/styles'
-import clsx from 'clsx'
 import React from 'react'
 
 import { PopupMenuInline } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuInline'
@@ -40,6 +39,23 @@ import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 import Typography from '@ir-engine/ui/src/primitives/mui/Typography'
 
 import styles from './index.module.scss'
+
+/**@deprecated */
+function _clsx(...classes: any[]) {
+  return classes
+    .filter(Boolean)
+    .reduce((acc, className) => {
+      if (typeof className === 'object') {
+        return acc.concat(
+          Object.entries(className)
+            .filter(([_, value]) => value)
+            .map(([key]) => key)
+        )
+      }
+      return acc.concat(className)
+    }, [])
+    .join(' ')
+}
 
 /**
  * Function for admin dashboard
@@ -79,7 +95,7 @@ const Dashboard = ({ children }) => {
               aria-label="open drawer"
               onClick={handleDrawerOpen(true)}
               edge="start"
-              className={clsx(styles.menuButton, {
+              className={_clsx(styles.menuButton, {
                 [styles.hide]: open
               })}
               size="large"
@@ -105,12 +121,12 @@ const Dashboard = ({ children }) => {
       </AppBar>
       <Drawer
         variant={open ? 'temporary' : 'permanent'}
-        className={clsx(styles.drawer, {
+        className={_clsx(styles.drawer, {
           [styles.drawerOpen]: open,
           [styles.drawerClose]: !open
         })}
         classes={{
-          paper: clsx({
+          paper: _clsx({
             [styles.drawerOpen]: open,
             [styles.drawerClose]: !open
           })
@@ -129,7 +145,7 @@ const Dashboard = ({ children }) => {
         <DashboardMenuItem />
       </Drawer>
       <main
-        className={clsx(styles.content, {
+        className={_clsx(styles.content, {
           [styles.contentWidthDrawerOpen]: open,
           [styles.contentWidthDrawerClosed]: !open
         })}
