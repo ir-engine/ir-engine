@@ -61,8 +61,7 @@ export const useMediaWindows = () => {
   const selfPeerID = Engine.instance.store.peerID
   const selfUserID = Engine.instance.userID
 
-  const camActive = (cam: PeerMediaStreamInterface) =>
-    (cam.videoMediaStream && !cam.videoStreamPaused) || (cam.audioMediaStream && !cam.audioStreamPaused)
+  const camActive = (cam: PeerMediaStreamInterface) => cam.videoMediaStream || cam.audioMediaStream
 
   const userPeers: Array<[UserID, PeerID[]]> = mediaNetworkConnected
     ? (Object.entries(mediaNetwork.users) as Array<[UserID, PeerID[]]>)
@@ -79,10 +78,7 @@ export const useMediaWindows = () => {
         })
 
       const userScreens = consumers
-        .filter(
-          ([peerID, { cam, screen }]) =>
-            peerIDs.includes(peerID) && screen?.videoMediaStream && !screen.videoStreamPaused
-        )
+        .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoMediaStream)
         .map(([peerID]) => {
           return { peerID, type: 'screen' as const }
         })
@@ -153,10 +149,7 @@ export const UserMediaWindowsWidget = () => {
     })
 
   const cams = consumers
-    .filter(
-      ([peerID, { cam, screen }]) =>
-        cam && ((cam.videoMediaStream && !cam.videoStreamPaused) || (cam.audioMediaStream && !cam.audioStreamPaused))
-    )
+    .filter(([peerID, { cam, screen }]) => cam && (cam.videoMediaStream || cam.audioMediaStream))
     .map(([peerID]) => {
       return { peerID, type: 'cam' as const }
     })

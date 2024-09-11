@@ -115,10 +115,8 @@ const MicrophoneReactor = () => {
     if (!camAudioProducer || camAudioProducer.closed) return
 
     camAudioProducer.replaceTrack({ track: microphoneMediaStream.getAudioTracks()[0] })
-    // MediasoupMediaProducerConsumerState.resumeProducer(network, camAudioProducer.id)
 
     return () => {
-      // MediasoupMediaProducerConsumerState.pauseProducer(network, camAudioProducer.id)
       camAudioProducer.track?.stop()
     }
   }, [microphoneMediaStream, camAudioProducer])
@@ -219,11 +217,8 @@ const WebcamReactor = () => {
     if (!camVideoProducer || camVideoProducer.closed) return
 
     camVideoProducer.replaceTrack({ track: webcamMediaStream.getVideoTracks()[0] })
-    // MediasoupMediaProducerConsumerState.resumeProducer(network, camVideoProducer.id)
 
     return () => {
-      /** @todo close producer */
-      // MediasoupMediaProducerConsumerState.pauseProducer(network, camVideoProducer.id)
       camVideoProducer.track?.stop()
     }
   }, [webcamMediaStream, camVideoProducer])

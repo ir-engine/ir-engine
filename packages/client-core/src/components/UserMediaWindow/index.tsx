@@ -134,11 +134,11 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const _volume = useHookstate(1)
 
   const selfUser = useMutableState(AuthState).user.get(NO_PROXY)
-  const currentLocation = useMutableState(LocationState).currentLocation.location
+  // const currentLocation = useMutableState(LocationState).currentLocation.location
   /** @todo refactor global mute for admin controls */
-  const enableGlobalMute =
-    currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
-    selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
+  // const enableGlobalMute =
+  //   currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
+  //   selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
 
   const mediaNetwork = NetworkState.mediaNetwork
   const isSelf =
@@ -540,7 +540,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
             [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn && (isSelf ? !audioStreamPaused : !audioStreamPaused)
+            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
           })}
         >
           {(!videoMediaStream ||
@@ -603,7 +603,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           <div className={styles['controls']}>
             <div className={styles['mute-controls']}>
               {videoMediaStream && (
-                <Tooltip title={!videoStreamPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
+                <Tooltip title={videoStreamPaused ? 'Resume Video' : 'Pause Video'}>
                   <IconButton
                     size="large"
                     className={classNames({
