@@ -23,19 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  UndefinedEntity,
-  createEngine,
-  createEntity,
-  destroyEngine,
-  getMutableComponent,
-  removeEntity,
-  setComponent
-} from '@ir-engine/ecs'
-import { ViewCursor, createViewCursor, writeComponent } from '@ir-engine/network'
+import { UndefinedEntity, createEngine, createEntity, destroyEngine, removeEntity } from '@ir-engine/ecs'
+import { ViewCursor, createViewCursor, readFloat64, readUint8, writeComponent } from '@ir-engine/network'
+import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import assert from 'assert'
-import { Vector3 } from 'three'
-import { PhysicsSerialization, readBodyPosition } from './PhysicsSerialization'
+import { Quaternion, Vector3 } from 'three'
+import {
+  PhysicsSerialization,
+  readBodyAngularVelocity,
+  readBodyLinearVelocity,
+  readBodyPosition,
+  writeBodyAngularVelocity,
+  writeBodyLinearVelocity,
+  writeBodyPosition,
+  writeBodyRotation
+} from './PhysicsSerialization'
+import { assertVecApproxEq } from './classes/Physics.test'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
 
 describe('PhysicsSerialization', () => {
@@ -52,6 +55,7 @@ describe('PhysicsSerialization', () => {
       beforeEach(() => {
         createEngine()
         testEntity = createEntity()
+        createMockNetwork()
       })
 
       afterEach(() => {
@@ -59,33 +63,237 @@ describe('PhysicsSerialization', () => {
         destroyEngine()
       })
 
-      /** @todo ?? How to setup the ViewCursor so that it finds the data correctly ??? */
-      it.skip('??', () => {
+      it('should read the RigidBodyComponent.position into the `@param cursor` ViewCursor correctly', () => {
         const Expected = new Vector3(40, 41, 42)
-        setComponent(testEntity, RigidBodyComponent)
-        getMutableComponent(testEntity, RigidBodyComponent).position.x.set(Expected.x)
-        getMutableComponent(testEntity, RigidBodyComponent).position.y.set(Expected.y)
-        getMutableComponent(testEntity, RigidBodyComponent).position.z.set(Expected.z)
+        RigidBodyComponent.position.x[testEntity] = Expected.x
+        RigidBodyComponent.position.y[testEntity] = Expected.y
+        RigidBodyComponent.position.z[testEntity] = Expected.z
+
         const cursor: ViewCursor = createViewCursor()
         const write = writeComponent(RigidBodyComponent.position)
-        // write(cursor, testEntity)
+        write(cursor, testEntity)
         const view = createViewCursor(cursor.buffer)
-        console.log(view)
-        console.log(readBodyPosition(view, testEntity))
+
+        const beforeCursor = 0
+        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
+        assert.equal(view.cursor, beforeCursor)
+        readBodyPosition(view, testEntity)
+        assert.equal(view.cursor, afterCursor)
       })
     }) //:: readBodyPosition
 
-    describe('readBodyRotation', () => {}) //:: readBodyRotation
-    describe('readBodyLinearVelocity', () => {}) //:: readBodyLinearVelocity
-    describe('readBodyAngularVelocity', () => {}) //:: readBodyAngularVelocity
-    describe('readRigidBody', () => {}) //:: readRigidBody
+    describe('readBodyRotation', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        createEngine()
+        testEntity = createEntity()
+        createMockNetwork()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        destroyEngine()
+      })
+
+      it('should read the RigidBodyComponent.rotation into the `@param cursor` ViewCursor correctly', () => {
+        const Expected = new Quaternion(40, 41, 42, 43).normalize()
+        RigidBodyComponent.linearVelocity.x[testEntity] = Expected.x
+        RigidBodyComponent.linearVelocity.y[testEntity] = Expected.y
+        RigidBodyComponent.linearVelocity.z[testEntity] = Expected.z
+
+        const cursor: ViewCursor = createViewCursor()
+        const write = writeComponent(RigidBodyComponent.linearVelocity)
+        write(cursor, testEntity)
+        const view = createViewCursor(cursor.buffer)
+
+        const beforeCursor = 0
+        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
+        assert.equal(view.cursor, beforeCursor)
+        readBodyLinearVelocity(view, testEntity)
+        assert.equal(view.cursor, afterCursor)
+      })
+    }) //:: readBodyLinearVelocity
+
+    describe('readBodyAngularVelocity', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        createEngine()
+        testEntity = createEntity()
+        createMockNetwork()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        destroyEngine()
+      })
+
+      it('should read the RigidBodyComponent.angularVelocity into the `@param cursor` ViewCursor correctly', () => {
+        const Expected = new Vector3(40, 41, 42)
+        RigidBodyComponent.angularVelocity.x[testEntity] = Expected.x
+        RigidBodyComponent.angularVelocity.y[testEntity] = Expected.y
+        RigidBodyComponent.angularVelocity.z[testEntity] = Expected.z
+
+        const cursor: ViewCursor = createViewCursor()
+        const write = writeComponent(RigidBodyComponent.angularVelocity)
+        write(cursor, testEntity)
+        const view = createViewCursor(cursor.buffer)
+
+        const beforeCursor = 0
+        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
+        assert.equal(view.cursor, beforeCursor)
+        readBodyAngularVelocity(view, testEntity)
+        assert.equal(view.cursor, afterCursor)
+      })
+    }) //:: readBodyAngularVelocity
+
+    describe('readRigidBody', () => {
+      /**
+      // @todo
+      // should readBodyPosition into the `@param v` ViewCursor when position is marked as changed (1<<1)
+      // should readBodyRotation into the `@param v` ViewCursor when rotation is marked as changed (1<<2)
+      // should readBodyLinearVelocity into the `@param v` ViewCursor when linearVelocity is marked as changed (1<<3)
+      // should readBodyAngularVelocity into the `@param v` ViewCursor when angularVelocity is marked as changed (1<<4)
+      // should call setRigidbodyPose when there is a PhysicsWorld, the entity has dynamic a RigidBody (aka [RigidBodyComponent, RigidBodyDynamicTagComponent]) and one of the elements changed
+      // should not call setRigidbodyPose when there is no PhysicsWorld
+      // should not call setRigidbodyPose when there is no PhysicsWorld, the entity has a dynamic RigidBody (aka [RigidBodyComponent, RigidBodyDynamicTagComponent]) and none of the elements changed
+      // should not call setRigidbodyPose when there is no PhysicsWorld, the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)]) and one of the elements changed
+      // should set RigidBodyComponent.targetKinematicPosition to RigidBodyComponent.position if the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)])
+      // should set RigidBodyComponent.targetKinematicRotation to RigidBodyComponent.rotation if the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)])
+      */
+    }) //:: readRigidBody
   }) //:: Read
 
   describe('Write', () => {
-    describe('writeBodyPosition', () => {}) //:: writeBodyPosition
-    describe('writeBodyRotation', () => {}) //:: writeBodyRotation
-    describe('writeBodyLinearVelocity', () => {}) //:: writeBodyLinearVelocity
-    describe('writeBodyAngularVelocity', () => {}) //:: writeBodyAngularVelocity
-    describe('writeRigidBody', () => {}) //:: writeRigidBody
+    describe('writeBodyPosition', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        createEngine()
+        testEntity = createEntity()
+        createMockNetwork()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        destroyEngine()
+      })
+
+      it('should write the RigidBodyComponent.position into the ViewCursor correctly', () => {
+        const Expected = new Vector3(40, 41, 42)
+        RigidBodyComponent.position.x[testEntity] = Expected.x
+        RigidBodyComponent.position.y[testEntity] = Expected.y
+        RigidBodyComponent.position.z[testEntity] = Expected.z
+
+        const cursor: ViewCursor = createViewCursor()
+        const position = writeBodyPosition(cursor, testEntity) as ViewCursor
+        const view = createViewCursor(position.buffer)
+
+        readUint8(view) // Read changeMask
+        const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
+        assertVecApproxEq(result, Expected, Vector3.length)
+      })
+    }) //:: writeBodyPosition
+
+    describe('writeBodyRotation', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        createEngine()
+        testEntity = createEntity()
+        createMockNetwork()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        destroyEngine()
+      })
+
+      it('should write the RigidBodyComponent.rotation into the ViewCursor correctly', () => {
+        const Expected = new Quaternion(40, 41, 42, 43).normalize()
+        RigidBodyComponent.rotation.x[testEntity] = Expected.x
+        RigidBodyComponent.rotation.y[testEntity] = Expected.y
+        RigidBodyComponent.rotation.z[testEntity] = Expected.z
+        RigidBodyComponent.rotation.w[testEntity] = Expected.w
+
+        const cursor: ViewCursor = createViewCursor()
+        const rotation = writeBodyRotation(cursor, testEntity) as ViewCursor
+        const view = createViewCursor(rotation.buffer)
+
+        readUint8(view) // Read changeMask
+        const result = new Quaternion(readFloat64(view), readFloat64(view), readFloat64(view), readFloat64(view))
+        assertVecApproxEq(result, Expected, Quaternion.length)
+      })
+    }) //:: writeBodyRotation
+
+    describe('writeBodyLinearVelocity', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        createEngine()
+        testEntity = createEntity()
+        createMockNetwork()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        destroyEngine()
+      })
+
+      it('should write the RigidBodyComponent.linearVelocity into the ViewCursor correctly', () => {
+        const Expected = new Vector3(40, 41, 42)
+        RigidBodyComponent.linearVelocity.x[testEntity] = Expected.x
+        RigidBodyComponent.linearVelocity.y[testEntity] = Expected.y
+        RigidBodyComponent.linearVelocity.z[testEntity] = Expected.z
+
+        const cursor: ViewCursor = createViewCursor()
+        const linearVelocity = writeBodyLinearVelocity(cursor, testEntity) as ViewCursor
+        const view = createViewCursor(linearVelocity.buffer)
+
+        readUint8(view) // Read changeMask
+        const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
+        assertVecApproxEq(result, Expected, Vector3.length)
+      })
+    }) //:: writeBodyLinearVelocity
+
+    describe('writeBodyAngularVelocity', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        createEngine()
+        testEntity = createEntity()
+        createMockNetwork()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        destroyEngine()
+      })
+
+      it('should write the RigidBodyComponent.angularVelocity into the ViewCursor correctly', () => {
+        const Expected = new Vector3(40, 41, 42)
+        RigidBodyComponent.angularVelocity.x[testEntity] = Expected.x
+        RigidBodyComponent.angularVelocity.y[testEntity] = Expected.y
+        RigidBodyComponent.angularVelocity.z[testEntity] = Expected.z
+
+        const cursor: ViewCursor = createViewCursor()
+        const angularVelocity = writeBodyAngularVelocity(cursor, testEntity) as ViewCursor
+        const view = createViewCursor(angularVelocity.buffer)
+
+        readUint8(view) // Read changeMask
+        const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
+        assertVecApproxEq(result, Expected, Vector3.length)
+      })
+    }) //:: writeBodyAngularVelocity
+
+    describe('writeRigidBody', () => {
+      /**
+      // @todo
+      it("should return void if `@param entity` does not have a RigidBodyComponent", () => {})
+      it("should return the resulting ViewCursor if one of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed", () => {})
+      it("should return void if none of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed", () => {})
+      */
+    }) //:: writeRigidBody
   }) //:: Write
 })
