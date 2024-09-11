@@ -367,7 +367,7 @@ describe('EntityTreeFunctions', () => {
 
       const visited = [] as Entity[]
 
-      traverseEntityNodeParent(nodes[nodes.length - 1], (parent) => visited.push(parent))
+      traverseEntityNodeParent(nodes[nodes.length - 1], (parent) => (visited.push(parent), undefined))
 
       assert.equal(visited.length, 4)
       assert.equal(visited[0], nodes[2])
