@@ -203,7 +203,6 @@ const getToken = async (): Promise<string> => {
       } else clearInterval(checkAccessInterval)
     }, 100)
     const hasAccessListener = async function (e) {
-      console.log('hasAccessListener', e)
       if (isRootCookieAncestorMessage(e)) {
         gotResponse = true
         window.removeEventListener('message', hasAccessListener)
