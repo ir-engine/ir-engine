@@ -54,17 +54,16 @@ const ConferenceMode = (): JSX.Element => {
     Object.values(consumers).filter((consumer) => consumer.mediaTag.value === screenshareVideoDataChannelType) || []
 
   const mediaStreamState = useMutableState(MediaStreamState)
-  const isScreenVideoEnabled = !!mediaStreamState.screenVideoProducer.value
-  const isScreenAudioEnabled =
-    !!mediaStreamState.screenAudioProducer.value && !mediaStreamState.screenShareAudioPaused.value
+  const isScreenVideoEnabled =
+    !!mediaStreamState.screenshareMediaStream.value && !mediaStreamState.screenshareEnabled.value
 
   let totalScreens = 1
 
-  if (isScreenVideoEnabled || isScreenAudioEnabled) {
+  if (isScreenVideoEnabled) {
     totalScreens += 1
   }
 
-  for (let user of displayedUsers) {
+  for (const user of displayedUsers) {
     totalScreens += 1
     const peerID = Object.values(network.peers).find((peer) => peer.userId === user.userId)?.peerID
     if (screenShareConsumers.find((consumer) => consumer.peerID.value === peerID)) {
@@ -81,7 +80,7 @@ const ConferenceMode = (): JSX.Element => {
         [styles['multi-grid']]: totalScreens === 3 || totalScreens > 4
       })}
     >
-      {(isScreenVideoEnabled || isScreenAudioEnabled) && (
+      {isScreenVideoEnabled && (
         <ConferenceModeParticipant
           type={'screen'}
           peerID={Engine.instance.store.peerID}

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
@@ -70,9 +70,6 @@ export const MediaIconsBox = () => {
   const recordingState = useMutableState(RecordingState)
 
   const location = useLocation()
-  const hasAudioDevice = useHookstate(false)
-  const hasVideoDevice = useHookstate(false)
-  const numVideoDevices = useHookstate(0)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
@@ -90,11 +87,14 @@ export const MediaIconsBox = () => {
     : false
 
   const mediaStreamState = useMutableState(MediaStreamState)
+  const numVideoDevices = mediaStreamState.availableVideoDevices.value.length
+  const hasAudioDevice = mediaStreamState.availableAudioDevices.value.length > 0
+  const hasVideoDevice = numVideoDevices > 0
   const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
-  const isCamVideoEnabled = !!mediaStreamState.camVideoProducer.value && mediaStreamState.webcamEnabled.value
-  const isCamAudioEnabled = !!mediaStreamState.camAudioProducer.value && mediaStreamState.microphoneEnabled.value
+  const isCamVideoEnabled = !!mediaStreamState.webcamMediaStream.value && mediaStreamState.webcamEnabled.value
+  const isCamAudioEnabled = !!mediaStreamState.microphoneMediaStream.value && mediaStreamState.microphoneEnabled.value
   const isScreenVideoEnabled =
-    mediaStreamState.screenVideoProducer.value != null
+    !!mediaStreamState.screenshareMediaStream.value && mediaStreamState.screenshareEnabled.value
 
   const spectating =
     !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value &&
@@ -108,17 +108,6 @@ export const MediaIconsBox = () => {
     FeatureFlags.Client.Menu.MotionCapture,
     FeatureFlags.Client.Menu.XR
   ])
-
-  useEffect(() => {
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then((devices) => {
-        hasAudioDevice.set(devices.filter((device) => device.kind === 'audioinput').length > 0)
-        hasVideoDevice.set(devices.filter((device) => device.kind === 'videoinput').length > 0)
-        numVideoDevices.set(devices.filter((device) => device.kind === 'videoinput').length)
-      })
-      .catch((err) => logger.error(err, 'Could not get media devices.'))
-  }, [])
 
   const toggleRecording = () => {
     const activeRecording = recordingState.recordingID.value
@@ -172,7 +161,7 @@ export const MediaIconsBox = () => {
           </div>
         </div>
       )}
-      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready?.value ? (
+      {audioEnabled && hasAudioDevice && mediaNetworkReady && mediaNetworkState?.ready?.value ? (
         <IconButtonWithTooltip
           id="UserAudio"
           title={t('user:menu.toggleMute')}
@@ -183,7 +172,7 @@ export const MediaIconsBox = () => {
           icon={<Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />}
         />
       ) : null}
-      {videoEnabled && hasVideoDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+      {videoEnabled && hasVideoDevice && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <>
           <IconButtonWithTooltip
             id="UserVideo"
@@ -194,7 +183,7 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
           />
-          {isCamVideoEnabled && numVideoDevices.value > 1 && (
+          {isCamVideoEnabled && hasVideoDevice && (
             <IconButtonWithTooltip
               id="FlipVideo"
               title={t('user:menu.cycleCamera')}

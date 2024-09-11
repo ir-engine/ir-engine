@@ -204,9 +204,10 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   console.log(selectedChannelID, channel, channelName)
 
   const mediaStreamState = useMutableState(MediaStreamState)
-  const isCamVideoEnabled = !!mediaStreamState.camVideoProducer.value && mediaStreamState.webcamEnabled.value
-  const isCamAudioEnabled = !!mediaStreamState.camAudioProducer.value && mediaStreamState.microphoneEnabled.value
-  const isScreenVideoEnabled = mediaStreamState.screenVideoProducer.value != null
+  const isCamVideoEnabled = !!mediaStreamState.webcamMediaStream.value && mediaStreamState.webcamEnabled.value
+  const isCamAudioEnabled = !!mediaStreamState.microphoneMediaStream.value && mediaStreamState.microphoneEnabled.value
+  const isScreenVideoEnabled =
+    !!mediaStreamState.screenshareMediaStream.value && mediaStreamState.screenshareEnabled.value
 
   const startMediaCall = () => {
     if (!selectedChannelID) return

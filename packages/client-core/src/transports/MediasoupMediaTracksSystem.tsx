@@ -9,7 +9,7 @@ import {
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { Engine, PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
-import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
   NetworkState,
   VideoConstants,
@@ -27,6 +27,16 @@ import { ProducerExtension, SocketWebRTCClientNetwork, WebRTCTransportExtension 
 const logger = multiLogger.child({
   component: 'client-core:MediasoupMediaTracksSystem',
   modifier: clientContextParams
+})
+
+export const MediasoupSelfProducerState = defineState({
+  name: 'MediasoupSelfProducerState',
+  initial: {
+    camVideoProducer: null as ProducerExtension | null,
+    camAudioProducer: null as ProducerExtension | null,
+    screenVideoProducer: null as ProducerExtension | null,
+    screenAudioProducer: null as ProducerExtension | null,
+  },
 })
 
 /**
@@ -86,7 +96,8 @@ const MicrophoneReactor = () => {
   const microphoneEnabled = mediaStreamState.microphoneEnabled.value
   const microphoneMediaStream = mediaStreamState.microphoneMediaStream.value
   const ready = mediaNetworkState?.ready?.value
-  const camAudioProducer = mediaStreamState.camAudioProducer.value
+  const mediasoupSelfProducerState = useMutableState(MediasoupSelfProducerState)
+  const camAudioProducer = mediasoupSelfProducerState.camAudioProducer.value
 
   useEffect(() => {
     const audioStream = mediaStreamState.microphoneMediaStream.value
@@ -131,7 +142,7 @@ const MicrophoneReactor = () => {
         if (abortController.signal.aborted) return
         const producer = prod as any as ProducerExtension
         getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(producer)
-        mediaStreamState.camAudioProducer.set(producer)
+        mediasoupSelfProducerState.camAudioProducer.set(producer)
       })
 
     return () => {
@@ -156,6 +167,7 @@ const MicrophoneReactor = () => {
     logger.info({ event_name: 'microphone', value: true })
 
     return () => {
+      /** @todo close producer */
       MediasoupMediaProducerConsumerState.pauseProducer(network, camAudioProducer.id)
       logger.info({ event_name: 'microphone', value: false })
       camAudioProducer.track?.stop()
@@ -200,7 +212,8 @@ const WebcamReactor = () => {
   const webcamEnabled = mediaStreamState.webcamEnabled.value
   const webcamMediaStream = mediaStreamState.webcamMediaStream.value
   const ready = mediaNetworkState?.ready?.value
-  const camVideoProducer = mediaStreamState.camVideoProducer.value
+  const mediasoupSelfProducerState = useMutableState(MediasoupSelfProducerState)
+  const camVideoProducer = mediasoupSelfProducerState.camVideoProducer.value
 
   useEffect(() => {
     if (!webcamEnabled || !ready || !webcamMediaStream) return
@@ -231,7 +244,7 @@ const WebcamReactor = () => {
         if (abortController.signal.aborted) return
         const producer = prod as any as ProducerExtension
         getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(producer)
-        mediaStreamState.camVideoProducer.set(producer)
+        mediasoupSelfProducerState.camVideoProducer.set(producer)
       })
 
     return () => {
@@ -256,6 +269,7 @@ const WebcamReactor = () => {
     logger.info({ event_name: 'camera', value: true })
 
     return () => {
+      /** @todo close producer */
       MediasoupMediaProducerConsumerState.pauseProducer(network, camVideoProducer.id)
       logger.info({ event_name: 'camera', value: false })
       camVideoProducer.track?.stop()
@@ -271,8 +285,9 @@ const ScreenshareReactor = () => {
   const screenshareEnabled = mediaStreamState.screenshareEnabled.value
   const screenshareMediaStream = mediaStreamState.screenshareMediaStream.value
   const ready = mediaNetworkState?.ready?.value
-  const screenVideoProducer = mediaStreamState.screenVideoProducer.value
-  const screenAudioProducer = mediaStreamState.screenAudioProducer.value
+  const mediasoupSelfProducerState = useMutableState(MediasoupSelfProducerState)
+  const screenVideoProducer = mediasoupSelfProducerState.screenVideoProducer.value
+  const screenAudioProducer = mediasoupSelfProducerState.screenAudioProducer.value
   const screenShareAudioPaused = mediaStreamState.screenShareAudioPaused.value
 
   useEffect(() => {
@@ -311,7 +326,7 @@ const ScreenshareReactor = () => {
 
         const videoProducer = producer as any as ProducerExtension
 
-        mediaStreamState.screenVideoProducer.set(videoProducer)
+        mediasoupSelfProducerState.screenVideoProducer.set(videoProducer)
 
         getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[videoProducer.id].set(videoProducer)
 
@@ -335,7 +350,7 @@ const ScreenshareReactor = () => {
             return
           }
           const audioProducer = producer as any as ProducerExtension
-          mediaStreamState.screenAudioProducer.set(audioProducer)
+          mediasoupSelfProducerState.screenAudioProducer.set(audioProducer)
           mediaStreamState.screenShareAudioPaused.set(false)
           getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[audioProducer.id].set(audioProducer)
         })
@@ -344,32 +359,32 @@ const ScreenshareReactor = () => {
     return () => {
       abortController.abort()
 
-      if (mediaStreamState.screenVideoProducer.value) {
+      if (mediasoupSelfProducerState.screenVideoProducer.value) {
         dispatchAction(
           MediasoupMediaProducerActions.producerPaused({
-            producerID: mediaStreamState.screenVideoProducer.value.id,
+            producerID: mediasoupSelfProducerState.screenVideoProducer.value.id,
             globalMute: false,
             paused: true,
             $network: network.id,
             $topic: network.topic
           })
         )
-        mediaStreamState.screenVideoProducer.value.pause()
+        mediasoupSelfProducerState.screenVideoProducer.value.pause()
         dispatchAction(
           MediasoupMediaProducerActions.producerClosed({
-            producerID: mediaStreamState.screenVideoProducer.value.id,
+            producerID: mediasoupSelfProducerState.screenVideoProducer.value.id,
             $network: network.id,
             $topic: network.topic
           })
         )
-        mediaStreamState.screenVideoProducer.value.close()
-        mediaStreamState.screenVideoProducer.set(null)
+        mediasoupSelfProducerState.screenVideoProducer.value.close()
+        mediasoupSelfProducerState.screenVideoProducer.set(null)
       }
 
-      if (mediaStreamState.screenAudioProducer.value) {
+      if (mediasoupSelfProducerState.screenAudioProducer.value) {
         dispatchAction(
           MediasoupMediaProducerActions.producerPaused({
-            producerID: mediaStreamState.screenAudioProducer.value.id,
+            producerID: mediasoupSelfProducerState.screenAudioProducer.value.id,
             globalMute: false,
             paused: true,
             $network: network.id,
@@ -378,13 +393,13 @@ const ScreenshareReactor = () => {
         )
         dispatchAction(
           MediasoupMediaProducerActions.producerClosed({
-            producerID: mediaStreamState.screenAudioProducer.value.id,
+            producerID: mediasoupSelfProducerState.screenAudioProducer.value.id,
             $network: network.id,
             $topic: network.topic
           })
         )
-        mediaStreamState.screenAudioProducer.value.close()
-        mediaStreamState.screenAudioProducer.set(null)
+        mediasoupSelfProducerState.screenAudioProducer.value.close()
+        mediasoupSelfProducerState.screenAudioProducer.set(null)
         mediaStreamState.screenShareAudioPaused.set(true)
       }
     }

@@ -478,18 +478,6 @@ export const connectToNetwork = async (
   logger.info('Successfully connected to instance type: %o', { topic: network.topic, id: network.id })
 }
 
-export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
-  return new Promise<void>((resolve) => {
-    const interval = setInterval(() => {
-      if (network.ready) {
-        clearInterval(interval)
-        resolve()
-        return
-      }
-    }, 100)
-  })
-}
-
 export const onTransportCreated = async (networkID: NetworkID, transportDefinition: TransportType) => {
   const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork | undefined
   if (!network) return console.warn('Network not found', networkID)

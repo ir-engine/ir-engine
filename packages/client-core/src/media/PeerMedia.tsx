@@ -27,11 +27,12 @@ import React, { useEffect } from 'react'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import {
+  MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
   NetworkState,
   screenshareAudioDataChannelType,
@@ -46,6 +47,7 @@ import {
   PeerMediaChannelState,
   removePeerMediaChannels
 } from '../transports/PeerMediaChannelState'
+import { ConsumerExtension, ProducerExtension } from '../transports/SocketWebRTCClientFunctions'
 
 /**
  * Peer media reactor
@@ -58,9 +60,6 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
     getMutableState(MediasoupMediaProducerConsumerState)[props.networkID].consumers[props.consumerID]
   )
   const producerID = consumerState.producerID.value
-  const producerState = useHookstate(
-    getMutableState(MediasoupMediaProducerConsumerState)[props.networkID].producers[producerID]
-  )
 
   const peerID = consumerState.peerID.value
   const mediaTag = consumerState.mediaTag.value
@@ -71,21 +70,29 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
 
   const consumer = useHookstate(
     getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[props.consumerID]
-  )?.value
+  )?.value as ConsumerExtension
+
+  const producer = useHookstate(
+    getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producerID]
+  )?.value as ProducerExtension
 
   useEffect(() => {
     if (!consumer) return
     const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
     if (!peerMediaChannelState) return
     if (isAudio) {
-      peerMediaChannelState.audioStream.set(consumer)
+      const newMediaStream = new MediaStream([consumer.track.clone()])
+      peerMediaChannelState.audioMediaStream.set(newMediaStream)
       return () => {
-        peerMediaChannelState.audioStream.set(null)
+        newMediaStream.getTracks().forEach((track) => track.stop())
+        peerMediaChannelState.audioMediaStream.set(null)
       }
     } else {
-      peerMediaChannelState.videoStream.set(consumer)
+      const newMediaStream = new MediaStream([consumer.track.clone()])
+      peerMediaChannelState.videoMediaStream.set(newMediaStream)
       return () => {
-        peerMediaChannelState.videoStream.set(null)
+        newMediaStream.getTracks().forEach((track) => track.stop())
+        peerMediaChannelState.videoMediaStream.set(null)
       }
     }
   }, [consumer])
@@ -93,32 +100,26 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   useEffect(() => {
     const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
     if (!peerMediaChannelState) return
-    if (isAudio) peerMediaChannelState.audioStreamPaused.set(!!consumerState.paused.value)
-    else peerMediaChannelState.videoStreamPaused.set(!!consumerState.paused.value)
-  }, [consumerState.paused?.value])
+    const paused = !!consumerState.paused.value || !!consumerState.producerPaused.value
+    if (isAudio) peerMediaChannelState.audioStreamPaused.set(paused)
+    else peerMediaChannelState.videoStreamPaused.set(paused)
+  }, [consumerState.paused?.value, consumerState.producerPaused?.value])
 
-  useEffect(() => {
-    const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
-    if (!peerMediaChannelState) return
-    if (isAudio) peerMediaChannelState.audioProducerPaused.set(!!consumerState.producerPaused.value)
-    else peerMediaChannelState.videoProducerPaused.set(!!consumerState.producerPaused.value)
-  }, [consumerState.producerPaused?.value])
+  // useEffect(() => {
+  //   const globalMute = !!producerState.globalMute?.value
+  //   const paused = !!producerState.paused?.value
 
-  useEffect(() => {
-    const globalMute = !!producerState.globalMute?.value
-    const paused = !!producerState.paused?.value
+  //   const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
+  //   if (!peerMediaChannelState) return
 
-    const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
-    if (!peerMediaChannelState) return
-
-    if (isAudio) {
-      peerMediaChannelState.audioProducerPaused.set(paused)
-      peerMediaChannelState.audioProducerGlobalMute.set(globalMute)
-    } else {
-      peerMediaChannelState.videoProducerPaused.set(paused)
-      peerMediaChannelState.videoProducerGlobalMute.set(globalMute)
-    }
-  }, [producerState.paused?.value])
+  //   if (isAudio) {
+  //     peerMediaChannelState.audioProducerPaused.set(paused)
+  //     peerMediaChannelState.audioProducerGlobalMute.set(globalMute)
+  //   } else {
+  //     peerMediaChannelState.videoProducerPaused.set(paused)
+  //     peerMediaChannelState.videoProducerGlobalMute.set(globalMute)
+  //   }
+  // }, [producerState.paused?.value])
 
   return null
 }
@@ -130,25 +131,30 @@ const SelfMedia = () => {
 
   useEffect(() => {
     const microphoneEnabled = mediaStreamState.microphoneEnabled.value
-    peerMediaChannelState.cam.audioStream.set(microphoneEnabled ? mediaStreamState.camAudioProducer.value : null)
-  }, [mediaStreamState.camAudioProducer, mediaStreamState.microphoneEnabled])
+    peerMediaChannelState.cam.audioMediaStream.set(
+      microphoneEnabled ? mediaStreamState.microphoneMediaStream.value : null
+    )
+  }, [mediaStreamState.microphoneMediaStream.value, mediaStreamState.microphoneEnabled.value])
 
   useEffect(() => {
     const webcamEnabled = mediaStreamState.webcamEnabled.value
-    peerMediaChannelState.cam.videoStream.set(webcamEnabled ? mediaStreamState.camVideoProducer.value : null)
-  }, [mediaStreamState.camVideoProducer, mediaStreamState.webcamEnabled])
+    peerMediaChannelState.cam.videoMediaStream.set(webcamEnabled ? mediaStreamState.webcamMediaStream.value : null)
+  }, [mediaStreamState.value.webcamMediaStream, mediaStreamState.webcamEnabled.value])
 
   useEffect(() => {
-    peerMediaChannelState.screen.audioStream.set(mediaStreamState.screenAudioProducer.value)
-  }, [mediaStreamState.screenAudioProducer])
-
-  useEffect(() => {
-    peerMediaChannelState.screen.videoStream.set(mediaStreamState.screenVideoProducer.value)
-  }, [mediaStreamState.screenVideoProducer])
-
-  useEffect(() => {
-    peerMediaChannelState.screen.audioStreamPaused.set(mediaStreamState.screenShareAudioPaused.value)
-  }, [mediaStreamState.screenShareAudioPaused])
+    const videoStreamPaused = mediaStreamState.screenshareEnabled.value
+    const audioStreamPaused = videoStreamPaused && mediaStreamState.screenShareAudioPaused.value
+    peerMediaChannelState.screen.videoMediaStream.set(
+      videoStreamPaused ? mediaStreamState.screenshareMediaStream.value : null
+    )
+    peerMediaChannelState.screen.audioMediaStream.set(
+      audioStreamPaused ? mediaStreamState.screenshareMediaStream.value : null
+    )
+  }, [
+    mediaStreamState.screenshareMediaStream.value,
+    mediaStreamState.screenshareEnabled.value,
+    mediaStreamState.screenShareAudioPaused.value
+  ])
 
   return null
 }

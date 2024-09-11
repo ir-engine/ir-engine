@@ -24,12 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { VideoConstants } from '@ir-engine/network'
 
 import config from '@ir-engine/common/src/config'
 import { useEffect } from 'react'
-import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
 
@@ -41,6 +40,8 @@ const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
 export const MediaStreamState = defineState({
   name: 'MediaStreamState',
   initial: {
+    availableVideoDevices: [] as MediaDeviceInfo[],
+    availableAudioDevices: [] as MediaDeviceInfo[],
     /** Whether the video is enabled or not. */
     webcamEnabled: false,
     /** Whether the audio is enabled or not. */
@@ -56,21 +57,22 @@ export const MediaStreamState = defineState({
     microphoneGainNode: null as GainNode | null,
     /** Local screen container. */
     screenshareMediaStream: null as MediaStream | null,
-    /** Producer using camera to get Video. */
-    camVideoProducer: null as ProducerExtension | null,
-    /** Producer using camera to get Audio. */
-    camAudioProducer: null as ProducerExtension | null,
     screenshareEnabled: false,
-    /** Producer using screen to get Video. */
-    screenVideoProducer: null as ProducerExtension | null,
-    /** Producer using screen to get Audio. */
-    screenAudioProducer: null as ProducerExtension | null,
     /** Indication of whether the audio while screen sharing is paused or not. */
     screenShareAudioPaused: false
   },
 
   reactor: () => {
     const state = useMutableState(MediaStreamState)
+
+    useEffect(() => {
+      navigator.mediaDevices.enumerateDevices().then((devices) => {
+        const videoDevices = devices.filter((device) => device.kind === 'videoinput')
+        state.availableVideoDevices.set(videoDevices)
+        const audioDevices = devices.filter((device) => device.kind === 'audioinput')
+        state.availableAudioDevices.set(audioDevices)
+      })
+    }, [])
 
     useEffect(() => {
       if (!state.webcamEnabled.value) return
@@ -177,7 +179,7 @@ export const MediaStreamService = {
    */
   async cycleCamera() {
     const state = getMutableState(MediaStreamState)
-    if (!state.camVideoProducer.value?.track) {
+    if (!state.webcamMediaStream.value) {
       logger.info('Cannot cycle camera - no current camera track')
       return false
     }
@@ -210,13 +212,6 @@ export const MediaStreamService = {
           video: { deviceId: { exact: vidDevices[index].deviceId } }
         })
         state.webcamMediaStream.set(newVideoStream)
-
-        if (!state.camVideoProducer.value) return
-
-        // replace the tracks we are sending
-        await state.camVideoProducer.value!.replaceTrack({
-          track: newVideoStream.getVideoTracks()[0]
-        })
       } catch (e) {
         console.error(e)
         tries++
@@ -229,29 +224,21 @@ export const MediaStreamService = {
   },
 
   /** Get device ID of device which is currently streaming media. */
-  async getCurrentDeviceId(streamType: string) {
-    const state = getMutableState(MediaStreamState)
+  getCurrentDeviceId(streamType: string) {
+    const state = getState(MediaStreamState)
     if (streamType === 'video') {
-      if (!state.camVideoProducer.value) return null
-
-      const { deviceId } = state.camVideoProducer.value.track!.getSettings()
-      if (deviceId) return deviceId
-      // Firefox doesn't have deviceId in MediaTrackSettings object
-      const track = state.webcamMediaStream.value!.getVideoTracks()[0]
+      if (!state.webcamMediaStream) return null
+      const track = state.webcamMediaStream.getVideoTracks()[0]
       if (!track) return null
-      const devices = await navigator.mediaDevices.enumerateDevices()
+      const devices = state.availableVideoDevices
       const deviceInfo = devices.find((d) => d.label.startsWith(track.label))!
       return deviceInfo.deviceId
     }
     if (streamType === 'audio') {
-      if (!state.camAudioProducer.value) return null
-
-      const { deviceId } = state.camAudioProducer.value.track!.getSettings()
-      if (deviceId) return deviceId
-      // Firefox doesn't have deviceId in MediaTrackSettings object
-      const track = state.microphoneMediaStream.value!.getAudioTracks()[0]
+      if (!state.microphoneMediaStream) return null
+      const track = state.microphoneMediaStream.getAudioTracks()[0]
       if (!track) return null
-      const devices = await navigator.mediaDevices.enumerateDevices()
+      const devices = state.availableAudioDevices
       const deviceInfo = devices.find((d) => d.label.startsWith(track.label))!
       return deviceInfo.deviceId
     }
