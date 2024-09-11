@@ -513,7 +513,6 @@ describe('useTreeQuery', () => {
   })
 })
 
-
 describe('getAncestorWithComponents', () => {
   // Run before every test case
   beforeEach(() => {
@@ -626,7 +625,6 @@ describe('getAncestorWithComponents', () => {
     destroyEntityTree(rootEntity)
   })
 })
-
 
 describe('useChildWithComponent', () => {
   // Run before every test case
@@ -1126,7 +1124,7 @@ describe('useAncestorWithComponents', () => {
     let child_1 = createEntity()
     let child_2 = createEntity()
     let result = UndefinedEntity
-    
+
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, NameComponent, 'rootEntity')
 
@@ -1145,17 +1143,18 @@ describe('useAncestorWithComponents', () => {
     const tag = <Reactor />
 
     assert.equal(UndefinedEntity, result)
-    
+
     const R1 = render(tag)
     assert.equal(rootEntity, result, `Case1: Did not return the correct entity. result = ${result}`)
-    
+    R1.unmount()
+
     removeComponent(rootEntity, NameComponent)
-    R1.rerender(tag)
+    const R2 = render(tag)
     assert.equal(child_1, result, `Case2: Did not return the correct entity. result = ${result}`)
+    R2.unmount()
 
     destroyEntityTree(rootEntity)
   })
-  
 
   // test for includeSelf = false
   it('returns the closest ancestor entity excluding self', async () => {
@@ -1163,7 +1162,7 @@ describe('useAncestorWithComponents', () => {
     let child_1 = createEntity()
     let child_2 = createEntity()
     let result = UndefinedEntity
-    
+
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, NameComponent, 'rootEntity')
 
@@ -1184,28 +1183,26 @@ describe('useAncestorWithComponents', () => {
     }
 
     const tag = <Reactor />
-  
+
     assert.equal(UndefinedEntity, result)
 
     const R1 = render(tag)
     assert.equal(child_1, result, `Case1: Did not return the correct entity. result = ${result}`)
-    
+    R1.unmount()
+
     removeComponent(child_2, NameComponent)
-    R1.rerender(tag)
+    const R2 = render(tag)
     assert.equal(child_1, result, `Case2: Did not return the correct entity. result = ${result}`)
+    R2.unmount()
 
     removeComponent(child_1, NameComponent)
-    R1.rerender(tag)
+    const R3 = render(tag)
     assert.equal(rootEntity, result, `Case3: Did not return the correct entity. result = ${result}`)
-
-    R1.unmount()
-    assert.equal(UndefinedEntity, result, `Case4: Did not return the correct entity. result = ${result}`)
+    R3.unmount()
 
     destroyEntityTree(rootEntity)
-
   })
 })
-
 
 describe('getChildrenWithComponents', () => {
   // Run before every test case

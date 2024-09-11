@@ -283,9 +283,9 @@ export function getAncestorWithComponents(
   closest = true,
   includeSelf = true
 ): Entity {
-  let result = UndefinedEntity
-  const startEntity = includeSelf ? entity : getComponent(entity, EntityTreeComponent).parentEntity
-  traverseEntityNodeParent(startEntity, (entity: Entity) => {
+  let result = hasComponents(entity, components) ? entity : UndefinedEntity
+  if (includeSelf && closest && result) return result
+  traverseEntityNodeParent(entity, (entity: Entity) => {
     if (hasComponents(entity, components)) {
       result = entity
       if (closest) return true // stop traversal
