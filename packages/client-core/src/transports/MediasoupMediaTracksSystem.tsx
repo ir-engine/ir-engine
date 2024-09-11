@@ -9,7 +9,14 @@ import {
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { Engine, PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
-import { defineState, dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import {
   NetworkState,
   VideoConstants,
@@ -35,8 +42,8 @@ export const MediasoupSelfProducerState = defineState({
     camVideoProducer: null as ProducerExtension | null,
     camAudioProducer: null as ProducerExtension | null,
     screenVideoProducer: null as ProducerExtension | null,
-    screenAudioProducer: null as ProducerExtension | null,
-  },
+    screenAudioProducer: null as ProducerExtension | null
+  }
 })
 
 /**
@@ -148,28 +155,30 @@ const MicrophoneReactor = () => {
     return () => {
       abortController.abort()
 
-      /**
-       * @todo do we want to destroy the producer for any reason here?
-       * - it already gets cleaned up when the network is left
-       */
+      if (mediasoupSelfProducerState.camAudioProducer.value) {
+        dispatchAction(
+          MediasoupMediaProducerActions.producerClosed({
+            producerID: mediasoupSelfProducerState.camAudioProducer.value.id,
+            $network: network.id,
+            $topic: network.topic
+          })
+        )
+        mediasoupSelfProducerState.camAudioProducer.value.close()
+        mediasoupSelfProducerState.camAudioProducer.set(null)
+      }
     }
-  }, [mediaStreamState.microphoneMediaStream.value, microphoneEnabled, mediaNetworkState?.ready.value])
+  }, [microphoneMediaStream, microphoneEnabled, ready])
 
   useEffect(() => {
     if (!ready || !microphoneMediaStream) return
 
     if (!camAudioProducer || camAudioProducer.closed) return
 
-    const network = getState(NetworkState).networks[mediaNetworkState.id.value]
-
     camAudioProducer.replaceTrack({ track: microphoneMediaStream.getAudioTracks()[0] })
-    MediasoupMediaProducerConsumerState.resumeProducer(network, camAudioProducer.id)
-    logger.info({ event_name: 'microphone', value: true })
+    // MediasoupMediaProducerConsumerState.resumeProducer(network, camAudioProducer.id)
 
     return () => {
-      /** @todo close producer */
-      MediasoupMediaProducerConsumerState.pauseProducer(network, camAudioProducer.id)
-      logger.info({ event_name: 'microphone', value: false })
+      // MediasoupMediaProducerConsumerState.pauseProducer(network, camAudioProducer.id)
       camAudioProducer.track?.stop()
     }
   }, [microphoneMediaStream, camAudioProducer])
@@ -250,10 +259,17 @@ const WebcamReactor = () => {
     return () => {
       abortController.abort()
 
-      /**
-       * @todo do we want to destroy the producer for any reason here?
-       * - it already gets cleaned up when the network is left
-       */
+      if (mediasoupSelfProducerState.camVideoProducer.value) {
+        dispatchAction(
+          MediasoupMediaProducerActions.producerClosed({
+            producerID: mediasoupSelfProducerState.camVideoProducer.value.id,
+            $network: network.id,
+            $topic: network.topic
+          })
+        )
+        mediasoupSelfProducerState.camVideoProducer.value.close()
+        mediasoupSelfProducerState.camVideoProducer.set(null)
+      }
     }
   }, [webcamMediaStream, webcamEnabled, ready])
 
@@ -262,16 +278,12 @@ const WebcamReactor = () => {
 
     if (!camVideoProducer || camVideoProducer.closed) return
 
-    const network = getState(NetworkState).networks[mediaNetworkState.id.value]
-
     camVideoProducer.replaceTrack({ track: webcamMediaStream.getVideoTracks()[0] })
-    MediasoupMediaProducerConsumerState.resumeProducer(network, camVideoProducer.id)
-    logger.info({ event_name: 'camera', value: true })
+    // MediasoupMediaProducerConsumerState.resumeProducer(network, camVideoProducer.id)
 
     return () => {
       /** @todo close producer */
-      MediasoupMediaProducerConsumerState.pauseProducer(network, camVideoProducer.id)
-      logger.info({ event_name: 'camera', value: false })
+      // MediasoupMediaProducerConsumerState.pauseProducer(network, camVideoProducer.id)
       camVideoProducer.track?.stop()
     }
   }, [webcamMediaStream, camVideoProducer])

@@ -31,13 +31,7 @@ import React, { RefObject, useEffect, useRef } from 'react'
 
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import {
-  ConsumerExtension,
-  toggleMicrophonePaused,
-  toggleScreenshareAudioPaused,
-  toggleScreenshareVideoPaused,
-  toggleWebcamPaused
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { ConsumerExtension } from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind, useGet } from '@ir-engine/common'
 import { UserName, clientSettingPath, userPath } from '@ir-engine/common/src/schema.type.module'
@@ -296,9 +290,9 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     e.stopPropagation()
     const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
-      toggleWebcamPaused()
+      MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
-      toggleScreenshareVideoPaused()
+      MediaStreamState.toggleScreenshareVideoPaused()
     } else {
       const videoConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
         mediaNetwork.id,
@@ -307,10 +301,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       ) as ConsumerExtension
       if (!videoStreamPaused) {
         MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, videoConsumer.id)
-        peerMediaChannelState.videoStreamPaused.set(true)
       } else {
         MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, videoConsumer.id)
-        peerMediaChannelState.videoStreamPaused.set(false)
       }
     }
   }
@@ -319,9 +311,9 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     e.stopPropagation()
     const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
-      toggleMicrophonePaused()
+      MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
-      toggleScreenshareAudioPaused()
+      MediaStreamState.toggleScreenshareAudioPaused()
     } else {
       const audioConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
         mediaNetwork.id,
@@ -330,10 +322,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       ) as ConsumerExtension
       if (!audioStreamPaused) {
         MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, audioConsumer.id)
-        peerMediaChannelState.audioStreamPaused.set(true)
       } else {
         MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, audioConsumer.id)
-        peerMediaChannelState.audioStreamPaused.set(false)
       }
     }
   }

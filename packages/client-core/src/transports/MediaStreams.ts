@@ -32,11 +32,6 @@ import { useEffect } from 'react'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
 
-/**
- * @todo rename video to webcam
- * @todo rename audio to microphone
- */
-
 export const MediaStreamState = defineState({
   name: 'MediaStreamState',
   initial: {
@@ -60,6 +55,26 @@ export const MediaStreamState = defineState({
     screenshareEnabled: false,
     /** Indication of whether the audio while screen sharing is paused or not. */
     screenShareAudioPaused: false
+  },
+
+  toggleMicrophonePaused: () => {
+    getMutableState(MediaStreamState).microphoneEnabled.set((val) => !val)
+  },
+
+  toggleWebcamPaused: () => {
+    getMutableState(MediaStreamState).webcamEnabled.set((val) => !val)
+  },
+
+  toggleScreenshare: () => {
+    getMutableState(MediaStreamState).screenshareEnabled.set((val) => !val)
+  },
+
+  toggleScreenshareAudioPaused: () => {
+    getMutableState(MediaStreamState).screenShareAudioPaused.set((val) => !val)
+  },
+
+  toggleScreenshareVideoPaused: () => {
+    getMutableState(MediaStreamState).screenshareEnabled.set(false)
   },
 
   reactor: () => {

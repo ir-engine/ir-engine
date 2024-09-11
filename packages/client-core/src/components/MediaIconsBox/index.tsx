@@ -29,11 +29,6 @@ import { useLocation } from 'react-router-dom'
 
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import {
-  toggleMicrophonePaused,
-  toggleScreenshare,
-  toggleWebcamPaused
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { Engine, defineQuery, getOptionalComponent } from '@ir-engine/ecs'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
@@ -166,7 +161,7 @@ export const MediaIconsBox = () => {
           id="UserAudio"
           title={t('user:menu.toggleMute')}
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
-          onClick={toggleMicrophonePaused}
+          onClick={MediaStreamState.toggleMicrophonePaused}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />}
@@ -178,7 +173,7 @@ export const MediaIconsBox = () => {
             id="UserVideo"
             title={t('user:menu.toggleVideo')}
             className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
-            onClick={toggleWebcamPaused}
+            onClick={MediaStreamState.toggleWebcamPaused}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
@@ -220,7 +215,7 @@ export const MediaIconsBox = () => {
             id="UserScreenSharing"
             title={t('user:menu.shareScreen')}
             className={styles.iconContainer + ' ' + (isScreenVideoEnabled ? styles.on : '')}
-            onClick={toggleScreenshare}
+            onClick={MediaStreamState.toggleScreenshare}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type="ScreenShare" />}

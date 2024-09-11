@@ -15,7 +15,7 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Group
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import logger from '@ir-engine/common/src/logger'
-import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
+import { MediaStreamState } from '../../transports/MediaStreams'
 import { WebcamInputComponent } from './WebcamInputComponent'
 
 /*
@@ -175,7 +175,9 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(getMutableState(MediaStreamState).microphoneMediaStream.value!)
+  const inputStream = audioContext.createMediaStreamSource(
+    getMutableState(MediaStreamState).microphoneMediaStream.value!
+  )
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)

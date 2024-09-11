@@ -27,12 +27,11 @@ import React, { useEffect } from 'react'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import {
-  MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { dispatchAction, getMutableState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
   NetworkState,
   screenshareAudioDataChannelType,
@@ -72,9 +71,8 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
     getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[props.consumerID]
   )?.value as ConsumerExtension
 
-  const producer = useHookstate(
-    getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producerID]
-  )?.value as ProducerExtension
+  const producer = useHookstate(getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producerID])
+    ?.value as ProducerExtension
 
   useEffect(() => {
     if (!consumer) return

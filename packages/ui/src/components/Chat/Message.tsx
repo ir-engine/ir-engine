@@ -32,11 +32,6 @@ import { MdScreenShare, MdStopScreenShare, MdVideocam, MdVideocamOff } from 'rea
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/services/ChannelService'
 import { MediaStreamState } from '@ir-engine/client-core/src/transports/MediaStreams'
-import {
-  toggleMicrophonePaused,
-  toggleScreenshare,
-  toggleWebcamPaused
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { useFind, useGet, useMutation } from '@ir-engine/common'
 import { ChannelID, channelPath, ChannelType, messagePath } from '@ir-engine/common/src/schema.type.module'
@@ -235,7 +230,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
           <>
             <button
               className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
-              onClick={toggleWebcamPaused}
+              onClick={MediaStreamState.toggleWebcamPaused}
             >
               {isCamVideoEnabled ? (
                 <MdVideocam className="mt-2 h-5 w-5 overflow-hidden fill-[#ff1515]" />
@@ -245,7 +240,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
             </button>
             <button
               className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
-              onClick={toggleMicrophonePaused}
+              onClick={MediaStreamState.toggleMicrophonePaused}
             >
               {isCamAudioEnabled ? (
                 <FaMicrophone className="mt-2 h-5 w-5 overflow-hidden fill-[#ff1515]" />
@@ -255,7 +250,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
             </button>
             <button
               className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
-              onClick={toggleScreenshare}
+              onClick={MediaStreamState.toggleScreenshare}
             >
               {isScreenVideoEnabled ? (
                 <MdScreenShare className="mt-2 h-6 w-6 overflow-hidden fill-[#ff1515]" />

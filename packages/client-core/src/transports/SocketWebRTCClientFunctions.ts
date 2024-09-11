@@ -757,26 +757,6 @@ export const onTransportCreated = async (networkID: NetworkID, transportDefiniti
   getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
 }
 
-export const toggleMicrophonePaused = () => {
-  getMutableState(MediaStreamState).microphoneEnabled.set((val) => !val)
-}
-
-export const toggleWebcamPaused = () => {
-  getMutableState(MediaStreamState).webcamEnabled.set((val) => !val)
-}
-
-export const toggleScreenshare = () => {
-  getMutableState(MediaStreamState).screenshareEnabled.set((val) => !val)
-}
-
-export const toggleScreenshareAudioPaused = () => {
-  getMutableState(MediaStreamState).screenShareAudioPaused.set((val) => !val)
-}
-
-export const toggleScreenshareVideoPaused = () => {
-  getMutableState(MediaStreamState).screenshareEnabled.set(false)
-}
-
 export function leaveNetwork(network: SocketWebRTCClientNetwork) {
   if (!network) return
   logger.info('Leaving network %o', { topic: network.topic, id: network.id })
