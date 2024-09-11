@@ -171,8 +171,12 @@ const getToken = async (): Promise<string> => {
     win = iframe!.contentWindow
   }
 
+  const isRootCookieAncestorMessage = (message: MessageEvent<unknown>): boolean => {
+    return message.origin === iframeUrl
+  }
+
   window.addEventListener('message', (e) => {
-    if (e.origin === iframeUrl && e?.data) {
+    if (isRootCookieAncestorMessage(e) && e?.data) {
       try {
         const value = JSON.parse(e.data)
         if (value?.invalidDomain != null) {
@@ -199,13 +203,16 @@ const getToken = async (): Promise<string> => {
       } else clearInterval(checkAccessInterval)
     }, 100)
     const hasAccessListener = async function (e) {
-      gotResponse = true
-      window.removeEventListener('message', hasAccessListener)
-      if (!e.data) resolve({ hasStorageAccess: false, cookieSet: false })
-      const data = JSON.parse(e.data)
-      if (data.skipCrossOriginCookieCheck != null || data.storageAccessPermission === 'denied')
-        localStorage.setItem('skipCrossOriginCookieCheck', 'true')
-      resolve(data)
+      console.log('hasAccessListener', e)
+      if (isRootCookieAncestorMessage(e)) {
+        gotResponse = true
+        window.removeEventListener('message', hasAccessListener)
+        if (!e.data) resolve({ hasStorageAccess: false, cookieSet: false })
+        const data = JSON.parse(e.data)
+        if (data.skipCrossOriginCookieCheck != null || data.storageAccessPermission === 'denied')
+          localStorage.setItem('skipCrossOriginCookieCheck', 'true')
+        resolve(data)
+      }
     }
     window.addEventListener('message', hasAccessListener)
   })) as HasAccessType
@@ -221,20 +228,22 @@ const getToken = async (): Promise<string> => {
       iframe.style.display = 'block'
       return await new Promise((resolve) => {
         const clickResponseListener = async function (e) {
-          try {
-            window.removeEventListener('message', clickResponseListener)
-            const parsed = !e.data ? {} : JSON.parse(e.data)
-            if (parsed.skipCrossOriginCookieCheck != null) {
-              localStorage.setItem('skipCrossOriginCookieCheck', parsed.skipCrossOriginCookieCheck)
-              iframe.style.display = 'none'
-              resolve('')
-            } else {
-              const token = await waitForToken(win, clientUrl)
-              iframe.style.display = 'none'
-              resolve(token)
+          if (isRootCookieAncestorMessage(e)) {
+            try {
+              window.removeEventListener('message', clickResponseListener)
+              const parsed = !e.data ? {} : JSON.parse(e.data)
+              if (parsed.skipCrossOriginCookieCheck != null) {
+                localStorage.setItem('skipCrossOriginCookieCheck', parsed.skipCrossOriginCookieCheck)
+                iframe.style.display = 'none'
+                resolve('')
+              } else {
+                const token = await waitForToken(win, clientUrl)
+                iframe.style.display = 'none'
+                resolve(token)
+              }
+            } catch (err) {
+              //Do nothing
             }
-          } catch (err) {
-            //Do nothing
           }
         }
         window.addEventListener('message', clickResponseListener)
