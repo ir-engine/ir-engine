@@ -33,11 +33,12 @@ import {
   destroyEngine,
   getComponent,
   hasComponent,
+  removeComponent,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { BoxGeometry, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
+import { BoxGeometry, Material, Mesh, MeshBasicMaterial } from 'three'
 import { assertArrayEqual, assertArrayNotEqual } from '../../physics/components/RigidBodyComponent.test'
 import { MeshComponent } from '../components/MeshComponent'
 import {
@@ -160,32 +161,45 @@ describe('MaterialStateComponent', () => {
       return destroyEngine()
     })
 
-    /** @todo How to set it up correctly ?? */
-    it('it should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list', () => {
+    it("should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list, using that instanceEntity's UUID", () => {
+      // Setup the fallbackMaterial
+      const fallbackUUID = MaterialStateComponent.fallbackMaterial
+      const fallbackEntity = createEntity()
+      setComponent(fallbackEntity, UUIDComponent, fallbackUUID)
+      setComponent(fallbackEntity, MaterialStateComponent, {
+        instances: [UndefinedEntity],
+        material: new MeshBasicMaterial()
+      })
+
       // Set the data as expected
       const instance1 = createEntity()
       const instance2 = createEntity()
       const instances = [instance1, instance2] as Entity[]
-      const mesh1 = new Mesh(new BoxGeometry(), [new MeshStandardMaterial(), new MeshStandardMaterial()])
-      const mesh2 = new Mesh(new BoxGeometry(), [new MeshStandardMaterial(), new MeshStandardMaterial()])
+
+      const mesh1 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
+      const mesh2 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
       const meshes = [mesh1, mesh2] as Mesh[]
-      const material1 = new MeshStandardMaterial()
-      const material2 = new MeshStandardMaterial()
+
       const uuid1 = UUIDComponent.generateUUID()
       const uuid2 = UUIDComponent.generateUUID()
       const uuids = [uuid1, uuid2]
+
+      const material1 = new Material()
+      const material2 = new Material()
       material1.uuid = uuid1
       material2.uuid = uuid2
-      setComponent(testEntity, MaterialStateComponent, { instances, material: material1 })
+
+      setComponent(testEntity, MaterialStateComponent, { instances: instances, material: material1 })
       setComponent(testEntity, UUIDComponent, uuid1)
-      const otherMaterial = createEntity()
-      setComponent(otherMaterial, MaterialStateComponent, { instances, material: material2 })
-      setComponent(otherMaterial, UUIDComponent, uuid2)
+      const otherEntity = createEntity()
+      setComponent(otherEntity, MaterialStateComponent, { instances: instances, material: material2 })
+      setComponent(otherEntity, UUIDComponent, uuid2)
 
       for (const id in instances) {
         setComponent(instances[id], MaterialInstanceComponent, { uuid: uuids })
         setComponent(instances[id], MeshComponent, meshes[id])
       }
+
       // Sanity check before running
       assert.equal(hasComponent(testEntity, MaterialStateComponent), true)
       for (const entity of getComponent(testEntity, MaterialStateComponent).instances) {
@@ -197,31 +211,73 @@ describe('MaterialStateComponent', () => {
         )
       }
 
-      const uuid = MaterialStateComponent.fallbackMaterial
+      // Run and Check the result
+      removeComponent(testEntity, MaterialStateComponent)
+      for (const instance of instances) {
+        const instanceUUIDs = getComponent(instance, MaterialInstanceComponent).uuid
+        const meshMaterials = getComponent(instance, MeshComponent).material as Material[]
+        for (const id in instanceUUIDs) assert.equal(meshMaterials[id].uuid, instanceUUIDs[id])
+      }
+    })
 
-      // Set the data as expected
+    it('should not do anything if the entity does not have a MaterialStateComponent', () => {
+      // Setup the fallbackMaterial
+      const fallbackUUID = MaterialStateComponent.fallbackMaterial
       const fallbackEntity = createEntity()
-      setComponent(fallbackEntity, UUIDComponent, uuid)
+      setComponent(fallbackEntity, UUIDComponent, fallbackUUID)
       setComponent(fallbackEntity, MaterialStateComponent, {
         instances: [UndefinedEntity],
         material: new MeshBasicMaterial()
       })
 
+      // Set the data as expected
+      const instance1 = createEntity()
+      const instance2 = createEntity()
+      const instances = [instance1, instance2] as Entity[]
+
+      const mesh1 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
+      const mesh2 = new Mesh(new BoxGeometry(), [new Material(), new Material()])
+      const meshes = [mesh1, mesh2] as Mesh[]
+
+      const uuid1 = UUIDComponent.generateUUID()
+      const uuid2 = UUIDComponent.generateUUID()
+      const uuids = [uuid1, uuid2]
+
+      const material1 = new Material()
+      const material2 = new Material()
+      material1.uuid = uuid1
+      material2.uuid = uuid2
+
+      // setComponent(testEntity, MaterialStateComponent, { instances: instances, material: material1 })
+      setComponent(testEntity, UUIDComponent, uuid1)
+      const otherEntity = createEntity()
+      setComponent(otherEntity, MaterialStateComponent, { instances: instances, material: material2 })
+      setComponent(otherEntity, UUIDComponent, uuid2)
+
+      for (const id in instances) {
+        setComponent(instances[id], MaterialInstanceComponent, { uuid: uuids })
+        setComponent(instances[id], MeshComponent, meshes[id])
+      }
+
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, MaterialStateComponent), true)
+      for (const entity of getComponent(testEntity, MaterialStateComponent).instances) {
+        assert.equal(hasComponent(entity, MaterialInstanceComponent), true)
+        assert.equal(hasComponent(entity, MeshComponent), true)
+        assert.notEqual(
+          (getComponent(entity, MeshComponent).material as Material).uuid,
+          getComponent(testEntity, MaterialStateComponent).material.uuid
+        )
+      }
+
       // Run and Check the result
-      removeEntity(testEntity)
-      for (const entity of instances) {
-        const uuid = getComponent(entity, MaterialInstanceComponent).uuid
-        for (let i = 0; i < uuid.length; i++) {
-          assert.equal(
-            (getComponent(entity, MeshComponent).material as Material[])[i].uuid,
-            getComponent(entity, MaterialInstanceComponent).uuid[i]
-          )
-        }
+      removeComponent(testEntity, MaterialStateComponent)
+      for (const instance of instances) {
+        const instanceUUIDs = getComponent(instance, MaterialInstanceComponent).uuid
+        const meshMaterials = getComponent(instance, MeshComponent).material as Material[]
+        for (const id in instanceUUIDs) assert.notEqual(meshMaterials[id].uuid, instanceUUIDs[id])
       }
     })
-
-    /** @todo When the previous test case is done */
-    // it("should not do anything if the entity does not have a MaterialStateComponent", () => {})
   }) //:: onRemove
 }) //:: MaterialStateComponent
 
@@ -301,7 +357,7 @@ describe('MaterialInstanceComponent', () => {
     })
   }) //:: onSet
 
-  describe.skip('onRemove', () => {
+  describe('onRemove', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -314,7 +370,55 @@ describe('MaterialInstanceComponent', () => {
       return destroyEngine()
     })
 
-    it('should ???', () => {})
+    /** @todo Why does this not work ??? */
+    describe.skip("for every instanceEntity in the testEntity's MaterialInstanceComponent.uuid list", () => {
+      it('... should remove the instanceEntity from its MaterialStateComponent.instances list (found by its UUID)', () => {
+        const otherEntity1 = createEntity()
+        const otherEntity2 = createEntity()
+        const instanceEntities = [otherEntity1, otherEntity2]
+        const uuid1 = UUIDComponent.generateUUID()
+        const uuid2 = UUIDComponent.generateUUID()
+        const instanceUUIDs = [uuid1, uuid2]
+        setComponent(otherEntity1, UUIDComponent, uuid1)
+        setComponent(otherEntity2, UUIDComponent, uuid2)
+        setComponent(otherEntity1, MaterialStateComponent, { material: new Material() })
+        setComponent(otherEntity2, MaterialStateComponent, { material: new Material() })
+
+        // Set the data as expected
+        setComponent(testEntity, MaterialStateComponent, { instances: instanceEntities })
+        setComponent(testEntity, MaterialInstanceComponent, { uuid: instanceUUIDs })
+
+        // Sanity check before running
+        assert.equal(hasComponent(testEntity, MaterialInstanceComponent), true)
+        console.log(':::::::')
+        console.log('instanceUUIDs:', instanceUUIDs)
+        console.log('instanceEntities:', instanceEntities)
+        console.log('otherEntity{ 1, 2 }:', [otherEntity1, otherEntity2])
+        for (const instanceUUID of getComponent(testEntity, MaterialInstanceComponent).uuid) {
+          const instanceEntity = UUIDComponent.getEntityByUUID(instanceUUID)
+          const instances = getComponent(instanceEntity, MaterialStateComponent).instances
+          console.log('..................')
+          console.log('entity:', instanceEntity, instances, instanceUUID)
+        }
+
+        for (const instanceUUID of getComponent(testEntity, MaterialInstanceComponent).uuid) {
+          const instanceEntity = UUIDComponent.getEntityByUUID(instanceUUID)
+          assert.equal(hasComponent(instanceEntity, MaterialStateComponent), true)
+          const instances = getComponent(instanceEntity, MaterialStateComponent).instances
+          assert.equal(instances.includes(instanceEntity), true)
+        }
+
+        // Run and Check the result
+        removeComponent(testEntity, MaterialInstanceComponent)
+        for (const instanceUUID of getComponent(testEntity, MaterialInstanceComponent).uuid) {
+          const instanceEntity = UUIDComponent.getEntityByUUID(instanceUUID)
+          const instances = getComponent(instanceEntity, MaterialStateComponent).instances
+          assert.equal(instances.includes(instanceEntity), false)
+        }
+      })
+      // it("... should not do anything if the entity does not have a MaterialStateComponent", () => {})
+    })
+    // it("should not do anything if the `@param entity` does not have a MaterialInstanceComponent or its MaterialInstanceComponent.uuid list is empty", () => {})
   }) //:: onRemove
 }) //:: MaterialInstanceComponent
 
