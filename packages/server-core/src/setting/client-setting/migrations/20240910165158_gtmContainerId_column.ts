@@ -46,11 +46,11 @@ export async function up(knex: Knex): Promise<void> {
 
     const clientSettings = await knex.table(clientSettingPath).first()
 
-    if (clientSettings) {
+    if (clientSettings && process.env.GOOGLE_TAG_MANAGER_CONTAINER_ID) {
       await knex.table(clientSettingPath).update({
         gtmContainerId: process.env.GOOGLE_TAG_MANAGER_CONTAINER_ID,
-        gtmAuth: process.env.GOOGLE_TAG_MANAGER_AUTH,
-        gtmPreview: process.env.GOOGLE_TAG_MANAGER_PREVIEW
+        gtmAuth: process.env.GOOGLE_TAG_MANAGER_AUTH ?? '',
+        gtmPreview: process.env.GOOGLE_TAG_MANAGER_PREVIEW ?? ''
       })
     }
   }
