@@ -33,6 +33,7 @@ import {
   readBodyAngularVelocity,
   readBodyLinearVelocity,
   readBodyPosition,
+  readBodyRotation,
   writeBodyAngularVelocity,
   writeBodyLinearVelocity,
   writeBodyPosition,
@@ -98,6 +99,39 @@ describe('PhysicsSerialization', () => {
 
       it('should read the RigidBodyComponent.rotation into the `@param cursor` ViewCursor correctly', () => {
         const Expected = new Quaternion(40, 41, 42, 43).normalize()
+        RigidBodyComponent.rotation.x[testEntity] = Expected.x
+        RigidBodyComponent.rotation.y[testEntity] = Expected.y
+        RigidBodyComponent.rotation.z[testEntity] = Expected.z
+
+        const cursor: ViewCursor = createViewCursor()
+        const write = writeComponent(RigidBodyComponent.rotation)
+        write(cursor, testEntity)
+        const view = createViewCursor(cursor.buffer)
+
+        const beforeCursor = 0
+        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
+        assert.equal(view.cursor, beforeCursor)
+        readBodyRotation(view, testEntity)
+        assert.equal(view.cursor, afterCursor)
+      })
+    }) //:: readBodyRotation
+
+    describe('readBodyLinearVelocity', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        createEngine()
+        testEntity = createEntity()
+        createMockNetwork()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        destroyEngine()
+      })
+
+      it('should read the RigidBodyComponent.linearVelocity into the `@param cursor` ViewCursor correctly', () => {
+        const Expected = new Vector3(40, 41, 42)
         RigidBodyComponent.linearVelocity.x[testEntity] = Expected.x
         RigidBodyComponent.linearVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.linearVelocity.z[testEntity] = Expected.z
