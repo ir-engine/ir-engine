@@ -150,7 +150,7 @@ export function useMutableState<S, I, E, R extends ReceptorMap, P extends string
   return useHookstate(resolvedState) as any
 }
 
-const stateNamespaceKey = 'ee.hyperflux'
+export const stateNamespaceKey = 'ir.hyperflux'
 
 export interface SyncStateWithLocalAPI {}
 

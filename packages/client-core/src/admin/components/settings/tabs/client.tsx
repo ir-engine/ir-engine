@@ -201,6 +201,26 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           value={settings.gaMeasurementId.value || ''}
           onChange={(e) => settings.gaMeasurementId.set(e.target.value)}
         />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.googleTagManagerContainerId')}
+          value={settings.gtmContainerId.value || ''}
+          onChange={(e) => settings.gtmContainerId.set(e.target.value)}
+        />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.googleTagManagerAuth')}
+          description={t('admin:components.setting.googleTagManagerAuthDescription')}
+          value={settings.gtmAuth.value || ''}
+          onChange={(e) => settings.gtmAuth.set(e.target.value)}
+        />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.googleTagManagerPreview')}
+          description={t('admin:components.setting.googleTagManagerPreviewDescription')}
+          value={settings.gtmPreview.value || ''}
+          onChange={(e) => settings.gtmPreview.set(e.target.value)}
+        />
 
         <Toggle
           containerClassName="justify-start col-span-full"
