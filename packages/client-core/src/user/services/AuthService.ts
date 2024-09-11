@@ -162,7 +162,8 @@ const waitForToken = async (win, clientUrl): Promise<string> => {
 
 const getToken = async (): Promise<string> => {
   let gotResponse = false
-  const iframe = document.getElementById('root-cookie-accessor') as HTMLFrameElement
+  const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
+  const iframeUrl = new URL(iframe.src).origin
   let win
   try {
     win = iframe!.contentWindow
@@ -171,7 +172,7 @@ const getToken = async (): Promise<string> => {
   }
 
   window.addEventListener('message', (e) => {
-    if (e?.data) {
+    if (e.origin === iframeUrl && e?.data) {
       try {
         const value = JSON.parse(e.data)
         if (value?.invalidDomain != null) {
