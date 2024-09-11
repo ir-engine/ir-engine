@@ -47,7 +47,7 @@ import { SDFShader } from '@ir-engine/spatial/src/renderer/effects/sdf/SDFShader
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 

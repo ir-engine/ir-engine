@@ -32,7 +32,7 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { ECSSchema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { useEffect } from 'react'
 import { QuaternionProxy, Vec3Proxy } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'

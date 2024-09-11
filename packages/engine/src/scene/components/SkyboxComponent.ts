@@ -40,7 +40,7 @@ import { getState, isClient, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { Sky } from '../classes/Sky'

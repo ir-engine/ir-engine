@@ -49,7 +49,7 @@ import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'

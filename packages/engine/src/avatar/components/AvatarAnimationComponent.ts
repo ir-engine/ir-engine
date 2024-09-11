@@ -44,7 +44,7 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { preloadedAnimations } from '../animation/Util'

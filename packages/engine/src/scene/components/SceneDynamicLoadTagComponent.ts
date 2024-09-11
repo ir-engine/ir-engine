@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineComponent, hasComponent, removeComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CallbackComponent, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 const LoadTagModeSchema = S.LiteralUnion(['distance', 'trigger'], 'distance')

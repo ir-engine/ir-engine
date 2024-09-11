@@ -33,8 +33,8 @@ import { Color, ColorRepresentation, Material, MathUtils, Mesh, MeshBasicMateria
 import { Text as TroikaText } from 'troika-three-text'
 
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { isClient } from '@ir-engine/hyperflux'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 

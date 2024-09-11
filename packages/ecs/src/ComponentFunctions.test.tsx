@@ -42,11 +42,13 @@ import {
   useComponent,
   useOptionalComponent
 } from './ComponentFunctions'
-import { ECSSchema, S } from './ComponentSchemaUtils'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
+import { ECSSchema } from './schemas/ECSSchemas'
+import { CreateSchemaValue } from './schemas/JSONSchemaUtils'
+import { S } from './schemas/JSONSchemas'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
@@ -100,7 +102,7 @@ describe('ComponentFunctions', async () => {
       setComponent(entity, Vector3Component)
       const vector3Component = getComponent(entity, Vector3Component)
       const json = Vector3Component.toJSON(vector3Component)
-      const fromSchema = Value.Create(Vector3Component.schema)
+      const fromSchema = CreateSchemaValue(Vector3Component.schema)
       assert(Value.Equal(vector3Component, fromSchema))
       assert(Value.Equal(json, fromSchema))
       assert(Value.Equal(json, vector3Component))
@@ -120,9 +122,8 @@ describe('ComponentFunctions', async () => {
       const entity = createEntity()
       setComponent(entity, Vector3Component, setValue)
       const vector3Component = getComponent(entity, Vector3Component)
-      assert(Value.Check(Vector3Component.schema, vector3Component))
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
-      assert(vector3Component.z === Value.Create(Vector3Component.schema).z)
+      assert(vector3Component.z === CreateSchemaValue(Vector3Component.schema).z)
     })
 
     it('should override runtime data if onInit is specified', () => {
@@ -140,7 +141,7 @@ describe('ComponentFunctions', async () => {
       const entity = createEntity()
       setComponent(entity, Vector3Component, setValue)
       const vector3Component = getComponent(entity, Vector3Component)
-      const fromSchema = Value.Create(Vector3Component.schema)
+      const fromSchema = CreateSchemaValue(Vector3Component.schema)
       assert(vector3Component instanceof Vector3)
       assert(vector3Component.isVector3)
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
@@ -196,7 +197,7 @@ describe('ComponentFunctions', async () => {
       const ObjComponent = defineComponent({
         name: 'ObjComponent',
         schema: S.Object({
-          light: S.NonSerialized(S.Class(DirectionalLight, {}))
+          light: S.NonSerialized(S.Class(DirectionalLight))
         })
       })
 

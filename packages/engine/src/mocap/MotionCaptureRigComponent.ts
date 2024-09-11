@@ -28,8 +28,8 @@ import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { ECSSchema } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',

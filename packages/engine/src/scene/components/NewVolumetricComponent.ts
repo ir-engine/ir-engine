@@ -39,7 +39,7 @@ import {
   useExecute,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, getMutableState, getState } from '@ir-engine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useRef } from 'react'
@@ -234,7 +234,7 @@ export const NewVolumetricComponent = defineComponent({
       firstFrameLoaded: S.Partial(S.Record(TextureTypeSchema, S.Bool()))
     }),
     paused: S.Bool(true),
-    preTrackBufferingCallback: S.Optional(S.Func([S.Any()], S.Void()))
+    preTrackBufferingCallback: S.Optional(S.Func([S.Type<State<ComponentType<any>>>()], S.Void()))
   }),
 
   onSet: (entity, component, json) => {

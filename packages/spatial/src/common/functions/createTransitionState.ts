@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { MathUtils } from 'three'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'

@@ -51,9 +51,9 @@ import {
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { Kind, Static, TSchema } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
-import { TRequiredSchema } from './ComponentSchemaUtils'
+import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
+import { CreateSchemaValue, SerializeSchema } from './schemas/JSONSchemaUtils'
 
 /**
  * @description
@@ -90,6 +90,12 @@ type ComponentJSON<T> = PartialIfObject<T>
 //   ? T
 //   : Optional<T>
 
+type ComponentInitializationType<Schema extends ComponentSchema> = Schema extends TSchema
+  ? Static<Schema>
+  : Schema extends bitECS.ISchema
+  ? ECSComponentType<Schema> & { entity: Entity }
+  : never
+
 /**
  * @description
  * Data used to create a Component with {@link defineComponent}.
@@ -99,7 +105,7 @@ type ComponentJSON<T> = PartialIfObject<T>
  */
 export interface ComponentPartial<
   Schema extends ComponentSchema = any,
-  InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema> & { entity: Entity },
+  InitializationType = ComponentInitializationType<Schema>,
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
@@ -160,7 +166,7 @@ export interface ComponentPartial<
  */
 export interface Component<
   Schema extends ComponentSchema = any,
-  InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema> & { entity: Entity },
+  InitializationType = ComponentInitializationType<Schema>,
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
@@ -255,13 +261,17 @@ const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECS.ISchema =
  */
 export const defineComponent = <
   Schema extends ComponentSchema = any,
-  InitializationType = Schema extends TSchema ? Static<Schema> : ECSComponentType<Schema> & { entity: Entity },
+  InitializationType = ComponentInitializationType<Schema>,
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
   ComponentExtras = Record<string, any>,
-  SOAComponent = Schema extends TSchema ? SoAComponentType<any> : SoAComponentType<Schema>
+  SOAComponent = Schema extends TSchema
+    ? SoAComponentType<any>
+    : Schema extends bitECS.ISchema
+    ? SoAComponentType<Schema>
+    : SoAComponentType<any>
 >(
   def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
 ) => {
@@ -281,10 +291,8 @@ export const defineComponent = <
   }
   Component.onRemove = () => {}
   Component.toJSON = (component) => {
-    /** @todo this fails if any values in the component have functions as properties */
     if (schemaIsJSONSchema(def.schema) && def.onInit) {
-      const schemaValue = Value.Parse(def.schema, component) as JSON
-      return schemaValue
+      return SerializeSchema(def.schema, component) as unknown as JSON
     }
 
     return component as unknown as JSON
@@ -479,7 +487,7 @@ export const createInitialComponentValue = <
   component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
   if (schemaIsJSONSchema(component.schema)) {
-    const schema = Value.Create(component.schema) as InitializationType
+    const schema = CreateSchemaValue(component.schema) as InitializationType
     if (component.onInit) return component.onInit(schema) as ComponentType
     else return schema as unknown as ComponentType
   } else if (schemaIsECSSchema(component.schema)) {

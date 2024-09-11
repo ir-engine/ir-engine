@@ -27,7 +27,7 @@ import { Camera, CameraHelper } from 'three'
 
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 

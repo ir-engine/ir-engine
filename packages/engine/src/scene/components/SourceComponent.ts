@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { hookstate, none, useImmediateEffect } from '@ir-engine/hyperflux'
 
 const entitiesBySource = {} as Record<string, Entity[]>

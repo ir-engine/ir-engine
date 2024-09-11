@@ -47,7 +47,7 @@ import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { WebContainer3D } from '@ir-engine/xrui'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState } from '@ir-engine/hyperflux'
 import { EngineState } from '../../EngineState'
 import { NameComponent } from '../../common/NameComponent'

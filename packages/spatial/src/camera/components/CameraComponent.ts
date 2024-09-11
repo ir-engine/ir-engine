@@ -27,7 +27,7 @@ import { ArrayCamera, PerspectiveCamera } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 

@@ -40,7 +40,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { State, defineAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { GroupComponent, addObjectToGroup } from '../renderer/components/GroupComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'

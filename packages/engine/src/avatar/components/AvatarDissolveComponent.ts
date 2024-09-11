@@ -47,7 +47,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 
 export type MaterialMap = {

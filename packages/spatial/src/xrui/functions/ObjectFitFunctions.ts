@@ -30,7 +30,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import type { WebContainer3D } from '@ir-engine/xrui'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 

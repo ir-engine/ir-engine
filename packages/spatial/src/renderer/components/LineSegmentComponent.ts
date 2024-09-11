@@ -29,7 +29,7 @@ import { BufferGeometry, Color, LineBasicMaterial, LineSegments, Material, Norma
 import { defineComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { useDisposable, useResource } from '../../resources/resourceHooks'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -43,7 +43,7 @@ export const LineSegmentComponent = defineComponent({
   schema: S.Object({
     name: S.String('line-segment'),
     geometry: S.Type<BufferGeometry>(),
-    material: S.Class(LineBasicMaterial as typeof Material, {}),
+    material: S.Class(LineBasicMaterial as typeof Material),
     color: S.Optional(S.Color()),
     layerMask: S.Number(ObjectLayers.NodeHelper),
     entity: S.Optional(S.Entity())

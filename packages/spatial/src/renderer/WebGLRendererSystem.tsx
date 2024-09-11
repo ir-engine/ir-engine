@@ -58,7 +58,7 @@ import {
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { getNestedChildren } from '../transform/components/EntityTree'
@@ -109,7 +109,7 @@ export const RendererComponent = defineComponent({
     effectComposer: S.Nullable(S.Type<EffectComposer>()),
 
     scenes: S.Array(S.Entity()),
-    scene: S.Class(Scene, {}),
+    scene: S.Class(Scene),
 
     /** @todo deprecate and replace with engine implementation */
     xrManager: S.Nullable(S.Type<WebXRManager>()),

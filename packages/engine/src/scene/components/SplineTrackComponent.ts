@@ -42,7 +42,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()

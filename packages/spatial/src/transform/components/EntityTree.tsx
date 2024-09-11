@@ -43,7 +43,7 @@ import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src
 import { none, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from './TransformComponent'
 
 type EntityTreeSetType = {

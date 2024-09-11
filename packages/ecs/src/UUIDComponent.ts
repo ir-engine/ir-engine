@@ -28,9 +28,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { hookstate, NO_PROXY_STEALTH, State, useHookstate } from '@ir-engine/hyperflux'
 
 import { defineComponent, setComponent } from './ComponentFunctions'
-import { S } from './ComponentSchemaUtils'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity } from './EntityFunctions'
+import { S } from './schemas/JSONSchemas'
 
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',

@@ -32,9 +32,9 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, useDidMount, useState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -113,7 +113,7 @@ export const BoundingBoxHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('bounding-box-helper'),
-    bbox: S.Class(Box3, {}),
+    bbox: S.Class(Box3),
     density: S.Number(2),
     color: S.Color(0xff0000),
     layerMask: S.Number(ObjectLayerMasks.NodeHelper),
@@ -167,7 +167,7 @@ export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
   schema: S.Object({
-    bbox: S.Class(Box3, {})
+    bbox: S.Class(Box3)
   }),
 
   reactor: () => {

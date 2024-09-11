@@ -47,7 +47,7 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -88,7 +88,7 @@ export const MediaElementComponent = defineComponent({
   schema: S.Object({
     element: S.Type<HTMLMediaElement>(),
     hls: S.Optional(S.Type<Hls>()),
-    abortController: S.Class(AbortController, {})
+    abortController: S.Class(AbortController)
   }),
 
   toJSON: () => {

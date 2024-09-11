@@ -34,9 +34,9 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -49,7 +49,7 @@ export const ScenePreviewCameraComponent = defineComponent({
   jsonID: 'EE_scene_preview_camera',
 
   schema: S.Object({
-    camera: S.Class(PerspectiveCamera, {}, 80, 16 / 9, 0.2, 8000)
+    camera: S.Class(PerspectiveCamera, 80, 16 / 9, 0.2, 8000)
   }),
 
   reactor: function () {

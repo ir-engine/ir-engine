@@ -58,7 +58,7 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Group
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -279,8 +279,8 @@ export const BoxProjectionPlugin = defineComponent({
   name: 'BoxProjectionPlugin',
 
   schema: S.Object({
-    cubeMapSize: S.Class(Uniform, {}, new Vector3()),
-    cubeMapPos: S.Class(Uniform, {}, new Vector3())
+    cubeMapSize: S.Class(Uniform, new Vector3()),
+    cubeMapPos: S.Class(Uniform, new Vector3())
   }),
 
   reactor: () => {

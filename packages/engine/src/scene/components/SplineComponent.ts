@@ -32,7 +32,7 @@ import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
 export const SplineComponent = defineComponent({
@@ -61,7 +61,7 @@ export const SplineComponent = defineComponent({
         }
       ]
     ),
-    curve: S.Class(CatmullRomCurve3, {}, [], true)
+    curve: S.Class(CatmullRomCurve3, [], true)
   }),
 
   onSet: (entity, component, json) => {

@@ -30,7 +30,7 @@ import { defineComponent, setComponent, useComponent, useEntityContext } from '@
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import { matchesGeometry, matchesMaterial } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useMeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '../../renderer/constants/ObjectLayers'
@@ -42,7 +42,7 @@ export const DebugMeshComponent = defineComponent({
   schema: S.Object({
     name: S.String('debug-mesh'),
     geometry: S.Type<BufferGeometry>(),
-    material: S.Class(MeshBasicMaterial as typeof Material, {}),
+    material: S.Class(MeshBasicMaterial as typeof Material),
     entity: S.Optional(S.Entity())
   }),
 

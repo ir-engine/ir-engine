@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { matches } from 'ts-matches'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from './TransformComponent'
 

@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 
 export const AssetPreviewCameraComponent = defineComponent({

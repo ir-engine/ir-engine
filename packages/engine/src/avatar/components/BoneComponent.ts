@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Bone } from 'three'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const BoneComponent = defineComponent({
   name: 'BoneComponent',

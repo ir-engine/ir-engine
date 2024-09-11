@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Object3D } from 'three'
 
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, useImmediateEffect } from '@ir-engine/hyperflux'
 import { NameComponent } from '../../common/NameComponent'
 

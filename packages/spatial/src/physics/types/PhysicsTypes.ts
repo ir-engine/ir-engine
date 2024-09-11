@@ -28,7 +28,7 @@ import { BoxGeometry, CapsuleGeometry, CylinderGeometry, SphereGeometry, Vector3
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CollisionGroups } from '../enums/CollisionGroups'
 
 export interface Vec3 {

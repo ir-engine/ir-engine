@@ -26,13 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { InstancedBufferAttribute } from 'three'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const InstancingComponent = defineComponent({
   name: 'InstancingComponent',
   jsonID: 'EE_instancing',
 
   schema: S.Object({
-    instanceMatrix: S.Class(InstancedBufferAttribute, {}, new Float32Array(16), 16)
+    instanceMatrix: S.Class(InstancedBufferAttribute, new Float32Array(16), 16)
   })
 })

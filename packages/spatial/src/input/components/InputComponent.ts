@@ -39,7 +39,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '../../EngineState'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { getAncestorWithComponents, isAncestor } from '../../transform/components/EntityTree'
 import {

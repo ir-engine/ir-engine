@@ -30,8 +30,8 @@ import {
   getOptionalMutableComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const ErrorComponent = defineComponent({
   name: 'ErrorComponent',

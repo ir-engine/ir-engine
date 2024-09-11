@@ -33,7 +33,7 @@ import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 
-import { S, XRHandedness } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S, XRHandedness } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
 import { InteractableComponent, XRUIVisibilityOverride } from './InteractableComponent'

@@ -33,8 +33,8 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
@@ -95,7 +95,7 @@ export const FollowCameraComponent = defineComponent({
       rayLength: S.Number(15.0),
       rayFrequency: S.Number(0.1),
       rayConeAngle: S.Number(Math.PI / 12),
-      camRayCastClock: S.Class(Clock, {}),
+      camRayCastClock: S.Class(Clock),
       camRayCastCache: S.Object({
         maxDistance: S.Number(-1),
         targetHit: S.Bool(false)

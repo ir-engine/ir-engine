@@ -30,7 +30,7 @@ import { defineComponent, getComponent, setComponent } from '@ir-engine/ecs/src/
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -43,7 +43,7 @@ export const InputSourceComponent = defineComponent({
   schema: S.Object({
     source: S.Type<XRInputSource>({} as XRInputSource),
     buttons: S.Type<Readonly<ButtonStateMap<typeof DefaultButtonAlias>>>({}),
-    raycaster: S.Class(Raycaster, {}),
+    raycaster: S.Class(Raycaster),
     intersections: S.Array(
       S.Object({
         entity: S.Entity(),

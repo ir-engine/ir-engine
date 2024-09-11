@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ErrorBoundary, getState, useMutableState } from '@ir-engine/hyperflux'
 import { EffectComposer } from 'postprocessing'
 import React, { Suspense } from 'react'

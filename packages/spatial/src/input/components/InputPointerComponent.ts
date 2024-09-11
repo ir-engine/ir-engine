@@ -33,7 +33,7 @@ import {
   useEntityContext,
   useQuery
 } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { defineState, getState, OpaqueType, useImmediateEffect } from '@ir-engine/hyperflux'
 
 /**

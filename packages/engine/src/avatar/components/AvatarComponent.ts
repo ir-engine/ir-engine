@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Engine, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { defineComponent, getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { UserID } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 

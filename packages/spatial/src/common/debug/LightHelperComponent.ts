@@ -40,7 +40,7 @@ import {
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 

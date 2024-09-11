@@ -31,7 +31,7 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { none } from '@ir-engine/hyperflux'
 
 export const ResourcePendingComponent = defineComponent({

@@ -27,10 +27,10 @@ import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
 import { defineComponent, getComponent, useEntityContext } from '@ir-engine/ecs'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { TProperties } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { TProperties } from '@sinclair/typebox'
 import { useEffect } from 'react'
 import {
   ditheringAlphatestChunk,
@@ -56,22 +56,18 @@ export const TransparencyDitheringPlugin = defineComponent({
   schema: S.Object({
     centers: S.Class<TProperties, typeof Uniform<Vector3[]>>(
       Uniform,
-      {},
       Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())
     ),
     exponents: S.Class<TProperties, typeof Uniform<number[]>>(
       Uniform,
-      {},
       Array.from({ length: MAX_DITHER_POINTS }, () => 1)
     ),
     distances: S.Class<TProperties, typeof Uniform<number[]>>(
       Uniform,
-      {},
       Array.from({ length: MAX_DITHER_POINTS }, () => 1)
     ),
     useWorldCalculation: S.Class<TProperties, typeof Uniform<ditherCalculationType[]>>(
       Uniform,
-      {},
       Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
     )
   }),

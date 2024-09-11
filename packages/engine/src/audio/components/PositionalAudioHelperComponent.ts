@@ -39,7 +39,7 @@ import { NO_PROXY, useDidMount } from '@ir-engine/hyperflux'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
 import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
-import { S } from '@ir-engine/ecs/src/ComponentSchemaUtils'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
