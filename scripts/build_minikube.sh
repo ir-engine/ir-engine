@@ -122,6 +122,15 @@ else
   VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED
 fi
 
+if [ -z "$VITE_FEATHERS_STORE_KEY" ]
+then
+  VITE_FEATHERS_STORE_KEY=IREngine-Auth-Store
+else
+  VITE_FEATHERS_STORE_KEY=VITE_FEATHERS_STORE_KEY
+fi
+
+echo $VITE_APP_HOST
+
 # ./generate-certs.sh
 
 docker start ir-engine_minikube_db

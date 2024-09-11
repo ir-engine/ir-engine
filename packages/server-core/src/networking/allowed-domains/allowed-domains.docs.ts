@@ -23,22 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import AllowedDomains from './allowed-domains/allowed-domains'
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision'
-import Instance from './instance/instance'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+import { allowedDomainsSchema } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [
-  AllowedDomains,
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+export default createSwaggerServiceOptions({
+  schemas: {
+    allowedDomainsSchema
+  },
+  docs: {
+    description: 'Allowed-domain service description',
+    securities: ['all']
+  }
+})
