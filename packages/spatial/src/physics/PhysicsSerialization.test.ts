@@ -23,24 +23,42 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UndefinedEntity, createEngine, createEntity, destroyEngine, removeEntity } from '@ir-engine/ecs'
+import {
+  Entity,
+  UUIDComponent,
+  UndefinedEntity,
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  removeEntity,
+  setComponent
+} from '@ir-engine/ecs'
 import { ViewCursor, createViewCursor, readFloat64, readUint8, writeComponent } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import assert from 'assert'
+import sinon from 'sinon'
 import { Quaternion, Vector3 } from 'three'
+import { SceneComponent } from '../renderer/components/SceneComponents'
+import { EntityTreeComponent } from '../transform/components/EntityTree'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import {
   PhysicsSerialization,
   readBodyAngularVelocity,
   readBodyLinearVelocity,
   readBodyPosition,
   readBodyRotation,
+  readRigidBody,
   writeBodyAngularVelocity,
   writeBodyLinearVelocity,
   writeBodyPosition,
   writeBodyRotation
 } from './PhysicsSerialization'
+import { Physics, PhysicsWorld } from './classes/Physics'
 import { assertVecApproxEq } from './classes/Physics.test'
+import { ColliderComponent } from './components/ColliderComponent'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
+import { BodyTypes, Shapes } from './types/PhysicsTypes'
 
 describe('PhysicsSerialization', () => {
   describe('ID', () => {
@@ -70,14 +88,17 @@ describe('PhysicsSerialization', () => {
         RigidBodyComponent.position.y[testEntity] = Expected.y
         RigidBodyComponent.position.z[testEntity] = Expected.z
 
+        // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
         const write = writeComponent(RigidBodyComponent.position)
         write(cursor, testEntity)
         const view = createViewCursor(cursor.buffer)
 
+        // Sanity check before running
         const beforeCursor = 0
         const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
         assert.equal(view.cursor, beforeCursor)
+        // Run and Check the result
         readBodyPosition(view, testEntity)
         assert.equal(view.cursor, afterCursor)
       })
@@ -103,14 +124,17 @@ describe('PhysicsSerialization', () => {
         RigidBodyComponent.rotation.y[testEntity] = Expected.y
         RigidBodyComponent.rotation.z[testEntity] = Expected.z
 
+        // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
         const write = writeComponent(RigidBodyComponent.rotation)
         write(cursor, testEntity)
         const view = createViewCursor(cursor.buffer)
 
+        // Sanity check before running
         const beforeCursor = 0
         const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
         assert.equal(view.cursor, beforeCursor)
+        // Run and Check the result
         readBodyRotation(view, testEntity)
         assert.equal(view.cursor, afterCursor)
       })
@@ -136,14 +160,17 @@ describe('PhysicsSerialization', () => {
         RigidBodyComponent.linearVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.linearVelocity.z[testEntity] = Expected.z
 
+        // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
         const write = writeComponent(RigidBodyComponent.linearVelocity)
         write(cursor, testEntity)
         const view = createViewCursor(cursor.buffer)
 
+        // Sanity check before running
         const beforeCursor = 0
         const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
         assert.equal(view.cursor, beforeCursor)
+        // Run and Check the result
         readBodyLinearVelocity(view, testEntity)
         assert.equal(view.cursor, afterCursor)
       })
@@ -169,32 +196,211 @@ describe('PhysicsSerialization', () => {
         RigidBodyComponent.angularVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.angularVelocity.z[testEntity] = Expected.z
 
+        // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
         const write = writeComponent(RigidBodyComponent.angularVelocity)
         write(cursor, testEntity)
         const view = createViewCursor(cursor.buffer)
 
+        // Sanity check before running
         const beforeCursor = 0
         const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
         assert.equal(view.cursor, beforeCursor)
+        // Run and Check the result
         readBodyAngularVelocity(view, testEntity)
         assert.equal(view.cursor, afterCursor)
       })
     }) //:: readBodyAngularVelocity
 
     describe('readRigidBody', () => {
+      let testEntity = UndefinedEntity
+
+      beforeEach(() => {
+        createEngine()
+        testEntity = createEntity()
+        createMockNetwork()
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        destroyEngine()
+      })
+
+      it('should readBodyPosition into the `@param v` ViewCursor when position is marked as changed (1<<1)', () => {
+        const Expected = new Vector3(40, 41, 42)
+        RigidBodyComponent.position.x[testEntity] = Expected.x
+        RigidBodyComponent.position.y[testEntity] = Expected.y
+        RigidBodyComponent.position.z[testEntity] = Expected.z
+
+        // Set the data as expected
+        const cursor: ViewCursor = createViewCursor()
+        const write = writeComponent(RigidBodyComponent.position)
+        write(cursor, testEntity)
+        const view = createViewCursor(cursor.buffer)
+
+        // Sanity check before running
+        const beforeCursor = 0
+        const afterCursor = 12
+        assert.equal(view.cursor, beforeCursor)
+        // Run and Check the result
+        readRigidBody(view, testEntity)
+        assert.equal(view.cursor, afterCursor)
+      })
+
+      it('should readBodyRotation into the `@param v` ViewCursor when rotation is marked as changed (1<<2)', () => {
+        const Expected = new Quaternion(40, 41, 42, 43).normalize()
+        RigidBodyComponent.rotation.x[testEntity] = Expected.x
+        RigidBodyComponent.rotation.y[testEntity] = Expected.y
+        RigidBodyComponent.rotation.z[testEntity] = Expected.z
+        RigidBodyComponent.rotation.w[testEntity] = Expected.w
+
+        // Set the data as expected
+        const cursor: ViewCursor = createViewCursor()
+        const write = writeComponent(RigidBodyComponent.rotation)
+        write(cursor, testEntity)
+        const view = createViewCursor(cursor.buffer)
+
+        // Sanity check before running
+        const beforeCursor = 0
+        const afterCursor = 37
+        assert.equal(view.cursor, beforeCursor)
+        // Run and Check the result
+        readRigidBody(view, testEntity)
+        assert.equal(view.cursor, afterCursor)
+      })
+
+      it('should readBodyLinearVelocity into the `@param v` ViewCursor when linearVelocity is marked as changed (1<<3)', () => {
+        const Expected = new Vector3(40, 41, 42)
+        RigidBodyComponent.linearVelocity.x[testEntity] = Expected.x
+        RigidBodyComponent.linearVelocity.y[testEntity] = Expected.y
+        RigidBodyComponent.linearVelocity.z[testEntity] = Expected.z
+
+        // Set the data as expected
+        const cursor: ViewCursor = createViewCursor()
+        const write = writeComponent(RigidBodyComponent.linearVelocity)
+        write(cursor, testEntity)
+        const view = createViewCursor(cursor.buffer)
+
+        // Sanity check before running
+        const beforeCursor = 0
+        const afterCursor = 12
+        assert.equal(view.cursor, beforeCursor)
+        // Run and Check the result
+        readRigidBody(view, testEntity)
+        assert.equal(view.cursor, afterCursor)
+      })
+
+      it('should readBodyAngularVelocity into the `@param v` ViewCursor when angularVelocity is marked as changed (1<<4)', () => {
+        const Expected = new Vector3(40, 41, 42)
+        RigidBodyComponent.angularVelocity.x[testEntity] = Expected.x
+        RigidBodyComponent.angularVelocity.y[testEntity] = Expected.y
+        RigidBodyComponent.angularVelocity.z[testEntity] = Expected.z
+
+        // Set the data as expected
+        const cursor: ViewCursor = createViewCursor()
+        const write = writeComponent(RigidBodyComponent.angularVelocity)
+        write(cursor, testEntity)
+        const view = createViewCursor(cursor.buffer)
+
+        // Sanity check before running
+        const beforeCursor = 0
+        const afterCursor = 12
+        assert.equal(view.cursor, beforeCursor)
+        // Run and Check the result
+        readRigidBody(view, testEntity)
+        assert.equal(view.cursor, afterCursor)
+      })
+
+      describe('when there is a physics world ...', () => {
+        let physicsWorld: PhysicsWorld
+        let physicsWorldEntity: Entity
+
+        beforeEach(async () => {
+          await Physics.load()
+          physicsWorldEntity = createEntity()
+          setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+          setComponent(physicsWorldEntity, SceneComponent)
+          setComponent(physicsWorldEntity, TransformComponent)
+          setComponent(physicsWorldEntity, EntityTreeComponent)
+          physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+          physicsWorld.timestep = 1 / 60
+        })
+
+        it('should call setRigidbodyPose when the entity has dynamic a RigidBody (aka [RigidBodyComponent, RigidBodyDynamicTagComponent]) and one of the elements changed', () => {
+          const Expected = new Vector3(41, 42, 43)
+          const spy = sinon.spy()
+          // Set the data as expected
+          setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+          setComponent(testEntity, TransformComponent)
+          setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+          setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+          RigidBodyComponent.position.x[testEntity] = Expected.x
+          RigidBodyComponent.position.y[testEntity] = Expected.y
+          RigidBodyComponent.position.z[testEntity] = Expected.z
+          const cursor: ViewCursor = createViewCursor()
+          const write = writeComponent(RigidBodyComponent.position)
+          write(cursor, testEntity)
+          const view = createViewCursor(cursor.buffer)
+          physicsWorld.Rigidbodies.get(testEntity)!.setTranslation = spy
+          // Sanity check before running
+          assert.equal(spy.callCount, 0)
+          assert.equal(Boolean(Physics.getWorld(testEntity)), true)
+          // Run and Check the result
+          readRigidBody(view, testEntity)
+          assert.equal(spy.callCount, 1)
+        })
+      })
+
+      describe('when there is no physics world ...', () => {
+        // let physicsWorld: PhysicsWorld
+        let physicsWorldEntity: Entity
+
+        beforeEach(async () => {
+          await Physics.load()
+          physicsWorldEntity = createEntity()
+          setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+          setComponent(physicsWorldEntity, SceneComponent)
+          setComponent(physicsWorldEntity, TransformComponent)
+          setComponent(physicsWorldEntity, EntityTreeComponent)
+          // physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+          // physicsWorld.timestep = 1 / 60
+        })
+
+        /** @fix Will always pass with the current setup */
+        it.skip('should not call setRigidbodyPose', () => {
+          const Expected = new Vector3(41, 42, 43)
+          const spy = sinon.spy()
+          // Set the data as expected
+          setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+          setComponent(testEntity, TransformComponent)
+          setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+          setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+          RigidBodyComponent.position.x[testEntity] = Expected.x
+          RigidBodyComponent.position.y[testEntity] = Expected.y
+          RigidBodyComponent.position.z[testEntity] = Expected.z
+          const cursor: ViewCursor = createViewCursor()
+          const write = writeComponent(RigidBodyComponent.position)
+          write(cursor, testEntity)
+          const view = createViewCursor(cursor.buffer)
+          // physicsWorld.Rigidbodies.get(testEntity)!.setTranslation = spy
+          // Sanity check before running
+          assert.equal(spy.callCount, 0)
+          assert.equal(Boolean(Physics.getWorld(testEntity)), false)
+          // Run and Check the result
+          readRigidBody(view, testEntity)
+          assert.equal(spy.callCount, 0)
+        })
+
+        /**
+        // @todo
+        it("should not call setRigidbodyPose when the entity has a dynamic RigidBody (aka [RigidBodyComponent, RigidBodyDynamicTagComponent]) and none of the elements changed", () => {})
+        it("should not call setRigidbodyPose when the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)]) and one of the elements changed", () => {})
+        */
+      })
       /**
       // @todo
-      // should readBodyPosition into the `@param v` ViewCursor when position is marked as changed (1<<1)
-      // should readBodyRotation into the `@param v` ViewCursor when rotation is marked as changed (1<<2)
-      // should readBodyLinearVelocity into the `@param v` ViewCursor when linearVelocity is marked as changed (1<<3)
-      // should readBodyAngularVelocity into the `@param v` ViewCursor when angularVelocity is marked as changed (1<<4)
-      // should call setRigidbodyPose when there is a PhysicsWorld, the entity has dynamic a RigidBody (aka [RigidBodyComponent, RigidBodyDynamicTagComponent]) and one of the elements changed
-      // should not call setRigidbodyPose when there is no PhysicsWorld
-      // should not call setRigidbodyPose when there is no PhysicsWorld, the entity has a dynamic RigidBody (aka [RigidBodyComponent, RigidBodyDynamicTagComponent]) and none of the elements changed
-      // should not call setRigidbodyPose when there is no PhysicsWorld, the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)]) and one of the elements changed
-      // should set RigidBodyComponent.targetKinematicPosition to RigidBodyComponent.position if the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)])
-      // should set RigidBodyComponent.targetKinematicRotation to RigidBodyComponent.rotation if the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)])
+      it("should set RigidBodyComponent.targetKinematicPosition to RigidBodyComponent.position if the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)])", () => {})
+      it("should set RigidBodyComponent.targetKinematicRotation to RigidBodyComponent.rotation if the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)])", () => {})
       */
     }) //:: readRigidBody
   }) //:: Read
