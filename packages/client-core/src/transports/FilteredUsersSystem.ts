@@ -35,7 +35,6 @@ import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
 import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
-import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 
 export const FilteredUsersState = defineState({
   name: 'FilteredUsersState',
@@ -58,7 +57,7 @@ export const FilteredUsersService = {
 }
 
 export const updateNearbyAvatars = () => {
-  const network = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+  const network = NetworkState.mediaNetwork
   if (!network) return
 
   FilteredUsersService.updateNearbyLayerUsers()

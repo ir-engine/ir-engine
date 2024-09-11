@@ -71,6 +71,7 @@ import {
 } from '@ir-engine/hyperflux'
 import {
   DataChannelType,
+  MediaTagType,
   NetworkActions,
   NetworkPeerFunctions,
   NetworkState,
@@ -88,7 +89,10 @@ import {
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
-import { MediasoupMediaProducerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import {
+  MediasoupMediaProducerActions,
+  MediasoupMediaProducerConsumerState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
@@ -154,7 +158,19 @@ export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Top
     primus,
     heartbeat: setInterval(() => {
       network.messageToPeer(network.hostPeerID, [])
-    }, 1000)
+    }, 1000),
+    pauseTrack: (peerID: PeerID, track: MediaTagType, pause: boolean) => {
+      const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+        network.id,
+        peerID,
+        track
+      ) as ConsumerExtension
+      if (pause) {
+        MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
+      } else {
+        MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
+      }
+    }
   })
 
   return network

@@ -37,7 +37,6 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
-import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
 import HandSVG from './back_hand_24px.svg?react'
 import styleString from './index.scss?inline'
@@ -183,7 +182,7 @@ const WidgetButtons = () => {
         {mediaInstanceState?.value && (
           <WidgetButton
             icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}
-            toggle={toggleMicrophonePaused}
+            toggle={MediaStreamState.toggleMicrophonePaused}
             label={isCamAudioEnabled ? 'Audio on' : 'Audio Off'}
           />
         )}

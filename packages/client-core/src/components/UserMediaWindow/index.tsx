@@ -31,7 +31,6 @@ import React, { RefObject, useEffect, useRef } from 'react'
 
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import { ConsumerExtension } from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind, useGet } from '@ir-engine/common'
 import { UserName, clientSettingPath, userPath } from '@ir-engine/common/src/schema.type.module'
@@ -57,12 +56,10 @@ import Slider from '@ir-engine/ui/src/primitives/mui/Slider'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 
-import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { useTranslation } from 'react-i18next'
 import { useZendesk } from '../../hooks/useZendesk'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
@@ -288,50 +285,40 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
       MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareVideoPaused()
     } else {
-      const videoConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-        mediaNetwork.id,
+      mediaNetwork.pauseTrack(
         peerID,
-        isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType
-      ) as ConsumerExtension
-      if (!videoStreamPaused) {
-        MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, videoConsumer.id)
-      } else {
-        MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, videoConsumer.id)
-      }
+        isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType,
+        !videoStreamPaused
+      )
     }
   }
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
       MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareAudioPaused()
     } else {
-      const audioConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-        mediaNetwork.id,
+      mediaNetwork.pauseTrack(
         peerID,
-        isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType
-      ) as ConsumerExtension
-      if (!audioStreamPaused) {
-        MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, audioConsumer.id)
-      } else {
-        MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, audioConsumer.id)
-      }
+        isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType,
+        !audioStreamPaused
+      )
     }
   }
 
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
     /** @todo */
-    // const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+    // const mediaNetwork = NetworkState.mediaNetwork
     // const audioStreamProducer = audioStream as ConsumerExtension
     // if (!audioProducerGlobalMute) {
     //   MediasoupMediaProducerConsumerState.globalMuteProducer(mediaNetwork, audioStreamProducer.producerId)
@@ -492,7 +479,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   /** @todo move to reactor and hoist isPip or something to a state */
   // useEffect(() => {
   //   if (!videoStream) return
-  //   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+  //   const mediaNetwork = NetworkState.mediaNetwork
   //   const encodings = videoStream.rtpParameters.encodings
 
   //   const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia

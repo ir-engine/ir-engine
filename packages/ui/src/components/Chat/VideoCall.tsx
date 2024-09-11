@@ -34,14 +34,9 @@ import {
   PeerMediaChannelState,
   PeerMediaStreamInterface
 } from '@ir-engine/client-core/src/transports/PeerMediaChannelState'
-import {
-  ConsumerExtension,
-  SocketWebRTCClientNetwork
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
-import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { PeerID, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import {
@@ -104,43 +99,33 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
       MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareVideoPaused()
     } else {
-      const videoConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-        mediaNetwork.id,
+      mediaNetwork.pauseTrack(
         peerID,
-        isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType
-      ) as ConsumerExtension
-      if (!videoStreamPaused) {
-        MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, videoConsumer.id)
-      } else {
-        MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, videoConsumer.id)
-      }
+        isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType,
+        !videoStreamPaused
+      )
     }
   }
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
       MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareAudioPaused()
     } else {
-      const audioConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-        mediaNetwork.id,
+      mediaNetwork.pauseTrack(
         peerID,
-        isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType
-      ) as ConsumerExtension
-      if (!audioStreamPaused) {
-        MediasoupMediaProducerConsumerState.pauseConsumer(mediaNetwork, audioConsumer.id)
-      } else {
-        MediasoupMediaProducerConsumerState.resumeConsumer(mediaNetwork, audioConsumer.id)
-      }
+        isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType,
+        !audioStreamPaused
+      )
     }
   }
 
