@@ -370,55 +370,35 @@ describe('MaterialInstanceComponent', () => {
       return destroyEngine()
     })
 
-    /** @todo Why does this not work ??? */
-    describe.skip("for every instanceEntity in the testEntity's MaterialInstanceComponent.uuid list", () => {
+    describe("for every instanceEntity in the testEntity's MaterialInstanceComponent.uuid list", () => {
       it('... should remove the instanceEntity from its MaterialStateComponent.instances list (found by its UUID)', () => {
         const otherEntity1 = createEntity()
         const otherEntity2 = createEntity()
-        const instanceEntities = [otherEntity1, otherEntity2]
+        const materialEntities = [otherEntity1, otherEntity2]
         const uuid1 = UUIDComponent.generateUUID()
         const uuid2 = UUIDComponent.generateUUID()
         const instanceUUIDs = [uuid1, uuid2]
         setComponent(otherEntity1, UUIDComponent, uuid1)
         setComponent(otherEntity2, UUIDComponent, uuid2)
-        setComponent(otherEntity1, MaterialStateComponent, { material: new Material() })
-        setComponent(otherEntity2, MaterialStateComponent, { material: new Material() })
+        setComponent(otherEntity1, MaterialStateComponent, { instances: [testEntity], material: new Material() })
+        setComponent(otherEntity2, MaterialStateComponent, { instances: [testEntity], material: new Material() })
 
         // Set the data as expected
-        setComponent(testEntity, MaterialStateComponent, { instances: instanceEntities })
         setComponent(testEntity, MaterialInstanceComponent, { uuid: instanceUUIDs })
 
         // Sanity check before running
         assert.equal(hasComponent(testEntity, MaterialInstanceComponent), true)
-        console.log(':::::::')
-        console.log('instanceUUIDs:', instanceUUIDs)
-        console.log('instanceEntities:', instanceEntities)
-        console.log('otherEntity{ 1, 2 }:', [otherEntity1, otherEntity2])
-        for (const instanceUUID of getComponent(testEntity, MaterialInstanceComponent).uuid) {
-          const instanceEntity = UUIDComponent.getEntityByUUID(instanceUUID)
-          const instances = getComponent(instanceEntity, MaterialStateComponent).instances
-          console.log('..................')
-          console.log('entity:', instanceEntity, instances, instanceUUID)
-        }
-
-        for (const instanceUUID of getComponent(testEntity, MaterialInstanceComponent).uuid) {
-          const instanceEntity = UUIDComponent.getEntityByUUID(instanceUUID)
-          assert.equal(hasComponent(instanceEntity, MaterialStateComponent), true)
-          const instances = getComponent(instanceEntity, MaterialStateComponent).instances
-          assert.equal(instances.includes(instanceEntity), true)
+        for (const entity of materialEntities) {
+          assert.equal(getComponent(entity, MaterialStateComponent).instances.includes(testEntity), true)
         }
 
         // Run and Check the result
         removeComponent(testEntity, MaterialInstanceComponent)
-        for (const instanceUUID of getComponent(testEntity, MaterialInstanceComponent).uuid) {
-          const instanceEntity = UUIDComponent.getEntityByUUID(instanceUUID)
-          const instances = getComponent(instanceEntity, MaterialStateComponent).instances
-          assert.equal(instances.includes(instanceEntity), false)
+        for (const entity of materialEntities) {
+          assert.equal(getComponent(entity, MaterialStateComponent).instances.includes(testEntity), false)
         }
       })
-      // it("... should not do anything if the entity does not have a MaterialStateComponent", () => {})
     })
-    // it("should not do anything if the `@param entity` does not have a MaterialInstanceComponent or its MaterialInstanceComponent.uuid list is empty", () => {})
   }) //:: onRemove
 }) //:: MaterialInstanceComponent
 
