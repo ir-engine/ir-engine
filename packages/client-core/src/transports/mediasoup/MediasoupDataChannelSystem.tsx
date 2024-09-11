@@ -48,8 +48,8 @@ import {
   MediasoupDataProducersConsumersObjectsState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
-import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
-import { ClientNetworkingSystem } from './ClientNetworkingSystem'
+import { PresentationSystemGroup } from '@ir-engine/ecs'
+import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from './MediasoupClientFunctions'
 
 function createDataConsumer(network: SocketWebRTCClientNetwork, dataChannel: DataChannelType) {
   dispatchAction(
@@ -204,8 +204,8 @@ const reactor = () => {
   )
 }
 
-export const DataChannelSystem = defineSystem({
-  uuid: 'ee.client.DataChannelSystem',
-  insert: { after: ClientNetworkingSystem },
+export const MediasoupDataChannelSystem = defineSystem({
+  uuid: 'ee.client.MediasoupDataChannelSystem',
+  insert: { after: PresentationSystemGroup },
   reactor
 })

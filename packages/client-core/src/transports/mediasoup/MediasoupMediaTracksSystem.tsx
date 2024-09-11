@@ -1,22 +1,13 @@
 import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
-import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import {
-  MediasoupMediaConsumerActions,
   MediasoupMediaProducerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
-import { Engine, PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
-import {
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
+import { defineState, dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import {
   NetworkState,
   VideoConstants,
@@ -26,10 +17,10 @@ import {
   webcamVideoDataChannelType
 } from '@ir-engine/network'
 import React, { useEffect } from 'react'
-import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
-import { clientContextParams } from '../util/contextParams'
-import { MediaStreamState } from './MediaStreams'
-import { ProducerExtension, SocketWebRTCClientNetwork, WebRTCTransportExtension } from './SocketWebRTCClientFunctions'
+import { MediaInstanceState, useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { MediaStreamState } from '../../media/MediaStreamState'
+import { clientContextParams } from '../../util/contextParams'
+import { ProducerExtension, WebRTCTransportExtension } from './MediasoupClientFunctions'
 
 const logger = multiLogger.child({
   component: 'client-core:MediasoupMediaTracksSystem',
@@ -45,57 +36,6 @@ export const MediasoupSelfProducerState = defineState({
     screenAudioProducer: null as ProducerExtension | null
   }
 })
-
-/**
- * Network producer reactor
- * - Requests consumer for a peer's producer
- * @param props
- * @returns
- */
-export const NetworkProducer = (props: { networkID: InstanceID; producerID: string }) => {
-  const { networkID, producerID } = props
-  const producerState = useHookstate(
-    getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
-  )
-  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
-
-  useEffect(() => {
-    if (!networkState.ready?.value) return
-
-    const peerID = producerState.peerID.value
-    // dont need to request our own consumers
-    if (peerID === Engine.instance.store.peerID) return
-
-    const mediaTag = producerState.mediaTag.value
-    const channelID = producerState.channelID.value
-    const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
-
-    dispatchAction(
-      MediasoupMediaConsumerActions.requestConsumer({
-        mediaTag,
-        peerID,
-        rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
-        channelID,
-        $topic: network.topic,
-        $to: network.hostPeerID
-      })
-    )
-  }, [networkState.ready?.value])
-
-  return null
-}
-
-const NetworkConsumers = (props: { networkID: InstanceID }) => {
-  const { networkID } = props
-  const producers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers)
-  return (
-    <>
-      {producers.keys.map((producerID: string) => (
-        <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
-      ))}
-    </>
-  )
-}
 
 const MicrophoneReactor = () => {
   const mediaNetworkState = useMediaNetwork()
@@ -433,16 +373,8 @@ const ScreenshareReactor = () => {
 }
 
 const reactor = () => {
-  const networkIDs = useMutableState(MediasoupMediaProducerConsumerState)
-  const networks = useHookstate(getMutableState(NetworkState).networks)
-
   return (
     <>
-      {networkIDs.keys
-        .filter((id) => !!networks[id])
-        .map((id: InstanceID) => (
-          <NetworkConsumers key={id} networkID={id} />
-        ))}
       <WebcamReactor />
       <MicrophoneReactor />
       <ScreenshareReactor />

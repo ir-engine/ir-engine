@@ -23,16 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ClientNetworkingSystem } from '../networking/ClientNetworkingSystem'
-import { DataChannelSystem } from '../networking/DataChannelSystem'
-import { MediaChannelSystem } from '../networking/MediaChannelSystem'
-import { FilteredUsersSystem } from '../transports/FilteredUsersSystem'
-import { MediasoupMediaTracksSystem } from '../transports/MediasoupMediaTracksSystem'
+import { InstanceProvisioningSystem } from '../networking/NetworkInstanceProvisioning'
+import { FilteredUsersSystem } from './FilteredUsersSystem'
 
-export {
-  ClientNetworkingSystem,
-  DataChannelSystem,
-  FilteredUsersSystem,
-  MediaChannelSystem,
-  MediasoupMediaTracksSystem
-}
+export * from '../transports/mediasoup/MediasoupModule'
+
+export { FilteredUsersSystem, InstanceProvisioningSystem }

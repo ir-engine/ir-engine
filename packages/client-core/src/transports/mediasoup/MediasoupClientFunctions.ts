@@ -99,16 +99,16 @@ import {
   MediasoupTransportState,
   TransportType
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
-import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
-import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
-import { ChannelState } from '../social/services/ChannelService'
-import { LocationState } from '../social/services/LocationService'
-import { AuthState } from '../user/services/AuthService'
-import { clientContextParams } from '../util/contextParams'
-import { MediaStreamState } from './MediaStreams'
+import { LocationInstanceState } from '../../common/services/LocationInstanceConnectionService'
+import { MediaInstanceState } from '../../common/services/MediaInstanceConnectionService'
+import { MediaStreamState } from '../../media/MediaStreamState'
+import { ChannelState } from '../../social/services/ChannelService'
+import { LocationState } from '../../social/services/LocationService'
+import { AuthState } from '../../user/services/AuthService'
+import { clientContextParams } from '../../util/contextParams'
 
 const logger = multiLogger.child({
-  component: 'client-core:SocketWebRTCClientFunctions',
+  component: 'client-core:MediasoupClientFunctions',
   modifier: clientContextParams
 })
 

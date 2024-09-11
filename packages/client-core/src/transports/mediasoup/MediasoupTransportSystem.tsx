@@ -41,9 +41,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
-import { PeerMediaConsumers } from '../media/PeerMedia'
-import { WebRTCTransportExtension, onTransportCreated } from '../transports/SocketWebRTCClientFunctions'
-import { InstanceProvisioning } from './NetworkInstanceProvisioning'
+import { WebRTCTransportExtension, onTransportCreated } from './MediasoupClientFunctions'
 
 const TransportReactor = (props: { transportID: string; networkID: InstanceID }) => {
   useEffect(() => {
@@ -93,14 +91,12 @@ const reactor = () => {
       {networkIDs.map((id: InstanceID) => (
         <NetworkConnectionReactor key={id} networkID={id} />
       ))}
-      <PeerMediaConsumers />
-      <InstanceProvisioning />
     </>
   )
 }
 
-export const ClientNetworkingSystem = defineSystem({
-  uuid: 'ee.client.ClientNetworkingSystem',
+export const MediasoupTransportSystem = defineSystem({
+  uuid: 'ee.client.MediasoupTransportSystem',
   insert: { after: PresentationSystemGroup },
   reactor
 })

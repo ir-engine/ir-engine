@@ -39,14 +39,15 @@ import {
   webcamAudioDataChannelType
 } from '@ir-engine/network'
 
-import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
-import { MediaStreamState } from '../transports/MediaStreams'
+import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { MediaStreamState } from '../../media/MediaStreamState'
 import {
   createPeerMediaChannels,
   PeerMediaChannelState,
   removePeerMediaChannels
-} from '../transports/PeerMediaChannelState'
-import { ConsumerExtension, ProducerExtension } from '../transports/SocketWebRTCClientFunctions'
+} from '../../media/PeerMediaChannelState'
+import { ConsumerExtension, ProducerExtension } from './MediasoupClientFunctions'
 
 /**
  * Peer media reactor
@@ -200,7 +201,7 @@ export const PeerMediaChannels = () => {
   )
 }
 
-export const PeerMediaConsumers = () => {
+export const reactor = () => {
   const networkIDs = useMutableState(MediasoupMediaProducerConsumerState)
   const networks = useHookstate(getMutableState(NetworkState).networks)
   const selfPeerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.store.peerID])
@@ -216,3 +217,9 @@ export const PeerMediaConsumers = () => {
     </>
   )
 }
+
+export const MediasoupPeerMediaConsumersSystem = defineSystem({
+  uuid: 'ee.client.MediasoupPeerMediaConsumersSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor
+})

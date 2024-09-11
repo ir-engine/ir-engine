@@ -35,9 +35,8 @@ import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanva
 import { useResizableVideoCanvas } from '@ir-engine/client-core/src/hooks/useResizableVideoCanvas'
 import { useScrubbableVideo } from '@ir-engine/client-core/src/hooks/useScrubbableVideo'
 import { CaptureClientSettingsState } from '@ir-engine/client-core/src/media/CaptureClientSettingsState'
+import { MediaStreamState } from '@ir-engine/client-core/src/media/MediaStreamState'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import { MediaStreamState } from '@ir-engine/client-core/src/transports/MediaStreams'
-import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useGet } from '@ir-engine/common'
 import {
   ECSRecordingActions,
@@ -73,6 +72,7 @@ import RecordingsList from '@ir-engine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
+import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import Button from '../../primitives/tailwind/Button'
 

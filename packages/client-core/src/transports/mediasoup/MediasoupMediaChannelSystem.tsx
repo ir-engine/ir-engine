@@ -27,7 +27,14 @@ import React, { useEffect } from 'react'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { dispatchAction, getMutableState, getState, NetworkID, useMutableState } from '@ir-engine/hyperflux'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  NetworkID,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 
 import logger from '@ir-engine/common/src/logger'
 import {
@@ -37,13 +44,9 @@ import {
   MediasoupMediaProducersConsumersObjectsState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
+import { Engine, PresentationSystemGroup } from '@ir-engine/ecs'
 import { NetworkState } from '@ir-engine/network'
-import {
-  ConsumerExtension,
-  SocketWebRTCClientNetwork,
-  WebRTCTransportExtension
-} from '../transports/SocketWebRTCClientFunctions'
-import { ClientNetworkingSystem } from './ClientNetworkingSystem'
+import { ConsumerExtension, SocketWebRTCClientNetwork, WebRTCTransportExtension } from './MediasoupClientFunctions'
 
 export const receiveConsumerHandler = async (networkID: NetworkID, consumerState: MediasoupMediaConsumerType) => {
   const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
@@ -112,11 +115,53 @@ const ConsumerReactor = (props: { consumerID: string; networkID: InstanceID }) =
   return null
 }
 
+/**
+ * Network producer reactor
+ * - Requests consumer for a peer's producer
+ * @param props
+ * @returns
+ */
+export const NetworkProducer = (props: { networkID: InstanceID; producerID: string }) => {
+  const { networkID, producerID } = props
+  const producerState = useHookstate(
+    getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
+  )
+  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
+
+  useEffect(() => {
+    if (!networkState.ready?.value) return
+
+    const peerID = producerState.peerID.value
+    // dont need to request our own consumers
+    if (peerID === Engine.instance.store.peerID) return
+
+    const mediaTag = producerState.mediaTag.value
+    const channelID = producerState.channelID.value
+    const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
+
+    dispatchAction(
+      MediasoupMediaConsumerActions.requestConsumer({
+        mediaTag,
+        peerID,
+        rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
+        channelID,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
+  }, [networkState.ready?.value])
+
+  return null
+}
+
 const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const mediaProducerConsumerState = useMutableState(MediasoupMediaProducerConsumerState)[networkID]
   return (
     <>
+      {mediaProducerConsumerState?.producers?.keys.map((producerID: string) => (
+        <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
+      ))}
       {mediaProducerConsumerState?.consumers?.keys?.map((consumerID) => (
         <ConsumerReactor key={consumerID} consumerID={consumerID} networkID={networkID} />
       ))}
@@ -136,8 +181,8 @@ const reactor = () => {
   )
 }
 
-export const MediaChannelSystem = defineSystem({
-  uuid: 'ee.client.MediaChannelSystem',
-  insert: { after: ClientNetworkingSystem },
+export const MediasoupMediaChannelSystem = defineSystem({
+  uuid: 'ee.client.MediasoupMediaChannelSystem',
+  insert: { after: PresentationSystemGroup },
   reactor
 })

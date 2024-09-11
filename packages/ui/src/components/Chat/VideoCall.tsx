@@ -29,11 +29,8 @@ import React, { useEffect, useRef } from 'react'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 
 import { useMediaWindows } from '@ir-engine/client-core/src/components/UserMediaWindows'
-import { MediaStreamState } from '@ir-engine/client-core/src/transports/MediaStreams'
-import {
-  PeerMediaChannelState,
-  PeerMediaStreamInterface
-} from '@ir-engine/client-core/src/transports/PeerMediaChannelState'
+import { MediaStreamState } from '@ir-engine/client-core/src/media/MediaStreamState'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/client-core/src/media/PeerMediaChannelState'
 import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'

@@ -36,7 +36,7 @@ import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@ir-engine/
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { MediaStreamState } from '../../../transports/MediaStreams'
+import { MediaStreamState } from '../../../media/MediaStreamState'
 import XRIconButton from '../../components/XRIconButton'
 import HandSVG from './back_hand_24px.svg?react'
 import styleString from './index.scss?inline'

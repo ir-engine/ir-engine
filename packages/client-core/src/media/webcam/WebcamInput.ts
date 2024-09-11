@@ -15,7 +15,7 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Group
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import logger from '@ir-engine/common/src/logger'
-import { MediaStreamState } from '../../transports/MediaStreams'
+import { MediaStreamState } from '../MediaStreamState'
 import { WebcamInputComponent } from './WebcamInputComponent'
 
 /*

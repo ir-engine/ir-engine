@@ -30,7 +30,7 @@ import { VideoConstants } from '@ir-engine/network'
 import config from '@ir-engine/common/src/config'
 import { useEffect } from 'react'
 
-const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
+const logger = multiLogger.child({ component: 'client-core:MediaStreamState' })
 
 export const MediaStreamState = defineState({
   name: 'MediaStreamState',
