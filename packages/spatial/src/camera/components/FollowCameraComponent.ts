@@ -224,22 +224,24 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   // Run only if not in first person mode
   let obstacleDistance = Infinity
+  let obstacleHit = false
   if (follow.raycastProps.enabled && follow.mode !== FollowCameraMode.FirstPerson) {
     const distanceResults = getMaxCamDistance(cameraEntity, follow.currentTargetPosition)
     if (distanceResults.maxDistance > 0.1) {
       obstacleDistance = distanceResults.maxDistance
     }
     isInsideWall = distanceResults.targetHit
+    obstacleHit = distanceResults.targetHit
   }
 
   if (follow.mode === FollowCameraMode.FirstPerson) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = 0
   } else if (follow.mode === FollowCameraMode.ThirdPerson || follow.mode === FollowCameraMode.ShoulderCam) {
-    follow.effectiveMaxDistance = Math.min(obstacleDistance * 0.8, follow.thirdPersonMaxDistance)
+    follow.effectiveMaxDistance = Math.min(obstacleDistance * (obstacleHit ? 0.8 : 1), follow.thirdPersonMaxDistance)
     follow.effectiveMinDistance = Math.min(follow.thirdPersonMinDistance, follow.effectiveMaxDistance)
   } else if (follow.mode === FollowCameraMode.TopDown) {
     follow.effectiveMinDistance = follow.effectiveMaxDistance = Math.min(
-      obstacleDistance * 0.9,
+      obstacleDistance * (obstacleHit ? 0.9 : 1),
       follow.thirdPersonMaxDistance
     )
   }

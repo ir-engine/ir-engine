@@ -23,22 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import AllowedDomains from './allowed-domains/allowed-domains'
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision'
-import Instance from './instance/instance'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+import { Params, ServiceInterface } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import appconfig from '../../appconfig'
 
-export default [
-  AllowedDomains,
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+/**
+ * A class for Login service
+ */
+export class JWTPublicKeyService implements ServiceInterface {
+  app: Application
+
+  constructor(app: Application) {
+    this.app = app
+  }
+
+  /**
+   * A function which find specific login details
+   *
+   * @param params
+   * @returns {token}
+   */
+  async find(params?: Params) {
+    return appconfig.authentication.jwtPublicKey
+  }
+}

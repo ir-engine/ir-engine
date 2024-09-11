@@ -23,22 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import AllowedDomains from './allowed-domains/allowed-domains'
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision'
-import Instance from './instance/instance'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+import { Box3, Vector3 } from 'three'
 
-export default [
-  AllowedDomains,
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+/**
+ * Returns all vertices of the bounding box, useful for including all vertices in the camera's view rather than hoping min and max are aligned with the camera
+ * @param boundingBox
+ */
+export function getBoundingBoxVertices(boundingBox: Box3): Vector3[] {
+  const min = boundingBox.min
+  const max = boundingBox.max
+
+  return [
+    new Vector3(min.x, min.y, min.z),
+    new Vector3(min.x, min.y, max.z),
+    new Vector3(min.x, max.y, min.z),
+    new Vector3(min.x, max.y, max.z),
+    new Vector3(max.x, min.y, min.z),
+    new Vector3(max.x, min.y, max.z),
+    new Vector3(max.x, max.y, min.z),
+    new Vector3(max.x, max.y, max.z)
+  ]
+}
