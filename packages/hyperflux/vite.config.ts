@@ -23,11 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-
-// vite.config.js
-import typescript from '@rollup/plugin-typescript'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   build: {
@@ -53,12 +51,6 @@ export default defineConfig({
     }
   },
   plugins: [
-    typescript({
-      exclude: ['**/*.test.ts'],
-      target: 'esnext',
-      rootDir: resolve(__dirname, './src'),
-      declaration: true,
-      declarationDir: resolve(__dirname, './dist')
-    })
+    dts({ tsconfigPath: 'tsconfig.json', rollupTypes: true, exclude: ['**/*.test.ts'], include: ['**/*.ts', "**/*.tsx"] }),
   ]
 })
