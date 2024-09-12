@@ -549,14 +549,9 @@ describe('PhysicsSerialization', () => {
         assert.equal(result, null)
       })
 
-      /**
-      // @todo How is the ViewCursor.changeMask triggered for change for a specific component property ???
-      it("should return the resulting ViewCursor if one of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed", () => {
-        const Expected = new Vector3(40, 41, 42)
+      it('should return the resulting ViewCursor if one of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed', () => {
         // Set the data as expected
-        RigidBodyComponent.position.x[testEntity] = Expected.x
-        RigidBodyComponent.position.y[testEntity] = Expected.y
-        RigidBodyComponent.position.z[testEntity] = Expected.z
+        setComponent(testEntity, RigidBodyComponent)
         const cursor: ViewCursor = createViewCursor()
         // Sanity check before running
         assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
@@ -564,8 +559,19 @@ describe('PhysicsSerialization', () => {
         const result = writeRigidBody(cursor, testEntity)
         assert.notEqual(result, null)
       })
-      it("should return void if none of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed", () => {})
-      */
+
+      it('should return void if none of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed', () => {
+        // Set the data as expected
+        setComponent(testEntity, RigidBodyComponent)
+        const cursor: ViewCursor = createViewCursor()
+        const before = writeRigidBody(cursor, testEntity)
+        // Sanity check before running
+        assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
+        assert.notEqual(before, null)
+        // Run and Check the result
+        const result = writeRigidBody(cursor, testEntity)
+        assert.equal(result, null)
+      })
     }) //:: writeRigidBody
   }) //:: Write
 })
