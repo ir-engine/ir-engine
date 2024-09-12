@@ -60,10 +60,6 @@ const _vec3 = new Vector3()
 const _rot = new Vector3()
 
 /**
- * @todo remove direct reference to mediasoup stuff and move this back to engine package
- */
-
-/**
  * Scene Objects
  */
 const positionalAudioQuery = defineQuery([PositionalAudioComponent, MediaElementComponent, TransformComponent])
