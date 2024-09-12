@@ -34,8 +34,9 @@ import '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumer
 import '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 
-import { NetworkState } from '@ir-engine/network'
 import '@ir-engine/network/src/NetworkPeerState'
+
+import { NetworkState } from '@ir-engine/network'
 
 import {
   MediasoupTransportObjectsState,

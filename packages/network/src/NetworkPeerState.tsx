@@ -1,4 +1,4 @@
-import { NetworkID, PeerID, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { NetworkID, PeerID, defineState, getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect } from 'react'
 import { NetworkActions, NetworkPeer, NetworkState } from './NetworkState'
 import { NetworkPeerFunctions } from './functions/NetworkPeerFunctions'
@@ -9,7 +9,10 @@ export const NetworkPeerState = defineState({
   receptors: {
     onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
       const network = getState(NetworkState).networks[action.$network]
-      if (!network) return
+      if (!network) {
+        console.error(`NetworkPeerState: network ${action.$network} not found`)
+        return
+      }
 
       const state = getMutableState(NetworkPeerState)
       if (!state.value[action.$network]) {
@@ -23,6 +26,12 @@ export const NetworkPeerState = defineState({
           userId: peer.userID,
           userIndex: peer.userIndex
         })
+      }
+
+      for (const peerID of Object.keys(state[action.$network])) {
+        if (!action.peers.find((p) => p.peerID === peerID)) {
+          state[action.$network][peerID].set(none)
+        }
       }
     })
   },
@@ -42,6 +51,15 @@ export const NetworkPeerState = defineState({
 const NetworkReactor = (props: { networkID: NetworkID }) => {
   const { networkID } = props
   const state = useMutableState(NetworkPeerState)[networkID]
+
+  const network = useMutableState(NetworkState).networks[networkID]
+
+  useEffect(() => {
+    if (network) return () => state.set(none)
+  }, [network])
+
+  if (!network) return null
+
   return (
     <>
       {state.keys.map((peerID: PeerID) => (
