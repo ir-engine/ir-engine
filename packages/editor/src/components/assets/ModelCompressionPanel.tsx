@@ -61,7 +61,6 @@ import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 const progressCaptions: Record<ModelTransformStatus, string> = {
   [ModelTransformStatus.Initializing]: 'editor:properties.model.transform.status.initializing',
   [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
-  [ModelTransformStatus.Finalizing]: 'editor:properties.model.transform.status.finalizing',
   [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
   [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
 }

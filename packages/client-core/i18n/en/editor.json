@@ -538,7 +538,6 @@
         "status": {
           "initializing": "Initializing transform...",
           "processingtexture": "Processing texture {{numerator}} of {{denominator}}...",
-          "finalizing": "Finalizing transform...",
           "writingfiles": "Writing files...",
           "complete": "Complete."
         },
