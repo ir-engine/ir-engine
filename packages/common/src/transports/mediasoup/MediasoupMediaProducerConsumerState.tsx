@@ -44,7 +44,7 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
-import { DataChannelType, MediaTagType, NetworkActions, NetworkState } from '@ir-engine/network'
+import { DataChannelType, MediaTagType, Network, NetworkActions, NetworkState } from '@ir-engine/network'
 import { MediaStreamAppData } from '../../interfaces/NetworkInterfaces'
 import {
   MediasoupTransportActions,
@@ -148,6 +148,30 @@ export const MediasoupMediaProducersConsumersObjectsState = defineState({
   }
 })
 
+export type MediasoupMediaProducerType = {
+  producerID: string
+  peerID: PeerID
+  mediaTag: DataChannelType
+  transportID: string
+  channelID: ChannelID
+  paused?: boolean
+  globalMute?: boolean
+}
+
+export type MediasoupMediaConsumerType = {
+  consumerID: string
+  peerID: PeerID
+  mediaTag: DataChannelType
+  transportID: string
+  channelID: ChannelID
+  producerID: string
+  paused?: boolean
+  producerPaused?: boolean
+  kind?: 'audio' | 'video'
+  rtpParameters: any
+  type: string
+}
+
 export const MediasoupMediaProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerState',
 
@@ -155,30 +179,10 @@ export const MediasoupMediaProducerConsumerState = defineState({
     NetworkID,
     {
       producers: {
-        [producerID: string]: {
-          producerID: string
-          peerID: PeerID
-          mediaTag: DataChannelType
-          transportID: string
-          channelID: ChannelID
-          paused?: boolean
-          globalMute?: boolean
-        }
+        [producerID: string]: MediasoupMediaProducerType
       }
       consumers: {
-        [consumerID: string]: {
-          consumerID: string
-          peerID: PeerID
-          mediaTag: DataChannelType
-          transportID: string
-          channelID: ChannelID
-          producerID: string
-          paused?: boolean
-          producerPaused?: boolean
-          kind?: 'audio' | 'video'
-          rtpParameters: any
-          type: string
-        }
+        [consumerID: string]: MediasoupMediaConsumerType
       }
     }
   >,
@@ -201,6 +205,90 @@ export const MediasoupMediaProducerConsumerState = defineState({
     if (!consumer) return
 
     return getState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.consumerID]
+  },
+
+  pauseConsumer: (network: Network, consumerID: string) => {
+    dispatchAction(
+      MediasoupMediaConsumerActions.consumerPaused({
+        consumerID,
+        paused: true,
+        $network: network.id,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
+  },
+
+  resumeConsumer: (network: Network, consumerID: string) => {
+    dispatchAction(
+      MediasoupMediaConsumerActions.consumerPaused({
+        consumerID,
+        paused: false,
+        $network: network.id,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
+  },
+
+  pauseProducer: (network: Network, producerID: string) => {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID,
+        globalMute: false,
+        paused: true,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
+  },
+
+  resumeProducer: (network: Network, producerID: string) => {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID,
+        globalMute: false,
+        paused: false,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
+  },
+
+  globalMuteProducer: (network: Network, producerID: string) => {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID,
+        globalMute: true,
+        paused: true,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
+  },
+
+  globalUnmuteProducer: (network: Network, producerID: string) => {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID,
+        globalMute: false,
+        paused: false,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
+  },
+
+  setPreferredConsumerLayer: (network: Network, consumerID: string, layer: number) => {
+    dispatchAction(
+      MediasoupMediaConsumerActions.consumerLayers({
+        consumerID,
+        layer,
+        $network: network.id,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
   },
 
   receptors: {
@@ -453,7 +541,6 @@ export const NetworkMediaConsumer = (props: { networkID: NetworkID; consumerID: 
       // TODO, for some reason this is triggering more often than it should, so check if it actually has been removed
       if (consumerObjectState.value || consumer.closed || consumer._closed) return
 
-      const network = getState(NetworkState).networks[networkID]
       consumer.close()
     }
   }, [consumerObjectState])
