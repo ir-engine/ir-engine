@@ -291,7 +291,7 @@ export const S = {
       },
       {
         ...options,
-        $id: 'Color'
+        id: 'Color'
       },
       (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex())
     ),
