@@ -197,7 +197,7 @@ describe('ComponentFunctions', async () => {
       const ObjComponent = defineComponent({
         name: 'ObjComponent',
         schema: S.Object({
-          light: S.NonSerialized(S.Class(DirectionalLight)),
+          light: S.NonSerialized(S.Class(() => new DirectionalLight())),
           other: S.Number(0)
         })
       })

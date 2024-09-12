@@ -88,7 +88,7 @@ export const MediaElementComponent = defineComponent({
   schema: S.Object({
     element: S.Type<HTMLMediaElement>(),
     hls: S.Optional(S.Type<Hls>()),
-    abortController: S.Class(AbortController)
+    abortController: S.Class(() => new AbortController())
   }),
 
   toJSON: () => {

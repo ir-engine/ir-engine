@@ -31,5 +31,5 @@ import { ColliderHitEvent } from '../types/PhysicsTypes'
 
 export const CollisionComponent = defineComponent({
   name: 'CollisionComponent',
-  schema: S.Class(Map<Entity, ColliderHitEvent>)
+  schema: S.Class(() => new Map<Entity, ColliderHitEvent>())
 })

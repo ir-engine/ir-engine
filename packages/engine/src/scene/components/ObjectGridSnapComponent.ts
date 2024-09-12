@@ -113,7 +113,7 @@ export const BoundingBoxHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('bounding-box-helper'),
-    bbox: S.Class(Box3),
+    bbox: S.Required(S.Type<Box3>()),
     density: S.Number(2),
     color: S.Color(0xff0000),
     layerMask: S.Number(ObjectLayerMasks.NodeHelper),
@@ -167,7 +167,7 @@ export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
   schema: S.Object({
-    bbox: S.Class(Box3)
+    bbox: S.Class(() => new Box3())
   }),
 
   reactor: () => {

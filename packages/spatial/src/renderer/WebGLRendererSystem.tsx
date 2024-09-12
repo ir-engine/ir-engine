@@ -109,7 +109,7 @@ export const RendererComponent = defineComponent({
     effectComposer: S.Nullable(S.Type<EffectComposer>()),
 
     scenes: S.Array(S.Entity()),
-    scene: S.Class(Scene),
+    scene: S.Class(() => new Scene()),
 
     /** @todo deprecate and replace with engine implementation */
     xrManager: S.Nullable(S.Type<WebXRManager>()),

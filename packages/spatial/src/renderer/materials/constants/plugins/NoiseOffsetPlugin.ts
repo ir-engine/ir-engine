@@ -55,12 +55,12 @@ export const NoiseOffsetPluginComponent = defineComponent({
   name: 'NoiseOffsetPluginComponent',
 
   schema: S.Object({
-    textureSize: S.Class(Uniform, 64),
-    frequency: S.Class(Uniform, 0.00025),
-    amplitude: S.Class(Uniform, 0.005),
-    noiseTexture: S.Class(Uniform, generateNoiseTexture(64)),
-    offsetAxis: S.Class(Uniform, new Vector3(0, 1, 0)),
-    time: S.Class(Uniform, 0)
+    textureSize: S.Class(() => new Uniform(64)),
+    frequency: S.Class(() => new Uniform(0.00025)),
+    amplitude: S.Class(() => new Uniform(0.005)),
+    noiseTexture: S.Class(() => new Uniform(generateNoiseTexture(64))),
+    offsetAxis: S.Class(() => new Uniform(new Vector3(0, 1, 0))),
+    time: S.Class(() => new Uniform(0))
   }),
 
   reactor: () => {

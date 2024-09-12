@@ -155,17 +155,14 @@ export const S = {
   LiteralUnion: <T extends TLiteralValue>(items: T[], init?: T, options?: Options) =>
     S.Union([...items.map((lit) => S.Literal(lit))], init, options),
 
-  Class: <T extends TProperties, Initial extends new (...params: any[]) => any>(
-    init: Initial,
-    ...args: ConstructorParameters<Initial>
-  ) =>
+  Class: <T extends TProperties, Class>(init: () => Class) =>
     ({
       [Kind]: 'Class',
       options: {
-        default: () => new init(...args)
+        default: init
       },
       properties: {}
-    }) as TClassSchema<T, InstanceType<Initial>>,
+    }) as TClassSchema<T, Class>,
 
   SerializedClass: <T extends TProperties, Class>(
     init: () => Class,

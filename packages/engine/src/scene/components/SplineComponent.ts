@@ -61,7 +61,7 @@ export const SplineComponent = defineComponent({
         }
       ]
     ),
-    curve: S.Class(CatmullRomCurve3, [], true)
+    curve: S.Class(() => new CatmullRomCurve3([], true))
   }),
 
   onSet: (entity, component, json) => {

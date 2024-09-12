@@ -270,8 +270,8 @@ export const BoxProjectionPlugin = defineComponent({
   name: 'BoxProjectionPlugin',
 
   schema: S.Object({
-    cubeMapSize: S.Class(Uniform, new Vector3()),
-    cubeMapPos: S.Class(Uniform, new Vector3())
+    cubeMapSize: S.Class(() => new Uniform(new Vector3())),
+    cubeMapPos: S.Class(() => new Uniform(new Vector3()))
   }),
 
   reactor: () => {

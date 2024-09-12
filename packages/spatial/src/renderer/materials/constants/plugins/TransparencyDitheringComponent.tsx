@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
 import { defineComponent, getComponent, getOptionalComponent, useEntityContext } from '@ir-engine/ecs'
-import { TProperties } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -54,21 +53,11 @@ export const TransparencyDitheringPluginComponent = defineComponent({
   name: 'TransparencyDitheringPluginComponent',
   schema: S.NonSerialized(
     S.Object({
-      centers: S.Class<TProperties, typeof Uniform<Vector3[]>>(
-        Uniform,
-        Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())
-      ),
-      exponents: S.Class<TProperties, typeof Uniform<number[]>>(
-        Uniform,
-        Array.from({ length: MAX_DITHER_POINTS }, () => 1)
-      ),
-      distances: S.Class<TProperties, typeof Uniform<number[]>>(
-        Uniform,
-        Array.from({ length: MAX_DITHER_POINTS }, () => 1)
-      ),
-      useWorldCalculation: S.Class<TProperties, typeof Uniform<ditherCalculationType[]>>(
-        Uniform,
-        Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
+      centers: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3()))),
+      exponents: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
+      distances: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
+      useWorldCalculation: S.Class(
+        () => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed))
       )
     })
   ),

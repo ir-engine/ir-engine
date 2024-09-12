@@ -52,7 +52,7 @@ export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
 
   schema: S.Object({
-    box: S.Class(Box3),
+    box: S.Class(() => new Box3()),
     helper: S.Entity()
   }),
 

@@ -33,6 +33,6 @@ export const InstancingComponent = defineComponent({
   jsonID: 'EE_instancing',
 
   schema: S.Object({
-    instanceMatrix: S.Class(InstancedBufferAttribute, new Float32Array(16), 16)
+    instanceMatrix: S.Class(() => new InstancedBufferAttribute(new Float32Array(16), 16))
   })
 })

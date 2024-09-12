@@ -43,7 +43,7 @@ export const LineSegmentComponent = defineComponent({
   schema: S.Object({
     name: S.String('line-segment'),
     geometry: S.Required(S.Type<BufferGeometry>()),
-    material: S.Class(LineBasicMaterial as typeof Material),
+    material: S.Class(() => new LineBasicMaterial() as Material),
     color: S.Optional(S.Color()),
     layerMask: S.Number(ObjectLayers.NodeHelper),
     entity: S.Optional(S.Entity())
