@@ -30,7 +30,6 @@ import { t } from 'i18next'
 import React, { RefObject, useEffect, useRef } from 'react'
 
 import Text from '@ir-engine/client-core/src/common/components/Text'
-import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind, useGet } from '@ir-engine/common'
 import { UserName, clientSettingPath, userPath } from '@ir-engine/common/src/schema.type.module'
@@ -118,13 +117,9 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const { videoMediaStream, audioMediaStream, videoStreamPaused, audioStreamPaused, videoElement, audioElement } =
     peerMediaChannelState.value as PeerMediaStreamInterface
 
-  const audioTrackClones = useHookstate<any[]>([])
-  const videoTrackClones = useHookstate<any[]>([])
-
   const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
   const soundIndicatorOn = useHookstate(false)
   const isPiP = useHookstate(false)
-  const videoDisplayReady = useHookstate<boolean>(false)
 
   const resumeVideoOnUnhide = useRef<boolean>(false)
   const resumeAudioOnUnhide = useRef<boolean>(false)
@@ -168,112 +163,51 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [videoElement, audioElement, harkListener?.value])
 
   useEffect(() => {
-    let unmounted = false
-    let newHark
-    if (audioElement != null) {
-      audioElement.id = `${peerID}_audio`
-      audioElement.autoplay = true
-      audioElement.setAttribute('playsinline', 'true')
-      if (isSelf) {
-        audioElement.muted = true
-      } else {
-        audioElement.volume = volume
-      }
-      if (audioMediaStream) {
-        const newAudioTrack = audioMediaStream.getAudioTracks()[0].clone()
-        const updateAudioTrackClones = audioTrackClones.get(NO_PROXY).concat(newAudioTrack)
-        audioTrackClones.set(updateAudioTrackClones)
-        audioElement.srcObject = new MediaStream([newAudioTrack])
-        newHark = hark(audioElement.srcObject, { play: false })
-        newHark.on('speaking', () => {
-          if (unmounted) return
-          soundIndicatorOn.set(true)
-        })
-        newHark.on('stopped_speaking', () => {
-          if (unmounted) return
-          soundIndicatorOn.set(false)
-        })
-        harkListener.set(newHark)
-      }
+    if (!audioMediaStream) return
+
+    audioElement.id = `${peerID}_audio`
+    audioElement.autoplay = true
+    audioElement.setAttribute('playsinline', 'true')
+    if (isSelf) {
+      audioElement.muted = true
+    } else {
+      audioElement.volume = volume
     }
 
+    audioElement.srcObject = audioMediaStream
+
+    const newHark = hark(audioElement.srcObject, { play: false })
+    newHark.on('speaking', () => {
+      if (unmounted) return
+      soundIndicatorOn.set(true)
+    })
+    newHark.on('stopped_speaking', () => {
+      if (unmounted) return
+      soundIndicatorOn.set(false)
+    })
+    harkListener.set(newHark)
+
+    let unmounted = false
+
     return () => {
-      audioTrackClones.get(NO_PROXY).forEach((track) => track.stop())
       unmounted = true
-      if (newHark) newHark.stop()
+      newHark.stop()
     }
   }, [audioMediaStream])
 
   useEffect(() => {
+    if (!videoMediaStream) return
+
     videoElement.id = `${peerID}_video`
     videoElement.autoplay = true
     videoElement.muted = true
     videoElement.setAttribute('playsinline', 'true')
+    videoElement!.srcObject = videoMediaStream
 
-    if (!videoMediaStream) return
-
-    videoDisplayReady.set(false)
-    const originalTrackEnabledInterval = setInterval(() => {
-      const videoTrack = videoMediaStream.getVideoTracks()[0]
-      if (videoTrack.enabled) {
-        clearInterval(originalTrackEnabledInterval)
-
-        // if (!videoRef?.srcObject?.active || !videoRef?.srcObject?.getVideoTracks()[0].enabled) {
-        const newVideoTrack = videoTrack.clone()
-        videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-        videoTrackClones.set([newVideoTrack])
-        videoElement!.srcObject = new MediaStream([newVideoTrack])
-        if (isScreen) {
-          applyScreenshareToTexture(videoElement!)
-        }
-        videoDisplayReady.set(true)
-        console.log({ videoElement, newVideoTrack })
-        // }
-      }
-    }, 100)
-
-    return () => {
-      videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
+    if (isScreen) {
+      applyScreenshareToTexture(videoElement!)
     }
   }, [videoMediaStream])
-
-  useEffect(() => {
-    if (!isSelf && !videoStreamPaused && videoMediaStream != null && videoElement != null) {
-      const originalTrackEnabledInterval = setInterval(() => {
-        const videoTrack = videoMediaStream.getVideoTracks()[0]
-        if (videoTrack.enabled) {
-          clearInterval(originalTrackEnabledInterval)
-
-          if (!(videoElement?.srcObject as MediaStream)?.getVideoTracks()[0].enabled) {
-            const newVideoTrack = videoTrack.clone()
-            videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-            videoTrackClones.set([newVideoTrack])
-            videoElement!.srcObject = new MediaStream([newVideoTrack])
-          }
-        }
-      }, 100)
-    }
-    if (isSelf && videoStreamPaused && videoMediaStream != null && videoElement != null)
-      videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-  }, [videoStreamPaused])
-
-  useEffect(() => {
-    if (!isSelf && !audioStreamPaused && audioMediaStream != null && audioElement != null) {
-      const originalTrackEnabledInterval = setInterval(() => {
-        const audioTrack = audioMediaStream.getAudioTracks()[0]
-        if (audioTrack.enabled) {
-          clearInterval(originalTrackEnabledInterval)
-
-          if (!(audioElement?.srcObject as MediaStream)?.getAudioTracks()[0].enabled) {
-            const newAudioTrack = audioTrack.clone()
-            const updateAudioTrackClones = audioTrackClones.get(NO_PROXY).concat(newAudioTrack)
-            audioTrackClones.set(updateAudioTrackClones)
-            audioElement!.srcObject = new MediaStream([newAudioTrack])
-          }
-        }
-      })
-    }
-  }, [audioStreamPaused])
 
   useEffect(() => {
     mediaStreamState.microphoneGainNode.value?.gain.setTargetAtTime(
@@ -405,7 +339,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
-    videoDisplayReady: videoDisplayReady.value,
     soundIndicatorOn: soundIndicatorOn.value,
     togglePiP,
     toggleAudio,
@@ -424,14 +357,12 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     volume,
     isScreen,
     username,
-    selfUser,
     isSelf,
     videoMediaStream,
     audioMediaStream,
     avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
-    videoDisplayReady,
     soundIndicatorOn,
     togglePiP,
     toggleAudio,
@@ -524,7 +455,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           [styles['party-chat-user']]: true,
           [styles['self-user']]: isSelf && !isScreen,
           [styles['no-video']]: videoMediaStream == null,
-          [styles['video-paused']]: (videoMediaStream && videoStreamPaused) || !videoDisplayReady,
+          [styles['video-paused']]: videoMediaStream && videoStreamPaused,
           [styles.pip]: isPiP && !isScreen,
           [styles.screenpip]: isPiP && isScreen,
           [styles['not-rendered']]: !isSelf && !rendered
@@ -543,10 +474,10 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
             [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
           })}
         >
-          {(!videoMediaStream ||
-            videoStreamPaused ||
-            // videoProducerGlobalMute ||
-            !videoDisplayReady) && <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />}
+          {(!videoMediaStream || videoStreamPaused) && (
+            // || videoProducerGlobalMute
+            <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />
+          )}
           <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
           <div
             className={classNames({

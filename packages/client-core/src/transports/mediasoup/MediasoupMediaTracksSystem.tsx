@@ -7,7 +7,14 @@ import {
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
-import { defineState, dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import {
   NetworkState,
   VideoConstants,
@@ -46,11 +53,11 @@ const MicrophoneReactor = () => {
   const mediasoupSelfProducerState = useMutableState(MediasoupSelfProducerState)
   const camAudioProducer = mediasoupSelfProducerState.camAudioProducer.value
 
+  const mediaStreamAudioSourceNode = useHookstate(null as MediaStreamAudioSourceNode | null)
+
   useEffect(() => {
     const audioStream = mediaStreamState.microphoneMediaStream.value
     if (!microphoneEnabled || !ready || !audioStream) return
-
-    if (!camAudioProducer || camAudioProducer.closed) return
 
     const network = getState(NetworkState).networks[mediaNetworkState.id.value]
 
@@ -68,8 +75,6 @@ const MicrophoneReactor = () => {
     gainNode.gain.value = 1
     ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
     mediaStreamState.microphoneGainNode.set(gainNode)
-    audioStream.removeTrack(audioTrack)
-    audioStream.addTrack(dst.stream.getAudioTracks()[0])
 
     const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
@@ -81,7 +86,7 @@ const MicrophoneReactor = () => {
 
     transport
       .produce({
-        track: audioStream!.getAudioTracks()[0],
+        track: dst.stream!.getAudioTracks()[0],
         codecOptions,
         appData: { mediaTag: webcamAudioDataChannelType, channelId: channelId }
       })
@@ -114,11 +119,12 @@ const MicrophoneReactor = () => {
 
     if (!camAudioProducer || camAudioProducer.closed) return
 
-    camAudioProducer.replaceTrack({ track: microphoneMediaStream.getAudioTracks()[0] })
+    const sourceNode = mediaStreamAudioSourceNode.value
 
-    return () => {
-      camAudioProducer.track?.stop()
-    }
+    if (!sourceNode) return
+
+    sourceNode.mediaStream.removeTrack(sourceNode.mediaStream.getAudioTracks()[0])
+    sourceNode.mediaStream.addTrack(microphoneMediaStream.getAudioTracks()[0])
   }, [microphoneMediaStream, camAudioProducer])
 
   return null
@@ -217,10 +223,6 @@ const WebcamReactor = () => {
     if (!camVideoProducer || camVideoProducer.closed) return
 
     camVideoProducer.replaceTrack({ track: webcamMediaStream.getVideoTracks()[0] })
-
-    return () => {
-      camVideoProducer.track?.stop()
-    }
   }, [webcamMediaStream, camVideoProducer])
 
   return null
