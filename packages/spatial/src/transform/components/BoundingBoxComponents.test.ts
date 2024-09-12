@@ -119,7 +119,25 @@ describe('BoundingBoxComponent', () => {
     })
   }) //:: onSet
 
-  describe('reactor', () => {}) //:: reactor
+  describe('reactor', () => {
+    describe('when BoundingBoxComponent is mounted or RendererState.nodeHelperVisibility changes', () => {
+      // it("should call updateBoundingBox on the entityContext whenever the value of RendererState.nodeHelperVisibility changes", () => {})
+      // it("should not ?? when RendererState.nodeHelperVisibility is false", () => {})
+      // create a new entity
+      // create a new Box3Helper with the name `bounding-box-helper-${entity}`
+      // set the helper.name as the helperEntity's name
+      // set the helperEntity as visible
+      // set the entityContext to be the parent of the helper entity
+      // add the Box3Helper to the GroupComponent of the helper entity
+      // activate the ObjectLayers.NodeHelper layer into the Box3Helper.layers
+      // set the entityContext.BoundingBoxComponent.helper property to the newly created helperEntity
+    })
+
+    describe('when BoundingBoxComponent is unmounted', () => {
+      // ... should remove the helperEntity", () => {
+      // ... should set the entityContext.BoundingBoxComponent.helper entity to UndefinedEntity
+    })
+  }) //:: reactor
 }) //:: BoundingBoxComponent
 
 describe('updateBoundingBox', () => {
