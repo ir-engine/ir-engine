@@ -70,49 +70,42 @@ export const S = {
   Null: (options?: Options) =>
     ({
       [Kind]: 'Null',
-      typeof: 'null',
       options: options
     }) as TNullSchema,
 
   Undefined: (options?: Options) =>
     ({
       [Kind]: 'Undefined',
-      typeof: 'undefined',
       options: options
     }) as TUndefinedSchema,
 
   Void: (options?: Options) =>
     ({
       [Kind]: 'Void',
-      typeof: 'void',
       options: options
     }) as TVoidSchema,
 
   Number: (init?: number, options?: TNumberSchema['options']) =>
     ({
       [Kind]: 'Number',
-      typeof: 'number',
       options: buildOptions(init ?? 0, options)
     }) as TNumberSchema,
 
   Bool: (init?: boolean, options?: Options) =>
     ({
       [Kind]: 'Bool',
-      typeof: 'boolean',
       options: buildOptions(init ?? false, options)
     }) as TBoolSchema,
 
   String: (init?: string, options?: Options) =>
     ({
       [Kind]: 'String',
-      typeof: 'string',
       options: buildOptions(init ?? '', options)
     }) as TStringSchema,
 
   Enum: <T extends Record<string, string | number>>(item: T, init?: string | number, options?: Options) =>
     ({
       [Kind]: 'Enum',
-      typeof: 'object',
       options: buildOptions(init, options),
       properties: item
     }) as TEnumSchema<T>,
@@ -120,7 +113,6 @@ export const S = {
   Literal: <T extends TLiteralValue>(item: T, init?: T, options?: Options) =>
     ({
       [Kind]: 'Literal',
-      typeof: 'literal',
       options: buildOptions(init, options),
       properties: item
     }) as TLiteralSchema<T>,
@@ -128,7 +120,6 @@ export const S = {
   Object: <T extends TProperties, Initial>(properties: T, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Object',
-      typeof: 'object',
       options: buildOptions(init, options),
       properties: properties
     }) as TObjectSchema<T>,
@@ -136,7 +127,6 @@ export const S = {
   Record: <K extends Schema, V extends Schema, Initial>(key: K, value: V, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Record',
-      typeof: 'object',
       options: buildOptions(init, options),
       properties: { key, value }
     }) as TRecordSchema<K, V>,
@@ -144,7 +134,6 @@ export const S = {
   Partial: <T extends Schema, Initial>(item: T, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Partial',
-      typeof: 'object',
       options: buildOptions(init, options),
       properties: item
     }) as TPartialSchema<T>,
@@ -152,7 +141,6 @@ export const S = {
   Array: <T extends Schema, Initial extends any[]>(item: T, init?: Initial, options?: TArraySchema<T>['options']) =>
     ({
       [Kind]: 'Array',
-      typeof: 'object',
       options: buildOptions(init ?? [], options),
       properties: item
     }) as TArraySchema<T>,
@@ -160,7 +148,6 @@ export const S = {
   Union: <T extends Schema[], Initial>(schemas: [...T], init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Union',
-      typeof: 'any',
       options: buildOptions(init, options),
       properties: schemas
     }) as TUnionSchema<T>,
@@ -174,7 +161,6 @@ export const S = {
   ) =>
     ({
       [Kind]: 'Class',
-      typeof: 'object',
       options: {
         default: () => new init(...args)
       },
@@ -189,7 +175,6 @@ export const S = {
   ) =>
     ({
       [Kind]: 'Class',
-      typeof: 'object',
       options: {
         ...options,
         default: init
@@ -206,7 +191,6 @@ export const S = {
   ) =>
     ({
       [Kind]: 'Func',
-      typeof: 'function',
       options: buildOptions(init, options),
       properties: { params: parameters, return: returns }
     }) as TFuncSchema<Params, Return>,
@@ -223,7 +207,6 @@ export const S = {
   Required: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Required',
-      typeof: 'any',
       options: buildOptions(init, options),
       properties: schema
     }) as TRequiredSchema<T>,
@@ -231,7 +214,6 @@ export const S = {
   NonSerialized: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'NonSerialized',
-      typeof: 'any',
       options: buildOptions(init, options),
       properties: schema
     }) as TNonSerializedSchema<T>,
@@ -320,8 +302,7 @@ export const S = {
 
   Any: () =>
     ({
-      [Kind]: 'Any',
-      typeof: 'any'
+      [Kind]: 'Any'
     }) as TTypedSchema<any>
 }
 

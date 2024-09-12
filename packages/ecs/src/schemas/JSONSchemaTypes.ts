@@ -56,7 +56,6 @@ export interface Options {
 export interface Schema {
   [Kind]: Kinds
   static: unknown
-  typeof: string
   properties?: unknown
   options?: Options
   serializer?: (value: unknown) => unknown
@@ -67,25 +66,21 @@ export type Static<T extends Schema> = T['static']
 export interface TNullSchema extends Schema {
   [Kind]: 'Null'
   static: null
-  typeof: 'null'
 }
 
 export interface TUndefinedSchema extends Schema {
   [Kind]: 'Undefined'
   static: undefined
-  typeof: 'undefined'
 }
 
 export interface TVoidSchema extends Schema {
   [Kind]: 'Void'
   static: void
-  typeof: 'void'
 }
 
 export interface TNumberSchema extends Schema {
   [Kind]: 'Number'
   static: number
-  typeof: 'number'
   options?: Options & {
     maximum?: number
     minimum?: number
@@ -95,19 +90,16 @@ export interface TNumberSchema extends Schema {
 export interface TBoolSchema extends Schema {
   [Kind]: 'Bool'
   static: boolean
-  typeof: 'boolean'
 }
 
 export interface TStringSchema extends Schema {
   [Kind]: 'String'
   static: string
-  typeof: 'string'
 }
 
 export interface TEnumSchema<T extends Record<string, string | number>> extends Schema {
   [Kind]: 'Enum'
   static: T[keyof T]
-  typeof: 'object'
   properties: T
 }
 
@@ -115,7 +107,6 @@ export type TLiteralValue = boolean | number | string
 export interface TLiteralSchema<T extends TLiteralValue> extends Schema {
   [Kind]: 'Literal'
   static: T
-  typeof: 'literal'
   properties: T
 }
 
@@ -129,7 +120,6 @@ type ObjectStatic<T extends TProperties> = {
 export interface TObjectSchema<T extends TProperties> extends Schema {
   [Kind]: 'Object'
   static: ObjectStatic<T>
-  typeof: 'object'
   properties: T
 }
 
@@ -141,14 +131,12 @@ type RecordStatic<K extends Schema, V extends Schema> = {
 export interface TRecordSchema<K extends Schema, V extends Schema> extends Schema {
   [Kind]: 'Record'
   static: RecordStatic<K, V>
-  typeof: 'object'
   properties: { key: K; value: V }
 }
 
 export interface TPartialSchema<T extends Schema> extends Schema {
   [Kind]: 'Partial'
   static: Partial<Static<T>>
-  typeof: 'object'
   properties: T
 }
 
@@ -156,7 +144,6 @@ type ArrayStatic<T extends Schema> = Static<T>[]
 export interface TArraySchema<T extends Schema> extends Schema {
   [Kind]: 'Array'
   static: ArrayStatic<T>
-  typeof: 'object'
   options?: Options & {
     minItem?: number
     maxItem?: number
@@ -170,7 +157,6 @@ type UnionStatic<T extends Schema[]> = {
 export interface TUnionSchema<T extends Schema[]> extends Schema {
   [Kind]: 'Union'
   static: UnionStatic<T>
-  typeof: 'any'
   properties: T
 }
 
@@ -183,7 +169,6 @@ type ParamsStatic<T extends Schema[], Arr extends unknown[] = []> = T extends [
 export interface TFuncSchema<Params extends Schema[], Return extends Schema> extends Schema {
   [Kind]: 'Func'
   static: (...params: ParamsStatic<Params>) => Static<Return>
-  typeof: 'function'
   properties: { params: Params; return: Return }
 }
 
@@ -193,7 +178,6 @@ export interface TRequired {
 export interface TRequiredSchema<T extends Schema> extends Schema {
   [Kind]: 'Required'
   static: Static<T> & TRequired
-  typeof: 'any'
   properties: T
 }
 
@@ -203,14 +187,12 @@ export interface TNonSerializable {
 export interface TNonSerializedSchema<T extends Schema> extends Schema {
   [Kind]: 'NonSerialized'
   static: Static<T> & TNonSerializable
-  typeof: 'any'
   properties: T
 }
 
 export interface TClassSchema<T extends TProperties, Class> extends Schema {
   [Kind]: 'Class'
   static: Class
-  typeof: 'object'
   properties: T
   serializer?: (value: Class) => any
 }
@@ -218,7 +200,6 @@ export interface TClassSchema<T extends TProperties, Class> extends Schema {
 export interface TTypedSchema<T> extends Schema {
   [Kind]: 'Any'
   static: T
-  typeof: 'any'
 }
 
 export type SerializedType<T> = T extends object
