@@ -31,11 +31,12 @@ import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FcInfo } from 'react-icons/fc'
 import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
-import { useBrowserCheck } from '../hooks/useBrowserCheck'
+import { isSupportedBrowser } from '../functions/browserCheck'
 import { EditorState } from '../services/EditorServices'
 import { ProjectPage } from './ProjectPage'
 
@@ -58,8 +59,6 @@ export const useStudioEditor = () => {
 export const EditorPage = () => {
   const [params] = useSearchParams()
   const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
-
-  const unsupported = useBrowserCheck()
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
@@ -84,10 +83,12 @@ export const EditorPage = () => {
 
   if (!scenePath.value && !projectName.value) return <ProjectPage studioPath="/studio" />
 
+  const { t } = useTranslation()
+
   return (
     <>
       <EditorContainer />
-      {unsupported &&
+      {!isSupportedBrowser() &&
         PopoverState.showPopupover(
           <Modal
             onSubmit={() => true}
@@ -97,15 +98,15 @@ export const EditorPage = () => {
           >
             <div className="flex flex-col gap-2">
               <span className="flex items-center gap-2">
-                <FcInfo /> Browser Not Supported!
+                <FcInfo /> {t('editor:unsupportedBrowser.title')}
               </span>
-              <span>Please use Google Chrome for the best experience with the iR Studio.</span>
+              <span>{t('editor:unsupportedBrowser.description')}</span>
               <span className="flex gap-3">
                 <a href={downloadGoogleLink} className="text-blue-500">
-                  [Download Chrome]
+                  {t('editor:unsupportedBrowser.downloadChrome')}
                 </a>
                 <span className="hover:text-blue-500" onClick={() => PopoverState.hidePopupover()}>
-                  [Continue Anyway]
+                  {t('editor:unsupportedBrowser.continue')}
                 </span>
               </span>
             </div>
