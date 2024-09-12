@@ -73,7 +73,6 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
-  const { expandedNodes, firstSelectedEntity } = useMutableState(HierarchyTreeState)
 
   const snapshotIndex = GLTFSnapshotState.useSnapshotIndex(sourceId)
   if (snapshotIndex === undefined) return null
@@ -94,8 +93,8 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
   }, [hierarchyTreeState.search, hierarchyNodes])
 
   useEffect(() => {
-    if (!expandedNodes.value[sourceId]) {
-      expandedNodes.set({ [sourceId]: { [rootEntity]: true } })
+    if (!hierarchyTreeState.expandedNodes.value[sourceId]) {
+      hierarchyTreeState.expandedNodes.set({ [sourceId]: { [rootEntity]: true } })
     }
   }, [])
 
@@ -105,19 +104,18 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
       hierarchyNodes.set(nodes.filter((node) => entityExists(node.entity)))
     }
   }, [
-    hierarchyTreeState.expandedNodes,
+    hierarchyTreeState.expandedNodes, // extra dep for expanding node when already selected
     snapshotIndex,
     gltfSnapshot,
     gltfState,
     selectionState.selectedEntities,
-    showModelChildren,
-    expandedNodes // extra dep for expanding node when already selected
+    showModelChildren
   ])
   // TODO: remove gltfState from deps because it might not be needed and also expanded nodes
 
   useEffect(() => {
     if (!selectionState.selectedEntities.value.length) {
-      firstSelectedEntity.set(null)
+      hierarchyTreeState.firstSelectedEntity.set(null)
     }
   }, [selectionState.selectedEntities])
 
