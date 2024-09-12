@@ -44,7 +44,6 @@ export type * from './schemas/media/file-browser.schema'
 export type * from './schemas/media/invalidation.schema'
 export type * from './schemas/media/oembed.schema'
 export type * from './schemas/media/static-resource.schema'
-export type * from './schemas/networking/instance-active.schema'
 export type * from './schemas/networking/instance-attendance.schema'
 export type * from './schemas/networking/instance-authorized-user.schema'
 export type * from './schemas/networking/instance-friends.schema'
@@ -207,8 +206,6 @@ export const fileBrowserUploadPath = 'file-browser-upload'
 export const staticResourcePath = 'static-resource'
 
 export const oembedPath = 'oembed'
-
-export const instanceActivePath = 'instance-active'
 
 export const archiverPath = 'archiver'
 
