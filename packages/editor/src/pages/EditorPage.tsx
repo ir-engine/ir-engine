@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import '@ir-engine/client-core/src/networking/ClientNetworkingSystem'
 import '@ir-engine/engine/src/EngineModule'
 import { getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
