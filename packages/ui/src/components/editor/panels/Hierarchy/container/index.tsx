@@ -591,6 +591,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             {t('editor:hierarchy.lbl-rename')}
           </Button>
           <Button
+            fullWidth
             size="small"
             variant="transparent"
             className="text-left text-xs"
@@ -600,6 +601,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             {t('editor:hierarchy.lbl-duplicate')}
           </Button>
           <Button
+            fullWidth
             size="small"
             variant="transparent"
             className="text-left text-xs"
@@ -609,6 +611,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             {t('editor:hierarchy.lbl-group')}
           </Button>
           <Button
+            fullWidth
             size="small"
             variant="transparent"
             className="text-left text-xs"
@@ -618,6 +621,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntity: Entity; i
             {t('editor:hierarchy.lbl-copy')}
           </Button>
           <Button
+            fullWidth
             size="small"
             variant="transparent"
             className="text-left text-xs"

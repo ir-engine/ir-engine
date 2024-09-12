@@ -98,7 +98,8 @@ export const authAppCredentialsSchema = Type.Object(
     nonce: Type.Optional(Type.Boolean()),
     response: Type.Optional(Type.Array(Type.String())),
     scope: Type.Optional(Type.Array(Type.String())),
-    custom_params: Type.Optional(Type.Record(Type.String(), Type.String()))
+    custom_params: Type.Optional(Type.Record(Type.String(), Type.String())),
+    privateKey: Type.Optional(Type.String())
   },
   { $id: 'AuthAppCredentials', additionalProperties: false }
 )
