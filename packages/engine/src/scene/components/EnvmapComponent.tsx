@@ -80,24 +80,15 @@ import { ReflectionProbeComponent } from './ReflectionProbeComponent'
 
 const tempColor = new Color()
 
-const envMapSourceType = S.LiteralUnion(
-  Object.keys(EnvMapSourceType) as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType][],
-  EnvMapSourceType.None
-)
+const envMapSourceType = S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.None)
 
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
   jsonID: 'EE_envmap',
 
   schema: S.Object({
-    type: S.LiteralUnion(
-      Object.keys(EnvMapSourceType) as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType][],
-      EnvMapSourceType.None
-    ),
-    envMapTextureType: S.LiteralUnion(
-      Object.keys(EnvMapTextureType) as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType][],
-      EnvMapTextureType.Equirectangular
-    ),
+    type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.None),
+    envMapTextureType: S.LiteralUnion(Object.values(EnvMapTextureType), EnvMapTextureType.Equirectangular),
     envMapSourceColor: S.Color(0xfff),
     envMapSourceURL: S.String(''),
     envMapSourceEntityUUID: S.EntityUUID(),

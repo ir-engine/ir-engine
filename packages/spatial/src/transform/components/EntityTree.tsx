@@ -64,8 +64,8 @@ export const EntityTreeComponent = defineComponent({
     // api
     parentEntity: S.Entity(),
     // internal
-    childIndex: S.Optional(S.Number()),
-    children: S.Array(S.Entity())
+    childIndex: S.NonSerialized(S.Optional(S.Number())),
+    children: S.NonSerialized(S.Array(S.Entity()))
   }),
 
   onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {
@@ -92,25 +92,30 @@ export const EntityTreeComponent = defineComponent({
 
         const parentState = getMutableComponent(parentEntity, EntityTreeComponent)
         const parent = getComponent(parentEntity, EntityTreeComponent)
-
         const prevChildIndex = parent.children.indexOf(entity)
-        const isDifferentIndex = typeof childIndex === 'number' ? prevChildIndex !== childIndex : false
 
-        if (isDifferentIndex && prevChildIndex !== -1) {
-          parentState.children.set((prevChildren) => [
-            ...prevChildren.slice(0, prevChildIndex),
-            ...prevChildren.slice(prevChildIndex + 1)
-          ])
-        }
+        const hasChildIndex = typeof childIndex === 'number'
+        const existsInChildren = prevChildIndex !== -1
+        const needsMoved = existsInChildren && hasChildIndex && childIndex !== prevChildIndex
 
-        if (isDifferentIndex || prevChildIndex === -1) {
-          if (typeof childIndex !== 'undefined')
-            parentState.children.set((prevChildren) => [
-              ...prevChildren.slice(0, childIndex),
-              entity,
-              ...prevChildren.slice(childIndex)
-            ])
-          else parentState.children.set([...parent.children, entity])
+        if (needsMoved) {
+          parentState.children.set((prevChildren) => {
+            prevChildren.splice(prevChildIndex, 1)
+            prevChildren.splice(childIndex, 0, entity)
+            return prevChildren
+          })
+        } else if (!existsInChildren) {
+          if (hasChildIndex) {
+            parentState.children.set((prevChildren) => {
+              prevChildren.splice(childIndex, 0, entity)
+              return prevChildren
+            })
+          } else {
+            parentState.children.set((prevChildren) => {
+              prevChildren.push(entity)
+              return prevChildren
+            })
+          }
         }
       }
 

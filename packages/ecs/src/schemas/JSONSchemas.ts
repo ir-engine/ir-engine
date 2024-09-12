@@ -161,7 +161,7 @@ export const S = {
     ({
       [Kind]: 'Union',
       typeof: 'any',
-      options: buildOptions(init ?? [], options),
+      options: buildOptions(init, options),
       properties: schemas
     }) as TUnionSchema<T>,
 
@@ -181,7 +181,12 @@ export const S = {
       properties: {}
     }) as TClassSchema<T, InstanceType<Initial>>,
 
-  SerializedClass: <T extends TProperties, Class>(init: () => Class, items: T, options: Options) =>
+  SerializedClass: <T extends TProperties, Class>(
+    init: () => Class,
+    items: T,
+    options: Options,
+    serializer?: (value: Class) => any
+  ) =>
     ({
       [Kind]: 'Class',
       typeof: 'object',
@@ -189,7 +194,8 @@ export const S = {
         ...options,
         default: init
       },
-      properties: items
+      properties: items,
+      serializer: serializer
     }) as TClassSchema<T, Class>,
 
   Func: <Params extends Schema[], Return extends Schema, Initial extends (...params: any[]) => any>(
@@ -212,7 +218,7 @@ export const S = {
     S.Union([schema, S.Null()], init ?? null, options),
 
   Optional: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
-    S.Union([schema, S.Undefined()], { default: init, ...options }),
+    S.Union([schema, S.Undefined()], init ?? null, options),
 
   Required: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
     ({
@@ -304,12 +310,13 @@ export const S = {
       {
         ...options,
         $id: 'Color'
-      }
+      },
+      (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex())
     ),
 
   // Only use if you have to (ie. HTML element types, Three types), provides no real type safety or auto serialization
-  Type: <T>(init?: T, props = {}, options?: Options) =>
-    S.Object(props, init ? () => init : null, options) as unknown as TTypedSchema<T>,
+  Type: <T>(init?: T, props?: TProperties, options?: Options) =>
+    S.SerializedClass(init as () => any, props ?? {}, options ?? {}) as unknown as TTypedSchema<T>,
 
   Any: () =>
     ({

@@ -36,7 +36,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { S } from '@ir-engine/ecs'
 import { useResource } from '../../resources/resourceHooks'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -44,7 +44,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const MeshComponent = defineComponent({
   name: 'MeshComponent',
   jsonID: 'EE_mesh',
-  schema: S.Type<Mesh>(),
+  schema: S.Required(S.NonSerialized(S.Type<Mesh>())),
 
   reactor: () => {
     const entity = useEntityContext()

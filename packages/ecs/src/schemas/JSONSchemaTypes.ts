@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 export const Kind = Symbol('Kind')
+export const NonSerializable = Symbol('NonSerializable')
+export const Required = Symbol('Required')
 
 type Kinds =
   | 'Null'
@@ -58,6 +60,7 @@ export interface Schema {
   params: unknown[]
   properties?: unknown
   options?: Options
+  serializer?: (value: unknown) => unknown
 }
 
 export type Static<T extends Schema, P extends unknown[] = []> = (T & {
@@ -188,16 +191,22 @@ export interface TFuncSchema<Params extends Schema[], Return extends Schema> ext
   properties: { params: Params; return: Return }
 }
 
+export interface TRequired {
+  [Required]?: true
+}
 export interface TRequiredSchema<T extends Schema> extends Schema {
   [Kind]: 'Required'
-  static: Static<T>
+  static: Static<T> & TRequired
   typeof: 'any'
   properties: T
 }
 
+export interface TNonSerializable {
+  [NonSerializable]?: true
+}
 export interface TNonSerializedSchema<T extends Schema> extends Schema {
   [Kind]: 'NonSerialized'
-  static: Static<T>
+  static: Static<T> & TNonSerializable
   typeof: 'any'
   properties: T
 }
@@ -207,6 +216,7 @@ export interface TClassSchema<T extends TProperties, Class> extends Schema {
   static: Class
   typeof: 'object'
   properties: T
+  serializer?: (value: Class) => any
 }
 
 export interface TTypedSchema<T> extends Schema {
@@ -214,3 +224,15 @@ export interface TTypedSchema<T> extends Schema {
   static: T
   typeof: 'any'
 }
+
+export type SerializedType<T> = T extends object
+  ? {
+      [K in keyof T]: [T[K]] extends [TNonSerializable]
+        ? never
+        : [T[K]] extends [(...args: any[]) => any]
+        ? never
+        : SerializedType<T[K]>
+    }
+  : T extends TNonSerializable
+  ? never
+  : T

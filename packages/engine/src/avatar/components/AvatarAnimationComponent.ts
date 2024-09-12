@@ -89,7 +89,7 @@ export const AvatarRigComponent = defineComponent({
     rawRig: S.Type<VRMHumanBones>(),
     /** contains ik solve data */
     ikMatrices: S.Record(
-      S.LiteralUnion(Object.keys(VRMHumanBoneName)),
+      S.LiteralUnion(Object.values(VRMHumanBoneName)),
       S.Object({
         local: S.Mat4(),
         world: S.Mat4()

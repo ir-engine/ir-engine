@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Kind,
+  NonSerializable,
   Schema,
   Static,
   TArraySchema,
@@ -40,7 +41,7 @@ import {
 } from './JSONSchemaTypes'
 
 const CreateDefault = (def) => {
-  return typeof def === 'function' ? def() : def
+  return typeof def === 'function' ? def() : structuredClone(def)
 }
 
 const CreateObject = (props?: TProperties) => {
@@ -49,6 +50,85 @@ const CreateObject = (props?: TProperties) => {
     obj[key] = CreateSchemaValue(props[key])
   }
   return obj
+}
+
+export const HasRequiredValues = <T extends Schema>(schema: T, value, current = ''): [boolean, string] => {
+  switch (schema[Kind]) {
+    case 'Object':
+    case 'Class': {
+      const props = schema.properties as TProperties
+      const propKeys = Object.keys(props)
+
+      for (const key of propKeys) {
+        const [valid, fromKey] = HasRequiredValues(props[key], value?.[key], key)
+        if (!valid) return [valid, fromKey]
+      }
+
+      return [true, '']
+    }
+
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties']
+      return HasRequiredValues(props, value)
+    }
+
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return HasRequiredValues(props, value)
+    }
+
+    case 'Required': {
+      return [value !== null && value !== undefined, current]
+    }
+
+    default:
+      return [true, '']
+  }
+}
+
+export const IsSingleValueSchema = <T extends Schema>(schema?: T): boolean => {
+  if (!schema || !schema[Kind]) return false
+
+  switch (schema[Kind]) {
+    case 'Null':
+    case 'Undefined':
+    case 'Void':
+    case 'Number':
+    case 'Bool':
+    case 'String':
+    case 'Enum':
+    case 'Literal':
+    case 'Class':
+    case 'Array':
+    case 'Func':
+      return true
+
+    case 'Any':
+    case 'Object':
+    case 'Record':
+    case 'Partial':
+      return false
+
+    case 'Union': {
+      const props = schema.properties as TUnionSchema<Schema[]>['properties']
+      if (!props.length) return false
+      for (const prop of props) {
+        if (!IsSingleValueSchema(prop)) return false
+      }
+      return true
+    }
+
+    case 'Required': {
+      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      return IsSingleValueSchema(props)
+    }
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return IsSingleValueSchema(props)
+    }
+    default:
+      return false
+  }
 }
 
 export const CreateSchemaValue = <T extends Schema>(schema: T): Static<T> => {
@@ -129,14 +209,12 @@ const isValueType = (type: string) => {
   )
 }
 
-const NonSerializable = Symbol('NonSerializable')
-
 export const CloneSerializable = <Val>(value: Val) => {
   const type = typeof value
   if (isValueType(type) || value === null) return value
   else if (isArrayBuffer(value)) return value.slice(0)
   else if (Array.isArray(value))
-    return value.map((item) => CloneSerializable(item)).filter((item) => item === NonSerializable)
+    return value.map((item) => CloneSerializable(item))?.filter((item) => item !== NonSerializable)
   else if (isSet(value)) return new Set(CloneSerializable([...value.entries()]))
   else if (isMap(value)) return new Map(CloneSerializable([...value.entries()]))
   else if (type === 'object') {
@@ -269,6 +347,7 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
 
     case 'Object':
     case 'Class': {
+      if (schema.serializer) return schema.serializer(value)
       const props = schema.properties as TProperties
       const propKeys = Object.keys(props)
       if (value && typeof value === 'object') {

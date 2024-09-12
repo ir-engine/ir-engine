@@ -28,6 +28,7 @@ import React, { ReactElement, useEffect } from 'react'
 import {
   ComponentType,
   defineComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -88,6 +89,7 @@ function VariantReactor(): ReactElement {
   const meshComponent = getOptionalComponent(entity, MeshComponent)
 
   useImmediateEffect(() => {
+    const json = VariantComponent.toJSON(getComponent(entity, VariantComponent))
     if (variantComponent.heuristic.value !== Heuristic.BUDGET) return
 
     const sortedLevels = (variantComponent.levels.get(NO_PROXY) as VariantLevel[]).sort((left, right) => {

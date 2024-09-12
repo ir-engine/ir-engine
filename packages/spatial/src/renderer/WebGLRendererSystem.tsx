@@ -88,7 +88,7 @@ declare module 'postprocessing' {
   }
 }
 
-export const EffectSchema = S.Type<Effect>(undefined, S.Object({ isActive: S.Bool() }))
+export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActive: S.Bool() })])
 
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',

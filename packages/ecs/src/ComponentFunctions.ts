@@ -51,9 +51,8 @@ import {
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { Value } from '@sinclair/typebox/value'
-import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
-import { CreateSchemaValue, SerializeSchema } from './schemas/JSONSchemaUtils'
+import { Kind, SerializedType, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
+import { CreateSchemaValue, HasRequiredValues, IsSingleValueSchema, SerializeSchema } from './schemas/JSONSchemaUtils'
 
 /**
  * @description
@@ -271,7 +270,7 @@ export const defineComponent = <
     ? SoAComponentType<any>
     : Schema extends bitECS.ISchema
     ? SoAComponentType<Schema>
-    : SoAComponentType<any>
+    : never
 >(
   def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
 ) => {
@@ -283,15 +282,26 @@ export const defineComponent = <
     SOAComponent
   Component.isComponent = true
   Component.onSet = (entity, component, json) => {
-    if (json === undefined || json === null) return
     if (schemaIsJSONSchema(def.schema) || def.onInit) {
-      if (Array.isArray(json) || typeof json !== 'object') component.set(json as ComponentType)
+      if (schemaIsJSONSchema(def.schema)) {
+        const [valid, key] = HasRequiredValues(def.schema, json)
+        if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
+      }
+
+      if (json === null || json === undefined) return
+
+      if (
+        Array.isArray(json) ||
+        typeof json !== 'object' ||
+        (schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema))
+      )
+        component.set(json as ComponentType)
       else component.merge(json as SetPartialStateAction<ComponentType>)
     }
   }
   Component.onRemove = () => {}
   Component.toJSON = (component) => {
-    if (schemaIsJSONSchema(def.schema) && def.onInit) {
+    if (schemaIsJSONSchema(def.schema)) {
       return SerializeSchema(def.schema, component) as unknown as JSON
     }
 

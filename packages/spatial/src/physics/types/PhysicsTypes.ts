@@ -131,7 +131,7 @@ export const RapierShapeToString = {
 }
 
 export type Shape = (typeof Shapes)[keyof typeof Shapes]
-export const ShapeSchema = (init?: Shape) => S.LiteralUnion(Object.keys(Shapes) as Shape[], init)
+export const ShapeSchema = (init?: Shape) => S.LiteralUnion(Object.values(Shapes) as Shape[], init)
 
 export type ColliderOptions = {
   shape: Shape

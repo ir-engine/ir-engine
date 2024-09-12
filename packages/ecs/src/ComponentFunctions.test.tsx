@@ -47,7 +47,7 @@ import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
 import { ECSSchema } from './schemas/ECSSchemas'
-import { CreateSchemaValue } from './schemas/JSONSchemaUtils'
+import { CheckSchemaValue, CreateSchemaValue } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
 
 describe('ComponentFunctions', async () => {
@@ -122,6 +122,7 @@ describe('ComponentFunctions', async () => {
       const entity = createEntity()
       setComponent(entity, Vector3Component, setValue)
       const vector3Component = getComponent(entity, Vector3Component)
+      assert(CheckSchemaValue(Vector3Component.schema, vector3Component))
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
       assert(vector3Component.z === CreateSchemaValue(Vector3Component.schema).z)
     })
@@ -197,14 +198,19 @@ describe('ComponentFunctions', async () => {
       const ObjComponent = defineComponent({
         name: 'ObjComponent',
         schema: S.Object({
-          light: S.NonSerialized(S.Class(DirectionalLight))
+          light: S.NonSerialized(S.Class(DirectionalLight)),
+          other: S.Number(0)
         })
       })
 
       const entity = createEntity()
-      setComponent(entity, ObjComponent)
+      setComponent(entity, ObjComponent, { other: 12 })
       const objComponent = getComponent(entity, ObjComponent)
       const json = ObjComponent.toJSON(objComponent)
+      assert(!('light' in json))
+      assert('other' in json)
+      // The previous assert erases type for some reason
+      assert((json as any).other === 12)
     })
 
     it('ECS Schema is proxied', () => {

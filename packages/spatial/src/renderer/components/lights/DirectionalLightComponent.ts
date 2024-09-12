@@ -106,7 +106,7 @@ export const DirectionalLightComponent = defineComponent({
   jsonID: 'EE_directional_light',
 
   schema: S.Object({
-    light: S.Type<DirectionalLight>(),
+    light: S.NonSerialized(S.Type<DirectionalLight>()),
     color: S.Color(),
     intensity: S.Number(1),
     castShadow: S.Bool(false),

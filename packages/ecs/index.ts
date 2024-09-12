@@ -108,8 +108,12 @@ export * from './src/EngineFunctions'
 export * from './src/Entity'
 export * from './src/EntityFunctions'
 export * from './src/QueryFunctions'
+export * from './src/schemas/ECSSchemas'
+export * from './src/schemas/JSONSchemas'
+export * from './src/schemas/JSONSchemaTypes'
 export * from './src/SystemFunctions'
 export * from './src/SystemGroups'
 export * from './src/Timer'
 export * from './src/UUIDComponent'
+
 export { ECS }

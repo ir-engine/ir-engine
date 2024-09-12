@@ -60,10 +60,7 @@ export const MountPoint = {
 
 export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
-const MountPointTypesSchema = S.LiteralUnion(
-  Object.keys(MountPoint) as (typeof MountPoint)[keyof typeof MountPoint][],
-  'seat'
-)
+const MountPointTypesSchema = S.LiteralUnion(Object.values(MountPoint), 'seat')
 
 /**
  * @todo refactor this into i18n and configurable
