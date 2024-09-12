@@ -34,8 +34,8 @@ import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { GiWireframeGlobe } from 'react-icons/gi'
 import { RiArrowDownSLine } from 'react-icons/ri'
 import { TbBallBowling, TbInnerShadowBottom, TbInnerShadowBottomFilled, TbShadow } from 'react-icons/tb'
@@ -90,7 +90,7 @@ const RenderModeTool = () => {
           />
         </Tooltip>
       ))}
-      <Popup trigger={<Button variant="transparent" className="p-2" startIcon={<RiArrowDownSLine />} />}>
+      <Popup keepInside trigger={<Button variant="transparent" className="p-2" startIcon={<RiArrowDownSLine />} />}>
         <div className="w-52 rounded-md bg-theme-primary p-2">
           <InputGroup
             name="Use Post Processing"

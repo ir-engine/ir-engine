@@ -23,22 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { Params, ServiceInterface } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import appconfig from '../../appconfig'
 
-const argTypes = {}
+/**
+ * A class for Login service
+ */
+export class JWTPublicKeyService implements ServiceInterface {
+  app: Application
 
-export default {
-  title: 'Editor/Panel/Scene/Container',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ScenePanelContainer',
-    jest: 'ScenePanelContainer.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+  constructor(app: Application) {
+    this.app = app
+  }
+
+  /**
+   * A function which find specific login details
+   *
+   * @param params
+   * @returns {token}
+   */
+  async find(params?: Params) {
+    return appconfig.authentication.jwtPublicKey
+  }
 }
-
-export const Default = { args: {} }
