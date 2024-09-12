@@ -34,9 +34,12 @@ import { API } from '@ir-engine/common'
 import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { AssetsPanelCategories } from '@ir-engine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
-import { FilesViewModeSettings } from '@ir-engine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { inputFileWithAddToScene } from '@ir-engine/editor/src/functions/assetFunctions'
+import { FileIcon } from '@ir-engine/editor/src/panels/files/fileicon'
+import { FileUploadProgress } from '@ir-engine/editor/src/panels/files/loaders'
+import DeleteFileModal from '@ir-engine/editor/src/panels/files/modals/DeleteFileModal'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { FilesViewModeSettings } from '@ir-engine/editor/src/services/FilesState'
 import { ClickPlacementState } from '@ir-engine/editor/src/systems/ClickPlacementSystem'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -57,9 +60,6 @@ import { ContextMenu } from '../../../../tailwind/ContextMenu'
 import InfiniteScroll from '../../../../tailwind/InfiniteScroll'
 import { Popup } from '../../../../tailwind/Popup'
 import InputGroup from '../../../input/Group'
-import DeleteFileModal from '../../Files/browserGrid/DeleteFileModal'
-import { FileIcon } from '../../Files/icon'
-import { FileUploadProgress } from '../../Files/upload/FileUploadProgress'
 import { AssetIconMap } from '../icons'
 
 const ASSETS_PAGE_LIMIT = 10
@@ -159,6 +159,7 @@ const ResourceFile = (props: {
   selected: boolean
   onClick: (props: AssetSelectionChangePropsType) => void
   onChange: () => void
+  className: string
 }) => {
   const { t } = useTranslation()
 
@@ -204,18 +205,18 @@ const ResourceFile = (props: {
         })
       }
       onContextMenu={handleContextMenu}
-      className="mb-3 flex h-auto min-w-40 cursor-pointer flex-col items-center text-center"
+      className={`mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center ${props.className}`}
     >
-      <span
-        className={`mx-4 mb-3 mt-2 h-40 w-40 font-['Figtree'] ${
+      <div
+        className={`mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
-      </span>
+      </div>
 
       <Tooltip content={name}>
-        <span className="line-clamp-1 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
+        <span className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
       </Tooltip>
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
@@ -490,6 +491,21 @@ const AssetPanel = () => {
     parentCategories.set(parentCategoryBreadcrumbs)
   }, [categories, selectedCategory])
 
+  const calculateItemsToFetch = (): number => {
+    const parentElement = document.getElementById('asset-panel')?.getBoundingClientRect()
+    const containerHeight = parentElement ? parentElement.width : 0
+    const containerWidth = parentElement ? parentElement.height : 0
+    const item = document.getElementsByClassName('resource-file')[0]?.getBoundingClientRect()
+
+    const defaultSize = 160
+    const itemHeight = Math.floor((item ? item.height : defaultSize) * window.devicePixelRatio)
+    const itemWidth = Math.floor((item ? item.width : defaultSize) * window.devicePixelRatio)
+
+    const itemsInRow = Math.ceil(containerWidth / itemWidth)
+    const numberOfRows = Math.ceil(containerHeight / itemHeight)
+    return itemsInRow * numberOfRows
+  }
+
   const staticResourcesFindApi = () => {
     const abortController = new AbortController()
 
@@ -525,7 +541,7 @@ const AssetPanel = () => {
             }
           : undefined,
         $sort: { mimeType: 1 },
-        $limit: ASSETS_PAGE_LIMIT,
+        $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
         $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
       } as StaticResourceQuery
 
@@ -553,7 +569,10 @@ const AssetPanel = () => {
     }
   }
 
-  useEffect(() => staticResourcesPagination.skip.set(0), [searchText])
+  useEffect(() => {
+    staticResourcesPagination.skip.set(0)
+    searchedStaticResources.set([])
+  }, [searchText, selectedCategory])
 
   useEffect(() => {
     const abortSignal = staticResourcesFindApi()
@@ -570,18 +589,21 @@ const AssetPanel = () => {
       )}
       {searchedStaticResources.length > 0 && (
         <>
-          {searchedStaticResources.value.map((resource) => (
-            <ResourceFile
-              key={resource.id}
-              resource={resource as StaticResourceType}
-              selected={resource.url === assetsPreviewContext.selectAssetURL.value}
-              onClick={(props: AssetSelectionChangePropsType) => {
-                assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
-                ClickPlacementState.setSelectedAsset(props.resourceUrl)
-              }}
-              onChange={() => staticResourcesFindApi()}
-            />
-          ))}
+          <div id="asset-items" className="relative mt-auto flex h-full w-full flex-wrap gap-2">
+            {searchedStaticResources.value.map((resource) => (
+              <ResourceFile
+                key={resource.id}
+                resource={resource as StaticResourceType}
+                selected={resource.url === assetsPreviewContext.selectAssetURL.value}
+                onClick={(props: AssetSelectionChangePropsType) => {
+                  assetsPreviewContext.selectAssetURL.set(props.resourceUrl)
+                  ClickPlacementState.setSelectedAsset(props.resourceUrl)
+                }}
+                onChange={() => staticResourcesFindApi()}
+                className="resource-file"
+              />
+            ))}
+          </div>
         </>
       )}
     </>
@@ -629,21 +651,22 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
-        <div className="ml-2"></div>
-        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-          <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-            <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
-          </Tooltip>
-        </div>
+      <div className="flex h-full flex-col">
+        <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+          <div className="ml-2"></div>
+          <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+            <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+              <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
+            </Tooltip>
+          </div>
 
-        <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-          <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-            <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
-          </Tooltip>
-        </div>
+          <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+            <Tooltip content={t('editor:layout.filebrowser.refresh')}>
+              <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
+            </Tooltip>
+          </div>
 
-        {/* <div className="flex items-center">
+          {/* <div className="flex items-center">
           <Tooltip title={t('editor:layout.scene-assets.settings')}>
             <Button
               variant="transparent"
@@ -654,73 +677,76 @@ const AssetPanel = () => {
           </Tooltip>
         </div> */}
 
-        <ViewModeSettings />
+          <ViewModeSettings />
 
-        <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-          <AssetsBreadcrumb
-            parentCategories={parentCategories.get(NO_PROXY) as Category[]}
-            selectedCategory={selectedCategory.value}
-            onSelectCategory={handleSelectCategory}
-          />
-          <Input
-            placeholder={t('editor:layout.scene-assets.search-placeholder')}
-            value={searchText.value}
-            onChange={(e) => {
-              searchText.set(e.target.value)
-            }}
-            labelClassname="text-sm text-red-500"
-            containerClassName="flex h-full w-auto"
-            className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
-            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
-          />
-        </div>
+          <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+            <AssetsBreadcrumb
+              parentCategories={parentCategories.get(NO_PROXY) as Category[]}
+              selectedCategory={selectedCategory.value}
+              onSelectCategory={handleSelectCategory}
+            />
+            <Input
+              placeholder={t('editor:layout.scene-assets.search-placeholder')}
+              value={searchText.value}
+              onChange={(e) => {
+                searchText.set(e.target.value)
+              }}
+              labelClassname="text-sm text-red-500"
+              containerClassName="flex h-full w-auto"
+              className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+              startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
+            />
+          </div>
 
-        <Button
-          startIcon={<HiOutlinePlusCircle className="text-lg" />}
-          rounded="none"
-          className="h-full whitespace-nowrap bg-theme-highlight px-2"
-          size="small"
-          onClick={() =>
-            inputFileWithAddToScene({
-              projectName: originalPath as string,
-              directoryPath: `projects/${originalPath}/assets/`
-            })
-              .then(handleRefresh)
-              .catch((err) => {
-                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+          <Button
+            startIcon={<HiOutlinePlusCircle className="text-lg" />}
+            rounded="none"
+            className="h-full whitespace-nowrap bg-theme-highlight px-2"
+            size="small"
+            onClick={() =>
+              inputFileWithAddToScene({
+                projectName: originalPath as string,
+                directoryPath: `projects/${originalPath}/assets/`
               })
-          }
-        >
-          {t('editor:layout.filebrowser.uploadAssets')}
-        </Button>
-      </div>
-      <FileUploadProgress />
-      <div className="flex h-full w-full" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
-        <CategoriesList
-          categories={categories.value as Category[]}
-          selectedCategory={selectedCategory.value}
-          collapsedCategories={collapsedCategories}
-          onSelectCategory={handleSelectCategory}
-          style={{ width: width.value }}
-        />
-        <div className="flex w-[20px] cursor-pointer items-center">
-          <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
-        </div>
-        <div className="flex h-full w-full flex-col overflow-auto">
-          <InfiniteScroll
-            disableEvent={
-              staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
+                .then(handleRefresh)
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
             }
-            onScrollBottom={() => staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT)}
           >
-            <div className="mt-auto flex h-full w-full flex-wrap gap-2">
-              <ResourceItems />
-            </div>
-            {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          </InfiniteScroll>
-          <div className="mx-auto mb-10" />
+            {t('editor:layout.filebrowser.uploadAssets')}
+          </Button>
         </div>
-        {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
+        <FileUploadProgress />
+        <div className="flex h-full w-full overflow-hidden" onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
+          <CategoriesList
+            categories={categories.value as Category[]}
+            selectedCategory={selectedCategory.value}
+            collapsedCategories={collapsedCategories}
+            onSelectCategory={handleSelectCategory}
+            style={{ width: width.value }}
+          />
+          <div className="flex w-[20px] cursor-pointer items-center">
+            <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
+          </div>
+          <div id="asset-panel" className="flex h-full w-full flex-col overflow-auto">
+            <InfiniteScroll
+              disableEvent={
+                staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || loading.value
+              }
+              onScrollBottom={() =>
+                staticResourcesPagination.skip.set((prevSkip) => prevSkip + ASSETS_PAGE_LIMIT + calculateItemsToFetch())
+              }
+            >
+              <div className="mt-auto flex h-full w-full flex-wrap gap-2">
+                <ResourceItems />
+              </div>
+              {loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
+            </InfiniteScroll>
+            <div className="mx-auto mb-10" />
+          </div>
+          {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
+        </div>
       </div>
     </>
   )

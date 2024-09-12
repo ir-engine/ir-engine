@@ -32,7 +32,6 @@ import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.ty
 import { HookContext } from '../../../declarations'
 import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
-import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import resolveProjectId from '../../hooks/resolve-project-id'
@@ -277,10 +276,9 @@ export default {
       ),
       enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
       allowNullQuery('thumbnailKey'),
-      discardQuery('action', 'projectId'),
-      collectAnalytics()
+      discardQuery('action', 'projectId')
     ],
-    get: [collectAnalytics()],
+    get: [],
     create: [
       ensureProject,
       iff(

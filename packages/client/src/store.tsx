@@ -24,35 +24,70 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { Suspense, useEffect } from 'react'
+import ReactGA from 'react-ga4'
 import { useTranslation } from 'react-i18next'
 
-import { API } from '@ir-engine/client-core/src/API'
+import { API as ClientAPI } from '@ir-engine/client-core/src/API'
 import { BrowserRouter, history } from '@ir-engine/client-core/src/common/services/RouterService'
 import waitForClientAuthenticated from '@ir-engine/client-core/src/util/wait-for-client-authenticated'
-import { API as CommonAPI } from '@ir-engine/common'
+import { API } from '@ir-engine/common'
 import { pipeLogs } from '@ir-engine/common/src/logger'
-import { createHyperStore } from '@ir-engine/hyperflux'
+import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
+import config from '@ir-engine/common/src/config'
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import TagManager from '@sooro-io/react-gtm-module'
 import { initializei18n } from './util'
 
 const initializeLogs = async () => {
   await waitForClientAuthenticated()
-  pipeLogs(CommonAPI.instance)
+  pipeLogs(API.instance)
+}
+
+const initializeGoogleServices = async () => {
+  await waitForClientAuthenticated()
+
+  //@ts-ignore
+  const clientSettings = await API.instance.service(clientSettingPath).find({})
+  const [settings] = clientSettings.data
+
+  // Initialize Google Analytics
+  if (settings?.gaMeasurementId) {
+    ReactGA.initialize(settings.gaMeasurementId)
+    ReactGA.send({ hitType: 'pageview', page: window.location.pathname })
+  }
+
+  if (settings?.gtmContainerId) {
+    TagManager.initialize({
+      gtmId: settings.gtmContainerId,
+      auth: settings?.gtmAuth,
+      preview: settings?.gtmPreview
+    })
+  }
 }
 
 //@ts-ignore
-const publicPath = import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
-createHyperStore({ publicPath })
+const publicDomain = import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
+createHyperStore()
 initializei18n()
-API.createAPI()
+ClientAPI.createAPI()
 initializeLogs()
+
+getMutableState(DomainConfigState).merge({
+  publicDomain,
+  cloudDomain: config.client.fileServer,
+  proxyDomain: config.client.cors.proxyUrl
+})
 
 export default function ({ children }): JSX.Element {
   const { t } = useTranslation()
 
   useEffect(() => {
+    initializeGoogleServices()
+
     const urlSearchParams = new URLSearchParams(window.location.search)
     const redirectUrl = urlSearchParams.get('redirectUrl')
     if (redirectUrl) {

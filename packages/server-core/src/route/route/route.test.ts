@@ -36,7 +36,7 @@ import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunct
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const params = { isInternal: true } as any
 
@@ -89,7 +89,8 @@ describe('route.test', () => {
 
   after(async () => {
     await cleanup(app, testProject, testProjectId)
-    await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should find the installed project routes', async () => {

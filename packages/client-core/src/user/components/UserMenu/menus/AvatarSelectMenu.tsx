@@ -33,7 +33,8 @@ import Button from '@ir-engine/client-core/src/common/components/Button'
 import InputText from '@ir-engine/client-core/src/common/components/InputText'
 import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import Text from '@ir-engine/client-core/src/common/components/Text'
-import { AvatarID, avatarPath } from '@ir-engine/common/src/schema.type.module'
+import { useFind, useMutation } from '@ir-engine/common'
+import { AvatarID, avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -41,7 +42,6 @@ import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/Sp
 import { AvatarState } from '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
 import { LocalAvatarState } from '@ir-engine/engine/src/avatar/state/AvatarState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
@@ -70,6 +70,7 @@ const AvatarMenu = () => {
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)
   const search = useHookstate({ local: '', query: '' })
+  const userAvatarMutation = useMutation(userAvatarPath)
 
   const avatarsData = useFind(avatarPath, {
     query: {
@@ -88,7 +89,11 @@ const AvatarMenu = () => {
     if (userAvatarId.value !== selectedAvatarId.value) {
       const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
       if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
-        AvatarState.updateUserAvatarId(selectedAvatarId.value)
+        userAvatarMutation.patch(
+          null,
+          { avatarId: selectedAvatarId.value },
+          { query: { userId: Engine.instance.store.userID } }
+        )
         if (selfAvatarEntity) avatarLoading.set(true)
         else PopupMenuServices.showPopupMenu()
       }

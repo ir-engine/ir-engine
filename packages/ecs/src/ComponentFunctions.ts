@@ -32,26 +32,24 @@ import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import config from '@ir-engine/common/src/config'
-import { DeepReadonly } from '@ir-engine/common/src/DeepReadonly'
-import { HookableFunction } from '@ir-engine/common/src/utils/createHookableFunction'
-import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
-import { HyperFlux, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import {
-  hookstate,
+  DeepReadonly,
+  getNestedObject,
+  HyperFlux,
   InferStateValueType,
-  NO_PROXY,
   NO_PROXY_STEALTH,
-  none,
+  ReactorRoot,
   State,
+  hookstate,
+  isTest,
+  none,
+  startReactor,
   useHookstate
-} from '@ir-engine/hyperflux/functions/StateFunctions'
+} from '@ir-engine/hyperflux'
 
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { useExecute } from './SystemFunctions'
-import { PresentationSystemGroup } from './SystemGroups'
 
 /**
  * @description
@@ -59,8 +57,7 @@ import { PresentationSystemGroup } from './SystemGroups'
  * - `100_000` for 'test' client environment
  * - `5_000` otherwise
  */
-export const INITIAL_COMPONENT_SIZE =
-  config.client.appEnv === 'test' ? 100000 : 5000 /** @todo set to 0 after next bitECS update */
+export const INITIAL_COMPONENT_SIZE = isTest ? 100000 : 5000 /** @todo set to 0 after next bitECS update */
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE) // Send the INITIAL_COMPONENT_SIZE value to bitECS as its DefaultSize
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()

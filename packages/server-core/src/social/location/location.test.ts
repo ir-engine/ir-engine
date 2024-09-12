@@ -32,7 +32,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { LocationParams } from './location.class'
 
 const params = { isInternal: true } as LocationParams
@@ -46,8 +46,9 @@ describe('location.test', () => {
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should create a new location', async () => {
@@ -62,7 +63,6 @@ describe('location.test', () => {
     const item = await app.service(locationPath).create(
       {
         name,
-        slugifiedName: '',
         sceneId: scene.data[0].id,
         maxUsersPerInstance: 20,
         locationSetting: {

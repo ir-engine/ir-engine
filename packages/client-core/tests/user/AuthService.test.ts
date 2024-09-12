@@ -27,7 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 // import { createEngine } from '@ir-engine/ecs/src/Engine'
 // import { getMutableState } from '@ir-engine/hyperflux
-// import { Downgraded } from '@ir-engine/hyperflux/functions/StateFunctions'
+// import { Downgraded } from '@ir-engine/hyperflux'
 
 // ;(globalThis as any).document = {}
 // ;(globalThis as any).navigator = {}
