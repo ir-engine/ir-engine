@@ -26,7 +26,7 @@ import {
 import React, { useEffect } from 'react'
 import { MediaInstanceState, useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../media/MediaStreamState'
-import { clientContextParams } from '../../util/contextParams'
+import { clientContextParams } from '../../util/ClientContextState'
 import { ProducerExtension, WebRTCTransportExtension } from './MediasoupClientFunctions'
 
 const logger = multiLogger.child({
