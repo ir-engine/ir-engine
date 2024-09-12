@@ -48,11 +48,12 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent, isAncestor } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
-import React, { KeyboardEvent, StyleHTMLAttributes, useEffect } from 'react'
+import React, { KeyboardEvent, useEffect } from 'react'
 import { DropTargetMonitor, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
+import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import useUpload from '../../components/assets/useUpload'
 import { addMediaNode } from '../../functions/addMediaNode'
@@ -62,11 +63,6 @@ import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { deleteNode, uploadOptions } from './helpers'
 import { useHierarchyNodes, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
-
-type HierarchyTreeNodeProps = {
-  index: number
-  style: StyleHTMLAttributes<HTMLLIElement>
-}
 
 type DragItemType = {
   type: (typeof ItemTypes)[keyof typeof ItemTypes]
@@ -195,7 +191,7 @@ function dropItem(
   }
 }
 
-export default function HierarchyTreeNode(props: HierarchyTreeNodeProps) {
+export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
   const entity = node.entity
