@@ -37,13 +37,15 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { SelectionState } from '../../services/SelectionServices'
 import { deleteNode } from './helpers'
-import { useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
+import { useHierarchyNodes, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
 
 export default function HierarchyTreeContextMenu() {
   const { t } = useTranslation()
   const { anchorEvent, setMenu, entity } = useHierarchyTreeContextMenu()
   const renamingNode = useRenamingNode()
   const { expandChildren, collapseChildren } = useNodeCollapseExpand()
+  const nodes = useHierarchyNodes()
+  const node = nodes.find((n) => n.entity === entity)
 
   const onDuplicateNode = () => {
     setMenu()
@@ -140,31 +142,34 @@ export default function HierarchyTreeContextMenu() {
         <Button fullWidth size="small" variant="transparent" className="text-left text-xs" onClick={onDeleteNode}>
           {t('editor:hierarchy.lbl-delete')}
         </Button>
-        <Button
-          fullWidth
-          size="small"
-          variant="transparent"
-          className="text-left text-xs"
-          onClick={() => {
-            setMenu()
-            expandChildren(entity)
-          }}
-        >
-          {t('editor:hierarchy.lbl-expandAll')}
-        </Button>
-        <Button
-          fullWidth
-          size="small"
-          variant="transparent"
-          className="text-left text-xs"
-          onClick={() => {
-            setMenu()
-            collapseChildren(entity)
-          }}
-        >
-          {t('editor:hierarchy.lbl-collapseAll')}
-        </Button>
-
+        {!node?.isLeaf && (
+          <>
+            <Button
+              fullWidth
+              size="small"
+              variant="transparent"
+              className="text-left text-xs"
+              onClick={() => {
+                setMenu()
+                expandChildren(entity)
+              }}
+            >
+              {t('editor:hierarchy.lbl-expandAll')}
+            </Button>
+            <Button
+              fullWidth
+              size="small"
+              variant="transparent"
+              className="text-left text-xs"
+              onClick={() => {
+                setMenu()
+                collapseChildren(entity)
+              }}
+            >
+              {t('editor:hierarchy.lbl-collapseAll')}
+            </Button>
+          </>
+        )}
         <Button
           fullWidth
           size="small"

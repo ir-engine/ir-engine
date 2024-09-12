@@ -23,30 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { isAncestor } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import ElementList from '@ir-engine/ui/src/components/editor/panels/Properties/elementList'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React, { useCallback, useEffect, useRef } from 'react'
-import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
-import useUpload from '../../components/assets/useUpload'
-import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { addMediaNode } from '../../functions/addMediaNode'
-import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import { uploadOptions } from './helpers'
 import HierarchyTreeNode from './hierarchynode'
-import { useHierarchyNodes } from './hooks'
+import { useHierarchyNodes, useHierarchyTreeDrop } from './hooks'
 
 export function Topbar() {
   const { t } = useTranslation()
@@ -89,59 +78,8 @@ export function Contents() {
   })
   const nodes = useHierarchyNodes()
   const ref = useRef<HTMLDivElement>(null)
-  const onUpload = useUpload(uploadOptions)
-  const rootEntity = useMutableState(EditorState).rootEntity.value
-  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
 
-  const [{ canDrop, isOver }, treeContainerDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...SupportedFileTypes],
-    drop(item: any, monitor) {
-      if (monitor.didDrop()) return
-
-      // check if item contains files
-      if (item.files) {
-        const dndItem: any = monitor.getItem()
-        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
-
-        //uploading files then adding to editor media
-        onUpload(entries).then((assets) => {
-          if (!assets) return
-          for (const asset of assets) addMediaNode(asset)
-        })
-
-        return
-      }
-
-      if (item.url) {
-        addMediaNode(item.url)
-        return
-      }
-
-      if (item.type === ItemTypes.Component) {
-        EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentJsonID }])
-        return
-      }
-
-      EditorControlFunctions.reparentObject(Array.isArray(item.value) ? item.value : [item.value])
-    },
-    canDrop(item: any, monitor) {
-      if (!monitor.isOver({ shallow: true })) return false
-
-      // check if item is of node type
-      if (item.type === ItemTypes.Node) {
-        const sceneEntity = getState(GLTFAssetState)[sourceId]
-        return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
-          : isAncestor(item.value, sceneEntity))
-      }
-
-      return true
-    },
-    collect: (monitor) => ({
-      canDrop: monitor.canDrop(),
-      isOver: monitor.isOver()
-    })
-  })
+  const { canDrop, isOver, dropTarget: treeContainerDropTarget } = useHierarchyTreeDrop()
 
   /**an explicit callback is required to rerender changed nodes inside FixedSizeList */
   const MemoTreeNode = useCallback(

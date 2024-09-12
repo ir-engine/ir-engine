@@ -27,17 +27,40 @@ import { GLTF } from '@gltf-transform/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
-import { Entity, entityExists, getComponent, UndefinedEntity, useOptionalComponent } from '@ir-engine/ecs'
-import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
+import {
+  Entity,
+  entityExists,
+  getComponent,
+  getOptionalComponent,
+  UndefinedEntity,
+  useOptionalComponent
+} from '@ir-engine/ecs'
+import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  isAncestor,
+  traverseEntityNode
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 'react'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
+import useUpload from '../../components/assets/useUpload'
 import { gltfHierarchyTreeWalker, HierarchyTreeNodeType } from '../../components/hierarchy/HierarchyTreeWalker'
+import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
+import { addMediaNode } from '../../functions/addMediaNode'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
+import { uploadOptions } from './helpers'
+
+type DragItemType = {
+  type: (typeof ItemTypes)[keyof typeof ItemTypes]
+  value: Entity | Entity[]
+  multiple: boolean
+}
 
 const didHierarchyChange = (prev: HierarchyTreeNodeType[], curr: HierarchyTreeNodeType[]) => {
   if (prev.length !== curr.length) return true
@@ -111,7 +134,6 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
     selectionState.selectedEntities,
     showModelChildren
   ])
-  // TODO: remove gltfState from deps because it might not be needed and also expanded nodes
 
   useEffect(() => {
     if (!selectionState.selectedEntities.value.length) {
@@ -173,5 +195,111 @@ export const useNodeCollapseExpand = () => {
   return { expandNode, collapseNode, expandChildren, collapseChildren }
 }
 
-// TODO
-export const useHierarchyTreeDragDrop = () => {}
+export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' | 'Before' | 'After') => {
+  const onUpload = useUpload(uploadOptions)
+  const rootEntity = useMutableState(EditorState).rootEntity.value
+  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
+
+  const canDropItem = (item: DragItemType, monitor: DropTargetMonitor): boolean => {
+    if (!monitor.isOver({ shallow: true })) {
+      return false
+    }
+
+    if (node?.entity && place !== 'On') {
+      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
+      if (!entityTreeComponent) {
+        return false
+      }
+    }
+    if (item.type === ItemTypes.Node) {
+      if (node?.entity) {
+        const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
+        if (place === 'On' || !!entityTreeComponent.parentEntity) return true
+      }
+
+      const entity = node?.entity || getState(GLTFAssetState)[sourceId]
+
+      return !(item.multiple
+        ? (item.value as Entity[]).some((otherObject) => isAncestor(otherObject, entity))
+        : isAncestor(item.value as Entity, entity))
+    }
+    return true
+  }
+
+  const dropItem = (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
+    let parentNode: Entity | undefined = undefined
+    let beforeNode: Entity | undefined = undefined
+
+    if (node) {
+      if (place === 'Before') {
+        const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+        parentNode = entityTreeComponent?.parentEntity
+        beforeNode = node.entity
+      } else if (place === 'After') {
+        const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+        parentNode = entityTreeComponent?.parentEntity
+        const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+        if (
+          parentTreeComponent &&
+          !node.lastChild &&
+          parentNode &&
+          parentTreeComponent?.children.length > node.childIndex + 1
+        ) {
+          beforeNode = parentTreeComponent.children[node.childIndex + 1]
+        }
+      } else {
+        parentNode = node.entity
+      }
+    }
+
+    if (parentNode) {
+      if ('files' in item) {
+        const dndItem: any = monitor.getItem()
+        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+
+        //uploading files then adding as media to the editor
+        onUpload(entries).then((assets) => {
+          if (!assets) return
+          for (const asset of assets) {
+            addMediaNode(asset, parentNode, beforeNode)
+          }
+        })
+        return
+      }
+
+      if ('url' in item) {
+        addMediaNode(item.url, parentNode, beforeNode)
+        return
+      }
+
+      if ('type' in item && item.type === ItemTypes.Component) {
+        EditorControlFunctions.createObjectFromSceneElement(
+          [{ name: (item as any).componentJsonID }],
+          parentNode,
+          beforeNode
+        )
+        return
+      }
+    }
+
+    EditorControlFunctions.reparentObject(
+      Array.isArray((item as DragItemType).value)
+        ? ((item as DragItemType).value as Entity[])
+        : [(item as DragItemType).value as Entity],
+      beforeNode,
+      parentNode
+    )
+  }
+
+  const [{ canDrop, isOver }, dropTarget] = useDrop({
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
+    drop: dropItem,
+    canDrop: canDropItem,
+    collect: (monitor) => ({
+      canDrop: monitor.canDrop(),
+      isOver: monitor.isOver()
+    })
+  })
+
+  return { canDrop, isOver, dropTarget }
+}

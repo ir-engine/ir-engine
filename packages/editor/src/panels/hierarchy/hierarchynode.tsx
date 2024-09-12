@@ -36,7 +36,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { HierarchyTreeNodeType } from '@ir-engine/editor/src/components/hierarchy/HierarchyTreeWalker'
-import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -46,23 +46,28 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent, isAncestor } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import React, { KeyboardEvent, useEffect } from 'react'
-import { DropTargetMonitor, useDrag, useDrop } from 'react-dnd'
+import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import useUpload from '../../components/assets/useUpload'
-import { addMediaNode } from '../../functions/addMediaNode'
 import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { deleteNode, uploadOptions } from './helpers'
-import { useHierarchyNodes, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
+import {
+  useHierarchyNodes,
+  useHierarchyTreeContextMenu,
+  useHierarchyTreeDrop,
+  useNodeCollapseExpand,
+  useRenamingNode
+} from './hooks'
 
 type DragItemType = {
   type: (typeof ItemTypes)[keyof typeof ItemTypes]
@@ -89,32 +94,6 @@ function IconComponent({ entity }: { entity: Entity }) {
   const _IconComponent = icons.length > 0 ? icons[0] : TransformPropertyGroup.iconComponent
   if (!_IconComponent) return null
   return <_IconComponent entity={entity} className="h-5 w-5 flex-shrink-0 text-inherit" />
-}
-
-function canDropItem(entity: Entity, dropOn?: boolean) {
-  return (item: DragItemType, monitor: DropTargetMonitor): boolean => {
-    if (!monitor.isOver()) {
-      return false
-    }
-
-    if (!dropOn) {
-      const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-      if (!entityTreeComponent) {
-        return false
-      }
-    }
-    if (item.type === ItemTypes.Node) {
-      const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-
-      return (
-        (dropOn || !!entityTreeComponent.parentEntity) &&
-        !(item.multiple
-          ? (item.value as Entity[]).some((otherObject) => isAncestor(otherObject, entity))
-          : isAncestor(item.value as Entity, entity))
-      )
-    }
-    return true
-  }
 }
 
 export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
@@ -162,105 +141,17 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     })
   })
 
-  const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
-    let parentNode: Entity | undefined
-    let beforeNode: Entity
-
-    if (place === 'Before') {
-      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
-      beforeNode = node.entity
-    } else if (place === 'After') {
-      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
-      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-      if (
-        parentTreeComponent &&
-        !node.lastChild &&
-        parentNode &&
-        parentTreeComponent?.children.length > node.childIndex + 1
-      ) {
-        beforeNode = parentTreeComponent.children[node.childIndex + 1]
-      }
-    } else {
-      parentNode = node.entity
-    }
-
-    if (!parentNode)
-      return () => {
-        console.warn('parent is not defined')
-      }
-
-    return (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
-      if (parentNode) {
-        if ('files' in item) {
-          const dndItem: any = monitor.getItem()
-          const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
-
-          //uploading files then adding as media to the editor
-          onUpload(entries).then((assets) => {
-            if (!assets) return
-            for (const asset of assets) {
-              addMediaNode(asset, parentNode, beforeNode)
-            }
-          })
-          return
-        }
-
-        if ('url' in item) {
-          addMediaNode(item.url, parentNode, beforeNode)
-          return
-        }
-
-        if ('type' in item && item.type === ItemTypes.Component) {
-          EditorControlFunctions.createObjectFromSceneElement(
-            [{ name: (item as any).componentJsonID }],
-            parentNode,
-            beforeNode
-          )
-          return
-        }
-      }
-
-      EditorControlFunctions.reparentObject(
-        Array.isArray((item as DragItemType).value)
-          ? ((item as DragItemType).value as Entity[])
-          : [(item as DragItemType).value as Entity],
-        beforeNode ?? nodes.at(-1)?.entity,
-        parentNode
-      )
-    }
-  }
-
-  const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
-    drop: dropItem(node, 'Before'),
-    canDrop: canDropItem(entity),
-    collect: (monitor) => ({
-      canDropBefore: monitor.canDrop(),
-      isOverBefore: monitor.isOver()
-    })
-  })
-
-  const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
-    drop: dropItem(node, 'After'),
-    canDrop: canDropItem(entity),
-    collect: (monitor) => ({
-      canDropAfter: monitor.canDrop(),
-      isOverAfter: monitor.isOver()
-    })
-  })
-
-  const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
-    drop: dropItem(node, 'On'),
-    canDrop: canDropItem(entity, true),
-    collect: (monitor) => ({
-      canDropOn: monitor.canDrop(),
-      isOverOn: monitor.isOver()
-    })
-  })
+  const {
+    canDrop: canDropBefore,
+    isOver: isOverBefore,
+    dropTarget: beforeDropTarget
+  } = useHierarchyTreeDrop(node, 'Before')
+  const {
+    canDrop: canDropAfter,
+    isOver: isOverAfter,
+    dropTarget: afterDropTarget
+  } = useHierarchyTreeDrop(node, 'After')
+  const { canDrop: canDropOn, isOver: isOverOn, dropTarget: onDropTarget } = useHierarchyTreeDrop(node, 'On')
 
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true })
