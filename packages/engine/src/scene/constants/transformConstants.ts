@@ -27,7 +27,7 @@ import { Vector3 } from 'three'
 
 export const TransformPivot = {
   Center: 'Center' as const,
-  FirstSelected: 'Selection' as const,
+  FirstSelected: 'FirstSelected' as const,
   BoundingBox: 'BoundingBox' as const,
   BoundingBoxBottom: 'BoundingBoxBottom' as const,
   Origin: 'Origin' as const
