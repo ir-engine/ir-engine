@@ -539,19 +539,6 @@ const reparentObject = (
       const entityUUID = getComponent(entity, UUIDComponent)
       const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
 
-      /*
-      const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
-      if (isCurrentlyChildOfRoot) {
-        gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
-      } else {
-        const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)
-        if (!currentParentNode) continue
-        const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
-        currentParentNode.children!.splice(currentParentNodeIndex, 1)
-        if (!currentParentNode.children?.length) delete currentParentNode.children
-      }
-      */
-
       // Ensure the entity Transform remains unmodified when reparented
       const node = getGLTFNodeByUUID(gltf.data, entityUUID) // Get the GLTF Node for the entity
       if (node) {
@@ -579,14 +566,16 @@ const reparentObject = (
 
       // gltf.data.scenes![0].nodes is the child array of the root parent
       // newParentNode.children is the child array of a non root parent
-      // gltf.data.nodes is the node data used for reference, its index should not change, unless it is a child on the root parent
+      // gltf.data.nodes is the node data used for reference, its index should not change, unless it is a child on the root parent, then it is used to order the root parent's children
 
-      let finalIndex = -1
+      //build a index ref table for the lookup table to be used to correct child index value and maintain data integrity
       let indexConvertArray: number[] = []
       gltf.data.nodes?.forEach((value, index) => {
         indexConvertArray.push(index)
       })
 
+      //if the new parent is the root parent, update the look up table since it is used for root parent child order
+      //update the index conver arry to mathc so it can be used later to correct child index value and maintain data integrity
       if (isNewParentRoot && gltf.data.nodes) {
         if (before) {
           const nodeData = gltf.data.nodes.splice(nodeIndex, 1)
@@ -594,18 +583,17 @@ const reparentObject = (
           const beforeIndex = gltf.data.nodes.findIndex((n) => {
             return n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
           })
-          finalIndex = beforeIndex
-          gltf.data.nodes.splice(finalIndex, 0, nodeData![0])
-          indexConvertArray.splice(finalIndex, 0, nodeIndex)
+          gltf.data.nodes.splice(beforeIndex, 0, nodeData![0])
+          indexConvertArray.splice(beforeIndex, 0, nodeIndex)
         } else {
           const nodeData = gltf.data.nodes?.splice(nodeIndex, 1)
           indexConvertArray.splice(nodeIndex, 1)
           gltf.data.nodes?.push(nodeData![0])
           indexConvertArray.push(nodeIndex)
-          finalIndex = gltf.data.nodes?.length - 1
         }
       }
 
+      // make the old parent children array into a homoginize ref
       let oldParentChildArray = gltf.data.scenes![0].nodes
       if (!isOldParentRoot) {
         const oldParentNode = getGLTFNodeByUUID(gltf.data, oldParentUUID)
@@ -615,6 +603,7 @@ const reparentObject = (
         }
       }
 
+      // make the new parent children array into a homoginize ref
       let newParentChildArray = gltf.data.scenes![0].nodes
       if (!isNewParentRoot) {
         const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)
@@ -632,6 +621,7 @@ const reparentObject = (
         oldParentChildArray.splice(oldParentChildIndex, 1)
       }
 
+      //add to new parent's child array
       if (before) {
         const beforeUuid = getComponent(before, UUIDComponent)
         const beforeNodeIndex = gltf.data.nodes!.findIndex((n) => {
@@ -646,10 +636,12 @@ const reparentObject = (
         newParentChildArray.push(nodeIndex)
       }
 
+      //loop through the root parent children and update the child index values
       gltf.data.scenes![0].nodes.forEach((value, index) => {
         gltf.data.scenes![0].nodes[index] = indexConvertArray.indexOf(value)
       })
 
+      //loop through the children of the parent nodes and update the child index values
       gltf.data.nodes?.forEach((value, index) => {
         const loopParentUuid: string = String(value.extensions?.[UUIDComponent.jsonID])
         const loopParentNode = getGLTFNodeByUUID(gltf.data, loopParentUuid)
