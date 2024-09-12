@@ -23,22 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import AllowedDomains from './allowed-domains/allowed-domains'
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision'
-import Instance from './instance/instance'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+// Initializes the `login` service on path `/login`
 
-export default [
-  AllowedDomains,
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+import { jwtPublicKeyMethods, jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
+import { Application } from '../../../declarations'
+import { JWTPublicKeyService } from './jwt-public-key.class'
+import jwtPublicKeyDocs from './jwt-public-key.docs'
+import hooks from './jwt-public-key.hooks'
+
+declare module '@ir-engine/common/declarations' {
+  interface ServiceTypes {
+    [jwtPublicKeyPath]: JWTPublicKeyService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(jwtPublicKeyPath, new JWTPublicKeyService(app), {
+    // A list of all methods this service exposes externally
+    methods: jwtPublicKeyMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: jwtPublicKeyDocs
+  })
+
+  const service = app.service(jwtPublicKeyPath)
+  service.hooks(hooks)
+}
