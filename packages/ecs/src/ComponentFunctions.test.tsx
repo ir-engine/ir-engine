@@ -212,6 +212,19 @@ describe('ComponentFunctions', async () => {
       assert((json as any).other === 12)
     })
 
+    it('throws error when onSet is called without required fields', () => {
+      const ObjComponent = defineComponent({
+        name: 'ObjComponent',
+        schema: S.Object({
+          light: S.Required(S.Class(() => new DirectionalLight())),
+          other: S.Number(0)
+        })
+      })
+
+      const entity = createEntity()
+      assert.throws(() => setComponent(entity, ObjComponent, { other: 12 }))
+    })
+
     it('ECS Schema is proxied', () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',

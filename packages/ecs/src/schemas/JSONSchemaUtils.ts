@@ -52,6 +52,39 @@ const CreateObject = (props?: TProperties) => {
   return obj
 }
 
+export const HasRequiredSchema = <T extends Schema>(schema: T): boolean => {
+  switch (schema[Kind]) {
+    case 'Object':
+    case 'Class': {
+      const props = schema.properties as TProperties
+      const propKeys = Object.keys(props)
+
+      for (const key of propKeys) {
+        if (HasRequiredSchema(props[key])) return true
+      }
+
+      return false
+    }
+
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties']
+      return HasRequiredSchema(props)
+    }
+
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return HasRequiredSchema(props)
+    }
+
+    case 'Required': {
+      return true
+    }
+
+    default:
+      return false
+  }
+}
+
 export const HasRequiredValues = <T extends Schema>(schema: T, value, current = ''): [boolean, string] => {
   switch (schema[Kind]) {
     case 'Object':

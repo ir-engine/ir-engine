@@ -52,7 +52,13 @@ import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
 import { Kind, SerializedType, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
-import { CreateSchemaValue, HasRequiredValues, IsSingleValueSchema, SerializeSchema } from './schemas/JSONSchemaUtils'
+import {
+  CreateSchemaValue,
+  HasRequiredSchema,
+  HasRequiredValues,
+  IsSingleValueSchema,
+  SerializeSchema
+} from './schemas/JSONSchemaUtils'
 
 /**
  * @description
@@ -281,15 +287,16 @@ export const defineComponent = <
   } & ComponentExtras &
     SOAComponent
   Component.isComponent = true
+
+  const hasRequiredSchema = schemaIsJSONSchema(def.schema) && HasRequiredSchema(def.schema)
   Component.onSet = (entity, component, json) => {
     if (schemaIsJSONSchema(def.schema) || def.onInit) {
-      if (schemaIsJSONSchema(def.schema)) {
-        const [valid, key] = HasRequiredValues(def.schema, json)
+      if (hasRequiredSchema) {
+        const [valid, key] = HasRequiredValues(def.schema as TSchema, json)
         if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
       }
 
       if (json === null || json === undefined) return
-
       if (
         Array.isArray(json) ||
         typeof json !== 'object' ||
