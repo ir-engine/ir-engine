@@ -117,80 +117,6 @@ function canDropItem(entity: Entity, dropOn?: boolean) {
   }
 }
 
-function dropItem(
-  node: HierarchyTreeNodeType,
-  onUpload: (entries: FileSystemEntry[]) => Promise<string[] | null>,
-  place: 'On' | 'Before' | 'After'
-) {
-  let parentNode: Entity | undefined
-  let beforeNode: Entity
-
-  if (place === 'Before') {
-    const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-    parentNode = entityTreeComponent?.parentEntity
-    beforeNode = node.entity
-  } else if (place === 'After') {
-    const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-    parentNode = entityTreeComponent?.parentEntity
-    const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-    if (
-      parentTreeComponent &&
-      !node.lastChild &&
-      parentNode &&
-      parentTreeComponent?.children.length > node.childIndex + 1
-    ) {
-      beforeNode = parentTreeComponent.children[node.childIndex + 1]
-    }
-  } else {
-    parentNode = node.entity
-  }
-
-  if (!parentNode)
-    return () => {
-      console.warn('parent is not defined')
-    }
-
-  return (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
-    if (parentNode) {
-      if ('files' in item) {
-        const dndItem: any = monitor.getItem()
-        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
-
-        //uploading files then adding as media to the editor
-        onUpload(entries).then((assets) => {
-          if (!assets) return
-          for (const asset of assets) {
-            addMediaNode(asset, parentNode, beforeNode)
-          }
-        })
-        return
-      }
-
-      if ('url' in item) {
-        addMediaNode(item.url, parentNode, beforeNode)
-        return
-      }
-
-      if ('type' in item && item.type === ItemTypes.Component) {
-        EditorControlFunctions.createObjectFromSceneElement(
-          [{ name: (item as any).componentJsonID }],
-          parentNode,
-          beforeNode
-        )
-        return
-      }
-    }
-
-    EditorControlFunctions.reparentObject(
-      Array.isArray((item as DragItemType).value)
-        ? ((item as DragItemType).value as Entity[])
-        : [(item as DragItemType).value as Entity],
-      beforeNode,
-      parentNode === null ? undefined : parentNode
-    )
-  }
-}
-
 export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
@@ -236,9 +162,100 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     })
   })
 
+  const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
+    let parentNode: Entity | undefined
+    let beforeNode: Entity
+    // const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+
+    // switch (place) {
+    //   case 'Before': // we want to place before this node
+    //     beforeNode = node.entity
+    //     if (!parentTreeComponent || !parentNode) break
+    //     if (0 > node.childIndex - 1) break // nothing to place after it, as node index is the first child
+    //     afterNode = parentTreeComponent.children[node.childIndex - 1]
+    //     break
+    //   case 'After': // we want to place after this node
+    //     afterNode = node.entity
+    //     if (!parentTreeComponent || !parentNode) break
+    //     if (node.lastChild) break // if it is last child, nothing to place before it
+    //     if (parentTreeComponent?.children.length < node.childIndex + 1) break //node index is last child
+    //     beforeNode = parentTreeComponent.children[node.childIndex + 1]
+    //     break
+    //   default: //case 'on'
+    //     parentNode = node.entity
+    // }
+
+    if (place === 'Before') {
+      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity
+      beforeNode = node.entity
+    } else if (place === 'After') {
+      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity
+      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+      if (
+        parentTreeComponent &&
+        !node.lastChild &&
+        parentNode &&
+        parentTreeComponent?.children.length > node.childIndex + 1
+      ) {
+        beforeNode = parentTreeComponent.children[node.childIndex + 1]
+      }
+    } else {
+      parentNode = node.entity
+    }
+
+    if (!parentNode)
+      return () => {
+        console.warn('parent is not defined')
+      }
+
+    return (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
+      if (parentNode) {
+        if ('files' in item) {
+          const dndItem: any = monitor.getItem()
+          const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+
+          //uploading files then adding as media to the editor
+          onUpload(entries).then((assets) => {
+            if (!assets) return
+            for (const asset of assets) {
+              addMediaNode(asset, parentNode, beforeNode)
+            }
+          })
+          return
+        }
+
+        if ('url' in item) {
+          addMediaNode(item.url, parentNode, beforeNode)
+          return
+        }
+
+        if ('type' in item && item.type === ItemTypes.Component) {
+          EditorControlFunctions.createObjectFromSceneElement(
+            [{ name: (item as any).componentJsonID }],
+            parentNode,
+            beforeNode
+          )
+          return
+        }
+      }
+
+      console.log('debug1 beforenode', getComponent(beforeNode, NameComponent), 'parentnode', parentNode)
+
+      EditorControlFunctions.reparentObject(
+        Array.isArray((item as DragItemType).value)
+          ? ((item as DragItemType).value as Entity[])
+          : [(item as DragItemType).value as Entity],
+        beforeNode,
+        parentNode
+      )
+    }
+  }
+
   const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
-    drop: dropItem(node, onUpload, 'Before'),
+    drop: dropItem(node, 'Before'),
     canDrop: canDropItem(entity),
     collect: (monitor) => ({
       canDropBefore: monitor.canDrop(),
@@ -248,7 +265,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
 
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
-    drop: dropItem(node, onUpload, 'After'),
+    drop: dropItem(node, 'After'),
     canDrop: canDropItem(entity),
     collect: (monitor) => ({
       canDropAfter: monitor.canDrop(),
@@ -258,7 +275,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
 
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
-    drop: dropItem(node, onUpload, 'On'),
+    drop: dropItem(node, 'On'),
     canDrop: canDropItem(entity, true),
     collect: (monitor) => ({
       canDropOn: monitor.canDrop(),
@@ -373,7 +390,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     }
   }
 
-  const onCollapseExpandNode = () => {
+  const onCollapseExpandNode = (event: React.MouseEvent) => {
+    event.stopPropagation()
     if (expandedNodes.value[sourceId][entity]) collapseNode(entity)
     else expandNode(entity)
   }
@@ -390,6 +408,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
 
   return (
     <li
+      key={node.depth + ' ' + props.index + ' ' + entity}
       style={fixedSizeListStyles}
       className={twMerge(
         'cursor-pointer',
@@ -398,6 +417,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         !selected && (props.index % 2 ? 'bg-[#141619] hover:bg-[#1d1f23]' : 'bg-[#080808] hover:bg-zinc-900'),
         !visible && (props.index % 2 ? 'bg-[#191B1F]' : 'bg-[#0e0f11]'),
         !visible && 'text-[#42454d]',
+        isOverOn && canDropOn && 'border border-dotted',
         'hover:text-white'
       )}
     >

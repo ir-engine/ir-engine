@@ -32,11 +32,11 @@ import ElementList from '@ir-engine/ui/src/components/editor/panels/Properties/e
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
-import { FixedSizeList } from 'react-window'
+import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import useUpload from '../../components/assets/useUpload'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -138,17 +138,22 @@ export function Contents() {
     }
   })
 
+  /**an explicit callback is required to rerender changed nodes inside FixedSizeList */
+  const MemoTreeNode = useCallback(
+    (props: ListChildComponentProps<undefined>) => <HierarchyTreeNode {...props} />,
+    [nodes]
+  )
+
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
+    if (!ref.current) return
 
     const handleResize = () => {
-      const { height, width } = el.getBoundingClientRect()
+      const { height, width } = ref.current!.getBoundingClientRect()
       listDimensions.set({ height, width })
     }
 
     const resizeObserver = new ResizeObserver(handleResize)
-    resizeObserver.observe(el)
+    resizeObserver.observe(ref.current)
 
     return () => resizeObserver.disconnect()
   }, [])
@@ -159,12 +164,13 @@ export function Contents() {
         height={listDimensions.height.value}
         width={listDimensions.width.value}
         itemSize={40}
+        itemData={{ nodes }}
         itemCount={nodes.length}
         itemKey={(index: number) => index}
         outerRef={treeContainerDropTarget}
         innerElementType="ul"
       >
-        {HierarchyTreeNode}
+        {MemoTreeNode}
       </FixedSizeList>
     </div>
   )

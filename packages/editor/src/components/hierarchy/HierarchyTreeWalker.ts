@@ -169,12 +169,6 @@ export function gltfHierarchyTreeWalker(
   return tree
 }
 
-/**
- * treeWalker function used to handle tree.
- *
- * @param  {entityNode}    expandedNodes
- */
-
 export function* hierarchyTreeWalker(sceneID: string, treeNode: Entity): Generator<HierarchyTreeNodeType> {
   if (!treeNode) return
 
