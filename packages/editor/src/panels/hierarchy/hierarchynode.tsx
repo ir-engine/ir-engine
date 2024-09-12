@@ -165,25 +165,6 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     let parentNode: Entity | undefined
     let beforeNode: Entity
-    // const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-
-    // switch (place) {
-    //   case 'Before': // we want to place before this node
-    //     beforeNode = node.entity
-    //     if (!parentTreeComponent || !parentNode) break
-    //     if (0 > node.childIndex - 1) break // nothing to place after it, as node index is the first child
-    //     afterNode = parentTreeComponent.children[node.childIndex - 1]
-    //     break
-    //   case 'After': // we want to place after this node
-    //     afterNode = node.entity
-    //     if (!parentTreeComponent || !parentNode) break
-    //     if (node.lastChild) break // if it is last child, nothing to place before it
-    //     if (parentTreeComponent?.children.length < node.childIndex + 1) break //node index is last child
-    //     beforeNode = parentTreeComponent.children[node.childIndex + 1]
-    //     break
-    //   default: //case 'on'
-    //     parentNode = node.entity
-    // }
 
     if (place === 'Before') {
       const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
@@ -241,13 +222,11 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         }
       }
 
-      console.log('debug1 beforenode', getComponent(beforeNode, NameComponent), 'parentnode', parentNode)
-
       EditorControlFunctions.reparentObject(
         Array.isArray((item as DragItemType).value)
           ? ((item as DragItemType).value as Entity[])
           : [(item as DragItemType).value as Entity],
-        beforeNode,
+        beforeNode ?? nodes.at(-1)?.entity,
         parentNode
       )
     }

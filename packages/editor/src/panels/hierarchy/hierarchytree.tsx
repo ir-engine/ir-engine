@@ -37,6 +37,7 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
+import { twMerge } from 'tailwind-merge'
 import useUpload from '../../components/assets/useUpload'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -92,7 +93,7 @@ export function Contents() {
   const rootEntity = useMutableState(EditorState).rootEntity.value
   const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
 
-  const [, treeContainerDropTarget] = useDrop({
+  const [{ canDrop, isOver }, treeContainerDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ...SupportedFileTypes],
     drop(item: any, monitor) {
       if (monitor.didDrop()) return
@@ -135,7 +136,11 @@ export function Contents() {
       }
 
       return true
-    }
+    },
+    collect: (monitor) => ({
+      canDrop: monitor.canDrop(),
+      isOver: monitor.isOver()
+    })
   })
 
   /**an explicit callback is required to rerender changed nodes inside FixedSizeList */
@@ -159,7 +164,7 @@ export function Contents() {
   }, [])
 
   return (
-    <div ref={ref} className="h-5/6 overflow-hidden">
+    <div ref={ref} className={twMerge('h-5/6 overflow-hidden', isOver && canDrop && 'border border-dotted')}>
       <FixedSizeList
         height={listDimensions.height.value}
         width={listDimensions.width.value}

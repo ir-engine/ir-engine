@@ -567,8 +567,9 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
             (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
           )
           gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
-          gltf.data.nodes?.splice(beforeIndex, 0, gltf.data.nodes?.[nodeIndex])
+          const replacingNode = structuredClone(gltf.data.nodes?.[nodeIndex])!
           gltf.data.nodes?.splice(nodeIndex, 1)
+          gltf.data.nodes?.splice(beforeIndex, 0, replacingNode)
         } else {
           gltf.data.scenes![0].nodes.push(nodeIndex)
           gltf.data.nodes?.push(gltf.data.nodes[nodeIndex])
