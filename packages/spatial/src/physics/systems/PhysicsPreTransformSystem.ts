@@ -196,8 +196,7 @@ export const PhysicsPreTransformSystem = defineSystem({
   execute
 })
 
-export const _PhysicsPreTransformFunctions = {
-  setDirty,
+export const PhysicsPreTransformFunctions = {
   lerpTransformFromRigidbody,
   copyTransformToRigidBody,
   copyTransformToCollider,

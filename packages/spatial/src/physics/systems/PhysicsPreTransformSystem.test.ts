@@ -48,7 +48,7 @@ import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.t
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { BodyTypes } from '../types/PhysicsTypes'
-import { PhysicsPreTransformSystem, _PhysicsPreTransformFunctions } from './PhysicsPreTransformSystem'
+import { PhysicsPreTransformFunctions, PhysicsPreTransformSystem } from './PhysicsPreTransformSystem'
 
 const _rotation = new Quaternion()
 const _position = new Vector3()
@@ -71,32 +71,6 @@ describe('PhysicsPreTransformFunctions', () => {
     if (TransformComponent.dirtyTransforms[entity] === undefined) return
     assert.equal(TransformComponent.dirtyTransforms[entity], false)
   }
-
-  describe('setDirty', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should set the TransformComponent.dirtyTransforms of the entity to true', () => {
-      const Expected = true
-      const Initial = undefined
-      // Sanity check before running
-      const before = TransformComponent.dirtyTransforms[testEntity]
-      assert.equal(before, Initial)
-      // Run and Check the result
-      _PhysicsPreTransformFunctions.setDirty(testEntity)
-      const result = TransformComponent.dirtyTransforms[testEntity]
-      assert.equal(result, Expected)
-    })
-  }) //:: setDirty
 
   describe('lerpTransformFromRigidbody', () => {
     const Start = {
@@ -152,7 +126,7 @@ describe('PhysicsPreTransformFunctions', () => {
         const before = getComponent(testEntity, TransformComponent).position
         assertVecApproxEq(before, Initial, 3)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
+        PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
         getComponent(testEntity, TransformComponent).matrix.decompose(_position, _rotation, _scale)
         const result = _position
         assertVecAllApproxNotEq(result, Initial, 3)
@@ -173,7 +147,7 @@ describe('PhysicsPreTransformFunctions', () => {
         const before = getComponent(testEntity, TransformComponent).rotation
         assertVecApproxEq(before, Initial, 3)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
+        PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
         getComponent(testEntity, TransformComponent).matrix.decompose(_position, _rotation, _scale)
         const result = _rotation
         assertVecAllApproxNotEq(result, Initial, 4)
@@ -219,7 +193,7 @@ describe('PhysicsPreTransformFunctions', () => {
         // Sanity check before running
         assertNotDirty(testEntity)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
+        PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
         assertNotDirty(testEntity)
       })
 
@@ -227,7 +201,7 @@ describe('PhysicsPreTransformFunctions', () => {
         // Sanity check before running
         assertNotDirty(testEntity)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
+        PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
         iterateEntityNode(testEntity, assertDirty)
       })
     })
@@ -274,7 +248,7 @@ describe('PhysicsPreTransformFunctions', () => {
         assertVecAllApproxNotEq(before.previousPosition, before.position, 3)
         assertVecAllApproxNotEq(before.body.translation(), before.position, 3)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
+        PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
         const after = {
           body: physicsWorld.Rigidbodies.get(testEntity)!,
           previousPosition: getComponent(testEntity, RigidBodyComponent).previousPosition,
@@ -296,7 +270,7 @@ describe('PhysicsPreTransformFunctions', () => {
         assertVecAllApproxNotEq(before.previousRotation, before.rotation, 4)
         assertVecAllApproxNotEq(before.body.rotation(), before.rotation, 4)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
+        PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
         const after = {
           body: physicsWorld.Rigidbodies.get(testEntity)!,
           previousRotation: getComponent(testEntity, RigidBodyComponent).previousRotation,
@@ -310,7 +284,7 @@ describe('PhysicsPreTransformFunctions', () => {
         // Sanity check before running
         assertNotDirty(testEntity)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
+        PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
         assertNotDirty(testEntity)
       })
 
@@ -318,7 +292,7 @@ describe('PhysicsPreTransformFunctions', () => {
         // Sanity check before running
         assertNotDirty(testEntity)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
+        PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
         iterateEntityNode(testEntity, assertDirty)
       })
     })
@@ -341,7 +315,7 @@ describe('PhysicsPreTransformFunctions', () => {
         // Sanity check before running
         assertDirty(testEntity, 1)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
+        PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
         assertDirty(testEntity, 1)
       })
     })
@@ -395,7 +369,7 @@ describe('PhysicsPreTransformFunctions', () => {
         }
         assertVecApproxEq(before, Initial, 3)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.copyTransformToCollider(testEntity)
+        PhysicsPreTransformFunctions.copyTransformToCollider(testEntity)
         const result = {
           x: physicsWorld.Colliders.get(testEntity)?.translation().x,
           y: physicsWorld.Colliders.get(testEntity)?.translation().y,
@@ -423,7 +397,7 @@ describe('PhysicsPreTransformFunctions', () => {
         // Sanity check before running
         assertDirty(testEntity, 1)
         // Run and Check the result
-        _PhysicsPreTransformFunctions.copyTransformToCollider(testEntity)
+        PhysicsPreTransformFunctions.copyTransformToCollider(testEntity)
         assertDirty(testEntity, 1)
       })
     })
@@ -455,7 +429,7 @@ describe('PhysicsPreTransformFunctions', () => {
       it('should return false', () => {
         const Expected = false
         // Run and Check the result
-        const result = _PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
+        const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
         assert.equal(result, Expected)
       })
     })
@@ -499,7 +473,7 @@ describe('PhysicsPreTransformFunctions', () => {
         // Sanity check before running
         assert.equal(TransformComponent.dirtyTransforms[physicsWorldEntity], true)
         // Run and Check the result
-        const result = _PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
+        const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
         assert.equal(result, Expected)
       })
 
@@ -512,7 +486,7 @@ describe('PhysicsPreTransformFunctions', () => {
         assert.equal(TransformComponent.dirtyTransforms[physicsWorldEntity], false)
         assert.equal(isDirty(testEntity), true)
         // Run and Check the result
-        const result = _PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
+        const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
         assert.equal(result, Expected)
       })
 
@@ -526,7 +500,7 @@ describe('PhysicsPreTransformFunctions', () => {
         assert.equal(TransformComponent.dirtyTransforms[physicsWorldEntity], false)
         assert.equal(isDirty(testEntity), false)
         // Run and Check the result
-        const result = _PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
+        const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
         assert.equal(result, Expected)
       })
 
@@ -540,7 +514,7 @@ describe('PhysicsPreTransformFunctions', () => {
         assert.equal(TransformComponent.dirtyTransforms[physicsWorldEntity], false)
         assert.equal(isDirty(testEntity), false)
         // Run and Check the result
-        const result = _PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
+        const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
         assert.equal(result, Expected)
       })
     })
