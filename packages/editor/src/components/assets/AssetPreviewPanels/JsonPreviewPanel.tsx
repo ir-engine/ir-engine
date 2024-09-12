@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import CircularProgress from '@mui/material/CircularProgress'
 import React, { useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import styles from '../styles.module.scss'
 
 /**
@@ -62,7 +62,7 @@ export const JsonPreviewPanel = (props) => {
     <>
       {loading && (
         <div className={styles.container}>
-          <CircularProgress />
+          <LoadingView spinnerOnly className="m-0 inline-block h-10 w-10" />
         </div>
       )}
       {error && (

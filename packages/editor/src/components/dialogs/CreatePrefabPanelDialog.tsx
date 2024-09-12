@@ -27,8 +27,9 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 import { Entity, createEntity, entityExists, getComponent, removeEntity, setComponent } from '@ir-engine/ecs'
+import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dialogs/PrefabConfirmationPanelDialog'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -134,6 +135,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
         prefabTag.set([])
         isOverwriteModalVisible.set(false)
         isOverwriteConfirmed.set(false)
+        PopoverState.showPopupover(<PrefabConfirmationPanelDialog entity={entity} />)
       }
     } catch (e) {
       console.error(e)
@@ -153,7 +155,12 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
             onChange={(event) => defaultPrefabFolder.set(event.target.value)}
             label="Default Save Folder"
           />
-          <Input value={prefabName.value} onChange={(event) => prefabName.set(event.target.value)} label="Name" />
+          <Input
+            value={prefabName.value}
+            onChange={(event) => prefabName.set(event.target.value)}
+            label="Name"
+            maxLength={64}
+          />
 
           <Button
             size="small"
@@ -189,6 +196,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
                   {' '}
                   x{' '}
                 </Button>
+                a
               </div>
             ))}
           </div>

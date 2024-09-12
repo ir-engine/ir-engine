@@ -26,12 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { dispatchAction, getMutableState, getState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState,
+  MediasoupMediaProducersConsumersObjectsState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { Engine } from '@ir-engine/ecs/src/Engine'
+import { dispatchAction, getMutableState, getState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
   NetworkState,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,

@@ -27,9 +27,9 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import { authenticationSettingPath, AuthenticationSettingType } from '@ir-engine/common/src/schema.type.module'
+import { useFind, useMutation } from '@ir-engine/common'
+import { AuthenticationSettingType, authenticationSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { State, useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -200,6 +200,20 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
         <Input
           className="col-span-1"
+          label={t('admin:components.setting.entity')}
+          value={authSetting?.entity || ''}
+          disabled
+        />
+
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.jwtAlgorithm')}
+          value={authSetting?.jwtAlgorithm || ''}
+          disabled
+        />
+
+        <PasswordInput
+          className="col-span-1"
           label={t('admin:components.setting.secret')}
           value={authSetting?.secret || ''}
           disabled
@@ -207,8 +221,8 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.entity')}
-          value={authSetting?.entity || ''}
+          label={t('admin:components.setting.jwtPublicKey')}
+          value={authSetting?.jwtPublicKey || ''}
           disabled
         />
       </div>

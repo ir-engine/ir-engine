@@ -48,9 +48,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
       logger.info('Finished seeding', seedFile)
     }
 
-    logger.info('Calling addOrgNameToProject')
     await app.service(projectPath)._addOrgNameToProject()
-    logger.info('Finished addOrgNameToProject')
   }
 
   if (prepareDb) return

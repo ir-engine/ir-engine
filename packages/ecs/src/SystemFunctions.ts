@@ -28,14 +28,17 @@ Infinite Reality Engine. All Rights Reserved.
 import { FC } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
-import multiLogger from '@ir-engine/common/src/logger'
-import { getMutableState, getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import {
+  getMutableState,
+  getState,
+  HyperFlux,
+  OpaqueType,
+  startReactor,
+  useImmediateEffect
+} from '@ir-engine/hyperflux'
 
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
-
-const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
 export type SystemUUID = OpaqueType<'SystemUUID'> & string
 
@@ -116,6 +119,7 @@ export function executeSystem(systemUUID: SystemUUID) {
     getMutableState(SystemState).currentSystemUUID.set(systemUUID)
     system.execute()
   } catch (e) {
+    const logger = HyperFlux.store.logger('ecs:SystemFunctions')
     logger.error(`Failed to execute system ${system.uuid}`)
     logger.error(e)
   } finally {
@@ -129,6 +133,7 @@ export function executeSystem(systemUUID: SystemUUID) {
   if (getState(SystemState).performanceProfilingEnabled) {
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
       lastWarningTime.set(systemUUID, endTime)
+      const logger = HyperFlux.store.logger('ecs:SystemFunctions')
       logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
     }
   }

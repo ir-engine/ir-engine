@@ -31,9 +31,9 @@ import {
 import { API } from '@ir-engine/common'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
-
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+import { t } from 'i18next'
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
@@ -78,7 +78,12 @@ export const inputFileWithAddToScene = ({
 
     el.onchange = async () => {
       try {
-        if (el.files?.length) await handleUploadFiles(projectName, directoryPath, el.files)
+        if (el.files?.length) {
+          const isNameValid = !Array.from(el.files).some((file) => file.name.length > 64 || file.name.length < 4)
+          if (!isNameValid) throw new Error(t('editor:layout.filebrowser.fileNameLengthError'))
+
+          await handleUploadFiles(projectName, directoryPath, el.files)
+        }
         resolve(null)
       } catch (err) {
         reject(err)

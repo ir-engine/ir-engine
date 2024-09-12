@@ -27,7 +27,6 @@ import type Hls from 'hls.js'
 import { startTransition, useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { ComponentType, Engine, UndefinedEntity } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -41,8 +40,8 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { State, getMutableState, getState, isClient, none, useHookstate } from '@ir-engine/hyperflux'
 import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -109,22 +108,21 @@ export const MediaElementComponent = defineComponent({
     const mediaElementComponent = useComponent(entity, MediaElementComponent)
 
     useLayoutEffect(() => {
-      const media = mediaElementComponent.get({ noproxy: true })
       return () => {
-        if (!entityExists(entity) || !hasComponent(entity, MediaElementComponent)) {
-          const element = media.element as HTMLMediaElement
-          media.hls?.destroy()
-          const audioNodeGroup = AudioNodeGroups.get(element)
-          if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
-          AudioNodeGroups.delete(element)
-          element.pause()
-          element.removeAttribute('src')
-          element.load()
-          element.remove()
-          media.abortController.abort()
-        }
+        const element = mediaElementComponent.element.get({ noproxy: true }) as HTMLMediaElement
+        mediaElementComponent.hls.value?.destroy()
+        mediaElementComponent.hls.set(none)
+        const audioNodeGroup = AudioNodeGroups.get(element)
+        if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
+        AudioNodeGroups.delete(element)
+        element.pause()
+        element.removeAttribute('src')
+        element.load()
+        element.remove()
+        mediaElementComponent.element.set(none)
+        mediaElementComponent.abortController.value.abort()
       }
-    }, [mediaElementComponent])
+    }, [])
   },
 
   errors: ['MEDIA_ERROR', 'HLS_ERROR']

@@ -46,10 +46,9 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import { HierarchyTreeNodeType } from '@ir-engine/editor/src/components/hierarchy/HierarchyTreeWalker'
-import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
@@ -57,7 +56,6 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { twMerge } from 'tailwind-merge'
 import TransformPropertyGroup from '../../../properties/transform'
-import { DnDFileType } from '../../Files/container'
 
 /**
  * getNodeElId function provides id for node.
@@ -163,7 +161,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     let parentNode: Entity | undefined
     let beforeNode: Entity
-
     let afterNode: Entity
 
     const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
@@ -365,6 +362,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
                     autoFocus
+                    maxLength={64}
                   />
                 </div>
               ) : (

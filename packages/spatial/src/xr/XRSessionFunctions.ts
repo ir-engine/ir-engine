@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createHookableFunction } from '@ir-engine/common/src/utils/createHookableFunction'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { dispatchAction, getMutableState } from '@ir-engine/hyperflux'
+import { createHookableFunction, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
 
 import { Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'

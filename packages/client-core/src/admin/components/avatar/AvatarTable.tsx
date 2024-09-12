@@ -23,18 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { AvatarID, avatarPath, AvatarType, UserName } from '@ir-engine/common/src/schema.type.module'
-import { useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
-import { ConfirmDialog } from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { validate as isValidUUID } from 'uuid'
+
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
+import { AvatarID, avatarPath, AvatarType, UserName } from '@ir-engine/common/src/schema.type.module'
+import { useHookstate } from '@ir-engine/hyperflux'
+import { ConfirmDialog } from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
+
 import { avatarColumns, AvatarRowType } from '../../common/constants/avatar'
 import DataTable from '../../common/Table'
 import AddEditAvatarModal from './AddEditAvatarModal'

@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import AllowedDomains from './allowed-domains/allowed-domains'
 import InstanceActive from './instance-active/instance-active'
 import InstanceAttendance from './instance-attendance/instance-attendance'
 import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
@@ -32,6 +33,7 @@ import InstanceServerLoad from './instanceserver-load/instanceserver-load.servic
 import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
 
 export default [
+  AllowedDomains,
   Instance,
   InstanceServerLoad,
   InstanceServerProvision,

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -33,7 +33,7 @@ import { isProvider } from 'feathers-hooks-common'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
-import { decode, JwtPayload } from 'jsonwebtoken'
+import { JwtPayload, verify } from 'jsonwebtoken'
 import { Application } from '../../declarations'
 import config from '../appconfig'
 
@@ -70,7 +70,8 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
   if (context.arguments[1]?.token && context.path === 'project' && context.method === 'update') {
     const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
     const token = context.arguments[1].token
-    const jwtDecoded = decode(token)! as JwtPayload
+    const algorithms = process.env.APP_ENV === 'development' ? 'HS256' : 'RS256'
+    const jwtDecoded = verify(token, config.authentication.secret, { algorithms: [algorithms] })! as JwtPayload
     if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
       throw new NotAuthenticated('Invalid app credentials')
     const octoKit = new Octokit({ auth: token })
@@ -133,7 +134,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
 /**
  * A method to check if the service requesting is whitelisted.
- * In that scenario we dont need to perform authentication check.
+ * In that scenario we don't need to perform authentication check.
  */
 const checkWhitelist = (context: HookContext<Application>): boolean => {
   for (const item of config.authentication.whiteList) {
