@@ -258,7 +258,7 @@ const unInstanceSingletons: Transform = (document: Document) => {
     })
 }
 
-export const combineMaterials: Transform = (document: Document) => {
+const combineMaterials: Transform = (document: Document) => {
   const root = document.getRoot()
   const cache: Material[] = []
   console.log('combining materials...')
@@ -293,7 +293,7 @@ export const combineMaterials: Transform = (document: Document) => {
   })
 }
 
-export const combineMeshes: Transform = (document: Document) => {
+const combineMeshes: Transform = (document: Document) => {
   const root = document.getRoot()
   const prims = root.listMeshes().flatMap((mesh) => mesh.listPrimitives())
   const matMap = new Map<Material, Primitive[]>()
