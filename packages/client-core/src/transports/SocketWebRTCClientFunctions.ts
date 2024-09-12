@@ -112,7 +112,7 @@ import {
 import { ChannelState } from '../social/services/ChannelService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
-import { clientContextParams } from '../util/contextParams'
+import { clientContextParams } from '../util/ClientContextState'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 

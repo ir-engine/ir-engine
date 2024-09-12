@@ -52,7 +52,7 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import { useFind } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { clientContextParams } from '../../../../util/contextParams'
+import { clientContextParams } from '../../../../util/ClientContextState'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
