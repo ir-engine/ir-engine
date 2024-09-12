@@ -24,9 +24,22 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { LogParamsObject } from '@ir-engine/common/src/logger'
-import { getState } from '@ir-engine/hyperflux'
-import { generateUUID } from 'three/src/math/MathUtils'
-import { LocationState } from '../social/services/LocationService'
+import { defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+
+export const ClientContextState = defineState({
+  name: 'ir.client-core.ClientContextState',
+  initial: {},
+  useValue: (key: string, value: any) => {
+    useEffect(() => {
+      getMutableState(ClientContextState).merge({ [key]: value })
+      return () => {
+        getMutableState(ClientContextState)[key].set(none)
+      }
+    }, [key, value])
+  }
+})
 
 /**
  * @function clientContextParams
@@ -34,11 +47,10 @@ import { LocationState } from '../social/services/LocationService'
  * from url's query params
  */
 export function clientContextParams(params: LogParamsObject) {
-  const locationState = getState(LocationState)
+  const contextState = getState(ClientContextState)
   return {
     ...params,
-    event_id: generateUUID(),
-    location_id: locationState.currentLocation.location.id,
-    project_id: locationState.currentLocation.location.projectId
+    event_id: uuidv4(),
+    ...contextState
   }
 }
