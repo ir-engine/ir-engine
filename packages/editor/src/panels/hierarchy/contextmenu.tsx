@@ -36,7 +36,8 @@ import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { SelectionState } from '../../services/SelectionServices'
-import { deleteNode, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './helpers'
+import { deleteNode } from './helpers'
+import { useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
 
 export default function HierarchyTreeContextMenu() {
   const { t } = useTranslation()

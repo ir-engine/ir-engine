@@ -43,8 +43,9 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import { uploadOptions, useHierarchyNodes } from './helpers'
+import { uploadOptions } from './helpers'
 import HierarchyTreeNode from './hierarchynode'
+import { useHierarchyNodes } from './hooks'
 
 export function Topbar() {
   const { t } = useTranslation()

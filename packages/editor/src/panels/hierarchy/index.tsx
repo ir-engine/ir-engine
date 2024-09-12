@@ -33,8 +33,8 @@ import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import HierarchyTreeContextMenu from './contextmenu'
-import { HierarchyPanelProvider } from './helpers'
 import { Contents, Topbar } from './hierarchytree'
+import { HierarchyPanelProvider } from './hooks'
 
 const HierarchyPanelTitle = () => {
   const { t } = useTranslation()

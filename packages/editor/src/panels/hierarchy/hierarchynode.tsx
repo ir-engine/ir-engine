@@ -60,14 +60,8 @@ import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import {
-  deleteNode,
-  uploadOptions,
-  useHierarchyNodes,
-  useHierarchyTreeContextMenu,
-  useNodeCollapseExpand,
-  useRenamingNode
-} from './helpers'
+import { deleteNode, uploadOptions } from './helpers'
+import { useHierarchyNodes, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
 
 type HierarchyTreeNodeProps = {
   index: number
