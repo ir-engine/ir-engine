@@ -35,7 +35,7 @@ import { UUIDComponent } from '@ir-engine/ecs'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
-import { EditorState } from '../../services/EditorServices'
+import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 
 export type HierarchyTreeNodeType = {
   depth: number
@@ -76,7 +76,7 @@ function buildHierarchyTree(
     depth,
     childIndex,
     entity: entity,
-    isCollapsed: !getState(EditorState).expandedNodes[sceneID]?.[entity],
+    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[entity],
     children: [],
     isLeaf: !(node.children && node.children.length > 0),
     lastChild: lastChild
@@ -157,7 +157,7 @@ export function gltfHierarchyTreeWalker(
     entity: rootEntity,
     childIndex: 0,
     lastChild: true,
-    isCollapsed: !getState(EditorState).expandedNodes[sceneID]?.[rootEntity]
+    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[rootEntity]
   }
   const tree = [rootNode] as HierarchyTreeNodeType[]
 
@@ -187,7 +187,7 @@ export function* hierarchyTreeWalker(sceneID: string, treeNode: Entity): Generat
 
     if (!entityExists(entityNode) || !hasComponent(entityNode, SourceComponent)) continue
 
-    const expandedNodes = getState(EditorState).expandedNodes
+    const expandedNodes = getState(HierarchyTreeState).expandedNodes
 
     const isCollapsed = !expandedNodes[sceneID]?.[entityNode]
 
