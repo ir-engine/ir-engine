@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
-import { defineComponent, getComponent, useEntityContext } from '@ir-engine/ecs'
-
+import { defineComponent, getComponent, getOptionalComponent, useEntityContext } from '@ir-engine/ecs'
 import { TProperties } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
@@ -46,13 +45,13 @@ export enum ditherCalculationType {
 
 export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 array in the shader
 
-export const TransparencyDitheringRoot = defineComponent({
-  name: 'TransparencyDitheringRoot',
+export const TransparencyDitheringRootComponent = defineComponent({
+  name: 'TransparencyDitheringRootComponent',
   schema: S.Object({ materials: S.Array(S.EntityUUID()) })
 })
 
-export const TransparencyDitheringPlugin = defineComponent({
-  name: 'TransparencyDithering',
+export const TransparencyDitheringPluginComponent = defineComponent({
+  name: 'TransparencyDitheringPluginComponent',
   schema: S.Object({
     centers: S.Class<TProperties, typeof Uniform<Vector3[]>>(
       Uniform,
@@ -75,12 +74,13 @@ export const TransparencyDitheringPlugin = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialStateComponent)
+      const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+      if (!materialComponent) return
       const material = materialComponent.material as Material
       const callback = (shader) => {
         material.alphaTest = 0.5
         material.side = FrontSide
-        const plugin = getComponent(entity, TransparencyDitheringPlugin)
+        const plugin = getComponent(entity, TransparencyDitheringPluginComponent)
 
         if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
           shader.vertexShader = shader.vertexShader.replace(
