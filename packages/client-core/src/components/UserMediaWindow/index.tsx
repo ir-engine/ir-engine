@@ -31,8 +31,8 @@ import React, { RefObject, useEffect, useRef } from 'react'
 
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { useFind, useGet } from '@ir-engine/common'
-import { UserName, clientSettingPath, userPath } from '@ir-engine/common/src/schema.type.module'
+import { useGet } from '@ir-engine/common'
+import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { useExecute } from '@ir-engine/ecs'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
@@ -67,8 +67,6 @@ interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
 }
-
-const MAX_RES_TO_USE_TOP_LAYER = 540 //If under 540p, use the topmost video layer, otherwise use layer n-1
 
 const useDrawMocapLandmarks = (
   videoElement: HTMLVideoElement,
@@ -284,6 +282,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const togglePiP = () => isPiP.set(!isPiP.value)
 
+  useEffect(() => {
+    peerMediaChannelState.videoQuality.set(isPiP.value ? 'largest' : 'smallest')
+  }, [isPiP.value])
+
   const username = getUsername() as UserName
 
   const avatarThumbnail = useUserAvatarThumbnail(userId)
@@ -384,9 +386,6 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
 
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
-
   useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
 
   useEffect(() => {
@@ -406,43 +405,6 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
     if (canvasRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d')!
   })
-
-  /** @todo move to reactor and hoist isPip or something to a state */
-  // useEffect(() => {
-  //   if (!videoStream) return
-  //   const mediaNetwork = NetworkState.mediaNetwork
-  //   const encodings = videoStream.rtpParameters.encodings
-
-  //   const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
-  //   const { maxResolution } = clientSetting.mediaSettings.video
-  //   const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
-  //   if (isPiP || immersiveMedia.value) {
-  //     let maxLayer
-  //     const scalabilityMode = encodings && encodings[0].scalabilityMode
-  //     if (!scalabilityMode) maxLayer = 0
-  //     else {
-  //       const execed = /L([0-9])/.exec(scalabilityMode)
-  //       if (execed) maxLayer = parseInt(execed[1]) - 1 //Subtract 1 from max scalabilityMode since layers are 0-indexed
-  //       else maxLayer = 0
-  //     }
-  //     // If we're in immersive media mode, using max-resolution video for everyone could overwhelm some devices.
-  //     // If there are more than 2 layers, then use layer n-1 to balance quality and performance
-  //     // (immersive video bubbles are bigger than the flat bubbles, so low-quality video will be more noticeable).
-  //     // If we're not, then the highest layer is still probably more than necessary, so use the n-1 layer unless the
-  //     // n layer is under a specified constant
-  //     MediasoupMediaProducerConsumerState.setPreferredConsumerLayer(
-  //       mediaNetwork,
-  //       videoStream.id,
-  //       (immersiveMedia.value && maxLayer) > 1
-  //         ? maxLayer - 1
-  //         : (!isScreen && resolution.height.ideal) > MAX_RES_TO_USE_TOP_LAYER
-  //         ? maxLayer - 1
-  //         : maxLayer
-  //     )
-  //   }
-  //   // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons
-  //   else MediasoupMediaProducerConsumerState.setPreferredConsumerLayer(mediaNetwork, videoStream.id, 0)
-  // }, [videoStream, isPiP])
 
   return (
     <Draggable isPiP={isPiP}>

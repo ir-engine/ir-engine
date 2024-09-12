@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { InstanceID } from '@ir-engine/common/src/schema.type.module'
+import { clientSettingPath, InstanceID } from '@ir-engine/common/src/schema.type.module'
 import {
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
@@ -36,10 +36,13 @@ import {
   NetworkState,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
+  VideoConstants,
   webcamAudioDataChannelType
 } from '@ir-engine/network'
 
+import { useFind } from '@ir-engine/common'
 import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
+import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../media/MediaStreamState'
 import {
@@ -49,6 +52,8 @@ import {
 } from '../../media/PeerMediaChannelState'
 import { ConsumerExtension, ProducerExtension } from './MediasoupClientFunctions'
 
+const MAX_RES_TO_USE_TOP_LAYER = 540 // If under 540p, use the topmost video layer, otherwise use layer n-1
+
 /**
  * Peer media reactor
  * - Manages the media stream for a peer
@@ -56,9 +61,12 @@ import { ConsumerExtension, ProducerExtension } from './MediasoupClientFunctions
  * @returns
  */
 const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
+  const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
+
   const consumerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[props.networkID].consumers[props.consumerID]
   )
+
   const producerID = consumerState.producerID.value
 
   const peerID = consumerState.peerID.value
@@ -67,6 +75,8 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   const type =
     mediaTag === screenshareAudioDataChannelType || mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
   const isAudio = mediaTag === webcamAudioDataChannelType || mediaTag === screenshareAudioDataChannelType
+
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[peerID]?.[type]
 
   const consumer = useHookstate(
     getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[props.consumerID]
@@ -119,6 +129,49 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   //     peerMediaChannelState.videoProducerGlobalMute.set(globalMute)
   //   }
   // }, [producerState.paused?.value])
+
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
+
+  const isPiP = peerMediaChannelState.videoQuality.value === 'largest'
+
+  useEffect(() => {
+    if (!consumer || isAudio) return
+
+    const isScreen = mediaTag === screenshareVideoDataChannelType
+
+    const mediaNetwork = NetworkState.mediaNetwork
+    const encodings = consumer.rtpParameters.encodings
+
+    const { maxResolution } = clientSetting.mediaSettings.video
+    const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
+    if (isPiP || immersiveMedia) {
+      let maxLayer
+      const scalabilityMode = encodings && encodings[0].scalabilityMode
+      if (!scalabilityMode) maxLayer = 0
+      else {
+        const execed = /L([0-9])/.exec(scalabilityMode)
+        if (execed) maxLayer = parseInt(execed[1]) - 1 //Subtract 1 from max scalabilityMode since layers are 0-indexed
+        else maxLayer = 0
+      }
+      // If we're in immersive media mode, using max-resolution video for everyone could overwhelm some devices.
+      // If there are more than 2 layers, then use layer n-1 to balance quality and performance
+      // (immersive video bubbles are bigger than the flat bubbles, so low-quality video will be more noticeable).
+      // If we're not, then the highest layer is still probably more than necessary, so use the n-1 layer unless the
+      // n layer is under a specified constant
+      MediasoupMediaProducerConsumerState.setPreferredConsumerLayer(
+        mediaNetwork,
+        consumer.id,
+        (immersiveMedia && maxLayer) > 1
+          ? maxLayer - 1
+          : (!isScreen && resolution.height.ideal) > MAX_RES_TO_USE_TOP_LAYER
+          ? maxLayer - 1
+          : maxLayer
+      )
+    }
+    // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons
+    else MediasoupMediaProducerConsumerState.setPreferredConsumerLayer(mediaNetwork, consumer.id, 0)
+  }, [consumer, immersiveMedia, isPiP])
 
   return null
 }

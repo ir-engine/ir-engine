@@ -28,6 +28,7 @@ import { defineState, getMutableState, none, PeerID } from '@ir-engine/hyperflux
 export interface PeerMediaStreamInterface {
   videoMediaStream: MediaStream | null
   audioMediaStream: MediaStream | null
+  videoQuality: 'smallest' | 'auto' | 'largest'
   videoStreamPaused: boolean
   audioStreamPaused: boolean
   videoElement: HTMLVideoElement
@@ -52,6 +53,7 @@ export const createPeerMediaChannels = (peerID: PeerID) => {
       videoMediaStream: null,
       audioMediaStream: null,
       videoStreamPaused: false,
+      videoQuality: 'smallest',
       audioStreamPaused: false,
       videoElement: document.createElement('video'),
       audioElement: document.createElement('audio')
@@ -59,6 +61,7 @@ export const createPeerMediaChannels = (peerID: PeerID) => {
     screen: {
       videoMediaStream: null,
       audioMediaStream: null,
+      videoQuality: 'auto',
       videoStreamPaused: false,
       audioStreamPaused: false,
       videoElement: document.createElement('video'),
