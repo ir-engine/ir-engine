@@ -57,15 +57,12 @@ export interface Schema {
   [Kind]: Kinds
   static: unknown
   typeof: string
-  params: unknown[]
   properties?: unknown
   options?: Options
   serializer?: (value: unknown) => unknown
 }
 
-export type Static<T extends Schema, P extends unknown[] = []> = (T & {
-  params: P
-})['static']
+export type Static<T extends Schema> = T['static']
 
 export interface TNullSchema extends Schema {
   [Kind]: 'Null'
@@ -126,25 +123,24 @@ export type TPropertyKeySchema = TStringSchema | TNumberSchema
 export type TPropertyKey = string | number
 export type TProperties = Record<TPropertyKey, Schema>
 
-type ObjectStatic<T extends TProperties, P extends unknown[]> = {
-  [K in keyof T]: Static<T[K], P>
+type ObjectStatic<T extends TProperties> = {
+  [K in keyof T]: Static<T[K]>
 }
-
 export interface TObjectSchema<T extends TProperties> extends Schema {
   [Kind]: 'Object'
-  static: ObjectStatic<T, this['params']>
+  static: ObjectStatic<T>
   typeof: 'object'
   properties: T
 }
 
 type Key<K> = K extends PropertyKey ? K : never
-type RecordStatic<K extends Schema, V extends Schema, P extends unknown[]> = {
-  [_ in Key<Static<K>>]: Static<V, P>
+type RecordStatic<K extends Schema, V extends Schema> = {
+  [_ in Key<Static<K>>]: Static<V>
 }
 
 export interface TRecordSchema<K extends Schema, V extends Schema> extends Schema {
   [Kind]: 'Record'
-  static: RecordStatic<K, V, this['params']>
+  static: RecordStatic<K, V>
   typeof: 'object'
   properties: { key: K; value: V }
 }
@@ -156,10 +152,10 @@ export interface TPartialSchema<T extends Schema> extends Schema {
   properties: T
 }
 
-type ArrayStatic<T extends Schema, P extends unknown[]> = Static<T, P>[]
+type ArrayStatic<T extends Schema> = Static<T>[]
 export interface TArraySchema<T extends Schema> extends Schema {
   [Kind]: 'Array'
-  static: ArrayStatic<T, this['params']>
+  static: ArrayStatic<T>
   typeof: 'object'
   options?: Options & {
     minItem?: number
@@ -168,25 +164,25 @@ export interface TArraySchema<T extends Schema> extends Schema {
   properties: T
 }
 
-type UnionStatic<T extends Schema[], P extends unknown[]> = {
-  [K in keyof T]: T[K] extends Schema ? Static<T[K], P> : never
+type UnionStatic<T extends Schema[]> = {
+  [K in keyof T]: T[K] extends Schema ? Static<T[K]> : never
 }[number]
 export interface TUnionSchema<T extends Schema[]> extends Schema {
   [Kind]: 'Union'
-  static: UnionStatic<T, this['params']>
+  static: UnionStatic<T>
   typeof: 'any'
   properties: T
 }
 
-type ParamsStatic<T extends Schema[], P extends unknown[], Arr extends unknown[] = []> = T extends [
+type ParamsStatic<T extends Schema[], Arr extends unknown[] = []> = T extends [
   infer L extends Schema,
   ...infer R extends Schema[]
 ]
-  ? ParamsStatic<R, P, [...Arr, ...[Static<L, P>]]>
+  ? ParamsStatic<R, [...Arr, ...[Static<L>]]>
   : Arr
 export interface TFuncSchema<Params extends Schema[], Return extends Schema> extends Schema {
   [Kind]: 'Func'
-  static: (...params: ParamsStatic<Params, this['params']>) => Static<Return>
+  static: (...params: ParamsStatic<Params>) => Static<Return>
   typeof: 'function'
   properties: { params: Params; return: Return }
 }
