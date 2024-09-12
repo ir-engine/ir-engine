@@ -51,7 +51,7 @@ import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'
 import { MediaStreamService, MediaStreamState } from '../../media/MediaStreamState'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
-import { clientContextParams } from '../../util/contextParams'
+import { clientContextParams } from '../../util/ClientContextState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
