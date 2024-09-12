@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Value } from '@sinclair/typebox/value'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Types } from 'bitecs'
@@ -103,9 +102,9 @@ describe('ComponentFunctions', async () => {
       const vector3Component = getComponent(entity, Vector3Component)
       const json = Vector3Component.toJSON(vector3Component)
       const fromSchema = CreateSchemaValue(Vector3Component.schema)
-      assert(Value.Equal(vector3Component, fromSchema))
-      assert(Value.Equal(json, fromSchema))
-      assert(Value.Equal(json, vector3Component))
+      assert.deepEqual(vector3Component, fromSchema)
+      assert.deepEqual(json, fromSchema)
+      assert.deepEqual(json, vector3Component)
     })
 
     it('should use default onSet function if none is defined', () => {
@@ -147,7 +146,7 @@ describe('ComponentFunctions', async () => {
       assert(vector3Component.isVector3)
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
       assert(vector3Component.z === fromSchema.z)
-      assert(!Value.Equal(vector3Component, fromSchema))
+      assert.notDeepEqual(vector3Component, fromSchema)
     })
 
     it('toJSON should still be in the shape of the schema even if overriden by onInit', () => {
@@ -169,7 +168,7 @@ describe('ComponentFunctions', async () => {
       assert(vector3Component instanceof Vector3)
       assert(!(json instanceof Vector3))
       assert(vector3Component.isVector3)
-      assert(Value.Equal(json, { ...setValue, z: 4 }))
+      assert.deepEqual(json, { ...setValue, z: 4 })
       assert((json as any).isVector3 === undefined)
     })
 
