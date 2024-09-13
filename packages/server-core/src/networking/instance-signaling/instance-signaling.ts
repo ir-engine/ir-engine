@@ -34,7 +34,7 @@ import {
   locationPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import { getState, PeerID } from '@ir-engine/hyperflux'
+import { PeerID, getState } from '@ir-engine/hyperflux'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
 
@@ -134,24 +134,24 @@ export default (app: Application): void => {
 
       if (!peerID || !instanceId) throw new BadRequest('instanceID required')
 
-      const instanceAttendance = await app.service(instanceAttendancePath).find({
-        query: {
-          instanceId,
-          peerId: peerID
-        }
-      })
+      const [instanceAttendance, instance, targetInstanceAttendance] = await Promise.all([
+        app.service(instanceAttendancePath).find({
+          query: {
+            instanceId,
+            peerId: peerID
+          }
+        }),
+        app.service(instancePath).get(instanceId),
+        app.service(instanceAttendancePath).find({
+          query: {
+            instanceId,
+            peerId: targetPeerID
+          }
+        })
+      ])
 
       if (!instanceAttendance.data.length) throw new BadRequest('Peer not in instance')
-
-      const instance = await app.service(instancePath).get(instanceId)
       if (!instance.currentUsers) throw new BadRequest('Instance not active')
-
-      const targetInstanceAttendance = await app.service(instanceAttendancePath).find({
-        query: {
-          instanceId,
-          peerId: targetPeerID
-        }
-      })
       if (!targetInstanceAttendance.data.length) throw new BadRequest('Target peer not in instance')
 
       // from here, we can leverage feathers-sync to send the message to the target peer

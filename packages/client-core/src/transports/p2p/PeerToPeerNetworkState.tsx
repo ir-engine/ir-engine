@@ -81,7 +81,8 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     API.instance.service(instanceSignalingPath).on('patched', (data) => {
       // need to ignore messages from self
       if (data.fromPeerID === Engine.instance.store.peerID) return
-      console.log('patched event:', data)
+      console.log('patched event:', data, Date.now())
+      if (data.instanceID !== props.instance.id) return
       // switch (data.message.type) {
       //   case 'offer':
       //     API.instance.service(instanceSignalingPath).patch(null, {
@@ -106,7 +107,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     for (const otherPeer of instanceAttendanceQuery.data) {
       if (seenPeers.includes(otherPeer.peerId)) continue
       if (otherPeer.peerId === Engine.instance.store.peerID) continue
-      console.log('sending message to', otherPeer)
+      console.log('sending patched message to', otherPeer, Date.now())
       seenPeers.push(otherPeer.peerId)
       API.instance.service(instanceSignalingPath).patch(null, {
         instanceID: props.instance.id,
