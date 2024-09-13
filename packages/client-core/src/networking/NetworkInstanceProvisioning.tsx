@@ -48,6 +48,7 @@ import { getMutableState, getState, none, useHookstate, useMutableState } from '
 import { NetworkState } from '@ir-engine/network'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/mediasoup/MediasoupClientFunctions'
+import { PeerToPeerNetworkState } from '../transports/p2p/PeerToPeerNetworkState'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
@@ -163,14 +164,18 @@ export const WorldInstanceProvisioning = () => {
 export const WorldInstance = ({ id }: { id: InstanceID }) => {
   useEffect(() => {
     const worldInstance = getState(LocationInstanceState).instances[id]
-    return connectToInstance(
-      id,
-      worldInstance.ipAddress,
-      worldInstance.port,
-      worldInstance.locationId,
-      undefined,
-      worldInstance.roomCode
-    )
+    if (worldInstance.p2p) {
+      return PeerToPeerNetworkState.connectToP2PInstance(id)
+    } else {
+      return connectToInstance(
+        id,
+        worldInstance.ipAddress!,
+        worldInstance.port!,
+        worldInstance.locationId,
+        undefined,
+        worldInstance.roomCode
+      )
+    }
   }, [])
 
   return null

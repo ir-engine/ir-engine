@@ -23,32 +23,41 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import type { Static } from '@feathersjs/typebox'
-import { getValidator, Type } from '@feathersjs/typebox'
+import type { Knex } from 'knex'
 
-import { TypedString } from '../../types/TypeboxUtils'
-import { RoomCode } from '../social/location.schema'
-import { dataValidator } from '../validators'
+const instanceAttendanceTable = 'instance-attendance'
 
-export const instanceProvisionPath = 'instance-provision'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export const instanceProvisionMethods = ['find', 'create'] as const
+  const peerIDColumnExists = await knex.schema.hasColumn(instanceAttendanceTable, 'peerId')
 
-// Main data model schema
-export const instanceProvisionSchema = Type.Object(
-  {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    ipAddress: Type.Optional(Type.String()),
-    p2p: Type.Optional(Type.Boolean()),
-    port: Type.Optional(Type.String()),
-    roomCode: TypedString<RoomCode>(),
-    podName: Type.Optional(Type.String())
-  },
-  { $id: 'InstanceProvision', additionalProperties: false }
-)
-export interface InstanceProvisionType extends Static<typeof instanceProvisionSchema> {}
+  if (peerIDColumnExists === false) {
+    await knex.schema.alterTable(instanceAttendanceTable, (table) => {
+      table.string('peerId', 255)
+    })
+  }
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
 
-export const instanceProvisionValidator = /* @__PURE__ */ getValidator(instanceProvisionSchema, dataValidator)
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const projectColumnExists = await knex.schema.hasColumn(instanceAttendanceTable, 'peerId')
+
+  if (projectColumnExists === true) {
+    await knex.schema.alterTable(instanceAttendanceTable, (table) => {
+      table.dropColumn('peerID')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

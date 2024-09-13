@@ -48,6 +48,7 @@ import {
   instanceQueryResolver,
   instanceResolver
 } from './instance.resolvers'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 
 /**
  * Sort result by location name
@@ -155,6 +156,7 @@ export default {
     all: [schemaHooks.validateQuery(instanceQueryValidator), schemaHooks.resolveQuery(instanceQueryResolver)],
     find: [
       iff(isProvider('external') && isAction('admin'), verifyScope('instance', 'read'), addLocationSearchToQuery),
+      enableClientPagination(),
       discardQuery('search'),
       discardQuery('action'),
       sortByLocationName

@@ -29,6 +29,7 @@ import { ChannelID, LocationID, RoomCode } from '../schema.type.module'
 
 export type NetworkConnectionParams = {
   token: string
+  peerID: PeerID
   locationId?: LocationID
   instanceID?: NetworkID
   channelId?: ChannelID

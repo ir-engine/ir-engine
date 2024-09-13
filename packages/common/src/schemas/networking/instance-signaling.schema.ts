@@ -28,27 +28,28 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, Type } from '@feathersjs/typebox'
 
 import { TypedString } from '../../types/TypeboxUtils'
-import { RoomCode } from '../social/location.schema'
 import { dataValidator } from '../validators'
+import { InstanceID } from './instance.schema'
 
-export const instanceProvisionPath = 'instance-provision'
+export const instanceSignalingPath = 'instance-signaling'
 
-export const instanceProvisionMethods = ['find', 'create'] as const
+export const instanceSignalingMethods = ['get', 'find', 'create'] as const
 
 // Main data model schema
-export const instanceProvisionSchema = Type.Object(
+export const instanceSignalingSchema = Type.Object(
   {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    ipAddress: Type.Optional(Type.String()),
-    p2p: Type.Optional(Type.Boolean()),
-    port: Type.Optional(Type.String()),
-    roomCode: TypedString<RoomCode>(),
-    podName: Type.Optional(Type.String())
+    instanceID: TypedString<InstanceID>()
   },
-  { $id: 'InstanceProvision', additionalProperties: false }
+  { $id: 'InstanceSignaling', additionalProperties: false }
 )
-export interface InstanceProvisionType extends Static<typeof instanceProvisionSchema> {}
+export interface InstanceSignalingType extends Static<typeof instanceSignalingSchema> {}
 
-export const instanceProvisionValidator = /* @__PURE__ */ getValidator(instanceProvisionSchema, dataValidator)
+// Schema for creating new entries
+export const instanceSignalingDataSchema = Type.Partial(
+  Type.Pick(instanceSignalingSchema, ['instanceID'], {
+    $id: 'InstanceSignalingData'
+  })
+)
+export interface InstanceSignalingDataType extends Static<typeof instanceSignalingDataSchema> {}
+
+export const instanceSignalingValidator = /* @__PURE__ */ getValidator(instanceSignalingSchema, dataValidator)

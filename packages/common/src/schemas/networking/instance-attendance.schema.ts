@@ -31,6 +31,7 @@ import { TypedString } from '../../types/TypeboxUtils'
 import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { InstanceID, instanceSchema } from './instance.schema'
+import { PeerID } from '@ir-engine/hyperflux'
 
 export const instanceAttendancePath = 'instance-attendance'
 
@@ -51,6 +52,7 @@ export const instanceAttendanceSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
+    peerId: TypedString<PeerID>(),
     instance: Type.Ref(instanceSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -62,7 +64,7 @@ export interface InstanceAttendanceType extends Static<typeof instanceAttendance
 // Schema for creating new entries
 export const instanceAttendanceDataSchema = Type.Pick(
   instanceAttendanceSchema,
-  ['isChannel', 'instanceId', 'userId', 'sceneId'],
+  ['isChannel', 'instanceId', 'userId', 'peerId', 'sceneId'],
   {
     $id: 'InstanceAttendanceData'
   }
@@ -82,6 +84,7 @@ export const instanceAttendanceQueryProperties = Type.Pick(instanceAttendanceSch
   'isChannel',
   'ended',
   'instanceId',
+  'peerId',
   'userId'
 ])
 export const instanceAttendanceQuerySchema = Type.Intersect(

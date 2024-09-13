@@ -23,32 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import type { Static } from '@feathersjs/typebox'
-import { getValidator, Type } from '@feathersjs/typebox'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { TypedString } from '../../types/TypeboxUtils'
-import { RoomCode } from '../social/location.schema'
-import { dataValidator } from '../validators'
+import { instanceProvisionSchema } from '@ir-engine/common/src/schemas/networking/instance-provision.schema'
 
-export const instanceProvisionPath = 'instance-provision'
-
-export const instanceProvisionMethods = ['find', 'create'] as const
-
-// Main data model schema
-export const instanceProvisionSchema = Type.Object(
-  {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    ipAddress: Type.Optional(Type.String()),
-    p2p: Type.Optional(Type.Boolean()),
-    port: Type.Optional(Type.String()),
-    roomCode: TypedString<RoomCode>(),
-    podName: Type.Optional(Type.String())
+export default createSwaggerServiceOptions({
+  schemas: {
+    instanceProvisionSchema
   },
-  { $id: 'InstanceProvision', additionalProperties: false }
-)
-export interface InstanceProvisionType extends Static<typeof instanceProvisionSchema> {}
-
-export const instanceProvisionValidator = /* @__PURE__ */ getValidator(instanceProvisionSchema, dataValidator)
+  docs: {
+    description: 'Instance provision service description',
+    securities: ['all']
+  }
+})

@@ -54,16 +54,20 @@ export default {
       schemaHooks.validateQuery(instanceAttendanceQueryValidator),
       schemaHooks.resolveQuery(instanceAttendanceQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScope('instance', 'read'))],
-    get: [iff(isProvider('external'), verifyScope('instance', 'read'))],
+    find: [
+      // iff(isProvider('external'), verifyScope('instance', 'read'))
+    ],
+    get: [
+      // iff(isProvider('external'), verifyScope('instance', 'read'))
+    ],
     create: [
-      iff(isProvider('external'), verifyScope('instance', 'write')),
+      // iff(isProvider('external'), verifyScope('instance', 'write')),
       schemaHooks.validateData(instanceAttendanceDataValidator),
       schemaHooks.resolveData(instanceAttendanceDataResolver)
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('instance', 'write')),
+      // iff(isProvider('external'), verifyScope('instance', 'write')),
       schemaHooks.validateData(instanceAttendancePatchValidator),
       schemaHooks.resolveData(instanceAttendancePatchResolver)
     ],

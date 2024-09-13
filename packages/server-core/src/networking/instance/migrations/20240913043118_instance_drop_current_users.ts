@@ -23,32 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import type { Static } from '@feathersjs/typebox'
-import { getValidator, Type } from '@feathersjs/typebox'
 
-import { TypedString } from '../../types/TypeboxUtils'
-import { RoomCode } from '../social/location.schema'
-import { dataValidator } from '../validators'
+import type { Knex } from 'knex'
 
-export const instanceProvisionPath = 'instance-provision'
+const instanceTableName = 'instance'
 
-export const instanceProvisionMethods = ['find', 'create'] as const
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-// Main data model schema
-export const instanceProvisionSchema = Type.Object(
-  {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    ipAddress: Type.Optional(Type.String()),
-    p2p: Type.Optional(Type.Boolean()),
-    port: Type.Optional(Type.String()),
-    roomCode: TypedString<RoomCode>(),
-    podName: Type.Optional(Type.String())
-  },
-  { $id: 'InstanceProvision', additionalProperties: false }
-)
-export interface InstanceProvisionType extends Static<typeof instanceProvisionSchema> {}
+  const projectColumnExists = await knex.schema.hasColumn(instanceTableName, 'currentUsers')
 
-export const instanceProvisionValidator = /* @__PURE__ */ getValidator(instanceProvisionSchema, dataValidator)
+  if (projectColumnExists === false) {
+    await knex.schema.alterTable(instanceTableName, async (table) => {
+      table.dropColumn('currentUsers')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const projectColumnExists = await knex.schema.hasColumn(instanceTableName, 'currentUsers')
+
+  if (projectColumnExists === true) {
+    await knex.schema.alterTable(instanceTableName, async (table) => {
+      table.integer('currentUsers', 11).defaultTo(0)
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

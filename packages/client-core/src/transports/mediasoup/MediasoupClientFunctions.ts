@@ -202,6 +202,7 @@ export const connectToInstance = (
     const token = authState.authUser.accessToken
 
     const query: NetworkConnectionParams = {
+      peerID: Engine.instance.store.peerID,
       instanceID,
       locationId: locationID,
       channelId: channelID,

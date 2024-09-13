@@ -43,8 +43,9 @@ import { SocketWebRTCClientNetwork } from '../../transports/mediasoup/MediasoupC
 import { AuthState } from '../../user/services/AuthService'
 
 export type InstanceState = {
-  ipAddress: string
-  port: string
+  ipAddress?: string
+  port?: string
+  p2p?: boolean
   locationId?: LocationID
   sceneId?: string
   roomCode: RoomCode
@@ -104,16 +105,17 @@ export const LocationInstanceConnectionService = {
         createPrivateRoom
       }
     })
-    if (provisionResult.ipAddress && provisionResult.port) {
+    if (provisionResult.p2p || (provisionResult.ipAddress && provisionResult.port)) {
       getMutableState(LocationInstanceState).instances.merge({
         [provisionResult.id]: {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          p2p: provisionResult.p2p,
           locationId: locationId!,
           sceneId: sceneId!,
-          roomCode: provisionResult.roomCode as RoomCode
+          roomCode: provisionResult.roomCode
         }
-      } as Partial<{ [id: InstanceID]: InstanceState }>)
+      })
     } else {
       logger.error('Failed to connect to expected instance')
       setTimeout(() => {
@@ -148,11 +150,12 @@ export const LocationInstanceConnectionService = {
         token
       }
     })
-    if (provisionResult.ipAddress && provisionResult.port) {
+    if (provisionResult.p2p || (provisionResult.ipAddress && provisionResult.port)) {
       getMutableState(LocationInstanceState).instances.merge({
         [provisionResult.id]: {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          p2p: provisionResult.p2p,
           locationId: locationId!,
           sceneId: sceneId!,
           roomCode: provisionResult.roomCode as RoomCode

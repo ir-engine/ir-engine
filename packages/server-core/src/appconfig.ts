@@ -89,13 +89,6 @@ if (!testEnabled) {
   })
 }
 
-if (!kubernetesEnabled) {
-  dotenv.config({
-    path: appRootPath.path,
-    node_env: 'local'
-  })
-}
-
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -197,8 +190,9 @@ const client = {
   releaseName: process.env.RELEASE_NAME || 'local'
 }
 
-// TODO: rename to 'instanceserver'
 const instanceserver = {
+  p2pEnabled: process.env.P2P_INSTANCE_ENABLED === 'true',
+  p2pMaxConnections: parseInt(process.env.P2P_INSTANCE_MAX_CONNECTIONS!),
   clientHost: process.env.APP_HOST!,
   rtcStartPrt: parseInt(process.env.RTC_START_PORT!),
   rtcEndPort: parseInt(process.env.RTC_END_PORT!),

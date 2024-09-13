@@ -28,6 +28,7 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { BadRequest } from '@feathersjs/errors'
+import { instanceAttendancePath } from '@ir-engine/common/src/schema.type.module'
 import {
   InstanceID,
   InstanceQuery,
@@ -38,11 +39,19 @@ import { channelPath } from '@ir-engine/common/src/schemas/social/channel.schema
 import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
+import _ from 'lodash'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {
     if (context.event !== 'removed' && instance.locationId)
       return await context.app.service(locationPath).get(instance.locationId)
+  }),
+  currentUsers: virtual(async (instance, context) => {
+    const peers = await context.app
+      .service(instanceAttendancePath)
+      .find({ query: { instanceId: instance.id, ended: false }, paginate: false })
+    const users = _.uniq(peers.map((peer) => peer.userId))
+    return users.length
   }),
   assignedAt: virtual(async (instance) => (instance.assignedAt ? fromDateTimeSql(instance.assignedAt) : '')),
   createdAt: virtual(async (instance) => fromDateTimeSql(instance.createdAt)),

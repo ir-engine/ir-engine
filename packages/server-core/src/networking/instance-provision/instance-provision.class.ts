@@ -237,8 +237,7 @@ export async function checkForDuplicatedAssignments({
       channelId: channelId,
       assigned: true,
       assignedAt: toDateTimeSql(new Date()),
-      roomCode: '' as RoomCode,
-      currentUsers: 0
+      roomCode: '' as RoomCode
     },
     { headers }
   )) as InstanceType
@@ -458,6 +457,59 @@ export async function checkForDuplicatedAssignments({
   }
 }
 
+export async function getP2PInstance({
+  app,
+  headers,
+  createPrivateRoom,
+  locationId,
+  channelId,
+  roomCode
+}: {
+  app: Application
+  headers: object
+  createPrivateRoom?: boolean
+  locationId?: LocationID
+  channelId?: ChannelID
+  roomCode?: RoomCode
+}): Promise<InstanceProvisionType> {
+  const query = {
+    assigned: true,
+    ended: false
+  } as any
+  if (locationId) query.locationId = locationId
+  if (channelId) query.channelId = channelId
+  /** @todo consider createPrivateRoom */
+  const instances = await app.service(instancePath).find({
+    query,
+    paginate: false
+  }) as any as InstanceType[]
+
+  const activeInstances = instances.filter(
+    (instance) => instance.currentUsers < config.instanceserver.p2pMaxConnections
+  )
+  if (activeInstances.length > 0) {
+    return {
+      id: activeInstances[0].id,
+      p2p: true,
+      roomCode: activeInstances[0].roomCode
+    }
+  }
+  const newInstance = await app.service(instancePath).create(
+    {
+      locationId,
+      channelId,
+      assigned: true,
+      assignedAt: toDateTimeSql(new Date())
+    },
+    { headers }
+  )
+  return {
+    id: newInstance.id,
+    p2p: true,
+    roomCode: newInstance.roomCode
+  }
+}
+
 export interface InstanceProvisionParams extends KnexAdapterParams {
   serverSize?: string
 }
@@ -645,12 +697,22 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       if (identityProvider != null) userId = identityProvider.userId
       else throw new BadRequest('Invalid user credentials')
 
-      if (channelId != null) {
+      if (channelId) {
         try {
           await this.app.service(channelPath).get(channelId)
         } catch (err) {
           throw new BadRequest('Invalid channel ID', channelId)
         }
+
+        if (config.instanceserver.p2pEnabled) {
+          return getP2PInstance({
+            app: this.app,
+            headers: params.headers || {},
+            channelId,
+            roomCode
+          })
+        }
+
         const channelInstance = (await this.app.service(instancePath).find({
           query: {
             channelId: channelId,
@@ -658,7 +720,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             $limit: 1
           }
         })) as Paginated<InstanceType>
-        if (channelInstance == null || channelInstance.data.length === 0)
+        if (channelInstance == null || channelInstance.data.length === 0) {
           return getFreeInstanceserver({
             app: this.app,
             headers: params.headers || {},
@@ -668,7 +730,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             userId,
             provisionConstraints
           })
-        else {
+        } else {
           if (config.kubernetes.enabled) {
             const isCleanup = await this.isCleanup(channelInstance.data[0])
             if (isCleanup)
@@ -711,7 +773,16 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
           instance = instances.length > 0 ? instances[0] : null
         }
 
-        if ((roomCode && (instance == null || instance.ended)) || createPrivateRoom)
+        if ((roomCode && (!instance || instance.ended)) || createPrivateRoom) {
+          if (config.instanceserver.p2pEnabled) {
+            return getP2PInstance({
+              app: this.app,
+              headers: params.headers || {},
+              channelId,
+              roomCode
+            })
+          }
+
           return getFreeInstanceserver({
             app: this.app,
             headers: params.headers || {},
@@ -722,10 +793,20 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             createPrivateRoom,
             provisionConstraints
           })
+        }
 
         let isCleanup
 
         if (instance) {
+          if (config.instanceserver.p2pEnabled) {
+            return getP2PInstance({
+              app: this.app,
+              headers: params.headers || {},
+              channelId,
+              roomCode
+            })
+          }
+
           if (config.kubernetes.enabled) isCleanup = await this.isCleanup(instance)
           if (
             (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
@@ -813,6 +894,15 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         //   }
         // }
 
+        if (config.instanceserver.p2pEnabled) {
+          return getP2PInstance({
+            app: this.app,
+            headers: params.headers || {},
+            locationId,
+            roomCode
+          })
+        }
+
         const knexClient: Knex = this.app.get('knexClient')
 
         const response = await knexClient
@@ -857,7 +947,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
               (instanceAuthorizedUser) => instanceAuthorizedUser.userId === userId
             )
         )
-        if (allowedLocationInstances.length === 0)
+        if (allowedLocationInstances.length === 0) {
           return getFreeInstanceserver({
             app: this.app,
             headers: params.headers || {},
@@ -867,16 +957,16 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             userId,
             provisionConstraints
           })
-        else
+        } else {
           return this.getISInService({
             availableLocationInstances: allowedLocationInstances,
             headers: params.headers || {},
             locationId,
-            channelId,
             roomCode,
             userId,
             provisionConstraints
           })
+        }
       }
     } catch (err) {
       logger.error(err)

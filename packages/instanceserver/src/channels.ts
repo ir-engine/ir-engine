@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers/lib'
+import { Paginated, RealTimeConnection } from '@feathersjs/feathers/lib'
 
 import '@feathersjs/transport-commons'
 
@@ -37,6 +37,7 @@ import {
   ChannelUserType,
   identityProviderPath,
   IdentityProviderType,
+  InstanceAttendanceData,
   instanceAttendancePath,
   InstanceData,
   InstanceID,
@@ -55,7 +56,7 @@ import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { getMutableState, getState, HyperFlux, Identifiable, State } from '@ir-engine/hyperflux'
+import { getMutableState, getState, HyperFlux, Identifiable, PeerID, State } from '@ir-engine/hyperflux'
 import { addNetwork, NetworkPeerFunctions, NetworkState, NetworkTopics, updatePeers } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { Application } from '@ir-engine/server-core/declarations'
@@ -74,20 +75,6 @@ import { restartInstanceServer } from './restartInstanceServer'
 import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
-
-interface PrimusConnectionType {
-  provider: string
-  headers: object
-  socketQuery?: NetworkConnectionParams & {
-    EIO: string
-    transport: string
-    t: string
-  }
-  /** @deprecated - @todo refactor */
-  instanceId?: InstanceID
-  /** @deprecated - @todo refactor */
-  channelId?: string
-}
 
 interface InstanceserverStatus {
   state: 'Shutdown' | 'Ready'
@@ -146,7 +133,6 @@ const assignExistingInstance = async ({
   await app.service(instancePath).patch(
     existingInstance.id,
     {
-      currentUsers: existingInstance.currentUsers + 1,
       podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local',
       assigned: false,
       assignedAt: null
@@ -313,7 +299,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
  * @param headers
  */
 
-const handleUserAttendance = async (app: Application, userId: UserID, headers: object) => {
+const handleUserAttendance = async (app: Application, userId: UserID, peerID: PeerID, headers: object) => {
   const instanceServerState = getState(InstanceServerState)
 
   const channel = (await app.service(channelPath).find({
@@ -342,30 +328,17 @@ const handleUserAttendance = async (app: Application, userId: UserID, headers: o
     }
   }
 
-  await app.service(instanceAttendancePath).patch(
-    null,
-    {
-      ended: true
-    },
-    {
-      query: {
-        isChannel: instanceServerState.isMediaInstance,
-        ended: false,
-        userId: userId
-      }
-    }
-  )
-
-  const newInstanceAttendance = {
+  const newInstanceAttendance: InstanceAttendanceData = {
     instanceId: instanceServerState.instance.id,
     isChannel: instanceServerState.isMediaInstance,
-    userId: userId
+    userId: userId,
+    peerId: peerID
   }
   if (!instanceServerState.isMediaInstance) {
     const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
-    ;(newInstanceAttendance as any).sceneId = location.sceneId
+    newInstanceAttendance.sceneId = location.sceneId
   }
-  await app.service(instanceAttendancePath).create(newInstanceAttendance as any)
+  await app.service(instanceAttendancePath).create(newInstanceAttendance)
 }
 
 let instanceStarted = false
@@ -435,7 +408,6 @@ const updateInstance = async ({
       await app.service(instancePath).patch(
         instanceServerState.instance.id,
         {
-          currentUsers: (instance.currentUsers as number) + 1,
           assigned: false,
           podName: config.kubernetes.enabled ? instanceServerState.instanceServer?.objectMeta?.name : 'local',
           assignedAt: null
@@ -501,42 +473,22 @@ const shutdownServer = async (app: Application, instanceId: InstanceID, headers:
   }
 }
 
-// todo: this could be more elegant
-const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
-  const activeClients = Object.entries(getServerNetwork(app).peers)
-  const activeUsers = [...activeClients].filter(
-    ([id, client]) => client.peerID !== Engine.instance.store.peerID && client.userId !== userToIgnore.id
-  )
-  return activeUsers.length
-}
-
 const handleUserDisconnect = async ({
   app,
   connection,
   user,
+  peerID,
   instanceId,
   headers
 }: {
   app: Application
-  connection: PrimusConnectionType
+  connection: RealTimeConnection
   user: UserType
+  peerID: PeerID
   instanceId: InstanceID
   headers: object
 }) => {
   const instanceServerState = getState(InstanceServerState)
-
-  try {
-    const activeUsersCount = getActiveUsersCount(app, user)
-    await app.service(instancePath).patch(
-      instanceId,
-      {
-        currentUsers: activeUsersCount
-      },
-      { headers }
-    )
-  } catch (err) {
-    logger.info('Failed to patch instance user count, likely because it was destroyed.')
-  }
 
   await app.service(instanceAttendancePath).patch(
     null,
@@ -547,6 +499,7 @@ const handleUserDisconnect = async ({
       query: {
         isChannel: instanceServerState.isMediaInstance,
         instanceId: instanceId,
+        peerId: peerID,
         userId: user.id
       }
     }
@@ -587,7 +540,7 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   }
 }
 
-export const onConnection = (app: Application) => async (connection: PrimusConnectionType) => {
+export const onConnection = (app: Application) => async (connection: RealTimeConnection) => {
   logger.info('Connection: %o', connection)
 
   if (!connection.socketQuery?.token) return
@@ -605,6 +558,7 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
   if (!identityProvider?.id) return
 
   const userId = identityProvider.userId
+  const peerID = connection.socketQuery.peerID
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId!
   let roomCode = connection.socketQuery.roomCode!
@@ -713,11 +667,11 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
       app.channel(`instanceIds/${instanceServerState.instance.id}`).join(connection)
     }
 
-    await handleUserAttendance(app, userId, connection.headers)
+    await handleUserAttendance(app, userId, peerID, connection.headers)
   }
 }
 
-const onDisconnection = (app: Application) => async (connection: PrimusConnectionType) => {
+const onDisconnection = (app: Application) => async (connection: RealTimeConnection) => {
   logger.info('Disconnection or end: %o', connection)
   const token = connection.socketQuery?.token
   if (!token) return
@@ -769,6 +723,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
         app,
         connection,
         user,
+        peerID: connection.socketQuery!.peerID,
         instanceId,
         headers: connection.headers
       })
