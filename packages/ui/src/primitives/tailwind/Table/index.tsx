@@ -199,6 +199,23 @@ const TablePagination = ({
           </li>
         ))}
 
+        {totalPages > 0 && nextPages[nextPages.length - 1] < totalPages - 2 && (
+          <li>
+            <button disabled={true} className={commonClasses}>
+              ...
+            </button>
+          </li>
+        )}
+
+        {totalPages > 0 && nextPages[nextPages.length - 1] < totalPages - 1 && (
+          <>
+            <li key={totalPages}>
+              <button onClick={() => onPageChange(totalPages - 1)} className={commonClasses}>
+                {totalPages}
+              </button>
+            </li>
+          </>
+        )}
         <li>
           <button
             disabled={currentPage === totalPages - 1}
