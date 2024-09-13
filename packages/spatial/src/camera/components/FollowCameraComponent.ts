@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
 
 import { defineQuery, ECSState, Engine, useEntityContext } from '@ir-engine/ecs'
 import {
@@ -39,8 +39,9 @@ import {
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getState, matches, useImmediateEffect } from '@ir-engine/hyperflux'
 
+import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
-import { smoothDamp, smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -103,6 +104,10 @@ export const FollowCameraComponent = defineComponent({
     const distance = (windowHeight / windowWidth) * cameraSettings.startCameraDistance
 
     return {
+      lerpValue: 0,
+      originalPosition: null as Vector3 | null,
+      originalOffset: null as Vector3 | null,
+      originalRotation: null as Quaternion | null,
       firstPersonOffset: new Vector3(),
       thirdPersonOffset: new Vector3(),
       currentOffset: new Vector3(),
@@ -166,6 +171,16 @@ export const FollowCameraComponent = defineComponent({
 
     useEffect(() => {
       const followCamera = getComponent(entity, FollowCameraComponent)
+      if (followCamera.originalPosition === null) {
+        const followTransform = getComponent(entity, TransformComponent)
+        followCamera.originalPosition = followTransform.position.clone()
+        followCamera.originalRotation = followTransform.rotation.clone()
+        followCamera.originalOffset = Vector3_Zero.clone()
+        follow.currentTargetPosition.value.copy(followCamera.originalPosition)
+        follow.currentOffset.value.copy(Vector3_Zero)
+        //followCamera.originalPosition)
+        //follow.currentOffset.y.set(follow.currentOffset.y.value * -1)
+      }
       setComponent(entity, ComputedTransformComponent, {
         referenceEntities: [followCamera.targetEntity],
         computeFunction: () => computeCameraFollow(entity, followCamera.targetEntity)
@@ -173,6 +188,7 @@ export const FollowCameraComponent = defineComponent({
 
       return () => {
         removeComponent(entity, ComputedTransformComponent)
+        followCamera.originalPosition = null
       }
     }, [])
 
@@ -181,6 +197,11 @@ export const FollowCameraComponent = defineComponent({
         follow.targetDistance.set(0)
       }
     }, [follow.mode])
+
+    useEffect(() => {
+      console.log('updating follow target to entity ', follow.targetEntity)
+      follow.lerpValue.set(0)
+    }, [follow.targetEntity])
 
     return null
   }
@@ -195,12 +216,16 @@ const tempVec1 = new Vector3()
 const raycaster = new Raycaster()
 
 const MODE_SWITCH_DEBOUNCE = 0.03
+const LERP_TIME = 1
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)
   const followState = getMutableComponent(cameraEntity, FollowCameraComponent)
   const cameraTransform = getComponent(cameraEntity, TransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
+
+  followState.lerpValue.set(Math.min(followState.lerpValue.value + getState(ECSState).deltaSeconds, LERP_TIME))
+  const lerpVal = followState.lerpValue.value / LERP_TIME
 
   if (!targetTransform || !follow || !follow?.enabled) return
 
@@ -209,18 +234,25 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   let isInsideWall = false
 
-  const offsetAlpha = smootheLerpAlpha(follow.offsetSmoothness, getState(ECSState).deltaSeconds)
   const targetOffset =
-    follow.mode === FollowCameraMode.FirstPerson ? follow.firstPersonOffset : follow.thirdPersonOffset
-  follow.currentOffset.lerp(targetOffset, offsetAlpha)
+    follow.mode === FollowCameraMode.FirstPerson
+      ? follow.firstPersonOffset
+      : follow.thirdPersonOffset.y === 0
+      ? new Vector3(0, cameraTransform.position.y, 0)
+      : follow.thirdPersonOffset
+
+  follow.currentOffset.lerpVectors(follow.originalOffset ?? follow.currentOffset, targetOffset, lerpVal)
 
   targetPosition
     .copy(follow.currentOffset)
     .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, targetTransform.rotation))
     .add(TransformComponent.getWorldPosition(referenceEntity, new Vector3()))
 
-  const targetPositionAlpha = smootheLerpAlpha(follow.targetPositionSmoothness, getState(ECSState).deltaSeconds)
-  follow.currentTargetPosition.lerp(targetPosition, targetPositionAlpha)
+  follow.currentTargetPosition.lerpVectors(
+    follow.originalPosition ?? follow.currentTargetPosition,
+    targetPosition,
+    lerpVal
+  )
 
   // Run only if not in first person mode
   let obstacleDistance = Infinity
@@ -337,28 +369,6 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     }
   }
 
-  // // Move from third person mode to top down mode
-  // if (allowModeShift && follow.mode === FollowCameraMode.ThirdPerson &&
-  //     follow.allowedModes.includes(FollowCameraMode.TopDown) &&
-  //     follow.targetDistance >= 1.1 * follow.thirdPersonMaxDistance) {
-  //   setTargetCameraRotation(cameraEntity, 90, follow.theta)
-  //   followState.mode.set(FollowCameraMode.TopDown)
-  // }
-
-  // // Rotate camera to the top but let the player rotate if he/she desires
-  // if (Math.abs(follow.thirdPersonMaxDistance - nextTargetDistance) <= 1.0 && scrollDelta > 0 && follow) {
-  //   setTargetCameraRotation(cameraEntity, 85, follow.theta)
-  // }
-
-  // // Rotate from top
-  // if (Math.abs(follow.thirdPersonMaxDistance - follow.targetDistance) <= 1.0 && scrollDelta < 0 && follow.phi >= 80) {
-  //   setTargetCameraRotation(cameraEntity, 45, follow.theta)
-  // }
-
-  // if (Math.abs(follow.targetDistance - nextTargetDistance) > epsilon) {
-  //   follow.targetDistance = nextTargetDistance
-  // }
-
   // Zoom smoothing
   const smoothingSpeed = isInsideWall ? 0.1 : 0.3
   const deltaSeconds = getState(ECSState).deltaSeconds
@@ -378,7 +388,11 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   )
 
   mx.lookAt(direction, empty, upVector)
-  cameraTransform.rotation.setFromRotationMatrix(mx)
+
+  //slerp using rotationLerp value, this is reset to zero every time the follow target changes
+  const camRot = cameraTransform.rotation.clone()
+  camRot.slerpQuaternions(follow.originalRotation ?? camRot, new Quaternion().setFromRotationMatrix(mx), lerpVal)
+  cameraTransform.rotation.copy(camRot)
 
   updateCameraTargetRotation(cameraEntity)
 }
