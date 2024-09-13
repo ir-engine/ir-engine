@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S, XRHandedness } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { XRHandedness } from '../../interaction/components/GrabbableComponent'
 
 export const AvatarTeleportComponent = defineComponent({
   name: 'AvatarTeleportComponent',

@@ -67,42 +67,51 @@ const isColorObj = (color?: ColorRepresentation): color is Color => {
 }
 
 export const S = {
+  /** Schema that infers as a null */
   Null: (options?: Options) =>
     ({
       [Kind]: 'Null',
       options: options
     }) as TNullSchema,
 
+  /** Schema that infers as a undefined */
   Undefined: (options?: Options) =>
     ({
       [Kind]: 'Undefined',
       options: options
     }) as TUndefinedSchema,
 
+  /** Schema that infers as a void for use with S.Func as a return schema */
   Void: (options?: Options) =>
     ({
       [Kind]: 'Void',
       options: options
     }) as TVoidSchema,
 
+  /** Schema that infers as a number, defaults to 0 */
   Number: (init?: number, options?: TNumberSchema['options']) =>
     ({
       [Kind]: 'Number',
       options: buildOptions(init ?? 0, options)
     }) as TNumberSchema,
 
+  /** Schema that infers as a boolean, defaults to false */
   Bool: (init?: boolean, options?: Options) =>
     ({
       [Kind]: 'Bool',
       options: buildOptions(init ?? false, options)
     }) as TBoolSchema,
 
+  /** Schema that infers as a string, defaults to '' */
   String: (init?: string, options?: Options) =>
     ({
       [Kind]: 'String',
       options: buildOptions(init ?? '', options)
     }) as TStringSchema,
 
+  /**
+   * Schema that infers as a enum,requires that the enum to infer as be passed in
+   */
   Enum: <T extends Record<string, string | number>>(item: T, init?: string | number, options?: Options) =>
     ({
       [Kind]: 'Enum',
@@ -110,6 +119,10 @@ export const S = {
       properties: item
     }) as TEnumSchema<T>,
 
+  /**
+   * Schema that infers as a literal value
+   * S.Literal('test') -> 'test'
+   */
   Literal: <T extends TLiteralValue>(item: T, init?: T, options?: Options) =>
     ({
       [Kind]: 'Literal',
@@ -117,6 +130,10 @@ export const S = {
       properties: item
     }) as TLiteralSchema<T>,
 
+  /**
+   * Schema that infers as an object type of the properties provided
+   * S.Object({ test: S.Number() }) -> { test: number }
+   */
   Object: <T extends TProperties, Initial>(properties: T, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Object',
@@ -124,6 +141,10 @@ export const S = {
       properties: properties
     }) as TObjectSchema<T>,
 
+  /**
+   * Schema that infers as a record type of key and value schemas passed in
+   * S.Record(S.String(), S.Number()) -> Record<string, number>
+   */
   Record: <K extends Schema, V extends Schema, Initial>(key: K, value: V, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Record',
@@ -131,6 +152,10 @@ export const S = {
       properties: { key, value }
     }) as TRecordSchema<K, V>,
 
+  /**
+   * Schema that infers as a Partial type of the schema passed in
+   * S.Partial(S.Vec3()) -> Partial<Vector3>
+   */
   Partial: <T extends Schema, Initial>(item: T, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Partial',
@@ -138,6 +163,10 @@ export const S = {
       properties: item
     }) as TPartialSchema<T>,
 
+  /**
+   * Schema that infers as an array type of the schema passed in
+   * S.Array(S.Number()) -> number[]
+   */
   Array: <T extends Schema, Initial extends any[]>(item: T, init?: Initial, options?: TArraySchema<T>['options']) =>
     ({
       [Kind]: 'Array',
@@ -145,6 +174,10 @@ export const S = {
       properties: item
     }) as TArraySchema<T>,
 
+  /**
+   * Schema that infers as a union type of the schemas provided
+   * It will serialize as the first schema in the array that matches the value's shape
+   * */
   Union: <T extends Schema[], Initial>(schemas: [...T], init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Union',
@@ -152,9 +185,13 @@ export const S = {
       properties: schemas
     }) as TUnionSchema<T>,
 
+  /** Schema that infers as a literal union (ie. 'key' | 'value') */
   LiteralUnion: <T extends TLiteralValue>(items: T[], init?: T, options?: Options) =>
     S.Union([...items.map((lit) => S.Literal(lit))], init, options),
 
+  /**
+   * Schema that infers as the return type of the function passed in, not serialized
+   */
   Class: <T extends TProperties, Class>(init: () => Class) =>
     ({
       [Kind]: 'Class',
@@ -164,6 +201,11 @@ export const S = {
       properties: {}
     }) as TClassSchema<T, Class>,
 
+  /**
+   * Schema that infers as the return type of the function passed in
+   * if properties are passed in, those values will be serialized, otherwise it will not be serialized
+   * Can provide a serializer function that can be used for custom serialization
+   */
   SerializedClass: <T extends TProperties, Class>(
     init: () => Class,
     items: T,
@@ -180,6 +222,16 @@ export const S = {
       serializer: serializer
     }) as TClassSchema<T, Class>,
 
+  /**
+   *
+   * Schema of a function type, is not serializable
+   *
+   * @param parameters array of schemas to infer the type of the parameters
+   * @param returns schema to infer the return type of the function
+   * @param init initial value
+   * @param options schema option
+   * @returns
+   */
   Func: <Params extends Schema[], Return extends Schema, Initial extends (...params: any[]) => any>(
     parameters: [...Params],
     returns: Return,
@@ -188,19 +240,38 @@ export const S = {
   ) =>
     ({
       [Kind]: 'Func',
-      options: buildOptions(init, options),
+      options: buildOptions(() => init, options),
       properties: { params: parameters, return: returns }
     }) as TFuncSchema<Params, Return>,
 
   Call: <Initial extends (...params: any[]) => any>(init?: Initial, options?: Options) =>
     S.Func([], S.Void(), init, options),
 
+  /**
+   * Schemas wrapped in this schema may be null and will default to null if not default value is provided
+   */
   Nullable: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
     S.Union([schema, S.Null()], init ?? null, options),
 
+  /**
+   * Schemas wrapped in this schema are optional values that can be undefined
+   */
   Optional: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
     S.Union([schema, S.Undefined()], init ?? null, options),
 
+  /**
+   *
+   * Schemas wrapped in this schema are required to be provided when a component is set or will throw an error
+   *
+   * Throws error
+   * S.Object({ test: S.Required(S.Number(0)) })
+   * setComponent(entity, Component, {})
+   *
+   * Non error thrown
+   * S.Object({ test: S.Required(S.Number(0)) })
+   * setComponent(entity, Component, {test: 0})
+   *
+   */
   Required: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'Required',
@@ -208,6 +279,15 @@ export const S = {
       properties: schema
     }) as TRequiredSchema<T>,
 
+  /**
+   *
+   * Schemas wrapped in this schema will be ignored during serialization
+   *
+   * S.Object({ test: S.Number(0) }) serializes to { test: 0 }
+   * S.Object({ test: S.NonSerialized(S.Number(0)) }) serializes to {}
+   * S.NonSerialized(S.Object({ test: S.Number(0) })) serializes to null
+   *
+   */
   NonSerialized: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
     ({
       [Kind]: 'NonSerialized',
@@ -215,12 +295,16 @@ export const S = {
       properties: schema
     }) as TNonSerializedSchema<T>,
 
+  /** EntityUUID type schema helper, defaults to UndefinedEntity */
   Entity: (def?: Entity) => S.Number(def ?? UndefinedEntity, { $id: 'Entity' }) as unknown as TTypedSchema<Entity>,
 
-  EntityUUID: () => S.String('', { $id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
+  /** EntityUUID type schema helper, defaults to '' */
+  EntityUUID: () => S.String('', { id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
 
-  UserID: () => S.String('', { $id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
+  /** UserID type schema helper, defaults to '' */
+  UserID: () => S.String('', { id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
 
+  /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
   Vec3: (init = { x: 0, y: 0, z: 0 }, options?: Options) =>
     S.SerializedClass(
       () => new Vector3(init.x, init.y, init.z),
@@ -235,6 +319,7 @@ export const S = {
       }
     ),
 
+  /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
   Vec2: (init = { x: 0, y: 0 }, options?: Options) =>
     S.SerializedClass(
       () => new Vector2(init.x, init.y),
@@ -248,6 +333,7 @@ export const S = {
       }
     ),
 
+  /** Quaternion type schema helper, defaults to { x: 0, y: 0, z: 0, w: 1 } */
   Quaternion: (init = { x: 0, y: 0, z: 0, w: 1 }, options?: Options) =>
     S.SerializedClass(
       () => new Quaternion(init.x, init.y, init.z, init.w),
@@ -263,6 +349,7 @@ export const S = {
       }
     ),
 
+  /** Matrix4 type schema helper, defaults to idenity matrix */
   Mat4: (init = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], options?: Options) =>
     S.SerializedClass(
       () => new Matrix4().fromArray(init),
@@ -278,6 +365,15 @@ export const S = {
       }
     ),
 
+  /**
+   *
+   * Schema representing a color
+   * Can be a Color object, string or number, but will always serialize as a number
+   *
+   * @param init default color representation
+   * @param options schema options
+   * @returns
+   */
   Color: (init?: ColorRepresentation, options?: Options) =>
     S.SerializedClass<TProperties, ColorRepresentation>(
       () => (isColorObj(init) ? new Color(init.r, init.g, init.b) : new Color(init)),
@@ -293,14 +389,24 @@ export const S = {
       (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex())
     ),
 
-  // Only use if you have to (ie. HTML element types, Three types), provides no real type safety or auto serialization
+  /**
+   *
+   * Creates a schema object that infers to the generic type provided
+   * Is not serialized by default, unless a properties object containing the keys and schemas to serialize is provided
+   *
+   * @param init the default value or function returning the default value, if it is just a value it will go through a structuredClone so it must not be a non-cloneable value (ie. DOM Node)
+   * @param props the properties you want to be serialized for the type
+   * @param options schema options
+   * @returns
+   */
   Type: <T>(init?: T, props?: TProperties, options?: Options) =>
     S.SerializedClass(init as () => any, props ?? {}, options ?? {}) as unknown as TTypedSchema<T>,
 
+  /**
+   * Create a schema object that infers as an any type, the value is serialized
+   */
   Any: () =>
     ({
       [Kind]: 'Any'
     }) as TTypedSchema<any>
 }
-
-export const XRHandedness = S.LiteralUnion(['none', 'left', 'right'], 'none')

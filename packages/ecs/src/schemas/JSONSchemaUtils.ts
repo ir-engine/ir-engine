@@ -383,14 +383,14 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
       if (schema.serializer) return schema.serializer(value)
       const props = schema.properties as TProperties
       const propKeys = Object.keys(props)
-      if (value && typeof value === 'object') {
+      if (propKeys.length && value && typeof value === 'object') {
         return Object.entries(value).reduce((acum, [key, item]) => {
           if (propKeys.includes(key) && isSerializable(props[key])) acum[key] = ConvertToSchema(props[key], item)
           return acum
         }, {})
       }
 
-      return value
+      return schema[Kind] === 'Class' ? null : value
     }
 
     case 'Record': {
@@ -444,6 +444,6 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
 }
 
 export const SerializeSchema = <T extends Schema, Val>(schema: T, value: Val): Val => {
-  const cleaned = CloneSerializable(value)
-  return ConvertToSchema(schema, cleaned)
+  const converted = ConvertToSchema(schema, value)
+  return CloneSerializable(converted)
 }
