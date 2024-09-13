@@ -41,7 +41,7 @@ import { getState, matches, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
-import { smoothDamp } from '../../common/functions/MathLerpFunctions'
+import { smoothDamp, smootherStep } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -225,7 +225,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
   followState.lerpValue.set(Math.min(followState.lerpValue.value + getState(ECSState).deltaSeconds, LERP_TIME))
-  const lerpVal = followState.lerpValue.value / LERP_TIME
+  const lerpVal = smootherStep(followState.lerpValue.value / LERP_TIME)
 
   if (!targetTransform || !follow || !follow?.enabled) return
 
