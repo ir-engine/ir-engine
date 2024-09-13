@@ -23,66 +23,38 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import {
-  defineActionQueue,
-  getMutableState,
-  getState,
-  PeerID,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
 import '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 
-import { NetworkActions, NetworkPeerFunctions, NetworkState } from '@ir-engine/network'
+import '@ir-engine/network/src/NetworkPeerState'
 
-import { MediasoupMediaConsumerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { NetworkState } from '@ir-engine/network'
+
 import {
-  MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
-import { PeerMediaConsumers } from '../media/PeerMedia'
-import {
-  onTransportCreated,
-  receiveConsumerHandler,
-  SocketWebRTCClientNetwork,
-  WebRTCTransportExtension
-} from '../transports/SocketWebRTCClientFunctions'
-import { InstanceProvisioning } from './NetworkInstanceProvisioning'
+import { WebRTCTransportExtension, onTransportCreated } from './MediasoupClientFunctions'
 
-/** @todo replace this with event sourcing */
-const consumerCreatedQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerCreated.matches)
-const transportCreatedActionQueue = defineActionQueue(MediasoupTransportActions.transportCreated.matches)
-const updatePeersActionQueue = defineActionQueue(NetworkActions.updatePeers.matches)
-
-const execute = () => {
-  for (const action of consumerCreatedQueue()) receiveConsumerHandler(action)
-  for (const action of transportCreatedActionQueue()) onTransportCreated(action)
-  // TODO replace with event sourcing
-  for (const action of updatePeersActionQueue()) {
-    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
-    if (!network) continue
-
-    for (const peer of action.peers) {
-      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex)
-    }
-    for (const [peerID, peer] of Object.entries(network.peers))
-      if (!action.peers.find((p) => p.peerID === peerID)) {
-        NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
-      }
-  }
+const TransportReactor = (props: { transportID: string; networkID: InstanceID }) => {
+  useEffect(() => {
+    const transport = getState(MediasoupTransportState)[props.networkID][props.transportID]
+    onTransportCreated(props.networkID, transport)
+  }, [])
+  return null
 }
 
 const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
-  const transportState = useMutableState(MediasoupTransportObjectsState)
+  const transportState = useMutableState(MediasoupTransportState)[props.networkID]
+  const transportObjectState = useMutableState(MediasoupTransportObjectsState)
   const networkState = useMutableState(NetworkState).networks[props.networkID]
 
   useLayoutEffect(() => {
@@ -96,9 +68,15 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
     } else {
       networkState.ready.set(true)
     }
-  }, [transportState, networkState])
+  }, [transportObjectState, networkState])
 
-  return null
+  return (
+    <>
+      {transportState.keys?.map((transportID: string) => (
+        <TransportReactor key={transportID} transportID={transportID} networkID={props.networkID} />
+      ))}
+    </>
+  )
 }
 
 const reactor = () => {
@@ -114,15 +92,12 @@ const reactor = () => {
       {networkIDs.map((id: InstanceID) => (
         <NetworkConnectionReactor key={id} networkID={id} />
       ))}
-      <PeerMediaConsumers />
-      <InstanceProvisioning />
     </>
   )
 }
 
-export const ClientNetworkingSystem = defineSystem({
-  uuid: 'ee.client.ClientNetworkingSystem',
+export const MediasoupTransportSystem = defineSystem({
+  uuid: 'ee.client.MediasoupTransportSystem',
   insert: { after: PresentationSystemGroup },
-  execute,
   reactor
 })
