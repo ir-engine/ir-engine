@@ -35,7 +35,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EntityTreeComponent, isAncestor } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -175,14 +175,14 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         beforeNode = node.entity
         if (!parentTreeComponent || !parentNode) break
         if (0 > node.childIndex - 1) break // nothing to place after it, as node index is the first child
-        afterNode = parentTreeComponent.children[node.childIndex - 1]
+        afterNode = UndefinedEntity
         break
       case 'After': // we want to place after this node
         afterNode = node.entity
         if (!parentTreeComponent || !parentNode) break
         if (node.lastChild) break // if it is last child, nothing to place before it
         if (parentTreeComponent?.children.length < node.childIndex + 1) break //node index is last child
-        beforeNode = parentTreeComponent.children[node.childIndex + 1]
+        beforeNode = UndefinedEntity
         break
       default: //case 'on'
         parentNode = node.entity

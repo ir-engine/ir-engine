@@ -575,21 +575,40 @@ const reparentObject = (
       })
 
       //if the new parent is the root parent, update the look up table since it is used for root parent child order
-      //update the index conver arry to mathc so it can be used later to correct child index value and maintain data integrity
+      //update the index conver array to match so it can be used later to correct child index value and maintain data integrity
       if (isNewParentRoot && gltf.data.nodes) {
         if (before) {
           const nodeData = gltf.data.nodes.splice(nodeIndex, 1)
           indexConvertArray.splice(nodeIndex, 1)
-          const beforeIndex = gltf.data.nodes.findIndex((n) => {
+          const beforeNodeIndex = gltf.data.nodes.findIndex((n) => {
             return n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
           })
-          gltf.data.nodes.splice(beforeIndex, 0, nodeData![0])
-          indexConvertArray.splice(beforeIndex, 0, nodeIndex)
+          gltf.data.nodes.splice(beforeNodeIndex, 0, nodeData![0])
+          indexConvertArray.splice(beforeNodeIndex, 0, nodeIndex)
         } else {
-          const nodeData = gltf.data.nodes?.splice(nodeIndex, 1)
-          indexConvertArray.splice(nodeIndex, 1)
-          gltf.data.nodes?.push(nodeData![0])
-          indexConvertArray.push(nodeIndex)
+          if (after) {
+            const afterNodeIndex = gltf.data.nodes.findIndex((n) => {
+              return n.extensions?.[UUIDComponent.jsonID] === getComponent(after, UUIDComponent)
+            })
+            const afterIndex = gltf.data.scenes![0].nodes.findIndex((n) => {
+              return n === afterNodeIndex
+            })
+            let spliceIndex = gltf.data.scenes![0].nodes[afterIndex + 1]
+            if (nodeIndex < spliceIndex) {
+              spliceIndex -= 1
+            }
+
+            const nodeData = gltf.data.nodes.splice(nodeIndex, 1)
+            indexConvertArray.splice(nodeIndex, 1)
+
+            gltf.data.nodes.splice(spliceIndex, 0, nodeData![0])
+            indexConvertArray.splice(spliceIndex, 0, nodeIndex)
+          } else {
+            const nodeData = gltf.data.nodes.splice(nodeIndex, 1)
+            indexConvertArray.splice(nodeIndex, 1)
+            gltf.data.nodes?.push(nodeData![0])
+            indexConvertArray.push(nodeIndex)
+          }
         }
       }
 
