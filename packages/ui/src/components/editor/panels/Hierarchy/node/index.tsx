@@ -161,25 +161,28 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     let parentNode: Entity | undefined
     let beforeNode: Entity
+    let afterNode: Entity
 
-    if (place === 'Before') {
-      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
-      beforeNode = node.entity
-    } else if (place === 'After') {
-      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
-      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-      if (
-        parentTreeComponent &&
-        !node.lastChild &&
-        parentNode &&
-        parentTreeComponent?.children.length > node.childIndex + 1
-      ) {
+    const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+    parentNode = entityTreeComponent?.parentEntity
+    const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+
+    switch (place) {
+      case 'Before': // we want to place before this node
+        beforeNode = node.entity
+        if (!parentTreeComponent || !parentNode) break
+        if (0 > node.childIndex - 1) break // nothing to place after it, as node index is the first child
+        afterNode = parentTreeComponent.children[node.childIndex - 1]
+        break
+      case 'After': // we want to place after this node
+        afterNode = node.entity
+        if (!parentTreeComponent || !parentNode) break
+        if (node.lastChild) break // if it is last child, nothing to place before it
+        if (parentTreeComponent?.children.length < node.childIndex + 1) break //node index is last child
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
-      }
-    } else {
-      parentNode = node.entity
+        break
+      default: //case 'on'
+        parentNode = node.entity
     }
 
     if (!parentNode)
@@ -223,6 +226,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           ? ((item as DragItemType).value as Entity[])
           : [(item as DragItemType).value as Entity],
         beforeNode,
+        afterNode,
         parentNode === null ? undefined : parentNode
       )
     }
