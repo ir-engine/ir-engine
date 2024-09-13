@@ -350,7 +350,7 @@ const hashBuffer = (buffer: Uint8Array): string => {
 }
 
 enum Status {
-  Initializing,
+  TransformingModels,
   ProcessingTexture,
   WritingFiles,
   Complete
@@ -385,21 +385,8 @@ const fileTypeToMime = (fileType) => {
   }
 }
 
-export type Basis = {
-  document: Document
-  url: string
-}
-
-export type Step = {
-  id: string
-  args: any
-}
-
 const loaderIO = ModelTransformLoader().then(({ io }) => io)
 let ktx2Encoder: KTX2Encoder | null = null
-
-export const loadBasis = (url: string): Promise<Basis> =>
-  loaderIO.then((io) => io.read(url)).then((document) => ({ document, url }))
 
 const doUpload = async (projectName, fileName, buffer) => {
   const file = new File([buffer], fileName)
@@ -415,7 +402,6 @@ const doUpload = async (projectName, fileName, buffer) => {
 
 const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string, string] => {
   const pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
-  console.log('!!!', pathCheck.exec(fUploadPath) != null)
   // TODO: remove srcBaseURL if it's unnecessary
   const [_, projectName, fileName] = pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(srcBaseURL, fUploadPath))!
   return [projectName, fileName]
@@ -444,6 +430,7 @@ const toTransformedDocument = async (srcDocument: Document, args: ModelTransform
   args.prune && (await document.transform(prune()))
 
   /* Separate Instanced Geometry */
+  // TODO: make sure the order of operations is correct. They are very order dependent!
   const instancedNodes = document
     .getRoot()
     .listNodes()
@@ -490,13 +477,16 @@ const toTransformedDocument = async (srcDocument: Document, args: ModelTransform
   return document
 }
 
-type TextureJobType = 'resize' | 'ktx'
-
 type TextureJob = {
-  type: TextureJobType
+  shouldResize: boolean
+  shouldConvertToKTX: boolean
   texture: Texture
   params: ExtractedImageTransformParameters
-  oldImage?: Uint8Array
+}
+
+const hashTextureJob = (job: TextureJob): string => {
+  const { shouldResize, shouldConvertToKTX, params, texture } = job
+  return JSON.stringify({ shouldResize, shouldConvertToKTX, params: { ...params, dst: '' }, texURI: texture.getURI() })
 }
 
 const createTextureJobs = (
@@ -509,6 +499,7 @@ const createTextureJobs = (
   const root = document.getRoot()
   const textures = root.listTextures()
 
+  // TODO: write the GLTF transform maintainers a bug about losing references to extension-provided textures, meshes and buffers
   const eeMaterialExtension: EEMaterialExtension | undefined = root
     .listExtensionsUsed()
     .find((ext) => ext.extensionName === 'EE_material') as EEMaterialExtension
@@ -526,43 +517,45 @@ const createTextureJobs = (
 
   if (args.textureFormat !== 'default') {
     for (const texture of textures) {
-      // onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextures)
-
       console.log('considering texture ' + texture.getURI())
       if (texture.getMimeType() === 'image/ktx2') continue
-      const oldImg = texture.getImage()
-      if (!oldImg) continue
+      // const oldImg = texture.getImage()
+      // if (!oldImg) continue
       const oldSize = texture.getSize()
       if (!oldSize) continue
-      const resourceId = texture.getExtension<EEResourceID>(EEResourceIDExtension.EXTENSION_NAME)?.resourceId
-      const resourceParms = resources.images.find((resource) => resource.enabled && resource.resourceId === resourceId)
-      const mergedParms = {
-        ...args,
-        ...(resourceParms ? extractParameters(resourceParms) : {})
-      } as ExtractedImageTransformParameters
+      const maxDimension = Math.max(...oldSize!)
 
-      if (
-        mimeToFileType(texture.getMimeType()) === mergedParms.textureFormat &&
-        oldSize.reduce((x, y) => Math.max(x, y))! < mergedParms.maxTextureSize
-      ) {
-        continue
-      }
+      // I believe this is redundant. -JS
+      // if (
+      //   mimeToFileType(texture.getMimeType()) === mergedParms.textureFormat &&
+      //   maxDimension < mergedParms.maxTextureSize
+      // ) {
+      //   continue
+      // }
 
-      if (oldSize.reduce((x, y) => Math.max(x, y))! > mergedParms.maxTextureSize) {
-        jobs.push({
-          type: 'resize',
-          texture,
-          params: mergedParms
-        })
-      }
+      const shouldResize = maxDimension > args.maxTextureSize
+      const shouldConvertToKTX = args.textureFormat === 'ktx2' // && texture.getMimeType() !== 'image/ktx2' // We are already skipping ktx2 textures. -JS
 
-      if (mergedParms.textureFormat === 'ktx2' && texture.getMimeType() !== 'image/ktx2') {
+      if (shouldConvertToKTX) {
         ktx2Encoder ??= new KTX2Encoder()
         document.createExtension(KHRTextureBasisu).setRequired(true)
+      }
+
+      if (shouldResize || shouldConvertToKTX) {
+        const resourceId = texture.getExtension<EEResourceID>(EEResourceIDExtension.EXTENSION_NAME)?.resourceId
+        const resourceParms = resources.images.find(
+          (resource) => resource.enabled && resource.resourceId === resourceId
+        )
+        const params = {
+          ...args,
+          ...(resourceParms ? extractParameters(resourceParms) : {})
+        }
+
         jobs.push({
-          type: 'ktx',
+          shouldResize,
+          shouldConvertToKTX,
           texture,
-          params: mergedParms
+          params
         })
       }
     }
@@ -576,50 +569,53 @@ const createTextureJobs = (
   return jobs
 }
 
-const performTextureJob = async (job: TextureJob) => {
-  const { type: jobType, texture, params, oldImage } = job
+const performTextureJob = async (jobCache: Map<string, boolean>, job: TextureJob) => {
+  const { shouldResize, shouldConvertToKTX, texture, params } = job
 
-  switch (jobType) {
-    case 'ktx': {
-      const texturePixels = await getPixels(texture.getImage()!, texture.getMimeType())
-      const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
-      const imgSize = texture.getSize() ?? texturePixels.shape.slice(0, 2)
-      const imgData = new ImageData(clampedData, imgSize[0], imgSize[1])
+  const hash = hashTextureJob(job)
+  console.log(hash, jobCache.has(hash))
+  jobCache.set(hash, true)
 
-      const compressedData = await ktx2Encoder!.encode(imgData, {
-        uastc: params.textureCompressionType === 'uastc',
-        qualityLevel: params.textureCompressionQuality,
-        srgb: !params.linear,
-        mipmaps: params.mipmap,
-        yFlip: params.flipY
+  if (shouldResize) {
+    const oldImage = texture.getImage()!
+    const originalName = texture.getName()
+    const originalURI = texture.getURI()
+    const [_, fileName, extension] = /(.*)\.([^.]+)$/.exec(originalURI) ?? []
+    const quality = params.textureCompressionType === 'uastc' ? params.uastcLevel : params.compLevel
+    const nuURI = `${fileName}-${params.maxTextureSize}x${quality}.${extension}`
+
+    const imgDoc = new Document()
+    const nuTexture = imgDoc.createTexture(texture.getName())
+    nuTexture.setExtras(texture.getExtras())
+    nuTexture.setImage(oldImage)
+    nuTexture.setMimeType(texture.getMimeType())
+    await imgDoc.transform(
+      textureCompress({
+        resize: [params.maxTextureSize, params.maxTextureSize]
       })
+    )
+    texture.copy(nuTexture) // Texture mutation
+    texture.setName(originalName)
+    texture.setURI(nuURI)
+  }
 
-      texture.setImage(new Uint8Array(compressedData))
-      texture.setMimeType('image/ktx2')
-      texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
-      break
-    }
-    case 'resize': {
-      const imgDoc = new Document()
-      const nuTexture = imgDoc.createTexture(texture.getName())
-      nuTexture.setExtras(texture.getExtras())
-      nuTexture.setImage(oldImage!)
-      nuTexture.setMimeType(texture.getMimeType())
-      await imgDoc.transform(
-        textureCompress({
-          resize: [params.maxTextureSize, params.maxTextureSize]
-        })
-      )
-      const originalName = texture.getName()
-      const originalURI = texture.getURI()
-      const [_, fileName, extension] = /(.*)\.([^.]+)$/.exec(originalURI) ?? []
-      const quality = params.textureCompressionType === 'uastc' ? params.uastcLevel : params.compLevel
-      const nuURI = `${fileName}-${params.maxTextureSize}x${quality}.${extension}`
-      texture.copy(nuTexture)
-      texture.setName(originalName)
-      texture.setURI(nuURI)
-      break
-    }
+  if (shouldConvertToKTX) {
+    const texturePixels = await getPixels(texture.getImage()!, texture.getMimeType())
+    const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
+    const imgSize = texture.getSize() ?? texturePixels.shape.slice(0, 2)
+    const imgData = new ImageData(clampedData, imgSize[0], imgSize[1])
+
+    const compressedData = await ktx2Encoder!.encode(imgData, {
+      uastc: params.textureCompressionType === 'uastc',
+      qualityLevel: params.textureCompressionQuality,
+      srgb: !params.linear,
+      mipmaps: params.mipmap,
+      yFlip: params.flipY
+    })
+
+    texture.setImage(new Uint8Array(compressedData)) // Texture mutation
+    texture.setMimeType('image/ktx2')
+    texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
   }
 }
 
@@ -651,7 +647,6 @@ const writeFiles = async (
   if (['glb', 'vrm'].includes(modelFormat)) {
     const data = await io.writeBinary(document)
     await doUpload(...toProjectAndFileName(finalPath, srcBaseURL), data)
-    console.log('Handled glb file')
   } else if (modelFormat === 'gltf') {
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
@@ -724,45 +719,63 @@ const writeFiles = async (
       ...toProjectAndFileName(finalPath, srcBaseURL),
       new Blob([JSON.stringify(json)], { type: 'application/json' })
     )
-    console.log('Handled gltf file')
   }
-  return pathJoin(srcBaseURL, finalPath)
+
+  finalPath = pathJoin(srcBaseURL, finalPath)
+  console.log(`Wrote ${modelFormat} file: ${finalPath}`)
+  return finalPath
 }
 
 export const transformModel = async (
-  basis: Basis,
-  args: ModelTransformParameters,
-  onMetadata: (key: string, data: any) => void = (key, data) => {},
+  srcURL: string,
+  transformations: ModelTransformParameters[],
+  onMetadata: (index: number, key: string, data: any) => void = (key, data) => {},
   onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
-): Promise<string> => {
-  const { document: srcDocument, url: srcURL } = basis
+): Promise<string[]> => {
+  onProgress?.(0, Status.TransformingModels)
 
-  const document = await toTransformedDocument(srcDocument, args)
+  const srcDocument = await (await loaderIO).read(srcURL)
+  const documents: Document[] = []
+  const textureJobs: TextureJob[] = []
 
-  onProgress?.(0, Status.Initializing)
+  for (let i = 0; i < transformations.length; i++) {
+    const transformation = transformations[i]
+    const document = await toTransformedDocument(srcDocument, transformation)
+    documents.push(document)
 
-  const textureJobs = createTextureJobs(document, args, args.resources)
-  const numTextures = textureJobs.length
-  const totalProgressSteps = 1 /* init */ + numTextures + 1 /* write */
-  for (let i = 0; i < numTextures; i++) {
-    await performTextureJob(textureJobs[i])
-    onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextures)
+    const jobs = createTextureJobs(document, transformation, transformation.resources)
+    const maxTextureSize = Math.max(...jobs.map(({ texture }) => texture.getSize()?.[0] ?? 0))
+    onMetadata(i, 'maxTextureSize', maxTextureSize)
+    textureJobs.push(...jobs)
   }
 
-  const maxTextureSize = Math.max(...textureJobs.map(({ texture }) => texture.getSize()?.[0] ?? 0))
-  onMetadata('maxTextureSize', maxTextureSize)
+  const numTextureJobs = textureJobs.length
+  const totalProgressSteps = 1 + numTextureJobs + documents.length
 
-  const totalVertexCount = document
-    .getRoot()
-    .listMeshes()
-    .flatMap((mesh) => mesh.listPrimitives())
-    .map((prim) => prim.getIndices()?.getCount() ?? 0)
-    .reduce((prev, curr) => prev + curr, 0)
-  onMetadata('vertexCount', totalVertexCount)
+  const jobCache = new Map<string, boolean>()
+  for (let i = 0; i < numTextureJobs; i++) {
+    onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextureJobs)
+    await performTextureJob(jobCache, textureJobs[i])
+  }
 
-  onProgress?.((totalProgressSteps - 2) / totalProgressSteps, Status.WritingFiles)
+  const results: string[] = []
 
-  const result = await writeFiles(srcURL, document, args)
+  for (let i = 0; i < documents.length; i++) {
+    onProgress?.((i + 1 + numTextureJobs) / totalProgressSteps, Status.WritingFiles)
+
+    const [document, transformation] = [documents[i], transformations[i]]
+    results.push(...(await writeFiles(srcURL, document, transformation)))
+
+    const totalVertexCount = document
+      .getRoot()
+      .listMeshes()
+      .flatMap((mesh) => mesh.listPrimitives())
+      .map((prim) => prim.getIndices()?.getCount() ?? 0)
+      .reduce((prev, curr) => prev + curr, 0)
+    onMetadata(i, 'vertexCount', totalVertexCount)
+  }
+
   onProgress?.(1, Status.Complete)
-  return result
+
+  return results
 }

@@ -536,7 +536,7 @@
         "useMeshoptimizer": "Use Meshoptimizer",
         "maxCodebooks": "Max Codebooks",
         "status": {
-          "initializing": "Initializing transform...",
+          "transformingmodels": "Transforming models...",
           "processingtexture": "Processing texture {{numerator}} of {{denominator}}...",
           "writingfiles": "Writing files...",
           "complete": "Complete."

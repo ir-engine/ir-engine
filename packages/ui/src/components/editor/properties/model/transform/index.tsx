@@ -27,10 +27,7 @@ import React, { useCallback, useEffect } from 'react'
 import { DoubleSide, Mesh } from 'three'
 
 import { API } from '@ir-engine/common'
-import {
-  transformModel as clientSideTransformModel,
-  loadBasis
-} from '@ir-engine/common/src/model/ModelTransformFunctions'
+import { transformModel as clientSideTransformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { ComponentType, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -133,12 +130,10 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
           })
         : [transformParms.get(NO_PROXY)]
 
-      const basis = await loadBasis(modelSrc)
-
-      for (const variant of variants) {
-        if (clientside) {
-          nuPath = await clientSideTransformModel(basis, variant as ModelTransformParameters)
-        } else {
+      if (clientside) {
+        nuPath = (await clientSideTransformModel(modelSrc, variants as ModelTransformParameters[]))[0]
+      } else {
+        for (const variant of variants) {
           await API.instance.service(modelTransformPath).create(variant)
         }
       }

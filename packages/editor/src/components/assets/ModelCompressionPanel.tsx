@@ -29,7 +29,6 @@ import { LoaderUtils } from 'three'
 
 import {
   transformModel as clientSideTransformModel,
-  loadBasis,
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -59,7 +58,7 @@ import { FileDataType } from '../../constants/AssetTypes'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const progressCaptions: Record<ModelTransformStatus, string> = {
-  [ModelTransformStatus.Initializing]: 'editor:properties.model.transform.status.initializing',
+  [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
   [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
   [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
   [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
@@ -74,31 +73,23 @@ const createLODVariants = async (
     progress: number,
     status: ModelTransformStatus,
     numerator: number,
-    denominator: number,
-    currentLOD: number,
-    totalLODS: number
+    denominator: number
   ) => void = () => {}
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
     ...lod.params
   }))
 
-  const basis = await loadBasis(srcURL)
-
-  const transformMetadata = [] as Record<string, any>[]
-  for (const [i, variant] of lodVariantParams.entries()) {
-    await clientSideTransformModel(
-      basis,
-      variant,
-      (key, data) => {
-        if (!transformMetadata[i]) transformMetadata[i] = {}
-        transformMetadata[i][key] = data
-      },
-      (progress, status, numerator, denominator) => {
-        onProgress((progress + i) / lods.length, status, numerator ?? 0, denominator ?? 0, i, lods.length)
-      }
-    )
-  }
+  const transformMetadata: Record<string, any>[] = []
+  await clientSideTransformModel(
+    srcURL,
+    lodVariantParams,
+    (i, key, data) => {
+      if (!transformMetadata[i]) transformMetadata[i] = {}
+      transformMetadata[i][key] = data
+    },
+    onProgress
+  )
 
   if (exportCombined) {
     const firstLODParams = lods[0].params
@@ -212,24 +203,13 @@ export default function ModelCompressionPanel({
     }
 
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(
-      srcURL,
-      fileLODs,
-      heuristic,
-      exportCombined,
-      (progress, status, numerator, denominator, currentLOD, totalLODs) => {
-        let caption = t(progressCaptions[status]!, {
-          numerator: numerator + 1,
-          denominator
-        })
-        caption = t('editor:properties.model.transform.progress', {
-          currentLOD: currentLOD + 1,
-          totalLODs,
-          caption
-        })
-        compressionProgress.set({ progress, caption })
-      }
-    )
+    await createLODVariants(srcURL, fileLODs, heuristic, exportCombined, (progress, status, numerator, denominator) => {
+      const caption = t(progressCaptions[status]!, {
+        numerator: numerator + 1,
+        denominator
+      })
+      compressionProgress.set({ progress, caption })
+    })
   }
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
