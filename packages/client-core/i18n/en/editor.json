@@ -6,6 +6,8 @@
   "selectSceneMsg": "Select a Scene in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
+  "warning": "Warning",
+  "warningMsg": "I dont think you should do that.",
   "generateScreenshot": "Generating Project Screenshot",
   "newScene": "Add Scene",
   "saving": "Saving Project",
@@ -73,6 +75,9 @@
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
+  },
+  "warnings" : {
+    "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
     "title": "Viewport",

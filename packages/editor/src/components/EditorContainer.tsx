@@ -47,6 +47,7 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
 import { API } from '@ir-engine/common'
@@ -62,6 +63,7 @@ import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import { FilesPanelTab } from '../panels/files'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
+import { EditorWarningState } from '../services/EditorWarningServices'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -74,6 +76,18 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
       {children}
     </div>
   )
+}
+
+const onEditorWarning = (warning) => {
+  console.warn(warning)
+  NotificationService.dispatchNotify(warning, {
+    variant: 'warning'
+  })
+
+  // popover design doesnt match the figma designs, we use notification for now
+  /*PopoverState.showPopupover(
+    <WarningDialog title={t('editor:warning')} description={warning || t('editor:warningMsg')} />
+  )*/
 }
 
 const onEditorError = (error) => {
@@ -184,6 +198,7 @@ const EditorContainer = () => {
   }, [originEntity, currentLoadedSceneURL.value])
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
+  const warningState = useHookstate(getMutableState(EditorWarningState).warning)
 
   const dockPanelRef = useRef<DockLayout>(null)
 
@@ -208,6 +223,12 @@ const EditorContainer = () => {
       onEditorError(errorState.value)
     }
   }, [errorState])
+
+  useEffect(() => {
+    if (warningState.value) {
+      onEditorWarning(warningState.value)
+    }
+  }, [warningState])
 
   useEffect(() => {
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
