@@ -38,7 +38,7 @@ import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spati
 
 import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { isZero } from '../../common/functions/MathFunctions'
-import { Mat4Proxy, QuaternionProxyDirty, Vec3ProxyDirty } from '../../common/proxies/createThreejsProxy'
+import { QuaternionProxyDirty, Vec3ProxyDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 export type TransformComponentType = {
@@ -56,9 +56,10 @@ export const PoseECS = {
 export const TransformECS = {
   position: ECSSchema.Vec3,
   rotation: ECSSchema.Quaternion,
-  scale: ECSSchema.Vec3,
-  matrix: ECSSchema.Mat4,
-  matrixWorld: ECSSchema.Mat4
+  scale: ECSSchema.Vec3
+  // There might be a way to make this a performance gain, but in testing it's about 15% slower than JS arrays
+  // matrix: ECSSchema.Mat4,
+  // matrixWorld: ECSSchema.Mat4
 }
 
 export const TransformComponent = defineComponent({
@@ -74,8 +75,8 @@ export const TransformComponent = defineComponent({
       position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
       rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
       scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms),
-      matrix: Mat4Proxy(initial.matrix),
-      matrixWorld: Mat4Proxy(initial.matrixWorld)
+      matrix: new Matrix4(),
+      matrixWorld: new Matrix4()
     } as TransformComponentType
     return component
   },

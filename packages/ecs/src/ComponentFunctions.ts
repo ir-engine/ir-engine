@@ -412,12 +412,13 @@ const createSchemaArrProxy = (obj, store, entity: Entity) => {
   const proxy = new Proxy(obj, {
     get(target, key, receiver) {
       if (typeof store[entity][key] === 'function') {
-        store[entity][key].bind(store[entity])
+        return store[entity][key].bind(store[entity])
+        // store[entity][key].bind(store[entity])
         // target[key].bind(target)
-        return (...args) => {
-          store[entity][key](...args)
-          // target[key](...args)
-        }
+        // return (...args) => {
+        // store[entity][key](...args)
+        // target[key](...args)
+        // }
       } else if (key === 'entity') return entity
       return store[entity][key]
     },
