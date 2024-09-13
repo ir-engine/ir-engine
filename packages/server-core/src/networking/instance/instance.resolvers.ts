@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelPath } from '@ir-engine/common/src/schemas/social/channel.schema'
 import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
-import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 import _ from 'lodash'
 
@@ -47,9 +47,17 @@ export const instanceResolver = resolve<InstanceType, HookContext>({
       return await context.app.service(locationPath).get(instance.locationId)
   }),
   currentUsers: virtual(async (instance, context) => {
-    const peers = await context.app
-      .service(instanceAttendancePath)
-      .find({ query: { instanceId: instance.id, ended: false }, paginate: false })
+    const peers = await context.app.service(instanceAttendancePath).find({
+      query: {
+        instanceId: instance.id,
+        ended: false,
+        updatedAt: {
+          // Only consider instances that have been updated in the last 10 seconds
+          $gt: toDateTimeSql(new Date(new Date().getTime() - 10000))
+        }
+      },
+      paginate: false
+    })
     const users = _.uniq(peers.map((peer) => peer.userId))
     return users.length
   }),

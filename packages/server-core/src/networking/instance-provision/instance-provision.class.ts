@@ -487,6 +487,7 @@ export async function getP2PInstance({
   const activeInstances = instances.filter(
     (instance) => instance.currentUsers < config.instanceserver.p2pMaxConnections
   )
+  console.log('\n\n\nactiveInstances', activeInstances)
   if (activeInstances.length > 0) {
     return {
       id: activeInstances[0].id,
@@ -972,21 +973,5 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       logger.error(err)
       throw err
     }
-  }
-
-  /**
-   * A method which is used to create instance
-   *
-   * @param data which is used to create instance
-   * @param params
-   * @returns data of instance
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async create(data: any, params?: Params): Promise<any> {
-    if (Array.isArray(data)) {
-      return Promise.all(data.map((current) => this.create(current, params)))
-    }
-
-    return data
   }
 }

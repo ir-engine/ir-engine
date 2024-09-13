@@ -33,7 +33,7 @@ import { dataValidator } from '../validators'
 
 export const instanceProvisionPath = 'instance-provision'
 
-export const instanceProvisionMethods = ['find', 'create'] as const
+export const instanceProvisionMethods = ['find'] as const
 
 // Main data model schema
 export const instanceProvisionSchema = Type.Object(

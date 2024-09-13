@@ -83,6 +83,7 @@ export const instanceAttendanceQueryProperties = Type.Pick(instanceAttendanceSch
   'sceneId',
   'isChannel',
   'ended',
+  'updatedAt',
   'instanceId',
   'peerId',
   'userId'

@@ -23,40 +23,150 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
 import {
-  instanceSignalingMethods,
-  instanceSignalingPath
-} from '@ir-engine/common/src/schemas/networking/instance-signaling.schema'
-
-import { instanceAttendancePath, instancePath } from '@ir-engine/common/src/schema.type.module'
+  InstanceAttendanceData,
+  InstanceID,
+  instanceAttendancePath,
+  instancePath,
+  instanceSignalingPath,
+  locationPath
+} from '@ir-engine/common/src/schema.type.module'
+import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { getState, PeerID } from '@ir-engine/hyperflux'
 import { Application } from '../../../declarations'
-import { InstanceSignalingService } from './instance-signaling.class'
-import instanceProvisionDocs from './instance-signaling.docs'
-import hooks from './instance-signaling.hooks'
-import { getState } from '@ir-engine/hyperflux'
 import { ServerMode, ServerState } from '../../ServerState'
+
+type InstanceSignalingDataType = {
+  instanceID: InstanceID
+}
+
+// placeholder
+type OfferRequest = {
+  type: 'offer'
+  data: object
+}
+
+type AnswerRequest = {
+  type: 'answer'
+  data: object
+}
+
+type SignalData = {
+  instanceID: InstanceID
+  targetPeerID: PeerID
+  fromPeerID: PeerID
+  message: OfferRequest | AnswerRequest
+}
 
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
-    [instanceSignalingPath]: InstanceSignalingService
+    [instanceSignalingPath]: {
+      create: (data: InstanceSignalingDataType, params?: Params) => Promise<void>
+      get: (data: InstanceSignalingDataType, params?: Params) => Promise<void>
+      patch: (id: null, data: Omit<SignalData, 'fromPeerID'>, params?: Params) => Promise<InstanceSignalingDataType>
+    }
   }
 }
 
+const peerJoin = async (app: Application, data: InstanceSignalingDataType, params: Params) => {
+  console.log('peerJoin', data, params)
+  const peerID = params.socketQuery!.peerID
+
+  const user = params.user
+  if (!user) throw new BadRequest('Must be logged in to join instance')
+
+  if (!peerID) throw new BadRequest('PeerID required')
+
+  if (!data?.instanceID) throw new BadRequest('InstanceID required')
+
+  const instanceID = data.instanceID as InstanceID
+
+  app.channel(`instance/${instanceID}`).join(params.connection!)
+  app.channel(`peerIds/${peerID}`).join(params.connection!)
+
+  const instance = await app.service(instancePath).get(instanceID)
+
+  const newInstanceAttendance: InstanceAttendanceData = {
+    isChannel: !!instance.channelId,
+    instanceId: instanceID,
+    userId: user.id,
+    peerId: peerID
+  }
+  if (!newInstanceAttendance.isChannel) {
+    const location = await app.service(locationPath).get(instance.locationId!, { headers: params.headers })
+    newInstanceAttendance.sceneId = location.sceneId
+  }
+
+  await app.service(instanceAttendancePath).create(newInstanceAttendance)
+}
+
 export default (app: Application): void => {
-  app.use(instanceSignalingPath, new InstanceSignalingService(), {
-    // A list of all methods this service exposes externally
-    methods: instanceSignalingMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: instanceProvisionDocs
+  app.use(instanceSignalingPath, {
+    /** Notify server peer has joined */
+    create: async (data, params) => peerJoin(app, data, params!),
+    /** Heartbeat */
+    get: async (data: InstanceSignalingDataType, params) => {
+      const peerID = params!.socketQuery!.peerID
+      const instanceId = data.instanceID
+      if (!peerID || !instanceId) throw new BadRequest('instanceID required')
+
+      const now = await getDateTimeSql()
+      await app.service(instanceAttendancePath).patch(
+        null,
+        {
+          updatedAt: now
+        },
+        {
+          query: {
+            peerId: peerID,
+            instanceId
+          }
+        }
+      )
+    },
+    /** Send requests to other peers */
+    patch: async (id: null, data: SignalData, params) => {
+      const peerID = params!.socketQuery!.peerID
+      const instanceId = data.instanceID
+      const targetPeerID = data.targetPeerID
+
+      if (!peerID || !instanceId) throw new BadRequest('instanceID required')
+
+      const instanceAttendance = await app.service(instanceAttendancePath).find({
+        query: {
+          instanceId,
+          peerId: peerID
+        }
+      })
+
+      if (!instanceAttendance.data.length) throw new BadRequest('Peer not in instance')
+
+      const instance = await app.service(instancePath).get(instanceId)
+      if (!instance.currentUsers) throw new BadRequest('Instance not active')
+
+      const targetInstanceAttendance = await app.service(instanceAttendancePath).find({
+        query: {
+          instanceId,
+          peerId: targetPeerID
+        }
+      })
+      if (!targetInstanceAttendance.data.length) throw new BadRequest('Target peer not in instance')
+
+      // from here, we can leverage feathers-sync to send the message to the target peer
+      data.fromPeerID = peerID
+      return data
+    }
   })
 
   const service = app.service(instanceSignalingPath)
-  service.hooks(hooks)
+  // service.hooks(hooks)
 
   if (getState(ServerState).serverMode !== ServerMode.API) return
 
   app.on('disconnect', async (connection) => {
+    console.log('disconnect', connection)
     const peerID = connection.socketQuery.peerID
     if (!peerID) return
 
@@ -74,6 +184,7 @@ export default (app: Application): void => {
     if (!instanceAttendance?.length) return
 
     app.channel(`instance/${instanceAttendance[0].instanceId}`).leave(connection)
+    app.channel(`peerIds/${peerID}`).leave(connection)
   })
 
   app.service(instanceAttendancePath).publish('patched', async (data, context) => {
@@ -96,5 +207,9 @@ export default (app: Application): void => {
     const [instanceAttendance] = Array.isArray(data) ? data : 'data' in data ? data.data : [data]
 
     return app.channel(`instance/${instanceAttendance.instanceId}`).send([instanceAttendance])
+  })
+
+  app.service(instanceSignalingPath).publish('patched', async (data: SignalData, context) => {
+    return app.channel(`peerIds/${data.targetPeerID}`).send(data)
   })
 }
