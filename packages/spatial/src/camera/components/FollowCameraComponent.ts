@@ -104,9 +104,9 @@ export const FollowCameraComponent = defineComponent({
 
     return {
       lerpValue: 0,
-      originalPosition: null as Vector3 | null,
-      originalOffset: null as Vector3 | null,
-      originalRotation: null as Quaternion | null,
+      originalPosition: new Vector3(),
+      originalOffset: new Vector3(),
+      originalRotation: new Quaternion(),
       targetRotation: new Quaternion(),
       targetPosition: new Vector3(),
       targetOffset: new Vector3(),
@@ -175,17 +175,15 @@ export const FollowCameraComponent = defineComponent({
     const follow = useComponent(entity, FollowCameraComponent)
 
     useEffect(() => {
+      follow.lerpValue.set(0)
       const followCamera = getComponent(entity, FollowCameraComponent)
-      if (followCamera.originalPosition === null) {
-        const followTransform = getComponent(entity, TransformComponent)
-        followCamera.originalPosition = followTransform.position.clone()
-        followCamera.originalRotation = followTransform.rotation.clone()
-        followCamera.originalOffset = Vector3_Zero.clone()
-        follow.currentTargetPosition.value.copy(followCamera.originalPosition)
-        follow.currentOffset.value.copy(Vector3_Zero)
-        //followCamera.originalPosition)
-        //follow.currentOffset.y.set(follow.currentOffset.y.value * -1)
-      }
+      const followTransform = getComponent(entity, TransformComponent)
+      followCamera.originalPosition.copy(followTransform.position)
+      followCamera.originalRotation.copy(followTransform.rotation)
+      followCamera.originalOffset?.copy(Vector3_Zero)
+      follow.currentTargetPosition.value.copy(followCamera.originalPosition)
+      follow.currentOffset.value.copy(Vector3_Zero)
+
       setComponent(entity, ComputedTransformComponent, {
         referenceEntities: [followCamera.targetEntity],
         computeFunction: () => computeCameraFollow(entity, followCamera.targetEntity)
@@ -193,7 +191,7 @@ export const FollowCameraComponent = defineComponent({
 
       return () => {
         removeComponent(entity, ComputedTransformComponent)
-        followCamera.originalPosition = null
+        followCamera.originalPosition.copy(Vector3_Zero)
       }
     }, [])
 
@@ -205,12 +203,12 @@ export const FollowCameraComponent = defineComponent({
 
     useEffect(() => {
       console.log('updating follow target to entity ', follow.targetEntity)
-      const followCamera = getComponent(entity, FollowCameraComponent)
       follow.lerpValue.set(0)
+      const followCamera = getComponent(entity, FollowCameraComponent)
       const followTransform = getComponent(entity, TransformComponent)
-      followCamera.originalPosition = followTransform.position.clone()
-      followCamera.originalRotation = followTransform.rotation.clone()
-      followCamera.originalOffset = Vector3_Zero.clone()
+      followCamera.originalPosition.copy(followTransform.position)
+      followCamera.originalRotation.copy(followTransform.rotation)
+      followCamera.originalOffset?.copy(Vector3_Zero)
       follow.currentTargetPosition.value.copy(followCamera.originalPosition)
       follow.currentOffset.value.copy(Vector3_Zero)
     }, [follow.targetEntity])
@@ -252,9 +250,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       : follow.thirdPersonOffset
 
   const lerpstart =
-    follow.originalOffset && follow.originalOffset.distanceToSquared(Vector3_Zero) > 0
-      ? follow.originalOffset
-      : follow.currentOffset
+    follow.originalOffset.distanceToSquared(Vector3_Zero) > 0 ? follow.originalOffset : follow.currentOffset
 
   follow.currentOffset.lerpVectors(lerpstart, follow.targetOffset, lerpVal)
 
@@ -409,10 +405,12 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   follow.lookAtMatrix.lookAt(follow.direction, Vector3_Zero, Vector3_Up)
 
   //slerp using rotationLerp value, this is reset to zero every time the follow target changes
-  const camRot = cameraTransform.rotation.clone()
   follow.targetRotation.setFromRotationMatrix(follow.lookAtMatrix)
-  camRot.slerpQuaternions(follow.originalRotation ?? camRot, follow.targetRotation, lerpVal)
-  cameraTransform.rotation.copy(camRot)
+  cameraTransform.rotation.slerpQuaternions(
+    follow.originalRotation ?? cameraTransform.rotation,
+    follow.targetRotation,
+    lerpVal
+  )
 
   updateCameraTargetRotation(cameraEntity)
 }
