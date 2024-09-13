@@ -267,7 +267,7 @@ export const S = {
    * S.Object({ test: S.Required(S.Number(0)) })
    * setComponent(entity, Component, {})
    *
-   * Non error thrown
+   * No error thrown
    * S.Object({ test: S.Required(S.Number(0)) })
    * setComponent(entity, Component, {test: 0})
    *
@@ -392,9 +392,9 @@ export const S = {
   /**
    *
    * Creates a schema object that infers to the generic type provided
-   * Is not serialized by default, unless a properties object containing the keys and schemas to serialize is provided
+   * Only the properties that are passed in on the props object will be serialized, if none are provided the value will not be serialized
    *
-   * @param init the default value or function returning the default value, if it is just a value it will go through a structuredClone so it must not be a non-cloneable value (ie. DOM Node)
+   * @param init the default value or function returning the default value, if it is a value it will go through a structuredClone so it must not be a non-cloneable value (ie. DOM Node)
    * @param props the properties you want to be serialized for the type
    * @param options schema options
    * @returns
