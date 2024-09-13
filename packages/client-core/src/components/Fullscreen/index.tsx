@@ -31,7 +31,7 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { clientContextParams } from '../../util/contextParams'
+import { clientContextParams } from '../../util/ClientContextState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 

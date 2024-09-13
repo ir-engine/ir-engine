@@ -23,47 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { LogParamsObject } from '@ir-engine/common/src/logger'
+import { defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
+export const ClientContextState = defineState({
+  name: 'ir.client-core.ClientContextState',
+  initial: {},
+  useValue: (key: string, value: any) => {
+    useEffect(() => {
+      getMutableState(ClientContextState).merge({ [key]: value })
+      return () => {
+        getMutableState(ClientContextState)[key].set(none)
+      }
+    }, [key, value])
+  }
+})
 
-import { EditorState } from '../../services/EditorServices'
-import { EditorActiveInstanceState } from './EditorActiveInstanceService'
-
-let accumulator = 0
-
-const execute = () => {
-  const editorState = getState(EditorState)
-  if (!editorState.scenePath) return
-
-  accumulator += getState(ECSState).deltaSeconds
-
-  if (accumulator > 5) {
-    accumulator = 0
-    EditorActiveInstanceState.getActiveInstances(editorState.scenePath as any)
+/**
+ * @function clientContextParams
+ * @description This function will collect contextual parameters
+ * from url's query params
+ */
+export function clientContextParams(params: LogParamsObject) {
+  const contextState = getState(ClientContextState)
+  return {
+    ...params,
+    event_id: uuidv4(),
+    ...contextState
   }
 }
-
-const reactor = () => {
-  useEffect(() => {
-    getMutableState(NetworkState).config.set({
-      world: true,
-      media: false,
-      friends: false,
-      instanceID: false,
-      roomID: false
-    })
-  }, [])
-  return null
-}
-
-export const EditorInstanceNetworkingSystem = defineSystem({
-  uuid: 'ee.editor.EditorInstanceNetworkingSystem',
-  insert: { after: PresentationSystemGroup },
-  execute,
-  reactor
-})

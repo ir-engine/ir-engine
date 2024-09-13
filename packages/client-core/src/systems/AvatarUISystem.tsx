@@ -40,12 +40,7 @@ import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsSta
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { applyVideoToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import {
-  NetworkObjectComponent,
-  NetworkObjectOwnedTag,
-  NetworkState,
-  webcamVideoDataChannelType
-} from '@ir-engine/network'
+import { NetworkObjectComponent, NetworkObjectOwnedTag, NetworkState } from '@ir-engine/network'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { easeOutElastic } from '@ir-engine/spatial/src/common/functions/MathFunctions'
@@ -61,9 +56,9 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
-import { MediasoupMediaProducerConsumerState } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
@@ -234,12 +229,11 @@ const execute = () => {
           return peer.userId === ownerId
         })
         if (peer) {
-          const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-            mediaNetwork.id,
-            peer.peerID,
-            webcamVideoDataChannelType
-          ) as any
-          const active = !consumer?.paused
+          const peerMediaState = getState(PeerMediaChannelState)[peer.peerID].cam
+          const stream = peerMediaState.videoMediaStream
+          if (!stream) continue
+          const track = stream.getVideoTracks()[0]
+          const active = !peerMediaState.videoStreamPaused
           if (videoPreviewMesh.material.map) {
             if (!active) {
               videoPreviewMesh.material.map = null!
@@ -248,7 +242,6 @@ const execute = () => {
           } else {
             if (active && !applyingVideo.has(ownerId)) {
               applyingVideo.set(ownerId, true)
-              const track = (consumer as any).track
               const newVideoTrack = track.clone()
               const newVideo = document.createElement('video')
               newVideo.autoplay = true
