@@ -70,7 +70,7 @@ For the physics, the modules would be:
 We'd be asserting between system executes once the components are set up correctly
 
 All it needs to be is:
-- What you've added for PhysicsSystem.test.ts with physicsSystemExecute()
+- What was added for PhysicsSystem.test.ts with physicsSystemExecute()
 - but for the three systems mentioned above, all in the same test
 
 Systems Execution Order
