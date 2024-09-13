@@ -477,24 +477,24 @@ const toTransformedDocument = async (srcDocument: Document, args: ModelTransform
   return document
 }
 
-type TextureJob = {
+type TextureOperation = {
   shouldResize: boolean
   shouldConvertToKTX: boolean
   texture: Texture
   params: ExtractedImageTransformParameters
 }
 
-const hashTextureJob = (job: TextureJob): string => {
-  const { shouldResize, shouldConvertToKTX, params, texture } = job
-  return JSON.stringify({ shouldResize, shouldConvertToKTX, params: { ...params, dst: '' }, texURI: texture.getURI() })
+const hashTextureOperation = (operation: TextureOperation): string => {
+  const { shouldResize, shouldConvertToKTX, params, texture } = operation
+  return JSON.stringify({ uri: texture.getURI(), shouldResize, shouldConvertToKTX, params: { ...params, dst: '' } })
 }
 
-const createTextureJobs = (
+const createTextureOperations = (
   document: Document,
   args: ExtractedImageTransformParameters,
   resources: ResourceTransforms
-): TextureJob[] => {
-  const jobs: TextureJob[] = []
+): TextureOperation[] => {
+  const operations: TextureOperation[] = []
 
   const root = document.getRoot()
   const textures = root.listTextures()
@@ -551,7 +551,7 @@ const createTextureJobs = (
           ...(resourceParms ? extractParameters(resourceParms) : {})
         }
 
-        jobs.push({
+        operations.push({
           shouldResize,
           shouldConvertToKTX,
           texture,
@@ -566,15 +566,13 @@ const createTextureJobs = (
       document.createTexture().copy(texture)
     }
   }
-  return jobs
+  return operations
 }
 
-const performTextureJob = async (jobCache: Map<string, boolean>, job: TextureJob) => {
-  const { shouldResize, shouldConvertToKTX, texture, params } = job
+const transformTexture = async (resultCache: Map<string, Texture>, operation: TextureOperation) => {
+  const { shouldResize, shouldConvertToKTX, texture, params } = operation
 
-  const hash = hashTextureJob(job)
-  console.log(hash, jobCache.has(hash))
-  jobCache.set(hash, true)
+  const hash = hashTextureOperation(operation)
 
   if (shouldResize) {
     const oldImage = texture.getImage()!
@@ -728,7 +726,7 @@ const writeFiles = async (
 
 export const transformModel = async (
   srcURL: string,
-  transformations: ModelTransformParameters[],
+  modelOperations: ModelTransformParameters[],
   onMetadata: (index: number, key: string, data: any) => void = (key, data) => {},
   onProgress?: (progress: number, status: Status, numerator?: number, denominator?: number) => void
 ): Promise<string[]> => {
@@ -736,35 +734,36 @@ export const transformModel = async (
 
   const srcDocument = await (await loaderIO).read(srcURL)
   const documents: Document[] = []
-  const textureJobs: TextureJob[] = []
+  const textureOperations: TextureOperation[] = []
+  const numDocOperations = modelOperations.length
 
-  for (let i = 0; i < transformations.length; i++) {
-    const transformation = transformations[i]
-    const document = await toTransformedDocument(srcDocument, transformation)
+  for (let i = 0; i < numDocOperations; i++) {
+    const docOperation = modelOperations[i]
+    const document = await toTransformedDocument(srcDocument, docOperation)
     documents.push(document)
 
-    const jobs = createTextureJobs(document, transformation, transformation.resources)
-    const maxTextureSize = Math.max(...jobs.map(({ texture }) => texture.getSize()?.[0] ?? 0))
+    const operations = createTextureOperations(document, docOperation, docOperation.resources)
+    const maxTextureSize = Math.max(...operations.map(({ texture }) => texture.getSize()?.[0] ?? 0))
     onMetadata(i, 'maxTextureSize', maxTextureSize)
-    textureJobs.push(...jobs)
+    textureOperations.push(...operations)
   }
 
-  const numTextureJobs = textureJobs.length
-  const totalProgressSteps = 1 + numTextureJobs + documents.length
+  const numTextureOperations = textureOperations.length
+  const totalProgressSteps = 1 + numTextureOperations + numDocOperations
 
-  const jobCache = new Map<string, boolean>()
-  for (let i = 0; i < numTextureJobs; i++) {
-    onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextureJobs)
-    await performTextureJob(jobCache, textureJobs[i])
+  const resultCache = new Map<string, Texture>()
+  for (let i = 0; i < numTextureOperations; i++) {
+    onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextureOperations)
+    await transformTexture(resultCache, textureOperations[i])
   }
 
   const results: string[] = []
 
-  for (let i = 0; i < documents.length; i++) {
-    onProgress?.((i + 1 + numTextureJobs) / totalProgressSteps, Status.WritingFiles)
+  for (let i = 0; i < numDocOperations; i++) {
+    onProgress?.((i + 1 + numTextureOperations) / totalProgressSteps, Status.WritingFiles)
 
-    const [document, transformation] = [documents[i], transformations[i]]
-    results.push(...(await writeFiles(srcURL, document, transformation)))
+    const document = documents[i]
+    results.push(...(await writeFiles(srcURL, document, modelOperations[i])))
 
     const totalVertexCount = document
       .getRoot()
