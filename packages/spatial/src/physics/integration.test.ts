@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  ECSState,
   SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
@@ -34,6 +35,7 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
@@ -157,6 +159,9 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       assert.deepEqual(result.physicsPreTransformSystem, Expected.before.physicsPreTransformSystem)
       assert.deepEqual(result.transformSystem, Expected.before.transformSystem)
       // .. Phase 2
+      getMutableState(ECSState).simulationTime.set(
+        getState(ECSState).simulationTime - getState(ECSState).simulationTimestep
+      )
       execute.physicsPreTransformSystem()
       result.physicsPreTransformSystem = getComponent(testEntity, TransformComponent).position.clone()
       assert.deepEqual(result.physicsSystem, Expected.after.physicsSystem)
