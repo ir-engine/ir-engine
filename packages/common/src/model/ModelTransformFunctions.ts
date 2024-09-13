@@ -574,6 +574,14 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
 
   const hash = hashTextureOperation(operation)
 
+  const prevResult = resultCache.get(hash)
+  console.log('!!!', prevResult === texture) // If they're identical, then we'll need to duplicate textures when we clone document
+  if (prevResult != null && prevResult !== texture) {
+    const originalName = texture.getName()
+    texture.copy(prevResult) // Texture mutation
+    texture.setName(originalName)
+    return
+  }
   if (shouldResize) {
     const oldImage = texture.getImage()!
     const originalName = texture.getName()
@@ -615,6 +623,7 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     texture.setMimeType('image/ktx2')
     texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
   }
+  resultCache.set(hash, texture)
 }
 
 const writeFiles = async (
