@@ -1489,5 +1489,11 @@
     "path": "Path",
     "type": "Type",
     "tags": "Tags"
+  },
+  "unsupportedBrowser": {
+    "title": "Browser Not Supported!",
+    "description": "Please use Google Chrome for the best experience with the iR Studio.",
+    "downloadChrome": "[Download Chrome]",
+    "continue": "[Continue Anyway]"
   }
 }

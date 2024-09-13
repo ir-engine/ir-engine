@@ -36,7 +36,7 @@ import { WidgetAppService } from '@ir-engine/spatial/src/xrui/WidgetAppService'
 import { startPlayback } from '@ir-engine/ui/src/pages/Capture'
 
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { PeerMediaChannelState } from '../../transports/PeerMediaChannelState'
+import { PeerMediaChannelState } from '../../media/PeerMediaChannelState'
 
 // TODO replace these templates with our generalised ones for XRUI
 const Checkbox = (props: { label: string; disabled?: boolean; checked: boolean; onChange: () => void }) => {
@@ -80,26 +80,26 @@ const VideoPreview = (props: { peerID: PeerID }) => {
 
   const peerMediaChannelState = useMutableState(PeerMediaChannelState)[peerID]['cam']
 
-  const { videoStream: videoStreamState } = peerMediaChannelState
+  const { videoMediaStream } = peerMediaChannelState
 
   const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    if (!ref.current || ref.current.srcObject || !videoStreamState?.value) return
+    if (!ref.current || ref.current.srcObject || !videoMediaStream?.value) return
 
     ref.current.id = `${peerID}_video_xrui`
     ref.current.autoplay = true
     ref.current.muted = true
     ref.current.setAttribute('playsinline', 'true')
 
-    const newVideoTrack = videoStreamState.value.track!.clone()
+    const newVideoTrack = videoMediaStream.value.getVideoTracks()[0].clone()
     ref.current.srcObject = new MediaStream([newVideoTrack])
     ref.current.play()
-  }, [ref.current, videoStreamState])
+  }, [ref.current, videoMediaStream])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {videoStreamState.value && (
+      {videoMediaStream.value && (
         <video
           xr-layer="true"
           style={{ maxWidth: '100px', width: '100%', height: 'auto' }}
