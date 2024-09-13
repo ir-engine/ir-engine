@@ -533,7 +533,15 @@
         "uastcZstandard": "UASTC Zstandard",
         "uastcZstandardTooltip": "Use UASTC Zstandard supercompression",
         "useMeshoptimizer": "Use Meshoptimizer",
-        "maxCodebooks": "Max Codebooks"
+        "maxCodebooks": "Max Codebooks",
+        "status": {
+          "initializing": "Initializing transform...",
+          "processingtexture": "Processing texture {{numerator}} of {{denominator}}...",
+          "finalizing": "Finalizing transform...",
+          "writingfiles": "Writing files...",
+          "complete": "Complete."
+        },
+        "progress": "LOD {{currentLOD}} of {{totalLODs}}: {{caption}}"
       },
       "lods": {
         "label": "Level of Detail",
@@ -1264,6 +1272,7 @@
         "author": "Author",
         "attribution": "Attribution",
         "licensing": "Licensing",
+        "description": "Description",
         "tag": "Tag",
         "addTag": "Add New Tag",
         "add": "Add",
@@ -1500,5 +1509,11 @@
     "path": "Path",
     "type": "Type",
     "tags": "Tags"
+  },
+  "unsupportedBrowser": {
+    "title": "Browser Not Supported!",
+    "description": "Please use Google Chrome for the best experience with the iR Studio.",
+    "downloadChrome": "[Download Chrome]",
+    "continue": "[Continue Anyway]"
   }
 }

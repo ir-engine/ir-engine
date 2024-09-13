@@ -414,9 +414,7 @@
     "unmuteMe": "Unmute me",
     "muteThisPerson": "Mute this person",
     "unmuteThisPerson": "Unmute this person",
-    "openPictureInPicture": "Open Picture in Picture",
-    "openConferenceMode": "Open Conference Mode",
-    "closeConferenceMode": "Close Conference Mode"
+    "openPictureInPicture": "Open Picture in Picture"
   },
   "friends": {
     "find": "Find",

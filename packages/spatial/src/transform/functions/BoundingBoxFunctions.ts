@@ -23,31 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  instanceActiveMethods,
-  instanceActivePath
-} from '@ir-engine/common/src/schemas/networking/instance-active.schema'
+import { Box3, Vector3 } from 'three'
 
-import { Application } from '../../../declarations'
-import { InstanceActiveService } from './instance-active.class'
-import instanceActiveDocs from './instance-active.docs'
-import hooks from './instance-active.hooks'
+/**
+ * Returns all vertices of the bounding box, useful for including all vertices in the camera's view rather than hoping min and max are aligned with the camera
+ * @param boundingBox
+ */
+export function getBoundingBoxVertices(boundingBox: Box3): Vector3[] {
+  const min = boundingBox.min
+  const max = boundingBox.max
 
-declare module '@ir-engine/common/declarations' {
-  interface ServiceTypes {
-    [instanceActivePath]: InstanceActiveService
-  }
-}
-
-export default (app: Application): void => {
-  app.use(instanceActivePath, new InstanceActiveService(app), {
-    // A list of all methods this service exposes externally
-    methods: instanceActiveMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: instanceActiveDocs
-  })
-
-  const service = app.service(instanceActivePath)
-  service.hooks(hooks)
+  return [
+    new Vector3(min.x, min.y, min.z),
+    new Vector3(min.x, min.y, max.z),
+    new Vector3(min.x, max.y, min.z),
+    new Vector3(min.x, max.y, max.z),
+    new Vector3(max.x, min.y, min.z),
+    new Vector3(max.x, min.y, max.z),
+    new Vector3(max.x, max.y, min.z),
+    new Vector3(max.x, max.y, max.z)
+  ]
 }

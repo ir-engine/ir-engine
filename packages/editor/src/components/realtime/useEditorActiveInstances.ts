@@ -23,17 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { useFind } from '@ir-engine/common'
+import { instancePath, locationPath } from '@ir-engine/common/src/schema.type.module'
 
-import {
-  InstanceActiveQuery,
-  InstanceActiveType
-} from '@ir-engine/common/src/schemas/networking/instance-active.schema'
-import type { HookContext } from '@ir-engine/server-core/declarations'
+/** @todo reimplement realtime connections with instances in studio */
+export const useEditorActiveInstances = (sceneID: string) => {
+  const locationQuery = useFind(locationPath, { query: { sceneId: sceneID, paginate: false } })
 
-export const instanceActiveResolver = resolve<InstanceActiveType, HookContext>({})
+  const instanceQuery = useFind(instancePath, {
+    query: {
+      ended: false,
+      locationId: {
+        $in: locationQuery.data.map((location) => location.id)
+      },
+      paginate: false
+    }
+  })
 
-export const instanceActiveExternalResolver = resolve<InstanceActiveType, HookContext>({})
-
-export const instanceActiveQueryResolver = resolve<InstanceActiveQuery, HookContext>({})
+  return instanceQuery.data
+    .filter((a) => !!a)
+    .map((instance) => {
+      return {
+        id: instance.id,
+        locationId: instance.locationId,
+        currentUsers: instance.currentUsers
+      }
+    })
+}

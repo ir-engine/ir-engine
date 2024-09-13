@@ -63,7 +63,6 @@ describe('location.test', () => {
     const item = await app.service(locationPath).create(
       {
         name,
-        slugifiedName: '',
         sceneId: scene.data[0].id,
         maxUsersPerInstance: 20,
         locationSetting: {

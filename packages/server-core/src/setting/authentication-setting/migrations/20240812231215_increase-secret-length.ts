@@ -23,20 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import type { Knex } from 'knex'
 
-import {
-  instanceActiveQuerySchema,
-  instanceActiveSchema
-} from '@ir-engine/common/src/schemas/networking/instance-active.schema'
+import { authenticationSettingPath } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    instanceActiveQuerySchema,
-    instanceActiveSchema
-  },
-  docs: {
-    description: 'Instance active service description',
-    securities: ['all']
-  }
-})
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.alterTable(authenticationSettingPath, async (table) => {
+    table.string('secret', 4095).nullable().alter()
+  })
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

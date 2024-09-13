@@ -41,7 +41,6 @@ export const createTestLocation = async (app: Application, params = { isInternal
   return await app.service(locationPath).create(
     {
       name,
-      slugifiedName: '',
       sceneId: scene.data[0].id,
       maxUsersPerInstance: 20,
       locationSetting: {

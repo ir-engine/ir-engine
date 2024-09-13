@@ -23,22 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { LogParamsObject } from '@ir-engine/common/src/logger'
-import { getState } from '@ir-engine/hyperflux'
-import { generateUUID } from 'three/src/math/MathUtils'
-import { LocationState } from '../social/services/LocationService'
+import { Params, ServiceInterface } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import appconfig from '../../appconfig'
 
 /**
- * @function clientContextParams
- * @description This function will collect contextual parameters
- * from url's query params
+ * A class for Login service
  */
-export function clientContextParams(params: LogParamsObject) {
-  const locationState = getState(LocationState)
-  return {
-    ...params,
-    event_id: generateUUID(),
-    location_id: locationState.currentLocation.location.id,
-    project_id: locationState.currentLocation.location.projectId
+export class JWTPublicKeyService implements ServiceInterface {
+  app: Application
+
+  constructor(app: Application) {
+    this.app = app
+  }
+
+  /**
+   * A function which find specific login details
+   *
+   * @param params
+   * @returns {token}
+   */
+  async find(params?: Params) {
+    return appconfig.authentication.jwtPublicKey
   }
 }

@@ -23,38 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-
-import { instanceActiveQueryValidator } from '@ir-engine/common/src/schemas/networking/instance-active.schema'
-
-import verifyScope from '../../hooks/verify-scope'
-import {
-  instanceActiveExternalResolver,
-  instanceActiveQueryResolver,
-  instanceActiveResolver
-} from './instance-active.resolvers'
+import { disallow } from 'feathers-hooks-common'
 
 export default {
-  around: {
-    all: [
-      schemaHooks.resolveExternal(instanceActiveExternalResolver),
-      schemaHooks.resolveResult(instanceActiveResolver)
-    ]
-  },
-
   before: {
-    all: [
-      schemaHooks.validateQuery(instanceActiveQueryValidator),
-      schemaHooks.resolveQuery(instanceActiveQueryResolver)
-    ],
-    find: [iff(isProvider('external'), verifyScope('instance', 'read'))],
+    all: [],
+    find: [],
     get: [disallow()],
     create: [disallow()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]
   },
+
   after: {
     all: [],
     find: [],
@@ -64,6 +45,7 @@ export default {
     patch: [],
     remove: []
   },
+
   error: {
     all: [],
     find: [],
