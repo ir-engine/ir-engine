@@ -82,7 +82,10 @@ cli.main(async () => {
     if (data.token) {
       const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
       const token = data.token
-      const jwtDecoded = verify(token, config.authentication.secret, { algorithms: ['RS256'] })! as JwtPayload
+      if (!config.authentication.oauth.github.privateKey) throw new NotAuthenticated('No GitHub private key configured')
+      const jwtDecoded = verify(token, config.authentication.oauth.github.privateKey, {
+        algorithms: ['RS256']
+      })! as JwtPayload
       if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
         throw new NotAuthenticated('Invalid app credentials')
       const octoKit = new Octokit({ auth: token })
