@@ -43,7 +43,7 @@ export const engineSettingSchema = Type.Object(
     key: Type.String(),
     value: Type.String(),
     type: StringEnum(['private', 'public']),
-    category: StringEnum(['aws', 'server']),
+    category: StringEnum(['aws', 'server', 'task-server']),
     updatedBy: Type.Optional(
       TypedString<UserID>({
         format: 'uuid'
@@ -77,7 +77,12 @@ export const engineSettingQuerySchema = Type.Intersect(
   [
     querySyntax(engineSettingQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        paginate: Type.Optional(Type.Boolean())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

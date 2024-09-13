@@ -28,14 +28,23 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind } from '@ir-engine/common'
-import { taskServerSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 
 const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
-  const settingTaskServer = useFind(taskServerSettingPath).data
+  const settingTaskServer = useFind(engineSettingPath, {
+    query: {
+      category: 'task-server',
+      paginate: false
+    }
+  }).data
+
+  const ports = settingTaskServer.filter((el) => el.key === EngineSettings.TaskServer.Port)
+  const processIntervals = settingTaskServer.filter((el) => el.key === EngineSettings.TaskServer.ProcessInterval)
 
   return (
     <Accordion
@@ -50,14 +59,14 @@ const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         <Input
           className="col-span-1"
           label={t('admin:components.setting.taskServer.port')}
-          value={settingTaskServer.map((el) => el.port).join(', ')}
+          value={ports.join(', ')}
           disabled
         />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.taskServer.processInterval')}
-          value={settingTaskServer.map((el) => el.processInterval).join(', ')}
+          value={processIntervals.join(', ')}
           disabled
         />
       </div>

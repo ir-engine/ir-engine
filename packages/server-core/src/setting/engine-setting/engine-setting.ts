@@ -23,8 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { engineSettingMethods, engineSettingPath } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import {
+  engineSettingMethods,
+  engineSettingPath,
+  EngineSettingType
+} from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { Application } from '@ir-engine/server-core/declarations'
+import appConfig from '../../appconfig'
 import { EngineSettingService } from './engine-setting.class'
 import engineSettingDocs from './engine-setting.docs'
 import hooks from './engine-setting.hooks'
@@ -53,4 +58,15 @@ export default (app: Application): void => {
 
   const service = app.service(engineSettingPath)
   service.hooks(hooks)
+
+  const onUpdateAppConfig = (...args: EngineSettingType[]) => {
+    for (const setting of args) {
+      if (setting.category === 'task-server') {
+        appConfig.taskserver[setting.key] = setting.value
+      }
+    }
+  }
+
+  service.on('patched', onUpdateAppConfig)
+  service.on('created', onUpdateAppConfig)
 }

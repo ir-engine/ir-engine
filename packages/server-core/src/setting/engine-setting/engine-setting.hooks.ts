@@ -31,6 +31,7 @@ import {
 } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { iff, iffElse, isProvider } from 'feathers-hooks-common'
 import checkScope from '../../hooks/check-scope'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import setInContext from '../../hooks/set-in-context'
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -48,7 +49,10 @@ export default {
 
   before: {
     all: [schemaHooks.validateQuery(engineSettingQueryValidator), schemaHooks.resolveQuery(engineSettingQueryResolver)],
-    find: [iff(isProvider('external'), iffElse(checkScope('settings', 'read'), [], setInContext('type', 'public')))],
+    find: [
+      iff(isProvider('external'), enableClientPagination()),
+      iff(isProvider('external'), iffElse(checkScope('settings', 'read'), [], setInContext('type', 'public')))
+    ],
     get: [iff(isProvider('external'), verifyScope('settings', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
