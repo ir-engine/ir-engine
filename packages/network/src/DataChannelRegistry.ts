@@ -32,7 +32,7 @@ export type DataChannelType = OpaqueType<'DataChannelType'> & string
 type RegistryFunction = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => void
 
 export const DataChannelRegistryState = defineState({
-  name: 'ee.engine.network.mediasoup.DataChannelRegistryState',
+  name: 'ee.engine.network.DataChannelRegistryState',
   initial: {} as Record<DataChannelType, RegistryFunction[]>
 })
 
