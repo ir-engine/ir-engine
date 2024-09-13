@@ -43,8 +43,10 @@ const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     }
   }).data
 
-  const ports = settingTaskServer.filter((el) => el.key === EngineSettings.TaskServer.Port)
-  const processIntervals = settingTaskServer.filter((el) => el.key === EngineSettings.TaskServer.ProcessInterval)
+  const ports = settingTaskServer.filter((el) => el.key === EngineSettings.TaskServer.Port).map((el) => el.value)
+  const processIntervals = settingTaskServer
+    .filter((el) => el.key === EngineSettings.TaskServer.ProcessInterval)
+    .map((el) => el.value)
 
   return (
     <Accordion
