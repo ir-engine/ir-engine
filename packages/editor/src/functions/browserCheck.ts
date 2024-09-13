@@ -23,28 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+export const isSupportedBrowser = () => {
+  const userAgent = navigator.userAgent as any
+  const winNav = window.navigator as any
 
-import multiLogger from '@ir-engine/common/src/logger'
-import { createErrorBoundary } from '@ir-engine/hyperflux'
-import { clientContextParams } from '../../util/contextParams'
+  const isGoogleChrome =
+    /Chrome/.test(userAgent) && typeof winNav.userAgentData !== 'undefined'
+      ? winNav.userAgentData.brands[2].brand === 'Google Chrome'
+      : winNav.vendor === 'Google Inc.'
+  const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent) && /Apple Computer/.test(navigator.vendor)
 
-const logger = multiLogger.child({ component: 'client-core:system-crash', modifier: clientContextParams })
+  if (!isGoogleChrome && !isSafari) {
+    return false
+  }
 
-const ErrorBoundary = createErrorBoundary(
-  function error(props, error?: Error) {
-    if (error) {
-      return (
-        <div className="error-screen">
-          <h2 style={{ fontSize: '100%', fontWeight: 'normal' }}>An error has occured</h2>
-          <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>{error.message}</h4>
-        </div>
-      )
-    } else {
-      return <React.Fragment>{props.children}</React.Fragment>
-    }
-  },
-  (error) => logger.error(error)
-)
-
-export default ErrorBoundary
+  return true
+}

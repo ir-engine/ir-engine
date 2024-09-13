@@ -34,8 +34,7 @@ import { getNearbyUsers } from '@ir-engine/engine/src/avatar/functions/getNearby
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
-import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
+import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 
 export const FilteredUsersState = defineState({
   name: 'FilteredUsersState',
@@ -58,32 +57,10 @@ export const FilteredUsersService = {
 }
 
 export const updateNearbyAvatars = () => {
-  const network = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+  const network = NetworkState.mediaNetwork
   if (!network) return
 
   FilteredUsersService.updateNearbyLayerUsers()
-
-  const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
-  if (!currentChannelInstanceConnection) return
-
-  const filteredUsersState = getState(FilteredUsersState)
-  const nearbyUserIds = filteredUsersState.nearbyLayerUsers
-
-  if (!nearbyUserIds.length) return
-
-  /** @todo move this to event sourcing state */
-  // for (const consumer of network.consumers) {
-  //   if (consumer.appData.peerID === Engine.instance.store.peerID) continue
-  //   if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
-  //     dispatchAction(
-  //       MediaConsumerActions.consumerClosed({
-  //         consumerID: consumer.id,
-  //         $topic: network.topic
-  //       })
-  //     )
-  //   }
-  // }
 }
 
 // every 5 seconds

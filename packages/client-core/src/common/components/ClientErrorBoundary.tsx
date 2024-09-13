@@ -23,31 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  instanceActiveMethods,
-  instanceActivePath
-} from '@ir-engine/common/src/schemas/networking/instance-active.schema'
+import React from 'react'
 
-import { Application } from '../../../declarations'
-import { InstanceActiveService } from './instance-active.class'
-import instanceActiveDocs from './instance-active.docs'
-import hooks from './instance-active.hooks'
+import multiLogger from '@ir-engine/common/src/logger'
+import { createErrorBoundary } from '@ir-engine/hyperflux'
+import { clientContextParams } from '../../util/ClientContextState'
 
-declare module '@ir-engine/common/declarations' {
-  interface ServiceTypes {
-    [instanceActivePath]: InstanceActiveService
-  }
-}
+const logger = multiLogger.child({ component: 'client-core:system-crash', modifier: clientContextParams })
 
-export default (app: Application): void => {
-  app.use(instanceActivePath, new InstanceActiveService(app), {
-    // A list of all methods this service exposes externally
-    methods: instanceActiveMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: instanceActiveDocs
-  })
+const ClientErrorBoundary = createErrorBoundary(
+  function error(props, error?: Error) {
+    if (error) {
+      return (
+        <div className="error-screen">
+          <h2 style={{ fontSize: '100%', fontWeight: 'normal' }}>An error has occured</h2>
+          <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>{error.message}</h4>
+        </div>
+      )
+    } else {
+      return <React.Fragment>{props.children}</React.Fragment>
+    }
+  },
+  (error) => logger.error(error)
+)
 
-  const service = app.service(instanceActivePath)
-  service.hooks(hooks)
-}
+export default ClientErrorBoundary
