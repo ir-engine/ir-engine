@@ -25,7 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer } from 'three'
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { generateEntityUUID, removeEntity } from '@ir-engine/ecs'
+import { defineComponent, getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { GLTFAssetState } from '../../gltf/GLTFState'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
@@ -43,3 +48,24 @@ export const AnimationComponent = defineComponent({
     if (json.animations) component.animations.set(json.animations as AnimationClip[])
   }
 })
+
+export const useLoadAnimationFromGLTF = (url: string) => {
+  const assetEntity = useMutableState(GLTFAssetState)[url].value
+  const animation = useHookstate(null as AnimationClip[] | null)
+  const animationComponent = useOptionalComponent(assetEntity, AnimationComponent)
+
+  useEffect(() => {
+    if (animation.value) return
+    if (!assetEntity) {
+      GLTFAssetState.loadScene(url, generateEntityUUID())
+      return
+    }
+  }, [useOptionalComponent(assetEntity, GLTFComponent)?.progress])
+
+  useEffect(() => {
+    if (!animationComponent?.animations || !animationComponent.animations.length) return
+    animation.set(getComponent(assetEntity, AnimationComponent).animations)
+    removeEntity(assetEntity)
+  }, [animationComponent?.animations])
+  return animation
+}

@@ -412,7 +412,7 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
 
   useEffect(() => {
     if (
-      animationState.length !== documentState.value?.animations?.length ||
+      // animationState.length !== documentState.value?.animations?.length ||
       hasComponent(rootEntity, AnimationComponent)
     )
       return
@@ -434,7 +434,6 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
       animations: scene.animations
     })
     return () => {
-      console.log('cleaning up gltf')
       removeComponent(rootEntity, AnimationComponent)
       if (!hasObject3d) {
         removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))

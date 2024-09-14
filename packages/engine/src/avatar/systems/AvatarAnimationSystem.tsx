@@ -36,16 +36,8 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@ir-engine/ecs'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  NO_PROXY,
-  none,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
-import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
@@ -57,7 +49,6 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModul
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import React from 'react'
 import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
@@ -69,13 +60,12 @@ import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
-import { AnimationComponent } from '../components/AnimationComponent'
+import { AnimationComponent, useLoadAnimationFromGLTF } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
-import { IKSerialization } from '../IKSerialization'
 import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
 
@@ -337,7 +327,6 @@ const Reactor = () => {
     })
   )
   const manager = useMutableState(AnimationState)
-
   useEffect(() => {
     const assets = gltfs.get(NO_PROXY)
     if (assets.length !== animations.length) return
@@ -376,26 +365,30 @@ const Reactor = () => {
   return null
 }
 
+const AnimationReactor = () => {
+  const loadedAnimations = useLoadAnimationFromGLTF(
+    `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/animations/${
+      preloadedAnimations.locomotion
+    }.glb`
+  )
+
+  useEffect(() => {
+    console.log(loadedAnimations.value)
+  }, [loadedAnimations])
+  return null
+}
+
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
-    useEffect(() => {
-      const networkState = getMutableState(NetworkState)
-
-      networkState.networkSchema[IKSerialization.ID].set({
-        read: IKSerialization.readBlendWeight,
-        write: IKSerialization.writeBlendWeight
-      })
-
-      return () => {
-        networkState.networkSchema[IKSerialization.ID].set(none)
-      }
-    }, [])
-
-    if (!useMutableState(EngineState).viewerEntity.value) return null
-    return <Reactor />
+    return (
+      <>
+        <Reactor />
+        <AnimationReactor />
+      </>
+    )
   }
 })
 

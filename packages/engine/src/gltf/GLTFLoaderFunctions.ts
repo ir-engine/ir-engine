@@ -1036,12 +1036,13 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         /** @todo we should probably jsut use GroupComponent or something here once we stop creating Object3Ds for all nodes */
         const meshComponent = useOptionalComponent(targetNodeEntity, MeshComponent)
         const boneComponent = useOptionalComponent(targetNodeEntity, BoneComponent)
-
         useEffect(() => {
+          if (channelData[i].nodes.value) return
           const meshWeightsLoaded = meshHasWeights
             ? meshComponent?.get(NO_PROXY)?.morphTargetInfluences !== undefined
             : true
-          if (!meshWeightsLoaded && !boneComponent) return
+          if (!meshWeightsLoaded || !boneComponent) return
+          console.log('setting nodes', meshComponent, boneComponent)
           channelData[i].nodes.set(
             getOptionalComponent(targetNodeEntity, MeshComponent) ??
               getOptionalComponent(targetNodeEntity, BoneComponent)!
@@ -1103,7 +1104,7 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         }
 
         result.set(new AnimationClip(animationName, undefined, tracks))
-
+        console.log(result.value)
         reactor.stop()
       }, [channelData])
 

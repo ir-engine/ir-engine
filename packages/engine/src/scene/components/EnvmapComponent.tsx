@@ -123,7 +123,7 @@ export const EnvmapComponent = defineComponent({
     if (!isClient) return null
 
     const component = useComponent(entity, EnvmapComponent)
-    const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
+    const mesh = useOptionalComponent(entity, MeshComponent)
     const material = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid
     const [envMapTexture, error] = useTexture(
       component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
@@ -133,7 +133,8 @@ export const EnvmapComponent = defineComponent({
     const probeQuery = useQuery([ReflectionProbeComponent])
 
     useEffect(() => {
-      updateEnvMapIntensity(mesh, component.envMapIntensity.value)
+      if (!mesh?.value) return
+      updateEnvMapIntensity(mesh.value as Mesh, component.envMapIntensity.value)
     }, [material, mesh, component.envMapIntensity])
 
     useEffect(() => {
@@ -215,8 +216,8 @@ export const EnvmapComponent = defineComponent({
     useEffect(() => {
       // if (!component.envmap.value) return
       console.log(getComponent(entity, NameComponent), mesh?.material)
-
-      updateEnvMap(mesh, component.envmap.value as Texture)
+      if (!mesh?.value) return
+      updateEnvMap(mesh.value as Mesh, component.envmap.value as Texture)
     }, [mesh, material, component.envmap])
 
     useEffect(() => {
