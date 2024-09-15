@@ -58,6 +58,7 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const networkState = useMutableState(NetworkState).networks[props.networkID]
 
   useLayoutEffect(() => {
+    /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
     if (!networkState.value.hostPeerID) return
 
     const topic = networkState.topic.value

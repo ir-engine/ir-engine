@@ -38,7 +38,6 @@ import {
   IdentityProviderType,
   InstanceAttendanceData,
   instanceAttendancePath,
-  InstanceData,
   InstanceID,
   instancePath,
   InstanceType,
@@ -80,31 +79,6 @@ interface InstanceserverStatus {
   address: string
   portsList: Array<{ name: string; port: number }>
   players: any
-}
-
-/**
- * Creates a new 'instance' entry based on a locationId or channelId
- * If it is a location instance, creates a 'channel' entry
- * @param app
- * @param newInstance
- * @param headers
- */
-const createNewInstance = async (app: Application, newInstance: InstanceData, headers: object) => {
-  const { locationId, channelId } = newInstance
-
-  logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId, headers)
-  const instanceResult = await app.service(instancePath).create(newInstance, { headers })
-  logger.info('Created new instance: %o', instanceResult)
-  if (!channelId) {
-    const channel = await app.service(channelPath).create({
-      instanceId: instanceResult.id
-    })
-    logger.info('Created new channel: %o', channel)
-  }
-  const serverState = getState(ServerState)
-  const instanceServerState = getMutableState(InstanceServerState)
-  await serverState.agonesSDK.allocate()
-  instanceServerState.instance.set(instanceResult)
 }
 
 /**
@@ -191,20 +165,6 @@ const initializeInstance = async ({
       if (!user) return false
       const authorised = await authorizeUserToJoinServer(app, instance, user)
       if (!authorised) return false
-    }
-    if (instance.locationId) {
-      const existingChannel = (await app.service(channelPath).find({
-        query: {
-          instanceId: instance.id,
-          $limit: 1
-        },
-        headers
-      })) as Paginated<ChannelType>
-      if (existingChannel.total === 0) {
-        await app.service(channelPath).create({
-          instanceId: instance.id
-        })
-      }
     }
     await assignExistingInstance({
       app,
