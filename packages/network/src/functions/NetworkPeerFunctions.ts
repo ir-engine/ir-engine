@@ -29,19 +29,16 @@ import { Action, getMutableState, none, PeerID, UserID } from '@ir-engine/hyperf
 import { Network } from '../Network'
 import { NetworkState } from '../NetworkState'
 
-function createPeer(network: Network, peerID: PeerID, peerIndex: number, userID: UserID, userIndex: number) {
+function createPeer(network: Network, peerID: PeerID, peerIndex: number, userID: UserID) {
   const networkState = getMutableState(NetworkState).networks[network.id]
 
-  networkState.userIDToUserIndex[userID].set(userIndex)
-  networkState.userIndexToUserID[userIndex].set(userID)
   networkState.peerIDToPeerIndex[peerID].set(peerIndex)
   networkState.peerIndexToPeerID[peerIndex].set(peerID)
 
   networkState.peers[peerID].merge({
     peerID,
     peerIndex,
-    userId: userID,
-    userIndex
+    userId: userID
   })
 
   if (!network.users[userID]) {
@@ -63,10 +60,6 @@ function destroyPeer(network: Network, peerID: PeerID) {
 
   const networkState = getMutableState(NetworkState).networks[network.id]
   networkState.peers[peerID].set(none)
-
-  const userIndex = network.userIDToUserIndex[userID]!
-  networkState.userIDToUserIndex[userID].set(none)
-  networkState.userIndexToUserID[userIndex].set(none)
 
   const peerIndex = network.peerIDToPeerIndex[peerID]!
   networkState.peerIDToPeerIndex[peerID].set(none)

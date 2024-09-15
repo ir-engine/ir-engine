@@ -29,7 +29,6 @@ import '@feathersjs/transport-commons'
 
 import { verify } from 'jsonwebtoken'
 
-import { NetworkConnectionParams } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
 import {
   channelPath,
   ChannelType,
@@ -241,12 +240,25 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   addNetwork(network)
 
+  const hostInstanceAttendance: InstanceAttendanceData = {
+    instanceId: instanceServerState.instance.id,
+    isChannel: instanceServerState.isMediaInstance,
+    userId: hostId,
+    peerId: Engine.instance.store.peerID
+  }
+  if (!instanceServerState.isMediaInstance) {
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
+    hostInstanceAttendance.sceneId = location.sceneId
+  }
+
+  // create a new instance attendance record for the server
+  const instanceAttendance = await app.service(instanceAttendancePath).create(hostInstanceAttendance)
+
   NetworkPeerFunctions.createPeer(
     network,
     Engine.instance.store.peerID,
-    network.peerIndexCount++,
-    hostId,
-    network.userIndexCount++
+    instanceAttendance.peerIndex, // should always be 0
+    hostId
   )
 
   await loadEngineInjection()

@@ -35,6 +35,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { PeerID, getState } from '@ir-engine/hyperflux'
+import { MessageTypes } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
 
@@ -42,28 +43,19 @@ type InstanceSignalingDataType = {
   instanceID: InstanceID
 }
 
-// placeholder
-type OfferRequest = {
-  type: 'offer'
-  data: object
-}
-
-type AnswerRequest = {
-  type: 'answer'
-  data: object
-}
-
 type SignalData = {
   instanceID: InstanceID
   targetPeerID: PeerID
   fromPeerID: PeerID
-  message: OfferRequest | AnswerRequest
+  message: MessageTypes
 }
 
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
     [instanceSignalingPath]: {
-      create: (data: InstanceSignalingDataType, params?: Params) => Promise<void>
+      create: (data: InstanceSignalingDataType, params?: Params) => Promise<{
+        index: number
+      }>
       get: (data: InstanceSignalingDataType, params?: Params) => Promise<void>
       patch: (id: null, data: Omit<SignalData, 'fromPeerID'>, params?: Params) => Promise<InstanceSignalingDataType>
     }
@@ -71,7 +63,6 @@ declare module '@ir-engine/common/declarations' {
 }
 
 const peerJoin = async (app: Application, data: InstanceSignalingDataType, params: Params) => {
-  console.log('peerJoin', data, params)
   const peerID = params.socketQuery!.peerID
 
   const user = params.user
@@ -99,7 +90,11 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
     newInstanceAttendance.sceneId = location.sceneId
   }
 
-  await app.service(instanceAttendancePath).create(newInstanceAttendance)
+  const newInstanceAttendanceResult = await app.service(instanceAttendancePath).create(newInstanceAttendance)
+
+  return {
+    index: newInstanceAttendanceResult.peerIndex
+  }
 }
 
 export default (app: Application): void => {
@@ -166,7 +161,6 @@ export default (app: Application): void => {
   if (getState(ServerState).serverMode !== ServerMode.API) return
 
   app.on('disconnect', async (connection) => {
-    console.log('disconnect', connection)
     const peerID = connection.socketQuery.peerID
     if (!peerID) return
 

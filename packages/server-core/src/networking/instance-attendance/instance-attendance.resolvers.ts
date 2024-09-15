@@ -27,6 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
+import { instanceAttendancePath } from '@ir-engine/common/src/schema.type.module'
 import {
   InstanceAttendanceQuery,
   InstanceAttendanceType
@@ -44,6 +45,14 @@ export const instanceAttendanceExternalResolver = resolve<InstanceAttendanceType
 export const instanceAttendanceDataResolver = resolve<InstanceAttendanceType, HookContext>({
   id: async () => {
     return uuidv4()
+  },
+  peerIndex: async (value, instanceAttendance, context) => {
+    const peersInInstance = await context.app.service(instanceAttendancePath).find({
+      query: {
+        instanceId: instanceAttendance.instanceId
+      }
+    })
+    return peersInInstance.total
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

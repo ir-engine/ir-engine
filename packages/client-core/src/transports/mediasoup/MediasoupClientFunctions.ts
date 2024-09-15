@@ -157,7 +157,7 @@ export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Top
     mediasoupDevice,
     primus,
     heartbeat: setInterval(() => {
-      network.messageToPeer(network.hostPeerID, [])
+      network.messageToPeer(network.hostPeerID!, [])
     }, 1000),
     pauseTrack: (peerID: PeerID, track: MediaTagType, pause: boolean) => {
       const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
@@ -428,8 +428,7 @@ export const connectToNetwork = async (
 
   network.primus.on('data', (message) => {
     if (!message) return
-    console.log('MESSAGE', message)
-    network.onMessage(network.hostPeerID, message)
+    network.onMessage(network.hostPeerID!, message)
   })
 
   const message = (data) => {
@@ -450,7 +449,7 @@ export const connectToNetwork = async (
   }
 
   // we can assume that the host peer is always first to connect
-  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID, 0)
+  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID)
   network.peers[hostPeerID].transport = {
     message,
     buffer

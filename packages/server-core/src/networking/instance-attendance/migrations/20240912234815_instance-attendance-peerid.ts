@@ -39,6 +39,7 @@ export async function up(knex: Knex): Promise<void> {
   if (peerIDColumnExists === false) {
     await knex.schema.alterTable(instanceAttendanceTable, (table) => {
       table.string('peerId', 255)
+      table.integer('peerIndex')
     })
   }
   await knex.raw('SET FOREIGN_KEY_CHECKS=1')
@@ -55,7 +56,8 @@ export async function down(knex: Knex): Promise<void> {
 
   if (projectColumnExists === true) {
     await knex.schema.alterTable(instanceAttendanceTable, (table) => {
-      table.dropColumn('peerID')
+      table.dropColumn('peerId')
+      table.dropColumn('peerIndex')
     })
   }
 

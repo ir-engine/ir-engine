@@ -27,11 +27,11 @@ Infinite Reality Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
+import { PeerID } from '@ir-engine/hyperflux'
 import { TypedString } from '../../types/TypeboxUtils'
 import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { InstanceID, instanceSchema } from './instance.schema'
-import { PeerID } from '@ir-engine/hyperflux'
 
 export const instanceAttendancePath = 'instance-attendance'
 
@@ -53,6 +53,7 @@ export const instanceAttendanceSchema = Type.Object(
       format: 'uuid'
     }),
     peerId: TypedString<PeerID>(),
+    peerIndex: Type.Number(),
     instance: Type.Ref(instanceSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -86,6 +87,7 @@ export const instanceAttendanceQueryProperties = Type.Pick(instanceAttendanceSch
   'updatedAt',
   'instanceId',
   'peerId',
+  'peerIndex',
   'userId'
 ])
 export const instanceAttendanceQuerySchema = Type.Intersect(

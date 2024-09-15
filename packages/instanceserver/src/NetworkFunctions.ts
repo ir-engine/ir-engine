@@ -59,6 +59,7 @@ import checkPositionIsValid from '@ir-engine/spatial/src/common/functions/checkP
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { instanceAttendancePath } from '@ir-engine/common/src/schemas/networking/instance-attendance.schema'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -199,7 +200,7 @@ export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: 
   return client?.userId
 }
 
-export const handleConnectingPeer = (
+export const handleConnectingPeer = async (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
@@ -208,13 +209,17 @@ export const handleConnectingPeer = (
 ) => {
   const userId = user.id
 
-  // Create a new client object
-  // and add to the dictionary
-  const existingUser = Object.values(network.peers).find((client) => client.userId === userId)
-  const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
-  const peerIndex = network.peerIndexCount++
+  const app = API.instance as Application
+  const instanceAttendance = await app.service(instanceAttendancePath).find({
+    query: {
+      instanceId: network.id,
+      peerId: peerID,
+      $limit: 1
+    }
+  })
+  const peerIndex = instanceAttendance.data[0].peerIndex
 
-  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
+  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId)
 
   const onMessage = (message: any) => {
     network.onMessage(peerID, message)

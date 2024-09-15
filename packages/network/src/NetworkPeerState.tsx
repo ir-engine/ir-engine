@@ -23,8 +23,7 @@ export const NetworkPeerState = defineState({
         state[action.$network][peer.peerID].set({
           peerID: peer.peerID,
           peerIndex: peer.peerIndex,
-          userId: peer.userID,
-          userIndex: peer.userIndex
+          userId: peer.userID
         })
       }
 
@@ -75,7 +74,7 @@ const PeerReactor = (props: { peerID: PeerID; networkID: NetworkID }) => {
   useEffect(() => {
     const network = getState(NetworkState).networks[networkID]
     const peer = getState(NetworkPeerState)[networkID][peerID]
-    NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userId, peer.userIndex)
+    NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userId)
 
     return () => {
       /** @todo why do we need this? */

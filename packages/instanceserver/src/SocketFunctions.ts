@@ -132,7 +132,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
        * @todo Check if the user is banned
        */
 
-      const connectionData = handleConnectingPeer(network, spark, peerID, user, data.inviteCode)
+      const connectionData = await handleConnectingPeer(network, spark, peerID, user, data.inviteCode)
 
       spark.write({
         ...connectionData,
