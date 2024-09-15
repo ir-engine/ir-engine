@@ -1,7 +1,7 @@
 import { defineState, getMutableState, getState, NetworkID, none, PeerID } from '@ir-engine/hyperflux'
 import { DataChannelType } from '../DataChannelRegistry'
 
-const loggingEnabled = false
+const loggingEnabled = true
 const logger = loggingEnabled ? console : { log: () => {} }
 
 export const RTCPeerConnectionState = defineState({
@@ -82,7 +82,9 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
   }
 
   pc.ondatachannel = (e) => {
+    logger.log('[WebRTCTransportFunctions] ondatachannel', e.channel.label)
     e.channel.onopen = () => {
+      logger.log('[WebRTCTransportFunctions] ondatachannel open', e.channel.label)
       getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].dataChannels[e.channel.label].set(e.channel)
     }
   }
@@ -106,6 +108,7 @@ const makeCall = async (sendMessage: SendMessageType, networkID: NetworkID, targ
   // timeout require to delay the reactor until the next update
   setTimeout(() => {
     dc.onopen = () => {
+      logger.log('[WebRTCTransportFunctions] ondatachannel open', dc.label)
       getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].dataChannels[dc.label].set(dc)
     }
   }, 1)
@@ -175,6 +178,10 @@ const createDataChannel = (networkID: NetworkID, peerID: PeerID, label: DataChan
     return console.error('Peer connection does not exist')
   }
   const dc = pc.createDataChannel(label)
+  dc.onopen = () => {
+    logger.log('[WebRTCTransportFunctions] ondatachannel open', dc.label)
+    getMutableState(RTCPeerConnectionState)[networkID][peerID].dataChannels[dc.label].set(dc)
+  }
   return dc
 }
 

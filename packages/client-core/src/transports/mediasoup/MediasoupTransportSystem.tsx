@@ -58,7 +58,8 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const networkState = useMutableState(NetworkState).networks[props.networkID]
 
   useLayoutEffect(() => {
-    if (!networkState.value) return
+    if (!networkState.value.hostPeerID) return
+
     const topic = networkState.topic.value
     const topicEnabled = getState(NetworkState).config[topic]
     if (topicEnabled) {

@@ -85,17 +85,6 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
   const joinResponse = useHookstate<null | { index: number }>(null)
 
   useEffect(() => {
-    /** Hack until networking works and NetworkInstanceProvisioning can handle this */
-    // const parsed = new URL(window.location.href)
-    // const query = parsed.searchParams
-
-    // query.set('instanceId', instanceID)
-
-    // parsed.search = query.toString()
-    // if (typeof history.pushState !== 'undefined') {
-    //   window.history.replaceState({}, '', parsed.toString())
-    // }
-
     API.instance
       .service(instanceSignalingPath)
       .create({ instanceID })
@@ -113,6 +102,8 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
 
     const network = createNetwork(instanceID, null, topic, {})
     addNetwork(network)
+
+    network.ready = true
 
     /** heartbeat */
     setInterval(() => {
@@ -264,6 +255,9 @@ const DataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; dat
   const dataChannel = peerConnectionState?.dataChannels?.[props.dataChannelType] as RTCDataChannel | undefined
 
   useEffect(() => {
+    const isInitiator = Engine.instance.store.peerID < props.peerID
+    if (!isInitiator) return
+
     WebRTCTransportFunctions.createDataChannel(props.instanceID, props.peerID, props.dataChannelType)
     return () => {
       WebRTCTransportFunctions.closeDataChannel(props.instanceID, props.peerID, props.dataChannelType)
@@ -277,16 +271,18 @@ const DataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; dat
     const network = getState(NetworkState).networks[props.instanceID]
 
     const onBuffer = (e: MessageEvent) => {
-      console.log(e)
       const message = e.data
       const [fromPeerIndex, data] = decode(message)
-      console.log('on buffer', props.dataChannelType, {fromPeerIndex}, data)
       const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
       const dataBuffer = new Uint8Array(data).buffer
       network.onBuffer(dataChannel.label as DataChannelType, fromPeerID, dataBuffer)
     }
 
-    dataChannel.onmessage = onBuffer
+    dataChannel.addEventListener('message', onBuffer)
+
+    return () => {
+      dataChannel.removeEventListener('message', onBuffer)
+    }
   }, [dataChannel])
 
   return null
