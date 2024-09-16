@@ -56,6 +56,7 @@ export const useStudioEditor = () => {
 }
 
 export const EditorPage = () => {
+  const { t } = useTranslation()
   const [params] = useSearchParams()
   const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
 
@@ -81,8 +82,6 @@ export const EditorPage = () => {
   }, [scenePath])
 
   if (!scenePath.value && !projectName.value) return <ProjectPage studioPath="/studio" />
-
-  const { t } = useTranslation()
 
   return (
     <>

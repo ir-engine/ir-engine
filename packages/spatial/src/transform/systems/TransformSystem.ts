@@ -42,7 +42,6 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { EngineState } from '../../EngineState'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
@@ -128,8 +127,6 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
-const isDirtyNonRigidbody = (entity: Entity) =>
-  TransformComponent.dirtyTransforms[entity] && !hasComponent(entity, RigidBodyComponent)
 export const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
 const sortedTransformEntities = [] as Entity[]
@@ -175,7 +172,7 @@ const sortAndMakeDirtyEntities = () => {
 }
 
 const execute = () => {
-  const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirtyNonRigidbody)
+  const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
   const dirtyGroupEntities = groupQuery().filter(isDirty)
