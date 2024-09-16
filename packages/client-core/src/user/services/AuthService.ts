@@ -72,6 +72,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
+const iframeSource = 'ir-engine'
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -159,8 +160,6 @@ const waitForToken = async (win, clientUrl): Promise<string> => {
     window.addEventListener('message', getIframeResponse)
   })
 }
-
-const iframeSource = 'ir-engine'
 
 const getToken = async (): Promise<string> => {
   let gotResponse = false
