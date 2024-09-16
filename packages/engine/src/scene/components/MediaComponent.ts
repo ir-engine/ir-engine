@@ -33,14 +33,15 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, getMutableState, getState, isClient, none, useHookstate } from '@ir-engine/hyperflux'
+import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { State, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -107,21 +108,22 @@ export const MediaElementComponent = defineComponent({
     const mediaElementComponent = useComponent(entity, MediaElementComponent)
 
     useLayoutEffect(() => {
+      const media = mediaElementComponent.get({ noproxy: true })
       return () => {
-        const element = mediaElementComponent.element.get({ noproxy: true }) as HTMLMediaElement
-        mediaElementComponent.hls.value?.destroy()
-        mediaElementComponent.hls.set(none)
-        const audioNodeGroup = AudioNodeGroups.get(element)
-        if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
-        AudioNodeGroups.delete(element)
-        element.pause()
-        element.removeAttribute('src')
-        element.load()
-        element.remove()
-        mediaElementComponent.element.set(none)
-        mediaElementComponent.abortController.value.abort()
+        if (!entityExists(entity) || !hasComponent(entity, MediaElementComponent)) {
+          const element = media.element as HTMLMediaElement
+          media.hls?.destroy()
+          const audioNodeGroup = AudioNodeGroups.get(element)
+          if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
+          AudioNodeGroups.delete(element)
+          element.pause()
+          element.removeAttribute('src')
+          element.load()
+          element.remove()
+          media.abortController.abort()
+        }
       }
-    }, [])
+    }, [mediaElementComponent])
   },
 
   errors: ['MEDIA_ERROR', 'HLS_ERROR']
@@ -149,7 +151,7 @@ export const MediaComponent = defineComponent({
       paused: true,
       ended: true,
       waiting: false,
-      track: 0,
+      track: -1,
       trackDurations: [] as number[]
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
@@ -328,6 +330,18 @@ export function MediaReactor() {
       clearErrors(entity, MediaComponent)
 
       const paths = media.resources.value
+
+      // If no paths or currently play path has been removed stop the track from playing
+      // and signal to move to next track if one exists
+      if (hasComponent(entity, MediaElementComponent)) {
+        const mediaElement = getComponent(entity, MediaElementComponent).element
+        if (paths.length === 0 || !paths.includes(mediaElement.src)) {
+          mediaElement.pause()
+          removeComponent(entity, MediaElementComponent)
+          media.ended.set(true)
+        }
+      }
+
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
@@ -374,7 +388,7 @@ export function MediaReactor() {
 
       //check if we haven't set up for single play yet, or if our sources don't match the new resources
       //** todo  make this more robust in a refactor, feels very error prone with edge cases */
-      if (nextTrack === -1 && mediaElement?.element?.src === media.resources.value[0]) return
+      if (nextTrack === -1) return
 
       let path = media.resources.value[nextTrack]
 
@@ -576,11 +590,15 @@ export function setTime(element: State<HTMLMediaElement>, time: number) {
 }
 
 export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayMode) {
-  if (currentMode === PlayMode.single || trackCount === 0) return -1
+  if (trackCount === 0) return -1
 
   let nextTrack = 0
-
-  if (currentMode == PlayMode.random) {
+  if (currentMode == PlayMode.single) {
+    nextTrack = currentTrack + 1
+    if (nextTrack >= trackCount) {
+      return -1
+    }
+  } else if (currentMode == PlayMode.random) {
     // todo: smart random, i.e., lower probability of recently played tracks
     nextTrack = Math.floor(Math.random() * trackCount)
   } else if (currentMode == PlayMode.singleloop) {
