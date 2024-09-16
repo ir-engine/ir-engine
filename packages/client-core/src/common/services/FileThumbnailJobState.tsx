@@ -35,10 +35,7 @@ import {
   UndefinedEntity,
   createEntity,
   getComponent,
-  getOptionalComponent,
-  removeComponent,
   removeEntity,
-  serializeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -96,7 +93,6 @@ import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/Gro
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -434,23 +430,6 @@ const ThumbnailJobReactor = () => {
             return
           }
 
-          iterateEntityNode(entity, (child) => {
-            const dirLight = getOptionalComponent(child, DirectionalLightComponent)
-            if (dirLight) {
-              setComponent(lightEntity, DirectionalLightComponent, serializeComponent(child, DirectionalLightComponent))
-              removeComponent(child, DirectionalLightComponent)
-            }
-
-            const skybox = getOptionalComponent(child, SkyboxComponent)
-            if (skybox) {
-              setComponent(skyboxEntity, SkyboxComponent, serializeComponent(child, SkyboxComponent))
-              removeComponent(child, SkyboxComponent)
-              SkyboxComponent.reactorMap.get(skyboxEntity)?.run()
-              skyboxLoaded.set(true)
-            }
-          })
-
-          //for testing
           if (!modelComponent?.scene.value) {
             return
           }
