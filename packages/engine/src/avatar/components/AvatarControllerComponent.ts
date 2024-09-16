@@ -36,7 +36,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
@@ -139,5 +139,17 @@ export const AvatarControllerComponent = defineComponent({
 
 export const AvatarColliderComponent = defineComponent({
   name: 'AvatarColliderComponent',
-  schema: S.Object({ colliderEntity: S.Entity() })
+  schema: S.Object({ colliderEntity: S.Entity() }),
+
+  reactor() {
+    const entity = useEntityContext()
+    const avatarColliderComponent = getComponent(entity, AvatarColliderComponent)
+    useEffect(() => {
+      return () => {
+        removeEntity(
+          avatarColliderComponent.colliderEntity
+        ) /** @todo Aidan said to figure out why this isn't cleaned up with EntityTree */
+      }
+    }, [])
+  }
 })

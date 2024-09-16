@@ -166,6 +166,7 @@ export const updateInteractableUI = (entity: Entity) => {
     } else {
       activateUI = interactable.uiVisibilityOverride !== XRUIVisibilityOverride.off //could be more explicit, needs to be if we add more enum options
     }
+    getMutableComponent(entity, InteractableComponent).canInteract.set(activateUI)
   }
 
   //highlight if hovering OR if closest, otherwise turn off highlight
@@ -243,6 +244,7 @@ export const InteractableComponent = defineComponent({
     //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
 
     //TODO canInteract for grabbed state on grabbable?
+    canInteract: S.Bool(false),
     uiInteractable: S.Bool(true),
     uiEntity: S.Entity(),
     label: S.String('E'),

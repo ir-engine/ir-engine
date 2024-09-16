@@ -219,7 +219,7 @@ export const TransformComponent = defineComponent({
   },
 
   /**
-   * Updates the matrixWorld property of the transform component
+   * Updates the local matrix and transform from the matrixWorld property of the transform component
    * @param entity
    */
   updateFromWorldMatrix: (entity: Entity) => {

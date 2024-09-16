@@ -176,20 +176,6 @@ export const LocationService = {
         })
     }
   },
-  getLobby: async () => {
-    const lobbyResult = (await API.instance.service(locationPath).find({
-      query: {
-        isLobby: true,
-        $limit: 1
-      }
-    })) as Paginated<LocationType>
-
-    if (lobbyResult && lobbyResult.total > 0) {
-      return lobbyResult.data[0]
-    } else {
-      return null
-    }
-  },
   banUserFromLocation: async (userId: UserID, locationId: LocationID) => {
     try {
       await API.instance.service(locationBanPath).create({
