@@ -2,7 +2,7 @@ node_modules/
 www/
 
 public/manifest.webmanifest
+public/root-cookie-accessor.html
 public/service-*
 public/workbox-*
 dev-dist/
-public/root-cookie-accessor.html
