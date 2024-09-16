@@ -29,7 +29,7 @@ import { MdPanTool } from 'react-icons/md'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
-import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
@@ -37,6 +37,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import {
+  EntityTreeComponent,
   getAncestorWithComponents,
   getChildrenWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -52,8 +53,9 @@ export const RigidBodyComponentEditor: EditorComponentType = (props) => {
   const { entity } = props
   const { t } = useTranslation()
   const rigidbodyComponent = useComponent(entity, RigidBodyComponent)
+  const children = useOptionalComponent(entity, EntityTreeComponent)?.children
 
-  useImmediateEffect(() => {
+  const removeDuplicateRigidbody = () => {
     const rigidbodyAlreadyInHierarchy = !!(
       getAncestorWithComponents(entity, [RigidBodyComponent], true, false) ||
       getChildrenWithComponents(entity, [RigidBodyComponent]).length
@@ -66,7 +68,11 @@ export const RigidBodyComponentEditor: EditorComponentType = (props) => {
       )
       EditorControlFunctions.addOrRemoveComponent([entity], RigidBodyComponent, false)
     }
-  }, [])
+  }
+
+  useImmediateEffect(() => {
+    removeDuplicateRigidbody()
+  }, [children])
 
   return (
     <NodeEditor
