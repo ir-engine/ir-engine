@@ -140,6 +140,6 @@ const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   box.union(_box)
 }
 
-export const _BoundingBoxComponentFunctions = {
+export const BoundingBoxComponentFunctions = {
   expandBoxByObject
 }
