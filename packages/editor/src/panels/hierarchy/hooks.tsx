@@ -96,7 +96,6 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
-
   const snapshotIndex = GLTFSnapshotState.useSnapshotIndex(sourceId)
   if (snapshotIndex === undefined) return null
 

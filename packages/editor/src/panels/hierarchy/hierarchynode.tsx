@@ -55,12 +55,11 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
-import useUpload from '../../components/assets/useUpload'
 import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import { deleteNode, uploadOptions } from './helpers'
+import { deleteNode } from './helpers'
 import {
   useHierarchyNodes,
   useHierarchyTreeContextMenu,
@@ -107,7 +106,6 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
-  const onUpload = useUpload(uploadOptions)
   const { expandedNodes, firstSelectedEntity } = useMutableState(HierarchyTreeState)
   const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
@@ -252,7 +250,6 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     } else if (event.detail === 2) {
       if (entity && getOptionalComponent(entity, CameraOrbitComponent)) {
         const cameraEntity = getState(EngineState).viewerEntity
-        // const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent) // TODO: remove after testing
         const editorCameraState = getMutableComponent(cameraEntity, CameraOrbitComponent)
         editorCameraState.focusedEntities.set([entity])
         editorCameraState.refocus.set(true)

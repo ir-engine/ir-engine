@@ -89,15 +89,13 @@ export function Contents() {
 
   useEffect(() => {
     if (!ref.current) return
-
     const handleResize = () => {
-      const { height, width } = ref.current!.getBoundingClientRect()
+      if (!ref.current) return
+      const { height, width } = ref.current.getBoundingClientRect()
       listDimensions.set({ height, width })
     }
-
     const resizeObserver = new ResizeObserver(handleResize)
     resizeObserver.observe(ref.current)
-
     return () => resizeObserver.disconnect()
   }, [])
 
