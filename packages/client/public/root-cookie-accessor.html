@@ -9,7 +9,6 @@
         const processMessage = async (e) => {
             origin = e.origin
             const payload = e?.data ? JSON.parse(e.data) : null;
-            if (payload == null) return
             const parent = window.parent;
             switch (payload.method) {
                 case 'set':
