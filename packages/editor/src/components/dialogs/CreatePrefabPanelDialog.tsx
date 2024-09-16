@@ -174,7 +174,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
           </Button>
           <div>
             {(prefabTag.value ?? []).map((tag, index) => (
-              <div style={{ display: 'flex', flexDirection: 'row', margin: '0, 16px 0 0' }}>
+              <div className="items-end" style={{ display: 'flex', flexDirection: 'row', margin: '0, 16px 0 0' }}>
                 <Input
                   key={index}
                   label={t('editor:layout.filebrowser.fileProperties.tag')}
@@ -191,12 +191,10 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
                   }}
                   size="small"
                   variant="outline"
-                  className="text-left text-xs"
+                  className=" text-left text-xs"
                 >
-                  {' '}
-                  x{' '}
+                  x
                 </Button>
-                a
               </div>
             ))}
           </div>
