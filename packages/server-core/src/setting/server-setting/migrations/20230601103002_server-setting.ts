@@ -55,7 +55,6 @@ export async function up(knex: Knex): Promise<void> {
       table.string('localStorageProvider', 255).nullable()
       table.boolean('performDryRun').nullable()
       table.string('storageProvider', 255).nullable()
-      table.string('gaTrackingId', 255).nullable()
       table.json('hub').nullable()
       table.string('url', 255).nullable()
       table.string('certPath', 255).nullable()

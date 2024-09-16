@@ -27,8 +27,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiEye, HiTrash } from 'react-icons/hi2'
 
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { instancePath, InstanceType } from '@ir-engine/common/src/schema.type.module'
-import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
@@ -41,7 +41,7 @@ export default function InstanceTable({ search }: { search: string }) {
   const { t } = useTranslation()
   const instancesQuery = useFind(instancePath, {
     query: {
-      $sort: { createdAt: 1 },
+      $sort: { ended: 1 },
       $limit: 20,
       action: 'admin'
     }
@@ -50,23 +50,7 @@ export default function InstanceTable({ search }: { search: string }) {
   useSearch(
     instancesQuery,
     {
-      $or: [
-        {
-          id: {
-            $like: `%${search}%`
-          }
-        },
-        {
-          locationId: {
-            $like: `%${search}%`
-          }
-        },
-        {
-          channelId: {
-            $like: `%${search}%`
-          }
-        }
-      ]
+      search
     },
     search
   )
@@ -78,6 +62,7 @@ export default function InstanceTable({ search }: { search: string }) {
       id: row.id,
       ipAddress: row.ipAddress,
       currentUsers: row.currentUsers,
+      ended: row.ended ? t('admin:components.instance.ended') : t('admin:components.instance.active'),
       locationName: row.location && row.location.name ? row.location.name : '',
       channelId: row.channelId,
       podName: row.podName,

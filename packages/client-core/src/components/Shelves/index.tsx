@@ -33,7 +33,7 @@ import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWi
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { AppState } from '../../common/services/AppService'
-import { clientContextParams } from '../../util/contextParams'
+import { clientContextParams } from '../../util/ClientContextState'
 import styles from './index.module.scss'
 
 const logger = multiLogger.child({ component: 'system:Shelves ', modifier: clientContextParams })

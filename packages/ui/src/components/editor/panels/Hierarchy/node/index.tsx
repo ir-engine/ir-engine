@@ -46,10 +46,9 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { FileDataType } from '@ir-engine/editor/src/components/assets/FileBrowser/FileDataType'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import { HierarchyTreeNodeType } from '@ir-engine/editor/src/components/hierarchy/HierarchyTreeWalker'
-import { ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
@@ -57,7 +56,6 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { twMerge } from 'tailwind-merge'
 import TransformPropertyGroup from '../../../properties/transform'
-import { DnDFileType } from '../../Files/container'
 
 /**
  * getNodeElId function provides id for node.
@@ -163,25 +161,28 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const dropItem = (node: HierarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     let parentNode: Entity | undefined
     let beforeNode: Entity
+    let afterNode: Entity
 
-    if (place === 'Before') {
-      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
-      beforeNode = node.entity
-    } else if (place === 'After') {
-      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
-      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-      if (
-        parentTreeComponent &&
-        !node.lastChild &&
-        parentNode &&
-        parentTreeComponent?.children.length > node.childIndex + 1
-      ) {
+    const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+    parentNode = entityTreeComponent?.parentEntity
+    const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+
+    switch (place) {
+      case 'Before': // we want to place before this node
+        beforeNode = node.entity
+        if (!parentTreeComponent || !parentNode) break
+        if (0 > node.childIndex - 1) break // nothing to place after it, as node index is the first child
+        afterNode = parentTreeComponent.children[node.childIndex - 1]
+        break
+      case 'After': // we want to place after this node
+        afterNode = node.entity
+        if (!parentTreeComponent || !parentNode) break
+        if (node.lastChild) break // if it is last child, nothing to place before it
+        if (parentTreeComponent?.children.length < node.childIndex + 1) break //node index is last child
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
-      }
-    } else {
-      parentNode = node.entity
+        break
+      default: //case 'on'
+        parentNode = node.entity
     }
 
     if (!parentNode)
@@ -225,6 +226,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           ? ((item as DragItemType).value as Entity[])
           : [(item as DragItemType).value as Entity],
         beforeNode,
+        afterNode,
         parentNode === null ? undefined : parentNode
       )
     }
@@ -360,6 +362,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
                     autoFocus
+                    maxLength={64}
                   />
                 </div>
               ) : (

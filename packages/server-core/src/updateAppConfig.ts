@@ -120,8 +120,16 @@ export const updateAppConfig = async (): Promise<void> => {
         appConfig.authentication = {
           ...appConfig.authentication,
           ...(dbAuthenticationConfig as any),
+          secret: appConfig.authentication.secret.split(String.raw`\n`).join('\n'),
           authStrategies: authStrategies
         }
+        if (dbAuthenticationConfig.oauth?.github?.privateKey)
+          appConfig.authentication.oauth.github.privateKey = dbAuthenticationConfig.oauth.github.privateKey
+            .split(String.raw`\n`)
+            .join('\n')
+        if (dbAuthenticationConfig.jwtPublicKey)
+          appConfig.authentication.jwtPublicKey = dbAuthenticationConfig.jwtPublicKey.split(String.raw`\n`).join('\n')
+        appConfig.authentication.jwtOptions.algorithm = dbAuthentication.jwtAlgorithm || 'HS256'
       }
     })
     .catch((e) => {

@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isDev } from '@ir-engine/common/src/config'
-import { defineState, ReactorRoot } from '@ir-engine/hyperflux'
+import { defineState, isDev, ReactorRoot } from '@ir-engine/hyperflux'
 
 import { Query, QueryComponents } from './QueryFunctions'
 import { SystemUUID } from './SystemFunctions'

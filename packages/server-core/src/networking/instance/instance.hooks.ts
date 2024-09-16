@@ -83,11 +83,24 @@ const addLocationSearchToQuery = async (context: HookContext<InstanceService>) =
     paginate: false
   })) as any as LocationType[]
 
-  /** @TODO we should add a filter property to filter ended instances */
   context.params.query = {
     ...context.params.query,
-    ended: false,
     $or: [
+      {
+        id: {
+          $like: `%${search}%`
+        }
+      },
+      {
+        locationId: {
+          $like: `%${search}%`
+        }
+      },
+      {
+        channelId: {
+          $like: `%${search}%`
+        }
+      },
       {
         ipAddress: {
           $like: `%${search}%`

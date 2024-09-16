@@ -30,20 +30,9 @@ import { t } from 'i18next'
 import React, { RefObject, useEffect, useRef } from 'react'
 
 import Text from '@ir-engine/client-core/src/common/components/Text'
-import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import {
-  globalMuteProducer,
-  globalUnmuteProducer,
-  pauseConsumer,
-  resumeConsumer,
-  setPreferredConsumerLayer,
-  toggleMicrophonePaused,
-  toggleScreenshareAudioPaused,
-  toggleScreenshareVideoPaused,
-  toggleWebcamPaused
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { UserName, clientSettingPath, userPath } from '@ir-engine/common/src/schema.type.module'
+import { useGet } from '@ir-engine/common'
+import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { useExecute } from '@ir-engine/ecs'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
@@ -51,8 +40,13 @@ import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsSta
 import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
 import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState, VideoConstants } from '@ir-engine/network'
-import { useFind, useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
+import {
+  NetworkState,
+  screenshareAudioDataChannelType,
+  screenshareVideoDataChannelType,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
@@ -63,9 +57,8 @@ import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 
 import { useTranslation } from 'react-i18next'
 import { useZendesk } from '../../hooks/useZendesk'
-import { MediaStreamState } from '../../transports/MediaStreams'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { MediaStreamState } from '../../media/MediaStreamState'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../media/PeerMediaChannelState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
@@ -74,8 +67,6 @@ interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
 }
-
-const MAX_RES_TO_USE_TOP_LAYER = 540 //If under 540p, use the topmost video layer, otherwise use layer n-1
 
 const useDrawMocapLandmarks = (
   videoElement: HTMLVideoElement,
@@ -121,28 +112,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
-  const {
-    videoStream,
-    audioStream,
-    videoStreamPaused,
-    audioStreamPaused,
-    videoProducerPaused,
-    audioProducerPaused,
-    videoProducerGlobalMute,
-    audioProducerGlobalMute,
-    videoElement,
-    audioElement
-  } = peerMediaChannelState.value as PeerMediaStreamInterface
-
-  const audioTrackClones = useHookstate<any[]>([])
-  const videoTrackClones = useHookstate<any[]>([])
-  const videoTrackId = useHookstate('')
-  const audioTrackId = useHookstate('')
+  const { videoMediaStream, audioMediaStream, videoStreamPaused, audioStreamPaused, videoElement, audioElement } =
+    peerMediaChannelState.value as PeerMediaStreamInterface
 
   const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
   const soundIndicatorOn = useHookstate(false)
   const isPiP = useHookstate(false)
-  const videoDisplayReady = useHookstate<boolean>(false)
 
   const resumeVideoOnUnhide = useRef<boolean>(false)
   const resumeAudioOnUnhide = useRef<boolean>(false)
@@ -152,10 +127,11 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const _volume = useHookstate(1)
 
   const selfUser = useMutableState(AuthState).user.get(NO_PROXY)
-  const currentLocation = useMutableState(LocationState).currentLocation.location
-  const enableGlobalMute =
-    currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
-    selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
+  // const currentLocation = useMutableState(LocationState).currentLocation.location
+  /** @todo refactor global mute for admin controls */
+  // const enableGlobalMute =
+  //   currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
+  //   selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
 
   const mediaNetwork = NetworkState.mediaNetwork
   const isSelf =
@@ -173,16 +149,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const rendered = !mediaSettingState.immersiveMedia.value
 
   useEffect(() => {
-    if (peerMediaChannelState.videoStream.value?.track)
-      videoTrackId.set(peerMediaChannelState.videoStream.value.track.id)
-  }, [peerMediaChannelState.videoStream.value?.track?.id])
-
-  useEffect(() => {
-    if (peerMediaChannelState.audioStream.value?.track)
-      audioTrackId.set(peerMediaChannelState.audioStream.value.track.id)
-  }, [peerMediaChannelState.audioStream.value?.track?.id])
-
-  useEffect(() => {
     function onUserInteraction() {
       videoElement?.play()
       audioElement?.play()
@@ -195,109 +161,51 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [videoElement, audioElement, harkListener?.value])
 
   useEffect(() => {
-    let unmounted = false
-    let newHark
-    if (audioElement != null) {
-      audioElement.id = `${peerID}_audio`
-      audioElement.autoplay = true
-      audioElement.setAttribute('playsinline', 'true')
-      if (isSelf) {
-        audioElement.muted = true
-      } else {
-        audioElement.volume = volume
-      }
-      if (audioStream != null) {
-        const newAudioTrack = audioStream.track!.clone()
-        const updateAudioTrackClones = audioTrackClones.get(NO_PROXY).concat(newAudioTrack)
-        audioTrackClones.set(updateAudioTrackClones)
-        audioElement.srcObject = new MediaStream([newAudioTrack])
-        newHark = hark(audioElement.srcObject, { play: false })
-        newHark.on('speaking', () => {
-          if (unmounted) return
-          soundIndicatorOn.set(true)
-        })
-        newHark.on('stopped_speaking', () => {
-          if (unmounted) return
-          soundIndicatorOn.set(false)
-        })
-        harkListener.set(newHark)
-        peerMediaChannelState.audioProducerPaused.set(audioStream.paused)
-      }
+    if (!audioMediaStream) return
+
+    audioElement.id = `${peerID}_audio`
+    audioElement.autoplay = true
+    audioElement.setAttribute('playsinline', 'true')
+    if (isSelf) {
+      audioElement.muted = true
+    } else {
+      audioElement.volume = volume
     }
+
+    audioElement.srcObject = audioMediaStream
+
+    const newHark = hark(audioElement.srcObject, { play: false })
+    newHark.on('speaking', () => {
+      if (unmounted) return
+      soundIndicatorOn.set(true)
+    })
+    newHark.on('stopped_speaking', () => {
+      if (unmounted) return
+      soundIndicatorOn.set(false)
+    })
+    harkListener.set(newHark)
+
+    let unmounted = false
 
     return () => {
-      audioTrackClones.get(NO_PROXY).forEach((track) => track.stop())
       unmounted = true
-      if (newHark) newHark.stop()
+      newHark.stop()
     }
-  }, [audioTrackId.value])
+  }, [audioMediaStream])
 
   useEffect(() => {
+    if (!videoMediaStream) return
+
     videoElement.id = `${peerID}_video`
     videoElement.autoplay = true
     videoElement.muted = true
     videoElement.setAttribute('playsinline', 'true')
-    if (videoStream != null) {
-      videoDisplayReady.set(false)
-      if (isSelf) peerMediaChannelState.videoProducerPaused.set(false)
-      const originalTrackEnabledInterval = setInterval(() => {
-        if (videoStream.track!.enabled) {
-          clearInterval(originalTrackEnabledInterval)
+    videoElement!.srcObject = videoMediaStream
 
-          // if (!videoRef?.srcObject?.active || !videoRef?.srcObject?.getVideoTracks()[0].enabled) {
-          const newVideoTrack = videoStream.track!.clone()
-          videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-          videoTrackClones.set([newVideoTrack])
-          videoElement!.srcObject = new MediaStream([newVideoTrack])
-          if (isScreen) {
-            applyScreenshareToTexture(videoElement!)
-          }
-          videoDisplayReady.set(true)
-          // }
-        }
-      }, 100)
+    if (isScreen) {
+      applyScreenshareToTexture(videoElement!)
     }
-
-    return () => {
-      videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-    }
-  }, [videoTrackId.value])
-
-  useEffect(() => {
-    if (!isSelf && !videoProducerPaused && videoStream != null && videoElement != null) {
-      const originalTrackEnabledInterval = setInterval(() => {
-        if (videoStream.track!.enabled) {
-          clearInterval(originalTrackEnabledInterval)
-
-          if (!(videoElement?.srcObject as MediaStream)?.getVideoTracks()[0].enabled) {
-            const newVideoTrack = videoStream.track!.clone()
-            videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-            videoTrackClones.set([newVideoTrack])
-            videoElement!.srcObject = new MediaStream([newVideoTrack])
-          }
-        }
-      }, 100)
-    }
-    if (isSelf && videoProducerPaused && videoStream != null && videoElement != null)
-      videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
-  }, [videoProducerPaused])
-
-  useEffect(() => {
-    if (!isSelf && !audioProducerPaused && audioStream != null && audioElement != null) {
-      const originalTrackEnabledInterval = setInterval(() => {
-        if (audioStream.track!.enabled) {
-          clearInterval(originalTrackEnabledInterval)
-
-          if (!(audioElement?.srcObject as MediaStream)?.getAudioTracks()[0].enabled) {
-            const newAudioTrack = audioStream.track!.clone()
-            const updateAudioTrackClones = audioTrackClones.get(NO_PROXY).concat(newAudioTrack)
-            audioTrackClones.set(updateAudioTrackClones)
-            audioElement!.srcObject = new MediaStream([newAudioTrack])
-          }
-        }
-      })
-    }
-  }, [audioProducerPaused])
+  }, [videoMediaStream])
 
   useEffect(() => {
     mediaStreamState.microphoneGainNode.value?.gain.setTargetAtTime(
@@ -309,51 +217,48 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
-      toggleWebcamPaused()
+      MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
-      toggleScreenshareVideoPaused()
+      MediaStreamState.toggleScreenshareVideoPaused()
     } else {
-      if (!videoStreamPaused) {
-        pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
-        peerMediaChannelState.videoStreamPaused.set(true)
-      } else {
-        resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
-        peerMediaChannelState.videoStreamPaused.set(false)
-      }
+      mediaNetwork.pauseTrack(
+        peerID,
+        isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType,
+        !videoStreamPaused
+      )
     }
   }
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
-      toggleMicrophonePaused()
+      MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
-      toggleScreenshareAudioPaused()
+      MediaStreamState.toggleScreenshareAudioPaused()
     } else {
-      if (!audioStreamPaused) {
-        pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
-        peerMediaChannelState.audioStreamPaused.set(true)
-      } else {
-        resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
-        peerMediaChannelState.audioStreamPaused.set(false)
-      }
+      mediaNetwork.pauseTrack(
+        peerID,
+        isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType,
+        !audioStreamPaused
+      )
     }
   }
 
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
-    const audioStreamProducer = audioStream as ConsumerExtension
-    if (!audioProducerGlobalMute) {
-      globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
-      peerMediaChannelState.audioProducerGlobalMute.set(true)
-    } else if (audioProducerGlobalMute) {
-      globalUnmuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
-      peerMediaChannelState.audioProducerGlobalMute.set(false)
-    }
+    /** @todo */
+    // const mediaNetwork = NetworkState.mediaNetwork
+    // const audioStreamProducer = audioStream as ConsumerExtension
+    // if (!audioProducerGlobalMute) {
+    //   MediasoupMediaProducerConsumerState.globalMuteProducer(mediaNetwork, audioStreamProducer.producerId)
+    //   peerMediaChannelState.audioProducerGlobalMute.set(true)
+    // } else if (audioProducerGlobalMute) {
+    //   MediasoupMediaProducerConsumerState.globalUnmuteProducer(mediaNetwork, audioStreamProducer.producerId)
+    //   peerMediaChannelState.audioProducerGlobalMute.set(false)
+    // }
   }
 
   const adjustVolume = (e, value) => {
@@ -377,19 +282,23 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const togglePiP = () => isPiP.set(!isPiP.value)
 
+  useEffect(() => {
+    peerMediaChannelState.videoQuality.set(isPiP.value ? 'largest' : 'smallest')
+  }, [isPiP.value])
+
   const username = getUsername() as UserName
 
   const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   const handleVisibilityChange = () => {
     if (document.hidden) {
-      if (videoStream != null && !videoStream.paused && !videoStreamPaused) {
+      if (!videoStreamPaused) {
         resumeVideoOnUnhide.current = true
         toggleVideo({
           stopPropagation: () => {}
         })
       }
-      if (audioStream != null && !audioStream.paused && !audioStreamPaused) {
+      if (!audioStreamPaused) {
         resumeAudioOnUnhide.current = true
         toggleAudio({
           stopPropagation: () => {}
@@ -397,11 +306,11 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       }
     }
     if (!document.hidden) {
-      if (videoStream != null && resumeVideoOnUnhide.current)
+      if (resumeVideoOnUnhide.current)
         toggleVideo({
           stopPropagation: () => {}
         })
-      if (audioStream != null && resumeAudioOnUnhide.current)
+      if (resumeAudioOnUnhide.current)
         toggleAudio({
           stopPropagation: () => {}
         })
@@ -427,23 +336,19 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     username,
     selfUser,
     isSelf,
-    videoStream,
-    audioStream,
-    enableGlobalMute,
+    videoMediaStream,
+    audioMediaStream,
     avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
-    videoProducerPaused,
-    audioProducerPaused,
-    videoProducerGlobalMute,
-    audioProducerGlobalMute,
-    videoDisplayReady: videoDisplayReady.value,
     soundIndicatorOn: soundIndicatorOn.value,
     togglePiP,
     toggleAudio,
     toggleVideo,
     adjustVolume,
-    toggleGlobalMute,
+    /** @todo reimplement global mute */
+    // enableGlobalMute,
+    // toggleGlobalMute,
     rendered
   }
 }
@@ -454,25 +359,17 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     volume,
     isScreen,
     username,
-    selfUser,
     isSelf,
-    videoStream,
-    audioStream,
-    enableGlobalMute,
+    videoMediaStream,
+    audioMediaStream,
     avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
-    videoProducerPaused,
-    audioProducerPaused,
-    videoProducerGlobalMute,
-    audioProducerGlobalMute,
-    videoDisplayReady,
     soundIndicatorOn,
     togglePiP,
     toggleAudio,
     toggleVideo,
     adjustVolume,
-    toggleGlobalMute,
     rendered
   } = useUserMediaWindowHook({ peerID, type })
 
@@ -488,9 +385,6 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
-
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
 
   useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
 
@@ -512,42 +406,6 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     if (canvasRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d')!
   })
 
-  useEffect(() => {
-    if (!videoStream) return
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
-    const encodings = videoStream.rtpParameters.encodings
-
-    const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
-    const { maxResolution } = clientSetting.mediaSettings.video
-    const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
-    if (isPiP || immersiveMedia.value) {
-      let maxLayer
-      const scalabilityMode = encodings && encodings[0].scalabilityMode
-      if (!scalabilityMode) maxLayer = 0
-      else {
-        const execed = /L([0-9])/.exec(scalabilityMode)
-        if (execed) maxLayer = parseInt(execed[1]) - 1 //Subtract 1 from max scalabilityMode since layers are 0-indexed
-        else maxLayer = 0
-      }
-      // If we're in immersive media mode, using max-resolution video for everyone could overwhelm some devices.
-      // If there are more than 2 layers, then use layer n-1 to balance quality and performance
-      // (immersive video bubbles are bigger than the flat bubbles, so low-quality video will be more noticeable).
-      // If we're not, then the highest layer is still probably more than necessary, so use the n-1 layer unless the
-      // n layer is under a specified constant
-      setPreferredConsumerLayer(
-        mediaNetwork,
-        videoStream as ConsumerExtension,
-        (immersiveMedia.value && maxLayer) > 1
-          ? maxLayer - 1
-          : (!isScreen && resolution.height.ideal) > MAX_RES_TO_USE_TOP_LAYER
-          ? maxLayer - 1
-          : maxLayer
-      )
-    }
-    // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons
-    else setPreferredConsumerLayer(mediaNetwork, videoStream as ConsumerExtension, 0)
-  }, [videoStream, isPiP])
-
   return (
     <Draggable isPiP={isPiP}>
       <div
@@ -558,8 +416,8 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
           [styles['party-chat-user']]: true,
           [styles['self-user']]: isSelf && !isScreen,
-          [styles['no-video']]: videoStream == null,
-          [styles['video-paused']]: (videoStream && (videoProducerPaused || videoStreamPaused)) || !videoDisplayReady,
+          [styles['no-video']]: videoMediaStream == null,
+          [styles['video-paused']]: videoMediaStream && videoStreamPaused,
           [styles.pip]: isPiP && !isScreen,
           [styles.screenpip]: isPiP && isScreen,
           [styles['not-rendered']]: !isSelf && !rendered
@@ -575,14 +433,13 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
             [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn && (isSelf ? !audioProducerPaused : !audioStreamPaused)
+            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
           })}
         >
-          {(videoStream == null ||
-            videoStreamPaused ||
-            videoProducerPaused ||
-            videoProducerGlobalMute ||
-            !videoDisplayReady) && <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />}
+          {(!videoMediaStream || videoStreamPaused) && (
+            // || videoProducerGlobalMute
+            <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />
+          )}
           <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
           <div
             className={classNames({
@@ -638,8 +495,8 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           )}
           <div className={styles['controls']}>
             <div className={styles['mute-controls']}>
-              {videoStream && !videoProducerPaused ? (
-                <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
+              {videoMediaStream && (
+                <Tooltip title={videoStreamPaused ? 'Resume Video' : 'Pause Video'}>
                   <IconButton
                     size="large"
                     className={classNames({
@@ -651,8 +508,8 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                     icon={<Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />}
                   />
                 </Tooltip>
-              ) : null}
-              {enableGlobalMute && !isSelf && audioStream && (
+              )}
+              {/* {enableGlobalMute && !isSelf && audioMediaStream && (
                 <Tooltip
                   title={
                     !audioProducerGlobalMute
@@ -671,15 +528,15 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                     icon={<Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />}
                   />
                 </Tooltip>
-              )}
-              {audioStream && !audioProducerPaused ? (
+              )} */}
+              {audioMediaStream && (
                 <Tooltip
                   title={
-                    (isSelf && audioStream?.paused === false
+                    (isSelf && !audioStreamPaused
                       ? t('user:person.muteMe')
-                      : isSelf && audioStream?.paused === true
+                      : isSelf && audioStreamPaused
                       ? t('user:person.unmuteMe')
-                      : !isSelf && audioStream?.paused === false
+                      : !isSelf && !audioStreamPaused
                       ? t('user:person.muteThisPerson')
                       : t('user:person.unmuteThisPerson')) as string
                   }
@@ -701,7 +558,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                     }
                   />
                 </Tooltip>
-              ) : null}
+              )}
               <Tooltip title={t('user:person.openPictureInPicture') as string}>
                 <IconButton
                   size="large"
@@ -715,8 +572,9 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                 />
               </Tooltip>
             </div>
-            {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
-            {audioStream && !audioProducerPaused && !audioProducerGlobalMute && (
+            {/* {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>} */}
+            {audioMediaStream && !audioStreamPaused && (
+              // && !audioProducerGlobalMute
               <div className={styles['audio-slider']}>
                 {volume === 0 && <Icon type="VolumeMute" />}
                 {volume > 0 && volume < 0.7 && <Icon type="VolumeDown" />}
@@ -740,51 +598,23 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 }
 
 export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
-  const {
-    volume,
-    isScreen,
-    username,
-    selfUser,
-    isSelf,
-    videoStream,
-    audioStream,
-    enableGlobalMute,
-    avatarThumbnail,
-    videoStreamPaused,
-    audioStreamPaused,
-    videoProducerPaused,
-    audioProducerPaused,
-    videoProducerGlobalMute,
-    audioProducerGlobalMute,
-    videoDisplayReady,
-    soundIndicatorOn,
-    toggleAudio,
-    toggleVideo,
-    adjustVolume,
-    toggleGlobalMute,
-    rendered
-  } = useUserMediaWindowHook({ peerID, type })
-
-  const peerMediaChannelState = useHookstate(
-    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
-  )
-
-  const { videoStream: videoStreamState } = peerMediaChannelState
+  const { username, isSelf, videoMediaStream, avatarThumbnail, videoStreamPaused, audioStreamPaused, toggleAudio } =
+    useUserMediaWindowHook({ peerID, type })
 
   const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    if (!ref.current || ref.current.srcObject || !videoStreamState?.value) return
+    if (!ref.current || ref.current.srcObject || !videoMediaStream) return
 
     ref.current.id = `${peerID}_video_xrui`
     ref.current.autoplay = true
     ref.current.muted = true
     ref.current.setAttribute('playsinline', 'true')
 
-    const newVideoTrack = videoStreamState.value.track!.clone()
+    const newVideoTrack = videoMediaStream.getVideoTracks()[0].clone()
     ref.current.srcObject = new MediaStream([newVideoTrack])
     ref.current.play()
-  }, [ref.current, videoStreamState])
+  }, [ref.current, videoMediaStream])
 
   return (
     <div
@@ -798,7 +628,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
       }}
       xr-layer="true"
     >
-      {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
+      {!videoMediaStream || videoStreamPaused ? (
         <img
           style={{
             height: 'auto',

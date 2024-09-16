@@ -98,7 +98,8 @@ export const authAppCredentialsSchema = Type.Object(
     nonce: Type.Optional(Type.Boolean()),
     response: Type.Optional(Type.Array(Type.String())),
     scope: Type.Optional(Type.Array(Type.String())),
-    custom_params: Type.Optional(Type.Record(Type.String(), Type.String()))
+    custom_params: Type.Optional(Type.Record(Type.String(), Type.String())),
+    privateKey: Type.Optional(Type.String())
   },
   { $id: 'AuthAppCredentials', additionalProperties: false }
 )
@@ -127,7 +128,9 @@ export const authenticationSettingSchema = Type.Object(
     }),
     service: Type.String(),
     entity: Type.String(),
-    secret: Type.String(),
+    secret: Type.String({ maxLength: 4095 }),
+    jwtAlgorithm: Type.Optional(Type.String()),
+    jwtPublicKey: Type.Optional(Type.String({ maxLength: 1023 })),
     authStrategies: Type.Array(Type.Ref(authStrategiesSchema)),
     jwtOptions: Type.Optional(Type.Ref(authJwtOptionsSchema)),
     bearerToken: Type.Optional(Type.Ref(authBearerTokenSchema)),

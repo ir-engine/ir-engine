@@ -23,12 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { InstanceID, UserID } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs'
-import { Action, PeerID, Topic, getState } from '@ir-engine/hyperflux'
-
+import { Action, HyperFlux, NetworkID, PeerID, Topic, UserID, getState } from '@ir-engine/hyperflux'
 import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
-import { NetworkPeer } from './NetworkState'
+import { MediaTagType, NetworkPeer } from './NetworkState'
 import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
 
 /**
@@ -37,15 +34,6 @@ import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
 export const NetworkTopics = {
   world: 'world' as Topic,
   media: 'media' as Topic
-}
-
-export interface TransportInterface {
-  messageToPeer: (peerId: PeerID, data: any) => void
-  messageToAll: (data: any) => void
-  onMessage: (fromPeerID: PeerID, data: any) => void
-  bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerId: PeerID, data: any) => void
-  bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
-  onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
 }
 
 export interface JitterBufferEntry {
@@ -99,7 +87,7 @@ export type Network<Ext = unknown> = {
   /**
    * The ID of this network, equivalent to the InstanceID of an instance
    */
-  id: InstanceID
+  id: NetworkID
 
   /**
    * The network is ready for sending messages and data
@@ -116,6 +104,10 @@ export type Network<Ext = unknown> = {
   bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
   onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
 
+  /** @todo maybe we should change the verbiage to 'muted'? does this make sense for video? */
+  pauseTrack: (peerID: PeerID, track: MediaTagType, pause: boolean) => void
+  /** @todo add more abstractions here */
+
   readonly isHosting: boolean
 
   topic: Topic
@@ -123,7 +115,7 @@ export type Network<Ext = unknown> = {
 
 /** Interface for the Transport. */
 export const createNetwork = <Ext = unknown>(
-  id: InstanceID,
+  id: NetworkID,
   hostPeerID: PeerID,
   topic: Topic,
   extension?: Ext
@@ -153,6 +145,9 @@ export const createNetwork = <Ext = unknown>(
         for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
       }
     },
+    pauseTrack(peerID, track, pause) {
+      // noop
+    },
     ...extension,
     peers: {},
     peerIndexToPeerID: {},
@@ -169,7 +164,7 @@ export const createNetwork = <Ext = unknown>(
     id,
     ready: false,
     get isHosting() {
-      return Engine.instance.store.peerID === network.hostPeerID
+      return HyperFlux.store.peerID === network.hostPeerID
     },
     topic
   } as Network<Ext>
