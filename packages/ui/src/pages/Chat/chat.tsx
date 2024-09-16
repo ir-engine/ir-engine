@@ -36,7 +36,7 @@ import { AuthService } from '@ir-engine/client-core/src/user/services/AuthServic
 import '@ir-engine/engine/src/EngineModule'
 
 import { LocationService } from '@ir-engine/client-core/src/social/services/LocationService'
-import { clientContextParams } from '@ir-engine/client-core/src/util/contextParams'
+import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
 import multiLogger from '@ir-engine/common/src/logger'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'

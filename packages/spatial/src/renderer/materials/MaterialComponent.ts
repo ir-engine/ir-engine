@@ -31,14 +31,16 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
-  getMutableComponent
+  getOptionalComponent,
+  getOptionalMutableComponent,
+  hasComponent
 } from '@ir-engine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { v4 as uuidv4 } from 'uuid'
-import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
-import { TransparencyDitheringPlugin } from './constants/plugins/TransparencyDitheringComponent'
+import { NoiseOffsetPluginComponent } from './constants/plugins/NoiseOffsetPlugin'
+import { TransparencyDitheringPluginComponent } from './constants/plugins/TransparencyDitheringComponent'
 import { setMeshMaterial } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
@@ -60,14 +62,16 @@ export type MaterialPrototypeDefinition = {
   onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
 
+export type PrototypeArgumentValue = {
+  type: string
+  default: any
+  min?: number
+  max?: number
+  options?: any[]
+}
+
 export type PrototypeArgument = {
-  [_: string]: {
-    type: string
-    default: any
-    min?: number
-    max?: number
-    options?: any[]
-  }
+  [_: string]: PrototypeArgumentValue
 }
 
 export const MaterialPrototypeDefinitions = [
@@ -82,7 +86,7 @@ export const MaterialPrototypeDefinitions = [
   ShadowMaterial
 ] as MaterialPrototypeDefinition[]
 
-export const MaterialPlugins = { TransparencyDitheringPlugin, NoiseOffsetPlugin } as Record<
+export const MaterialPlugins = { TransparencyDitheringPluginComponent, NoiseOffsetPluginComponent } as Record<
   string,
   Component<any, any, any>
 >
@@ -111,8 +115,10 @@ export const MaterialStateComponent = defineComponent({
   fallbackMaterial: uuidv4() as EntityUUID,
 
   onRemove: (entity) => {
-    const materialComponent = getComponent(entity, MaterialStateComponent)
+    const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+    if (!materialComponent) return
     for (const instanceEntity of materialComponent.instances) {
+      if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
       setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
     }
   }
@@ -129,11 +135,13 @@ export const MaterialInstanceComponent = defineComponent({
     if (json?.uuid && component.uuid.value !== undefined) component.uuid.set(json.uuid)
   },
   onRemove: (entity) => {
-    const uuids = getComponent(entity, MaterialInstanceComponent).uuid
+    const uuids = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid
+    if (!uuids) return
     for (const uuid of uuids) {
       const materialEntity = UUIDComponent.getEntityByUUID(uuid)
-      const materialComponent = getMutableComponent(materialEntity, MaterialStateComponent)
-      if (materialComponent.instances.value)
+      if (!hasComponent(materialEntity, MaterialStateComponent)) continue
+      const materialComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
+      if (materialComponent?.instances.value)
         materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
     }
   }

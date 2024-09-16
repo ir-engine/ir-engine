@@ -23,18 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
+import { InstanceType, instancePath } from '@ir-engine/common/src/schema.type.module'
+import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiEye, HiTrash } from 'react-icons/hi2'
-
-import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { instancePath, InstanceType } from '@ir-engine/common/src/schema.type.module'
-import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-
+import { validate as isValidUUID } from 'uuid'
 import { PopoverState } from '../../../common/services/PopoverState'
-import { instanceColumns } from '../../common/constants/instance'
 import DataTable from '../../common/Table'
+import { instanceColumns } from '../../common/constants/instance'
 import ViewModal from './ViewModal'
 
 export default function InstanceTable({ search }: { search: string }) {
@@ -52,19 +51,13 @@ export default function InstanceTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: {
-            $like: `%${search}%`
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
-          locationId: {
-            $like: `%${search}%`
-          }
+          locationId: isValidUUID(search) ? search : undefined
         },
         {
-          channelId: {
-            $like: `%${search}%`
-          }
+          channelId: isValidUUID(search) ? search : undefined
         }
       ]
     },

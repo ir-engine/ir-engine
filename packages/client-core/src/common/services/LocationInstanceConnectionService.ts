@@ -39,7 +39,7 @@ import {
 import { defineState, getMutableState, getState, Identifiable, State, useState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '../../transports/mediasoup/MediasoupClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
 export type InstanceState = {

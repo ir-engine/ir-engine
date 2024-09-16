@@ -45,8 +45,8 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
-  TransparencyDitheringPlugin,
-  TransparencyDitheringRoot,
+  TransparencyDitheringPluginComponent,
+  TransparencyDitheringRootComponent,
   ditherCalculationType
 } from '@ir-engine/spatial/src/renderer/materials/constants/plugins/TransparencyDitheringComponent'
 import React, { useEffect } from 'react'
@@ -63,9 +63,9 @@ const execute = () => {
   const cameraAttached = XRState.isCameraAttachedToAvatar
 
   for (const entity of avatarQuery()) {
-    const transparencyDitheringRoot = getOptionalComponent(entity, TransparencyDitheringRoot)
+    const transparencyDitheringRoot = getOptionalComponent(entity, TransparencyDitheringRootComponent)
     const materials = transparencyDitheringRoot?.materials
-    if (!materials) setComponent(entity, TransparencyDitheringRoot, { materials: [] })
+    if (!materials) setComponent(entity, TransparencyDitheringRootComponent, { materials: [] })
 
     const avatarComponent = getComponent(entity, AvatarComponent)
     const cameraComponent = getOptionalComponent(getState(EngineState).viewerEntity, FollowCameraComponent)
@@ -74,7 +74,7 @@ const execute = () => {
     for (const materialUUID of materials) {
       const pluginComponent = getOptionalComponent(
         UUIDComponent.getEntityByUUID(materialUUID),
-        TransparencyDitheringPlugin
+        TransparencyDitheringPluginComponent
       )
       if (!pluginComponent) continue
       const viewerPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
@@ -134,10 +134,10 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     if (!materialComponentUUID?.value) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
-      const rootDitheringComponent = getMutableComponent(props.rootEntity, TransparencyDitheringRoot)
+      const rootDitheringComponent = getMutableComponent(props.rootEntity, TransparencyDitheringRootComponent)
       if (!rootDitheringComponent.materials.value.includes(materialUUID))
         rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, materialUUID])
-      setComponent(material, TransparencyDitheringPlugin)
+      setComponent(material, TransparencyDitheringPluginComponent)
     }
   }, [materialComponentUUID])
   return null

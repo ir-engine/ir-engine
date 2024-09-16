@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
-import { defineComponent, EntityUUID, getComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, EntityUUID, getComponent, getOptionalComponent, useEntityContext } from '@ir-engine/ecs'
 
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -44,8 +44,8 @@ export enum ditherCalculationType {
 
 export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 array in the shader
 
-export const TransparencyDitheringRoot = defineComponent({
-  name: 'TransparencyDitheringRoot',
+export const TransparencyDitheringRootComponent = defineComponent({
+  name: 'TransparencyDitheringRootComponent',
   onInit: (entity) => {
     return { materials: [] as EntityUUID[] }
   },
@@ -54,8 +54,8 @@ export const TransparencyDitheringRoot = defineComponent({
   }
 })
 
-export const TransparencyDitheringPlugin = defineComponent({
-  name: 'TransparencyDithering',
+export const TransparencyDitheringPluginComponent = defineComponent({
+  name: 'TransparencyDitheringPluginComponent',
   onInit: (entity) => {
     return {
       centers: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())),
@@ -70,12 +70,13 @@ export const TransparencyDitheringPlugin = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialStateComponent)
+      const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+      if (!materialComponent) return
       const material = materialComponent.material as Material
       const callback = (shader) => {
         material.alphaTest = 0.5
         material.side = FrontSide
-        const plugin = getComponent(entity, TransparencyDitheringPlugin)
+        const plugin = getComponent(entity, TransparencyDitheringPluginComponent)
 
         if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
           shader.vertexShader = shader.vertexShader.replace(
