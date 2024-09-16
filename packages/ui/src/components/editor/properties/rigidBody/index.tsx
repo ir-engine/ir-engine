@@ -27,11 +27,19 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdPanTool } from 'react-icons/md'
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
-import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import {
+  getAncestorWithComponents,
+  getChildrenWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import NodeEditor from '../nodeEditor'
@@ -41,8 +49,24 @@ const bodyTypeOptions = Object.entries(BodyTypes).map(([label, value]) => {
 })
 
 export const RigidBodyComponentEditor: EditorComponentType = (props) => {
+  const { entity } = props
   const { t } = useTranslation()
-  const rigidbodyComponent = useComponent(props.entity, RigidBodyComponent)
+  const rigidbodyComponent = useComponent(entity, RigidBodyComponent)
+
+  useImmediateEffect(() => {
+    const rigidbodyAlreadyInHierarchy = !!(
+      getAncestorWithComponents(entity, [RigidBodyComponent], true, false) ||
+      getChildrenWithComponents(entity, [RigidBodyComponent]).length
+    )
+
+    if (rigidbodyAlreadyInHierarchy) {
+      NotificationService.dispatchNotify(
+        t('editor:properties.rigidbody.duplicateError', { entity: entity, name: getComponent(entity, NameComponent) }),
+        { variant: 'error' }
+      )
+      EditorControlFunctions.addOrRemoveComponent([entity], RigidBodyComponent, false)
+    }
+  }, [])
 
   return (
     <NodeEditor
