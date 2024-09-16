@@ -133,6 +133,9 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       after: ResultEntry
     }
 
+    /**
+     * @description
+     * Creates a new {@link Vector3} object that contains a copy of the position components of the `@param entity`'s {@link TransformComponent}.matrix */
     function getPositionFromMatrix(entity: Entity): Vector3 {
       const matrix = getComponent(entity, TransformComponent).matrix.elements
       return new Vector3(matrix[12], matrix[13], matrix[14])
@@ -157,7 +160,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         },
         after: {
           physicsSystem: getPositionFromMatrix(testEntity),
-          physicsPreTransformSystem: new Vector3(0.01666666753590107, 0.03060833364725113, 0.05000000447034836),
+          physicsPreTransformSystem: new Vector3(0.01666666753590107, 0.03060833364725113, 0.05000000447034836), // getPositionFromMatrix(testEntity),
           transformSystem: new Vector3(0.01666666753590107, 0.03060833364725113, 0.05000000447034836)
         }
       }
@@ -169,6 +172,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       // Run and Check the results
       Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
       // .. Phase 1
+      const dirtyTransforms = TransformComponent.dirtyTransforms
       execute.physicsSystem()
       result.physicsSystem = getPositionFromMatrix(testEntity)
       assert.deepEqual(result.physicsSystem, Expected.after.physicsSystem)
@@ -182,7 +186,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       assert.deepEqual(result.physicsPreTransformSystem, Expected.after.physicsPreTransformSystem)
       // .. Phase 3
       execute.transformSystem()
-      // execute.webglRendererSystem()
+      execute.webglRendererSystem()
       result.transformSystem = getPositionFromMatrix(testEntity)
       assert.deepEqual(result.transformSystem, Expected.after.transformSystem)
     })
