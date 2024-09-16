@@ -28,7 +28,6 @@ import React from 'react'
 
 import { getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
-import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
 
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import {
@@ -47,34 +46,6 @@ import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import PropertyGroup from '../group'
-
-/** Types copied from Camera Modes of engine. */
-const cameraModeSelect = [
-  {
-    label: 'First Person',
-    value: FollowCameraMode.FirstPerson
-  },
-  {
-    label: 'Shoulder Cam',
-    value: FollowCameraMode.ShoulderCam
-  },
-  {
-    label: 'Third Person',
-    value: FollowCameraMode.ThirdPerson
-  },
-  {
-    label: 'Top Down',
-    value: FollowCameraMode.TopDown
-  },
-  {
-    label: 'Strategic',
-    value: FollowCameraMode.Strategic
-  },
-  {
-    label: 'Dynamic',
-    value: FollowCameraMode.Dynamic
-  }
-]
 
 /** Types copied from Camera Modes of engine. */
 const projectionTypeSelect = [
@@ -132,14 +103,6 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           value={cameraSettings.projectionType.value}
           onChange={commitProperty(CameraSettingsComponent, 'projectionType')}
           options={projectionTypeSelect}
-        />
-      </InputGroup>
-      <InputGroup name="Camera mode" label={'Camera mode'}>
-        <SelectInput
-          // placeholder={cameraModeSelect[0].label}
-          value={cameraSettings.cameraMode.value}
-          onChange={commitProperty(CameraSettingsComponent, 'cameraMode')}
-          options={cameraModeSelect}
         />
       </InputGroup>
       <InputGroup name="Field of view" label={'FOV'}>

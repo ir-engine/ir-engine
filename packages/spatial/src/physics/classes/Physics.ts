@@ -266,6 +266,12 @@ function isSleeping(world: PhysicsWorld, entity: Entity) {
   return !rigidBody || rigidBody.isSleeping()
 }
 
+function wakeUp(world: PhysicsWorld, entity: Entity) {
+  const rigidBody = world.Rigidbodies.get(entity)
+  if (!rigidBody) return
+  rigidBody.wakeUp()
+}
+
 const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
   const rigidbody = world.Rigidbodies.get(entity)
   if (!rigidbody) return
@@ -923,6 +929,7 @@ export const Physics = {
   createRigidBody,
   removeRigidbody,
   isSleeping,
+  wakeUp,
   setRigidBodyType,
   setRigidbodyPose,
   enabledCcd,

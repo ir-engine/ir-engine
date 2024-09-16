@@ -789,6 +789,44 @@ describe('Physics : Rapier->ECS API', () => {
       })
     })
 
+    describe('wakeUp', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: PhysicsWorld
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, SceneComponent)
+        setComponent(entity, TransformComponent)
+        setComponent(entity, EntityTreeComponent)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+        Physics.createRigidBody(physicsWorld, testEntity)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        return destroyEngine()
+      })
+
+      it('should wake up the body', () => {
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
+        body.sleep()
+        assert.equal(body.isSleeping(), true)
+        Physics.wakeUp(physicsWorld, testEntity)
+        assert.equal(body.isSleeping(), false)
+      })
+    })
+
     describe('setRigidBodyType', () => {
       let testEntity = UndefinedEntity
       let physicsWorld: PhysicsWorld

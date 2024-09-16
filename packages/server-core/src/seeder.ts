@@ -43,7 +43,9 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
 
     const knexClient = app.get('knexClient')
     for (const seedFile of knexSeeds) {
+      logger.info('Seeding', seedFile)
       await seedFile.seed(knexClient)
+      logger.info('Finished seeding', seedFile)
     }
 
     await app.service(projectPath)._addOrgNameToProject()
