@@ -5,3 +5,4 @@ public/manifest.webmanifest
 public/service-*
 public/workbox-*
 dev-dist/
+public/root-cookie-accessor.html
