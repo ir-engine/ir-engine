@@ -88,7 +88,7 @@ export const EditorPage = () => {
   return (
     <>
       <EditorContainer />
-      {isSupportedBrowser() &&
+      {!isSupportedBrowser() &&
         PopoverState.showPopupover(
           <Modal
             onSubmit={() => true}
