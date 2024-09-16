@@ -40,7 +40,6 @@ import { defineState, getMutableState, none } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { leaveNetwork, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 
 export const ChannelState = defineState({
   name: 'ChannelState',
@@ -150,10 +149,6 @@ export const ChannelService = {
     } else {
       getMutableState(ChannelState).targetChannelId.set(channelID)
     }
-    const network = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
-    if (!network) return
-    /** @todo reassess if this is necessary */
-    leaveNetwork(network)
   },
   removeUserFromChannel: async (channelId: ChannelID, userId: UserID) => {
     try {

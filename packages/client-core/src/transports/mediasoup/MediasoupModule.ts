@@ -23,20 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { MediasoupDataChannelSystem } from './MediasoupDataChannelSystem'
+import { MediasoupMediaChannelSystem } from './MediasoupMediaChannelSystem'
+import { MediasoupMediaTracksSystem } from './MediasoupMediaTracksSystem'
+import { MediasoupPeerMediaConsumersSystem } from './MediasoupPeerMediaConsumersSystem'
+import { MediasoupTransportSystem } from './MediasoupTransportSystem'
 
-import {
-  instanceActiveQuerySchema,
-  instanceActiveSchema
-} from '@ir-engine/common/src/schemas/networking/instance-active.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    instanceActiveQuerySchema,
-    instanceActiveSchema
-  },
-  docs: {
-    description: 'Instance active service description',
-    securities: ['all']
-  }
-})
+export {
+  MediasoupDataChannelSystem,
+  MediasoupMediaChannelSystem,
+  MediasoupMediaTracksSystem,
+  MediasoupPeerMediaConsumersSystem,
+  MediasoupTransportSystem
+}

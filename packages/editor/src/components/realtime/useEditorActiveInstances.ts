@@ -23,22 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { LogParamsObject } from '@ir-engine/common/src/logger'
-import { getState } from '@ir-engine/hyperflux'
-import { generateUUID } from 'three/src/math/MathUtils'
-import { LocationState } from '../social/services/LocationService'
+import { useFind } from '@ir-engine/common'
+import { instancePath, locationPath } from '@ir-engine/common/src/schema.type.module'
 
-/**
- * @function clientContextParams
- * @description This function will collect contextual parameters
- * from url's query params
- */
-export function clientContextParams(params: LogParamsObject) {
-  const locationState = getState(LocationState)
-  return {
-    ...params,
-    event_id: generateUUID(),
-    location_id: locationState.currentLocation.location.id,
-    project_id: locationState.currentLocation.location.projectId
-  }
+/** @todo reimplement realtime connections with instances in studio */
+export const useEditorActiveInstances = (sceneID: string) => {
+  const locationQuery = useFind(locationPath, { query: { sceneId: sceneID, paginate: false } })
+
+  const instanceQuery = useFind(instancePath, {
+    query: {
+      ended: false,
+      locationId: {
+        $in: locationQuery.data.map((location) => location.id)
+      },
+      paginate: false
+    }
+  })
+
+  return instanceQuery.data
+    .filter((a) => !!a)
+    .map((instance) => {
+      return {
+        id: instance.id,
+        locationId: instance.locationId,
+        currentUsers: instance.currentUsers
+      }
+    })
 }
