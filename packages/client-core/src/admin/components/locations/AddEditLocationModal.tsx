@@ -117,6 +117,9 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
+    if (maxUsers.value > 10) {
+      errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
+    }
     if (!scene.value) {
       errors.scene.set(t('admin:components.location.sceneCantEmpty'))
     }
