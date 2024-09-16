@@ -144,9 +144,9 @@ const waitForToken = async (win, clientUrl): Promise<string> => {
     )
     const getIframeResponse = function (e) {
       if (e.origin !== clientUrl) return
-      if (e?.data) {
+      if (e?.data && e.data.source === iframeSource) {
         try {
-          const value = JSON.parse(e.data)
+          const value = e.data
           if (value?.accessToken != null) {
             window.removeEventListener('message', getIframeResponse)
             resolve(value?.accessToken)
@@ -159,6 +159,8 @@ const waitForToken = async (win, clientUrl): Promise<string> => {
     window.addEventListener('message', getIframeResponse)
   })
 }
+
+const iframeSource = 'ir-engine'
 
 const getToken = async (): Promise<string> => {
   let gotResponse = false
@@ -176,9 +178,9 @@ const getToken = async (): Promise<string> => {
   }
 
   window.addEventListener('message', (e) => {
-    if (isRootCookieAncestorMessage(e) && e?.data) {
+    if (isRootCookieAncestorMessage(e) && e?.data && e.data.source === iframeSource) {
       try {
-        const value = JSON.parse(e.data)
+        const value = e.data
         if (value?.invalidDomain != null) {
           localStorage.setItem('invalidCrossOriginDomain', 'true')
         }
@@ -206,8 +208,11 @@ const getToken = async (): Promise<string> => {
       if (isRootCookieAncestorMessage(e)) {
         gotResponse = true
         window.removeEventListener('message', hasAccessListener)
-        if (!e.data) resolve({ hasStorageAccess: false, cookieSet: false })
-        const data = JSON.parse(e.data)
+        if (!e.data || e.data.source !== iframeSource) {
+          resolve({ hasStorageAccess: false, cookieSet: false })
+          return
+        }
+        const data = e.data
         if (data.skipCrossOriginCookieCheck != null || data.storageAccessPermission === 'denied')
           localStorage.setItem('skipCrossOriginCookieCheck', 'true')
         resolve(data)
@@ -230,7 +235,7 @@ const getToken = async (): Promise<string> => {
           if (isRootCookieAncestorMessage(e)) {
             try {
               window.removeEventListener('message', clickResponseListener)
-              const parsed = !e.data ? {} : JSON.parse(e.data)
+              const parsed = !e.data || e.data.source !== iframeSource ? {} : e.data
               if (parsed.skipCrossOriginCookieCheck != null) {
                 localStorage.setItem('skipCrossOriginCookieCheck', parsed.skipCrossOriginCookieCheck)
                 iframe.style.display = 'none'
@@ -614,9 +619,9 @@ export const AuthService = {
         const clientUrl = config.client.clientUrl
         const getIframeResponse = function (e) {
           if (e.origin !== clientUrl) return
-          if (e?.data) {
+          if (e?.data && e.data.source == iframeSource) {
             try {
-              const value = JSON.parse(e.data)
+              const value = e.data
               if (value?.cookieWasSet === `${stateNamespaceKey}.${AuthState.name}.authUser`) {
                 window.removeEventListener('message', getIframeResponse)
                 resolve()
