@@ -184,17 +184,19 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
                     prefabTag.set(tags)
                   }}
                   value={prefabTag.value[index]}
+                  endComponent={
+                    <Button
+                      onClick={() => {
+                        prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
+                      }}
+                      size="small"
+                      variant="outline"
+                      className="text-left text-xs"
+                    >
+                      x
+                    </Button>
+                  }
                 />
-                <Button
-                  onClick={() => {
-                    prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
-                  }}
-                  size="small"
-                  variant="outline"
-                  className="text-left text-xs"
-                >
-                  x
-                </Button>
               </div>
             ))}
           </div>
