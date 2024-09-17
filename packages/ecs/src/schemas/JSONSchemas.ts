@@ -45,6 +45,7 @@ import {
   TRecordSchema,
   TRequiredSchema,
   TStringSchema,
+  TTupleSchema,
   TTypedSchema,
   TUndefinedSchema,
   TUnionSchema,
@@ -173,6 +174,17 @@ export const S = {
       options: buildOptions(init ?? [], options),
       properties: item
     }) as TArraySchema<T>,
+
+  /**
+   * Schema that infers as an tuple type of the schema passed in
+   * S.Tuple([S.Number(), S.Number()]) -> [number, number]
+   */
+  Tuple: <T extends Schema[], Initial extends any[]>(items: [...T], init?: Initial, options?: Options) =>
+    ({
+      [Kind]: 'Tuple',
+      options: buildOptions(init ?? [], options),
+      properties: items
+    }) as TTupleSchema<T>,
 
   /**
    * Schema that infers as a union type of the schemas provided

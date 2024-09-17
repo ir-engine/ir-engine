@@ -37,6 +37,7 @@ import {
   TPropertyKeySchema,
   TRecordSchema,
   TRequiredSchema,
+  TTupleSchema,
   TUnionSchema
 } from './JSONSchemaTypes'
 
@@ -133,6 +134,7 @@ export const IsSingleValueSchema = <T extends Schema>(schema?: T): boolean => {
     case 'Literal':
     case 'Class':
     case 'Array':
+    case 'Tuple':
     case 'Func':
       return true
 
@@ -196,6 +198,7 @@ export const CreateSchemaValue = <T extends Schema>(schema: T): Static<T> => {
     case 'Partial':
       return {}
     case 'Array':
+    case 'Tuple':
       return []
     case 'Union': {
       const props = schema.properties as TUnionSchema<Schema[]>['properties']
@@ -335,6 +338,18 @@ export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) =
       }
     }
 
+    case 'Tuple': {
+      const props = schema.properties as TTupleSchema<Schema[]>['properties']
+      if (!Array.isArray(value)) return false
+      // Tuple of optional values?
+      // else if (value.length !== props.length) return false
+      for (let i = 0; i < props.length; i++) {
+        if (!CheckSchemaValue(props[i], value[i])) return false
+      }
+
+      return true
+    }
+
     case 'Union': {
       const props = schema.properties as TUnionSchema<Schema[]>['properties']
       if (!props.length) return false
@@ -415,6 +430,12 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
       const props = schema.properties as TArraySchema<Schema>['properties']
       if (!isSerializable(props)) return null
       if (Array.isArray(value)) return value.map((item) => ConvertToSchema(props, item))
+      else return value
+    }
+
+    case 'Tuple': {
+      const props = schema.properties as TTupleSchema<Schema[]>['properties']
+      if (Array.isArray(value)) return value.map((item, i) => ConvertToSchema(props[i], item))
       else return value
     }
 

@@ -40,6 +40,7 @@ type Kinds =
   | 'Record'
   | 'Partial'
   | 'Array'
+  | 'Tuple'
   | 'Union'
   | 'Func'
   | 'Required'
@@ -148,6 +149,13 @@ export interface TArraySchema<T extends Schema> extends Schema {
     minItem?: number
     maxItem?: number
   }
+  properties: T
+}
+
+type TupleStatic<T extends Schema[]> = [...{ [K in keyof T]: Static<T[K]> }]
+export interface TTupleSchema<T extends Schema[]> extends Schema {
+  [Kind]: 'Tuple'
+  static: TupleStatic<T>
   properties: T
 }
 

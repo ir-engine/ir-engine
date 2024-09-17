@@ -105,11 +105,6 @@ export const GLTFComponent = defineComponent({
     dependencies: S.Optional(S.Type<ComponentDependencies>())
   }),
 
-  onSet(entity, component, json) {
-    if (typeof json?.src === 'string') component.src.set(json.src)
-    if (typeof json?.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
-  },
-
   useDependenciesLoaded(entity: Entity) {
     const dependencies = useComponent(entity, GLTFComponent).dependencies
     return !!(dependencies.value && !dependencies.keys?.length)
