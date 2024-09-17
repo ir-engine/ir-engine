@@ -27,7 +27,11 @@ import {
   NetworkTopics,
   addNetwork,
   createNetwork,
-  removeNetwork
+  removeNetwork,
+  screenshareAudioDataChannelType,
+  screenshareVideoDataChannelType,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
 } from '@ir-engine/network'
 import {
   MessageTypes,
@@ -38,6 +42,11 @@ import {
 import { decode, encode } from 'msgpackr'
 import React, { useEffect } from 'react'
 import { MediaStreamState } from '../../media/MediaStreamState'
+import {
+  PeerMediaChannelState,
+  createPeerMediaChannels,
+  removePeerMediaChannels
+} from '../../media/PeerMediaChannelState'
 
 export const PeerToPeerNetworkState = defineState({
   name: 'ir.client.transport.p2p.PeerToPeerNetworkState',
@@ -133,6 +142,12 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     }
   }, [instanceAttendanceQuery.status])
 
+  console.log(
+    'TOPIC:',
+    props.instance.locationId ? NetworkTopics.world : NetworkTopics.media,
+    instanceID,
+    joinResponse.value
+  )
   if (!joinResponse.value) return null
 
   return (
@@ -206,7 +221,7 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
 
     const buffer = (dataChannelType: DataChannelType, data: any) => {
       const dataChannel = peerConnectionState.dataChannels[dataChannelType] as RTCDataChannel
-      if (!dataChannel) return
+      if (!dataChannel || dataChannel.readyState !== 'open') return
       const fromPeerID = Engine.instance.store.peerID
       const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
       if (typeof fromPeerIndex === 'undefined')
@@ -236,10 +251,10 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
 
   if (!peerConnectionState?.ready) return null
 
-  if (network.topic === NetworkTopics.world)
-    return (
-      <>
-        {Object.keys(dataChannelRegistry).map((dataChannelType: DataChannelType) => (
+  return (
+    <>
+      {network.topic === NetworkTopics.world &&
+        Object.keys(dataChannelRegistry).map((dataChannelType: DataChannelType) => (
           <DataChannelReactor
             key={dataChannelType}
             instanceID={props.instanceID}
@@ -247,11 +262,14 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
             dataChannelType={dataChannelType}
           />
         ))}
-      </>
-    )
-
-  if (network.topic === NetworkTopics.media) 
-    return <MediaDataChannelReactor instanceID={props.instanceID} peerID={props.peerID} />
+      {network.topic === NetworkTopics.media && (
+        <MediaSendChannelReactor instanceID={props.instanceID} peerID={props.peerID} />
+      )}
+      {Object.keys(peerConnectionState.mediaTracks).map((trackID) => (
+        <MediaReceiveChannelReactor key={trackID} instanceID={props.instanceID} peerID={props.peerID} trackID={trackID} />
+      ))}
+    </>
+  )
 }
 
 const DataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; dataChannelType: DataChannelType }) => {
@@ -291,7 +309,7 @@ const DataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; dat
   return null
 }
 
-const MediaDataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID }) => {
+const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID }) => {
   const mediaStreamState = useMutableState(MediaStreamState)
   const microphoneEnabled = mediaStreamState.microphoneEnabled.value
   const microphoneMediaStream = mediaStreamState.microphoneMediaStream.value
@@ -299,6 +317,82 @@ const MediaDataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
   const webcamMediaStream = mediaStreamState.webcamMediaStream.value
   const screenshareEnabled = mediaStreamState.screenshareEnabled.value
   const screenshareMediaStream = mediaStreamState.screenshareMediaStream.value
+
+  useEffect(() => {
+    createPeerMediaChannels(props.peerID)
+    return () => {
+      removePeerMediaChannels(props.peerID)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!microphoneEnabled || !microphoneMediaStream) return
+    const track = microphoneMediaStream.getAudioTracks()[0]
+    WebRTCTransportFunctions.createMediaChannel(
+      sendMessage,
+      props.instanceID,
+      props.peerID,
+      track,
+      webcamAudioDataChannelType
+    )
+    return () => {
+      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track)
+    }
+  }, [microphoneMediaStream, microphoneEnabled])
+
+  useEffect(() => {
+    if (!webcamEnabled || !webcamMediaStream) return
+    const track = webcamMediaStream.getVideoTracks()[0]
+    WebRTCTransportFunctions.createMediaChannel(
+      sendMessage,
+      props.instanceID,
+      props.peerID,
+      track,
+      webcamVideoDataChannelType
+    )
+    return () => {
+      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track)
+    }
+  }, [webcamMediaStream, webcamEnabled])
+
+  return null
+}
+
+const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; trackID: string }) => {
+  const peerConnectionState = useMutableState(RTCPeerConnectionState)[props.instanceID][props.peerID].value
+  const mediaTrack = peerConnectionState?.mediaTracks?.[props.trackID]
+  const mediaTag = mediaTrack?.mediaTag
+  const type = mediaTag
+    ? mediaTag === screenshareAudioDataChannelType || mediaTag === screenshareVideoDataChannelType
+      ? 'screen'
+      : 'cam'
+    : null
+  const isAudio = type ? mediaTag === webcamAudioDataChannelType || mediaTag === screenshareAudioDataChannelType : false
+  const track = type ? mediaTrack?.track : null
+
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[props.peerID]
+  const peerMediaStream = type ? peerMediaChannelState?.[type] : null
+
+  useEffect(() => {
+    console.log('MediaReceiveChannelReactor', props.instanceID, props.peerID, props.trackID, mediaTag, type, peerMediaStream, isAudio)
+    if (!mediaTag || !track || !peerMediaStream) return
+
+    if (isAudio) {
+      const newMediaStream = new MediaStream([track.clone()])
+      peerMediaStream.audioMediaStream.set(newMediaStream)
+      return () => {
+        newMediaStream.getTracks().forEach((track) => track.stop())
+        peerMediaStream.audioMediaStream.set(null)
+      }
+    } else {
+      const newMediaStream = new MediaStream([track.clone()])
+      peerMediaStream.videoMediaStream.set(newMediaStream)
+      return () => {
+        newMediaStream.getTracks().forEach((track) => track.stop())
+        peerMediaStream.videoMediaStream.set(null)
+      }
+    }
+  }, [mediaTag, track, peerMediaStream])
 
   return null
 }

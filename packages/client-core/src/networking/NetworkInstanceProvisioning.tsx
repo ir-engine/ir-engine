@@ -120,23 +120,23 @@ export const WorldInstanceProvisioning = () => {
   }, [locationState.currentLocation.location])
 
   // Populate the URL with the room code and instance id
-  useEffect(() => {
-    if (!networkConfigState.roomID.value && !networkConfigState.instanceID.value) return
+  // useEffect(() => {
+  //   if (!networkConfigState.roomID.value && !networkConfigState.instanceID.value) return
 
-    if (worldNetworkState?.ready?.value) {
-      const parsed = new URL(window.location.href)
-      const query = parsed.searchParams
+  //   if (worldNetworkState?.ready?.value) {
+  //     const parsed = new URL(window.location.href)
+  //     const query = parsed.searchParams
 
-      if (networkConfigState.roomID.value) query.set('roomCode', instance!.roomCode.value)
+  //     if (networkConfigState.roomID.value) query.set('roomCode', instance!.roomCode.value)
 
-      if (networkConfigState.instanceID.value) query.set('instanceId', worldNetwork.id)
+  //     if (networkConfigState.instanceID.value) query.set('instanceId', worldNetwork.id)
 
-      parsed.search = query.toString()
-      if (typeof history.pushState !== 'undefined') {
-        window.history.replaceState({}, '', parsed.toString())
-      }
-    }
-  }, [worldNetworkState?.ready, locationInstances.keys.length, networkConfigState])
+  //     parsed.search = query.toString()
+  //     if (typeof history.pushState !== 'undefined') {
+  //       window.history.replaceState({}, '', parsed.toString())
+  //     }
+  //   }
+  // }, [worldNetworkState?.ready, locationInstances.keys.length, networkConfigState])
 
   /**
    * Request media server for this world server

@@ -94,13 +94,13 @@ export const LocationInstanceConnectionService = {
       if (instance.total === 0) {
         instanceId = null!
 
-        const parsed = new URL(window.location.href)
-        const query = parsed.searchParams
-        query.delete('instanceId')
-        parsed.search = query.toString()
-        if (typeof history.pushState !== 'undefined') {
-          window.history.replaceState({}, '', parsed.toString())
-        }
+        // const parsed = new URL(window.location.href)
+        // const query = parsed.searchParams
+        // query.delete('instanceId')
+        // parsed.search = query.toString()
+        // if (typeof history.pushState !== 'undefined') {
+        //   window.history.replaceState({}, '', parsed.toString())
+        // }
       }
     }
     const provisionResult = await API.instance.service(instanceProvisionPath).find({
@@ -148,7 +148,6 @@ export const LocationInstanceConnectionService = {
       if (typeof history.pushState !== 'undefined') {
         window.history.replaceState({}, '', parsed.toString())
       }
-      return
     }
     const provisionResult = await API.instance.service(instanceProvisionPath).find({
       query: {
