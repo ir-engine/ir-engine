@@ -24,11 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ErrorBoundary, getState, useMutableState } from '@ir-engine/hyperflux'
-import { Effect, EffectComposer } from 'postprocessing'
+import { EffectComposer } from 'postprocessing'
 import React, { Suspense } from 'react'
 import { Scene } from 'three'
-import { RendererComponent } from '../WebGLRendererSystem'
+import { EffectSchema, RendererComponent } from '../WebGLRendererSystem'
 import { PostProcessingEffectState } from '../effects/EffectRegistry'
 import { useRendererEntity } from '../functions/useRendererEntity'
 
@@ -36,25 +37,10 @@ export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
   jsonID: 'EE_postprocessing',
 
-  onInit(entity) {
-    return {
-      enabled: false,
-      effects: {} as Record<string, Effect> // effect name, parameters
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.enabled === 'boolean') component.enabled.set(json.enabled)
-    if (typeof json.effects === 'object') component.merge({ effects: json.effects })
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      effects: component.effects.value,
-      enabled: component.enabled.value
-    }
-  },
+  schema: S.Object({
+    enabled: S.Bool(false),
+    effects: S.Record(S.String(), EffectSchema)
+  }),
 
   /** @todo this will be replaced with spatial queries or distance checks */
   reactor: () => {

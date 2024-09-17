@@ -86,6 +86,16 @@ describe('MeshComponent', () => {
 
       assert(!hasComponent(testEntity, MeshComponent))
     })
+
+    it("shouldn't serialize the mesh", () => {
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
+
+      setComponent(testEntity, MeshComponent, new Mesh(geometry, material))
+      const data = getComponent(testEntity, MeshComponent)
+      const json = MeshComponent.toJSON(data)
+      assert(json === null)
+    })
   }) //:: onInit
 
   describe('onSet', () => {

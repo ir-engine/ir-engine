@@ -86,7 +86,7 @@ export default function MaterialLibraryPanel() {
     hasSelectedMaterial.set(selectedMaterial.value !== null)
   }, [selectedMaterial.value])
 
-  const onClick = (e: MouseEvent, node) => {
+  const onClick = (e: React.MouseEvent, node) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(node)
   }
 

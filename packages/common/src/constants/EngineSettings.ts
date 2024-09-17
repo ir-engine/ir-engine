@@ -23,24 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
-
-import {
-  taskServerSettingDataSchema,
-  taskServerSettingPatchSchema,
-  taskServerSettingQuerySchema,
-  taskServerSettingSchema
-} from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    taskServerSettingDataSchema,
-    taskServerSettingPatchSchema,
-    taskServerSettingQuerySchema,
-    taskServerSettingSchema
-  },
-  docs: {
-    description: 'Task server setting service description',
-    securities: ['all']
+export const EngineSettings = {
+  TaskServer: {
+    Port: 'port',
+    ProcessInterval: 'processInterval'
   }
-})
+}
