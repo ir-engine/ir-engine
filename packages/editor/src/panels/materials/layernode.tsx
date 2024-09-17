@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getOptionalComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, getOptionalComponent } from '@ir-engine/ecs'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
@@ -37,9 +37,13 @@ import { SiRoundcube } from 'react-icons/si'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 
-// todo: check this functionality
-const nodeDisplayName = (uuid: EntityUUID) => {
-  return getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material?.name ?? ''
+const getNodeDisplayName = (uuid: EntityUUID) => {
+  const entity = UUIDComponent.getEntityByUUID(uuid)
+  return (
+    getOptionalComponent(entity, MaterialStateComponent)?.material?.name ||
+    getOptionalComponent(entity, NameComponent) ||
+    ''
+  )
 }
 
 export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes: EntityUUID[] }>) {
@@ -50,7 +54,6 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
 
   /**@todo use asset source decoupled from uuid to make this less brittle */
   const source = node.includes('/') ? node.split('/')?.pop()?.split('?')[0] : null
-  const name = useOptionalComponent(UUIDComponent.getEntityByUUID(node), NameComponent)
 
   const onClickNode = () => {
     if (!source) {
@@ -87,7 +90,7 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
     >
       <div ref={drag} id={node[0]} tabIndex={0} onClick={onClickNode}>
         {source ? (
-          <div className={'flex items-center pl-3.5 pr-2'}>
+          <div className="flex items-center pl-3.5 pr-2">
             <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
               <HiOutlineArchiveBox className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
@@ -98,12 +101,12 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
             </div>
           </div>
         ) : (
-          <div className={'flex items-center pl-9 pr-6'}>
+          <div className="flex items-center pl-9 pr-6">
             <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
               <SiRoundcube className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
                 <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                  <span className="text-nowrap text-sm leading-4">{name?.value || ''}</span>
+                  <span className="text-nowrap text-sm leading-4">{getNodeDisplayName(node)}</span>
                 </div>
               </div>
             </div>
