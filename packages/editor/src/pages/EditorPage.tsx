@@ -60,7 +60,7 @@ export const EditorPage = () => {
   const { t } = useTranslation()
   const [params] = useSearchParams()
   const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
-  const supportedBrowser = useHookstate(!isSupportedBrowser)
+  const supportedBrowser = useHookstate(isSupportedBrowser)
   const acknowledgedUnsupportedBrowser = useHookstate(localStorage.getItem('acknowledgedUnsupportedBrowser') ?? false)
 
   useImmediateEffect(() => {
