@@ -46,15 +46,17 @@ import {
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
+import { useHotkeys } from 'react-hotkeys-hook'
 import useUpload from '../../components/assets/useUpload'
 import { gltfHierarchyTreeWalker, HierarchyTreeNodeType } from '../../components/hierarchy/HierarchyTreeWalker'
 import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
-import { uploadOptions } from './helpers'
+import { copyNodes, duplicateNode, groupNodes, pasteNodes, uploadOptions } from './helpers'
 
 type DragItemType = {
   type: (typeof ItemTypes)[keyof typeof ItemTypes]
@@ -301,4 +303,25 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
   })
 
   return { canDrop, isOver, dropTarget }
+}
+
+const useSimplifiedHotkey = (key: string, onAction: () => void) => {
+  return useHotkeys(`${cmdOrCtrlString}+${key}`, (e) => {
+    e.preventDefault()
+    onAction()
+  })
+}
+
+export const useHierarchyTreeHotkeys = () => {
+  const renamingNode = useRenamingNode()
+  useSimplifiedHotkey('d', duplicateNode)
+  useSimplifiedHotkey('g', groupNodes)
+  useSimplifiedHotkey('c', copyNodes)
+  useSimplifiedHotkey('v', pasteNodes)
+  useSimplifiedHotkey('r', () => {
+    const selectedEntities = SelectionState.getSelectedEntities()
+    for (const entity of selectedEntities) {
+      renamingNode.set(entity)
+    }
+  })
 }

@@ -23,20 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { UUIDComponent, getComponent } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import CreatePrefabPanel from '../../components/dialogs/CreatePrefabPanelDialog'
-import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
-import { SelectionState } from '../../services/SelectionServices'
-import { deleteNode } from './helpers'
+import { copyNodes, deleteNode, duplicateNode, groupNodes, pasteNodes } from './helpers'
 import { useHierarchyNodes, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
 
 export default function HierarchyTreeContextMenu() {
@@ -49,36 +43,22 @@ export default function HierarchyTreeContextMenu() {
 
   const onDuplicateNode = () => {
     setMenu()
-    const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
-    const selectedEntities = selected ? SelectionState.getSelectedEntities() : [entity]
-    EditorControlFunctions.duplicateObject(selectedEntities)
+    duplicateNode(entity)
   }
 
   const onGroupNodes = () => {
     setMenu()
-    const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
-    const selectedEntities = selected ? SelectionState.getSelectedEntities() : [entity]
-    EditorControlFunctions.groupObjects(selectedEntities)
+    groupNodes(entity)
   }
 
   const onCopyNode = () => {
     setMenu()
-    const selected = getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
-    const selectedEntities = selected ? SelectionState.getSelectedEntities() : [entity]
-    CopyPasteFunctions.copyEntities(selectedEntities)
+    copyNodes(entity)
   }
 
   const onPasteNode = () => {
     setMenu()
-    CopyPasteFunctions.getPastedEntities()
-      .then((nodeComponentJSONs) => {
-        nodeComponentJSONs.forEach((componentJSONs) => {
-          EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, entity)
-        })
-      })
-      .catch(() => {
-        NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes'), { variant: 'error' })
-      })
+    pasteNodes(entity)
   }
 
   const onDeleteNode = () => {

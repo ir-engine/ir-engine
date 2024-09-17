@@ -35,7 +35,7 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import HierarchyTreeNode from './hierarchynode'
-import { useHierarchyNodes, useHierarchyTreeDrop } from './hooks'
+import { useHierarchyNodes, useHierarchyTreeDrop, useHierarchyTreeHotkeys } from './hooks'
 
 export function Topbar() {
   const { t } = useTranslation()
@@ -101,6 +101,8 @@ export function Contents() {
     resizeObserver.observe(ref.current)
     return () => resizeObserver.disconnect()
   }, [])
+
+  useHierarchyTreeHotkeys()
 
   return (
     <div ref={ref} className={twMerge('h-5/6 overflow-hidden', isOver && canDrop && 'border border-dotted')}>
