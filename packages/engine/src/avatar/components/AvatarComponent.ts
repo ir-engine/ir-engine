@@ -26,48 +26,35 @@ Infinite Reality Engine. All Rights Reserved.
 import { Engine, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { defineComponent, getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import { UserID, matches } from '@ir-engine/hyperflux'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { UserID } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
 
-  onInit: (entity) => {
-    return {
-      /** The total height of the avatar in a t-pose, must always be non zero and positive for the capsule collider */
-      avatarHeight: 1.8,
-      /** The length of the torso in a t-pose, from the hip joint to the head joint */
-      torsoLength: 0,
-      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
-      upperLegLength: 0,
-      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
-      lowerLegLength: 0,
-      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
-      footHeight: 0,
-      /** The height of the hips in a t-pose */
-      hipsHeight: 0,
-      /** The length of the arm in a t-pose, from the shoulder joint to the elbow joint */
-      armLength: 0,
-      /** The distance between the left and right foot in a t-pose */
-      footGap: 0,
-      /** The angle of the foot in a t-pose */
-      footAngle: 0,
-      /** The height of the eyes in a t-pose */
-      eyeHeight: 0
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.number.test(json.avatarHeight)) component.avatarHeight.set(json.avatarHeight)
-    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
-    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
-    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
-    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
-    if (matches.number.test(json.hipsHeight)) component.hipsHeight.set(json.hipsHeight)
-    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
-    if (matches.number.test(json.eyeHeight)) component.eyeHeight.set(json.eyeHeight)
-  },
+  schema: S.Object({
+    /** The total height of the avatar in a t-pose, must always be non zero and positive for the capsule collider */
+    avatarHeight: S.Number(1.8),
+    /** The length of the torso in a t-pose, from the hip joint to the head joint */
+    torsoLength: S.Number(0),
+    /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
+    upperLegLength: S.Number(0),
+    /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
+    lowerLegLength: S.Number(0),
+    /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
+    footHeight: S.Number(0),
+    /** The height of the hips in a t-pose */
+    hipsHeight: S.Number(0),
+    /** The length of the arm in a t-pose, from the shoulder joint to the elbow joint */
+    armLength: S.Number(0),
+    /** The distance between the left and right foot in a t-pose */
+    footGap: S.Number(0),
+    /** The angle of the foot in a t-pose */
+    footAngle: S.Number(0),
+    /** The height of the eyes in a t-pose */
+    eyeHeight: S.Number(0)
+  }),
 
   /**
    * Get the user avatar entity (the network object w/ an Avatar component)

@@ -26,10 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Material, MeshBasicMaterial, NormalBufferAttributes } from 'three'
 
-import { defineComponent, Entity, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import { matchesGeometry, matchesMaterial } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useMeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '../../renderer/constants/ObjectLayers'
@@ -38,14 +39,12 @@ import { useHelperEntity } from './DebugComponentUtils'
 export const DebugMeshComponent = defineComponent({
   name: 'DebugMeshComponent',
 
-  onInit: (entity) => {
-    return {
-      name: 'debug-mesh',
-      geometry: null! as BufferGeometry,
-      material: new MeshBasicMaterial() as Material,
-      entity: undefined as undefined | Entity
-    }
-  },
+  schema: S.Object({
+    name: S.String('debug-mesh'),
+    geometry: S.Type<BufferGeometry>(),
+    material: S.Class(() => new MeshBasicMaterial() as Material),
+    entity: S.Optional(S.Entity())
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return

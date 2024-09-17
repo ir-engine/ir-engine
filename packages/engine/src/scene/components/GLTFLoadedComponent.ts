@@ -24,19 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ComponentType, defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const GLTFLoadedComponent = defineComponent({
   name: 'GLTFLoadedComponent',
-
-  onInit: (entity) => {
-    return [] as ComponentType<any>[]
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (Array.isArray(json)) {
-      component.set(json)
-    }
-  }
+  schema: S.Array(S.Type<ComponentType<any>>())
 })

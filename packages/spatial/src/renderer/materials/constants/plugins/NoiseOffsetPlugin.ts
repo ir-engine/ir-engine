@@ -38,6 +38,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { generateNoiseTexture } from '@ir-engine/spatial/src/renderer/functions/generateNoiseTexture'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect } from 'react'
 import { MaterialStateComponent } from '../../MaterialComponent'
 import { setPlugin } from '../../materialFunctions'
@@ -52,16 +53,16 @@ export type NoiseOffsetParameters = {
 
 export const NoiseOffsetPluginComponent = defineComponent({
   name: 'NoiseOffsetPluginComponent',
-  onInit: (entity) => {
-    return {
-      textureSize: new Uniform(64),
-      frequency: new Uniform(0.00025),
-      amplitude: new Uniform(0.005),
-      noiseTexture: new Uniform(generateNoiseTexture(64)),
-      offsetAxis: new Uniform(new Vector3(0, 1, 0)),
-      time: new Uniform(0)
-    }
-  },
+
+  schema: S.Object({
+    textureSize: S.Class(() => new Uniform(64)),
+    frequency: S.Class(() => new Uniform(0.00025)),
+    amplitude: S.Class(() => new Uniform(0.005)),
+    noiseTexture: S.Class(() => new Uniform(generateNoiseTexture(64))),
+    offsetAxis: S.Class(() => new Uniform(new Vector3(0, 1, 0))),
+    time: S.Class(() => new Uniform(0))
+  }),
+
   reactor: () => {
     const entity = useEntityContext()
     useEffect(() => {
