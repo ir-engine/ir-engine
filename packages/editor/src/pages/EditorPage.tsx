@@ -59,6 +59,8 @@ export const EditorPage = () => {
   const { t } = useTranslation()
   const [params] = useSearchParams()
   const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
+  const supportedBrowser = useHookstate(isSupportedBrowser)
+  const acknowledgedUnsupportedBrowser = useHookstate(false)
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
@@ -82,15 +84,20 @@ export const EditorPage = () => {
   }, [scenePath])
 
   if (!scenePath.value && !projectName.value) return <ProjectPage studioPath="/studio" />
-
   return (
     <>
       <EditorContainer />
-      {!isSupportedBrowser() &&
+      {!supportedBrowser.value &&
+        !acknowledgedUnsupportedBrowser.value &&
         PopoverState.showPopupover(
           <Modal
-            onSubmit={() => true}
-            onClose={() => PopoverState.hidePopupover()}
+            onSubmit={() => {
+              return true
+            }}
+            onClose={() => {
+              acknowledgedUnsupportedBrowser.set(true)
+              PopoverState.hidePopupover()
+            }}
             className="w-[50vw] max-w-2xl"
             hideFooter
           >
@@ -100,10 +107,16 @@ export const EditorPage = () => {
               </span>
               <span>{t('editor:unsupportedBrowser.description')}</span>
               <span className="flex gap-3">
-                <a href={downloadGoogleLink} className="text-blue-500">
+                <a href={downloadGoogleLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">
                   {t('editor:unsupportedBrowser.downloadChrome')}
                 </a>
-                <span className="hover:text-blue-500" onClick={() => PopoverState.hidePopupover()}>
+                <span
+                  className="hover:text-blue-500"
+                  onClick={() => {
+                    acknowledgedUnsupportedBrowser.set(true)
+                    PopoverState.hidePopupover()
+                  }}
+                >
                   {t('editor:unsupportedBrowser.continue')}
                 </span>
               </span>

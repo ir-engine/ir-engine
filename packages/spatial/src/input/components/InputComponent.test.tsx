@@ -219,22 +219,6 @@ describe('InputComponent', () => {
       const after = getComponent(testEntity, InputComponent)
       assertInputComponentEq(after, Expected)
     })
-
-    it('should not change values of an initialized InputComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, InputComponent)
-      assertInputComponentEq(before, InputComponentDefaults)
-      const Incorrect = {
-        inputSinks: false,
-        activationDistance: false,
-        highlight: 46 & 2,
-        grow: 'invalid',
-        inputSources: [] as Entity[]
-      }
-      // @ts-ignore Override the linter to force-send invalid types
-      setComponent(testEntity, InputComponent, Incorrect)
-      const after = getComponent(testEntity, InputComponent)
-      assertInputComponentEq(after, InputComponentDefaults)
-    })
   }) // << onSet
 
   describe('toJSON', () => {

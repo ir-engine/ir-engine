@@ -40,6 +40,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { State, defineAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { GroupComponent, addObjectToGroup } from '../renderer/components/GroupComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -53,50 +54,14 @@ export const PersistentAnchorComponent = defineComponent({
   name: 'PersistentAnchorComponent',
   jsonID: 'EE_persistent_anchor',
 
-  /**
-   * Set default initialization values
-   * @param entity
-   * @returns
-   */
-  onInit: (entity) => {
-    return {
-      /** an identifiable name for this anchor */
-      name: '',
-      /** whether to show this object as a wireframe upon tracking - useful for debugging */
-      wireframe: false,
-      /** internal - whether this anchor is currently being tracked */
-      active: false
-    }
-  },
-
-  /**
-   * Specify JSON serialization schema
-   * @param entity
-   * @param component
-   * @returns
-   */
-  toJSON: (entity, component) => {
-    return {
-      name: component.name.value,
-      wireframe: component.wireframe.value
-    }
-  },
-
-  /**
-   * Handle data deserialization
-   * @param entity
-   * @param component
-   * @param json
-   * @returns
-   */
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.name === 'string' && json.name !== component.name.value) component.name.set(json.name)
-
-    if (typeof json.wireframe === 'string' && json.wireframe !== component.wireframe.value)
-      component.wireframe.set(json.wireframe)
-  },
+  schema: S.Object({
+    /** an identifiable name for this anchor */
+    name: S.String(''),
+    /** whether to show this object as a wireframe upon tracking - useful for debugging */
+    wireframe: S.Bool(false),
+    /** internal - whether this anchor is currently being tracked */
+    active: S.Bool(false)
+  }),
 
   reactor: PersistentAnchorReactor
 })
