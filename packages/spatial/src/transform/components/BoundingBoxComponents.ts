@@ -39,6 +39,7 @@ import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src
 import { getMutableState, matches, useHookstate } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -50,16 +51,14 @@ import { RendererState } from '../../renderer/RendererState'
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
 
-  onInit: (entity) => {
-    return {
-      box: new Box3(),
-      helper: UndefinedEntity
-    }
-  },
+  schema: S.Object({
+    box: S.Class(() => new Box3()),
+    helper: S.Entity()
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.object.test(json.box)) component.box.value.copy(json.box)
+    if (matches.object.test(json.box) && json.box?.isBox3) component.box.value.copy(json.box)
     if (matches.number.test(json.helper)) component.helper.set(json.helper)
   },
 

@@ -27,35 +27,20 @@ import { useEffect } from 'react'
 
 import { defineComponent, hasComponent, removeComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CallbackComponent, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+
+const LoadTagModeSchema = S.LiteralUnion(['distance', 'trigger'], 'distance')
 
 export const SceneDynamicLoadTagComponent = defineComponent({
   name: 'SceneDynamicLoadTagComponent',
   jsonID: 'EE_dynamic_load',
 
-  onInit(entity) {
-    return {
-      mode: 'distance' as 'distance' | 'trigger',
-      distance: 20,
-      loaded: false
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.mode === 'string') component.mode.set(json.mode)
-    if (typeof json.distance === 'number') component.distance.set(json.distance)
-    if (typeof json.loaded === 'boolean') component.loaded.set(json.loaded)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      mode: component.mode.value,
-      distance: component.distance.value,
-      loaded: component.loaded.value
-    }
-  },
+  schema: S.Object({
+    mode: LoadTagModeSchema,
+    distance: S.Number(20),
+    loaded: S.Bool(false)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
