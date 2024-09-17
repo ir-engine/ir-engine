@@ -30,7 +30,7 @@ export const isSupportedBrowser = () => {
   const isGoogleChrome =
     /Chrome/.test(userAgent) && typeof winNav.userAgentData !== 'undefined'
       ? winNav.userAgentData.brands?.some((item) => item.brand === 'Google Chrome')
-      : winNav.vendor === 'Google Inc.' && !/Chromium|Edg|OPR|Brave|CriOS/.test(userAgent)
+      : !/Chromium|Edg|OPR|Brave|CriOS/.test(userAgent)
   const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent) && /Apple Computer/.test(navigator.vendor)
 
   return isGoogleChrome || isSafari
