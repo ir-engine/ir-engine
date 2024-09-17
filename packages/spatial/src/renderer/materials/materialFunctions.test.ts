@@ -619,11 +619,12 @@ describe('materialFunctions', () => {
       const DummyConstructor = {} as MaterialPrototypeObjectConstructor
       setComponent(prototypeEntity, UUIDComponent, prototypeUUID)
       setComponent(materialEntity, UUIDComponent, materialUUID)
-      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: undefined })
+      setComponent(prototypeEntity, MaterialPrototypeComponent, { prototypeConstructor: {} })
       setComponent(materialEntity, MaterialStateComponent, { material: material, prototypeEntity: prototypeEntity })
       // Sanity check before running
       assert.equal(!getComponent(materialEntity, MaterialStateComponent).prototypeEntity, false)
-      assert.deepEqual(getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeConstructor, DummyConstructor)
+      const prototypeConstructor = getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeConstructor
+      assert.deepEqual(prototypeConstructor, DummyConstructor)
       // Run and Check the result
       const result = materialPrototypeMatches(materialEntity)
       assert.equal(result, Expected)

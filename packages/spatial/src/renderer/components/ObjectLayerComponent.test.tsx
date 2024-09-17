@@ -220,8 +220,8 @@ describe('ObjectLayerMaskComponent', () => {
     })
   }) //:: IDs
 
-  describe('schema', () => {
-    it('should initialize the schema with the expected values', () => {
+  describe('ecs schema', () => {
+    it('should initialize the ecs schema with the expected values', () => {
       assert.notEqual(ObjectLayerMaskComponent.schema, undefined)
       const KeysSchema = Object.keys(ObjectLayerMaskComponent.schema)
       assert.equal(KeysSchema.length, 1)

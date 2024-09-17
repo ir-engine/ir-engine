@@ -28,32 +28,17 @@ import { Object3D } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { matches } from '@ir-engine/hyperflux'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
   jsonID: 'EE_shadow',
 
-  onInit: (entity) => {
-    return {
-      cast: true,
-      receive: true
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      cast: component.cast.value,
-      receive: component.receive.value
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.boolean.test(json.cast)) component.cast.set(json.cast)
-    if (matches.boolean.test(json.receive)) component.receive.set(json.receive)
-  },
+  schema: S.Object({
+    cast: S.Bool(true),
+    receive: S.Bool(true)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
