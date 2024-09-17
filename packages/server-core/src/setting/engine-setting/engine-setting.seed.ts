@@ -26,10 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  taskServerSettingPath,
-  TaskServerSettingType
-} from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 
@@ -37,32 +35,41 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: TaskServerSettingType[] = await Promise.all(
+  const taskServerSeedData: EngineSettingType[] = await Promise.all(
     [
+      // Task Server Settings:
       {
-        port: process.env.TASKSERVER_PORT || '3030',
-        processInterval: process.env.TASKSERVER_PROCESS_INTERVAL_SECONDS || '30'
+        key: EngineSettings.TaskServer.Port,
+        value: process.env.TASKSERVER_PORT || '3030'
+      },
+      {
+        key: EngineSettings.TaskServer.ProcessInterval,
+        value: process.env.TASKSERVER_PROCESS_INTERVAL_SECONDS || '30'
       }
     ].map(async (item) => ({
       ...item,
       id: uuidv4(),
+      type: 'private' as EngineSettingType['type'],
+      category: 'task-server' as EngineSettingType['category'],
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     }))
   )
 
+  const seedData: EngineSettingType[] = [...taskServerSeedData]
+
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
-    await knex(taskServerSettingPath).del()
+    await knex(engineSettingPath).del()
 
     // Inserts seed entries
-    await knex(taskServerSettingPath).insert(seedData)
+    await knex(engineSettingPath).insert(seedData)
   } else {
-    const existingData = await knex(taskServerSettingPath).count({ count: '*' })
+    const existingData = await knex(engineSettingPath).count({ count: '*' })
 
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
-        await knex(taskServerSettingPath).insert(item)
+        await knex(engineSettingPath).insert(item)
       }
     }
   }

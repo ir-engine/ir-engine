@@ -51,13 +51,14 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { isClient } from '@ir-engine/hyperflux'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -79,43 +80,22 @@ import { ReflectionProbeComponent } from './ReflectionProbeComponent'
 
 const tempColor = new Color()
 
+const envMapSourceType = S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.None)
+
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
   jsonID: 'EE_envmap',
-  onInit: (entity) => {
-    return {
-      type: EnvMapSourceType.None as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType],
-      envMapTextureType:
-        EnvMapTextureType.Equirectangular as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType],
-      envMapSourceColor: new Color(0xfff) as Color,
-      envMapSourceURL: '',
-      envMapSourceEntityUUID: '' as EntityUUID,
-      envMapIntensity: 1,
-      // internal
-      envmap: null as Texture | null
-    }
-  },
 
-  onSet: (entity, component, json) => {
-    if (typeof json?.type === 'string') component.type.set(json.type)
-    if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
-    if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(new Color(json.envMapSourceColor))
-    if (typeof json?.envMapSourceURL === 'string') component.envMapSourceURL.set(json.envMapSourceURL)
-    if (typeof json?.envMapSourceEntityUUID === 'string')
-      component.envMapSourceEntityUUID.set(json.envMapSourceEntityUUID)
-    if (typeof json?.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      type: component.type.value,
-      envMapTextureType: component.envMapTextureType.value,
-      envMapSourceColor: component.envMapSourceColor.value,
-      envMapSourceURL: component.envMapSourceURL.value,
-      envMapSourceEntityUUID: component.envMapSourceEntityUUID.value,
-      envMapIntensity: component.envMapIntensity.value
-    }
-  },
+  schema: S.Object({
+    type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.None),
+    envMapTextureType: S.LiteralUnion(Object.values(EnvMapTextureType), EnvMapTextureType.Equirectangular),
+    envMapSourceColor: S.Color(0xfff),
+    envMapSourceURL: S.String(''),
+    envMapSourceEntityUUID: S.EntityUUID(),
+    envMapIntensity: S.Number(1),
+    // internal
+    envmap: S.Nullable(S.Type<Texture>())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
@@ -148,7 +128,7 @@ export const EnvmapComponent = defineComponent({
       const [texture, unload] = createDisposable(
         DataTexture,
         entity,
-        getRGBArray(col),
+        getRGBArray(new Color(col)),
         resolution,
         resolution,
         RGBAFormat
@@ -226,7 +206,7 @@ export const EnvmapComponent = defineComponent({
     }, [component.envmap])
 
     const bakeEntity = UUIDComponent.getEntityByUUID(component.envMapSourceEntityUUID.value)
-
+    if (bakeEntity === UndefinedEntity) return null
     if (component.type.value !== EnvMapSourceType.Bake) return null
 
     return <EnvBakeComponentReactor key={bakeEntity} envmapEntity={entity} bakeEntity={bakeEntity} />
@@ -288,16 +268,12 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
 
 export const BoxProjectionPlugin = defineComponent({
   name: 'BoxProjectionPlugin',
-  onInit: (entity) => {
-    return {
-      cubeMapSize: new Uniform(new Vector3()),
-      cubeMapPos: new Uniform(new Vector3())
-    }
-  },
-  onSet: (entity, component, json) => {
-    if (json?.cubeMapSize) component.cubeMapSize.set(json.cubeMapSize)
-    if (json?.cubeMapPos) component.cubeMapPos.set(json.cubeMapPos)
-  },
+
+  schema: S.Object({
+    cubeMapSize: S.Class(() => new Uniform(new Vector3())),
+    cubeMapPos: S.Class(() => new Uniform(new Vector3()))
+  }),
+
   reactor: () => {
     const entity = useEntityContext()
 

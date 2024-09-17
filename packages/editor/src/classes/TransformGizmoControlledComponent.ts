@@ -36,13 +36,14 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { TransformPivot } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { TransformGizmoControlComponent } from './TransformGizmoControlComponent'
@@ -51,18 +52,14 @@ import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 export const TransformGizmoControlledComponent = defineComponent({
   name: 'TransformGizmoControlled',
 
-  onInit(entity) {
-    return {
-      controller: UndefinedEntity
-    }
-  },
+  schema: S.Object({ controller: S.Entity() }),
 
   reactor: function (props) {
     const entity = useEntityContext()
     const transformGizmoControlledComponent = useComponent(entity, TransformGizmoControlledComponent)
     const selectedEntities = SelectionState.useSelectedEntities()
     const editorHelperState = useMutableState(EditorHelperState)
-    const box = new Box3()
+    const box = useHookstate(() => new Box3())
 
     const createPivotEntity = () => {
       const pivotEntity = createEntity()
@@ -161,15 +158,16 @@ export const TransformGizmoControlledComponent = defineComponent({
           break
         case TransformPivot.BoundingBox:
         case TransformPivot.BoundingBoxBottom:
-          box.makeEmpty()
+          box.value.makeEmpty()
 
           for (let i = 0; i < controlledEntities.length; i++) {
             const parentEnt = controlledEntities[i]
-            box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
+            box.value.expandByPoint(getComponent(parentEnt, TransformComponent).position)
           }
-          box.getCenter(newPosition)
+          box.value.getCenter(newPosition)
 
-          if (editorHelperState.transformPivot.value === TransformPivot.BoundingBoxBottom) newPosition.y = box.min.y
+          if (editorHelperState.transformPivot.value === TransformPivot.BoundingBoxBottom)
+            newPosition.y = box.min.y.value
           break
       }
 

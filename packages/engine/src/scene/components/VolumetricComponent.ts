@@ -39,6 +39,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, State } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AudioState } from '../../audio/AudioState'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, createAudioNodeGroup, getNextTrack, MediaElementComponent } from './MediaComponent'
@@ -86,82 +87,37 @@ export function handleAutoplay(
 export const VolumetricComponent = defineComponent({
   name: 'Volumetric Component',
   jsonID: 'EE_volumetric',
-  onInit: (entity) => {
+
+  schema: S.Object({
+    paths: S.Array(S.String()),
+    useLoadingEffect: S.Bool(true),
+    autoPauseWhenBuffering: S.Bool(true), // TODO: Implement this for UVOL1
+    autoplay: S.Bool(true),
+    paused: S.Bool(true),
+    initialBuffersLoaded: S.Bool(false),
+    hasAudio: S.Bool(false),
+    ended: S.Bool(true),
+    volume: S.Number(1),
+    playMode: S.Enum(PlayMode, PlayMode.loop),
+    track: S.Number(-1),
+    forceChangeTrack: S.Bool(false),
+    currentTrackInfo: S.Object({
+      dontReset: S.Bool(false),
+      mediaStartTime: S.Number(0),
+      playbackStartDate: S.Number(0),
+      playbackRate: S.Number(1),
+      currentTime: S.Number(0),
+      duration: S.Number(0)
+    })
+  }),
+
+  toJSON: (component) => {
     return {
-      paths: [] as string[],
-      useLoadingEffect: true,
-      autoPauseWhenBuffering: true, // TODO: Implement this for UVOL1
-      autoplay: true,
-      paused: true,
-      initialBuffersLoaded: false,
-      hasAudio: false,
-      ended: true,
-      volume: 1,
-      playMode: PlayMode.loop as PlayMode,
-      track: -1,
-      forceChangeTrack: false,
-      currentTrackInfo: {
-        dontReset: false,
-        mediaStartTime: 0,
-        playbackStartDate: 0,
-        playbackRate: 1,
-        currentTime: 0,
-        duration: 0
-      }
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      paths: component.paths.value,
-      useLoadingEffect: component.useLoadingEffect.value,
-      autoplay: component.autoplay.value,
-      volume: component.volume.value,
-      playMode: component.playMode.value
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.paths === 'object') {
-      component.paths.set(json.paths)
-    }
-
-    if (typeof json.useLoadingEffect === 'boolean') {
-      component.useLoadingEffect.set(json.useLoadingEffect)
-    }
-
-    if (typeof json.autoplay === 'boolean') {
-      component.autoplay.set(json.autoplay)
-    }
-
-    if (typeof json.volume === 'number') {
-      component.volume.set(json.volume)
-    }
-
-    // backwars-compat: convert from number enums to strings
-    if (
-      (typeof json.playMode === 'number' || typeof json.playMode === 'string') &&
-      json.playMode !== component.playMode.value
-    ) {
-      if (typeof json.playMode === 'number') {
-        switch (json.playMode) {
-          case 1:
-            component.playMode.set(PlayMode.single)
-            break
-          case 2:
-            component.playMode.set(PlayMode.random)
-            break
-          case 3:
-            component.playMode.set(PlayMode.loop)
-            break
-          case 4:
-            component.playMode.set(PlayMode.singleloop)
-            break
-        }
-      } else {
-        component.playMode.set(json.playMode)
-      }
+      paths: component.paths,
+      useLoadingEffect: component.useLoadingEffect,
+      autoplay: component.autoplay,
+      volume: component.volume,
+      playMode: component.playMode
     }
   },
 
