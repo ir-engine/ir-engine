@@ -193,6 +193,28 @@ const closeDataChannel = (networkID: NetworkID, peerID: PeerID, label: DataChann
   }
 }
 
+const createMediaChannel = (networkID: NetworkID, peerID: PeerID, track: MediaStreamTrack) => {
+  const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
+  if (!pc) {
+    return console.error('Peer connection does not exist')
+  }
+  logger.log('[WebRTCTransportFunctions] createMediaChannel', track.id, track)
+  const rtp = pc.addTrack(track)
+}
+
+const closeMediaChannel = (networkID: NetworkID, peerID: PeerID, track: MediaStreamTrack) => {
+  const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
+  if (!pc) {
+    return console.error('Peer connection does not exist')
+  }
+  logger.log('[WebRTCTransportFunctions] closeMediaChannel', track.id, track)
+  pc.getSenders().forEach((sender) => {
+    if (sender.track === track) {
+      pc.removeTrack(sender)
+    }
+  })
+}
+
 export const WebRTCTransportFunctions = {
   onMessage,
   createPeerConnection,
@@ -202,5 +224,7 @@ export const WebRTCTransportFunctions = {
   handleCandidate,
   close,
   createDataChannel,
-  closeDataChannel
+  closeDataChannel,
+  createMediaChannel,
+  closeMediaChannel
 }

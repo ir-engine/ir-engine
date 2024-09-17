@@ -37,6 +37,7 @@ import {
 } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
 import { decode, encode } from 'msgpackr'
 import React, { useEffect } from 'react'
+import { MediaStreamState } from '../../media/MediaStreamState'
 
 export const PeerToPeerNetworkState = defineState({
   name: 'ir.client.transport.p2p.PeerToPeerNetworkState',
@@ -150,7 +151,6 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
 }
 
 const sendMessage: SendMessageType = (instanceID: InstanceID, toPeerID: PeerID, message: MessageTypes) => {
-  console.log('[PeerToPeerNetworkState] sendMessage', toPeerID, message)
   API.instance.service(instanceSignalingPath).patch(null, {
     instanceID,
     targetPeerID: toPeerID,
@@ -159,6 +159,8 @@ const sendMessage: SendMessageType = (instanceID: InstanceID, toPeerID: PeerID, 
 }
 
 const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID; instanceID: InstanceID }) => {
+  const network = getState(NetworkState).networks[props.instanceID]
+
   useEffect(() => {
     API.instance.service(instanceSignalingPath).on('patched', async (data) => {
       // need to ignore messages from self
@@ -188,8 +190,6 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
     if (!peerConnectionState || !peerConnectionState.ready || !peerConnectionState.dataChannels['actions']) return
 
     const dataChannel = peerConnectionState.dataChannels['actions'] as RTCDataChannel
-
-    const network = getState(NetworkState).networks[props.instanceID]
 
     NetworkPeerFunctions.createPeer(network, props.peerID, props.peerIndex, props.userID)
 
@@ -236,18 +236,22 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
 
   if (!peerConnectionState?.ready) return null
 
-  return (
-    <>
-      {Object.keys(dataChannelRegistry).map((dataChannelType: DataChannelType) => (
-        <DataChannelReactor
-          key={dataChannelType}
-          instanceID={props.instanceID}
-          peerID={props.peerID}
-          dataChannelType={dataChannelType}
-        />
-      ))}
-    </>
-  )
+  if (network.topic === NetworkTopics.world)
+    return (
+      <>
+        {Object.keys(dataChannelRegistry).map((dataChannelType: DataChannelType) => (
+          <DataChannelReactor
+            key={dataChannelType}
+            instanceID={props.instanceID}
+            peerID={props.peerID}
+            dataChannelType={dataChannelType}
+          />
+        ))}
+      </>
+    )
+
+  if (network.topic === NetworkTopics.media) 
+    return <MediaDataChannelReactor instanceID={props.instanceID} peerID={props.peerID} />
 }
 
 const DataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; dataChannelType: DataChannelType }) => {
@@ -265,7 +269,6 @@ const DataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; dat
   }, [])
 
   useEffect(() => {
-    console.log('DataChannelReactor',{dataChannel})
     if (!dataChannel) return
 
     const network = getState(NetworkState).networks[props.instanceID]
@@ -284,6 +287,18 @@ const DataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; dat
       dataChannel.removeEventListener('message', onBuffer)
     }
   }, [dataChannel])
+
+  return null
+}
+
+const MediaDataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID }) => {
+  const mediaStreamState = useMutableState(MediaStreamState)
+  const microphoneEnabled = mediaStreamState.microphoneEnabled.value
+  const microphoneMediaStream = mediaStreamState.microphoneMediaStream.value
+  const webcamEnabled = mediaStreamState.webcamEnabled.value
+  const webcamMediaStream = mediaStreamState.webcamMediaStream.value
+  const screenshareEnabled = mediaStreamState.screenshareEnabled.value
+  const screenshareMediaStream = mediaStreamState.screenshareMediaStream.value
 
   return null
 }

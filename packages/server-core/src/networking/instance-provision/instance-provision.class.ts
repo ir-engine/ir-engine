@@ -487,7 +487,6 @@ export async function getP2PInstance({
   const activeInstances = instances.filter(
     (instance) => instance.currentUsers < config.instanceserver.p2pMaxConnections
   )
-  console.log('\n\n\nactiveInstances', activeInstances)
   if (activeInstances.length > 0) {
     return {
       id: activeInstances[0].id,

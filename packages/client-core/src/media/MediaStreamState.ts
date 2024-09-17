@@ -48,6 +48,8 @@ export const MediaStreamState = defineState({
     webcamMediaStream: null as MediaStream | null,
     /** Audio stream for streaming data. */
     microphoneMediaStream: null as MediaStream | null,
+    /** Audio stream for streaming data. */
+    microphoneDestinationNode: null as MediaStreamAudioDestinationNode | null,
     /** Audio Gain to be applied on media stream. */
     microphoneGainNode: null as GainNode | null,
     /** Local screen container. */
@@ -136,6 +138,18 @@ export const MediaStreamState = defineState({
             audioStream.getAudioTracks().forEach((track) => track.stop())
             return
           }
+
+          //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
+          //This Gain is saved on MediaStreamState so it can be accessed from the user's component and controlled.
+          const audioTrack = audioStream.getAudioTracks()[0]
+          const ctx = new AudioContext()
+          const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]))
+          const dst = ctx.createMediaStreamDestination()
+          const gainNode = ctx.createGain()
+          gainNode.gain.value = 1
+          ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
+          state.microphoneGainNode.set(gainNode)
+          state.microphoneDestinationNode.set(dst)
           state.microphoneMediaStream.set(audioStream)
         })
         .catch((err) => {
@@ -149,6 +163,8 @@ export const MediaStreamState = defineState({
 
         stream.getAudioTracks().forEach((track) => track.stop())
         state.microphoneMediaStream.set(null)
+        state.microphoneGainNode.set(null)
+        state.microphoneDestinationNode.set(null)
       }
     }, [state.microphoneEnabled.value])
 
