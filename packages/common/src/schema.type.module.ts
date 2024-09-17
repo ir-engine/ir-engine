@@ -44,7 +44,6 @@ export type * from './schemas/media/file-browser.schema'
 export type * from './schemas/media/invalidation.schema'
 export type * from './schemas/media/oembed.schema'
 export type * from './schemas/media/static-resource.schema'
-export type * from './schemas/networking/instance-active.schema'
 export type * from './schemas/networking/instance-attendance.schema'
 export type * from './schemas/networking/instance-authorized-user.schema'
 export type * from './schemas/networking/instance-friends.schema'
@@ -76,6 +75,7 @@ export type * from './schemas/setting/chargebee-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/coil-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
+export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
@@ -83,7 +83,6 @@ export type * from './schemas/setting/mailchimp-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
-export type * from './schemas/setting/task-server-setting.schema'
 export type * from './schemas/setting/zendesk-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
@@ -208,8 +207,6 @@ export const staticResourcePath = 'static-resource'
 
 export const oembedPath = 'oembed'
 
-export const instanceActivePath = 'instance-active'
-
 export const archiverPath = 'archiver'
 
 export const instanceProvisionPath = 'instance-provision'
@@ -230,8 +227,6 @@ export const projectSettingPath = 'project-setting'
 export const coilSettingPath = 'coil-setting'
 
 export const awsSettingPath = 'aws-setting'
-
-export const taskServerSettingPath = 'task-server-setting'
 
 export const emailSettingPath = 'email-setting'
 
@@ -320,3 +315,5 @@ export const projectHistoryPath = 'project-history'
 export const metabaseSettingPath = 'metabase-setting'
 
 export const metabaseUrlPath = 'metabase-url'
+
+export const engineSettingPath = 'engine-setting'

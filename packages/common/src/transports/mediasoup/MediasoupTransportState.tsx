@@ -104,18 +104,25 @@ export const MediasoupTransportObjectsState = defineState({
   initial: {} as Record<string, any>
 })
 
+export type TransportType = {
+  transportID: string
+  peerID: PeerID
+  direction: 'send' | 'recv'
+  connected: boolean
+  sctpParameters: any
+  iceParameters: any
+  iceCandidates: any
+  iceServers: any
+  dtlsParameters: any
+}
+
 export const MediasoupTransportState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupTransportState',
 
   initial: {} as Record<
     NetworkID,
     {
-      [transportID: string]: {
-        transportID: string
-        peerID: PeerID
-        direction: 'send' | 'recv'
-        connected: boolean
-      }
+      [transportID: string]: TransportType
     }
   >,
 
@@ -134,7 +141,12 @@ export const MediasoupTransportState = defineState({
           peerID: isClient ? network.hostPeerID : action.peerID,
           transportID: action.transportID,
           direction: action.direction,
-          connected: false
+          connected: false,
+          sctpParameters: action.sctpParameters,
+          iceParameters: action.iceParameters,
+          iceCandidates: action.iceCandidates,
+          iceServers: action.iceServers,
+          dtlsParameters: action.dtlsParameters
         }
       })
     }),
