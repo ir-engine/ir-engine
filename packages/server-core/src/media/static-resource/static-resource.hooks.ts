@@ -172,6 +172,31 @@ const isKeyPublic = (context: HookContext<StaticResourceService>) => {
   return context
 }
 
+const deleteOldThumbnail = async (context: HookContext<StaticResourceService>) => {
+  const data = context.data
+  const id = context.id
+  if (!data || !id) return context
+  const resources = Array.isArray(data) ? data : [data]
+  for (const resource of resources) {
+    if (!resource.thumbnailKey) continue
+    const existingResource = await context.app.service(staticResourcePath).get(id)
+    if (existingResource.thumbnailKey && existingResource.thumbnailKey !== resource.thumbnailKey) {
+      const oldThumbnail = await context.app.service(staticResourcePath).find({
+        query: {
+          key: existingResource.thumbnailKey
+        }
+      })
+      if (oldThumbnail.data.length) {
+        const oldThumbnailResource = oldThumbnail.data[0]
+        await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
+      } else {
+        console.warn('Old thumbnail resource not found')
+      }
+    }
+  }
+  return context
+}
+
 const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) => {
   if (!context.result) return context
   const data = context.result
@@ -320,6 +345,7 @@ export default {
           [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
         )
       ),
+      deleteOldThumbnail,
       // schemaHooks.validateData(staticResourcePatchValidator),
       discardQuery('projectId'),
       schemaHooks.resolveData(staticResourcePatchResolver)
