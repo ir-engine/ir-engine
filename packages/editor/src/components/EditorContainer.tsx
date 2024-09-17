@@ -62,6 +62,7 @@ import { FilesPanelTab } from '../panels/files'
 import { HierarchyPanelTab } from '../panels/hierarchy'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
+import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -127,7 +128,7 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
-
+  const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
 
   /**
@@ -241,7 +242,7 @@ const EditorContainer = () => {
             </div>
           </DndWrapper>
         )}
-        {Object.entries(uiAddons.container.get(NO_PROXY)).map(([key, value]) => {
+        {Object.entries(editorUIAddon.container.get(NO_PROXY)).map(([key, value]) => {
           return value
         })}
       </div>
