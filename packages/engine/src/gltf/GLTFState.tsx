@@ -998,9 +998,8 @@ const PrimitiveReactor = (props: {
   return (
     <>
       {meshDef.primitives.map((primitive, index) => (
-        <>
+        <React.Fragment key={index}>
           <MaterialInstanceReactor
-            key={index}
             nodeIndex={props.nodeIndex}
             primitiveIndex={index}
             documentID={props.documentID}
@@ -1013,7 +1012,7 @@ const PrimitiveReactor = (props: {
             documentID={props.documentID}
             entity={props.entity}
           />
-        </>
+        </React.Fragment>
       ))}
       {
         <MorphTargetReactor

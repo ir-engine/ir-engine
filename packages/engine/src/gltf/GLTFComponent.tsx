@@ -99,10 +99,10 @@ export const GLTFComponent = defineComponent({
     cameraOcclusion: S.Bool(false),
 
     // internals
-    body: S.Nullable(S.Type<ArrayBuffer>()),
-    progress: S.Number(0),
-    extensions: S.Record(S.String(), S.Any(), {}),
-    dependencies: S.Optional(S.Type<ComponentDependencies>())
+    body: S.NonSerialized(S.Nullable(S.Type<ArrayBuffer>())),
+    progress: S.NonSerialized(S.Number(0)),
+    extensions: S.NonSerialized(S.Record(S.String(), S.Any(), {})),
+    dependencies: S.NonSerialized(S.Optional(S.Type<ComponentDependencies>()))
   }),
 
   useDependenciesLoaded(entity: Entity) {

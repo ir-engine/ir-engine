@@ -52,7 +52,7 @@ export const MeshComponent = defineComponent({
     const [meshResource] = useResource(meshComponent.value, entity, meshComponent.uuid.value)
     const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
     const [materialResource] = useResource<Material | Material[]>(
-      meshComponent.material.value as Material | Material[],
+      meshComponent.material.get(NO_PROXY) as Material | Material[],
       entity,
       !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
     )

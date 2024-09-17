@@ -185,7 +185,7 @@ export interface TRequired {
 }
 export interface TRequiredSchema<T extends Schema> extends Schema {
   [Kind]: 'Required'
-  static: Static<T> & TRequired
+  static: Static<T>
   properties: T
 }
 
@@ -194,7 +194,7 @@ export interface TNonSerializable {
 }
 export interface TNonSerializedSchema<T extends Schema> extends Schema {
   [Kind]: 'NonSerialized'
-  static: Static<T> & TNonSerializable
+  static: Static<T>
   properties: T
 }
 
