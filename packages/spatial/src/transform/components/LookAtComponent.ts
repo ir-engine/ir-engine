@@ -23,29 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, defineComponent } from '@ir-engine/ecs'
+import { defineComponent } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 export const LookAtComponent = defineComponent({
   name: 'LookAtComponent',
   jsonID: 'IR_lookAt',
-  onInit: (entity) => ({
-    target: null as EntityUUID | null,
-    xAxis: true,
-    yAxis: true
-  }),
-  onSet: (entity, component, props) => {
-    if (typeof props?.target === 'string') {
-      component.target.set(props.target)
-    }
-    if (typeof props?.xAxis === 'boolean') {
-      component.xAxis.set(props.xAxis)
-    }
-    if (typeof props?.yAxis === 'boolean') {
-      component.yAxis.set(props.yAxis)
-    }
-  },
-  toJSON: (entity, component) => ({
-    target: component.target.value,
-    xAxis: component.xAxis.value,
-    yAxis: component.yAxis.value
+
+  schema: S.Object({
+    target: S.Nullable(S.EntityUUID()),
+    xAxis: S.Bool(true),
+    yAxis: S.Bool(true)
   })
 })

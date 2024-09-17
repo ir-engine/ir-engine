@@ -25,32 +25,35 @@ Infinite Reality Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
+import { v4 } from 'uuid'
 
-import {
-  TaskServerSettingQuery,
-  TaskServerSettingType
-} from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
+import { EngineSettingQuery, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
-export const taskServerSettingResolver = resolve<TaskServerSettingType, HookContext>({
-  createdAt: virtual(async (taskServerSetting) => fromDateTimeSql(taskServerSetting.createdAt)),
-  updatedAt: virtual(async (taskServerSetting) => fromDateTimeSql(taskServerSetting.updatedAt))
+export const engineSettingResolver = resolve<EngineSettingType, HookContext>({
+  createdAt: virtual(async (engineSetting) => fromDateTimeSql(engineSetting.createdAt)),
+  updatedAt: virtual(async (engineSetting) => fromDateTimeSql(engineSetting.updatedAt))
 })
 
-export const taskServerSettingExternalResolver = resolve<TaskServerSettingType, HookContext>({})
+export const engineSettingExternalResolver = resolve<EngineSettingType, HookContext>({})
 
-export const taskServerSettingDataResolver = resolve<TaskServerSettingType, HookContext>({
+export const engineSettingDataResolver = resolve<EngineSettingType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return v4()
   },
-  createdAt: getDateTimeSql,
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
+  updatedAt: getDateTimeSql,
+  createdAt: getDateTimeSql
+})
+
+export const engineSettingPatchResolver = resolve<EngineSettingType, HookContext>({
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   updatedAt: getDateTimeSql
 })
 
-export const taskServerSettingPatchResolver = resolve<TaskServerSettingType, HookContext>({
-  updatedAt: getDateTimeSql
-})
-
-export const taskServerSettingQueryResolver = resolve<TaskServerSettingQuery, HookContext>({})
+export const engineSettingQueryResolver = resolve<EngineSettingQuery, HookContext>({})

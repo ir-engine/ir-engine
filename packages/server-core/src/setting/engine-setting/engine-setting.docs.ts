@@ -26,21 +26,21 @@ Infinite Reality Engine. All Rights Reserved.
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 import {
-  taskServerSettingDataSchema,
-  taskServerSettingPatchSchema,
-  taskServerSettingQuerySchema,
-  taskServerSettingSchema
-} from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
+  engineSettingDataSchema,
+  engineSettingPatchSchema,
+  engineSettingQuerySchema,
+  engineSettingSchema
+} from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    taskServerSettingDataSchema,
-    taskServerSettingPatchSchema,
-    taskServerSettingQuerySchema,
-    taskServerSettingSchema
+    engineSettingDataSchema,
+    engineSettingPatchSchema,
+    engineSettingQuerySchema,
+    engineSettingSchema
   },
   docs: {
-    description: 'Task server setting service description',
+    description: 'Engine setting service description',
     securities: ['all']
   }
 })

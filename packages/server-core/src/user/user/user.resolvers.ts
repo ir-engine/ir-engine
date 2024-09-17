@@ -47,6 +47,7 @@ import type { HookContext } from '@ir-engine/server-core/declarations'
 
 import { isDev } from '@ir-engine/common/src/config'
 import { userLoginPath } from '@ir-engine/common/src/schemas/user/user-login.schema'
+import logger from '../../ServerLogger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -77,24 +78,28 @@ export const userResolver = resolve<UserType, HookContext>({
     })) as ScopeTypeInterface[]
   }),
   instanceAttendance: virtual(async (user, context) => {
-    if (context.params.user?.id === context.id) {
-      const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
-        query: {
-          userId: user.id,
-          ended: false
-        },
-        paginate: false
-      })) as InstanceAttendanceType[]
+    try {
+      if (context.params.user?.id === context.id) {
+        const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
+          query: {
+            userId: user.id,
+            ended: false
+          },
+          paginate: false
+        })) as InstanceAttendanceType[]
 
-      for (const attendance of instanceAttendance || []) {
-        if (attendance.instanceId)
-          attendance.instance = await context.app.service(instancePath).get(attendance.instanceId)
-        if (attendance.instance && attendance.instance.locationId) {
-          attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
+        for (const attendance of instanceAttendance || []) {
+          if (attendance.instanceId)
+            attendance.instance = await context.app.service(instancePath).get(attendance.instanceId)
+          if (attendance.instance && attendance.instance.locationId) {
+            attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
+          }
         }
-      }
 
-      return instanceAttendance
+        return instanceAttendance
+      }
+    } catch (err) {
+      logger.error('Error in user service instanceAttendance resolver', err)
     }
 
     return []

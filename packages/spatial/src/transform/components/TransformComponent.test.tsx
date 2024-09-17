@@ -23,19 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
+import { createEngine } from '@ir-engine/ecs/src/Engine'
+import assert from 'assert'
+import { TransformComponent } from './TransformComponent'
 
-import {
-  TaskServerSettingData,
-  TaskServerSettingPatch,
-  TaskServerSettingQuery,
-  TaskServerSettingType
-} from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
+describe('TransformComponent', () => {
+  beforeEach(async () => {
+    createEngine()
+  })
 
-export interface TaskServerSettingParams extends KnexAdapterParams<TaskServerSettingQuery> {}
+  afterEach(() => {
+    return destroyEngine()
+  })
 
-export class TaskServerSettingService<
-  T = TaskServerSettingType,
-  ServiceParams extends Params = TaskServerSettingParams
-> extends KnexService<TaskServerSettingType, TaskServerSettingData, TaskServerSettingParams, TaskServerSettingPatch> {}
+  it('Creates a TransformComponent', () => {
+    const entity = createEntity()
+
+    setComponent(entity, TransformComponent)
+    const transformComponent = getComponent(entity, TransformComponent)
+    assert(TransformComponent.dirtyTransforms[entity])
+    transformComponent.position.x = 12
+    assert(transformComponent.position.x === TransformComponent.position.x[entity])
+  })
+})
