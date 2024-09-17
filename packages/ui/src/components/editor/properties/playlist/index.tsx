@@ -94,7 +94,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
     commitProperties(
       PlaylistComponent,
       {
-        tracks: component.tracks.value
+        tracks: component.tracks.value as Track[]
       },
       [props.entity]
     )
@@ -126,7 +126,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
       commitProperties(
         PlaylistComponent,
         {
-          tracks: component.tracks.value
+          tracks: component.tracks.value as Track[]
         },
         [props.entity]
       )
@@ -164,7 +164,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
                         commitProperties(
                           PlaylistComponent,
                           {
-                            tracks: component.tracks.value
+                            tracks: component.tracks.value as Track[]
                           },
                           [props.entity]
                         )
