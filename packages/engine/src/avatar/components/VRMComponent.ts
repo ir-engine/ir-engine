@@ -24,17 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { VRM } from '@pixiv/three-vrm'
 
 export const VRMComponent = defineComponent({
   name: 'VRMComponent',
-
-  onInit(entity) {
-    return null! as VRM
-  },
-
-  onSet(entity, component, json) {
-    if (!(json instanceof VRM)) throw new Error('Invalid VRM')
-    component.set(json as VRM)
-  }
+  schema: S.Required(S.Type<VRM>())
 })

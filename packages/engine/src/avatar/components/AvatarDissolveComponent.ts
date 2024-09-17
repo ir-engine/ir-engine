@@ -44,7 +44,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches } from '@ir-engine/hyperflux'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -57,23 +57,17 @@ export type MaterialMap = {
 export const AvatarDissolveComponent = defineComponent({
   name: 'AvatarDissolveComponent',
 
-  onInit: (entity) => {
-    return {
-      height: 1,
-      currentTime: 0,
-      dissolveMaterials: [] as Array<ShaderMaterial>,
-      originMaterials: [] as Array<MaterialMap>
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (matches.number.test(json.height)) component.height.set(json.height)
-    if (matches.number.test(json.currentTime)) component.currentTime.set(json.currentTime)
-    if (json.dissolveMaterials) component.dissolveMaterials.set(json.dissolveMaterials as Array<ShaderMaterial>)
-    if (json.originMaterials) component.originMaterials.set(json.originMaterials as Array<MaterialMap>)
-  },
+  schema: S.Object({
+    height: S.Number(1),
+    currentTime: S.Number(0),
+    dissolveMaterials: S.Array(S.Type<ShaderMaterial>()),
+    originMaterials: S.Array(
+      S.Object({
+        entity: S.Entity(),
+        material: S.Type<Material>()
+      })
+    )
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

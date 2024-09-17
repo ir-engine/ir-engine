@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { MotionCapturePoses, MotionCapturePoseState } from './poseToInput'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+
+const MotionCapturePoses = S.LiteralUnion(['sitting', 'standing'])
 
 export const MotionCapturePoseComponent = defineComponent({
   name: 'MotionCapturePoseComponent',
-  onInit: () => {
-    return {} as Record<MotionCapturePoses, MotionCapturePoseState>
-  }
+  schema: S.Record(MotionCapturePoses, S.Object({ begun: S.Bool() }))
 })

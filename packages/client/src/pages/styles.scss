@@ -181,6 +181,7 @@
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(var(--scrollbarThumbYAxisStart), var(--scrollbarThumbYAxisEnd));
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:horizontal {

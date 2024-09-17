@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ColorRepresentation, HemisphereLight } from 'three'
+import { HemisphereLight } from 'three'
 
 import {
   defineComponent,
@@ -34,10 +34,10 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
-import { matchesColor } from '../../../common/functions/MatchesUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { RendererState } from '../../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
@@ -47,28 +47,11 @@ export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
   jsonID: 'EE_hemisphere_light',
 
-  onInit: (entity) => {
-    return {
-      skyColor: 0xffffff as ColorRepresentation,
-      groundColor: 0xffffff as ColorRepresentation,
-      intensity: 1
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matchesColor.test(json.skyColor)) component.skyColor.set(json.skyColor)
-    if (matchesColor.test(json.groundColor)) component.groundColor.set(json.groundColor)
-    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      skyColor: component.skyColor.value,
-      groundColor: component.groundColor.value,
-      intensity: component.intensity.value
-    }
-  },
+  schema: S.Object({
+    skyColor: S.Color(0xffffff),
+    groundColor: S.Color(0xffffff),
+    intensity: S.Number(1)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

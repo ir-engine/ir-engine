@@ -58,14 +58,26 @@ const HemisphereLightComponentDefaults: HemisphereLightComponentData = {
   intensity: 1
 }
 
+function getColorHex(c: ColorRepresentation) {
+  return new Color(c).getHex()
+}
+
+export function assertColorEqual(l: ColorRepresentation, r: ColorRepresentation) {
+  assert.equal(getColorHex(l), getColorHex(r))
+}
+
+export function assertColorNotEqual(l: ColorRepresentation, r: ColorRepresentation) {
+  assert.notEqual(getColorHex(l), getColorHex(r))
+}
+
 function assertHemisphereLightComponentEq(A: HemisphereLightComponentData, B: HemisphereLightComponentData): void {
-  assert.equal(A.skyColor, B.skyColor)
-  assert.equal(A.groundColor, B.groundColor)
+  assertColorEqual(A.skyColor, B.skyColor)
+  assertColorEqual(A.groundColor, B.groundColor)
   assert.equal(A.intensity, B.intensity)
 }
 function assertHemisphereLightComponentNotEq(A: HemisphereLightComponentData, B: HemisphereLightComponentData): void {
-  assert.notEqual(A.skyColor, B.skyColor)
-  assert.notEqual(A.groundColor, B.groundColor)
+  assertColorNotEqual(A.skyColor, B.skyColor)
+  assertColorNotEqual(A.groundColor, B.groundColor)
   assert.notEqual(A.intensity, B.intensity)
 }
 
@@ -132,22 +144,6 @@ describe('HemisphereLightComponent', () => {
       assertHemisphereLightComponentNotEq(result, HemisphereLightComponentDefaults)
       assertHemisphereLightComponentEq(result, Expected)
     })
-
-    it('should not change the values of an initialized HemisphereLightComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, HemisphereLightComponent)
-      assertHemisphereLightComponentEq(before, HemisphereLightComponentDefaults)
-      const Incorrect = {
-        skyColor: false,
-        groundColor: false,
-        intensity: 'someIntensity'
-      }
-
-      // Run and Check the result
-      // @ts-ignore Allow coercing incorrect types into onSet
-      setComponent(testEntity, HemisphereLightComponent, Incorrect)
-      const result = getComponent(testEntity, HemisphereLightComponent)
-      assertHemisphereLightComponentEq(result, HemisphereLightComponentDefaults)
-    })
   }) //:: onSet
 
   describe('toJSON', () => {
@@ -211,12 +207,12 @@ describe('HemisphereLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, HemisphereLightComponent).groundColor
-      assert.equal(before, HemisphereLightComponentDefaults.groundColor)
+      assertColorEqual(before, HemisphereLightComponentDefaults.groundColor)
 
       // Run and Check the result
       setComponent(testEntity, HemisphereLightComponent, { groundColor: Expected })
       const result = getComponent(testEntity, HemisphereLightComponent).groundColor
-      assert.equal(result, Expected)
+      assertColorEqual(result, Expected)
     })
 
     it('should react when directionalLightComponent.skyColor changes', () => {
@@ -227,12 +223,12 @@ describe('HemisphereLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, HemisphereLightComponent).skyColor
-      assert.equal(before, HemisphereLightComponentDefaults.skyColor)
+      assertColorEqual(before, HemisphereLightComponentDefaults.skyColor)
 
       // Run and Check the result
       setComponent(testEntity, HemisphereLightComponent, { skyColor: Expected })
       const result = getComponent(testEntity, HemisphereLightComponent).skyColor
-      assert.equal(result, Expected)
+      assertColorEqual(result, Expected)
     })
 
     it('should react when hemisphereLightComponent.intensity changes', () => {
@@ -259,7 +255,7 @@ describe('HemisphereLightComponent', () => {
       const Initial = false
       const Expected = !Initial
 
-      // Set the data as expected
+      // Set the dassert.equalata as expected
       assert.equal(getState(RendererState).nodeHelperVisibility, false)
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
 

@@ -28,6 +28,7 @@ import { MeshLambertMaterial } from 'three'
 
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Geometry } from '@ir-engine/spatial/src/common/constants/Geometry'
 import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { GeometryTypeEnum, GeometryTypeToFactory } from '../constants/GeometryTypeEnum'
@@ -42,25 +43,10 @@ export const PrimitiveGeometryComponent = defineComponent({
   name: 'PrimitiveGeometryComponent',
   jsonID: 'EE_primitive_geometry',
 
-  onInit: (entity) => {
-    return {
-      geometryType: GeometryTypeEnum.BoxGeometry as GeometryTypeEnum,
-      geometryParams: {} as Record<string, any>
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      geometryType: component.geometryType.value,
-      geometryParams: component.geometryParams.value
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.geometryType === 'number') component.geometryType.set(json.geometryType)
-    if (typeof json.geometryParams === 'object') component.geometryParams.set(json.geometryParams)
-  },
+  schema: S.Object({
+    geometryType: S.Enum(GeometryTypeEnum, GeometryTypeEnum.BoxGeometry),
+    geometryParams: S.Record(S.String(), S.Any())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
