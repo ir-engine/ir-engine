@@ -343,8 +343,9 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                           [entity],
                           toValidHierarchyNodeName(entity, currentRenameNode.value)
                         )
+                        currentRenameNode.set(getComponent(entity, NameComponent))
+                        renamingNode.clear()
                       }
-                      currentRenameNode.set(getComponent(entity, NameComponent))
                     }}
                     value={currentRenameNode.value}
                     autoFocus

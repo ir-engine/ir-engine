@@ -94,7 +94,10 @@ export default function HierarchyTreeContextMenu() {
           size="small"
           variant="transparent"
           className="text-left text-xs"
-          onClick={() => renamingNode.set(entity)}
+          onClick={() => {
+            setMenu()
+            renamingNode.set(entity)
+          }}
           endIcon={cmdOrCtrlString + ' + r'}
         >
           {t('editor:hierarchy.lbl-rename')}
