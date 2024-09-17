@@ -34,7 +34,9 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import ImagePreviewInput from '@ir-engine/ui/src/components/editor/input/Image/Preview'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -87,6 +89,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
+  const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
 
   useEffect(() => {
     if (location) {
@@ -283,6 +286,38 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               onChange={screenSharingEnabled.set}
               disabled={isLoading}
             />
+            <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
+            <div className="flex flex-row gap-2">
+              <ImagePreviewInput value={sceneThumbnailState.thumbnailURL.value ?? ''} previewOnly={true} />
+              <div className="flex flex-col gap-2 ">
+                <Button onClick={SceneThumbnailState.CreateThumbnail} className="w-full">
+                  {t('editor:properties.sceneSettings.generate')}
+                </Button>
+                <Button
+                  onClick={SceneThumbnailState.UploadThumbnail}
+                  disabled={!sceneThumbnailState.thumbnail.value}
+                  className="w-full"
+                >
+                  {t('editor:properties.sceneSettings.save')}
+                </Button>
+              </div>
+            </div>
+            <div>{t('editor:properties.sceneSettings.lbl-loading')}</div>
+            <div className="flex flex-row gap-2">
+              <ImagePreviewInput value={sceneThumbnailState.loadingScreenURL.value ?? ''} previewOnly={true} />
+              <div className="flex flex-col gap-2">
+                <Button onClick={SceneThumbnailState.CreateLoadingScreen} className="w-full">
+                  {t('editor:properties.sceneSettings.generate')}
+                </Button>
+                <Button
+                  onClick={SceneThumbnailState.UploadLoadingScreen}
+                  disabled={!sceneThumbnailState.loadingScreenImageData.value}
+                  className="w-full"
+                >
+                  {t('editor:properties.sceneSettings.save')}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -1,0 +1,101 @@
+import {
+  blurAndScaleImageData,
+  convertImageDataToKTX2Blob,
+  imageDataToBlob
+} from '@ir-engine/engine/src/scene/classes/ImageUtils'
+import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
+import { commitProperty } from '../components/properties/Util'
+import { uploadProjectFiles } from '../functions/assetFunctions'
+import { takeScreenshot } from '../functions/takeScreenshot'
+import { generateEnvmapBake } from '../functions/uploadEnvMapBake'
+import { EditorState } from './EditorServices'
+
+export const SceneThumbnailState = defineState({
+  name: 'ee.editor.SceneThumbnailState',
+  initial: () => ({
+    thumbnailURL: null as string | null,
+    thumbnail: null as File | null,
+    uploadingThumbnail: false,
+    loadingScreenURL: null as string | null,
+    loadingScreenImageData: null as ImageData | null,
+    uploadingLoadingScreen: false,
+    resolution: 2048
+  }),
+  CreateThumbnail: async () => {
+    const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
+    if (!thumbnailBlob) return
+    const thumbnailURL = URL.createObjectURL(thumbnailBlob)
+    const sceneName = getState(EditorState).sceneName!.split('.').slice(0, -1).join('.')
+    const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
+    getMutableState(SceneThumbnailState).merge({
+      thumbnailURL,
+      thumbnail: file
+    })
+  },
+  UploadThumbnail: async () => {
+    const sceneThumbnailState = getMutableState(SceneThumbnailState)
+    if (!sceneThumbnailState.thumbnail.value) return
+    sceneThumbnailState.uploadingThumbnail.set(true)
+    const editorState = getState(EditorState)
+    const projectName = editorState.projectName!
+    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+    const { promises } = uploadProjectFiles(projectName, [sceneThumbnailState.thumbnail.value], [currentSceneDirectory])
+    const [[savedThumbnailURL]] = await Promise.all(promises)
+    commitProperty(SceneSettingsComponent, 'thumbnailURL')(savedThumbnailURL)
+    sceneThumbnailState.merge({
+      thumbnailURL: null,
+      thumbnail: null,
+      uploadingThumbnail: false
+    })
+  },
+  CreateLoadingScreen: async () => {
+    const sceneThumbnailState = getMutableState(SceneThumbnailState)
+    const envmapImageData = generateEnvmapBake(sceneThumbnailState.resolution.value)
+    const blob = await imageDataToBlob(envmapImageData)
+    sceneThumbnailState.merge({
+      loadingScreenURL: URL.createObjectURL(blob!),
+      loadingScreenImageData: envmapImageData
+    })
+  },
+  UploadLoadingScreen: async () => {
+    const sceneThumbnailState = getMutableState(SceneThumbnailState)
+    const envmapImageData = sceneThumbnailState.loadingScreenImageData.value
+    if (!envmapImageData) return
+    sceneThumbnailState.uploadingLoadingScreen.set(true)
+
+    const loadingScreenImageData = blurAndScaleImageData(envmapImageData, 2048, 2048, 6, 512)
+
+    const [envmap, loadingScreen] = await Promise.all([
+      convertImageDataToKTX2Blob(envmapImageData),
+      convertImageDataToKTX2Blob(loadingScreenImageData)
+    ])
+
+    if (!envmap || !loadingScreen) return null!
+
+    const editorState = getState(EditorState)
+    const sceneName = editorState.sceneName!.split('.').slice(0, -1).join('.')
+    const projectName = editorState.projectName!
+    const envmapFilename = `${sceneName}.envmap.ktx2`
+    const loadingScreenFilename = `${sceneName}.loadingscreen.ktx2`
+
+    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+    const promises = uploadProjectFiles(
+      projectName,
+      [new File([envmap], envmapFilename), new File([loadingScreen], loadingScreenFilename)],
+      [currentSceneDirectory, currentSceneDirectory]
+    )
+
+    const [[envmapURL], [loadingScreenURL]] = await Promise.all(promises.promises)
+
+    const cleanURL = new URL(loadingScreenURL)
+    cleanURL.hash = ''
+    cleanURL.search = ''
+    commitProperty(SceneSettingsComponent, 'loadingScreenURL')(cleanURL.href)
+    sceneThumbnailState.merge({
+      loadingScreenURL: null,
+      loadingScreenImageData: null,
+      uploadingLoadingScreen: false
+    })
+  }
+})
