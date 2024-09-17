@@ -33,7 +33,6 @@ import { onNewScene } from '../../functions/sceneFunctions'
 import { UIAddonsState } from '../../services/UIAddonsState'
 
 export default function CreateSceneDialog() {
-  //const element = useMutableState(EditorState).uiAddons.newScene.get(NO_PROXY)
   const element = useMutableState(UIAddonsState).editor.newScene.get(NO_PROXY)
   const { t } = useTranslation()
   return (
