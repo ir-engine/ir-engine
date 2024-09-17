@@ -59,9 +59,8 @@ export const useStudioEditor = () => {
 export const EditorPage = () => {
   const { t } = useTranslation()
   const [params] = useSearchParams()
-  const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
+  const { scenePath, projectName, acknowledgedUnsupportedBrowser } = useHookstate(getMutableState(EditorState))
   const supportedBrowser = useHookstate(isSupportedBrowser)
-  const acknowledgedUnsupportedBrowser = useHookstate(localStorage.getItem('acknowledgedUnsupportedBrowser') ?? false)
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
@@ -119,7 +118,6 @@ export const EditorPage = () => {
                     onClick={() => {
                       PopoverState.hidePopupover()
                       acknowledgedUnsupportedBrowser.set(true)
-                      localStorage.setItem('acknowledgedUnsupportedBrowser', 'true')
                     }}
                   >
                     {t('editor:unsupportedBrowser.continue')}
