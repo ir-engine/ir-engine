@@ -25,22 +25,18 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineComponent, matchesEntity, UndefinedEntity, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 
 export const AssetPreviewCameraComponent = defineComponent({
   name: 'AssetPreviewCameraComponent',
 
-  onInit: (entity) => {
-    return { targetModelEntity: UndefinedEntity }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matchesEntity.test(json.targetModelEntity)) component.targetModelEntity.set(json.targetModelEntity)
-  },
+  schema: S.Object({
+    targetModelEntity: S.Entity()
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

@@ -349,14 +349,6 @@ describe('DataReader', () => {
 
     writeTransform(view, entity)
 
-    transform.position.x = 0
-    transform.position.y = 0
-    transform.position.z = 0
-    transform.rotation.x = 0
-    transform.rotation.y = 0
-    transform.rotation.z = 0
-    transform.rotation.w = 0
-
     view.cursor = 0
 
     readTransform(view, entity)
@@ -499,14 +491,6 @@ describe('DataReader', () => {
     })
 
     writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
-
-    transform.position.x = 0
-    transform.position.y = 0
-    transform.position.z = 0
-    transform.rotation.x = 0
-    transform.rotation.y = 0
-    transform.rotation.z = 0
-    transform.rotation.w = 0
 
     view.cursor = 0
 
@@ -813,18 +797,6 @@ describe('DataReader', () => {
     })
 
     writeEntities(writeView, network, entities)
-
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i]
-
-      TransformComponent.position.x[entity] = 0
-      TransformComponent.position.y[entity] = 0
-      TransformComponent.position.z[entity] = 0
-      TransformComponent.rotation.x[entity] = 0
-      TransformComponent.rotation.y[entity] = 0
-      TransformComponent.rotation.z[entity] = 0
-      TransformComponent.rotation.w[entity] = 0
-    }
 
     const packet = sliceViewCursor(writeView)
 
