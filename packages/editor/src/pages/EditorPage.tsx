@@ -61,7 +61,7 @@ export const EditorPage = () => {
   const [params] = useSearchParams()
   const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
   const supportedBrowser = useHookstate(!isSupportedBrowser)
-  const acknowledgedUnsupportedBrowser = useHookstate(false)
+  const acknowledgedUnsupportedBrowser = useHookstate(localStorage.getItem('acknowledgedUnsupportedBrowser') ?? false)
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
@@ -115,7 +115,15 @@ export const EditorPage = () => {
                   {t('editor:unsupportedBrowser.downloadChrome')}
                 </Button>
                 <Button>
-                  <span onClick={() => PopoverState.hidePopupover()}>{t('editor:unsupportedBrowser.continue')}</span>
+                  <span
+                    onClick={() => {
+                      PopoverState.hidePopupover()
+                      acknowledgedUnsupportedBrowser.set(true)
+                      localStorage.setItem('acknowledgedUnsupportedBrowser', 'true')
+                    }}
+                  >
+                    {t('editor:unsupportedBrowser.continue')}
+                  </span>
                 </Button>
               </div>
             </div>
