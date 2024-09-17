@@ -23,25 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AnimationClip, KeyframeTrack, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
+import { AnimationClip, KeyframeTrack, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three'
 
 import { Entity, getComponent } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
 import { recursiveNameLookup } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { mixamoVRMRigMap, recursiveHipsLookupECS } from '../AvatarBoneMatching'
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()
 const _quatA = new Quaternion()
+const _scale = new Vector3()
 
 /**Retargets an animation clip into normalized bone space for use with any T-Posed normalized humanoid rig
  * @todo refactor to use ecs
  */
 export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) => {
   const hips = recursiveHipsLookupECS(gltfEntity)
-  const hipsPositionScale = getComponent(hips, TransformComponent).position.y
+  const hipsPositionScale = TransformComponent.getWorldScale(hips, _scale).y
+  console.log(hipsPositionScale)
+  // const hipsPositionScale = 0.01
   getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
   for (let i = 0; i < clip.tracks.length; i++) {
     const track = clip.tracks[i]
@@ -49,11 +53,11 @@ export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) =
     const rigNodeName = trackSplitted[0]
     const rigNodeEntity = recursiveNameLookup(gltfEntity, rigNodeName) as Entity
     const rigNode = getComponent(rigNodeEntity, BoneComponent)
-    console.log(rigNodeName, rigNode)
 
     // Store rotations of rest-pose
     rigNode.getWorldQuaternion(restRotationInverse).invert()
-    rigNode.parent!.getWorldQuaternion(parentRestWorldRotation)
+    const parentEntity = getComponent(rigNodeEntity, EntityTreeComponent).parentEntity
+    TransformComponent.getWorldRotation(parentEntity, parentRestWorldRotation)
 
     if (track instanceof QuaternionKeyframeTrack) {
       // Retarget rotation of mixamoRig to NormalizedBone
@@ -86,9 +90,11 @@ export const bindAnimationClipFromMixamo = (clip: AnimationClip) => {
     const trackClone = clip.tracks[i].clone()
     const trackSplitted = trackClone.name.split('.')
     const mixamoPrefix = trackSplitted[0].includes('mixamorig') ? '' : 'mixamorig'
-    const mixamoBoneName = mixamoPrefix + trackSplitted[0]
+    let mixamoBoneName = mixamoPrefix + trackSplitted[0]
+    mixamoBoneName = mixamoBoneName.replace(':', '')
     const vrmBoneName = mixamoVRMRigMap[mixamoBoneName]
     const propertyName = trackSplitted[1]
+    console.log(mixamoBoneName, vrmBoneName, propertyName)
     trackClone.name = `${vrmBoneName}.${propertyName}`
     tracks.push(trackClone)
   }

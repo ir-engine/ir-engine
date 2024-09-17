@@ -68,7 +68,6 @@ export const recursiveNameLookup = (entity: Entity, targetName: string) => {
   const lookup = (entity: Entity) => {
     const name = getComponent(entity, NameComponent)
     if (name === targetName) {
-      console.log('returning', entity)
       return entity
     }
     const entityTreeComponent = getComponent(entity, EntityTreeComponent)

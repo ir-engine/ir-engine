@@ -130,6 +130,8 @@ export const playAvatarAnimationFromMixamo = (
   let retargetedAnimation = animationComponent.animations.find(
     (clip) => clip.name == (clipName ?? animationsScene.animations[0].name)
   )
+  console.log(animationsScene)
+  console.log(retargetedAnimation)
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
     retargetedAnimation = bindAnimationClipFromMixamo(

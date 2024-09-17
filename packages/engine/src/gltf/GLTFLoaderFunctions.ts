@@ -1042,7 +1042,6 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
             ? meshComponent?.get(NO_PROXY)?.morphTargetInfluences !== undefined
             : true
           if (!meshWeightsLoaded || !boneComponent) return
-          console.log('setting nodes', meshComponent, boneComponent)
           channelData[i].nodes.set(
             getOptionalComponent(targetNodeEntity, MeshComponent) ??
               getOptionalComponent(targetNodeEntity, BoneComponent)!

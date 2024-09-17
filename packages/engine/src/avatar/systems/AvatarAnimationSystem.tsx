@@ -316,38 +316,6 @@ const execute = () => {
 }
 
 const Reactor = () => {
-  /**loads animation bundles. assumes the bundle is a glb */
-  // const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
-  // const [gltfs] = useBatchGLTF(
-  //   animations.map((animationFile) => {
-  //     return `${
-  //       getState(DomainConfigState).cloudDomain
-  //     }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
-  //   })
-  // )
-  // const manager = useMutableState(AnimationState)
-  // useEffect(() => {
-  //   const assets = gltfs.get(NO_PROXY)
-  //   if (assets.length !== animations.length) return
-  //   for (let i = 0; i < assets.length; i++) {
-  //     const asset = assets[i] as GLTF | null
-  //     if (asset && !manager.loadedAnimations[animations[i]].value) {
-  //       // delete unneeded geometry data to save memory
-  //       asset.scene.traverse((node) => {
-  //         delete (node as any).geometry
-  //         delete (node as any).material
-  //       })
-  //       for (let i = 0; i < asset.animations.length; i++) {
-  //         retargetAnimationClip(asset.animations[i], asset.scene)
-  //         bindAnimationClipFromMixamo(asset.animations[i])
-  //       }
-  //       //ensure animations are always placed in the scene
-  //       asset.scene.animations = asset.animations
-  //       manager.loadedAnimations[animations[i]].set(asset)
-  //     }
-  //   }
-  // }, [gltfs])
-
   const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   useEffect(() => {
@@ -366,6 +334,7 @@ const Reactor = () => {
 
 const AnimationReactor = () => {
   const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
+
   const loadedAnimations = useLoadAnimationFromBatchGLTF(
     animations.map((animationFile) => {
       return `${
