@@ -21,7 +21,16 @@ import config from '@ir-engine/common/src/config'
 import { useGLTF } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import React, { ReactNode } from 'react'
-import { FiHexagon } from 'react-icons/fi'
+
+import CameraIcon from './icons/camera.svg'
+import ColliderIcon from './icons/collider.svg'
+import AddIcon from './icons/empty.svg'
+import GeoIcon from './icons/geo.svg'
+import ImageIcon from './icons/image.svg'
+import LightingIcon from './icons/lighting.svg'
+import LookDevIcon from './icons/lookdev.svg'
+import TextIcon from './icons/text.svg'
+import VideoIcon from './icons/video.svg'
 
 export type PrefabShelfItem = {
   name: string
@@ -31,8 +40,15 @@ export type PrefabShelfItem = {
 }
 
 export const PrefabIcons: Record<string, ReactNode> = {
-  Geo: <FiHexagon size="1.25rem" />,
-  default: <FiHexagon size="1.25rem" />
+  Geo: <img src={GeoIcon} />,
+  Lighting: <img src={LightingIcon} />,
+  Collider: <img src={ColliderIcon} />,
+  Text: <img src={TextIcon} />,
+  Image: <img src={ImageIcon} />,
+  Video: <img src={VideoIcon} />,
+  Lookdev: <img src={LookDevIcon} />,
+  Camera: <img src={CameraIcon} />,
+  default: <img src={AddIcon} />
 }
 
 export const PrefabShelfState = defineState({

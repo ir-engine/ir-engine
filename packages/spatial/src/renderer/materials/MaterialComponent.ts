@@ -35,9 +35,10 @@ import {
   getOptionalMutableComponent,
   hasComponent
 } from '@ir-engine/ecs'
-import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { v4 as uuidv4 } from 'uuid'
 import { NoiseOffsetPluginComponent } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPluginComponent } from './constants/plugins/TransparencyDitheringComponent'
@@ -93,24 +94,15 @@ export const MaterialPlugins = { TransparencyDitheringPluginComponent, NoiseOffs
 
 export const MaterialStateComponent = defineComponent({
   name: 'MaterialStateComponent',
-  onInit: (entity) => {
-    return {
-      // material & material specific data
-      material: {} as Material,
-      parameters: {} as { [key: string]: any },
-      // all entities using this material. an undefined entity at index 0 is a fake user
-      instances: [] as Entity[],
-      prototypeEntity: UndefinedEntity as Entity
-    }
-  },
 
-  onSet: (entity, component, json) => {
-    if (json?.material && component.material.value !== undefined) component.material.set(json.material)
-    if (json?.parameters && component.parameters.value !== undefined) component.parameters.set(json.parameters)
-    if (json?.instances && component.instances.value !== undefined) component.instances.set(json.instances)
-    if (json?.prototypeEntity && component.prototypeEntity.value !== undefined)
-      component.prototypeEntity.set(json.prototypeEntity)
-  },
+  schema: S.Object({
+    // material & material specific data
+    material: S.Type<Material>({} as Material),
+    parameters: S.Record(S.String(), S.Any()),
+    // all entities using this material. an undefined entity at index 0 is a fake user
+    instances: S.Array(S.Entity()),
+    prototypeEntity: S.Entity()
+  }),
 
   fallbackMaterial: uuidv4() as EntityUUID,
 
@@ -126,14 +118,9 @@ export const MaterialStateComponent = defineComponent({
 
 export const MaterialInstanceComponent = defineComponent({
   name: 'MaterialInstanceComponent',
-  onInit: (entity) => {
-    return {
-      uuid: [] as EntityUUID[]
-    }
-  },
-  onSet: (entity, component, json) => {
-    if (json?.uuid && component.uuid.value !== undefined) component.uuid.set(json.uuid)
-  },
+
+  schema: S.Object({ uuid: S.Array(S.EntityUUID()) }),
+
   onRemove: (entity) => {
     const uuids = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid
     if (!uuids) return
@@ -149,18 +136,11 @@ export const MaterialInstanceComponent = defineComponent({
 
 export const MaterialPrototypeComponent = defineComponent({
   name: 'MaterialPrototypeComponent',
-  onInit: (entity) => {
-    return {
-      prototypeArguments: {} as PrototypeArgument,
-      prototypeConstructor: {} as MaterialPrototypeObjectConstructor
-    }
-  },
-  onSet: (entity, component, json) => {
-    if (json?.prototypeArguments && component.prototypeArguments.value !== undefined)
-      component.prototypeArguments.set(json.prototypeArguments)
-    if (json?.prototypeConstructor && component.prototypeConstructor.value !== undefined)
-      component.prototypeConstructor.set(json.prototypeConstructor)
-  }
+
+  schema: S.Object({
+    prototypeArguments: S.Type<PrototypeArgument>({}),
+    prototypeConstructor: S.Type<MaterialPrototypeObjectConstructor>({})
+  })
 })
 
 export const prototypeQuery = defineQuery([MaterialPrototypeComponent])
