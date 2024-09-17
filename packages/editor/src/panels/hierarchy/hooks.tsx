@@ -112,13 +112,13 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
       return searchedNodes
     }
     return hierarchyNodes.value
-  }, [hierarchyTreeState.search, hierarchyNodes])
+  }, [hierarchyTreeState.search.query, hierarchyNodes])
 
   useEffect(() => {
     if (!hierarchyTreeState.expandedNodes.value[sourceId]) {
       hierarchyTreeState.expandedNodes.set({ [sourceId]: { [rootEntity]: true } })
     }
-  }, [])
+  }, [sourceId])
 
   useEffect(() => {
     const nodes = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[], showModelChildren)
@@ -126,7 +126,7 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
       hierarchyNodes.set(nodes.filter((node) => entityExists(node.entity)))
     }
   }, [
-    hierarchyTreeState.expandedNodes, // extra dep for expanding node when already selected
+    hierarchyTreeState.expandedNodes.value[sourceId], // extra dep for rebuilding tree for expanded/collapsed nodes
     snapshotIndex,
     gltfSnapshot,
     gltfState,
@@ -143,7 +143,7 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
   return (
     <HierarchyTreeContext.Provider
       value={{
-        nodes: displayedNodes,
+        nodes: displayedNodes.filter((node) => entityExists(node.entity)),
         renamingNode: {
           entity: renamingEntity.value,
           clear: () => renamingEntity.set(null),
