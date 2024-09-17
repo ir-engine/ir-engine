@@ -34,8 +34,10 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, getState, matches, useImmediateEffect } from '@ir-engine/hyperflux'
+import { NO_PROXY, getState, useImmediateEffect } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { Types } from 'bitecs'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'
@@ -182,52 +184,39 @@ export const XRHandComponent = defineComponent({
   name: 'XRHandComponent'
 })
 
+const rotationsSchema = { rotations: [Types.f32, 4 * 19] as const }
+
 export const XRLeftHandComponent = defineComponent({
   name: 'XRLeftHandComponent',
+  schema: rotationsSchema,
 
-  onInit: (entity) => {
+  onInit: (initial) => {
     return {
-      hand: null! as XRHand,
-      rotations: new Float32Array(4 * 19)
+      ...initial,
+      hand: null! as XRHand
     }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.hand)) component.hand.set(json.hand)
   }
 })
 
 export const XRRightHandComponent = defineComponent({
   name: 'XRRightHandComponent',
+  schema: rotationsSchema,
 
-  onInit: (entity) => {
+  onInit: (initial) => {
     return {
-      hand: null! as XRHand,
-      rotations: new Float32Array(4 * 19)
+      ...initial,
+      hand: null! as XRHand
     }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.hand)) component.hand.set(json.hand)
   }
 })
 
 export const XRHitTestComponent = defineComponent({
   name: 'XRHitTest',
-
-  onInit: (entity) => {
-    return {
-      options: null! as XRTransientInputHitTestOptionsInit | XRHitTestOptionsInit,
-      source: null! as XRHitTestSource,
-      results: [] as XRHitTestResult[]
-    }
-  },
-
-  onSet: (entity, component, data: XRTransientInputHitTestOptionsInit | XRHitTestOptionsInit) => {
-    component.options.set(data)
-  },
+  schema: S.Object({
+    options: S.Type<XRTransientInputHitTestOptionsInit | XRHitTestOptionsInit>(),
+    source: S.Type<XRHitTestSource>(),
+    results: S.Array(S.Type<XRHitTestResult>())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -276,22 +265,9 @@ export const XRHitTestComponent = defineComponent({
 
 export const XRAnchorComponent = defineComponent({
   name: 'XRAnchor',
-
-  onInit: (entity) => {
-    return {
-      anchor: null! as XRAnchor
-    }
-  },
-
-  onSet: (
-    entity,
-    component,
-    data: {
-      anchor: XRAnchor
-    }
-  ) => {
-    component.anchor.set(data.anchor)
-  },
+  schema: S.Object({
+    anchor: S.Type<XRAnchor>()
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -311,17 +287,10 @@ export const XRAnchorComponent = defineComponent({
 export const XRSpaceComponent = defineComponent({
   name: 'XRSpace',
 
-  onInit: (entity) => {
-    return {
-      space: null! as XRSpace,
-      baseSpace: null! as XRSpace
-    }
-  },
-
-  onSet: (entity, component, args: { space: XRSpace; baseSpace: XRSpace }) => {
-    component.space.set(args.space)
-    component.baseSpace.set(args.baseSpace)
-  },
+  schema: S.Object({
+    space: S.Type<XRSpace>(),
+    baseSpace: S.Type<XRSpace>()
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

@@ -40,7 +40,7 @@ import {
   InteractableComponent,
   XRUIActivationType
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
-import { useState } from '@ir-engine/hyperflux'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -64,7 +64,7 @@ type OptionsType = Array<{
 
 export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const targets = useState<OptionsType>([
+  const targets = useHookstate<OptionsType>([
     { label: 'Self', value: getComponent(props.entity, UUIDComponent), callbacks: [] }
   ])
   const callbackQuery = useQuery([CallbackComponent])
@@ -106,7 +106,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       })
     }
     targets.set(options)
-  }, [callbackQuery])
+  }, [JSON.stringify(callbackQuery)])
 
   const updateLabel = (value: string) => {
     commitProperty(InteractableComponent, 'label')(value)

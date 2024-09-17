@@ -30,6 +30,7 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from './MediaComponent'
 
@@ -42,55 +43,16 @@ export const AudioAnalysisComponent = defineComponent({
   name: 'EE_audio_analyzer',
   jsonID: 'audio-analyzer',
 
-  onInit: (entity) => {
-    return {
-      src: '' as string,
-      session: null as AudioAnalysisSession | null,
-      bassEnabled: true as boolean,
-      midEnabled: true as boolean,
-      trebleEnabled: true as boolean,
-      bassMultiplier: 1 as number,
-      midMultiplier: 1 as number,
-      trebleMultiplier: 1 as number
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.src === 'string' && component.src.value !== json.src) {
-      component.src.set(json.src)
-    }
-    if (typeof json.bassEnabled === 'boolean' && component.bassEnabled.value !== json.bassEnabled) {
-      component.bassEnabled.set(json.bassEnabled)
-    }
-    if (typeof json.midEnabled === 'boolean' && component.midEnabled.value !== json.midEnabled) {
-      component.midEnabled.set(json.midEnabled)
-    }
-    if (typeof json.trebleEnabled === 'boolean' && component.trebleEnabled.value !== json.trebleEnabled) {
-      component.trebleEnabled.set(json.trebleEnabled)
-    }
-    if (typeof json.bassMultiplier === 'number' && component.bassMultiplier.value !== json.bassMultiplier) {
-      component.bassMultiplier.set(json.bassMultiplier)
-    }
-    if (typeof json.midMultiplier === 'number' && component.midMultiplier.value !== json.midMultiplier) {
-      component.midMultiplier.set(json.midMultiplier)
-    }
-    if (typeof json.trebleMultiplier === 'number' && component.trebleMultiplier.value !== json.trebleMultiplier) {
-      component.trebleMultiplier.set(json.trebleMultiplier)
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      src: component.src.value,
-      bassEnabled: component.bassEnabled.value,
-      midEnabled: component.midEnabled.value,
-      trebleEnabled: component.trebleEnabled.value,
-      bassMultiplier: component.bassMultiplier.value,
-      midMultiplier: component.midMultiplier.value,
-      trebleMultiplier: component.trebleMultiplier.value
-    }
-  },
+  schema: S.Object({
+    src: S.String(''),
+    session: S.Nullable(S.Type<AudioAnalysisSession>(), null),
+    bassEnabled: S.Bool(true),
+    midEnabled: S.Bool(true),
+    trebleEnabled: S.Bool(true),
+    bassMultiplier: S.Number(1),
+    midMultiplier: S.Number(1),
+    trebleMultiplier: S.Number(1)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
