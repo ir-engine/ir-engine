@@ -38,12 +38,5 @@ export const WebcamInputComponent = defineComponent({
   schema: {
     expressionValue: Types.f32,
     expressionIndex: Types.ui8
-  },
-
-  onInit(entity) {
-    return {
-      expressionValue: 0,
-      expressionIndex: 0
-    }
   }
 })

@@ -38,13 +38,13 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { dispatchAction, getMutableState, getState, matches, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
-import { matchesVector3 } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -59,6 +59,8 @@ export const MountPoint = {
 }
 
 export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
+
+const MountPointTypesSchema = S.LiteralUnion(Object.values(MountPoint), 'seat')
 
 /**
  * @todo refactor this into i18n and configurable
@@ -139,25 +141,11 @@ export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
   jsonID: 'EE_mount_point',
 
-  onInit: (entity) => {
-    return {
-      type: MountPoint.seat as MountPointTypes,
-      dismountOffset: new Vector3(0, 0, 0.75)
-    }
-  },
+  schema: S.Object({
+    type: MountPointTypesSchema,
+    dismountOffset: S.Vec3({ x: 0, y: 0, z: 0.75 })
+  }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.string.test(json.type)) component.type.set(json.type)
-    if (matchesVector3.test(json.dismountOffset)) component.dismountOffset.set(json.dismountOffset)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      type: component.type.value,
-      dismountOffset: component.dismountOffset.value
-    }
-  },
   mountEntity,
   unmountEntity,
   mountCallbackName,

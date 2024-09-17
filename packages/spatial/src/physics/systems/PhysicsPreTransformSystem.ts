@@ -42,7 +42,8 @@ import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
 const localMatrix = new Matrix4()
-const parentMatrixInverse = new Matrix4()
+const sceneRelParentMatrix = new Matrix4()
+const sceneMatrixInverse = new Matrix4()
 const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
@@ -50,6 +51,12 @@ const mat4 = new Matrix4()
 
 const setDirty = (entity: Entity) => (TransformComponent.dirtyTransforms[entity] = true)
 
+/**
+ * Lerp the transform of a rigidbody entity from the previous frame to the current frame.
+ * - considers the transforms of the entity and all parent entities, including the physics world scene entity
+ * @param entity
+ * @param alpha
+ */
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
   Interpolate the remaining time after the fixed pipeline is complete.
@@ -82,13 +89,26 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const transform = getComponent(entity, TransformComponent)
 
-  const rigidBodyEntity = getAncestorWithComponents(entity, [RigidBodyComponent])
-  const rigidBodyTransform = getComponent(rigidBodyEntity, TransformComponent)
-  parentMatrixInverse.copy(rigidBodyTransform.matrixWorld).invert()
-  localMatrix.compose(position, rotation, Vector3_One).premultiply(parentMatrixInverse)
+  const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+  const parentTransform = getComponent(parentEntity, TransformComponent)
+
+  /** get parent world matrix relative to the physics world */
+  TransformComponent.getMatrixRelativeToScene(parentEntity, sceneRelParentMatrix)
+  sceneMatrixInverse.copy(sceneRelParentMatrix).invert()
+
+  /** convert the rigidbody pose from physics world space to local space */
+  localMatrix.compose(position, rotation, Vector3_One).premultiply(sceneMatrixInverse)
   localMatrix.decompose(position, rotation, scale)
+
+  /** apply the local space scale */
   transform.matrix.compose(position, rotation, transform.scale)
-  transform.matrixWorld.multiplyMatrices(rigidBodyTransform.matrixWorld, transform.matrix)
+
+  /** convert the local space transform to scene space */
+  transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+
+  /** @todo Whatever this math is doing is incorrect and we'll fix it v0.9. */
+  /** convert the scene space transform to world space */
+  //transform.matrixWorld.premultiply(sceneRelParentMatrix)
 
   /** set all children dirty deeply, but set this entity to clean */
   iterateEntityNode(entity, setDirty)
@@ -151,6 +171,7 @@ const copyTransformToCollider = (entity: Entity) => {
   if (!colliderDesc) return
   Physics.removeCollider(world, entity)
   Physics.attachCollider(world, colliderDesc, rigidbodyEntity, entity)
+  Physics.wakeUp(world, rigidbodyEntity)
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent, EntityTreeComponent])

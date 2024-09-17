@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
-import { defineComponent, EntityUUID, getComponent, useEntityContext } from '@ir-engine/ecs'
-
+import { defineComponent, getComponent, getOptionalComponent, useEntityContext } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { useEffect } from 'react'
@@ -44,38 +44,34 @@ export enum ditherCalculationType {
 
 export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 array in the shader
 
-export const TransparencyDitheringRoot = defineComponent({
-  name: 'TransparencyDitheringRoot',
-  onInit: (entity) => {
-    return { materials: [] as EntityUUID[] }
-  },
-  onSet: (entity, component, json) => {
-    if (json?.materials) component.materials.set(json.materials)
-  }
+export const TransparencyDitheringRootComponent = defineComponent({
+  name: 'TransparencyDitheringRootComponent',
+  schema: S.Object({ materials: S.Array(S.EntityUUID()) })
 })
 
-export const TransparencyDitheringPlugin = defineComponent({
-  name: 'TransparencyDithering',
-  onInit: (entity) => {
-    return {
-      centers: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())),
-      exponents: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
-      distances: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
-      useWorldCalculation: new Uniform(
-        Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
+export const TransparencyDitheringPluginComponent = defineComponent({
+  name: 'TransparencyDitheringPluginComponent',
+  schema: S.NonSerialized(
+    S.Object({
+      centers: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3()))),
+      exponents: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
+      distances: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
+      useWorldCalculation: S.Class(
+        () => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed))
       )
-    }
-  },
+    })
+  ),
 
   reactor: () => {
     const entity = useEntityContext()
     useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialStateComponent)
+      const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+      if (!materialComponent) return
       const material = materialComponent.material as Material
       const callback = (shader) => {
         material.alphaTest = 0.5
         material.side = FrontSide
-        const plugin = getComponent(entity, TransparencyDitheringPlugin)
+        const plugin = getComponent(entity, TransparencyDitheringPluginComponent)
 
         if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
           shader.vertexShader = shader.vertexShader.replace(
