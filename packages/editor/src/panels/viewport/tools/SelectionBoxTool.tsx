@@ -23,8 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState } from '@ir-engine/hyperflux'
+import { Engine, EntityUUID, UUIDComponent, getComponent, hasComponent } from '@ir-engine/ecs'
+import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useState } from 'react'
+import { Frustum, Mesh, Plane, Vector3 } from 'three'
+import { EditorState } from '../../../services/EditorServices'
+import { SelectionState } from '../../../services/SelectionServices'
+
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 export const selectionBox = defineState({
   name: 'selection Box',
   initial: () => ({
@@ -43,95 +51,115 @@ export default function SelectionBox({
   const [startY, setStartY] = useState(0)
   const [left, setLeft] = useState(0)
   const [top, setTop] = useState(0)
-  const [width, setWidth] = useState(100)
-  const [height, setHeight] = useState(100)
-  const [isSelecting, setIsSelecting] = useState(false)
-  const [mouseOffsetX, setMouseOffsetX] = useState(0)
-  const [mouseOffsetY, setMouseOffsetY] = useState(0)
+  const width = useHookstate(0)
+  const height = useHookstate(0)
   const [isDragging, setIsDragging] = useState(false)
   const handleMouseDown = (e: React.MouseEvent) => {
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
+
     setStartX(e.clientX)
     setStartY(e.clientY)
     setIsDragging(true)
-    setLeft(e.clientX - viewportRect.left)
-    setTop(e.clientY - viewportRect.top - toolbarRect.height)
-    setWidth(0)
-    setHeight(0)
+
+    // Calculate initial left and top position relative to viewport
+    setLeft(Math.max(e.clientX - viewportRect.left, 0))
+    setTop(Math.max(e.clientY - viewportRect.top - toolbarRect.height, 0))
+
+    // Reset width and height
+    width.set(0)
+    height.set(0)
+
+    SelectionState.updateSelection([])
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return
-    setWidth(e.clientX - startX)
-    setHeight(e.clientY - startY)
-  }
 
-  const handleMouseUp = () => {
+    const viewportRect = viewportRef.current!.getBoundingClientRect()
+    const toolbarRect = toolbarRef.current!.getBoundingClientRect()
+
+    // Calculate mouse position relative to the viewport
+    const currentX = Math.max(Math.min(e.clientX, viewportRect.right), viewportRect.left)
+    const currentY = Math.max(Math.min(e.clientY, viewportRect.bottom), viewportRect.top)
+
+    // Handle dragging in all directions by calculating top/left based on the direction
+    const newLeft = Math.min(currentX, startX)
+    const newTop = Math.min(currentY, startY)
+
+    // Set the left and top of the selection box
+    setLeft(Math.max(newLeft - viewportRect.left, 0))
+    setTop(Math.max(newTop - viewportRect.top, 0))
+
+    // Calculate and constrain the width and height
+    const newWidth = Math.abs(currentX - startX)
+    const newHeight = Math.abs(currentY - startY)
+
+    width.set(Math.min(newWidth, viewportRect.width - (newLeft - viewportRect.left)))
+    height.set(Math.min(newHeight, viewportRect.height - (newTop - viewportRect.top)))
+  }
+  const handleMouseUp = (e: React.MouseEvent) => {
+    // width.set(e.clientX - startX)
+    // height.set(e.clientY - startY)
     setIsDragging(false)
-    //updateSelectionEntity()
+    if (getMutableState(selectionBox).selectionBoxEnabled.value) {
+      updateSelectionEntity()
+    }
   }
-  // const updateSelectionEntity = () => {
-  //   //get screen space bounding box
+  const updateSelectionEntity = () => {
+    const viewportRect = viewportRef.current!.getBoundingClientRect()
+    const ndcX1 = (left / viewportRect.width) * 2 - 1
+    const ndcX2 = ((left + width.value) / viewportRect.width) * 2 - 1
+    const ndcY1 = 1 - (top / viewportRect.height) * 2
+    const ndcY2 = 1 - ((top + height.value) / viewportRect.height) * 2
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    const selectedUUIDs = [] as EntityUUID[]
+    // Convert NDC points to world space (for both near and far planes)
+    const p1Near = new Vector3(ndcX1, ndcY1, -1).unproject(camera) // top-left near
+    const p2Near = new Vector3(ndcX2, ndcY1, -1).unproject(camera) // top-right near
+    const p3Near = new Vector3(ndcX1, ndcY2, -1).unproject(camera) // bottom-left near
+    const p4Near = new Vector3(ndcX2, ndcY2, -1).unproject(camera) // bottom-right near
 
-  // }
-  // function convertScreenToNDC(x, y, width, height) {
-  //   const ndcX = (x / window.innerWidth) * 2 - 1;
-  //   const ndcY = -(y / window.innerHeight) * 2 + 1;
+    const p1Far = new Vector3(ndcX1, ndcY1, 1).unproject(camera) // top-left far
+    const p2Far = new Vector3(ndcX2, ndcY1, 1).unproject(camera) // top-right far
+    const p3Far = new Vector3(ndcX1, ndcY2, 1).unproject(camera) // bottom-left far
+    const p4Far = new Vector3(ndcX2, ndcY2, 1).unproject(camera) // bottom-right far
 
-  //   const ndcX2 = ((x + width) / window.innerWidth) * 2 - 1;
-  //   const ndcY2 = -((y + height) / window.innerHeight) * 2 + 1;
+    // Now construct the frustum with six planes
+    const frustum = new Frustum(
+      new Plane().setFromCoplanarPoints(p1Near, p2Near, p3Near), // Near plane
+      new Plane().setFromCoplanarPoints(p1Far, p2Far, p3Far), // Far plane
+      new Plane().setFromCoplanarPoints(p1Near, p1Far, p3Far), // Left plane
+      new Plane().setFromCoplanarPoints(p2Near, p2Far, p4Far), // Right plane
+      new Plane().setFromCoplanarPoints(p1Near, p2Near, p2Far), // Top plane
+      new Plane().setFromCoplanarPoints(p3Near, p4Near, p4Far) // Bottom plane
+    )
 
-  //   return {
-  //     left: Math.min(ndcX, ndcX2),
-  //     right: Math.max(ndcX, ndcX2),
-  //     top: Math.max(ndcY, ndcY2),
-  //     bottom: Math.min(ndcY, ndcY2),
-  //   };
-  // }
-  // function projectBoundingBoxToScreen(camera, object){
-  //   const box = new THREE.Box3().setFromObject(object); // Get bounding box for object
-  //   const points = [
-  //     new THREE.Vector3(box.min.x, box.min.y, box.min.z),
-  //     new THREE.Vector3(box.min.x, box.min.y, box.max.z),
-  //     new THREE.Vector3(box.min.x, box.max.y, box.min.z),
-  //     new THREE.Vector3(box.min.x, box.max.y, box.max.z),
-  //     new THREE.Vector3(box.max.x, box.min.y, box.min.z),
-  //     new THREE.Vector3(box.max.x, box.min.y, box.max.z),
-  //     new THREE.Vector3(box.max.x, box.max.y, box.min.z),
-  //     new THREE.Vector3(box.max.x, box.max.y, box.max.z),
-  //   ];
+    const parentEntity = getState(EditorState).rootEntity
+    iterateEntityNode(parentEntity, (entity) => {
+      console.log('entity:', entity)
+      if (hasComponent(entity, ModelComponent)) {
+        const scene = getComponent(entity, ModelComponent).scene
+        if (!scene) return {}
+        scene.traverse((mesh: Mesh) => {
+          if (!mesh.isMesh) return
+          if (frustum.intersectsObject(mesh)) {
+            console.log('selected entity:', entity)
+            selectedUUIDs.push(getComponent(entity, UUIDComponent))
+          }
+        })
+      }
+    })
 
-  //   // Project each corner of the 3D bounding box to 2D screen space
-  //   const projectedPoints = points.map((point) => {
-  //     const projected = point.clone().project(camera);
-  //     return {
-  //       x: (projected.x + 1) / 2 * window.innerWidth,
-  //       y: -(projected.y - 1) / 2 * window.innerHeight,
-  //     };
-  //   });
-
-  //   return projectedPoints;
-  // }
-  // function isBoundingBoxInSelection(selectionBox, projectedPoints) {
-  //   const { left, right, top, bottom } = selectionBox;
-
-  //   // Check if any of the points of the bounding box are inside the selection box
-  //   for (let point of projectedPoints) {
-  //     if (point.x >= left && point.x <= right && point.y <= top && point.y >= bottom) {
-  //       return true; // One of the points is inside the selection box
-  //     }
-  //   }
-
-  //   return false; // No points intersect the selection box
-  // }
+    SelectionState.updateSelection(selectedUUIDs)
+  }
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove as any)
-    document.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('mouseup', handleMouseUp as any)
     document.addEventListener('mousedown', handleMouseDown as any)
     return () => {
       document.removeEventListener('mousemove', handleMouseMove as any)
-      document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('mouseup', handleMouseUp as any)
       document.removeEventListener('mousedown', handleMouseDown as any)
     }
   }, [isDragging])
@@ -143,8 +171,8 @@ export default function SelectionBox({
           style={{
             left: `${left}px`,
             top: `${top}px`,
-            width: `${width}px`,
-            height: `${height}px`
+            width: `${width.value}px`,
+            height: `${height.value}px`
           }}
         />
       )}
