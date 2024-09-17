@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -30,15 +30,16 @@ import { validate as isValidUUID } from 'uuid'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { AvatarID, avatarPath, AvatarType, UserName } from '@ir-engine/common/src/schema.type.module'
+import { AvatarID, AvatarType, UserName, avatarPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { ConfirmDialog } from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
-import { avatarColumns, AvatarRowType } from '../../common/constants/avatar'
+import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedLink'
 import DataTable from '../../common/Table'
+import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
 import AddEditAvatarModal from './AddEditAvatarModal'
 
 export default function AvatarTable({ search }: { search: string }) {
@@ -99,7 +100,7 @@ export default function AvatarTable({ search }: { search: string }) {
   const createRows = (rows: readonly AvatarType[]): AvatarRowType[] =>
     rows.map((row) => ({
       id: row.id,
-      name: row.name,
+      name: truncateText(row.name, { visibleChars: 16, ellipsisPosition: 'end' }),
       user: (row.user?.name || '') as UserName,
       isPublic: <IsPublicToggle id={row.id} isPublic={row.isPublic} />,
       thumbnail: <AvatarImage src={row.thumbnailResource?.url + '?' + new Date().getTime()} className="mx-auto" />,
@@ -111,9 +112,8 @@ export default function AvatarTable({ search }: { search: string }) {
             className="h-8 w-8"
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditAvatarModal avatar={row} />)}
-          >
-            <HiPencil className="place-self-center text-theme-iconGreen" />
-          </Button>
+            startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+          />
           <Button
             rounded="full"
             variant="outline"
@@ -129,9 +129,8 @@ export default function AvatarTable({ search }: { search: string }) {
                 />
               )
             }}
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+          />
         </div>
       )
     }))

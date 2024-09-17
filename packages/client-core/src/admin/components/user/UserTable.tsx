@@ -5,8 +5,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
@@ -14,7 +14,7 @@ specific language governing rights and limitations under the License.
 The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -28,6 +28,7 @@ import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedLink'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
@@ -107,7 +108,7 @@ export default function UserTable({
           />
         ),
         id: row.id,
-        name: row.name,
+        name: truncateText(row.name, { visibleChars: 14, ellipsisPosition: 'end' }),
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin: row.lastLogin && (
@@ -141,9 +142,8 @@ export default function UserTable({
               disabled={!userHasAccess('location:write')}
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
-            >
-              <HiPencil className="place-self-center text-theme-iconGreen" />
-            </Button>
+              startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+            />
             <Button
               rounded="full"
               variant="outline"
@@ -160,9 +160,8 @@ export default function UserTable({
                   />
                 )
               }}
-            >
-              <HiTrash className="place-self-center text-theme-iconRed" />
-            </Button>
+              startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+            />
           </div>
         )
       }

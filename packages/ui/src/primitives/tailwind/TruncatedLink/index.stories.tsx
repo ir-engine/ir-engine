@@ -22,42 +22,36 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
-
+import { ArgTypes } from '@storybook/react'
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 
-import { useFind } from '@ir-engine/common'
-import { migrationsInfoPath, MigrationsInfoType } from '@ir-engine/common/src/schema.type.module'
+import TruncatedLink from './index'
 
-import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { migrationsInfoColumns, MigrationsInfoRowType } from '../../common/constants/migrations-info'
-import DataTable from '../../common/Table'
+const argTypes: ArgTypes = {}
 
-export default function MigrationsInfoTable() {
-  const { t } = useTranslation()
-
-  const adminMigrationsInfoQuery = useFind(migrationsInfoPath, {
-    query: {
-      $limit: 100,
-      $sort: {
-        id: -1
-      }
-    }
-  })
-
-  const createRows = (rows: readonly MigrationsInfoType[]): MigrationsInfoRowType[] =>
-    rows.map((row) => ({
-      id: row.id.toString(),
-      name: row.name,
-      batch: row.batch.toString(),
-      migration_time: toDisplayDateTime(row.migration_time)
-    }))
-
+const TruncatedLinkStory = (id: string) => {
   return (
-    <DataTable
-      query={adminMigrationsInfoQuery}
-      columns={migrationsInfoColumns}
-      rows={createRows(adminMigrationsInfoQuery.data)}
-    />
+    <div className="flex h-screen items-center justify-center">
+      <TruncatedLink text={id} href="https://google.com" />
+    </div>
   )
+}
+
+export default {
+  title: 'Primitives/Tailwind/TruncatedLink',
+  component: TruncatedLinkStory,
+  parameters: {
+    componentSubtitle: 'TruncatedLink',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
+
+export const Default = {
+  args: {
+    id: '60fc7eab-792a-483f-bbb9-f5b1ec7b98ea'
+  }
 }
