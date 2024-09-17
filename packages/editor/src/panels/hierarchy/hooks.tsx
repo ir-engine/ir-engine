@@ -253,34 +253,31 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
       }
     }
 
-    if (parentNode) {
-      if ('files' in item) {
-        const dndItem: any = monitor.getItem()
-        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+    if ('files' in item) {
+      const dndItem: any = monitor.getItem()
+      const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
 
-        //uploading files then adding as media to the editor
-        onUpload(entries).then((assets) => {
-          if (!assets) return
-          for (const asset of assets) {
-            addMediaNode(asset, parentNode, beforeNode)
-          }
-        })
-        return
-      }
+      onUpload(entries).then((assets) => {
+        if (!assets) return
+        for (const asset of assets) {
+          addMediaNode(asset, parentNode, beforeNode)
+        }
+      })
+      return
+    }
 
-      if ('url' in item) {
-        addMediaNode(item.url, parentNode, beforeNode)
-        return
-      }
+    if ('url' in item) {
+      addMediaNode(item.url, parentNode, beforeNode)
+      return
+    }
 
-      if ('type' in item && item.type === ItemTypes.Component) {
-        EditorControlFunctions.createObjectFromSceneElement(
-          [{ name: (item as any).componentJsonID }],
-          parentNode,
-          beforeNode
-        )
-        return
-      }
+    if ('type' in item && item.type === ItemTypes.Component) {
+      EditorControlFunctions.createObjectFromSceneElement(
+        [{ name: (item as any).componentJsonID }],
+        parentNode,
+        beforeNode
+      )
+      return
     }
 
     EditorControlFunctions.reparentObject(
