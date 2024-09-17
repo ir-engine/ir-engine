@@ -29,8 +29,7 @@ import { useLocation } from 'react-router-dom'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/mui/Button'
-import Container from '@ir-engine/ui/src/primitives/mui/Container'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
@@ -67,15 +66,15 @@ const LinkedinCallbackComponent = (props): JSX.Element => {
   }
 
   return state.error && state.error !== '' ? (
-    <Container className={styles.oauthError}>
+    <div className={styles.oauthError}>
       <div className={styles.title}>{t('user:oauth.authFailed', { service: 'LinkedIn' })}</div>
       <div className={styles.message}>{state.error}</div>
       <Button onClick={redirectToRoot} className={styles.gradientButton}>
         {t('user:oauth.redirectToRoot')}
       </Button>
-    </Container>
+    </div>
   ) : (
-    <Container>{t('user:oauth.authenticating')}</Container>
+    <div>{t('user:oauth.authenticating')}</div>
   )
 }
 
