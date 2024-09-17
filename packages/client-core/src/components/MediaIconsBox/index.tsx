@@ -173,7 +173,7 @@ export const MediaIconsBox = () => {
             title={t('user:menu.toggleVideo')}
             className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
             onClick={() => {
-              MediaStreamState.toggleWebcamPaused
+              MediaStreamState.toggleWebcamPaused()
               logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
             }}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
