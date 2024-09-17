@@ -23,18 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '@ir-engine/client-core/src/networking/ClientNetworkingSystem'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import '@ir-engine/engine/src/EngineModule'
 import { getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { FcInfo } from 'react-icons/fc'
 import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
+import { isSupportedBrowser } from '../functions/browserCheck'
 import { EditorState } from '../services/EditorServices'
 import { ProjectPage } from './ProjectPage'
 
+const downloadGoogleLink =
+  'https://www.google.com/chrome/dr/download/?brand=CBFU&ds_kid=43700079286123654&gad_source=1&gclid=CjwKCAjwooq3BhB3EiwAYqYoEkgLBNGFDuKclZQTGAA8Lzq66cvirjjOm7ur0ayMgKvn9y3Fd1spThoCXu0QAvD_BwE&gclsrc=aw.ds'
 export const useStudioEditor = () => {
   const engineReady = useHookstate(false)
 
@@ -50,8 +56,11 @@ export const useStudioEditor = () => {
 }
 
 export const EditorPage = () => {
+  const { t } = useTranslation()
   const [params] = useSearchParams()
   const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
+  const supportedBrowser = useHookstate(isSupportedBrowser)
+  const acknowledgedUnsupportedBrowser = useHookstate(false)
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
@@ -75,6 +84,45 @@ export const EditorPage = () => {
   }, [scenePath])
 
   if (!scenePath.value && !projectName.value) return <ProjectPage studioPath="/studio" />
-
-  return <EditorContainer />
+  return (
+    <>
+      <EditorContainer />
+      {!supportedBrowser.value &&
+        !acknowledgedUnsupportedBrowser.value &&
+        PopoverState.showPopupover(
+          <Modal
+            onSubmit={() => {
+              return true
+            }}
+            onClose={() => {
+              acknowledgedUnsupportedBrowser.set(true)
+              PopoverState.hidePopupover()
+            }}
+            className="w-[50vw] max-w-2xl"
+            hideFooter
+          >
+            <div className="flex flex-col gap-2">
+              <span className="flex items-center gap-2">
+                <FcInfo /> {t('editor:unsupportedBrowser.title')}
+              </span>
+              <span>{t('editor:unsupportedBrowser.description')}</span>
+              <span className="flex gap-3">
+                <a href={downloadGoogleLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+                  {t('editor:unsupportedBrowser.downloadChrome')}
+                </a>
+                <span
+                  className="hover:text-blue-500"
+                  onClick={() => {
+                    acknowledgedUnsupportedBrowser.set(true)
+                    PopoverState.hidePopupover()
+                  }}
+                >
+                  {t('editor:unsupportedBrowser.continue')}
+                </span>
+              </span>
+            </div>
+          </Modal>
+        )}
+    </>
+  )
 }

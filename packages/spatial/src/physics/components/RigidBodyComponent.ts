@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
-
 import { useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -34,23 +32,21 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
+import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { useEffect } from 'react'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { QuaternionProxy, Vec3Proxy } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
-const { f64 } = Types
-const Vector3Schema = { x: f64, y: f64, z: f64 }
-const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
 const SCHEMA = {
-  previousPosition: Vector3Schema,
-  previousRotation: QuaternionSchema,
-  position: Vector3Schema,
-  rotation: QuaternionSchema,
-  targetKinematicPosition: Vector3Schema,
-  targetKinematicRotation: QuaternionSchema,
-  linearVelocity: Vector3Schema,
-  angularVelocity: Vector3Schema
+  previousPosition: ECSSchema.Vec3,
+  previousRotation: ECSSchema.Quaternion,
+  position: ECSSchema.Vec3,
+  rotation: ECSSchema.Quaternion,
+  targetKinematicPosition: ECSSchema.Vec3,
+  targetKinematicRotation: ECSSchema.Quaternion,
+  linearVelocity: ECSSchema.Vec3,
+  angularVelocity: ECSSchema.Vec3
 }
 
 export const RigidBodyComponent = defineComponent({
@@ -58,7 +54,7 @@ export const RigidBodyComponent = defineComponent({
   jsonID: 'EE_rigidbody',
   schema: SCHEMA,
 
-  onInit(entity) {
+  onInit(initial) {
     return {
       type: 'fixed' as Body,
       ccd: false,
@@ -70,14 +66,14 @@ export const RigidBodyComponent = defineComponent({
       // internal
       /** @deprecated  @todo make the physics api properly reactive to remove this property  */
       initialized: false,
-      previousPosition: proxifyVector3(this.previousPosition, entity),
-      previousRotation: proxifyQuaternion(this.previousRotation, entity),
-      position: proxifyVector3(this.position, entity),
-      rotation: proxifyQuaternion(this.rotation, entity),
-      targetKinematicPosition: proxifyVector3(this.targetKinematicPosition, entity),
-      targetKinematicRotation: proxifyQuaternion(this.targetKinematicRotation, entity),
-      linearVelocity: proxifyVector3(this.linearVelocity, entity),
-      angularVelocity: proxifyVector3(this.angularVelocity, entity),
+      previousPosition: Vec3Proxy(initial.previousPosition),
+      previousRotation: QuaternionProxy(initial.previousRotation),
+      position: Vec3Proxy(initial.position),
+      rotation: QuaternionProxy(initial.rotation),
+      targetKinematicPosition: Vec3Proxy(initial.targetKinematicPosition),
+      targetKinematicRotation: QuaternionProxy(initial.targetKinematicRotation),
+      linearVelocity: Vec3Proxy(initial.linearVelocity),
+      angularVelocity: Vec3Proxy(initial.angularVelocity),
       /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
       targetKinematicLerpMultiplier: 0
     }
@@ -102,14 +98,14 @@ export const RigidBodyComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      type: component.type.value as Body,
-      ccd: component.ccd.value,
-      allowRolling: component.allowRolling.value,
-      enabledRotations: component.enabledRotations.value,
-      canSleep: component.canSleep.value,
-      gravityScale: component.gravityScale.value
+      type: component.type,
+      ccd: component.ccd,
+      allowRolling: component.allowRolling,
+      enabledRotations: component.enabledRotations,
+      canSleep: component.canSleep,
+      gravityScale: component.gravityScale
     }
   },
 

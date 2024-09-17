@@ -27,6 +27,7 @@ import { ArrayCamera, PerspectiveCamera } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 
@@ -34,32 +35,14 @@ export const CameraComponent = defineComponent({
   name: 'CameraComponent',
   jsonID: 'EE_camera',
 
-  onInit: (entity) => {
-    const camera = new ArrayCamera()
-    camera.fov = 60
-    camera.aspect = 1
-    camera.near = 0.1
-    camera.far = 1000
-    camera.cameras = [new PerspectiveCamera().copy(camera, false)]
-    return camera
-  },
+  schema: S.Object({
+    fov: S.Number(60),
+    aspect: S.Number(1),
+    near: S.Number(0.1),
+    far: S.Number(1000)
+  }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.fov === 'number') component.fov.set(json.fov)
-    if (typeof json.aspect === 'number') component.aspect.set(json.aspect)
-    if (typeof json.near === 'number') component.near.set(json.near)
-    if (typeof json.far === 'number') component.far.set(json.far)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      fov: component.fov.value,
-      aspect: component.aspect.value,
-      near: component.near.value,
-      far: component.far.value
-    }
-  },
+  onInit: (initial) => new ArrayCamera([new PerspectiveCamera(initial.fov, initial.aspect, initial.near, initial.far)]),
 
   reactor: () => {
     const entity = useEntityContext()

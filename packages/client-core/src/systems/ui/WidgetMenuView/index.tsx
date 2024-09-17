@@ -36,8 +36,7 @@ import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@ir-engine/
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { MediaStreamState } from '../../../transports/MediaStreams'
-import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
+import { MediaStreamState } from '../../../media/MediaStreamState'
 import XRIconButton from '../../components/XRIconButton'
 import HandSVG from './back_hand_24px.svg?react'
 import styleString from './index.scss?inline'
@@ -118,7 +117,7 @@ const WidgetButtons = () => {
   const mediaInstanceState = useMediaInstance()
 
   const mediaStreamState = useMutableState(MediaStreamState)
-  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isCamAudioEnabled = !!mediaStreamState.microphoneMediaStream.value && mediaStreamState.microphoneEnabled.value
 
   // TODO: add a notification hint function to the widget wrapper and move unread messages there
   // useEffect(() => {
@@ -183,7 +182,7 @@ const WidgetButtons = () => {
         {mediaInstanceState?.value && (
           <WidgetButton
             icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}
-            toggle={toggleMicrophonePaused}
+            toggle={MediaStreamState.toggleMicrophonePaused}
             label={isCamAudioEnabled ? 'Audio on' : 'Audio Off'}
           />
         )}
