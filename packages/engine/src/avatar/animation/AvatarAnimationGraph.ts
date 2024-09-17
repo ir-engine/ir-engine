@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { clamp } from 'lodash'
-import { AnimationAction, AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
+import { AnimationAction, AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Vector3 } from 'three'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -46,7 +46,8 @@ const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.m
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
   const clip = AnimationClip.findByName(
-    animations ?? manager.loadedAnimations[preloadedAnimations.locomotion]!.animations,
+    animations ??
+      getComponent(manager.loadedAnimations[preloadedAnimations.locomotion]!, AnimationComponent).animations,
     name
   )
   return mixer.clipAction(clip)
@@ -80,7 +81,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
     const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
     graph.fadingOut.set(newAnimation.needsSkip ?? false)
     graph.layer.set(newAnimation.layer ?? 0)
-    playAvatarAnimationFromMixamo(targetEntity, animationAsset.scene, newAnimation.loop!, newAnimation.clipName!)
+    playAvatarAnimationFromMixamo(targetEntity, animationAsset, newAnimation.loop!, newAnimation.clipName!)
   }
 
   for (const entity of avatarEntities) {
@@ -116,7 +117,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
 /** Retargets a mixamo animation to the entity's avatar model, then blends in and out of the default locomotion state. */
 export const playAvatarAnimationFromMixamo = (
   entity: Entity,
-  animationsScene: Object3D,
+  animationsEntity: Entity,
   loop?: boolean,
   clipName?: string
 ) => {
@@ -125,6 +126,7 @@ export const playAvatarAnimationFromMixamo = (
   const rigComponent = getComponent(entity, AvatarRigComponent)
   if (!rigComponent || !rigComponent.vrm) return
   //if animation is already present on animation component, use it instead of retargeting again
+  const animationsScene = getComponent(animationsEntity, AnimationComponent)
   let retargetedAnimation = animationComponent.animations.find(
     (clip) => clip.name == (clipName ?? animationsScene.animations[0].name)
   )

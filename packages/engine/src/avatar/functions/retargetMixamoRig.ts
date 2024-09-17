@@ -23,25 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AnimationClip, KeyframeTrack, Object3D, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
+import { AnimationClip, KeyframeTrack, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
 
-import { mixamoVRMRigMap, recursiveHipsLookup } from '../AvatarBoneMatching'
+import { Entity, getComponent } from '@ir-engine/ecs'
+import { TransformComponent } from '@ir-engine/spatial'
+import { recursiveNameLookup } from '@ir-engine/spatial/src/common/NameComponent'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { mixamoVRMRigMap, recursiveHipsLookupECS } from '../AvatarBoneMatching'
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()
 const _quatA = new Quaternion()
 
-/**Retargets an animation clip into normalized bone space for use with any T-Posed normalized humanoid rig */
-export const retargetAnimationClip = (clip: AnimationClip, mixamoScene: Object3D) => {
-  const hipsPositionScale = recursiveHipsLookup(mixamoScene).parent.scale.y
-
+/**Retargets an animation clip into normalized bone space for use with any T-Posed normalized humanoid rig
+ * @todo refactor to use ecs
+ */
+export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) => {
+  const hips = recursiveHipsLookupECS(gltfEntity)
+  const hipsPositionScale = getComponent(hips, TransformComponent).position.y
+  getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
   for (let i = 0; i < clip.tracks.length; i++) {
     const track = clip.tracks[i]
     const trackSplitted = track.name.split('.')
     const rigNodeName = trackSplitted[0]
-    const rigNode = mixamoScene.getObjectByName(rigNodeName)!
-
-    mixamoScene.updateWorldMatrix(true, true)
+    const rigNodeEntity = recursiveNameLookup(gltfEntity, rigNodeName) as Entity
+    const rigNode = getComponent(rigNodeEntity, BoneComponent)
+    console.log(rigNodeName, rigNode)
 
     // Store rotations of rest-pose
     rigNode.getWorldQuaternion(restRotationInverse).invert()

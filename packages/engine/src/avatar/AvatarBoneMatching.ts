@@ -31,6 +31,9 @@ import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector
 
 import { Object3DUtils } from '@ir-engine/spatial'
 
+import { Entity, getComponent } from '@ir-engine/ecs'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 
 export type MixamoBoneNames =
@@ -631,6 +634,7 @@ function findRootBone(bone: Bone): Bone {
 }
 
 const hipsRegex = /hip|pelvis/i
+/**@deprecated use ecs function instead */
 export const recursiveHipsLookup = (model: Object3D) => {
   const name = model.name.toLowerCase()
 
@@ -640,6 +644,21 @@ export const recursiveHipsLookup = (model: Object3D) => {
   if (model.children.length > 0) {
     for (const child of model.children) {
       const results = recursiveHipsLookup(child)
+      if (results) return results
+    }
+  }
+}
+
+export const recursiveHipsLookupECS = (entity: Entity) => {
+  const name = getComponent(entity, NameComponent)
+
+  if (hipsRegex.test(name)) {
+    return entity
+  }
+  const entityTreeComponent = getComponent(entity, EntityTreeComponent)
+  if (entityTreeComponent.children.length > 0) {
+    for (const child of entityTreeComponent.children) {
+      const results = recursiveHipsLookupECS(child)
       if (results) return results
     }
   }

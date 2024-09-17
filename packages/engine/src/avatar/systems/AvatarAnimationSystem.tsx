@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { AnimationClip, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   defineQuery,
@@ -36,7 +36,7 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
@@ -49,10 +49,9 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModul
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import React from 'react'
-import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -60,7 +59,7 @@ import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
-import { AnimationComponent, useLoadAnimationFromGLTF } from '../components/AnimationComponent'
+import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
@@ -318,36 +317,36 @@ const execute = () => {
 
 const Reactor = () => {
   /**loads animation bundles. assumes the bundle is a glb */
-  const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
-  const [gltfs] = useBatchGLTF(
-    animations.map((animationFile) => {
-      return `${
-        getState(DomainConfigState).cloudDomain
-      }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
-    })
-  )
-  const manager = useMutableState(AnimationState)
-  useEffect(() => {
-    const assets = gltfs.get(NO_PROXY)
-    if (assets.length !== animations.length) return
-    for (let i = 0; i < assets.length; i++) {
-      const asset = assets[i] as GLTF | null
-      if (asset && !manager.loadedAnimations[animations[i]].value) {
-        // delete unneeded geometry data to save memory
-        asset.scene.traverse((node) => {
-          delete (node as any).geometry
-          delete (node as any).material
-        })
-        for (let i = 0; i < asset.animations.length; i++) {
-          retargetAnimationClip(asset.animations[i], asset.scene)
-          bindAnimationClipFromMixamo(asset.animations[i])
-        }
-        //ensure animations are always placed in the scene
-        asset.scene.animations = asset.animations
-        manager.loadedAnimations[animations[i]].set(asset)
-      }
-    }
-  }, [gltfs])
+  // const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
+  // const [gltfs] = useBatchGLTF(
+  //   animations.map((animationFile) => {
+  //     return `${
+  //       getState(DomainConfigState).cloudDomain
+  //     }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
+  //   })
+  // )
+  // const manager = useMutableState(AnimationState)
+  // useEffect(() => {
+  //   const assets = gltfs.get(NO_PROXY)
+  //   if (assets.length !== animations.length) return
+  //   for (let i = 0; i < assets.length; i++) {
+  //     const asset = assets[i] as GLTF | null
+  //     if (asset && !manager.loadedAnimations[animations[i]].value) {
+  //       // delete unneeded geometry data to save memory
+  //       asset.scene.traverse((node) => {
+  //         delete (node as any).geometry
+  //         delete (node as any).material
+  //       })
+  //       for (let i = 0; i < asset.animations.length; i++) {
+  //         retargetAnimationClip(asset.animations[i], asset.scene)
+  //         bindAnimationClipFromMixamo(asset.animations[i])
+  //       }
+  //       //ensure animations are always placed in the scene
+  //       asset.scene.animations = asset.animations
+  //       manager.loadedAnimations[animations[i]].set(asset)
+  //     }
+  //   }
+  // }, [gltfs])
 
   const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
@@ -366,14 +365,30 @@ const Reactor = () => {
 }
 
 const AnimationReactor = () => {
-  const loadedAnimations = useLoadAnimationFromGLTF(
-    `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/animations/${
-      preloadedAnimations.locomotion
-    }.glb`
+  const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
+  const loadedAnimations = useLoadAnimationFromBatchGLTF(
+    animations.map((animationFile) => {
+      return `${
+        getState(DomainConfigState).cloudDomain
+      }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
+    }),
+    true
   )
 
   useEffect(() => {
-    console.log(loadedAnimations.value)
+    if (!loadedAnimations.value) return
+    console.log(loadedAnimations.value[0][1])
+    const scene = getComponent(loadedAnimations.value[0][1] as Entity, GroupComponent)[0]
+    console.log(scene)
+    let i = 0
+    for (const loadedAnimationEntity of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
+      for (const animation of loadedAnimationEntity[0]!) {
+        retargetAnimationClip(animation, loadedAnimationEntity[1])
+        bindAnimationClipFromMixamo(animation)
+      }
+      getMutableState(AnimationState).loadedAnimations[animations[i]].set(loadedAnimationEntity[1]!)
+      i++
+    }
   }, [loadedAnimations])
   return null
 }

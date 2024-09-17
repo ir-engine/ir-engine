@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer } from 'three'
 
-import { generateEntityUUID, removeEntity } from '@ir-engine/ecs'
+import { Entity, generateEntityUUID, removeEntity, UndefinedEntity } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFAssetState } from '../../gltf/GLTFState'
@@ -49,7 +49,17 @@ export const AnimationComponent = defineComponent({
   }
 })
 
-export const useLoadAnimationFromGLTF = (url: string) => {
+export const useLoadAnimationFromBatchGLTF = (urls: string[], keepEntities = false) => {
+  const animations = urls.map((url) => useLoadAnimationFromGLTF(url, keepEntities))
+  const loadedAnimations = useHookstate(null as [AnimationClip[] | null, Entity][] | null)
+  useEffect(() => {
+    if (loadedAnimations.value || animations.some((animation) => !animation[0].value)) return
+    loadedAnimations.set(animations.map((animation) => [animation[0].get(NO_PROXY)!, animation[1]]))
+  })
+  return loadedAnimations as State<[AnimationClip[] | null, Entity][]>
+}
+
+export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   const assetEntity = useMutableState(GLTFAssetState)[url].value
   const animation = useHookstate(null as AnimationClip[] | null)
   const animationComponent = useOptionalComponent(assetEntity, AnimationComponent)
@@ -65,7 +75,7 @@ export const useLoadAnimationFromGLTF = (url: string) => {
   useEffect(() => {
     if (!animationComponent?.animations || !animationComponent.animations.length) return
     animation.set(getComponent(assetEntity, AnimationComponent).animations)
-    removeEntity(assetEntity)
+    if (!keepEntity) removeEntity(assetEntity)
   }, [animationComponent?.animations])
-  return animation
+  return [animation, keepEntity ? assetEntity : UndefinedEntity] as [State<AnimationClip[] | null>, Entity]
 }
