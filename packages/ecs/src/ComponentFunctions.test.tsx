@@ -28,6 +28,7 @@ import assert from 'assert'
 import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 
+import { DirectionalLight, Matrix4, Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
@@ -44,6 +45,9 @@ import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
+import { ECSSchema } from './schemas/ECSSchemas'
+import { CheckSchemaValue, CreateSchemaValue } from './schemas/JSONSchemaUtils'
+import { S } from './schemas/JSONSchemas'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
@@ -60,6 +64,7 @@ describe('ComponentFunctions', async () => {
       const TagComponent = defineComponent({ name: 'TagComponent', onInit: () => true })
 
       assert.equal(TagComponent.name, 'TagComponent')
+      assert.equal(typeof TagComponent.schema, 'undefined')
       assert.equal(typeof TagComponent.schema, 'undefined')
       assert.equal(ComponentMap.size, 1)
     })
@@ -80,6 +85,205 @@ describe('ComponentFunctions', async () => {
       assert.equal(Vector3Component.name, 'Vector3Component')
       assert.equal(Vector3Component.schema, Vector3Schema)
       assert.equal(ComponentMap.size, 1)
+    })
+
+    it('should use default toJSON function if none is defined', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(0)
+        })
+      })
+
+      const entity = createEntity()
+      setComponent(entity, Vector3Component)
+      const vector3Component = getComponent(entity, Vector3Component)
+      const json = Vector3Component.toJSON(vector3Component)
+      const fromSchema = CreateSchemaValue(Vector3Component.schema)
+      assert.deepEqual(vector3Component, fromSchema)
+      assert.deepEqual(json, fromSchema)
+      assert.deepEqual(json, vector3Component)
+    })
+
+    it('should use default onSet function if none is defined', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        })
+      })
+
+      const setValue = { x: 12, y: 24 }
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, setValue)
+      const vector3Component = getComponent(entity, Vector3Component)
+      assert(CheckSchemaValue(Vector3Component.schema, vector3Component))
+      assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
+      assert(vector3Component.z === CreateSchemaValue(Vector3Component.schema).z)
+    })
+
+    it('should override runtime data if onInit is specified', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        }),
+        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
+      })
+
+      const setValue = { x: 12, y: 24 }
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, setValue)
+      const vector3Component = getComponent(entity, Vector3Component)
+      const fromSchema = CreateSchemaValue(Vector3Component.schema)
+      assert(vector3Component instanceof Vector3)
+      assert(vector3Component.isVector3)
+      assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
+      assert(vector3Component.z === fromSchema.z)
+      assert.notDeepEqual(vector3Component, fromSchema)
+    })
+
+    it('toJSON should still be in the shape of the schema even if overriden by onInit', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        }),
+        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
+      })
+
+      const setValue = { x: 12, y: 24 }
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, setValue)
+      const vector3Component = getComponent(entity, Vector3Component)
+      const json = Vector3Component.toJSON(vector3Component)
+      assert(vector3Component instanceof Vector3)
+      assert(!(json instanceof Vector3))
+      assert(vector3Component.isVector3)
+      assert.deepEqual(json, { ...setValue, z: 4 })
+      assert((json as any).isVector3 === undefined)
+    })
+
+    it('Can set component with overriden types', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        }),
+        onInit: (initial) => new Vector3(initial.x, initial.y, initial.z)
+      })
+
+      const setValue = new Vector3(12, 15, 74)
+      const entity = createEntity()
+      setComponent(entity, Vector3Component, setValue)
+      const vector3Component = getComponent(entity, Vector3Component)
+      assert(vector3Component instanceof Vector3)
+      assert(
+        vector3Component.x === setValue.x && vector3Component.y === setValue.y && vector3Component.z === setValue.z
+      )
+    })
+
+    it('toJSON ignores NonSerialized fields', () => {
+      const ObjComponent = defineComponent({
+        name: 'ObjComponent',
+        schema: S.Object({
+          light: S.NonSerialized(S.Class(() => new DirectionalLight())),
+          other: S.Number(0)
+        })
+      })
+
+      const entity = createEntity()
+      setComponent(entity, ObjComponent, { other: 12 })
+      const objComponent = getComponent(entity, ObjComponent)
+      const json = ObjComponent.toJSON(objComponent)
+      assert(!('light' in json))
+      assert('other' in json)
+      // The previous assert erases type for some reason
+      assert((json as any).other === 12)
+    })
+
+    it('throws error when onSet is called without required fields', () => {
+      const ObjComponent = defineComponent({
+        name: 'ObjComponent',
+        schema: S.Object({
+          light: S.Required(S.Class(() => new DirectionalLight())),
+          other: S.Number(0)
+        })
+      })
+
+      const entity = createEntity()
+      assert.throws(() => setComponent(entity, ObjComponent, { other: 12 }))
+    })
+
+    it('ECS Schema is proxied', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: ECSSchema.Vec3
+      })
+
+      const entity = createEntity()
+      setComponent(entity, Vector3Component)
+      const vector3Component = getComponent(entity, Vector3Component)
+      vector3Component.x = 12
+      assert(vector3Component.x === 12)
+      assert(vector3Component.x === Vector3Component.x[entity])
+    })
+
+    it('ECS Schema is proxied, nested objects', () => {
+      const TransformComponent = defineComponent({
+        name: 'Vector3Component',
+        schema: {
+          position: ECSSchema.Vec3,
+          rotation: ECSSchema.Quaternion,
+          scale: ECSSchema.Vec3
+        }
+      })
+
+      const entity = createEntity()
+      setComponent(entity, TransformComponent)
+      const transformComponent = getComponent(entity, TransformComponent)
+      transformComponent.position.x = 12
+      assert(transformComponent.position.x === 12)
+      assert(transformComponent.position.x === TransformComponent.position.x[entity])
+    })
+
+    it('ECS Schema is proxied, arrays', () => {
+      const TransformComponent = defineComponent({
+        name: 'Vector3Component',
+        schema: {
+          position: ECSSchema.Vec3,
+          rotation: ECSSchema.Quaternion,
+          scale: ECSSchema.Vec3,
+          matrix: ECSSchema.Mat4
+        }
+      })
+
+      const entity = createEntity()
+      setComponent(entity, TransformComponent)
+      const transformComponent = getComponent(entity, TransformComponent)
+      transformComponent.matrix[12] = 14
+      const mat = TransformComponent.matrix[entity]
+      assert(transformComponent.matrix[12] === 14)
+      assert(transformComponent.matrix[12] === TransformComponent.matrix[entity][12])
+      assert(transformComponent.matrix[12] === mat[12])
+
+      const mat4Elements = new Matrix4().elements
+      transformComponent.matrix.set(mat4Elements)
+
+      for (let i = 0; i < mat4Elements.length; i++) {
+        assert(transformComponent.matrix[i] === mat4Elements[i])
+        assert(TransformComponent.matrix[entity][i] === mat4Elements[i])
+      }
     })
   })
 

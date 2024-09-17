@@ -24,11 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { ReactElement, useEffect } from 'react'
-import matches from 'ts-matches'
 
 import {
   ComponentType,
   defineComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -41,6 +41,8 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NO_PROXY, useImmediateEffect } from '@ir-engine/hyperflux'
 import { setInstancedMeshVariant, updateModelVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'
 import { ModelComponent } from './ModelComponent'
@@ -69,53 +71,12 @@ export const VariantComponent = defineComponent({
   name: 'EE_variant',
   jsonID: 'EE_variant',
 
-  onInit: (entity) => ({
-    levels: [] as VariantLevel[],
-    heuristic: Heuristic.MANUAL,
-    useDistance: false,
-    currentLevel: 0,
-    budgetLevel: 0
-  }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.heuristic === 'string') component.heuristic.set(json.heuristic)
-    if (
-      !!json.levels &&
-      matches
-        .arrayOf(
-          matches.shape({
-            src: matches.string,
-            metadata: matches.any
-          })
-        )
-        .test(json.levels)
-    ) {
-      if (component.heuristic.value === Heuristic.BUDGET) {
-        json.levels = json.levels.sort((left, right) => {
-          const leftVertexCount = left.metadata['vertexCount'] ? (left.metadata['vertexCount'] as number) : 0
-          const rightVertexCount = right.metadata['vertexCount'] ? (right.metadata['vertexCount'] as number) : 0
-          return rightVertexCount - leftVertexCount
-        })
-      }
-      component.levels.set(json.levels)
-    }
-
-    if (typeof json.useDistance === 'boolean') component.useDistance.set(json.useDistance)
-    if (typeof json.currentLevel === 'number') component.currentLevel.set(json.currentLevel)
-    if (typeof json.budgetLevel === 'number') component.currentLevel.set(json.budgetLevel)
-  },
-
-  toJSON: (entity, component) => ({
-    levels: component.levels.value.map((level) => {
-      return {
-        src: level.src,
-        metadata: level.metadata
-      }
-    }),
-    heuristic: component.heuristic.value,
-    useDistance: component.useDistance.value
+  schema: S.Object({
+    levels: S.Array(S.Object({ src: S.String(), metadata: S.Record(S.String(), S.Any()) })),
+    heuristic: S.Enum(Heuristic, Heuristic.MANUAL),
+    useDistance: S.Bool(false),
+    currentLevel: S.Number(0),
+    budgetLevel: S.Number(0)
   }),
 
   reactor: VariantReactor
@@ -126,6 +87,19 @@ function VariantReactor(): ReactElement {
   const variantComponent = useComponent(entity, VariantComponent)
   const modelComponent = useOptionalComponent(entity, ModelComponent)
   const meshComponent = getOptionalComponent(entity, MeshComponent)
+
+  useImmediateEffect(() => {
+    const json = VariantComponent.toJSON(getComponent(entity, VariantComponent))
+    if (variantComponent.heuristic.value !== Heuristic.BUDGET) return
+
+    const sortedLevels = (variantComponent.levels.get(NO_PROXY) as VariantLevel[]).sort((left, right) => {
+      const leftVertexCount = left.metadata['vertexCount'] ? (left.metadata['vertexCount'] as number) : 0
+      const rightVertexCount = right.metadata['vertexCount'] ? (right.metadata['vertexCount'] as number) : 0
+      return rightVertexCount - leftVertexCount
+    })
+
+    variantComponent.levels.set(sortedLevels)
+  }, [variantComponent.heuristic])
 
   useEffect(() => {
     const currentLevel = variantComponent.currentLevel.value

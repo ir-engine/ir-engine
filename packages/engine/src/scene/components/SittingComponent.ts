@@ -24,21 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const SittingComponent = defineComponent({
   name: 'SittingComponent',
 
-  onInit(entity) {
-    return {
-      mountPointEntity: UndefinedEntity
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.mountPointEntity === 'number') component.mountPointEntity.set(json.mountPointEntity)
-    //if (typeof json.state === 'string') component.state.set(json.state)
-  }
+  schema: S.Object({
+    mountPointEntity: S.Entity()
+  })
 })

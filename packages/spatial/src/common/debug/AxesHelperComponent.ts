@@ -25,30 +25,22 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AxesHelper } from 'three'
 
-import { defineComponent, Entity, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const AxesHelperComponent = defineComponent({
   name: 'AxesHelperComponent',
 
-  onInit: (entity) => {
-    return {
-      name: 'axes-helper',
-      size: 1,
-      layerMask: ObjectLayerMasks.NodeHelper,
-      entity: undefined as undefined | Entity
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.name === 'string') component.name.set(json.name)
-    if (typeof json.size === 'number') component.size.set(json.size)
-    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
-  },
+  schema: S.Object({
+    name: S.String('axes-helper'),
+    size: S.Number(1),
+    layerMask: S.Number(ObjectLayerMasks.NodeHelper),
+    entity: S.Optional(S.Entity())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

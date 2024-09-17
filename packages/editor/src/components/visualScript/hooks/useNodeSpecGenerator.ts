@@ -59,7 +59,7 @@ export class NodeSpecGenerator {
     const generateCacheKey = () => {
       let cacheKey = nodeTypeName + '\x01' + JSON.stringify(configuration)
       if (!nodeTypeName.includes('variable')) return cacheKey
-      const variableNames = visualScriptComponent.visualScript.variables?.map((variable) => {
+      const variableNames = visualScriptComponent.visualScript?.variables?.map((variable) => {
         return { name: variable.name, type: variable.valueTypeName }
       })
       if (variableNames!.length === 0) return cacheKey
@@ -71,7 +71,7 @@ export class NodeSpecGenerator {
     if (!this.specsCache[cacheKey]) {
       const variableNodeAdjustSpec = () => {
         if (!nodeTypeName.includes('variable')) return
-        const variable = visualScriptComponent.visualScript.variables?.find(
+        const variable = visualScriptComponent.visualScript?.variables?.find(
           (variable) => variable.name === configuration.variableName
         )
         if (variable === undefined) return

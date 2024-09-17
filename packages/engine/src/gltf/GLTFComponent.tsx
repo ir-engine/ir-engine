@@ -44,6 +44,7 @@ import {
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { dispatchAction, getState, useHookstate } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
 import { SourceComponent } from '../scene/components/SourceComponent'
@@ -79,15 +80,13 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
 export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',
 
-  onInit(entity) {
-    return {
-      src: '',
-      // internals
-      extensions: {},
-      progress: 0,
-      dependencies: undefined as ComponentDependencies | undefined
-    }
-  },
+  schema: S.Object({
+    src: S.String(''),
+    // internals
+    extensions: S.Record(S.String(), S.Any(), {}),
+    progress: S.Number(0),
+    dependencies: S.Optional(S.Type<ComponentDependencies>())
+  }),
 
   onSet(entity, component, json) {
     if (typeof json?.src === 'string') component.src.set(json.src)
