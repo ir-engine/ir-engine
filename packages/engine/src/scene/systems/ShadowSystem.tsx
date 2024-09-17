@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import {
   Box3,
+  Color,
   DirectionalLight,
   DoubleSide,
   Material,
@@ -165,7 +166,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     csm.shadowMapSize = shadowMapResolution.value
 
     for (const light of csm.lights) {
-      light.color.copy(directionalLightComponent.color.value)
+      light.color.set(new Color(directionalLightComponent.color.value))
       light.intensity = directionalLightComponent.intensity.value
       light.shadow.mapSize.setScalar(shadowMapResolution.value)
       light.shadow.radius = directionalLightComponent.shadowRadius.value

@@ -49,10 +49,6 @@ import {
   ServerSettingDatabaseType,
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
-import {
-  taskServerSettingPath,
-  TaskServerSettingType
-} from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
 
 import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
@@ -87,22 +83,6 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const promises: any[] = []
 
-  const taskServerSettingPromise = knexClient
-    .select()
-    .from<TaskServerSettingType>(taskServerSettingPath)
-    .then(([dbTaskServer]) => {
-      if (dbTaskServer) {
-        appConfig.taskserver = {
-          ...appConfig.taskserver,
-          ...dbTaskServer
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read taskServerSetting: ${e.message}`)
-    })
-  promises.push(taskServerSettingPromise)
-
   const authenticationSettingPromise = knexClient
     .select()
     .from<AuthenticationSettingDatabaseType>(authenticationSettingPath)
@@ -120,8 +100,16 @@ export const updateAppConfig = async (): Promise<void> => {
         appConfig.authentication = {
           ...appConfig.authentication,
           ...(dbAuthenticationConfig as any),
+          secret: appConfig.authentication.secret.split(String.raw`\n`).join('\n'),
           authStrategies: authStrategies
         }
+        if (dbAuthenticationConfig.oauth?.github?.privateKey)
+          appConfig.authentication.oauth.github.privateKey = dbAuthenticationConfig.oauth.github.privateKey
+            .split(String.raw`\n`)
+            .join('\n')
+        if (dbAuthenticationConfig.jwtPublicKey)
+          appConfig.authentication.jwtPublicKey = dbAuthenticationConfig.jwtPublicKey.split(String.raw`\n`).join('\n')
+        appConfig.authentication.jwtOptions.algorithm = dbAuthentication.jwtAlgorithm || 'HS256'
       }
     })
     .catch((e) => {

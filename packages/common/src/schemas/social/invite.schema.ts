@@ -39,11 +39,7 @@ export const inviteMethods = ['create', 'find', 'remove', 'patch', 'get'] as con
 
 export const spawnDetailsSchema = Type.Object(
   {
-    inviteCode: Type.Optional(
-      TypedString<InviteCode>({
-        format: 'uuid'
-      })
-    ),
+    inviteCode: Type.Optional(TypedString<InviteCode>()),
     spawnPoint: Type.Optional(Type.String()),
     spectate: Type.Optional(Type.String())
   },

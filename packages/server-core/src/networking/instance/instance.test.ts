@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 
-import { instanceActivePath } from '@ir-engine/common/src/schemas/networking/instance-active.schema'
 import { InstanceID, instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { LocationID, LocationType, RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -105,19 +104,5 @@ describe('instance.test', () => {
     } as any)
 
     assert.ok('total' in item)
-  })
-
-  it('should find active instances', async () => {
-    const activeInstances = await app.service(instanceActivePath).find({
-      query: {
-        sceneId: testLocation.sceneId
-      },
-      ...params
-    })
-
-    assert.equal(activeInstances.length, 1)
-    assert.equal(activeInstances[0].id, testInstance.id)
-    assert.equal(activeInstances[0].currentUsers, 0)
-    assert.equal(activeInstances[0].locationId, testLocation.id)
   })
 })

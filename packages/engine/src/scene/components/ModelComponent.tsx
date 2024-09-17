@@ -35,6 +35,7 @@ import {
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
@@ -68,33 +69,22 @@ export const ModelComponent = defineComponent({
   name: 'ModelComponent',
   jsonID: 'EE_model_old',
 
-  onInit: (entity) => {
-    return {
-      src: '',
-      cameraOcclusion: true,
-      /** optional, only for bone matchable avatars */
-      convertToVRM: false,
-      scene: null as Group | null,
-      asset: null as VRM | GLTF | null,
-      dereference: false
-    }
-  },
+  schema: S.Object({
+    src: S.String(''),
+    cameraOcclusion: S.Bool(true),
+    /** optional, only for bone matchable avatars */
+    convertToVRM: S.Bool(false),
+    scene: S.Nullable(S.Type<Group>()),
+    asset: S.Nullable(S.Type<VRM | GLTF>()),
+    dereference: S.Bool(false)
+  }),
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      src: component.src.value,
-      cameraOcclusion: component.cameraOcclusion.value,
-      convertToVRM: component.convertToVRM.value
+      src: component.src,
+      cameraOcclusion: component.cameraOcclusion,
+      convertToVRM: component.convertToVRM
     }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.src === 'string') component.src.set(json.src)
-    if (typeof (json as any).avoidCameraOcclusion === 'boolean')
-      component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
-    if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
-    if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],

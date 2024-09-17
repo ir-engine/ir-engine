@@ -80,7 +80,7 @@ const getGLTFNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
 
 const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
   const nodeIndex = gltf.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === uuid)
-  if (!nodeIndex || nodeIndex < 0) return
+  if (nodeIndex === undefined || nodeIndex < 0) return
   return gltf.nodes?.find((n) => n.children?.includes(nodeIndex))
 }
 
@@ -531,9 +531,9 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
 
       const entityUUID = getComponent(entity, UUIDComponent)
       const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+
       const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
 
-      // Remove from current parent
       if (isCurrentlyChildOfRoot) {
         gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
       } else {
@@ -567,8 +567,9 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
             (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
           )
           gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
-          gltf.data.nodes?.splice(beforeIndex, 0, gltf.data.nodes?.[nodeIndex])
-          gltf.data.nodes?.splice(nodeIndex + 1, 1)
+          const replacingNode = structuredClone(gltf.data.nodes?.[nodeIndex])!
+          gltf.data.nodes?.splice(nodeIndex, 1)
+          gltf.data.nodes?.splice(beforeIndex, 0, replacingNode)
         } else {
           gltf.data.scenes![0].nodes.push(nodeIndex)
           gltf.data.nodes?.push(gltf.data.nodes[nodeIndex])

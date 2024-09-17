@@ -45,6 +45,7 @@ import {
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { dispatchAction, getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -92,23 +93,17 @@ export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',
   jsonID: 'EE_model',
 
-  onInit(entity) {
-    return {
-      src: '',
-      /** @todo move this to it's own component */
-      cameraOcclusion: false,
-      // internals
-      body: null as null | ArrayBuffer,
-      progress: 0,
-      extensions: {},
-      dependencies: undefined as ComponentDependencies | undefined
-    }
-  },
+  schema: S.Object({
+    src: S.String(''),
+    /** @todo move this to it's own component */
+    cameraOcclusion: S.Bool(false),
 
-  onSet(entity, component, json) {
-    if (typeof json?.src === 'string') component.src.set(json.src)
-    if (typeof json?.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
-  },
+    // internals
+    body: S.Nullable(S.Type<ArrayBuffer>()),
+    progress: S.Number(0),
+    extensions: S.Record(S.String(), S.Any(), {}),
+    dependencies: S.Optional(S.Type<ComponentDependencies>())
+  }),
 
   useDependenciesLoaded(entity: Entity) {
     const dependencies = useComponent(entity, GLTFComponent).dependencies

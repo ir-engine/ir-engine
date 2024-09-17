@@ -27,6 +27,7 @@ import { AnimationClip, AnimationMixer } from 'three'
 
 import { Entity, generateEntityUUID, removeEntity, UndefinedEntity } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -35,18 +36,10 @@ import { GLTFAssetState } from '../../gltf/GLTFState'
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
 
-  onInit: (entity) => {
-    return {
-      mixer: null! as AnimationMixer,
-      animations: [] as AnimationClip[]
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.mixer) component.mixer.set(json.mixer)
-    if (json.animations) component.animations.set(json.animations as AnimationClip[])
-  }
+  schema: S.Object({
+    mixer: S.Type<AnimationMixer>(),
+    animations: S.Array(S.Type<AnimationClip>())
+  })
 })
 
 export const useLoadAnimationFromBatchGLTF = (urls: string[], keepEntities = false) => {

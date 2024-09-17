@@ -44,7 +44,7 @@ import { NotificationService } from '../common/services/NotificationService'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
-import { clientContextParams } from '../util/contextParams'
+import { clientContextParams } from '../util/ClientContextState'
 
 const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 

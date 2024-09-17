@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import {
   ComponentType,
-  EntityUUID,
+  S,
   UUIDComponent,
   defineComponent,
   getComponent,
@@ -52,6 +52,13 @@ import {
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { getParserOptions } from './GLTFState'
+
+const ITextureInfoSchema = S.Object({
+  index: S.Number(),
+  texCoord: S.Optional(S.Number()),
+  extensions: S.Optional(S.Record(S.String(), S.Any())),
+  extras: S.Optional(S.Record(S.String(), S.Any()))
+})
 
 export const MaterialDefinitionComponent = defineComponent({
   name: 'MaterialDefinitionComponent',
@@ -109,14 +116,7 @@ declare module 'three/src/materials/MeshPhysicalMaterial' {
 export const KHRUnlitExtensionComponent = defineComponent({
   name: 'KHRUnlitExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_UNLIT,
-
-  onInit(entity) {
-    return {}
-  },
-
-  toJSON(entity, component) {
-    return {}
-  },
+  schema: S.Record(S.Any(), S.Any(), {}),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -137,23 +137,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
 export const KHREmissiveStrengthExtensionComponent = defineComponent({
   name: 'KHREmissiveStrengthExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_EMISSIVE_STRENGTH,
-
-  onInit(entity) {
-    return {} as {
-      emissiveStrength?: number
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.emissiveStrength === 'number') component.emissiveStrength.set(json.emissiveStrength)
-  },
-
-  toJSON(entity, component) {
-    return {
-      emissiveStrength: component.emissiveStrength.value
-    }
-  },
+  schema: S.Object({ emissiveStrength: S.Optional(S.Number()) }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -178,28 +162,13 @@ export const KHREmissiveStrengthExtensionComponent = defineComponent({
 export const KHRClearcoatExtensionComponent = defineComponent({
   name: 'KHRClearcoatExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_CLEARCOAT,
-
-  onInit(entity) {
-    return {} as {
-      clearcoatFactor?: number
-      clearcoatTexture?: GLTF.ITextureInfo
-      clearcoatRoughnessFactor?: number
-      clearcoatRoughnessTexture?: GLTF.ITextureInfo
-      clearcoatNormalTexture?: GLTF.IMaterialNormalTextureInfo
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.clearcoatFactor === 'number') component.clearcoatFactor.set(json.clearcoatFactor)
-    if (typeof json.clearcoatTexture === 'object') component.clearcoatTexture.set(json.clearcoatTexture)
-    if (typeof json.clearcoatRoughnessFactor === 'number')
-      component.clearcoatRoughnessFactor.set(json.clearcoatRoughnessFactor)
-    if (typeof json.clearcoatRoughnessTexture === 'object')
-      component.clearcoatRoughnessTexture.set(json.clearcoatRoughnessTexture)
-    if (typeof json.clearcoatNormalTexture === 'object')
-      component.clearcoatNormalTexture.set(json.clearcoatNormalTexture)
-  },
+  schema: S.Object({
+    clearcoatFactor: S.Optional(S.Number()),
+    clearcoatTexture: S.Optional(ITextureInfoSchema),
+    clearcoatRoughnessFactor: S.Optional(S.Number()),
+    clearcoatRoughnessTexture: S.Optional(ITextureInfoSchema),
+    clearcoatNormalTexture: S.Optional(S.Type<GLTF.IMaterialNormalTextureInfo>())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -273,41 +242,14 @@ export const KHRClearcoatExtensionComponent = defineComponent({
 export const KHRIridescenceExtensionComponent = defineComponent({
   name: 'KHRIridescenceExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_IRIDESCENCE,
-
-  onInit(entity) {
-    return {} as {
-      iridescenceFactor?: number
-      iridescenceTexture?: GLTF.ITextureInfo
-      iridescenceIor?: number
-      iridescenceThicknessMinimum?: number
-      iridescenceThicknessMaximum?: number
-      iridescenceThicknessTexture?: GLTF.ITextureInfo
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.iridescenceFactor === 'number') component.iridescenceFactor.set(json.iridescenceFactor)
-    if (typeof json.iridescenceTexture === 'object') component.iridescenceTexture.set(json.iridescenceTexture)
-    if (typeof json.iridescenceIor === 'number') component.iridescenceIor.set(json.iridescenceIor)
-    if (typeof json.iridescenceThicknessMinimum === 'number')
-      component.iridescenceThicknessMinimum.set(json.iridescenceThicknessMinimum)
-    if (typeof json.iridescenceThicknessMaximum === 'number')
-      component.iridescenceThicknessMaximum.set(json.iridescenceThicknessMaximum)
-    if (typeof json.iridescenceThicknessTexture === 'object')
-      component.iridescenceThicknessTexture.set(json.iridescenceThicknessTexture)
-  },
-
-  toJSON(entity, component) {
-    return {
-      iridescenceFactor: component.iridescenceFactor.value,
-      iridescenceTexture: component.iridescenceTexture.value,
-      iridescenceIor: component.iridescenceIor.value,
-      iridescenceThicknessMinimum: component.iridescenceThicknessMinimum.value,
-      iridescenceThicknessMaximum: component.iridescenceThicknessMaximum.value,
-      iridescenceThicknessTexture: component.iridescenceThicknessTexture.value
-    }
-  },
+  schema: S.Object({
+    iridescenceFactor: S.Optional(S.Number()),
+    iridescenceTexture: S.Optional(ITextureInfoSchema),
+    iridescenceIor: S.Optional(S.Number()),
+    iridescenceThicknessMinimum: S.Optional(S.Number()),
+    iridescenceThicknessMaximum: S.Optional(S.Number()),
+    iridescenceThicknessTexture: S.Optional(ITextureInfoSchema)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -379,32 +321,12 @@ export const KHRIridescenceExtensionComponent = defineComponent({
 export const KHRSheenExtensionComponent = defineComponent({
   name: 'KHRSheenExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_SHEEN,
-
-  onInit(entity) {
-    return {} as {
-      sheenColorFactor?: [number, number, number]
-      sheenRoughnessFactor?: number
-      sheenColorTexture?: GLTF.ITextureInfo
-      sheenRoughnessTexture?: GLTF.ITextureInfo
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (Array.isArray(json.sheenColorFactor)) component.sheenColorFactor.set(json.sheenColorFactor)
-    if (typeof json.sheenRoughnessFactor === 'number') component.sheenRoughnessFactor.set(json.sheenRoughnessFactor)
-    if (typeof json.sheenColorTexture === 'object') component.sheenColorTexture.set(json.sheenColorTexture)
-    if (typeof json.sheenRoughnessTexture === 'object') component.sheenRoughnessTexture.set(json.sheenRoughnessTexture)
-  },
-
-  toJSON(entity, component) {
-    return {
-      sheenColorFactor: component.sheenColorFactor.value,
-      sheenRoughnessFactor: component.sheenRoughnessFactor.value,
-      sheenColorTexture: component.sheenColorTexture.value,
-      sheenRoughnessTexture: component.sheenRoughnessTexture.value
-    }
-  },
+  schema: S.Object({
+    sheenColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
+    sheenRoughnessFactor: S.Optional(S.Number()),
+    sheenColorTexture: S.Optional(ITextureInfoSchema),
+    sheenRoughnessTexture: S.Optional(ITextureInfoSchema)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -472,26 +394,10 @@ export const KHRSheenExtensionComponent = defineComponent({
 export const KHRTransmissionExtensionComponent = defineComponent({
   name: 'KHRTransmissionExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_TRANSMISSION,
-
-  onInit(entity) {
-    return {} as {
-      transmissionFactor?: number
-      transmissionTexture?: GLTF.ITextureInfo
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.transmissionFactor === 'number') component.transmissionFactor.set(json.transmissionFactor)
-    if (typeof json.transmissionTexture === 'object') component.transmissionTexture.set(json.transmissionTexture)
-  },
-
-  toJSON(entity, component) {
-    return {
-      transmissionFactor: component.transmissionFactor.value,
-      transmissionTexture: component.transmissionTexture.value
-    }
-  },
+  schema: S.Object({
+    transmissionFactor: S.Optional(S.Number()),
+    transmissionTexture: S.Optional(ITextureInfoSchema)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -530,32 +436,12 @@ export const KHRTransmissionExtensionComponent = defineComponent({
 export const KHRVolumeExtensionComponent = defineComponent({
   name: 'KHRVolumeExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_VOLUME,
-
-  onInit(entity) {
-    return {} as {
-      thicknessFactor?: number
-      thicknessTexture?: GLTF.ITextureInfo
-      attenuationDistance?: number
-      attenuationColorFactor?: [number, number, number]
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.thicknessFactor === 'number') component.thicknessFactor.set(json.thicknessFactor)
-    if (typeof json.thicknessTexture === 'object') component.thicknessTexture.set(json.thicknessTexture)
-    if (typeof json.attenuationDistance === 'number') component.attenuationDistance.set(json.attenuationDistance)
-    if (Array.isArray(json.attenuationColorFactor)) component.attenuationColorFactor.set(json.attenuationColorFactor)
-  },
-
-  toJSON(entity, component) {
-    return {
-      thicknessFactor: component.thicknessFactor.value,
-      thicknessTexture: component.thicknessTexture.value,
-      attenuationDistance: component.attenuationDistance.value,
-      attenuationColorFactor: component.attenuationColorFactor.value
-    }
-  },
+  schema: S.Object({
+    thicknessFactor: S.Optional(S.Number()),
+    thicknessTexture: S.Optional(ITextureInfoSchema),
+    attenuationDistance: S.Optional(S.Number()),
+    attenuationColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()]))
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -613,23 +499,9 @@ export const KHRVolumeExtensionComponent = defineComponent({
 export const KHRIorExtensionComponent = defineComponent({
   name: 'KHRIorExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_IOR,
-
-  onInit(entity) {
-    return {} as {
-      ior?: number
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.ior === 'number') component.ior.set(json.ior)
-  },
-
-  toJSON(entity, component) {
-    return {
-      ior: component.ior.value
-    }
-  },
+  schema: S.Object({
+    ior: S.Optional(S.Number())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -658,32 +530,12 @@ export const KHRIorExtensionComponent = defineComponent({
 export const KHRSpecularExtensionComponent = defineComponent({
   name: 'KHRSpecularExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_SPECULAR,
-
-  onInit(entity) {
-    return {} as {
-      specularFactor?: number
-      specularTexture?: GLTF.ITextureInfo
-      specularColorFactor?: [number, number, number]
-      specularColorTexture?: GLTF.ITextureInfo
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.specularFactor === 'number') component.specularFactor.set(json.specularFactor)
-    if (typeof json.specularTexture === 'object') component.specularTexture.set(json.specularTexture)
-    if (Array.isArray(json.specularColorFactor)) component.specularColorFactor.set(json.specularColorFactor)
-    if (typeof json.specularColorTexture === 'object') component.specularColorTexture.set(json.specularColorTexture)
-  },
-
-  toJSON(entity, component) {
-    return {
-      specularFactor: component.specularFactor.value,
-      specularTexture: component.specularTexture.value,
-      specularColorFactor: component.specularColorFactor.value,
-      specularColorTexture: component.specularColorTexture.value
-    }
-  },
+  schema: S.Object({
+    specularFactor: S.Optional(S.Number()),
+    specularTexture: S.Optional(ITextureInfoSchema),
+    specularColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
+    specularColorTexture: S.Optional(ITextureInfoSchema)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -743,26 +595,10 @@ export const KHRSpecularExtensionComponent = defineComponent({
 export const EXTBumpExtensionComponent = defineComponent({
   name: 'EXTBumpExtensionComponent',
   jsonID: EXTENSIONS.EXT_MATERIALS_BUMP,
-
-  onInit(entity) {
-    return {} as {
-      bumpFactor?: number
-      bumpTexture?: GLTF.ITextureInfo
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.bumpFactor === 'number') component.bumpFactor.set(json.bumpFactor)
-    if (typeof json.bumpTexture === 'object') component.bumpTexture.set(json.bumpTexture)
-  },
-
-  toJSON(entity, component) {
-    return {
-      bumpFactor: component.bumpFactor.value,
-      bumpTexture: component.bumpTexture.value
-    }
-  },
+  schema: S.Object({
+    bumpFactor: S.Optional(S.Number()),
+    bumpTexture: S.Optional(ITextureInfoSchema)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -800,29 +636,11 @@ export const EXTBumpExtensionComponent = defineComponent({
 export const KHRAnisotropyExtensionComponent = defineComponent({
   name: 'KHRAnisotropyExtensionComponent',
   jsonID: EXTENSIONS.KHR_MATERIALS_ANISOTROPY,
-
-  onInit(entity) {
-    return {} as {
-      anisotropyStrength?: number
-      anisotropyRotation?: number
-      anisotropyTexture?: GLTF.ITextureInfo
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.anisotropyStrength === 'number') component.anisotropyStrength.set(json.anisotropyStrength)
-    if (typeof json.anisotropyRotation === 'number') component.anisotropyRotation.set(json.anisotropyRotation)
-    if (typeof json.anisotropyTexture === 'object') component.anisotropyTexture.set(json.anisotropyTexture)
-  },
-
-  toJSON(entity, component) {
-    return {
-      anisotropyStrength: component.anisotropyStrength.value,
-      anisotropyRotation: component.anisotropyRotation.value,
-      anisotropyTexture: component.anisotropyTexture.value
-    }
-  },
+  schema: S.Object({
+    anisotropyStrength: S.Optional(S.Number()),
+    anisotropyRotation: S.Optional(S.Number()),
+    anisotropyTexture: S.Optional(ITextureInfoSchema)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -952,26 +770,10 @@ export const KHRTextureTransformExtensionComponent = defineComponent({
 export const MozillaHubsLightMapComponent = defineComponent({
   name: 'MozillaHubsLightMapComponent',
   jsonID: 'MOZ_lightmap',
-
-  onInit(entity) {
-    return {} as {
-      index: 1
-      intensity: 1.0
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.index === 'number') component.index.set(json.index)
-    if (typeof json.intensity === 'number') component.intensity.set(json.intensity)
-  },
-
-  toJSON(entity, component) {
-    return {
-      index: component.index.value,
-      intensity: component.intensity.value
-    }
-  },
+  schema: S.Object({
+    index: S.Number(1),
+    intensity: S.Number(1.0)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -1014,36 +816,13 @@ export const MozillaHubsLightMapComponent = defineComponent({
 export const KHRMaterialsPBRSpecularGlossinessComponent = defineComponent({
   name: 'KHRMaterialsPBRSpecularGlossinessComponent',
   jsonID: 'KHR_materials_pbrSpecularGlossiness',
-
-  onInit(entity) {
-    return {} as {
-      diffuseFactor?: [number, number, number, number]
-      diffuseTexture?: GLTF.ITextureInfo
-      specularFactor?: [number, number, number]
-      glossinessFactor?: number
-      specularGlossinessTexture?: GLTF.ITextureInfo
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (Array.isArray(json.diffuseFactor)) component.diffuseFactor.set(json.diffuseFactor)
-    if (typeof json.diffuseTexture === 'object') component.diffuseTexture.set(json.diffuseTexture)
-    if (Array.isArray(json.specularFactor)) component.specularFactor.set(json.specularFactor)
-    if (typeof json.glossinessFactor === 'number') component.glossinessFactor.set(json.glossinessFactor)
-    if (typeof json.specularGlossinessTexture === 'object')
-      component.specularGlossinessTexture.set(json.specularGlossinessTexture)
-  },
-
-  toJSON(entity, component) {
-    return {
-      diffuseFactor: component.diffuseFactor.value,
-      diffuseTexture: component.diffuseTexture.value,
-      specularFactor: component.specularFactor.value,
-      glossinessFactor: component.glossinessFactor.value,
-      specularGlossinessTexture: component.specularGlossinessTexture.value
-    }
-  },
+  schema: S.Object({
+    diffuseFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number(), S.Number()])),
+    diffuseTexture: S.Optional(ITextureInfoSchema),
+    specularFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
+    glossinessFactor: S.Optional(S.Number()),
+    specularGlossinessTexture: S.Optional(ITextureInfoSchema)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -1123,44 +902,24 @@ const invertGlossinessMap = async (glossinessMap: Texture) => {
 }
 
 export type MaterialExtensionPluginType = { id: string; uniforms: { [key: string]: any } }
+const MaterialExtensionPluginTypeSchema = S.Object({ id: S.String(), uniforms: S.Record(S.String(), S.Any()) })
 
 export const EEMaterialComponent = defineComponent({
   name: 'EEMaterialComponent',
   jsonID: 'EE_material',
-
-  onInit(entity) {
-    return {} as {
-      uuid: EntityUUID
-      name: string
-      prototype: string
-      args: {
-        [field: string]: {
-          type: string
-          contents: any
-        }
-      }
-      plugins: MaterialExtensionPluginType[]
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.uuid === 'string') component.uuid.set(json.uuid)
-    if (typeof json.name === 'string') component.name.set(json.name)
-    if (typeof json.prototype === 'string') component.prototype.set(json.prototype)
-    if (typeof json.args === 'object') component.args.set(json.args)
-    if (Array.isArray(json.plugins)) component.plugins.set(json.plugins)
-  },
-
-  toJSON(entity, component) {
-    return {
-      uuid: component.uuid.value,
-      name: component.name.value,
-      prototype: component.prototype.value,
-      args: component.args.value,
-      plugins: component.plugins.value
-    }
-  },
+  schema: S.Object({
+    uuid: S.EntityUUID(),
+    name: S.String(),
+    prototype: S.String(),
+    args: S.Record(
+      S.String(),
+      S.Object({
+        type: S.String(),
+        contents: S.Any()
+      })
+    ),
+    plugins: S.Array(MaterialExtensionPluginTypeSchema)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

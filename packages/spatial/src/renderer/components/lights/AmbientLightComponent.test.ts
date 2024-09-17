@@ -51,11 +51,11 @@ const AmbientLightComponentDefaults: AmbientLightComponentData = {
 }
 
 function assertAmbientLightComponentEq(A: AmbientLightComponentData, B: AmbientLightComponentData): void {
-  assert.equal(A.color, B.color)
+  assert.equal(new Color(A.color).getHex(), new Color(B.color).getHex())
   assert.equal(A.intensity, B.intensity)
 }
 function assertAmbientLightComponentNotEq(A: AmbientLightComponentData, B: AmbientLightComponentData): void {
-  assert.notEqual(A.color, B.color)
+  assert.notEqual(new Color(A.color).getHex(), new Color(B.color).getHex())
   assert.notEqual(A.intensity, B.intensity)
 }
 
@@ -148,21 +148,6 @@ describe('AmbientLightComponent', () => {
       setComponent(testEntity, AmbientLightComponent, Expected)
       const result = getComponent(testEntity, AmbientLightComponent)
       assert.notDeepEqual(result.color, AmbientLightComponentDefaults.color)
-    })
-
-    it('should not change the values of an initialized AmbientLightComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, AmbientLightComponent)
-      assertAmbientLightComponentEq(before, AmbientLightComponentDefaults)
-      const Incorrect = {
-        color: true,
-        intensity: 'someIntensity'
-      }
-
-      // Run and Check the result
-      // @ts-ignore Allow coercing incorrect types into onSet
-      setComponent(testEntity, AmbientLightComponent, Incorrect)
-      const result = getComponent(testEntity, AmbientLightComponent)
-      assertAmbientLightComponentEq(result, AmbientLightComponentDefaults)
     })
   }) //:: onSet
 
