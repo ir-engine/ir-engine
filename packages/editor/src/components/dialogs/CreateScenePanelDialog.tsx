@@ -30,10 +30,11 @@ import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { onNewScene } from '../../functions/sceneFunctions'
-import { EditorState } from '../../services/EditorServices'
+import { UIAddonsState } from '../../services/UIAddonsState'
 
 export default function CreateSceneDialog() {
-  const element = useMutableState(EditorState).uiAddons.newScene.get(NO_PROXY)
+  //const element = useMutableState(EditorState).uiAddons.newScene.get(NO_PROXY)
+  const element = useMutableState(UIAddonsState).editor.newScene.get(NO_PROXY)
   const { t } = useTranslation()
   return (
     <Modal
