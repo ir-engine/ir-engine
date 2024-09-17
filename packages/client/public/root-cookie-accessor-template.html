@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="cookie-accessor.css" />
     <script>
       let origin
-      const source = "ir-engine"
+      const source = "ir-engine-root-cookie"
       const processMessage = async (e) => {
         origin = e.origin
         const payload = e?.data && typeof e.data === 'string' ? JSON.parse(e.data) : null
@@ -52,6 +52,7 @@
                 message.hasStorageAccess = hasAccess
                 message.cookieSet = cookieSet
                 parent.postMessage(message, e.origin)
+                break
               } else {
                 try {
                   await document.requestStorageAccess()
@@ -63,16 +64,19 @@
                   message.hasStorageAccess = true
                   message.cookieSet = postCookieSet
                   parent.postMessage(message, e.origin)
+                  break
                 } catch (err) {
                   if (storageAccessPermission.state === 'prompt') {
                     message.hasStorageAccess = false
                     message.cookieSet = cookieSet
                     parent.postMessage(JSON.stringify({ hasStorageAccess: false, cookieSet }), e.origin)
+                    break
                   } else if (storageAccessPermission.state === 'denied') {
                     message.hasStorageAccess = false
                     message.cookieSet = cookieSet
                     message.storageAccessPermission = 'denied'
                     parent.postMessage(message, e.origin)
+                    break
                   }
                 }
               }

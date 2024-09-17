@@ -72,7 +72,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
-const iframeSource = 'ir-engine'
+const iframeSource = 'ir-engine-root-cookie'
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -147,7 +147,7 @@ const waitForToken = async (win, clientUrl): Promise<string> => {
       if (e.origin !== clientUrl) return
       if (e?.data && e.data.source === iframeSource) {
         try {
-          const value = e.data
+          const value = JSON.parse(e.data.data) //this is cookie data so it's a string
           if (value?.accessToken != null) {
             window.removeEventListener('message', getIframeResponse)
             resolve(value?.accessToken)
@@ -155,7 +155,7 @@ const waitForToken = async (win, clientUrl): Promise<string> => {
         } catch {
           resolve('')
         }
-      } else resolve(e)
+      }
     }
     window.addEventListener('message', getIframeResponse)
   })
@@ -228,7 +228,7 @@ const getToken = async (): Promise<string> => {
       const accessToken = authState?.authUser?.accessToken?.value
       return Promise.resolve(accessToken?.length > 0 ? accessToken : '')
     } else {
-      iframe.style.display = 'block'
+      iframe.style.visibility = 'visible'
       return await new Promise((resolve) => {
         const clickResponseListener = async function (e) {
           if (isRootCookieAncestorMessage(e)) {
@@ -237,11 +237,11 @@ const getToken = async (): Promise<string> => {
               const parsed = !e.data || e.data.source !== iframeSource ? {} : e.data
               if (parsed.skipCrossOriginCookieCheck != null) {
                 localStorage.setItem('skipCrossOriginCookieCheck', parsed.skipCrossOriginCookieCheck)
-                iframe.style.display = 'none'
+                iframe.style.visibility = 'hidden'
                 resolve('')
               } else {
                 const token = await waitForToken(win, clientUrl)
-                iframe.style.display = 'none'
+                iframe.style.visibility = 'hidden'
                 resolve(token)
               }
             } catch (err) {
