@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 export const isSupportedBrowser = () => {
-  const userAgent = navigator.userAgent as any
+  const userAgent = window.navigator.userAgent
   const winNav = window.navigator as any
 
   const isGoogleChrome =
