@@ -361,6 +361,7 @@
       "info-refDistance": "A double value representing the reference distance for reducing volume as the audio source moves further from the listener.",
       "lbl-maxDistance": "Max Distance",
       "info-maxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
+      "info-maxDistanceDisabled": "Only supported with the Linear Distance Model.",
       "lbl-coneInnerAngle": "Cone Inner Angle",
       "info-coneInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
       "lbl-coneOuterAngle": "Cone Outer Angle",
