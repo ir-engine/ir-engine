@@ -174,7 +174,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
           </Button>
           <div>
             {(prefabTag.value ?? []).map((tag, index) => (
-              <div className="items-end" style={{ display: 'flex', flexDirection: 'row', margin: '0, 16px 0 0' }}>
+              <div className="ml-4 flex items-end">
                 <Input
                   key={index}
                   label={t('editor:layout.filebrowser.fileProperties.tag')}
@@ -191,7 +191,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
                   }}
                   size="small"
                   variant="outline"
-                  className=" text-left text-xs"
+                  className="text-left text-xs"
                 >
                   x
                 </Button>
