@@ -99,7 +99,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
     transformDirtyCleanupSystem: SystemDefinitions.get(TransformDirtyCleanupSystem)!.execute // before: TransformSystem
   }
 
-  describe('Category 1 ', () => {
+  describe('Physics Driven Transformations', () => {
     let testEntity = UndefinedEntity
     let physicsWorldEntity = UndefinedEntity
     let physicsWorld: PhysicsWorld
@@ -166,7 +166,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         },
         after: {
           physicsSystem: getPositionFromMatrix(testEntity),
-          physicsPreTransformSystem: new Vector3(0.01666666753590107, 0.03060833364725113, 0.05000000447034836), // getPositionFromMatrix(testEntity),
+          physicsPreTransformSystem: new Vector3(0.01666666753590107, 0.03060833364725113, 0.05000000447034836),
           transformSystem: new Vector3(0.01666666753590107, 0.03060833364725113, 0.05000000447034836)
         }
       }
@@ -178,7 +178,6 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       // Run and Check the results
       Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
       // .. Phase 1
-      const dirtyTransforms = TransformComponent.dirtyTransforms
       execute.physicsSystem()
       result.physicsSystem = getPositionFromMatrix(testEntity)
       assert.deepEqual(result.physicsSystem, Expected.after.physicsSystem)
@@ -195,5 +194,30 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       result.transformSystem = getPositionFromMatrix(testEntity)
       assert.deepEqual(result.transformSystem, Expected.after.transformSystem)
     })
-  }) //:: Category 1
+  }) //:: Physics Driven Transformations
+
+  describe('Transform Overrides (aka teleportation)', () => {
+    /**
+    // @todo
+    it("should move the RigidBody+Collider of an entity relative to its parent", () => {})
+    it("should move the RigidBody of an entity relative to its parent", () => {})
+    it("should move the Collider of an entity relative to its parent", () => {})
+    describe("should apply parent.transform overrides to all the child entities contained in its EntityTree ...", () => {
+      it("... position", () => {})
+      it("... rotation", () => {})
+      it("... scale", () => {})
+    })
+    describe("should apply scene.transform modifications to all entities contained in the scene's hierarchy", () => {
+      it("... position", () => {})
+      it("... rotation", () => {})
+      it("... scale", () => {})
+    })
+    */
+  }) //:: Transform Overrides (aka teleportation)
+
+  // Cases  (transform / teleport-overrides)
+  //   rigidbody+collider
+  //   rigidbody+ colliderChild
+  //   parent +rigidbody+ colliderChild
+  //
 }) //:: Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSystem
