@@ -202,7 +202,6 @@ export const FollowCameraComponent = defineComponent({
     }, [follow.mode])
 
     useEffect(() => {
-      console.log('updating follow target to entity ', follow.targetEntity)
       follow.lerpValue.set(0)
       const followCamera = getComponent(entity, FollowCameraComponent)
       const followTransform = getComponent(entity, TransformComponent)
