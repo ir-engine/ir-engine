@@ -491,6 +491,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                           textDecoration: 'underline'
                         }}
                         to={termsOfService}
+                        target="_blank"
                       >
                         {t('user:usermenu.profile.termsOfService')}
                       </Link>
