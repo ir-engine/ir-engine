@@ -116,7 +116,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     network.ready = true
 
     /** heartbeat */
-    setInterval(() => {
+    const heartbeat = setInterval(() => {
       API.instance.service(instanceSignalingPath).get({ instanceID })
     }, 5000)
 
@@ -128,6 +128,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     )
 
     return () => {
+      clearInterval(heartbeat)
       NetworkPeerFunctions.destroyPeer(network, Engine.instance.store.peerID)
       removeNetwork(network)
       getMutableState(NetworkState).hostIds[topic].set(none)
@@ -142,12 +143,6 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     }
   }, [instanceAttendanceQuery.status])
 
-  console.log(
-    'TOPIC:',
-    props.instance.locationId ? NetworkTopics.world : NetworkTopics.media,
-    instanceID,
-    joinResponse.value
-  )
   if (!joinResponse.value) return null
 
   return (
