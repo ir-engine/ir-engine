@@ -28,10 +28,11 @@ import '@ir-engine/engine/src/EngineModule'
 import { getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FcInfo } from 'react-icons/fc'
+import { FiInfo } from 'react-icons/fi'
 import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
@@ -58,9 +59,8 @@ export const useStudioEditor = () => {
 export const EditorPage = () => {
   const { t } = useTranslation()
   const [params] = useSearchParams()
-  const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
+  const { scenePath, projectName, acknowledgedUnsupportedBrowser } = useHookstate(getMutableState(EditorState))
   const supportedBrowser = useHookstate(isSupportedBrowser)
-  const acknowledgedUnsupportedBrowser = useHookstate(false)
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
@@ -101,25 +101,29 @@ export const EditorPage = () => {
             className="w-[50vw] max-w-2xl"
             hideFooter
           >
-            <div className="flex flex-col gap-2">
-              <span className="flex items-center gap-2">
-                <FcInfo /> {t('editor:unsupportedBrowser.title')}
-              </span>
-              <span>{t('editor:unsupportedBrowser.description')}</span>
-              <span className="flex gap-3">
-                <a href={downloadGoogleLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+            <div className="flex flex-col items-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#191B1F]">
+                <FiInfo className="h-6 w-6" />
+              </div>
+              <div className="flex flex-col items-center gap-3 p-4 px-12 pb-12">
+                <span className="text-center font-bold">{t('editor:unsupportedBrowser.title')}</span>
+                <span className="text-center">{t('editor:unsupportedBrowser.description')}</span>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="primary" onClick={() => window.open(downloadGoogleLink)}>
                   {t('editor:unsupportedBrowser.downloadChrome')}
-                </a>
-                <span
-                  className="hover:text-blue-500"
-                  onClick={() => {
-                    acknowledgedUnsupportedBrowser.set(true)
-                    PopoverState.hidePopupover()
-                  }}
-                >
-                  {t('editor:unsupportedBrowser.continue')}
-                </span>
-              </span>
+                </Button>
+                <Button>
+                  <span
+                    onClick={() => {
+                      PopoverState.hidePopupover()
+                      acknowledgedUnsupportedBrowser.set(true)
+                    }}
+                  >
+                    {t('editor:unsupportedBrowser.continue')}
+                  </span>
+                </Button>
+              </div>
             </div>
           </Modal>
         )}
