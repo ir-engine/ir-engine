@@ -23,10 +23,10 @@
               .split('; ')
               .find((row) => row.startsWith(`${payload.key}=`))
               ?.split('=')[1]
-            if(result === undefined) {
-                message.success = false
-                parent.postMessage(message, e.origin)
-                break
+            if (result === undefined) {
+              message.success = false
+              parent.postMessage(message, e.origin)
+              break
             }
             message.data = result
             parent.postMessage(message, e.origin)
@@ -37,7 +37,7 @@
               .find((row) => row.startsWith(`${payload.key}=`))
               .replace(/^ +/, '')
               .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
-              parent.postMessage(message, e.origin)
+            parent.postMessage(message, e.origin)
             break
           case 'checkAccess':
             const cookieSet =
@@ -109,7 +109,7 @@
               await processMessage(e)
             }
           } else {
-            const message = { id: e?.data?.id, success: false, data: {invalidDomain: true} }
+            const message = { id: e?.data?.id, success: false, data: { invalidDomain: true } }
             parent.postMessage(message, e.origin)
           }
         }
@@ -124,24 +124,32 @@
                 document.cookie
                   .split('; ')
                   .find((row) => row.startsWith(`visited=`) || row.startsWith('allowedDomains='))
-              parent.postMessage({ success: true, data: { hasStorageAccess: true, cookieSet} }, origin)
+              parent.postMessage({ success: true, data: { hasStorageAccess: true, cookieSet } }, origin)
             }
           } catch (err) {
             if (err.message === 'requestStorageAccess not allowed')
-              parent.postMessage({ success: false, data: {hasStorageAccess: false, storageAccessPermission: 'denied'} }, origin)
+              parent.postMessage(
+                { success: false, data: { hasStorageAccess: false, storageAccessPermission: 'denied' } },
+                origin
+              )
           }
         }
 
         document.getElementById('cancelButton').onclick = (event) =>
-          parent.postMessage({ success: true, data: {skipCrossOriginCookieCheck: true} }, origin)
+          parent.postMessage({ success: true, data: { skipCrossOriginCookieCheck: true } }, origin)
+
         let data
         if (document.cookie)
-          data = JSON.parse(
-            document.cookie
-              .split('; ')
-              .find((row) => row.startsWith('ir.hyperflux.AuthState.authUser='))
-              ?.split('=')[1]
-          )
+          try {
+            data = JSON.parse(
+              document.cookie
+                .split('; ')
+                .find((row) => row.startsWith('ir.hyperflux.AuthState.authUser='))
+                ?.split('=')[1]
+            )
+          } catch {
+            //do nothing
+          }
         if (data) {
           const token = data.accessToken
           const userId = data.identityProvider.userId

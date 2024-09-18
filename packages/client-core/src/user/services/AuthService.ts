@@ -183,7 +183,7 @@ const getToken = async (): Promise<string> => {
   const hasAccess = (await communicator
     .sendMessage('checkAccess')
     .then((message) => {
-      if (message?.data?.skipCrossOriginCookieCheck !== null || message?.data?.storageAccessPermission === 'denied')
+      if (message?.data?.skipCrossOriginCookieCheck === true || message?.data?.storageAccessPermission === 'denied')
         localStorage.setItem('skipCrossOriginCookieCheck', 'true')
       return message.data
     })
