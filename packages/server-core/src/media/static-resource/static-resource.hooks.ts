@@ -184,30 +184,29 @@ const deleteOldThumbnail = async (context: HookContext<StaticResourceService>) =
         $select: ['thumbnailKey']
       }
     })
-    if (existingResource.thumbnailKey && existingResource.thumbnailKey !== resource.thumbnailKey) {
-      const resourcesWithOldThumbnail = await context.app.service(staticResourcePath).find({
-        query: {
-          thumbnailKey: existingResource.thumbnailKey,
-          type: { $ne: 'thumbnail' },
-          $select: ['id']
-        }
-      })
-      if (resourcesWithOldThumbnail.data.length > 1) {
-        console.warn('Thumbnail is still in use, not deleting')
-        continue
+    if (!existingResource.thumbnailKey || existingResource.thumbnailKey === resource.thumbnailKey) continue
+    const resourcesWithOldThumbnail = await context.app.service(staticResourcePath).find({
+      query: {
+        thumbnailKey: existingResource.thumbnailKey,
+        type: { $ne: 'thumbnail' },
+        $select: ['id']
       }
-      const oldThumbnail = await context.app.service(staticResourcePath).find({
-        query: {
-          key: existingResource.thumbnailKey,
-          $select: ['id']
-        }
-      })
-      if (oldThumbnail.data.length) {
-        const oldThumbnailResource = oldThumbnail.data[0]
-        await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
-      } else {
-        console.warn('Old thumbnail resource not found')
+    })
+    if (resourcesWithOldThumbnail.data.length > 1) {
+      console.warn('Thumbnail is still in use, not deleting')
+      continue
+    }
+    const oldThumbnail = await context.app.service(staticResourcePath).find({
+      query: {
+        key: existingResource.thumbnailKey,
+        $select: ['id']
       }
+    })
+    if (oldThumbnail.data.length) {
+      const oldThumbnailResource = oldThumbnail.data[0]
+      await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
+    } else {
+      console.warn('Old thumbnail resource not found')
     }
   }
   return context
