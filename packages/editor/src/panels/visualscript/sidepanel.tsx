@@ -39,10 +39,9 @@ import NodeEditor from '@ir-engine/ui/src/components/editor/properties/nodeEdito
 import ParameterInput from '@ir-engine/ui/src/components/editor/properties/parameter'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@ir-engine/visual-script'
-import { useVisualScriptFlow, visualToFlow } from '../../components/visualscript/VisualScriptUIModule'
-import { useTemplateHandler } from '../../components/visualscript/hooks/useTemplateHandler'
-import { useVariableHandler } from '../../components/visualscript/hooks/useVariableHandler'
+import { useTemplateHandler, useVariableHandler, useVisualScriptFlow } from './hooks'
 import { Examples } from './modals/load'
+import { visualToFlow } from './transformers'
 
 type templateHandler = ReturnType<typeof useTemplateHandler>
 type variableHandler = ReturnType<typeof useVariableHandler>

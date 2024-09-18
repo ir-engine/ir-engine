@@ -29,10 +29,10 @@ import { useEdgesState, useNodesState } from 'reactflow'
 
 import { GraphJSON, VariableJSON } from '@ir-engine/visual-script'
 
-import { flowToVisual } from '../transformers/flowToVisual'
+import { autoLayout } from '../../../panels/visualscript/util/autoLayout'
+import { hasPositionMetaData } from '../../../panels/visualscript/util/hasPositionMetaData'
 import { visualToFlow } from '../transformers/VisualToFlow'
-import { autoLayout } from '../util/autoLayout'
-import { hasPositionMetaData } from '../util/hasPositionMetaData'
+import { flowToVisual } from '../transformers/flowToVisual'
 import { useCustomNodeTypes } from './useCustomNodeTypes'
 import { NodeSpecGenerator } from './useNodeSpecGenerator'
 

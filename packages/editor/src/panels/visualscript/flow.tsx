@@ -31,15 +31,15 @@ import { useVisualScriptRunner } from '@ir-engine/engine/src/visualscript/system
 import { useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { GraphJSON, IRegistry } from '@ir-engine/visual-script'
+import CustomControls from './controls'
 import {
   useFlowHandlers,
   useNodeSpecGenerator,
+  useTemplateHandler,
+  useVariableHandler,
   useVisualScriptFlow
-} from '../../components/visualscript/VisualScriptUIModule'
-import { useSelectionHandler } from '../../components/visualscript/hooks/useSelectionHandler'
-import { useTemplateHandler } from '../../components/visualscript/hooks/useTemplateHandler'
-import { useVariableHandler } from '../../components/visualscript/hooks/useVariableHandler'
-import CustomControls from './controls'
+} from './hooks'
+import { useSelectionHandler } from './hooks/useSelectionHandler'
 import { Examples } from './modals/load'
 import { NodePicker } from './node/picker'
 import SidePanel from './sidepanel'

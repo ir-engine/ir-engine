@@ -30,13 +30,10 @@ import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 import { NodeSpecJSON } from '@ir-engine/visual-script'
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
-import {
-  NodeSpecGenerator,
-  isHandleConnected,
-  useChangeNode
-} from '../../../components/visualscript/VisualScriptUIModule'
-import { useModifyNodeSocket } from '../../../components/visualscript/hooks/useModifyNodeSocket'
+import { NodeSpecGenerator, useChangeNode } from '../hooks'
+import { useModifyNodeSocket } from '../hooks/useModifyNodeSocket'
 import { categoryColorMap, colors } from '../util/colors'
+import { isHandleConnected } from '../util/isHandleConnected'
 import InputSocket from './socket/input'
 import OutputSocket from './socket/output'
 

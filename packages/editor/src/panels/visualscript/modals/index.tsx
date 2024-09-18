@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { PropsWithChildren } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { useOnPressKey } from '../../../components/visualscript/VisualScriptUIModule'
+import { useOnPressKey } from '../hooks'
 
 export type ModalAction = {
   label: string

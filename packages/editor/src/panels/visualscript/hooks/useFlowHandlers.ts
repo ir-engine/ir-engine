@@ -27,8 +27,8 @@ import { MouseEvent as ReactMouseEvent, useCallback, useEffect, useState } from 
 import { Connection, Node, OnConnectStartParams, XYPosition } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
-import { calculateNewEdge } from '../util/calculateNewEdge'
-import { getNodePickerFilters } from '../util/getPickerFilters'
+import { calculateNewEdge } from '../../../panels/visualscript/util/calculateNewEdge'
+import { getNodePickerFilters } from '../../../panels/visualscript/util/getPickerFilters'
 import { NodeSpecGenerator } from './useNodeSpecGenerator'
 import { useVisualScriptFlow } from './useVisualScriptFlow'
 

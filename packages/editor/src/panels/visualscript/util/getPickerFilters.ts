@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Node, OnConnectStartParams } from 'reactflow'
 
-import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
+import { NodeSpecGenerator } from '../hooks'
 import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
 
 type NodePickerFilters = {

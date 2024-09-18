@@ -24,8 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Connection, ReactFlowInstance } from 'reactflow'
-
-import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
+import { NodeSpecGenerator } from '../hooks'
 import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
 import { isHandleConnected } from './isHandleConnected'
 

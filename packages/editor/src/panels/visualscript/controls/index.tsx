@@ -28,7 +28,7 @@ import { PiDownloadSimpleBold, PiPauseBold, PiPlayBold, PiTrashSimpleBold, PiUpl
 import { ControlButton, Controls } from 'reactflow'
 
 import { GraphJSON, VariableJSON } from '@ir-engine/visual-script'
-import { NodeSpecGenerator } from '../../../components/visualscript/VisualScriptUIModule'
+import { NodeSpecGenerator } from '../hooks'
 import { ClearModal } from '../modals/clear'
 import { HelpModal } from '../modals/help'
 import { Examples, LoadModal } from '../modals/load'

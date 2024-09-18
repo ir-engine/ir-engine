@@ -24,8 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NodeConfigurationJSON } from '@ir-engine/visual-script'
-
-import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
+import { NodeSpecGenerator } from '../hooks'
 
 export const getSocketsByNodeTypeAndHandleType = (
   specGenerator: NodeSpecGenerator,

@@ -29,9 +29,10 @@ import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { InputSocketSpecJSON } from '@ir-engine/visual-script'
 import { twMerge } from 'tailwind-merge'
-import { NodeSpecGenerator, isValidConnection } from '../../../../components/visualscript/VisualScriptUIModule'
 import { AutoSizeInput } from '../../autosizeinput'
+import { NodeSpecGenerator } from '../../hooks'
 import { colors, valueTypeColorMap } from '../../util/colors'
+import { isValidConnection } from '../../util/isValidConnection'
 
 export type InputSocketProps = {
   connected: boolean
