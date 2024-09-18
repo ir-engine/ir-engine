@@ -23,32 +23,41 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { useReactFlow } from 'reactflow'
+import { Modal } from '.'
 
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import VisualScriptPanel from './container'
-
-export const VisualScriptPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <span>{'VisualScript'}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+export type ClearModalProps = {
+  open?: boolean
+  onClose: () => void
 }
 
-export default VisualScriptPanelTitle
+export const ClearModal: React.FC<ClearModalProps> = ({ open = false, onClose }) => {
+  const instance = useReactFlow()
+  const { t } = useTranslation()
 
-export const VisualScriptPanelTab: TabData = {
-  id: 'visualScriptPanel',
-  closable: true,
-  title: <VisualScriptPanelTitle />,
-  content: <VisualScriptPanel />
+  const handleClear = () => {
+    instance.setNodes([])
+    instance.setEdges([])
+    // TODO better way to call fit vew after edges render
+    setTimeout(() => {
+      instance.fitView()
+    }, 100)
+    onClose()
+  }
+
+  return (
+    <Modal
+      title={t('editor:visualScript.modal.clear.title')}
+      actions={[
+        { label: t('editor:visualScript.modal.buttons.cancel'), onClick: onClose },
+        { label: t('editor:visualScript.modal.buttons.clear'), onClick: handleClear }
+      ]}
+      open={open}
+      onClose={onClose}
+    >
+      <p>{t('editor:visualScript.modal.clear.confirm')}</p>
+    </Modal>
+  )
 }

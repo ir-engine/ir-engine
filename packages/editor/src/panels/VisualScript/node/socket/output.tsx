@@ -33,7 +33,7 @@ import {
 } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
 import { OutputSocketSpecJSON } from '@ir-engine/visual-script'
 import { twMerge } from 'tailwind-merge'
-import { colors, valueTypeColorMap } from '../../../util/colors'
+import { colors, valueTypeColorMap } from '../util/colors'
 
 export type OutputSocketProps = {
   connected: boolean

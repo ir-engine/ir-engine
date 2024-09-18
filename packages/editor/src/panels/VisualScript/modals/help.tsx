@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal } from '..'
+import { Modal } from '.'
 
 export type HelpModalProps = {
   open?: boolean

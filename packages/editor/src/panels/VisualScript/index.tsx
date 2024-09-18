@@ -23,22 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { TabData } from 'rc-dock'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 
-const argTypes = {}
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import VisualScriptPanel from './container'
 
-export default {
-  title: 'Editor/Panel/VisualScript',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'VisualScriptPanelTitle',
-    jest: 'VisualScriptPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+const VisualScriptPanelTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div>
+      <PanelDragContainer>
+        <PanelTitle>
+          <span>{t('editor:visualScript.panel.title')}</span>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
 }
 
-export const Default = { args: {} }
+export const VisualScriptPanelTab: TabData = {
+  id: 'visualScriptPanel',
+  closable: true,
+  title: <VisualScriptPanelTitle />,
+  content: <VisualScriptPanel />
+}

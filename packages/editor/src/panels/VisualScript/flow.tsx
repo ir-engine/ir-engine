@@ -37,12 +37,12 @@ import { useTemplateHandler } from '@ir-engine/editor/src/components/visualScrip
 import { useVariableHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useVariableHandler'
 import { useVisualScriptRunner } from '@ir-engine/engine/src/visualscript/systems/useVisualScriptRunner'
 import { useHookstate } from '@ir-engine/hyperflux'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { GraphJSON, IRegistry } from '@ir-engine/visual-script'
-import Button from '../../../../../primitives/tailwind/Button'
-import CustomControls from '../controls'
-import { Examples } from '../modals/load'
-import { NodePicker } from '../node/picker'
-import SidePanel from '../sidePanel'
+import CustomControls from './controls'
+import { Examples } from './modals/load'
+import { NodePicker } from './node/picker'
+import SidePanel from './sidepanel'
 
 type FlowProps = {
   initialVisualScript: GraphJSON

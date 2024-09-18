@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useOnPressKey } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import { NodeSpecJSON } from '@ir-engine/visual-script'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -31,9 +32,8 @@ import { GoDotFill } from 'react-icons/go'
 import { HiMagnifyingGlass, HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi2'
 import { XYPosition, useReactFlow } from 'reactflow'
 import { twMerge } from 'tailwind-merge'
-import { VisualScriptPanelTab } from '../..'
-import Input from '../../../../../../primitives/tailwind/Input'
-import { categoryColorMap, colors } from '../../util/colors'
+import { VisualScriptPanelTab } from '..'
+import { categoryColorMap, colors } from '../util/colors'
 
 const createPickerNodes = (tree, onPickNode, position, instance) => {
   if (tree?.type !== undefined && typeof tree?.type === 'string') return null

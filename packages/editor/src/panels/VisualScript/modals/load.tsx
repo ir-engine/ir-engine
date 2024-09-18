@@ -27,9 +27,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useReactFlow } from 'reactflow'
 
+import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { GraphJSON } from '@ir-engine/visual-script'
 import { Modal } from '..'
-import SelectInput from '../../../../input/Select'
 
 export type Examples = {
   [key: string]: GraphJSON

@@ -23,41 +23,64 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useReactFlow } from 'reactflow'
-import { Modal } from '..'
+import { useEdges, useNodes } from 'reactflow'
 
-export type ClearModalProps = {
+import { VariableJSON } from '@ir-engine/visual-script'
+
+import { NodeSpecGenerator, flowToVisual } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
+import { Modal } from '.'
+
+export type SaveModalProps = {
   open?: boolean
+  variables: VariableJSON[]
   onClose: () => void
+  specGenerator: NodeSpecGenerator
 }
 
-export const ClearModal: React.FC<ClearModalProps> = ({ open = false, onClose }) => {
-  const instance = useReactFlow()
+export const SaveModal: React.FC<SaveModalProps> = ({ open = false, variables, onClose, specGenerator }) => {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  const [copied, setCopied] = useState(false)
   const { t } = useTranslation()
 
-  const handleClear = () => {
-    instance.setNodes([])
-    instance.setEdges([])
-    // TODO better way to call fit vew after edges render
-    setTimeout(() => {
-      instance.fitView()
-    }, 100)
-    onClose()
+  const edges = useEdges()
+  const nodes = useNodes()
+
+  const flow = useMemo(() => flowToVisual(nodes, edges, variables, specGenerator), [nodes, edges, specGenerator])
+
+  const jsonString = JSON.stringify(flow, null, 2)
+
+  const handleCopy = () => {
+    ref.current?.select()
+    document.execCommand('copy')
+    ref.current?.blur()
+    setCopied(true)
+    setInterval(() => {
+      setCopied(false)
+    }, 1000)
   }
 
   return (
     <Modal
-      title={t('editor:visualScript.modal.clear.title')}
+      title={t('editor:visualScript.modal.save')}
       actions={[
         { label: t('editor:visualScript.modal.buttons.cancel'), onClick: onClose },
-        { label: t('editor:visualScript.modal.buttons.clear'), onClick: handleClear }
+        {
+          label: copied
+            ? t('editor:visualScript.modal.buttons.copy.done')
+            : t('editor:visualScript.modal.buttons.copy.begin'),
+          onClick: handleCopy
+        }
       ]}
       open={open}
       onClose={onClose}
     >
-      <p>{t('editor:visualScript.modal.clear.confirm')}</p>
+      <textarea
+        ref={ref}
+        className="m-0 h-32 w-full border border-neutral-700 bg-neutral-800 p-2 text-neutral-100"
+        defaultValue={jsonString}
+      ></textarea>
     </Modal>
   )
 }

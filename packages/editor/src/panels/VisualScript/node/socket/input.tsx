@@ -33,8 +33,8 @@ import {
 } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
 import { InputSocketSpecJSON } from '@ir-engine/visual-script'
 import { twMerge } from 'tailwind-merge'
-import { AutoSizeInput } from '../../../autoSizeInput'
-import { colors, valueTypeColorMap } from '../../../util/colors'
+import { AutoSizeInput } from '../../autosizeinput'
+import { colors, valueTypeColorMap } from '../../util/colors'
 
 export type InputSocketProps = {
   connected: boolean
