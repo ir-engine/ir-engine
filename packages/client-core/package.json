@@ -1,6 +1,7 @@
 {
   "name": "@ir-engine/client-core",
   "version": "1.6.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/ir-engine/ir-engine.git"

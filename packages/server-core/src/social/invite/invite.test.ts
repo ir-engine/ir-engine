@@ -44,7 +44,7 @@ describe('invite.service', () => {
   const invites: InviteType[] = []
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-invite-user-name-' + uuidv4()) as UserName

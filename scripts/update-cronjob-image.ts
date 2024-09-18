@@ -61,7 +61,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const autoUpdateProjects = (await app.service(projectPath).find({
       query: {

@@ -63,7 +63,7 @@ describe('project-check-source-destination-match.test', () => {
   })
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-project-check-source-destination-match-user-name-' + uuidv4()) as UserName

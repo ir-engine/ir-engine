@@ -1,6 +1,7 @@
 {
   "name": "@ir-engine/spatial",
   "version": "1.6.0",
+  "type": "module",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"

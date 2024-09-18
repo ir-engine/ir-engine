@@ -40,7 +40,7 @@ describe('identity-provider.test', () => {
   let providers: IdentityProviderType[] = []
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 

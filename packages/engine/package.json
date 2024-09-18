@@ -26,6 +26,7 @@
     "generate-doc": "node_modules/.bin/typedoc"
   },
   "version": "1.6.0",
+  "type": "module",
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.11.2",
     "@ir-engine/ecs": "^1.6.0",

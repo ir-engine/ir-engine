@@ -56,7 +56,7 @@ cli.enable('status')
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     await transformModel(modelTransformParameters)
     cli.exit(0)

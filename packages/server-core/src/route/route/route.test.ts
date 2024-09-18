@@ -83,7 +83,7 @@ describe('route.test', () => {
   let testProjectId: string
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 

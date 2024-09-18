@@ -51,7 +51,7 @@ describe('project-builder-tags.test', () => {
   })
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-project-builder-tags-user-name-' + uuidv4()) as UserName

@@ -172,10 +172,10 @@ export const serverJobRedisPipe = pipe(configurePrimus(), configureRedis(), conf
   app: Application
 ) => Application
 
-export const createFeathersKoaApp = (
+export const createFeathersKoaApp = async (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
-): Application => {
+): Promise<Application> => {
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({
@@ -257,7 +257,7 @@ export const createFeathersKoaApp = (
   app.configure(authentication)
 
   // Set up our services (see `services/index.js`)
-  app.configure(services)
+  await services(app)
 
   // Store headers across internal service calls
   app.hooks({

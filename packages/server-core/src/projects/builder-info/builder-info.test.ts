@@ -36,7 +36,7 @@ describe('builder-info.test', () => {
   let app: Application
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 

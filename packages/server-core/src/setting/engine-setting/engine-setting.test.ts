@@ -49,7 +49,7 @@ describe.only('engine-setting.test', () => {
   let engineSetting: EngineSettingType
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const engineSettingResponse = await createEngineSetting(app, key1, value1, 'private', 'aws')

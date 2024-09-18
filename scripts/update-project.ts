@@ -73,7 +73,7 @@ const options = cli.parse({
 cli.main(async () => {
   try {
     await updateAppConfig()
-    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const { userId, jobId, ...data } = options
     data.reset = data.reset === 'true'

@@ -61,7 +61,7 @@ describe('project-destination-check.test', () => {
   })
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-project-destination-check-user-name-' + uuidv4()) as UserName

@@ -41,7 +41,7 @@ const getRandomizedName = (name: string, suffix = '', prefix = PREFIX) =>
 describe('file-browser.test', () => {
   let app: Application
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 

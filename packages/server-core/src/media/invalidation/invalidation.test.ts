@@ -38,7 +38,7 @@ const fileName1 = '/path/to/file3.jpg'
 describe('invalidation.test', () => {
   let app: Application
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
     await app.service(invalidationPath).remove(null, {
       query: {}

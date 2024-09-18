@@ -35,7 +35,7 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 describe('api job service', () => {
   let app: Application
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
   after(async () => {

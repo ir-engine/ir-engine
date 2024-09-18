@@ -81,7 +81,7 @@ const encodeCloudfrontInvalidation = (uri: string) =>
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const invalidations = await app.service(invalidationPath).find({
       query: {

@@ -31,7 +31,7 @@ import { createFeathersKoaApp, tearDownAPI } from './createApp'
 
 describe('Core', () => {
   it('should initialise app', async () => {
-    const app = createFeathersKoaApp()
+    const app = await createFeathersKoaApp()
     await app.setup()
     assert.ok(app.isSetup)
   })

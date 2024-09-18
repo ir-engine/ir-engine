@@ -53,7 +53,7 @@ const mockHookContext = (
 describe('verify-project-permission', () => {
   let app: Application
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 

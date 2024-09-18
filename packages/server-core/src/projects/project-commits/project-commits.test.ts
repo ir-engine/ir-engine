@@ -52,7 +52,7 @@ describe('project-commits.test', () => {
   })
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-project-commits-user-name-' + uuidv4()) as UserName

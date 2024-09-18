@@ -65,7 +65,7 @@ describe('project.test', () => {
   })
 
   beforeEach(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-project-user-name-' + uuidv4()) as UserName

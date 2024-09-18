@@ -46,55 +46,69 @@ import SocialServices from './social/services'
 import UserServices from './user/services'
 import WorldServices from './world/services'
 
-const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
-  ? fs
-      .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
-      .filter((orgDir) => orgDir.isDirectory())
-      .map((orgDir) => {
-        return fs
-          .readdirSync(path.resolve(__dirname, '../../projects/projects', orgDir.name), { withFileTypes: true })
-          .filter((projectDir) => projectDir.isDirectory())
-          .map((projectDir) => `${orgDir.name}/${projectDir.name}`)
-      })
-      .flat()
-      .map((projectName) => {
-        try {
-          const configPath = `../../projects/projects/${projectName}/xrengine.config.ts`
-          const config: ProjectConfigInterface = require(configPath).default
-          if (!config.services) return null
-          return path.join(projectName, config.services)
-        } catch (e) {
-          // console.log(e)
-        }
-      })
-      .filter((hasServices) => !!hasServices)
-      .map((servicesDir) => {
-        return require(`../../projects/projects/${servicesDir}`).default as (app: Application) => void
-      })
-      .flat()
-  : []
+const installedProjects = async () =>
+  (
+    await Promise.all(
+      (
+        await Promise.all(
+          fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
+            ? fs
+                .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
+                .filter((orgDir) => orgDir.isDirectory())
+                .map((orgDir) => {
+                  return fs
+                    .readdirSync(path.resolve(__dirname, '../../projects/projects', orgDir.name), {
+                      withFileTypes: true
+                    })
+                    .filter((projectDir) => projectDir.isDirectory())
+                    .map((projectDir) => `${orgDir.name}/${projectDir.name}`)
+                })
+                .flat()
+                .map(async (projectName) => {
+                  try {
+                    const configPath = `../../projects/projects/${projectName}/xrengine.config.ts`
+                    const config: ProjectConfigInterface = (await import(configPath)).default
+                    if (!config.services) return null
+                    return path.join(projectName, config.services)
+                  } catch (e) {
+                    console.log(e)
+                    return Promise.resolve()
+                  }
+                })
+            : []
+        )
+      )
+        .filter((hasServices) => typeof hasServices === 'string')
+        .map(async (servicesDir) => {
+          try {
+            return (await import(`../../projects/projects/${servicesDir}`)).default as (app: Application) => void
+          } catch (e) {
+            console.log(e)
+          }
+        })
+    )
+  ).filter((service) => !!service) as ((app: Application) => void)[]
 
-export default (app: Application): void => {
-  ;[
-    ...ClusterServices,
-    ...AnalyticsServices,
-    ...UserServices,
-    ...AssetServices,
-    ...MediaServices,
-    ...EntityServices,
-    ...NetworkingServices,
-    ...SocialServices,
-    ...BotService,
-    ...ScopeService,
-    ...SettingService,
-    ...RouteService,
-    ...RecordingServices,
-    ...MatchMakingServices,
-    ...WorldServices,
-    ...IntegrationServices
-  ]
-    .concat(...installedProjects)
-    .forEach((service) => {
-      app.configure(service)
-    })
+const services = [
+  ...ClusterServices,
+  ...AnalyticsServices,
+  ...UserServices,
+  ...AssetServices,
+  ...MediaServices,
+  ...EntityServices,
+  ...NetworkingServices,
+  ...SocialServices,
+  ...BotService,
+  ...ScopeService,
+  ...SettingService,
+  ...RouteService,
+  ...RecordingServices,
+  ...MatchMakingServices,
+  ...WorldServices,
+  ...IntegrationServices
+]
+
+export default async (app: Application) => {
+  const projectServices = await installedProjects()
+  services.concat(projectServices).forEach((service) => app.configure(service))
 }

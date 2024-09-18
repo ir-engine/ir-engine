@@ -62,7 +62,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const { userId, projectId, reset, commitSHA, storageProviderName, jobId } = options
     const user = await app.service(userPath).get(userId)

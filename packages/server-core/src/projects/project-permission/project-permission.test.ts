@@ -72,7 +72,7 @@ describe('project-permission.test', () => {
   let user4: UserType
   let project1, project1Permission1, project1Permission2, project1Permission4
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
 

@@ -40,7 +40,7 @@ describe('upload-asset', () => {
   let app: Application
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
     const url = storageProvider.getCachedURL('/projects/default-project/public/scenes/default.gltf')

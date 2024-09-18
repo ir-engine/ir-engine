@@ -50,7 +50,7 @@ const mockHookContext = (app: Application, query?: Partial<{ project: string }>)
 describe('resolve-project-id', () => {
   let app: Application
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 

@@ -59,7 +59,7 @@ describe('project-setting.test', () => {
   let projectSetting: ProjectSettingType
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const projectResponse = await createProject(app)

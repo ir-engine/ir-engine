@@ -39,7 +39,7 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 describe('channel service', () => {
   let app: Application
   beforeEach(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 

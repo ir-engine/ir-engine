@@ -1,6 +1,7 @@
 {
   "name": "@ir-engine/xrui",
   "version": "1.6.0",
+  "type": "module",
   "description": "A set of utilities for using DOM elements to create immerive user interfaces",
   "homepage": "https://github.com/ir-engine/ir-engine#readme",
   "keywords": [

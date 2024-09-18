@@ -52,7 +52,7 @@ describe('project-check-unfetched-commit.test', () => {
   })
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-project-check-unfetched-commit-user-name-' + uuidv4()) as UserName

@@ -38,7 +38,7 @@ let user: UserType
 describe('invite-code-lookup service', () => {
   let app: Application
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = `Test #${Math.random()}` as UserName

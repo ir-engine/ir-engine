@@ -40,7 +40,7 @@ describe('instance.test', () => {
   let app: Application
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     testLocation = await createTestLocation(app, params)

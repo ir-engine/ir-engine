@@ -42,7 +42,7 @@ describe('location.test', () => {
   const locations: any[] = []
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 

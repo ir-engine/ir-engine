@@ -47,7 +47,7 @@ describe('bot.service', () => {
   const params = { isInternal: true }
 
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
   after(async () => {

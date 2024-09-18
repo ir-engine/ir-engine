@@ -85,7 +85,7 @@ describe.skip('matchmaking match-instance service', () => {
 
   let app: Application
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     scope = nock(FRONTEND_SERVICE_URL)

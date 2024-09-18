@@ -48,7 +48,7 @@ const mockUserHookContext = (user: UserType, app: Application) => {
 describe('check-scope', () => {
   let app: Application
   before(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
