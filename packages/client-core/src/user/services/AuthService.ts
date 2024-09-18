@@ -156,9 +156,9 @@ const waitForToken = async (win: Window, clientUrl: string): Promise<string> => 
     .then((response) => {
       if (response.success) {
         try {
-          const value = JSON.parse(response.data) //this is cookie data(e.data.data) so it's a string
-          if (value?.accessToken != null) {
-            return value?.accessToken
+          const data = JSON.parse(response.data) //this is cookie data(e.data.data) so it's a string
+          if (data?.accessToken != null) {
+            return data?.accessToken
           }
         } catch {
           return '' // Failed to parse token from cookie
@@ -593,8 +593,8 @@ export const AuthService = {
           if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
           if (e?.data?.data) {
             try {
-              const value = e.data
-              if (value?.cookieWasSet === `${stateNamespaceKey}.${AuthState.name}.authUser`) {
+              const data = e?.data?.data
+              if (data?.cookieWasSet === `${stateNamespaceKey}.${AuthState.name}.authUser`) {
                 window.removeEventListener('message', getIframeResponse)
                 resolve()
               }
