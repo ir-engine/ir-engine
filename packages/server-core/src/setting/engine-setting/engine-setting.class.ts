@@ -23,22 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import {
+  EngineSettingData,
+  EngineSettingPatch,
+  EngineSettingQuery,
+  EngineSettingType
+} from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { Application } from '@ir-engine/server-core/declarations'
 
-const argTypes = {}
+export interface EngineSettingParams extends KnexAdapterParams<EngineSettingQuery> {}
 
-export default {
-  title: 'Editor/Panel/Hierarchy/Node',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'HierarchyPanelTitle',
-    jest: 'HierarchyPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+export class EngineSettingService<
+  T = EngineSettingType,
+  ServiceParams extends Params = EngineSettingParams
+> extends KnexService<EngineSettingType, EngineSettingData, EngineSettingParams, EngineSettingPatch> {
+  app: Application
 }
-
-export const Default = { args: {} }

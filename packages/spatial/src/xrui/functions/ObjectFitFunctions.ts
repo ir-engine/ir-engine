@@ -30,6 +30,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import type { WebContainer3D } from '@ir-engine/xrui'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
@@ -42,6 +43,8 @@ const _mat4 = new Matrix4()
 const _vec3 = new Vector3()
 
 export type ContentFitType = 'cover' | 'contain' | 'vertical' | 'horizontal'
+export const ContentFitTypeSchema = (init?: ContentFitType) =>
+  S.LiteralUnion(['cover', 'contain', 'vertical', 'horizontal'], init ?? 'contain')
 
 // yes, multiple by the same direction twice, as the local coordinate changes with each rotation
 const _handRotation = new Quaternion()

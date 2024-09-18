@@ -520,12 +520,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
   }
 }
 
-const reparentObject = (
-  entities: Entity[],
-  before?: Entity | null,
-  after?: Entity | null,
-  parent = getState(EditorState).rootEntity
-) => {
+const reparentObject = (entities: Entity[], before?: Entity | null, parent = getState(EditorState).rootEntity) => {
   const scenes = getSourcesForEntities(entities)
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
@@ -571,26 +566,13 @@ const reparentObject = (
           const beforeIndex = gltf.data.nodes!.findIndex(
             (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
           )
-          if (after) {
-            const afterIndex = gltf.data.nodes!.findIndex(
-              (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(after, UUIDComponent)
-            )
-
-            const finalIndex = beforeIndex > nodeIndex ? afterIndex : beforeIndex
-            gltf.data.scenes![0].nodes.splice(finalIndex, 0, nodeIndex) // insert after
-            const nodeData = gltf.data.nodes?.splice(nodeIndex, 1) // remove old node from the list right before inserting to justify afterindex postion
-            gltf.data.nodes?.splice(finalIndex, 0, nodeData![0]) // insert after
-          }
-          // we have a before but no after, means its the first in the list
-          else {
-            gltf.data.scenes![0].nodes.unshift(nodeIndex)
-            const nodeData = gltf.data.nodes?.splice(nodeIndex, 1)
-            gltf.data.nodes?.unshift(nodeData![0])
-          }
+          gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
+          const replacingNode = structuredClone(gltf.data.nodes?.[nodeIndex])!
+          gltf.data.nodes?.splice(nodeIndex, 1)
+          gltf.data.nodes?.splice(beforeIndex, 0, replacingNode)
         } else {
           gltf.data.scenes![0].nodes.push(nodeIndex)
-          const nodeData = gltf.data.nodes?.splice(nodeIndex, 1)
-          gltf.data.nodes?.push(nodeData![0])
+          gltf.data.nodes?.push(gltf.data.nodes[nodeIndex])
         }
       } else {
         const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)
@@ -600,19 +582,9 @@ const reparentObject = (
           const beforeIndex = newParentNode.children.findIndex(
             (n) =>
               n ===
-              gltf.data.nodes!.findIndex(
-                (n) =>
-                  n ===
-                  gltf.data.nodes!.find(
-                    (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
-                  )
-              )
+              gltf.data.nodes!.find((n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent))
           )
-          if (after) {
-            newParentNode.children.splice(beforeIndex, 0, nodeIndex) // we extract the index of the before entity and insert the node right before it
-          } else {
-            newParentNode.children.unshift(nodeIndex)
-          }
+          newParentNode.children.splice(beforeIndex, 0, nodeIndex)
         } else {
           newParentNode.children.push(nodeIndex)
         }

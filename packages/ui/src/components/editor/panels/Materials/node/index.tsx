@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
+import React, { MouseEvent, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
 import { EntityUUID, getOptionalComponent, useOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
@@ -36,25 +36,19 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { HiOutlineArchiveBox } from 'react-icons/hi2'
 import { SiRoundcube } from 'react-icons/si'
+import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 
 export type MaterialLibraryEntryData = {
-  nodes: string[]
-  onClick: (e: MouseEvent, node: EntityUUID) => void
-  onCollapse: (e: MouseEvent, node: EntityUUID) => void
-}
-
-export type MaterialLibraryEntryProps = {
-  index: number
-  data: MaterialLibraryEntryData
-  style: StyleHTMLAttributes<HTMLElement>
+  nodes: readonly string[]
+  onClick: (e: React.MouseEvent, node: EntityUUID) => void
 }
 
 const nodeDisplayName = (uuid: EntityUUID) => {
   return getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material?.name ?? ''
 }
 
-export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
+export default function MaterialLibraryEntry(props: ListChildComponentProps<MaterialLibraryEntryData>) {
   const data = props.data
   const node = data.nodes[props.index]
 
@@ -73,7 +67,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
       e.stopPropagation()
       //data.onCollapse(e, node)
     },
-    [node, data.onCollapse]
+    [node]
   )
 
   const [_dragProps, drag] = useDrag({
