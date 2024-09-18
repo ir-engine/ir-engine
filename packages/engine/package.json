@@ -33,6 +33,7 @@
     "@ir-engine/network": "^1.6.0",
     "@ir-engine/spatial": "^1.6.0",
     "@ir-engine/xrui": "^1.6.0",
+    "property-graph": "^2.0.0",
     "@gltf-transform/core": "4.0.8",
     "@gltf-transform/extensions": "4.0.8",
     "@gltf-transform/functions": "4.0.8",

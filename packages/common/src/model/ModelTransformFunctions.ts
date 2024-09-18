@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   BufferUtils,
   Document,
+  Extension,
   Format,
   Buffer as glBuffer,
   Material,
@@ -410,6 +411,23 @@ const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string,
 const toTransformedDocument = async (srcDocument: Document, args: ModelTransformParameters): Promise<Document> => {
   const document = cloneDocument(srcDocument)
 
+  const sourceExtensions = new Map<string, Extension>(
+    srcDocument
+      .getRoot()
+      .listExtensionsUsed()
+      .map((ext) => [ext.extensionName, ext])
+  )
+  const targetExtensions = new Map<string, Extension>(
+    document
+      .getRoot()
+      .listExtensionsUsed()
+      .map((ext) => [ext.extensionName, ext])
+  )
+
+  for (const extName of sourceExtensions.keys()) {
+    ;(sourceExtensions.get(extName) as any).copyTo?.(targetExtensions.get(extName))
+  }
+
   if (args.meshoptCompression.enabled) {
     await document.transform(meshoptCompression)
   }
@@ -532,6 +550,27 @@ const createTextureOperations = (
       // ) {
       //   continue
       // }
+
+      // At this point, we have a texture
+      // We want the relation between that texture and the parts of the document that reference it
+
+      const usageTypes = new Set<string>()
+      const relations = texture.getGraph().listParentEdges(texture)
+      for (const relation of relations) {
+        const { propertyType } = relation.getParent()
+        switch (propertyType) {
+          case 'Material':
+            usageTypes.add(relation.getName())
+            break
+          case 'Root':
+            break
+          default:
+            console.warn(
+              `Unhandled texture relation in texture transform: ${texture.getURI()} ${propertyType}::${relation.getName()}`
+            )
+            break
+        }
+      }
 
       const shouldResize = maxDimension > args.maxTextureSize
       const shouldConvertToKTX = args.textureFormat === 'ktx2' // && texture.getMimeType() !== 'image/ktx2' // We are already skipping ktx2 textures. -JS
