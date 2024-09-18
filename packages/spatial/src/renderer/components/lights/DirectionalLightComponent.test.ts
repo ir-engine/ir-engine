@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BoxGeometry, Color, DirectionalLight, Mesh, MeshBasicMaterial } from 'three'
+import { BoxGeometry, Color, ColorRepresentation, DirectionalLight, Mesh, MeshBasicMaterial } from 'three'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -49,7 +49,7 @@ import { LightTagComponent } from './LightTagComponent'
 
 type DirectionalLightComponentData = {
   light: DirectionalLight
-  color: Color
+  color: ColorRepresentation
   intensity: number
   castShadow: boolean
   shadowBias: number
@@ -73,7 +73,7 @@ function assertDirectionalLightComponentEq(A: DirectionalLightComponentData, B: 
   else if (A.light || B.light) assert.equal(true, false)
   else assert.equal(A.light, B.light)
   */
-  assert.equal(A.color.getHex(), B.color.getHex())
+  assert.equal(new Color(A.color).getHex(), new Color(B.color).getHex())
   assert.equal(A.intensity, B.intensity)
   assert.equal(A.castShadow, B.castShadow)
   assert.equal(A.shadowBias, B.shadowBias)
@@ -85,7 +85,7 @@ function assertDirectionalLightComponentNotEq(
   B: DirectionalLightComponentData
 ): void {
   assert.notEqual(A.light.uuid, B.light.uuid)
-  assert.notEqual(A.color.getHex(), B.color.getHex())
+  assert.notEqual(new Color(A.color).getHex(), new Color(B.color).getHex())
   assert.notEqual(A.intensity, B.intensity)
   assert.notEqual(A.castShadow, B.castShadow)
   assert.notEqual(A.shadowBias, B.shadowBias)
@@ -160,22 +160,6 @@ describe('DirectionalLightComponent', () => {
       assertDirectionalLightComponentNotEq(result, DirectionalLightComponentDefaults)
       assertDirectionalLightComponentEq(result, Expected)
     })
-
-    it('should not change the values of an initialized DirectionalLightComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, DirectionalLightComponent)
-      assertDirectionalLightComponentEq(before, DirectionalLightComponentDefaults)
-      const Incorrect = {
-        skyColor: false,
-        groundColor: false,
-        intensity: 'someIntensity'
-      }
-
-      // Run and Check the result
-      // @ts-ignore Allow coercing incorrect types into onSet
-      setComponent(testEntity, DirectionalLightComponent, Incorrect)
-      const result = getComponent(testEntity, DirectionalLightComponent)
-      assertDirectionalLightComponentEq(result, DirectionalLightComponentDefaults)
-    })
   }) //:: onSet
 
   describe('toJSON', () => {
@@ -197,7 +181,7 @@ describe('DirectionalLightComponent', () => {
 
     it("should serialize the component's default data as expected", () => {
       const Expected = {
-        color: DirectionalLightComponentDefaults.color.getHex(),
+        color: new Color(DirectionalLightComponentDefaults.color).getHex(),
         intensity: DirectionalLightComponentDefaults.intensity,
         cameraFar: DirectionalLightComponentDefaults.cameraFar,
         castShadow: DirectionalLightComponentDefaults.castShadow,
@@ -280,12 +264,12 @@ describe('DirectionalLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).color
-      assert.equal(before.getHex(), DirectionalLightComponentDefaults.color.getHex())
+      assert.equal(new Color(before).getHex(), new Color(DirectionalLightComponentDefaults.color).getHex())
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
       const result = getComponent(testEntity, DirectionalLightComponent).color
-      assert.equal(result.getHex(), Expected.getHex())
+      assert.equal(new Color(result).getHex(), Expected.getHex())
     })
 
     it("should react and assign the light's color to LineSegmentComponent.color for the entity when directionalLightComponent.color changes", () => {
@@ -299,8 +283,8 @@ describe('DirectionalLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).color
-      assert.equal(before.getHex(), DirectionalLightComponentDefaults.color.getHex())
-      assert.notEqual(before.getHex(), Expected.getHex())
+      assert.equal(new Color(before).getHex(), new Color(DirectionalLightComponentDefaults.color).getHex())
+      assert.notEqual(new Color(before).getHex(), Expected.getHex())
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })

@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Vector2 } from 'three'
-
 import {
   defineComponent,
   defineQuery,
@@ -35,6 +33,7 @@ import {
   useEntityContext,
   useQuery
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { defineState, getState, OpaqueType, useImmediateEffect } from '@ir-engine/hyperflux'
 
 /**
@@ -64,15 +63,13 @@ export const InputPointerState = defineState({
 export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',
 
-  onInit: () => {
-    return {
-      pointerId: -1 as number,
-      position: new Vector2(),
-      lastPosition: new Vector2(),
-      movement: new Vector2(),
-      cameraEntity: UndefinedEntity
-    }
-  },
+  schema: S.Object({
+    pointerId: S.Number(-1),
+    position: S.Vec2(),
+    lastPosition: S.Vec2(),
+    movement: S.Vec2(),
+    cameraEntity: S.Entity()
+  }),
 
   onSet(entity, component, json: { pointerId: number; cameraEntity: Entity }) {
     if (typeof json.pointerId === 'number') component.pointerId.set(json.pointerId)

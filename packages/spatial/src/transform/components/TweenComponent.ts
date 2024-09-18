@@ -26,15 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { Tween } from '@tweenjs/tween.js'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const TweenComponent = defineComponent({
   name: 'TweenComponent',
-
-  onInit(entity) {
-    return null! as Tween<any>
-  },
-
-  onSet(entity, component, json) {
-    component.set(json as Tween<any>)
-  }
+  schema: S.Type<Tween<any>>()
 })

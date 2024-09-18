@@ -28,6 +28,7 @@ import {
   UndefinedEntity,
   createEngine,
   createEntity,
+  createInitialComponentValue,
   destroyEngine,
   getComponent,
   hasComponent,
@@ -107,7 +108,7 @@ type TransparencyDitheringPluginComponentData = {
 }
 
 const TransparencyDitheringPluginComponentDefaults: TransparencyDitheringPluginComponentData =
-  TransparencyDitheringPluginComponent.onInit(UndefinedEntity)
+  createInitialComponentValue(UndefinedEntity, TransparencyDitheringPluginComponent)
 
 function assertTransparencyDitheringPluginComponentEq(
   A: TransparencyDitheringPluginComponentData,

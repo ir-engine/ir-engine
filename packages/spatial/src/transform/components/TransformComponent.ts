@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import {
@@ -37,8 +36,9 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { isZero } from '../../common/functions/MathFunctions'
-import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { QuaternionProxyDirty, Vec3ProxyDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 export type TransformComponentType = {
@@ -49,35 +49,32 @@ export type TransformComponentType = {
   matrixWorld: Matrix4
 }
 
-const { f64 } = Types
-export const Vector3Schema = { x: f64, y: f64, z: f64 }
-export const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
-export const PoseSchema = {
-  position: Vector3Schema,
-  rotation: QuaternionSchema
+export const PoseECS = {
+  position: ECSSchema.Vec3,
+  rotation: ECSSchema.Quaternion
 }
-export const TransformSchema = {
-  position: Vector3Schema,
-  rotation: QuaternionSchema,
-  scale: Vector3Schema
+export const TransformECS = {
+  position: ECSSchema.Vec3,
+  rotation: ECSSchema.Quaternion,
+  scale: ECSSchema.Vec3
+  // There might be a way to make this a performance gain, but in testing it's about 15% slower than JS arrays
+  // matrix: ECSSchema.Mat4,
+  // matrixWorld: ECSSchema.Mat4
 }
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
   jsonID: 'EE_transform',
-  schema: TransformSchema,
+  schema: TransformECS,
 
-  onInit: (entity) => {
+  onInit: (initial) => {
+    const entity = initial.entity
     const dirtyTransforms = TransformComponent.dirtyTransforms
+    initial.scale = { x: 1, y: 1, z: 1 }
     const component = {
-      position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms) as Vector3,
-      rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
-      scale: proxifyVector3WithDirty(
-        TransformComponent.scale,
-        entity,
-        dirtyTransforms,
-        new Vector3(1, 1, 1)
-      ) as Vector3,
+      position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
+      rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
+      scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms),
       matrix: new Matrix4(),
       matrixWorld: new Matrix4()
     } as TransformComponentType
@@ -85,22 +82,17 @@ export const TransformComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    const rotation = json?.rotation
-      ? typeof json.rotation.w === 'number'
-        ? json.rotation
-        : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
-      : undefined
-
-    if (json?.position) component.position.value.copy(json.position)
-    if (rotation) component.rotation.value.copy(rotation)
-    if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+    if (!json) return
+    if (json.position) component.position.value.copy(json.position)
+    if (json.rotation) component.rotation.value.copy(json.rotation)
+    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      position: component.position.value,
-      rotation: component.rotation.value,
-      scale: component.scale.value
+      position: component.position,
+      rotation: component.rotation,
+      scale: component.scale
     }
   },
 

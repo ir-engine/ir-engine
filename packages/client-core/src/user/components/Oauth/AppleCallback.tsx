@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/mui/Button'
-import Container from '@ir-engine/ui/src/primitives/mui/Container'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
@@ -67,15 +66,15 @@ const AppleCallbackComponent = (props): JSX.Element => {
   }
 
   return state.error && state.error !== '' ? (
-    <Container className={styles.oauthError}>
+    <div className={styles.oauthError}>
       <div className={styles.title}>{t('user:oauth.authFailed', { service: 'Apple' })}</div>
       <div className={styles.message}>{state.error}</div>
       <Button onClick={redirectToRoot} className={styles.gradientButton}>
         {t('user:oauth.redirectToRoot')}
       </Button>
-    </Container>
+    </div>
   ) : (
-    <Container>{t('user:oauth.authenticating')}</Container>
+    <div>{t('user:oauth.authenticating')}</div>
   )
 }
 

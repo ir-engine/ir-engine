@@ -53,9 +53,9 @@ const MockComponent = defineComponent({
   onSet: (entity, component, json: { mockValue: number }) => {
     if (typeof json?.mockValue === 'number') component.mockValue.set(json.mockValue)
   },
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      mockValue: component.mockValue.value
+      mockValue: component.mockValue
     }
   }
 })

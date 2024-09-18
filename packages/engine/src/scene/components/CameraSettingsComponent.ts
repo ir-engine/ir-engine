@@ -27,47 +27,29 @@ import { useEffect } from 'react'
 
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { CameraSettingsState } from '@ir-engine/spatial/src/camera/CameraSceneMetadata'
+import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
+import { ProjectionType } from '@ir-engine/spatial/src/camera/types/ProjectionType'
 
 export const CameraSettingsComponent = defineComponent({
   name: 'CameraSettingsComponent',
   jsonID: 'EE_camera_settings',
 
-  onInit(entity): typeof CameraSettingsState._TYPE {
-    return typeof CameraSettingsState.initial === 'function'
-      ? (CameraSettingsState.initial as any)()
-      : JSON.parse(JSON.stringify(CameraSettingsState.initial))
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.fov === 'number') component.fov.set(json.fov)
-    if (typeof json.cameraNearClip === 'number') component.cameraNearClip.set(json.cameraNearClip)
-    if (typeof json.cameraFarClip === 'number') component.cameraFarClip.set(json.cameraFarClip)
-    if (typeof json.projectionType === 'number') component.projectionType.set(json.projectionType)
-    if (typeof json.minCameraDistance === 'number')
-      component.minCameraDistance.set(Math.max(json.minCameraDistance, 1.5))
-    if (typeof json.maxCameraDistance === 'number') component.maxCameraDistance.set(json.maxCameraDistance)
-    if (typeof json.startCameraDistance === 'number') component.startCameraDistance.set(json.startCameraDistance)
-    if (typeof json.minPhi === 'number') component.minPhi.set(json.minPhi)
-    if (typeof json.maxPhi === 'number') component.maxPhi.set(json.maxPhi)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      fov: component.fov.value,
-      cameraNearClip: component.cameraNearClip.value,
-      cameraFarClip: component.cameraFarClip.value,
-      projectionType: component.projectionType.value,
-      minCameraDistance: component.minCameraDistance.value,
-      maxCameraDistance: component.maxCameraDistance.value,
-      startCameraDistance: component.startCameraDistance.value,
-      minPhi: component.minPhi.value,
-      maxPhi: component.maxPhi.value
-    }
-  },
+  schema: S.Object({
+    fov: S.Number(60),
+    cameraNearClip: S.Number(0.1),
+    cameraFarClip: S.Number(1000),
+    projectionType: S.Enum(ProjectionType, ProjectionType.Perspective),
+    minCameraDistance: S.Number(1.5),
+    maxCameraDistance: S.Number(50),
+    startCameraDistance: S.Number(3),
+    cameraMode: S.Enum(FollowCameraMode, FollowCameraMode.Dynamic),
+    cameraModeDefault: S.Enum(FollowCameraMode, FollowCameraMode.ThirdPerson),
+    minPhi: S.Number(-70),
+    maxPhi: S.Number(85)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
