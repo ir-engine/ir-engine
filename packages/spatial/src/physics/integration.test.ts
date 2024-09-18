@@ -53,7 +53,8 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import {
   TransformDirtyCleanupSystem,
   TransformDirtyUpdateSystem,
-  TransformSystem
+  TransformSystem,
+  computeTransformMatrix
 } from '../transform/systems/TransformSystem'
 import { PhysicsPreTransformSystem, PhysicsSystem } from './PhysicsModule'
 import { Physics, PhysicsWorld } from './classes/Physics'
@@ -258,7 +259,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       // .. Set a child
       setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
       setComponent(testEntity, NameComponent, 'testEntity')
-      // .. Set a collider+rigidbody on the child
+      // .. Set a rigidbody on the child
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
       setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
@@ -269,6 +270,8 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         setComponent(entity, NameComponent, 'childEntity-' + id)
         setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? testEntity : children[id - 1] })
         setComponent(entity, TransformComponent)
+        // .. Set the collider on the child first subchild
+        if (id === 0) setComponent(entity, ColliderComponent, { shape: Shapes.Sphere })
       }
       updateTransforms()
     }
@@ -419,7 +422,11 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) {
           const entity = children[id]
           const result = getPositionFromMatrixWorld(entity)
+          // Should change each sub child of the parent, no matter its depth
           assertVecApproxEq(result, Expected, 3)
+          // Should also change the Collider of the Child that has it
+          if (hasComponent(entity, ColliderComponent))
+            assertVecApproxEq(physicsWorld.Colliders.get(entity)?.translation(), Expected, 3)
         }
         removeChidren()
       })
@@ -450,7 +457,11 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) {
           const entity = children[id]
           const result = getRotationFromMatrixWorld(entity)
+          // Should change each sub child of the parent, no matter its depth
           assertVecApproxEq(result, Expected, 4)
+          // Should also change the Collider of the Child that has it
+          if (hasComponent(entity, ColliderComponent))
+            assertVecApproxEq(physicsWorld.Colliders.get(entity)?.rotation(), Expected, 4)
         }
         removeChidren()
       })
@@ -482,6 +493,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) {
           const entity = children[id]
           const result = getScaleFromMatrixWorld(entity)
+          // Should change each sub child of the parent, no matter its depth
           assertVecApproxEq(result, Expected, 3)
         }
         removeChidren()
@@ -489,19 +501,24 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
     })
 
     describe("should apply scene.transform modifications to all entities contained in the scene's hierarchy", () => {
-      it.skip('... position', () => {
+      it('... position', () => {
         const ChangeAmount = 42
         const Expected = Initial.position.clone().addScalar(ChangeAmount)
         // Set the data as expected
         setupEntityTree()
-        const transform = setComponent(physicsWorldEntity, TransformComponent, { position: Initial.position })
+        setComponent(physicsWorldEntity, TransformComponent, { position: Initial.position })
         updateTransforms()
         // Sanity check before running
         for (let id = 0; id < childrenCount; ++id) assert.equal(hasComponent(children[id], TransformComponent), true)
 
         // Run and Check the results
         // .. Phase 0
-        getMutableComponent(physicsWorldEntity, TransformComponent).position.value.addScalar(ChangeAmount)
+        getComponent(physicsWorldEntity, TransformComponent).position.addScalar(ChangeAmount)
+        {
+          /** @todo This is a BUG. See TransformComponent.getMatrixRelativeToScene */
+          computeTransformMatrix(physicsWorldEntity)
+          computeTransformMatrix(parentEntity)
+        }
         // .. Phase 1
         execute.physicsSystem()
         // .. Phase 2
@@ -516,23 +533,13 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) {
           const entity = children[id]
           const result = getPositionFromMatrixWorld(entity)
-          console.log(
-            getComponent(physicsWorldEntity, TransformComponent).position.x,
-            getComponent(physicsWorldEntity, TransformComponent).position.y,
-            getComponent(physicsWorldEntity, TransformComponent).position.z
-          )
-          console.log(
-            getComponent(entity, TransformComponent).position.x,
-            getComponent(entity, TransformComponent).position.y,
-            getComponent(entity, TransformComponent).position.z
-          )
-          console.log(result)
+          // Should change each sub child of the parent, no matter its depth
           assertVecApproxEq(result, Expected, 3)
         }
         removeChidren()
       })
 
-      it.skip('... rotation', () => {
+      it('... rotation', () => {
         const ChangeAmount = MathUtils.degToRad(90)
         const Expected = Initial.rotation.clone().setFromAxisAngle(Axis.Y, ChangeAmount)
         // Set the data as expected
@@ -548,6 +555,11 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
           Axis.Y,
           ChangeAmount
         )
+        {
+          /** @todo This is a BUG. See TransformComponent.getMatrixRelativeToScene */
+          computeTransformMatrix(physicsWorldEntity)
+          computeTransformMatrix(parentEntity)
+        }
         // .. Phase 1
         execute.physicsSystem()
         // .. Phase 2
@@ -562,12 +574,13 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) {
           const entity = children[id]
           const result = getRotationFromMatrixWorld(entity)
+          // Should change each sub child of the parent, no matter its depth
           assertVecApproxEq(result, Expected, 4)
         }
         removeChidren()
       })
 
-      it.skip('... scale', () => {
+      it('... scale', () => {
         const ChangeAmount = 42
         const Expected = Initial.scale.clone().addScalar(ChangeAmount)
         // Set the data as expected
@@ -580,6 +593,11 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         // Run and Check the results
         // .. Phase 0
         getMutableComponent(physicsWorldEntity, TransformComponent).scale.value.addScalar(ChangeAmount)
+        {
+          /** @todo This is a BUG. See TransformComponent.getMatrixRelativeToScene */
+          computeTransformMatrix(physicsWorldEntity)
+          computeTransformMatrix(parentEntity)
+        }
         // .. Phase 1
         execute.physicsSystem()
         // .. Phase 2
@@ -594,6 +612,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) {
           const entity = children[id]
           const result = getScaleFromMatrixWorld(entity)
+          // Should change each sub child of the parent, no matter its depth
           assertVecApproxEq(result, Expected, 3)
         }
         removeChidren()
@@ -602,7 +621,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
     /**
     // @todo
-    it("should allow moving the Collider of an entity separately from its Transform, and the movement should be relative to its parent", () => {})
+    it("should allow moving the Collider of a child entity separately when the collider is set into a different entity and the Transform of that entity moves, and its movement should be relative to its parent", () => {})
     */
   }) //:: Transform Overrides (aka teleportation)
 
