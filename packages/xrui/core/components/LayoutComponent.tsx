@@ -26,7 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   AnimationSystemGroup,
   ECSState,
+  UndefinedEntity,
   defineComponent,
+  setComponent,
   useComponent,
   useEntityContext,
   useExecute,
@@ -34,8 +36,9 @@ import {
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
 
@@ -45,54 +48,59 @@ export interface SizeMode {
   z: 'proportional' | 'literal'
 }
 
+const _size = new Vector3()
+
 export const LayoutComponent = defineComponent({
   name: 'LayoutComponent',
 
   onInit: () => {
     return {
-      /** The absolute position of the element relative to its parent. */
+      /** The absolute position of the element relative to the anchor. */
       position: null as Vector3 | null,
       /** Transition data for smooth position changes. */
       positionTransition: Transition.defineVector3Transition(),
-      /** Computed effective position after considering defaults. */
+      /** Effective position after considering defaults. */
       effectivePosition: new Vector3(),
 
-      /** The origin point for positioning within the parent. (0,0,0) is top-left-front, (1,1,1) is bottom-right-back. */
+      /** The origin point for positioning within the anchor. (0,0,0) is top-left-front, (1,1,1) is bottom-right-back. */
       positionOrigin: null as Vector3 | null,
       /** Transition data for smooth position origin changes. */
       positionOriginTransition: Transition.defineVector3Transition(),
-      /** Computed effective position origin after considering defaults. */
+      /** Effective position origin after considering defaults. */
       effectivePositionOrigin: new Vector3(),
 
       /** The alignment point of the element itself. (0,0,0) aligns top-left-front, (0.5,0.5,0.5) centers the element. */
       alignmentOrigin: null as Vector3 | null,
       /** Transition data for smooth alignment origin changes. */
       alignmentTransition: Transition.defineVector3Transition(),
-      /** Computed effective alignment origin after considering defaults. */
+      /** Effective alignment origin after considering defaults. */
       effectiveAlignmentOrigin: new Vector3(),
 
       /** The rotation of the element. */
       rotation: null as Quaternion | null,
       /** Transition data for smooth rotation changes. */
       rotationTransition: Transition.defineQuaternionTransition(),
-      /** Computed effective rotation after considering defaults. */
+      /** Effective rotation after considering defaults. */
       effectiveRotation: new Quaternion(),
 
       /** The point around which the element rotates. (0,0,0) is element's top-left-front, (0.5,0.5,0.5) is center. */
       rotationOrigin: null as Vector3 | null,
       /** Transition data for smooth rotation origin changes. */
       rotationOriginTransition: Transition.defineVector3Transition(),
-      /** Computed effective rotation origin after considering defaults. */
+      /** Effective rotation origin after considering defaults. */
       effectiveRotationOrigin: new Vector3(),
 
       /** The dimensions of the element. Can be absolute or proportional based on sizeMode. */
       size: null as Vector3 | null,
-      /** Determines how size is interpreted for each axis: 'proportional' or 'literal'. */
-      sizeMode: null as SizeMode | null,
       /** Transition data for smooth size changes. */
       sizeTransition: Transition.defineVector3Transition(),
-      /** Computed effective size after considering parent size, sizeMode, and defaults. */
+      /** Effective size after considering defaults. */
       effectiveSize: new Vector3(),
+
+      /** Determines how size is interpreted for each axis: 'proportional' or 'literal'. */
+      sizeMode: null as SizeMode | null,
+      /** Effective size mode after considering defaults. */
+      effectiveSizeMode: { x: 'literal', y: 'literal', z: 'literal' } as SizeMode,
 
       /** Default values for all properties. Used when the corresponding property is null. */
       defaults: {
@@ -103,61 +111,82 @@ export const LayoutComponent = defineComponent({
         rotationOrigin: new Vector3(),
         size: new Vector3(),
         sizeMode: { x: 'literal', y: 'literal', z: 'literal' } as SizeMode
-      }
+      },
+
+      /** The entity that anchors this layout. */
+      anchorEntity: UndefinedEntity,
+
+      contentEntity: UndefinedEntity
     }
+  },
+
+  onSet: (entity, component, json) => {
+    if (json?.position) component.position.set(new Vector3().copy(json.position))
+    if (json?.positionOrigin) component.positionOrigin.set(new Vector3().copy(json.positionOrigin))
+    if (json?.alignmentOrigin) component.alignmentOrigin.set(new Vector3().copy(json.alignmentOrigin))
+    if (json?.rotation) component.rotation.set(new Quaternion().copy(json.rotation))
+    if (json?.rotationOrigin) component.rotationOrigin.set(new Vector3().copy(json.rotationOrigin))
+    if (json?.size) component.size.set(new Vector3().copy(json.size))
+    if (json?.sizeMode) component.sizeMode.set(json.sizeMode)
+
+    if (json?.position == null) component.position.set(null)
+    if (json?.positionOrigin == null) component.positionOrigin.set(null)
+    if (json?.alignmentOrigin == null) component.alignmentOrigin.set(null)
+    if (json?.rotation == null) component.rotation.set(null)
+    if (json?.rotationOrigin == null) component.rotationOrigin.set(null)
+    if (json?.size == null) component.size.set(null)
+    if (json?.sizeMode == null) component.sizeMode.set(null)
+
+    if (json?.defaults) {
+      if (json.defaults.position) component.defaults.position.set(new Vector3().copy(json.defaults.position))
+      if (json.defaults.positionOrigin)
+        component.defaults.positionOrigin.set(new Vector3().copy(json.defaults.positionOrigin))
+      if (json.defaults.alignmentOrigin)
+        component.defaults.alignmentOrigin.set(new Vector3().copy(json.defaults.alignmentOrigin))
+      if (json.defaults.rotation) component.defaults.rotation.set(new Quaternion().copy(json.defaults.rotation))
+      if (json.defaults.rotationOrigin)
+        component.defaults.rotationOrigin.set(new Vector3().copy(json.defaults.rotationOrigin))
+      if (json.defaults.size) component.defaults.size.set(new Vector3().copy(json.defaults.size))
+      if (json.defaults.sizeMode) component.defaults.sizeMode.set(json.defaults.sizeMode)
+    }
+
+    if (json?.anchorEntity) component.anchorEntity.set(json.anchorEntity)
+  },
+
+  toJSON: (component) => {
+    return component
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const layout = useComponent(entity, LayoutComponent)
-    const parentEntity = useAncestorWithComponents(entity, [LayoutComponent])
-    const parentLayout = useOptionalComponent(parentEntity, LayoutComponent)
-    const transform = useComponent(entity, TransformComponent)
+
+    // This layout might be anchored to another layout, or an object with a bounding box, or a camera.
+    const anchorEntity = layout.anchorEntity.value
+    const anchorLayout = useOptionalComponent(anchorEntity, LayoutComponent)
+    const anchorCamera = useOptionalComponent(anchorEntity, CameraComponent)
+    const anchorBounds = useOptionalComponent(anchorEntity, BoundingBoxComponent)
 
     // Compute effective properties
     useImmediateEffect(() => {
       if (!layout) return
-
-      // Effective position (always absolute)
-      const position = layout.position.value ?? layout.defaults.position.value
-      layout.effectivePosition.set(new Vector3(position.x, position.y, position.z))
-
-      // Effective size (remains proportional or literal based on sizeMode)
-      const sizeMode = layout.sizeMode.value ?? layout.defaults.sizeMode.value
-      const size = layout.size.value ?? layout.defaults.size.value
-      const parentSize = parentLayout?.effectiveSize.value ?? Vector3_Zero
-      layout.effectiveSize.set(
-        new Vector3(
-          sizeMode.x === 'proportional' ? size.x * parentSize.x : size.x,
-          sizeMode.y === 'proportional' ? size.y * parentSize.y : size.y,
-          sizeMode.z === 'proportional' ? size.z * parentSize.z : size.z
-        )
-      )
-
-      // Effective position origin
-      const positionOrigin = layout.positionOrigin.value ?? layout.defaults.positionOrigin.value
-      layout.effectivePositionOrigin.set(new Vector3(positionOrigin.x, positionOrigin.y, positionOrigin.z))
-
-      // Effective alignment origin
-      const alignmentOrigin = layout.alignmentOrigin.value ?? layout.defaults.alignmentOrigin.value
-      layout.effectiveAlignmentOrigin.set(new Vector3(alignmentOrigin.x, alignmentOrigin.y, alignmentOrigin.z))
-
-      // Effective rotation
-      const rotation = layout.rotation.value ?? layout.defaults.rotation.value
-      layout.effectiveRotation.set(new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w))
-
-      // Effective rotation origin
-      const rotationOrigin = layout.rotationOrigin.value ?? layout.defaults.rotationOrigin.value
-      layout.effectiveRotationOrigin.set(new Vector3(rotationOrigin.x, rotationOrigin.y, rotationOrigin.z))
+      const defaults = layout.defaults.value
+      layout.effectivePosition.value.copy(new Vector3().copy(layout.position.value ?? defaults.position))
+      layout.effectivePositionOrigin.set(new Vector3().copy(layout.positionOrigin.value ?? defaults.positionOrigin))
+      layout.effectiveAlignmentOrigin.set(new Vector3().copy(layout.alignmentOrigin.value ?? defaults.alignmentOrigin))
+      layout.effectiveRotation.set(new Quaternion().copy(layout.rotation.value ?? defaults.rotation))
+      layout.effectiveRotationOrigin.set(new Vector3().copy(layout.rotationOrigin.value ?? defaults.rotationOrigin))
+      layout.effectiveSizeMode.set({ ...(layout.sizeMode.value ?? defaults.sizeMode) })
+      layout.effectiveSize.set(new Vector3().copy(layout.size.value ?? defaults.size))
     }, [
-      layout?.position,
-      layout?.size,
-      layout?.sizeMode,
-      parentLayout?.effectiveSize.value,
-      layout?.positionOrigin,
-      layout?.alignmentOrigin,
-      layout?.rotation,
-      layout?.rotationOrigin
+      layout.position,
+      layout.size,
+      layout.sizeMode,
+      layout.positionOrigin,
+      layout.alignmentOrigin,
+      layout.rotation,
+      layout.rotationOrigin,
+      layout.defaults
     ])
 
     // apply new target to transitions when effective properties change
@@ -169,6 +198,7 @@ export const LayoutComponent = defineComponent({
       Transition.applyNewTarget(layout.effectiveAlignmentOrigin.value, simulationTime, layout.alignmentTransition)
       Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
       Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
+      Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
     }, [
       layout?.positionTransition,
       layout?.positionOriginTransition,
@@ -188,7 +218,7 @@ export const LayoutComponent = defineComponent({
     // Update transitions every frame
     useExecute(
       () => {
-        if (!layout || !transform) return
+        if (!layout) return
         const frameTime = getState(ECSState).frameTime
 
         Transition.computeCurrentValue(frameTime, layout.positionTransition.value as TransitionData<Vector3>)
@@ -205,20 +235,21 @@ export const LayoutComponent = defineComponent({
         const size = layout.effectiveSize.value
 
         // Compute the final position
-        if (parentLayout) {
-          const parentSize = parentLayout.effectiveSize.value
-          finalPosition.set(
-            position.x + positionOrigin.x * parentSize.x - alignmentOrigin.x * size.x,
-            position.y + positionOrigin.y * parentSize.y - alignmentOrigin.y * size.y,
-            position.z + positionOrigin.z * parentSize.z - alignmentOrigin.z * size.z
-          )
-        } else {
-          finalPosition.set(
-            position.x - alignmentOrigin.x * size.x,
-            position.y - alignmentOrigin.y * size.y,
-            position.z - alignmentOrigin.z * size.z
-          )
+        let anchorSize = Vector3_Zero
+
+        if (anchorLayout?.ornull?.effectiveSize.value) {
+          anchorSize = anchorLayout.effectiveSize.value
+        } else if (anchorCamera?.value) {
+          // depends on frustum position
+        } else if (anchorBounds?.box) {
+          anchorSize = anchorBounds.box.value.getSize(_size)
         }
+
+        finalPosition.set(
+          position.x + positionOrigin.x * anchorSize.x - alignmentOrigin.x * size.x,
+          position.y + positionOrigin.y * anchorSize.y - alignmentOrigin.y * size.y,
+          position.z + positionOrigin.z * anchorSize.z - alignmentOrigin.z * size.z
+        )
 
         // Apply rotation origin offset
         rotationOriginOffset.set(
@@ -242,9 +273,11 @@ export const LayoutComponent = defineComponent({
         matrix.decompose(finalPosition, finalRotation, finalScale)
 
         // Update the transform component
-        transform.position.value.copy(finalPosition)
-        transform.rotation.value.copy(finalRotation)
-        transform.scale.value.copy(size)
+        setComponent(entity, TransformComponent, {
+          position: finalPosition,
+          rotation: finalRotation,
+          scale: size
+        })
       },
       {
         with: AnimationSystemGroup

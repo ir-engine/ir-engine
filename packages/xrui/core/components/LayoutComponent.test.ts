@@ -69,20 +69,21 @@ describe('LayoutComponent', () => {
   })
 
   it('should compute effective size based on sizeMode', () => {
-    const layout = getMutableComponent(entity, LayoutComponent)
-    layout.size.set(new Vector3(0.5, 100, 0.75))
-    layout.sizeMode.set({ x: 'proportional', y: 'literal', z: 'proportional' })
-
     // Create a parent entity with a LayoutComponent
     const parentEntity = createEntity()
-    setComponent(parentEntity, LayoutComponent)
-    const parentLayout = getMutableComponent(parentEntity, LayoutComponent)
-    parentLayout.size.set(new Vector3(1000, 1000, 1000))
+    setComponent(parentEntity, LayoutComponent, {
+      size: new Vector3(1000, 1000, 1000)
+    })
 
+    // Create a child entity with a LayoutComponent
     setComponent(entity, EntityTreeComponent, { parentEntity })
+    setComponent(entity, LayoutComponent, {
+      size: new Vector3(0.5, 100, 0.75),
+      sizeMode: { x: 'proportional', y: 'literal', z: 'proportional' }
+    })
 
-    LayoutComponent.reactorMap.get(entity)?.run()
-    assert.deepStrictEqual(layout.effectiveSize.value, new Vector3(500, 100, 750))
+    const layout = getComponent(entity, LayoutComponent)
+    assert.deepStrictEqual(layout.effectiveSize, new Vector3(500, 100, 750))
   })
 
   it('should compute effective rotation', () => {
