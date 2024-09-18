@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
+import { validate as isValidUUID } from 'uuid'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
@@ -58,14 +59,15 @@ export default function LocationTable({ search }: { search: string }) {
     {
       $or: [
         {
+          id: isValidUUID(search) ? search : undefined
+        },
+        {
           name: {
             $like: `%${search}%`
           }
         },
         {
-          sceneId: {
-            $like: `%${search}%`
-          }
+          sceneId: isValidUUID(search) ? search : undefined
         }
       ]
     },

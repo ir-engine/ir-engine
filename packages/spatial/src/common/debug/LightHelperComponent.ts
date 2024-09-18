@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import {
   Camera,
-  ColorRepresentation,
   DirectionalLight,
   DirectionalLightHelper,
   HemisphereLight,
@@ -38,9 +37,10 @@ import {
   SpotLightHelper
 } from 'three'
 
-import { defineComponent, Entity, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
@@ -54,15 +54,13 @@ const getLightHelperType = (light: Light) => {
 export const LightHelperComponent = defineComponent({
   name: 'LightHelperComponent',
 
-  onInit: (entity) => {
-    return {
-      name: 'light-helper',
-      light: undefined! as Light,
-      size: 1,
-      color: undefined as undefined | ColorRepresentation,
-      entity: undefined as undefined | Entity
-    }
-  },
+  schema: S.Object({
+    name: S.String('light-helper'),
+    light: S.Type<Light>(),
+    size: S.Number(1),
+    color: S.Optional(S.Color()),
+    entity: S.Optional(S.Entity())
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return

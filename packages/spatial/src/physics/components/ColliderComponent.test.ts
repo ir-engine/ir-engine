@@ -206,25 +206,6 @@ describe('ColliderComponent', () => {
       const data = getComponent(testEntity, ColliderComponent)
       assertColliderComponentEquals(data, Expected)
     })
-
-    it('should not change values of an initialized ColliderComponent when the data passed had incorrect types', () => {
-      const Incorrect = {
-        shape: 1,
-        mass: 'mass.incorrect',
-        massCenter: 2,
-        friction: 'friction.incorrect',
-        restitution: 'restitution.incorrect',
-        collisionLayer: 'collisionLayer.incorrect',
-        collisionMask: 'trigger.incorrect'
-      }
-      const before = getComponent(testEntity, ColliderComponent)
-      assertColliderComponentEquals(before, ColliderComponentDefaults)
-
-      // @ts-ignore
-      setComponent(testEntity, ColliderComponent, Incorrect)
-      const data = getComponent(testEntity, ColliderComponent)
-      assertColliderComponentEquals(data, ColliderComponentDefaults)
-    })
   }) // << onSet
 
   describe('toJSON', () => {

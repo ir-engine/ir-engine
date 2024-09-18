@@ -43,19 +43,21 @@ type EulerInputProps = {
   unit?: string
 }
 
+const tempEuler = new Euler() // we need the persistance, the hookstate doesnt register the dynamically allocated euler and quat value otherwise, thus we cannot assign new variable to the same
+const tempQuat = new Quaternion()
 export const EulerInput = (props: EulerInputProps) => {
   const quaternion = useHookstate(props.quaternion)
-  const euler = useHookstate(new Euler().setFromQuaternion(props.quaternion, 'YXZ'))
+  const euler = useHookstate(tempEuler.setFromQuaternion(props.quaternion, 'YXZ'))
 
   useEffect(() => {
-    euler.set(new Euler().setFromQuaternion(quaternion.value, 'YXZ'))
+    euler.set(tempEuler.setFromQuaternion(quaternion.value, 'YXZ'))
   }, [props.quaternion])
 
   const onSetEuler = (component: keyof typeof euler) => (value: number) => {
     const radVal = value * DEG2RAD
     euler[component].value !== radVal &&
       (euler[component].set(radVal),
-      quaternion.set(new Quaternion().setFromEuler(euler.value)),
+      quaternion.set(tempQuat.setFromEuler(euler.value)),
       props.onChange?.(quaternion.value))
   }
 

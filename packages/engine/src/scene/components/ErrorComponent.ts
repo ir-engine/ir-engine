@@ -31,16 +31,11 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
-export type ErrorComponentType = {
-  [componentName: string]: {
-    [errorKey: string]: string
-  }
-}
-
-export const ErrorComponent = defineComponent<ErrorComponentType>({
+export const ErrorComponent = defineComponent({
   name: 'ErrorComponent',
-  onInit: () => ({}) as ErrorComponentType
+  schema: S.Record(S.String(), S.Record(S.String(), S.String()))
 })
 
 export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {

@@ -263,7 +263,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               currentValue={locationType.value}
               onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
               options={locationTypeOptions}
-              disabled={isLoading}
+              disabled={true}
             />
             <Toggle
               label={t('admin:components.location.lbl-ve')}

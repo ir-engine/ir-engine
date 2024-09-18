@@ -46,19 +46,15 @@ describe('SceneComponent', () => {
 })
 
 type BackgroundComponentData = ImmutableObject<Color> | ImmutableObject<Texture> | ImmutableObject<CubeTexture>
-const BackgroundComponentDefaults = null! as BackgroundComponentData
+const BackgroundComponentDefaults = undefined! as BackgroundComponentData
 
 function assertBackgroundComponentEq(A: BackgroundComponentData, B: BackgroundComponentData) {
   assert.equal(Boolean(A), Boolean(B))
-  const a = (A !== null && A.toJSON) || A
-  const b = (B !== null && B.toJSON) || B
-  assert.deepEqual(a, b)
+  assert.deepEqual(A, B)
 }
 
 function assertBackgroundComponentNotEq(A: BackgroundComponentData, B: BackgroundComponentData) {
-  const a = (A !== null && A.toJSON) || A
-  const b = (B !== null && B.toJSON) || B
-  assert.notDeepEqual(a, b)
+  assert.notDeepEqual(A, B)
 }
 
 describe('BackgroundComponent', () => {
@@ -107,14 +103,6 @@ describe('BackgroundComponent', () => {
       setComponent(testEntity, BackgroundComponent, new Color('#123456'))
       const after = getComponent(testEntity, BackgroundComponent)
       assertBackgroundComponentNotEq(before, after)
-    })
-
-    it('should not change values of an initialized BackgroundComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, BackgroundComponent)
-      // @ts-ignore Coerce an incorrect type into the component's data
-      setComponent(testEntity, BackgroundComponent, '#123456')
-      const after = getComponent(testEntity, BackgroundComponent)
-      assertBackgroundComponentEq(before, after)
     })
   }) //:: onSet
 }) //:: BackgroundComponent
@@ -176,19 +164,11 @@ describe('EnvironmentMapComponent', () => {
       const after = getComponent(testEntity, EnvironmentMapComponent)
       assertEnvironmentMapComponentNotEq(before, after)
     })
-
-    it('should not change values of an initialized EnvironmentMapComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, EnvironmentMapComponent)
-      // @ts-ignore Coerce an incorrect type into the component's data
-      setComponent(testEntity, EnvironmentMapComponent, '#123456')
-      const after = getComponent(testEntity, EnvironmentMapComponent)
-      assertEnvironmentMapComponentEq(before, after)
-    })
   }) //:: onSet
 }) //:: EnvironmentMapComponent
 
 type FogData = FogBase
-const FogComponentDefaults = null! as FogData
+const FogComponentDefaults = undefined! as FogData
 
 function assertFogComponentEq(A: FogData, B: FogData) {
   assert.equal(Boolean(A), Boolean(B))
@@ -209,9 +189,7 @@ function assertFogComponentEq(A: FogData, B: FogData) {
 }
 
 function assertFogComponentNotEq(A: FogData, B: FogData) {
-  const a = (A !== null && A.toJSON) || A
-  const b = (B !== null && B.toJSON) || B
-  assert.notDeepEqual(a, b)
+  assert.notDeepEqual(A, B)
 }
 
 describe('FogComponent', () => {
@@ -260,14 +238,6 @@ describe('FogComponent', () => {
       setComponent(testEntity, FogComponent, { name: 'testFog' } as FogData)
       const after = getComponent(testEntity, FogComponent)
       assertFogComponentNotEq(before, after)
-    })
-
-    it('should not change values of an initialized FogComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, FogComponent)
-      // @ts-ignore Coerce an incorrect type into the component's data
-      setComponent(testEntity, FogComponent, '#123456')
-      const after = getComponent(testEntity, FogComponent)
-      assertFogComponentEq(before, after)
     })
   }) //:: onSet
 }) //:: FogComponent
