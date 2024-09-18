@@ -14,7 +14,8 @@ export const RTCPeerConnectionState = defineState({
       {
         peerConnection: RTCPeerConnection
         dataChannels: Record<DataChannelType, RTCDataChannel>
-        mediaTracks: Record<string, { mediaTag: MediaTagType | null; track: MediaStreamTrack | null }>
+        incomingMediaTracks: Record<string, { mediaTag: MediaTagType | null; stream: MediaStream | null }>
+        outgoingMediaTracks: Record<string, { mediaTag: MediaTagType | null; stream: MediaStream | null }>
         ready: boolean
       }
     >
@@ -59,6 +60,12 @@ export type StopTrackMessage = {
   id: string
 }
 
+export type PauseTrackMessage = {
+  type: 'pause-track'
+  id: string
+  paused: boolean
+}
+
 export type MessageTypes =
   | OfferMessage
   | AnswerMessage
@@ -67,11 +74,12 @@ export type MessageTypes =
   | VideoAnswerMessage
   | StartTrackMessage
   | StopTrackMessage
+  | PauseTrackMessage
 
 export type SendMessageType = (networkID: NetworkID, targetPeerID: PeerID, message: MessageTypes) => void
 
 const onMessage = (sendMessage: SendMessageType, networkID: NetworkID, fromPeerID: PeerID, message: MessageTypes) => {
-  // console.log('onMessage', message)
+  console.log('onMessage', message)
   switch (message.type) {
     case 'offer':
       return WebRTCTransportFunctions.handleOffer(sendMessage, networkID, fromPeerID, message)
@@ -87,6 +95,8 @@ const onMessage = (sendMessage: SendMessageType, networkID: NetworkID, fromPeerI
       return WebRTCTransportFunctions.handleStartTrack(networkID, fromPeerID, message)
     case 'stop-track':
       return WebRTCTransportFunctions.handleStopTrack(networkID, fromPeerID, message)
+    case 'pause-track':
+      return WebRTCTransportFunctions.handlePauseMediaChannel(networkID, fromPeerID, message)
     default:
       console.warn('Unknown message type', (message as any).type)
       break
@@ -148,18 +158,18 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
   pc.ontrack = (e) => {
     logger.log('[WebRTCTransportFunctions] ontrack', e.track)
     const stream = e.streams[0]
-    const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].mediaTracks
+    const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].incomingMediaTracks
     if (!mediaTracks.value[stream.id]) {
-      mediaTracks.merge({ [stream.id]: { mediaTag: null!, track: e.track } })
+      mediaTracks.merge({ [stream.id]: { mediaTag: null!, stream } })
     } else {
-      mediaTracks[stream.id].track.set(e.track)
+      mediaTracks[stream.id].stream.set(stream)
     }
   }
 
   pc.onnegotiationneeded = (e) => {
-    if (pc.connectionState !== 'connected') {
-      return console.error('onnegotiationneeded called when not connected. state:', pc.connectionState)
-    }
+    // if (pc.connectionState !== 'connected') {
+    //   return console.error('onnegotiationneeded called when not connected. state:', pc.connectionState)
+    // }
     logger.log('[WebRTCTransportFunctions] onnegotiationneeded', networkID, e)
     pc.createOffer()
       .then((offer) => pc.setLocalDescription(offer))
@@ -178,7 +188,8 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
   getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].set({
     peerConnection: pc,
     dataChannels: {},
-    mediaTracks: {},
+    incomingMediaTracks: {},
+    outgoingMediaTracks: {},
     ready: false
   })
 
@@ -309,16 +320,20 @@ const createMediaChannel = (
   networkID: NetworkID,
   peerID: PeerID,
   track: MediaStreamTrack,
-  stream: MediaStream,
   mediaTag: MediaTagType
 ) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
     return console.error('Peer connection does not exist')
   }
+  const stream = new MediaStream([track])
   logger.log('[WebRTCTransportFunctions] createMediaChannel', networkID, stream.id, track)
   pc.addTrack(track, stream)
   sendMessage(networkID, peerID, { type: 'start-track', id: stream.id!, mediaTag })
+  getMutableState(RTCPeerConnectionState)[networkID][peerID].outgoingMediaTracks.merge({
+    [stream.id!]: { mediaTag, stream }
+  })
+  return stream
 }
 
 const closeMediaChannel = (
@@ -337,6 +352,7 @@ const closeMediaChannel = (
     if (sender.track === track) {
       pc.removeTrack(sender)
       sendMessage(networkID, peerID, { type: 'stop-track', id: stream.id! })
+      getMutableState(RTCPeerConnectionState)[networkID][peerID].outgoingMediaTracks[stream.id!].set(none)
     }
   })
 }
@@ -347,11 +363,11 @@ const handleStartTrack = (networkID: NetworkID, peerID: PeerID, message: StartTr
   if (!pc) {
     return console.error('Peer connection does not exist')
   }
-  const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].mediaTracks
-  if (!mediaTracks.value[message.mediaTag]) {
-    mediaTracks.merge({ [message.id]: { mediaTag: message.mediaTag, track: null } })
+  const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].incomingMediaTracks
+  if (!mediaTracks.value[message.id]) {
+    mediaTracks.merge({ [message.id]: { mediaTag: message.mediaTag, stream: null } })
   } else {
-    mediaTracks[message.mediaTag].mediaTag.set(message.mediaTag)
+    mediaTracks[message.id].mediaTag.set(message.mediaTag)
   }
 }
 
@@ -361,10 +377,49 @@ const handleStopTrack = (networkID: NetworkID, peerID: PeerID, message: StopTrac
   if (!pc) {
     return console.error('Peer connection does not exist')
   }
-  const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].mediaTracks
+  const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].incomingMediaTracks
   if (mediaTracks.value[message.id]) {
-    mediaTracks[message.id].track.value?.stop()
+    mediaTracks[message.id].stream.value?.getTracks().forEach((track) => track.stop())
     mediaTracks[message.id].set(none)
+  }
+}
+
+const pauseMediaChannel = (
+  sendMessage: SendMessageType,
+  networkID: NetworkID,
+  peerID: PeerID,
+  stream: MediaStream,
+  paused: boolean
+) => {
+  const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
+  if (!pc) {
+    return console.error('Peer connection does not exist')
+  }
+  const state = getState(RTCPeerConnectionState)[networkID][peerID].incomingMediaTracks?.[stream.id]
+  console.log('pausing media channel', state.mediaTag, paused, stream)
+  if (!state.stream) return
+  sendMessage(networkID, peerID, { type: 'pause-track', id: state.stream.id, paused })
+}
+
+const handlePauseMediaChannel = (networkID: NetworkID, peerID: PeerID, message: PauseTrackMessage) => {
+  logger.log('[WebRTCTransportFunctions] handlePauseMediaChannel', networkID, peerID, message.id)
+  const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
+  if (!pc) {
+    return console.error('Peer connection does not exist')
+  }
+  const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].outgoingMediaTracks
+  if (mediaTracks.value[message.id]) {
+    const stream = mediaTracks[message.id].stream.value!
+    console.log('pausing track', message.id, message.paused, stream.getTracks()[0])
+    stream.getTracks().forEach((track) => (track.enabled = !message.paused))
+    // const track = stream.getTracks()[0]
+    // pc.getSenders().forEach((sender) => {
+    //   if (sender.track === track) {
+    //     pc.removeTrack(sender)
+    //     sender.getParameters().encodings[0].active = !message.paused
+    //     // getMutableState(RTCPeerConnectionState)[networkID][peerID].outgoingMediaTracks[stream.id].set(none)
+    //   }
+    // })
   }
 }
 
@@ -383,5 +438,7 @@ export const WebRTCTransportFunctions = {
   createMediaChannel,
   closeMediaChannel,
   handleStartTrack,
-  handleStopTrack
+  handleStopTrack,
+  pauseMediaChannel,
+  handlePauseMediaChannel
 }

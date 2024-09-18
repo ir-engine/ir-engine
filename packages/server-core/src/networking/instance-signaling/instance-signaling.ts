@@ -29,6 +29,8 @@ import multiLogger from '@ir-engine/common/src/logger'
 import {
   InstanceAttendanceData,
   InstanceID,
+  channelPath,
+  channelUserPath,
   instanceAttendancePath,
   instancePath,
   instanceSignalingPath,
@@ -84,6 +86,27 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
   app.channel(`peerIds/${peerID}`).join(params.connection!)
 
   const instance = await app.service(instancePath).get(instanceID)
+
+  if (instance.locationId) {
+    const channel = await app.service(channelPath).find({ query: { instanceId: instance.id } })
+    if (channel.total) {
+      const existingChannelUser = await app.service(channelUserPath).find({
+        query: {
+          channelId: channel.data[0].id,
+          userId: user.id
+        },
+        headers: params.headers
+      })
+      if (!existingChannelUser.total) {
+        await app.service(channelUserPath).create({
+          channelId: channel.data[0].id,
+          userId: user.id
+        })
+      }
+    } else {
+      console.warn('Channel not found')
+    }
+  }
 
   logger.info(`\n\n\nPeer ${peerID} joined ${instance.channelId ? 'media' : 'world'} instance ${data.instanceID}\n\n\n`)
 

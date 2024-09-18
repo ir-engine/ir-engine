@@ -48,7 +48,7 @@ export type Action = {
   type: string | string[]
 } & ActionOptions
 
-export type ActionRecipients = PeerID | PeerID[] | 'all' | null
+export type ActionRecipients = PeerID | PeerID[] | 'all' | null | undefined
 
 export type ActionCacheOptions =
   | boolean

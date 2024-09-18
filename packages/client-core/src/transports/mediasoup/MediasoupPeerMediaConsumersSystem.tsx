@@ -31,7 +31,7 @@ import {
   MediasoupMediaProducersConsumersObjectsState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, PeerID, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
   NetworkState,
   screenshareAudioDataChannelType,
@@ -109,10 +109,14 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   useEffect(() => {
     const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
     if (!peerMediaChannelState) return
-    const paused = !!consumerState.paused.value || !!consumerState.producerPaused.value
-    if (isAudio) peerMediaChannelState.audioStreamPaused.set(paused)
-    else peerMediaChannelState.videoStreamPaused.set(paused)
-  }, [consumerState.paused?.value, consumerState.producerPaused?.value])
+    const paused = (isAudio ? peerMediaChannelState.audioStreamPaused.value : peerMediaChannelState.videoStreamPaused.value) || !!consumerState.producerPaused.value
+    const network = getState(NetworkState).networks[props.networkID]
+    if (paused) {
+      MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
+    } else {
+      MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
+    }
+  }, [isAudio ? peerMediaChannelState.audioStreamPaused.value : peerMediaChannelState.videoStreamPaused.value, consumerState.producerPaused?.value])
 
   // useEffect(() => {
   //   const globalMute = !!producerState.globalMute?.value

@@ -324,16 +324,6 @@ const ScreenshareReactor = () => {
 
       if (mediasoupSelfProducerState.screenVideoProducer.value) {
         dispatchAction(
-          MediasoupMediaProducerActions.producerPaused({
-            producerID: mediasoupSelfProducerState.screenVideoProducer.value.id,
-            globalMute: false,
-            paused: true,
-            $network: network.id,
-            $topic: network.topic
-          })
-        )
-        mediasoupSelfProducerState.screenVideoProducer.value.pause()
-        dispatchAction(
           MediasoupMediaProducerActions.producerClosed({
             producerID: mediasoupSelfProducerState.screenVideoProducer.value.id,
             $network: network.id,
@@ -345,15 +335,6 @@ const ScreenshareReactor = () => {
       }
 
       if (mediasoupSelfProducerState.screenAudioProducer.value) {
-        dispatchAction(
-          MediasoupMediaProducerActions.producerPaused({
-            producerID: mediasoupSelfProducerState.screenAudioProducer.value.id,
-            globalMute: false,
-            paused: true,
-            $network: network.id,
-            $topic: network.topic
-          })
-        )
         dispatchAction(
           MediasoupMediaProducerActions.producerClosed({
             producerID: mediasoupSelfProducerState.screenAudioProducer.value.id,

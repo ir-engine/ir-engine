@@ -10,6 +10,7 @@ import {
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import {
+  NO_PROXY,
   PeerID,
   UserID,
   defineState,
@@ -143,6 +144,8 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     }
   }, [instanceAttendanceQuery.status])
 
+  // console.log('otherPeers',props.instance.locationId ? NetworkTopics.world : NetworkTopics.media, [...otherPeers.get(NO_PROXY)])
+
   if (!joinResponse.value) return null
 
   return (
@@ -161,6 +164,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
 }
 
 const sendMessage: SendMessageType = (instanceID: InstanceID, toPeerID: PeerID, message: MessageTypes) => {
+  console.log('sendMessage', instanceID, toPeerID, message)
   API.instance.service(instanceSignalingPath).patch(null, {
     instanceID,
     targetPeerID: toPeerID,
@@ -235,7 +239,11 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
     )
 
-    network.messageToPeer(props.peerID, selfCachedActions)
+    console.log('selfCachedActions', selfCachedActions)
+
+    setTimeout(() => {
+      network.messageToPeer(props.peerID, selfCachedActions)
+    }, 10)
 
     return () => {
       NetworkPeerFunctions.destroyPeer(network, props.peerID)
@@ -261,7 +269,7 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       {network.topic === NetworkTopics.media && (
         <MediaSendChannelReactor instanceID={props.instanceID} peerID={props.peerID} />
       )}
-      {Object.keys(peerConnectionState.mediaTracks).map((trackID) => (
+      {Object.keys(peerConnectionState.incomingMediaTracks).map((trackID) => (
         <MediaReceiveChannelReactor
           key={trackID}
           instanceID={props.instanceID}
@@ -328,39 +336,33 @@ const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
 
   useEffect(() => {
     if (!microphoneEnabled || !microphoneMediaStream) return
-    const track = microphoneMediaStream.getAudioTracks()[0]
-    WebRTCTransportFunctions.createMediaChannel(
+    const track = microphoneMediaStream.getAudioTracks()[0].clone()
+    const stream = WebRTCTransportFunctions.createMediaChannel(
       sendMessage,
       props.instanceID,
       props.peerID,
       track,
-      microphoneMediaStream,
       webcamAudioDataChannelType
     )
+    if (!stream) return
     return () => {
-      WebRTCTransportFunctions.closeMediaChannel(
-        sendMessage,
-        props.instanceID,
-        props.peerID,
-        track,
-        microphoneMediaStream
-      )
+      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track, stream)
     }
   }, [microphoneMediaStream, microphoneEnabled])
 
   useEffect(() => {
     if (!webcamEnabled || !webcamMediaStream) return
-    const track = webcamMediaStream.getVideoTracks()[0]
-    WebRTCTransportFunctions.createMediaChannel(
+    const track = webcamMediaStream.getVideoTracks()[0].clone()
+    const stream = WebRTCTransportFunctions.createMediaChannel(
       sendMessage,
       props.instanceID,
       props.peerID,
       track,
-      webcamMediaStream,
       webcamVideoDataChannelType
     )
+    if (!stream) return
     return () => {
-      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track, webcamMediaStream)
+      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track, stream)
     }
   }, [webcamMediaStream, webcamEnabled])
 
@@ -369,7 +371,7 @@ const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
 
 const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; trackID: string }) => {
   const peerConnectionState = useMutableState(RTCPeerConnectionState)[props.instanceID][props.peerID].value
-  const mediaTrack = peerConnectionState?.mediaTracks?.[props.trackID]
+  const mediaTrack = peerConnectionState?.incomingMediaTracks?.[props.trackID]
   const mediaTag = mediaTrack?.mediaTag
   const type = mediaTag
     ? mediaTag === screenshareAudioDataChannelType || mediaTag === screenshareVideoDataChannelType
@@ -377,15 +379,17 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
       : 'cam'
     : null
   const isAudio = type ? mediaTag === webcamAudioDataChannelType || mediaTag === screenshareAudioDataChannelType : false
-  const track = type ? mediaTrack?.track : null
+  const stream = type ? (mediaTrack?.stream as MediaStream) : null
 
   const peerMediaChannelState = useMutableState(PeerMediaChannelState)[props.peerID]
   const peerMediaStream = type ? peerMediaChannelState?.[type] : null
 
   useEffect(() => {
-    if (!mediaTag || !track || !peerMediaStream) return
+    if (!mediaTag || !stream || !peerMediaStream) return
+    console.log('MediaReceiveChannelReactor', mediaTag, stream, peerMediaStream)
 
     if (isAudio) {
+      const track = stream.getAudioTracks()[0]
       const newMediaStream = new MediaStream([track.clone()])
       peerMediaStream.audioMediaStream.set(newMediaStream)
       return () => {
@@ -393,6 +397,7 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
         peerMediaStream.audioMediaStream.set(null)
       }
     } else {
+      const track = stream.getVideoTracks()[0]
       const newMediaStream = new MediaStream([track.clone()])
       peerMediaStream.videoMediaStream.set(newMediaStream)
       return () => {
@@ -400,7 +405,13 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
         peerMediaStream.videoMediaStream.set(null)
       }
     }
-  }, [mediaTag, track, peerMediaStream])
+  }, [mediaTag, stream, peerMediaStream])
+
+  useEffect(() => {
+    if (!mediaTag || !stream || !peerMediaStream || !type) return
+    const paused = isAudio ? peerMediaStream.audioStreamPaused.value : peerMediaStream.videoStreamPaused.value
+    WebRTCTransportFunctions.pauseMediaChannel(sendMessage, props.instanceID, props.peerID, stream, paused)
+  }, [isAudio ? peerMediaStream?.audioStreamPaused?.value : peerMediaStream?.videoStreamPaused?.value])
 
   return null
 }

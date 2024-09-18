@@ -36,13 +36,7 @@ import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { PeerID, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import {
-  NetworkState,
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
-} from '@ir-engine/network'
+import { NetworkState } from '@ir-engine/network'
 
 export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => {
   const { peerID, type } = props
@@ -96,33 +90,23 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
       MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareVideoPaused()
     } else {
-      mediaNetwork.pauseTrack(
-        peerID,
-        isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType,
-        !videoStreamPaused
-      )
+      peerMediaChannelState.videoStreamPaused.set((val) => !val)
     }
   }
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
       MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareAudioPaused()
     } else {
-      mediaNetwork.pauseTrack(
-        peerID,
-        isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType,
-        !audioStreamPaused
-      )
+      peerMediaChannelState.audioStreamPaused.set((val) => !val)
     }
   }
 

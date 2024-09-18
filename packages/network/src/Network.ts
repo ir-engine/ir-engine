@@ -84,10 +84,6 @@ export type Network<Ext = unknown> = {
   bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
   onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
 
-  /** @todo maybe we should change the verbiage to 'muted'? does this make sense for video? */
-  pauseTrack: (peerID: PeerID, track: MediaTagType, pause: boolean) => void
-  /** @todo add more abstractions here */
-
   readonly isHosting: boolean
 
   topic: Topic
@@ -124,9 +120,6 @@ export const createNetwork = <Ext = unknown>(
       if (dataChannelFunctions) {
         for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
       }
-    },
-    pauseTrack(peerID, track, pause) {
-      // noop
     },
     ...extension,
     peers: {},

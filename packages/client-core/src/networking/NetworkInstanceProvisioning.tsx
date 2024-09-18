@@ -235,15 +235,15 @@ export const MediaInstance = ({ id }: { id: InstanceID }) => {
     if (mediaInstance.p2p) {
       return PeerToPeerNetworkState.connectToP2PInstance(id)
     } else {
-    return connectToInstance(
-      id,
-      mediaInstance.ipAddress!,
-      mediaInstance.port!,
-      undefined,
-      mediaInstance.channelId,
-      mediaInstance.roomCode
-    )
-  }
+      return connectToInstance(
+        id,
+        mediaInstance.ipAddress!,
+        mediaInstance.port!,
+        undefined,
+        mediaInstance.channelId,
+        mediaInstance.roomCode
+      )
+    }
   }, [])
 
   return null
