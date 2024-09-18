@@ -44,7 +44,7 @@ import slugify from 'slugify'
 import config from '../../appconfig'
 import { LocationService } from './location.class'
 
-const MAX_USER_PER_INSTANCE = 100
+const MAX_USER_PER_INSTANCE = 10
 
 export const locationResolver = resolve<LocationType, HookContext>({
   locationSetting: virtual(async (location, context) => {
