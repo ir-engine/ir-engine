@@ -44,7 +44,7 @@
               document.cookie &&
               document.cookie.split('; ').find((row) => row.startsWith(`visited=`) || row.startsWith('allowedDomains='))
             if (!document.hasStorageAccess) {
-              message.data.hasStorageAccess = true
+              message.data.hasStorageAccess = false
               message.data.cookieSet = cookieSet
               parent.postMessage(message, e.origin)
               break

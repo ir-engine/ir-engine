@@ -70,7 +70,6 @@ import {
 } from '@ir-engine/hyperflux'
 import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
-import { getSubdomain } from '../../common/utils'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
@@ -184,15 +183,16 @@ const getToken = async (): Promise<string> => {
   const hasAccess = (await communicator
     .sendMessage('checkAccess')
     .then((message) => {
-      if (message.data.skipCrossOriginCookieCheck != null || message.data.storageAccessPermission === 'denied')
+      if (message?.data?.skipCrossOriginCookieCheck !== null || message?.data?.storageAccessPermission === 'denied')
         localStorage.setItem('skipCrossOriginCookieCheck', 'true')
       return message.data
     })
     .catch((message) => {
       invalidDomainHandling(message)
+      return {}
     })) as HasAccessType
 
-  if (!hasAccess.cookieSet || !hasAccess.hasStorageAccess) {
+  if (!hasAccess?.cookieSet || !hasAccess?.hasStorageAccess) {
     const skipCheck = localStorage.getItem('skipCrossOriginCookieCheck')
     const invalidCrossOriginDomain = localStorage.getItem('invalidCrossOriginDomain')
     if (skipCheck === 'true' || invalidCrossOriginDomain === 'true') {
@@ -200,9 +200,7 @@ const getToken = async (): Promise<string> => {
       const accessToken = authState?.authUser?.accessToken?.value
       return Promise.resolve(accessToken?.length > 0 ? accessToken : '')
     } else {
-      const iframeSubDomain = getSubdomain(iframe.src)
-      const clientSubdomain = getSubdomain(window.location.hostname)
-      if (iframeSubDomain !== clientSubdomain) iframe.style.visibility = 'visible'
+      iframe.style.visibility = 'visible'
       return await new Promise((resolve) => {
         const clickResponseListener = async function (e) {
           if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
