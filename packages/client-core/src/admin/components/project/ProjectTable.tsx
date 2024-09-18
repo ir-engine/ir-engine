@@ -261,5 +261,12 @@ export default function ProjectTable(props: { search: string }) {
       }
     })
 
-  return <DataTable query={projectQuery} columns={projectsColumns} rows={createRows(projectQuery.data)} />
+  return (
+    <DataTable
+      className="h-[calc(100vh_-436px)]"
+      query={projectQuery}
+      columns={projectsColumns}
+      rows={createRows(projectQuery.data)}
+    />
+  )
 }

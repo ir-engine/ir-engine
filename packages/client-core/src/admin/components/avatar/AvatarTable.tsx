@@ -135,5 +135,12 @@ export default function AvatarTable({ search }: { search: string }) {
       )
     }))
 
-  return <DataTable query={adminAvatarQuery} columns={avatarColumns} rows={createRows(adminAvatarQuery.data)} />
+  return (
+    <DataTable
+      className="h-[calc(100vh_-_318px)]"
+      query={adminAvatarQuery}
+      columns={avatarColumns}
+      rows={createRows(adminAvatarQuery.data)}
+    />
+  )
 }

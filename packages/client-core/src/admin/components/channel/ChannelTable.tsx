@@ -123,6 +123,7 @@ export default function ChannelTable({
 
   return (
     <DataTable
+      className="h-[calc(100vh_-_318px)]"
       query={adminChannelsQuery}
       columns={[
         {

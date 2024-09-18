@@ -106,5 +106,12 @@ export default function InstanceTable({ search }: { search: string }) {
       )
     }))
 
-  return <DataTable query={instancesQuery} columns={instanceColumns} rows={createRows(instancesQuery.data)} />
+  return (
+    <DataTable
+      className="h-[calc(100vh_-_318px)]"
+      query={instancesQuery}
+      columns={instanceColumns}
+      rows={createRows(instancesQuery.data)}
+    />
+  )
 }

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -90,7 +90,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="mx-8 h-fit max-h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl bg-theme-surface-main px-2 py-4">
+    <aside className="mx-8 h-fit overflow-y-auto overflow-x-hidden rounded-2xl bg-theme-surface-main px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -153,18 +153,18 @@ const AdminRoutes = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <AdminTopBar />
-      <main className="pointer-events-auto mt-6 flex gap-1.5">
+      <main className="pointer-events-auto flex h-[calc(100vh_-_88px_-_4rem)] gap-1.5 overflow-y-auto">
         <AdminSideBar />
-        <div className="mb-8 h-[calc(100vh_-_88px_-_4rem)] w-full overflow-x-auto overflow-y-auto px-3">
+        <div className="h-full w-full overflow-x-auto overflow-y-auto px-3">
           <Routes>
             <Route path="/*" element={<$allowed />} />
           </Routes>
         </div>
         <PopupMenu />
       </main>
-    </>
+    </div>
   )
 }
 
