@@ -37,6 +37,7 @@ import {
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { FogComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { FogShaders } from '../FogSystem'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from './FogShaders'
 import { VisibleComponent } from './VisibleComponent'
@@ -53,41 +54,15 @@ export const FogSettingsComponent = defineComponent({
   name: 'FogSettingsComponent',
   jsonID: 'EE_fog',
 
-  onInit(entity) {
-    return {
-      type: FogType.Disabled as FogType,
-      color: '#FFFFFF',
-      density: 0.005,
-      near: 1,
-      far: 1000,
-      timeScale: 1,
-      height: 0.05
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.type === 'string') component.type.set(json.type)
-    if (typeof json.color === 'string') component.color.set(json.color)
-    if (typeof json.density === 'number') component.density.set(json.density)
-    if (typeof json.near === 'number') component.near.set(json.near)
-    if (typeof json.far === 'number') component.far.set(json.far)
-    if (typeof json.timeScale === 'number') component.timeScale.set(json.timeScale)
-    if (typeof json.height === 'number') component.height.set(json.height)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      type: component.type.value,
-      color: component.color.value,
-      density: component.density.value,
-      near: component.near.value,
-      far: component.far.value,
-      timeScale: component.timeScale.value,
-      height: component.height.value
-    }
-  },
+  schema: S.Object({
+    type: S.Enum(FogType, FogType.Disabled),
+    color: S.String('#FFFFFF'),
+    density: S.Number(0.005),
+    near: S.Number(1),
+    far: S.Number(1000),
+    timeScale: S.Number(1),
+    height: S.Number(0.05)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

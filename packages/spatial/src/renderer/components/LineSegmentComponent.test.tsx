@@ -59,6 +59,7 @@ import { NameComponent } from '../../common/NameComponent'
 import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
 import { GroupComponent } from './GroupComponent'
+import { assertColorEqual } from './lights/HemisphereLightComponent.test'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
@@ -66,8 +67,8 @@ import { VisibleComponent } from './VisibleComponent'
 type LineSegmentComponentData = {
   name: string
   geometry: BufferGeometry
-  material: Material & { color: Color }
-  color: undefined | ColorRepresentation
+  material: Material
+  color: ColorRepresentation | undefined
   layerMask: typeof ObjectLayers.NodeHelper
   entity: undefined | Entity
 }
@@ -89,7 +90,7 @@ function assertLineSegmentComponentEq(A: LineSegmentComponentData, B: LineSegmen
   else if (B.geometry === null) assert(false, 'Geometry of B is not equal to A. A has geometry, but B.geometry is null')
   else assert.deepEqual(A.geometry, B.geometry)
   assert.deepEqual(A.material, B.material)
-  assert.deepEqual(A.color, B.color)
+  assertColorEqual(A.color!, B.color!)
   assert.equal(A.layerMask, B.layerMask)
   assert.equal(A.entity, B.entity)
 }
@@ -293,13 +294,16 @@ describe('LineSegmentComponent', () => {
         geometry: geometry,
         material: material
       })
-      assert.notDeepEqual(getComponent(testEntity, LineSegmentComponent).material.color, Expected)
+      assert.notDeepEqual(
+        (getComponent(testEntity, LineSegmentComponent).material as MeshBasicMaterial).color,
+        Expected
+      )
       setComponent(testEntity, LineSegmentComponent, {
         color: Expected,
         geometry: geometry,
         material: material
       })
-      const result = getComponent(testEntity, LineSegmentComponent).material.color
+      const result = (getComponent(testEntity, LineSegmentComponent).material as MeshBasicMaterial).color
       assert.deepEqual(result, Expected)
     })
 

@@ -23,22 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { Entity } from '@ir-engine/ecs'
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 
-const argTypes = {}
-
-export default {
-  title: 'Editor/Panel/Hierarchy',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'HierarchyPanelTitle',
-    jest: 'HierarchyPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+interface IExpandedNodes {
+  [scene: string]: {
+    [entity: Entity]: true
+  }
 }
 
-export const Default = { args: {} }
+export const HierarchyTreeState = defineState({
+  name: 'HierarchyTreeState',
+  initial: {
+    expandedNodes: {} as IExpandedNodes,
+    search: { local: '', query: '' },
+    firstSelectedEntity: null as Entity | null
+  },
+  extension: syncStateWithLocalStorage(['expandedNodes'])
+})

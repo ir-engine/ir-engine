@@ -52,7 +52,7 @@ export const ObjectLayerMaskComponent = defineComponent({
   name: 'ObjectLayerMaskComponent',
   schema: { mask: Types.i32 },
 
-  onInit(entity) {
+  onInit() {
     return ObjectLayerMaskDefault // enable layer 0
   },
 
@@ -85,10 +85,6 @@ export const ObjectLayerMaskComponent = defineComponent({
       removeComponent(entity, ObjectLayerComponents[i])
     }
     component.set(0)
-  },
-
-  toJSON(entity, component) {
-    return component.value
   },
 
   setLayer(entity: Entity, layer: number) {

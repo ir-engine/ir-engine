@@ -23,28 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Quaternion } from 'three'
-
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const AvatarArmsTwistCorrectionComponent = defineComponent({
   name: 'AvatarArmsTwistCorrectionComponent',
 
-  onInit: (entity) => {
-    return {
-      LeftHandBindRotationInv: new Quaternion(),
-      LeftArmTwistAmount: 0,
-      RightHandBindRotationInv: new Quaternion(),
-      RightArmTwistAmount: 0
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (json.LeftHandBindRotationInv) component.LeftHandBindRotationInv.set(json.LeftHandBindRotationInv)
-    if (json.LeftArmTwistAmount) component.LeftArmTwistAmount.set(json.LeftArmTwistAmount)
-    if (json.RightHandBindRotationInv) component.RightHandBindRotationInv.set(json.RightHandBindRotationInv)
-    if (json.RightArmTwistAmount) component.RightArmTwistAmount.set(json.RightArmTwistAmount)
-  }
+  schema: S.Object({
+    LeftHandBindRotationInv: S.Quaternion(),
+    LeftArmTwistAmount: S.Number(0),
+    RightHandBindRotationInv: S.Quaternion(),
+    RightArmTwistAmount: S.Number(0)
+  })
 })

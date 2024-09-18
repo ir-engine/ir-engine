@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute } from 'three'
+import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 
 import {
   defineComponent,
@@ -34,12 +34,13 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
-import { useUpdateLight } from '../../functions/useUpdateLight'
 import { RendererState } from '../../RendererState'
+import { useUpdateLight } from '../../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { LightTagComponent } from './LightTagComponent'
@@ -104,40 +105,15 @@ export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
   jsonID: 'EE_directional_light',
 
-  onInit: (entity) => {
-    return {
-      light: null! as DirectionalLight,
-      color: new Color(),
-      intensity: 1,
-      castShadow: false,
-      shadowBias: -0.00001,
-      shadowRadius: 1,
-      cameraFar: 200
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
-    if (matches.string.test(json.color) || matches.number.test(json.color)) component.color.value.set(json.color)
-    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
-    if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
-    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
-    /** backwards compat */
-    if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
-    if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      color: component.color.value,
-      intensity: component.intensity.value,
-      cameraFar: component.cameraFar.value,
-      castShadow: component.castShadow.value,
-      shadowBias: component.shadowBias.value,
-      shadowRadius: component.shadowRadius.value
-    }
-  },
+  schema: S.Object({
+    light: S.NonSerialized(S.Type<DirectionalLight>()),
+    color: S.Color(),
+    intensity: S.Number(1),
+    castShadow: S.Bool(false),
+    shadowBias: S.Number(-0.00001),
+    shadowRadius: S.Number(1),
+    cameraFar: S.Number(200)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
@@ -197,10 +173,10 @@ export const DirectionalLightComponent = defineComponent({
           geometry: mergedGeometry?.clone(),
           color: directionalLightComponent.color.value
         })
-      }
 
-      return () => {
-        removeComponent(entity, LineSegmentComponent)
+        return () => {
+          removeComponent(entity, LineSegmentComponent)
+        }
       }
     }, [debugEnabled])
 
