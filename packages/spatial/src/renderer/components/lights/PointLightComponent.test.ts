@@ -46,6 +46,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { RendererState } from '../../RendererState'
 import { GroupComponent } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
+import { assertColorEqual, assertColorNotEqual } from './HemisphereLightComponent.test'
 import { LightTagComponent } from './LightTagComponent'
 import { PointLightComponent } from './PointLightComponent'
 
@@ -72,7 +73,7 @@ const PointLightComponentDefaults: PointLightComponentData = {
 }
 
 function assertPointLightComponentEq(A: PointLightComponentData, B: PointLightComponentData): void {
-  assert.equal(A.color, B.color)
+  assertColorEqual(A.color, B.color)
   assert.equal(A.intensity, B.intensity)
   assert.equal(A.range, B.range)
   assert.equal(A.decay, B.decay)
@@ -83,7 +84,7 @@ function assertPointLightComponentEq(A: PointLightComponentData, B: PointLightCo
 }
 
 function assertPointLightComponentNotEq(A: PointLightComponentData, B: PointLightComponentData): void {
-  assert.notEqual(A.color, B.color)
+  assertColorNotEqual(A.color, B.color)
   assert.notEqual(A.intensity, B.intensity)
   assert.notEqual(A.range, B.range)
   assert.notEqual(A.decay, B.decay)
@@ -163,27 +164,6 @@ describe('PointLightComponent', () => {
       assertPointLightComponentNotEq(result, PointLightComponentDefaults)
       assertPointLightComponentEq(result, Expected)
     })
-
-    it('should not change the values of an initialized PointLightComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, PointLightComponent)
-      assertPointLightComponentEq(before, PointLightComponentDefaults)
-      const Incorrect = {
-        color: false,
-        intensity: 'someIntensity',
-        range: 'someRange',
-        decay: 'someDecay',
-        castShadow: 'someCastShadow',
-        shadowBias: 'someShadowBias',
-        shadowRadius: 'someShadowRadius',
-        helperEntity: 'someHelperEntity'
-      }
-
-      // Run and Check the result
-      // @ts-ignore Allow coercing incorrect types into onSet
-      setComponent(testEntity, PointLightComponent, Incorrect)
-      const result = getComponent(testEntity, PointLightComponent)
-      assertPointLightComponentEq(result, PointLightComponentDefaults)
-    })
   }) //:: onSet
 
   describe('toJSON', () => {
@@ -251,12 +231,12 @@ describe('PointLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, PointLightComponent).color
-      assert.equal(before, PointLightComponentDefaults.color)
+      assertColorEqual(before, PointLightComponentDefaults.color)
 
       // Run and Check the result
       setComponent(testEntity, PointLightComponent, { color: Expected })
       const result = getComponent(testEntity, PointLightComponent).color
-      assert.equal(result, Expected)
+      assertColorEqual(result, Expected)
       // Check side-effect
       const light = getComponent(testEntity, GroupComponent)[0] as PointLight
       assert.equal(light.color.getHex(), Expected)

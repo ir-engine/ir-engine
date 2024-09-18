@@ -124,7 +124,11 @@ export async function clearModelResources(projectName: string, modelName: string
   }
 }
 
-export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {
+export const uploadProjectAssetsFromUpload = async (
+  projectName: string,
+  entries: FileSystemEntry[],
+  onProgress = (...args: any[]) => {}
+) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < entries.length; i++) {
@@ -162,7 +166,12 @@ export const processEntry = async (
     const path = `assets${directory}/` + name
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { projectName, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        { args: [{ project: projectName, path, contentType: file.type }] },
+        onProgress
+      )
     )
   }
 }

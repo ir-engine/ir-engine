@@ -24,42 +24,49 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  taskServerSettingMethods,
-  taskServerSettingPath
-} from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
-
-import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
-import { TaskServerSettingService } from './task-server-setting.class'
-import taskServerSettingDocs from './task-server-setting.docs'
-import hooks from './task-server-setting.hooks'
+  engineSettingMethods,
+  engineSettingPath,
+  EngineSettingType
+} from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { Application } from '@ir-engine/server-core/declarations'
+import appConfig from '../../appconfig'
+import { EngineSettingService } from './engine-setting.class'
+import engineSettingDocs from './engine-setting.docs'
+import hooks from './engine-setting.hooks'
 
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
-    [taskServerSettingPath]: TaskServerSettingService
+    [engineSettingPath]: EngineSettingService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    name: taskServerSettingPath,
+    name: engineSettingPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
   }
 
-  app.use(taskServerSettingPath, new TaskServerSettingService(options), {
+  app.use(engineSettingPath, new EngineSettingService(options), {
     // A list of all methods this service exposes externally
-    methods: taskServerSettingMethods,
+    methods: engineSettingMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: taskServerSettingDocs
+    docs: engineSettingDocs
   })
 
-  const service = app.service(taskServerSettingPath)
+  const service = app.service(engineSettingPath)
   service.hooks(hooks)
 
-  service.on('patched', () => {
-    updateAppConfig()
-  })
+  const onUpdateAppConfig = (...args: EngineSettingType[]) => {
+    for (const setting of args) {
+      if (setting.category === 'task-server') {
+        appConfig.taskserver[setting.key] = setting.value
+      }
+    }
+  }
+
+  service.on('patched', onUpdateAppConfig)
+  service.on('created', onUpdateAppConfig)
 }

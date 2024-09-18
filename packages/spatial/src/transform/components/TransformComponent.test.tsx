@@ -23,22 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
+import { createEngine } from '@ir-engine/ecs/src/Engine'
+import assert from 'assert'
+import { TransformComponent } from './TransformComponent'
 
-const argTypes = {}
+describe('TransformComponent', () => {
+  beforeEach(async () => {
+    createEngine()
+  })
 
-export default {
-  title: 'Editor/Panel/Hierarchy/Container',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'HierarchyPanel',
-    jest: 'HierarchyPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
-}
+  afterEach(() => {
+    return destroyEngine()
+  })
 
-export const Default = { args: {} }
+  it('Creates a TransformComponent', () => {
+    const entity = createEntity()
+
+    setComponent(entity, TransformComponent)
+    const transformComponent = getComponent(entity, TransformComponent)
+    assert(TransformComponent.dirtyTransforms[entity])
+    transformComponent.position.x = 12
+    assert(transformComponent.position.x === TransformComponent.position.x[entity])
+  })
+})

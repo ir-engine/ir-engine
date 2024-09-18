@@ -237,8 +237,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
     if (!isMesh || !isVisible) return
-    if (shadowComponent)
-      setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
+    if (shadowComponent) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
   }, [isVisible, isMesh, shadowComponent?.cast, shadowComponent?.receive])
 
