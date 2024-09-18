@@ -35,10 +35,10 @@ import {
   useFlowHandlers,
   useNodeSpecGenerator,
   useVisualScriptFlow
-} from '../../components/VisualScript/VisualScriptUIModule'
-import { useSelectionHandler } from '../../components/VisualScript/hooks/useSelectionHandler'
-import { useTemplateHandler } from '../../components/VisualScript/hooks/useTemplateHandler'
-import { useVariableHandler } from '../../components/VisualScript/hooks/useVariableHandler'
+} from '../../components/visualscript/VisualScriptUIModule'
+import { useSelectionHandler } from '../../components/visualscript/hooks/useSelectionHandler'
+import { useTemplateHandler } from '../../components/visualscript/hooks/useTemplateHandler'
+import { useVariableHandler } from '../../components/visualscript/hooks/useVariableHandler'
 import CustomControls from './controls'
 import { Examples } from './modals/load'
 import { NodePicker } from './node/picker'

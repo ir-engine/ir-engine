@@ -29,8 +29,8 @@ import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { OutputSocketSpecJSON } from '@ir-engine/visual-script'
 import { twMerge } from 'tailwind-merge'
-import { NodeSpecGenerator, isValidConnection } from '../../../../components/VisualScript/VisualScriptUIModule'
-import { colors, valueTypeColorMap } from '../util/colors'
+import { isValidConnection, NodeSpecGenerator } from '../../../../components/visualscript/VisualScriptUIModule'
+import { valueTypeColorMap } from '../../util/colors'
 
 export type OutputSocketProps = {
   connected: boolean

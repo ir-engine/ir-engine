@@ -32,7 +32,7 @@ import { HiMagnifyingGlass, HiOutlineChevronDown, HiOutlineChevronRight } from '
 import { XYPosition, useReactFlow } from 'reactflow'
 import { twMerge } from 'tailwind-merge'
 import { VisualScriptPanelTab } from '..'
-import { useOnPressKey } from '../../../components/VisualScript/VisualScriptUIModule'
+import { useOnPressKey } from '../../../components/visualscript/VisualScriptUIModule'
 import { categoryColorMap, colors } from '../util/colors'
 
 const createPickerNodes = (tree, onPickNode, position, instance) => {

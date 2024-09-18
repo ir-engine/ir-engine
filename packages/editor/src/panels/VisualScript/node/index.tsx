@@ -34,8 +34,8 @@ import {
   NodeSpecGenerator,
   isHandleConnected,
   useChangeNode
-} from '../../../components/VisualScript/VisualScriptUIModule'
-import { useModifyNodeSocket } from '../../../components/VisualScript/hooks/useModifyNodeSocket'
+} from '../../../components/visualscript/VisualScriptUIModule'
+import { useModifyNodeSocket } from '../../../components/visualscript/hooks/useModifyNodeSocket'
 import { categoryColorMap, colors } from '../util/colors'
 import InputSocket from './socket/input'
 import OutputSocket from './socket/output'

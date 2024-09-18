@@ -29,7 +29,7 @@ import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { InputSocketSpecJSON } from '@ir-engine/visual-script'
 import { twMerge } from 'tailwind-merge'
-import { NodeSpecGenerator, isValidConnection } from '../../../../components/VisualScript/VisualScriptUIModule'
+import { NodeSpecGenerator, isValidConnection } from '../../../../components/visualscript/VisualScriptUIModule'
 import { AutoSizeInput } from '../../autosizeinput'
 import { colors, valueTypeColorMap } from '../../util/colors'
 
