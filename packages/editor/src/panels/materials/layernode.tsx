@@ -23,52 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { MouseEvent, useCallback } from 'react'
-import { useDrag } from 'react-dnd'
-
-import { EntityUUID, getOptionalComponent, useOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-
+import { EntityUUID, UUIDComponent, getOptionalComponent } from '@ir-engine/ecs'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import React from 'react'
+import { useDrag } from 'react-dnd'
 import { HiOutlineArchiveBox } from 'react-icons/hi2'
 import { SiRoundcube } from 'react-icons/si'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 
-export type MaterialLibraryEntryData = {
-  nodes: readonly string[]
-  onClick: (e: React.MouseEvent, node: EntityUUID) => void
+const getNodeDisplayName = (uuid: EntityUUID) => {
+  const entity = UUIDComponent.getEntityByUUID(uuid)
+  return (
+    getOptionalComponent(entity, MaterialStateComponent)?.material?.name ||
+    getOptionalComponent(entity, NameComponent) ||
+    ''
+  )
 }
 
-const nodeDisplayName = (uuid: EntityUUID) => {
-  return getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material?.name ?? ''
-}
-
-export default function MaterialLibraryEntry(props: ListChildComponentProps<MaterialLibraryEntryData>) {
+export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes: EntityUUID[] }>) {
   const data = props.data
   const node = data.nodes[props.index]
-
+  const materialSelection = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const selectionState = useMutableState(SelectionState)
 
   /**@todo use asset source decoupled from uuid to make this less brittle */
   const source = node.includes('/') ? node.split('/')?.pop()?.split('?')[0] : null
-  const name = useOptionalComponent(UUIDComponent.getEntityByUUID(node as EntityUUID), NameComponent)
 
-  const onClickNode = (e) => {
-    if (!source) data.onClick(e, node as EntityUUID)
+  const onClickNode = () => {
+    if (!source) {
+      materialSelection.set(node)
+    }
   }
-
-  const onCollapseNode = useCallback(
-    (e: MouseEvent) => {
-      e.stopPropagation()
-      //data.onCollapse(e, node)
-    },
-    [node]
-  )
 
   const [_dragProps, drag] = useDrag({
     type: ItemTypes.Material,
@@ -86,21 +77,20 @@ export default function MaterialLibraryEntry(props: ListChildComponentProps<Mate
     })
   })
 
-  const materialSelection = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   return (
     <li
       style={props.style}
       ref={drag}
       id={node[0]}
       className={twMerge(
-        `bg-${props.index % 2 ? 'theme-surfaceInput' : 'zinc-800'}`,
+        props.index % 2 ? 'bg-theme-surfaceInput' : 'bg-zinc-800',
         materialSelection.value === node ? 'border border-gray-100' : 'border-none'
       )}
       onClick={onClickNode}
     >
-      <div ref={drag} id={node[0]} tabIndex={0} className={``} onClick={onClickNode}>
+      <div ref={drag} id={node[0]} tabIndex={0} onClick={onClickNode}>
         {source ? (
-          <div className={'flex items-center pl-3.5 pr-2'}>
+          <div className="flex items-center pl-3.5 pr-2">
             <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
               <HiOutlineArchiveBox className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
@@ -111,12 +101,12 @@ export default function MaterialLibraryEntry(props: ListChildComponentProps<Mate
             </div>
           </div>
         ) : (
-          <div className={'flex items-center pl-9 pr-6'}>
+          <div className="flex items-center pl-9 pr-6">
             <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
               <SiRoundcube className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
                 <div className="text-nowrap ml-2 min-w-0 flex-1 rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                  <span className="text-nowrap text-sm leading-4">{name?.value || ''}</span>
+                  <span className="text-nowrap text-sm leading-4">{getNodeDisplayName(node)}</span>
                 </div>
               </div>
             </div>

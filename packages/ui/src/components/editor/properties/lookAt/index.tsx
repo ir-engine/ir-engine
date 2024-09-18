@@ -50,8 +50,8 @@ export const LookAtNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       entity={props.entity}
       component={LookAtComponent}
-      name={t('editor:properties.facer.name')}
-      description={t('editor:properties.facer.description')}
+      name={t('editor:properties.lookAt.name')}
+      description={t('editor:properties.lookAt.description')}
       icon={<LookAtNodeEditor.iconComponent />}
     >
       <InputGroup name="Target" label={t('editor:properties.lookAt.target')}>
