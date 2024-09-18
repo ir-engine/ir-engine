@@ -1064,11 +1064,7 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
       }
 
       useEffect(() => {
-        if (
-          Object.values(channelData.get(NO_PROXY)).some(
-            (data) => !data.nodes || !data.inputAccessors || !data.outputAccessors
-          )
-        )
+        if (Object.values(channelData.get(NO_PROXY)).some((data) => !data.outputAccessors || !data.inputAccessors))
           return
 
         const values = Object.values(channelData.get(NO_PROXY))
@@ -1079,15 +1075,13 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         const targets = values.map((data) => data.targets) as GLTF.IAnimationChannelTarget[]
 
         const tracks = [] as any[] // todo
-
         for (let i = 0, il = nodes.length; i < il; i++) {
           const node = nodes[i] as Mesh | SkinnedMesh
           const inputAccessor = inputAccessors[i]
           const outputAccessor = outputAccessors[i]
           const sampler = samplers[i]
           const target = targets[i]
-
-          if (node === undefined) continue
+          if (!node || !inputAccessors[i] || !outputAccessors[i]) continue
 
           if (node.updateMatrix) {
             node.updateMatrix()
@@ -1103,7 +1097,6 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         }
 
         result.set(new AnimationClip(animationName, undefined, tracks))
-        console.log(result.value)
         reactor.stop()
       }, [channelData])
 
