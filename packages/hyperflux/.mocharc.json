@@ -1,0 +1,12 @@
+{
+  "fail-zero": false,
+  "parallel": false,
+  "require": ["ts-node/register", "tests/mocha.env", "jsdom-global/register"],
+  "loader": "ts-node/esm",
+  "spec": ["./**/*.test.ts", "./**/*.test.tsx"],
+  "bail": true,
+  "exit": true,
+  "recursive": true,
+  "jobs": "1",
+  "timeout": "60000"
+}

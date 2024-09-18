@@ -24,7 +24,7 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": false,
-    "types": ["@types/node"]
+    "types": ["@types/node", "@types/mocha"]
   },
   "include": ["./src", "./index.ts"]
 }

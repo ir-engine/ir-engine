@@ -51,7 +51,7 @@ describe('useImmediateEffect', () => {
       }
     }
 
-    const { rerender } = renderHook((deps: number[]) => useImmediateEffect(effect, deps), {
+    const { rerender } = renderHook<void, number[]>((deps: number[]) => useImmediateEffect(effect, deps), {
       initialProps: []
     })
 
