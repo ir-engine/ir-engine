@@ -43,6 +43,7 @@ export const mailchimpSettingSchema = Type.Object(
     server: Type.String(),
     audienceId: Type.String(),
     defaultTags: Type.String(),
+    groupId: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -53,7 +54,7 @@ export interface MailchimpSettingType extends Static<typeof mailchimpSettingSche
 // Schema for creating new entries
 export const mailchimpSettingDataSchema = Type.Pick(
   mailchimpSettingSchema,
-  ['key', 'server', 'audienceId', 'defaultTags'],
+  ['key', 'server', 'audienceId', 'defaultTags', 'groupId'],
   {
     $id: 'MailchimpSettingData'
   }

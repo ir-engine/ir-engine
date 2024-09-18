@@ -604,7 +604,8 @@
         "key": "Key",
         "server": "Server",
         "audienceId": "Audience Id",
-        "defaultTags": "Default Tags (comma separated)"
+        "defaultTags": "Default Tags (comma separated)",
+        "groupId": "Group Id"
       },
       "keyName": "key Name",
       "kid": "Key Id"
