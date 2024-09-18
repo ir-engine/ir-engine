@@ -1379,6 +1379,7 @@
       "lbl-confirm": "Save Scene",
       "info-confirm": "Are you sure you want to save the scene?",
       "info-question": "Do you want to save the current scene?",
+      "info-save-success": "Scene saved successfully!",
       "unsavedChanges": {
         "title": "Unsaved Changes"
       }
@@ -1489,7 +1490,7 @@
   "unsupportedBrowser": {
     "title": "Browser Not Supported!",
     "description": "Please use Google Chrome for the best experience with the iR Studio.",
-    "downloadChrome": "[Download Chrome]",
-    "continue": "[Continue Anyway]"
+    "downloadChrome": "Download Chrome",
+    "continue": "Continue Anyway"
   }
 }
