@@ -30,7 +30,6 @@ export interface Message {
 }
 
 export interface MessageResponse {
-  source: string
   id: string
   success: boolean
   data?: any
@@ -40,35 +39,45 @@ import { v4 as uuidv4 } from 'uuid'
 
 export class ParentCommunicator {
   private iframe: HTMLIFrameElement
-  private iframeId: string
-  private origin: string
-  private messageQueue: Map<string, (response: MessageResponse) => void> = new Map()
+  public iframeId: string
+  private targetOrigin: string
+  private messageQueue: Map<
+    string,
+    [(value: MessageResponse | PromiseLike<MessageResponse>) => void, (reason?: any) => void]
+  > = new Map()
 
-  constructor(iframeId: string, origin: string) {
+  constructor(iframeId: string, targetOrigin: string) {
     this.iframeId = iframeId
-    this.origin = origin
+    this.targetOrigin = targetOrigin
     this.iframe = document.getElementById(iframeId) as HTMLIFrameElement
     window.addEventListener('message', this.handleMessage.bind(this))
   }
 
   private handleMessage(event: MessageEvent) {
-    if (event.source !== this.iframe.contentWindow) return
+    if (event.origin !== this.targetOrigin || event.source !== this.iframe.contentWindow) return
     const response = event.data as MessageResponse
-    if (response && response.id && response.source === this.iframeId) {
-      const resolver = this.messageQueue.get(response.id)
-      if (resolver) {
-        resolver(response)
-        this.messageQueue.delete(response.id)
+    if (response && response.id) {
+      const [resolver, rejecter] = this.messageQueue.get(response.id) || []
+      if (response.success) {
+        if (resolver) {
+          resolver(response)
+          this.messageQueue.delete(response.id)
+        }
+      } else {
+        if (rejecter) {
+          rejecter(response)
+          this.messageQueue.delete(response.id)
+        }
       }
     }
   }
 
   public sendMessage(method: string, payload?: any): Promise<MessageResponse> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const id = uuidv4()
       const message: Message = { id, method, payload }
-      this.messageQueue.set(id, resolve)
-      this.iframe?.contentWindow?.postMessage(message, origin)
+      this.messageQueue.set(id, [resolve, reject])
+      this.iframe?.contentWindow?.postMessage(message, this.targetOrigin)
     })
   }
 }

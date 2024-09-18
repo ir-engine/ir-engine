@@ -68,16 +68,15 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
-import { ParentCommunicator } from '../../common/iframeCOM'
+import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
 import { getSubdomain } from '../../common/utils'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
-const iframeSource = 'ir-engine-root-cookie'
+
 const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
-const iframeUrl = new URL(iframe.src).origin
-const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl)
+const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl) //Eventually we can configure iframe target seperatly
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -139,8 +138,14 @@ const resolveWalletUser = (credentials: any): UserType => {
   }
 }
 
-const isRootCookieAncestorMessage = (message: MessageEvent<unknown>): boolean => {
-  return message.origin === iframeUrl
+const invalidDomainHandling = (error: MessageResponse): void => {
+  if (error?.data?.invalidDomain) {
+    try {
+      localStorage.setItem('invalidCrossOriginDomain', 'true')
+    } catch (err) {
+      console.log('Was not able to read invalid Domain messaging', err)
+    }
+  }
 }
 
 const waitForToken = async (win: Window, clientUrl: string): Promise<string> => {
@@ -162,6 +167,9 @@ const waitForToken = async (win: Window, clientUrl: string): Promise<string> => 
         return '' // didn't get data but can't guarantee
       }
     })
+    .catch((message) => {
+      invalidDomainHandling(message)
+    })
 }
 
 const getToken = async (): Promise<string> => {
@@ -172,26 +180,17 @@ const getToken = async (): Promise<string> => {
     win = iframe!.contentWindow
   }
 
-  window.addEventListener('message', (e) => {
-    if (isRootCookieAncestorMessage(e) && e?.data && e.data.source === iframeSource) {
-      try {
-        const value = e.data
-        if (value?.invalidDomain != null) {
-          localStorage.setItem('invalidCrossOriginDomain', 'true')
-        }
-      } catch (err) {
-        console.log('ERROR MESSAGE', err)
-        //
-      }
-    }
-  })
-
   const clientUrl = config.client.clientUrl
-  const hasAccess = (await communicator.sendMessage('checkAccess').then((message) => {
-    if (message.data.skipCrossOriginCookieCheck != null || message.data.storageAccessPermission === 'denied')
-      localStorage.setItem('skipCrossOriginCookieCheck', 'true')
-    return message.data
-  })) as HasAccessType
+  const hasAccess = (await communicator
+    .sendMessage('checkAccess')
+    .then((message) => {
+      if (message.data.skipCrossOriginCookieCheck != null || message.data.storageAccessPermission === 'denied')
+        localStorage.setItem('skipCrossOriginCookieCheck', 'true')
+      return message.data
+    })
+    .catch((message) => {
+      invalidDomainHandling(message)
+    })) as HasAccessType
 
   if (!hasAccess.cookieSet || !hasAccess.hasStorageAccess) {
     const skipCheck = localStorage.getItem('skipCrossOriginCookieCheck')
@@ -206,22 +205,21 @@ const getToken = async (): Promise<string> => {
       if (iframeSubDomain !== clientSubdomain) iframe.style.visibility = 'visible'
       return await new Promise((resolve) => {
         const clickResponseListener = async function (e) {
-          if (isRootCookieAncestorMessage(e)) {
-            try {
-              window.removeEventListener('message', clickResponseListener)
-              const parsed = !e.data || e.data.source !== iframeSource ? {} : e.data
-              if (parsed.skipCrossOriginCookieCheck != null) {
-                localStorage.setItem('skipCrossOriginCookieCheck', parsed.skipCrossOriginCookieCheck)
-                iframe.style.visibility = 'hidden'
-                resolve('')
-              } else {
-                const token = await waitForToken(win, clientUrl)
-                iframe.style.visibility = 'hidden'
-                resolve(token)
-              }
-            } catch (err) {
-              //Do nothing
+          if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
+          try {
+            window.removeEventListener('message', clickResponseListener)
+            const data = e?.data?.data
+            if (data.skipCrossOriginCookieCheck != null) {
+              localStorage.setItem('skipCrossOriginCookieCheck', data.skipCrossOriginCookieCheck)
+              iframe.style.visibility = 'hidden'
+              resolve('')
+            } else {
+              const token = await waitForToken(win, clientUrl)
+              iframe.style.visibility = 'hidden'
+              resolve(token)
             }
+          } catch (err) {
+            //Do nothing
           }
         }
         window.addEventListener('message', clickResponseListener)
@@ -276,10 +274,14 @@ export const writeAuthUserToIframe = async () => {
     win = iframe!.contentWindow
   }
 
-  await communicator.sendMessage('set', {
-    key: `${stateNamespaceKey}.${AuthState.name}.authUser`,
-    data: getState(AuthState).authUser
-  })
+  await communicator
+    .sendMessage('set', {
+      key: `${stateNamespaceKey}.${AuthState.name}.authUser`,
+      data: getState(AuthState).authUser
+    })
+    .catch((message) => {
+      invalidDomainHandling(message)
+    })
 }
 
 /**
@@ -588,8 +590,8 @@ export const AuthService = {
       await new Promise<void>((resolve) => {
         const clientUrl = config.client.clientUrl
         const getIframeResponse = function (e) {
-          if (e.origin !== clientUrl) return
-          if (e?.data && e.data.source == iframeSource) {
+          if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
+          if (e?.data?.data) {
             try {
               const value = e.data
               if (value?.cookieWasSet === `${stateNamespaceKey}.${AuthState.name}.authUser`) {
