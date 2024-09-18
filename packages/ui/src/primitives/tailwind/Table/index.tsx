@@ -57,7 +57,7 @@ const TableHeadRow = ({
   children: JSX.Element | JSX.Element[]
 }) => {
   const twClassName = twMerge('text-left capitalize', className)
-  const twClassNameThead = twMerge('sticky top-0 bg-theme-table-secondary', theadClassName)
+  const twClassNameThead = twMerge('sticky top-0 z-10 bg-theme-table-secondary', theadClassName)
   return (
     <thead className={twClassNameThead}>
       <tr className={twClassName}>{children}</tr>
