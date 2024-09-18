@@ -113,20 +113,17 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
     iceServers: PUBLIC_STUN_SERVERS
   })
   pc.onicecandidate = (e) => {
-    const message: CandidateMessage = {
+    if (!e.candidate) return
+    sendMessage(networkID, targetPeerID, {
       type: 'candidate',
-      candidate: null
-    }
-    if (e.candidate) {
-      message.candidate = e.candidate.candidate
-      message.sdpMid = e.candidate.sdpMid
-      message.sdpMLineIndex = e.candidate.sdpMLineIndex
-    }
-    sendMessage(networkID, targetPeerID, message)
+      candidate: e.candidate.candidate,
+      sdpMid: e.candidate.sdpMid,
+      sdpMLineIndex: e.candidate.sdpMLineIndex
+    })
   }
 
   pc.onconnectionstatechange = () => {
-    // logger.log('onconnectionstatechange', pc.connectionState)
+    logger.log('onconnectionstatechange', pc.connectionState)
     if (pc.connectionState === 'connected') {
       getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].ready.set(true)
     }
@@ -149,16 +146,20 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
   }
 
   pc.ontrack = (e) => {
-    logger.log('[WebRTCTransportFunctions] ontrack', e.track.id, e.track)
+    logger.log('[WebRTCTransportFunctions] ontrack', e.track)
+    const stream = e.streams[0]
     const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].mediaTracks
-    if (!mediaTracks.value[e.track.id]) {
-      mediaTracks.merge({ [e.track.id]: { mediaTag: null!, track: e.track } })
+    if (!mediaTracks.value[stream.id]) {
+      mediaTracks.merge({ [stream.id]: { mediaTag: null!, track: e.track } })
     } else {
-      mediaTracks[e.track.id].track.set(e.track)
+      mediaTracks[stream.id].track.set(e.track)
     }
   }
 
   pc.onnegotiationneeded = (e) => {
+    if (pc.connectionState !== 'connected') {
+      return console.error('onnegotiationneeded called when not connected. state:', pc.connectionState)
+    }
     logger.log('[WebRTCTransportFunctions] onnegotiationneeded', networkID, e)
     pc.createOffer()
       .then((offer) => pc.setLocalDescription(offer))
@@ -237,7 +238,7 @@ const handleCandidate = async (networkID: NetworkID, targetPeerID: PeerID, candi
     return console.error('Peer connection does not exist')
   }
   if (!candidate.candidate) {
-    await pc.addIceCandidate(null!) // must be null and not undefined
+    return
   } else {
     await pc.addIceCandidate({
       candidate: candidate.candidate,
@@ -308,32 +309,34 @@ const createMediaChannel = (
   networkID: NetworkID,
   peerID: PeerID,
   track: MediaStreamTrack,
+  stream: MediaStream,
   mediaTag: MediaTagType
 ) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
     return console.error('Peer connection does not exist')
   }
-  logger.log('[WebRTCTransportFunctions] createMediaChannel', networkID, track.id, track)
-  pc.addTrack(track)
-  sendMessage(networkID, peerID, { type: 'start-track', id: track.id!, mediaTag })
+  logger.log('[WebRTCTransportFunctions] createMediaChannel', networkID, stream.id, track)
+  pc.addTrack(track, stream)
+  sendMessage(networkID, peerID, { type: 'start-track', id: stream.id!, mediaTag })
 }
 
 const closeMediaChannel = (
   sendMessage: SendMessageType,
   networkID: NetworkID,
   peerID: PeerID,
-  track: MediaStreamTrack
+  track: MediaStreamTrack,
+  stream: MediaStream
 ) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
     return console.error('Peer connection does not exist')
   }
-  logger.log('[WebRTCTransportFunctions] closeMediaChannel', networkID, track.id, track)
+  logger.log('[WebRTCTransportFunctions] closeMediaChannel', networkID, stream.id, track)
   pc.getSenders().forEach((sender) => {
     if (sender.track === track) {
       pc.removeTrack(sender)
-      sendMessage(networkID, peerID, { type: 'stop-track', id: track.id! })
+      sendMessage(networkID, peerID, { type: 'stop-track', id: stream.id! })
     }
   })
 }

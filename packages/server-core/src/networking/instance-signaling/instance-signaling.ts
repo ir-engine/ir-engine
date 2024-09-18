@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
+import multiLogger from '@ir-engine/common/src/logger'
 import {
   InstanceAttendanceData,
   InstanceID,
@@ -38,6 +39,8 @@ import { PeerID, getState } from '@ir-engine/hyperflux'
 import { MessageTypes } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
+
+const logger = multiLogger.child({ component: 'instance-signaling' })
 
 type InstanceSignalingDataType = {
   instanceID: InstanceID
@@ -53,7 +56,10 @@ type SignalData = {
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
     [instanceSignalingPath]: {
-      create: (data: InstanceSignalingDataType, params?: Params) => Promise<{
+      create: (
+        data: InstanceSignalingDataType,
+        params?: Params
+      ) => Promise<{
         index: number
       }>
       get: (data: InstanceSignalingDataType, params?: Params) => Promise<void>
@@ -78,6 +84,8 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
   app.channel(`peerIds/${peerID}`).join(params.connection!)
 
   const instance = await app.service(instancePath).get(instanceID)
+
+  logger.info(`\n\n\nPeer ${peerID} joined ${instance.channelId ? 'media' : 'world'} instance ${data.instanceID}\n\n\n`)
 
   const newInstanceAttendance: InstanceAttendanceData = {
     isChannel: !!instance.channelId,
@@ -177,7 +185,15 @@ export default (app: Application): void => {
     )
     if (!instanceAttendance?.length) return
 
-    app.channel(`instance/${instanceAttendance[0].instanceId}`).leave(connection)
+    for (const attendance of instanceAttendance) {
+      logger.info(
+        `\n\n\nPeer ${peerID} disconnected from ${attendance.isChannel ? 'media' : 'world'} instance ${
+          attendance.instanceId
+        }\n\n\n`
+      )
+      app.channel(`instance/${attendance.instanceId}`).leave(connection)
+    }
+
     app.channel(`peerIds/${peerID}`).leave(connection)
   })
 

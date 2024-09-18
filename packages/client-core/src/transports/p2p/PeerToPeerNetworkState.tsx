@@ -176,8 +176,9 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       // need to ignore messages from self
       if (data.fromPeerID !== props.peerID) return
       if (data.targetPeerID !== Engine.instance.store.peerID) return
+      if (data.instanceID !== props.instanceID) return
 
-      await WebRTCTransportFunctions.onMessage(sendMessage, props.instanceID, props.peerID, data.message)
+      await WebRTCTransportFunctions.onMessage(sendMessage, data.instanceID, props.peerID, data.message)
     })
 
     /**
@@ -261,7 +262,12 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
         <MediaSendChannelReactor instanceID={props.instanceID} peerID={props.peerID} />
       )}
       {Object.keys(peerConnectionState.mediaTracks).map((trackID) => (
-        <MediaReceiveChannelReactor key={trackID} instanceID={props.instanceID} peerID={props.peerID} trackID={trackID} />
+        <MediaReceiveChannelReactor
+          key={trackID}
+          instanceID={props.instanceID}
+          peerID={props.peerID}
+          trackID={trackID}
+        />
       ))}
     </>
   )
@@ -328,10 +334,17 @@ const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
       props.instanceID,
       props.peerID,
       track,
+      microphoneMediaStream,
       webcamAudioDataChannelType
     )
     return () => {
-      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track)
+      WebRTCTransportFunctions.closeMediaChannel(
+        sendMessage,
+        props.instanceID,
+        props.peerID,
+        track,
+        microphoneMediaStream
+      )
     }
   }, [microphoneMediaStream, microphoneEnabled])
 
@@ -343,10 +356,11 @@ const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
       props.instanceID,
       props.peerID,
       track,
+      webcamMediaStream,
       webcamVideoDataChannelType
     )
     return () => {
-      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track)
+      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track, webcamMediaStream)
     }
   }, [webcamMediaStream, webcamEnabled])
 
@@ -369,7 +383,6 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
   const peerMediaStream = type ? peerMediaChannelState?.[type] : null
 
   useEffect(() => {
-    console.log('MediaReceiveChannelReactor', props.instanceID, props.peerID, props.trackID, mediaTag, type, peerMediaStream, isAudio)
     if (!mediaTag || !track || !peerMediaStream) return
 
     if (isAudio) {

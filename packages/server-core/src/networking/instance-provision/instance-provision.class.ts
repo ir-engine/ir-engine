@@ -478,6 +478,7 @@ export async function getP2PInstance({
   } as any
   if (locationId) query.locationId = locationId
   if (channelId) query.channelId = channelId
+  if (!channelId && !locationId) throw new BadRequest('Missing location ID or channel ID')
   /** @todo consider createPrivateRoom */
   const instances = await app.service(instancePath).find({
     query,
@@ -488,6 +489,7 @@ export async function getP2PInstance({
     (instance) => instance.currentUsers < config.instanceserver.p2pMaxConnections
   )
   if (activeInstances.length > 0) {
+    // console.log(`\n\n\nProvisioned existing P2P ${activeInstances[0].locationId ? 'world' : 'media'} instance`, activeInstances[0])
     return {
       id: activeInstances[0].id,
       p2p: true,
@@ -503,6 +505,7 @@ export async function getP2PInstance({
     },
     { headers }
   )
+  // console.log(`\n\n\nProvisioned new P2P ${locationId ? 'world' : 'media'} instance`, newInstance)
   return {
     id: newInstance.id,
     p2p: true,
@@ -802,7 +805,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             return getP2PInstance({
               app: this.app,
               headers: params.headers || {},
-              channelId,
+              locationId,
               roomCode
             })
           }
