@@ -28,13 +28,12 @@ import { commitProperty } from '@ir-engine/editor/src/components/properties/Util
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { VisualScriptComponent } from '@ir-engine/engine'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { VisualScriptState } from '@ir-engine/visual-script'
 import { isEqual } from 'lodash'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import AutoSizer from 'react-virtualized-auto-sizer'
 import { ReactFlowProvider } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { Flow } from '../flow'
@@ -67,49 +66,52 @@ export const ActiveVisualScript = (props: { entity }) => {
 }
 
 const VisualFlow = () => {
+  const { t } = useTranslation()
+  const ref = useRef<HTMLDivElement>(null)
   const entities = SelectionState.useSelectedEntities()
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, VisualScriptComponent)
-  const { t } = useTranslation()
+  const flowDimensions = useHookstate({ height: 0, width: 0 })
 
   const addVisualScript = () => EditorControlFunctions.addOrRemoveComponent([entity], VisualScriptComponent, true)
 
   // ensure reactivity of adding new visualScript
   useQuery([VisualScriptComponent])
 
-  return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <div className="flex items-center justify-center" style={{ width, height }}>
-          {entities.length && !validEntity ? (
-            <Button
-              variant="outline"
-              onClick={() => {
-                addVisualScript()
-              }}
-            >
-              {t('editor:visualScript.panel.addVisualScript')}
-            </Button>
-          ) : (
-            <></>
-          )}
-          {validEntity && <ActiveVisualScript entity={entity} />}
-        </div>
-      )}
-    </AutoSizer>
-  )
-}
+  useEffect(() => {
+    if (!ref.current) return
+    const handleResize = () => {
+      if (!ref.current) return
+      const { height, width } = ref.current.getBoundingClientRect()
+      flowDimensions.set({ height, width })
+    }
+    const resizeObserver = new ResizeObserver(handleResize)
+    resizeObserver.observe(ref.current)
+    return () => resizeObserver.disconnect()
+  }, [])
 
-export const VisualScriptPanel = () => {
   return (
-    <>
-      <div className="flex h-full w-full flex-col">
-        <div className="flex h-full w-full flex-col">
-          <VisualFlow />
-        </div>
+    <div className="flex h-full w-full flex-col" ref={ref}>
+      <div
+        className="flex items-center justify-center"
+        style={{ height: flowDimensions.height.value, width: flowDimensions.width.value }}
+      >
+        {entities.length && !validEntity ? (
+          <Button
+            variant="outline"
+            onClick={() => {
+              addVisualScript()
+            }}
+          >
+            {t('editor:visualScript.panel.addVisualScript')}
+          </Button>
+        ) : (
+          <></>
+        )}
+        {validEntity && <ActiveVisualScript entity={entity} />}
       </div>
-    </>
+    </div>
   )
 }
 
-export default VisualScriptPanel
+export default VisualFlow

@@ -28,7 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import VisualScriptPanel from './container'
+import VisualFlow from './container'
 
 const VisualScriptPanelTitle = () => {
   const { t } = useTranslation()
@@ -48,5 +48,5 @@ export const VisualScriptPanelTab: TabData = {
   id: 'visualScriptPanel',
   closable: true,
   title: <VisualScriptPanelTitle />,
-  content: <VisualScriptPanel />
+  content: <VisualFlow />
 }
