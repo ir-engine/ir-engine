@@ -26,24 +26,74 @@ Infinite Reality Engine. All Rights Reserved.
 import { createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
-import { TransformComponent } from './TransformComponent'
+import { TransformComponent, TransformECS, TransformGizmoTagComponent } from './TransformComponent'
 
 describe('TransformComponent', () => {
-  beforeEach(async () => {
-    createEngine()
-  })
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(TransformComponent.name, 'TransformComponent')
+    })
 
-  afterEach(() => {
-    return destroyEngine()
-  })
+    it('should initialize the *Component.jsonID field with the expected value', () => {
+      assert.equal(TransformComponent.jsonID, 'EE_transform')
+    })
 
-  it('Creates a TransformComponent', () => {
-    const entity = createEntity()
+    it('should initialize the *Component.schema field with the expected value', () => {
+      assert.deepEqual(TransformComponent.schema, TransformECS)
+    })
+  }) //:: Fields
 
-    setComponent(entity, TransformComponent)
-    const transformComponent = getComponent(entity, TransformComponent)
-    assert(TransformComponent.dirtyTransforms[entity])
-    transformComponent.position.x = 12
-    assert(transformComponent.position.x === TransformComponent.position.x[entity])
-  })
-})
+  describe('onInit', () => {}) //:: onInit
+  describe('onSet', () => {}) //:: onSet
+  describe('toJSON', () => {}) //:: toJSON
+  describe('reactor', () => {}) //:: reactor
+  describe('getWorldPosition', () => {}) //:: getWorldPosition
+  describe('getMatrixRelativeToEntity', () => {}) //:: getMatrixRelativeToEntity
+  describe('getMatrixRelativeToScene', () => {}) //:: getMatrixRelativeToScene
+  describe('getWorldRotation', () => {}) //:: getWorldRotation
+  describe('getWorldScale', () => {}) //:: getWorldScale
+  describe('getSceneScale', () => {}) //:: getSceneScale
+  describe('updateFromWorldMatrix', () => {}) //:: updateFromWorldMatrix
+  describe('setWorldPosition', () => {}) //:: setWorldPosition
+  describe('setWorldRotation', () => {}) //:: setWorldRotation
+  describe('setWorldScale', () => {}) //:: setWorldScale
+  describe('forward', () => {}) //:: forward
+  describe('back', () => {}) //:: back
+  describe('up', () => {}) //:: up
+  describe('down', () => {}) //:: down
+  describe('right', () => {}) //:: right
+  describe('left', () => {}) //:: left
+  describe('transformsNeedSorting', () => {}) //:: transformsNeedSorting
+
+  describe('General Purpose', () => {
+    beforeEach(async () => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should create a valid TransformComponent', () => {
+      const entity = createEntity()
+
+      setComponent(entity, TransformComponent)
+      const transformComponent = getComponent(entity, TransformComponent)
+      assert.equal(TransformComponent.dirtyTransforms[entity], true)
+      transformComponent.position.x = 12
+      assert.equal(transformComponent.position.x, TransformComponent.position.x[entity])
+    })
+  }) //:: General Purpose
+}) //:: TransformComponent
+
+describe('composeMatrix', () => {}) //:: composeMatrix
+describe('decomposeMatrix', () => {}) //:: decomposeMatrix
+describe('setFromRotationMatrix', () => {}) //:: setFromRotationMatrix
+
+describe('TransformGizmoTagComponent', () => {
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(TransformGizmoTagComponent.name, 'TransformGizmoTagComponent')
+    })
+  }) //:: Fields
+}) //:: TransformGizmoTagComponent
