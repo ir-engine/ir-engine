@@ -48,28 +48,3 @@ export const getCanvasBlob = (
 ): Promise<Blob | null> => {
   return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, fileType, quality))
 }
-
-/**
- * Extracts the subdomain from a given URL.
- * Returns undefined if no subdomain is found or if it's 'www'.
- *
- * @param url The URL to extract the subdomain from
- * @returns The subdomain or undefined
- */
-export function getSubdomain(url: string): string | undefined {
-  // Remove protocol (http, https, etc.) if present
-  const cleanUrl = url.replace(/^(https?:\/\/)?(www\.)?/, '')
-
-  // Split the remaining string by dots
-  const parts = cleanUrl.split('.')
-
-  // If we have more than 2 parts (subdomain.domain.tld), return the first part
-  if (parts.length > 2) {
-    const subdomain = parts[0]
-    // Return undefined if the subdomain is 'www' or empty
-    return subdomain === 'www' || subdomain === '' ? undefined : subdomain
-  }
-
-  // If we don't have a subdomain, return undefined
-  return undefined
-}
