@@ -4,28 +4,33 @@
     <link rel="stylesheet" href="cookie-accessor.css" />
     <script>
       let origin
-      const source = "ir-engine-root-cookie"
+      const source = "root-cookie-accessor" //id of iframe
       const processMessage = async (e) => {
         origin = e.origin
-        const payload = e?.data && typeof e.data === 'string' ? JSON.parse(e.data) : null
-        if (payload == null) return
+        const payload = e?.data?.payload
+        if (e?.data?.method == null) return
         const parent = window.parent
-        const message = { source }
-        switch (payload.method) {
+        const message = { source, id: e.data.id, success: true, data: {} }
+        switch (e?.data?.method) {
           case 'set':
             if (payload?.data) {
               document.cookie = `${payload.key}=${JSON.stringify(payload.data)}; SameSite=None; Secure`
-              message.cookieWasSet = payload.key
+              message.data.cookieWasSet = payload.key
               parent.postMessage(message, e.origin)
             }
             break
           case 'get':
-            const data = document.cookie
+            const result = document.cookie
               .split('; ')
               .find((row) => row.startsWith(`${payload.key}=`))
               ?.split('=')[1]
-            message.data = data
-            parent.postMessage(message || '', e.origin)
+            if(result === undefined) {
+                message.success = false
+                parent.postMessage(message, e.origin)
+                break
+            }
+            message.data = result
+            parent.postMessage(message, e.origin)
             break
           case 'remove':
             document.cookie = document.cookie
@@ -33,14 +38,15 @@
               .find((row) => row.startsWith(`${payload.key}=`))
               .replace(/^ +/, '')
               .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+              parent.postMessage(message, e.origin)
             break
           case 'checkAccess':
             const cookieSet =
               document.cookie &&
               document.cookie.split('; ').find((row) => row.startsWith(`visited=`) || row.startsWith('allowedDomains='))
             if (!document.hasStorageAccess) {
-              message.hasStorageAccess = true
-              message.cookieSet = cookieSet
+              message.data.hasStorageAccess = true
+              message.data.cookieSet = cookieSet
               parent.postMessage(message, e.origin)
               break
             } else {
@@ -49,8 +55,8 @@
                 name: 'storage-access'
               })
               if (hasAccess && storageAccessPermission.state === 'granted') {
-                message.hasStorageAccess = hasAccess
-                message.cookieSet = cookieSet
+                message.data.hasStorageAccess = hasAccess
+                message.data.cookieSet = cookieSet
                 parent.postMessage(message, e.origin)
                 break
               } else {
@@ -61,20 +67,20 @@
                     document.cookie
                       .split('; ')
                       .find((row) => row.startsWith(`visited=`) || row.startsWith('allowedDomains='))
-                  message.hasStorageAccess = true
-                  message.cookieSet = postCookieSet
+                  message.data.hasStorageAccess = true
+                  message.data.cookieSet = postCookieSet
                   parent.postMessage(message, e.origin)
                   break
                 } catch (err) {
                   if (storageAccessPermission.state === 'prompt') {
-                    message.hasStorageAccess = false
-                    message.cookieSet = cookieSet
+                    message.data.hasStorageAccess = false
+                    message.data.cookieSet = cookieSet
                     parent.postMessage(JSON.stringify({ hasStorageAccess: false, cookieSet }), e.origin)
                     break
                   } else if (storageAccessPermission.state === 'denied') {
-                    message.hasStorageAccess = false
-                    message.cookieSet = cookieSet
-                    message.storageAccessPermission = 'denied'
+                    message.data.hasStorageAccess = false
+                    message.data.cookieSet = cookieSet
+                    message.data.storageAccessPermission = 'denied'
                     parent.postMessage(message, e.origin)
                     break
                   }
@@ -128,7 +134,6 @@
 
         document.getElementById('cancelButton').onclick = (event) =>
           parent.postMessage({ source: source, skipCrossOriginCookieCheck: true }, origin)
-
         let data
         if (document.cookie)
           data = JSON.parse(

@@ -68,11 +68,16 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
+import { ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
+import { getSubdomain } from '../../common/utils'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
 const iframeSource = 'ir-engine-root-cookie'
+const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
+const iframeUrl = new URL(iframe.src).origin
+const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl)
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -134,46 +139,37 @@ const resolveWalletUser = (credentials: any): UserType => {
   }
 }
 
-const waitForToken = async (win, clientUrl): Promise<string> => {
-  return new Promise((resolve) => {
-    win.postMessage(
-      JSON.stringify({
-        key: `${stateNamespaceKey}.AuthState.authUser`,
-        method: 'get'
-      }),
-      clientUrl
-    )
-    const getIframeResponse = function (e) {
-      if (e.origin !== clientUrl) return
-      if (e?.data && e.data.source === iframeSource) {
+const isRootCookieAncestorMessage = (message: MessageEvent<unknown>): boolean => {
+  return message.origin === iframeUrl
+}
+
+const waitForToken = async (win: Window, clientUrl: string): Promise<string> => {
+  return await communicator
+    .sendMessage('get', {
+      key: `${stateNamespaceKey}.AuthState.authUser`
+    })
+    .then((response) => {
+      if (response.success) {
         try {
-          const value = JSON.parse(e.data.data) //this is cookie data so it's a string
+          const value = JSON.parse(response.data) //this is cookie data(e.data.data) so it's a string
           if (value?.accessToken != null) {
-            window.removeEventListener('message', getIframeResponse)
-            resolve(value?.accessToken)
+            return value?.accessToken
           }
         } catch {
-          resolve('')
+          return '' // Failed to parse token from cookie
         }
+      } else {
+        return '' // didn't get data but can't guarantee
       }
-    }
-    window.addEventListener('message', getIframeResponse)
-  })
+    })
 }
 
 const getToken = async (): Promise<string> => {
-  let gotResponse = false
-  const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
-  const iframeUrl = new URL(iframe.src).origin
   let win
   try {
     win = iframe!.contentWindow
   } catch (e) {
     win = iframe!.contentWindow
-  }
-
-  const isRootCookieAncestorMessage = (message: MessageEvent<unknown>): boolean => {
-    return message.origin === iframeUrl
   }
 
   window.addEventListener('message', (e) => {
@@ -191,33 +187,10 @@ const getToken = async (): Promise<string> => {
   })
 
   const clientUrl = config.client.clientUrl
-  let iteration = 0
-  const hasAccess = (await new Promise((resolve) => {
-    const checkAccessInterval = setInterval(() => {
-      if (iteration > 4) {
-        clearInterval(checkAccessInterval)
-        resolve({ cookieSet: false, hasStorageAccess: false })
-      }
-      if (!gotResponse) {
-        iteration++
-        win.postMessage(JSON.stringify({ method: 'checkAccess' }), clientUrl)
-      } else clearInterval(checkAccessInterval)
-    }, 100)
-    const hasAccessListener = async function (e) {
-      if (isRootCookieAncestorMessage(e)) {
-        gotResponse = true
-        window.removeEventListener('message', hasAccessListener)
-        if (!e.data || e.data.source !== iframeSource) {
-          resolve({ hasStorageAccess: false, cookieSet: false })
-          return
-        }
-        const data = e.data
-        if (data.skipCrossOriginCookieCheck != null || data.storageAccessPermission === 'denied')
-          localStorage.setItem('skipCrossOriginCookieCheck', 'true')
-        resolve(data)
-      }
-    }
-    window.addEventListener('message', hasAccessListener)
+  const hasAccess = (await communicator.sendMessage('checkAccess').then((message) => {
+    if (message.data.skipCrossOriginCookieCheck != null || message.data.storageAccessPermission === 'denied')
+      localStorage.setItem('skipCrossOriginCookieCheck', 'true')
+    return message.data
   })) as HasAccessType
 
   if (!hasAccess.cookieSet || !hasAccess.hasStorageAccess) {
@@ -228,7 +201,9 @@ const getToken = async (): Promise<string> => {
       const accessToken = authState?.authUser?.accessToken?.value
       return Promise.resolve(accessToken?.length > 0 ? accessToken : '')
     } else {
-      iframe.style.visibility = 'visible'
+      const iframeSubDomain = getSubdomain(iframe.src)
+      const clientSubdomain = getSubdomain(window.location.hostname)
+      if (iframeSubDomain !== clientSubdomain) iframe.style.visibility = 'visible'
       return await new Promise((resolve) => {
         const clickResponseListener = async function (e) {
           if (isRootCookieAncestorMessage(e)) {
@@ -291,7 +266,7 @@ export interface LinkedInLoginForm {
   email: string
 }
 
-export const writeAuthUserToIframe = () => {
+export const writeAuthUserToIframe = async () => {
   if (localStorage.getItem('skipCrossOriginCookieCheck') === 'true') return
   const iframe = document.getElementById('root-cookie-accessor') as HTMLFrameElement
   let win
@@ -301,14 +276,10 @@ export const writeAuthUserToIframe = () => {
     win = iframe!.contentWindow
   }
 
-  win.postMessage(
-    JSON.stringify({
-      key: `${stateNamespaceKey}.${AuthState.name}.authUser`,
-      method: 'set',
-      data: getState(AuthState).authUser
-    }),
-    config.client.clientUrl
-  )
+  await communicator.sendMessage('set', {
+    key: `${stateNamespaceKey}.${AuthState.name}.authUser`,
+    data: getState(AuthState).authUser
+  })
 }
 
 /**
