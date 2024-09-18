@@ -26,19 +26,18 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
   build: {
     lib: {
-      // Could also be a dictionary or array of multiple entry points
-      formats: ['es', 'cjs'],
+      formats: ['es', 'umd'],
       entry: resolve(__dirname, 'index.ts'),
       name: 'hyperflux',
-      // the proper extensions will be added
-      fileName: 'hyperflux'
+      fileName: 'index'
     },
     rollupOptions: {
-      external: [ // possibly use https://github.com/davidmyersdev/vite-plugin-externalize-deps/tree/main
+      external: [
         'react',
         'react-reconciler',
         'react-reconciler/constants',
@@ -51,6 +50,23 @@ export default defineConfig({
     }
   },
   plugins: [
-    dts({ tsconfigPath: 'tsconfig.json', rollupTypes: true, exclude: ['**/*.test.ts'], include: ['**/*.ts', "**/*.tsx"] }),
+    /** @ts-ignore @todo update vite version - builds fine without */
+    dts({
+      tsconfigPath: 'tsconfig.json',
+      rollupTypes: true,
+      exclude: ['**/*.test.ts'],
+      include: ['**/*.ts', '**/*.tsx']
+    }),
+    /** @ts-ignore @todo update vite version - builds fine without */
+    viteStaticCopy({
+      targets: [
+        {
+          src: ['LICENSE', 'readme.md', 'package.build.json'],
+          rename: (name, ext) =>
+            name === 'package.build' ? name.replace('package.build', 'package.json') : ext ? `${name}.${ext}` : name,
+          dest: '.'
+        }
+      ]
+    })
   ]
 })

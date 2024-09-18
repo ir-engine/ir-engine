@@ -1,7 +1,10 @@
 {
   "name": "@ir-engine/hyperflux",
   "version": "1.6.0",
-  "main": "index.ts",
+  "files": ["index.cjs", "index.js", "index.d.ts"],
+  "main": "./index.cjs",
+  "module": "./index.js",
+  "types": "./index.d.ts",
   "description": "Agent Centric Reactive Data Management for Infinite Reality Engine",
   "publishConfig": {
     "access": "public"
@@ -23,22 +26,5 @@
     "ts-matches": "5.3.0",
     "ts-toolbelt": "^9.6.0",
     "uuid": "9.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.5.2",
-    "@types/react-reconciler": "^0.28.2",
-    "cross-env": "^7.0.3",
-    "ts-matches": "5.3.0",
-    "typescript": "5.4.5",
-    "vite": "5.1.7",
-    "vite-plugin-dts": "^3.9.1",
-    "vite-plugin-externalize-deps": "^0.8.0",
-    "vite-plugin-static-copy": "^1.0.6"
-  },
-  "scripts": {
-    "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true mocha --config .mocharc.js",
-    "build": "vite build",
-    "build-publish": "npm run build && cd dist && npm publish --access public --dry-run"
   }
 }
