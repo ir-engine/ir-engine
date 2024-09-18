@@ -28,7 +28,7 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { AssetsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Assets'
 import { PropertiesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Properties'
-import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/VisualScript'
+import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/visualscript'
 
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
