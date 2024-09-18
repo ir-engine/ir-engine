@@ -27,12 +27,9 @@ import React from 'react'
 import { FaCaretRight } from 'react-icons/fa6'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
-import {
-  NodeSpecGenerator,
-  isValidConnection
-} from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
 import { OutputSocketSpecJSON } from '@ir-engine/visual-script'
 import { twMerge } from 'tailwind-merge'
+import { NodeSpecGenerator, isValidConnection } from '../../../../components/VisualScript/VisualScriptUIModule'
 import { colors, valueTypeColorMap } from '../util/colors'
 
 export type OutputSocketProps = {

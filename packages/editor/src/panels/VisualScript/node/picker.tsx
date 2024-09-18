@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useOnPressKey } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import { NodeSpecJSON } from '@ir-engine/visual-script'
 import React, { useEffect, useState } from 'react'
@@ -33,6 +32,7 @@ import { HiMagnifyingGlass, HiOutlineChevronDown, HiOutlineChevronRight } from '
 import { XYPosition, useReactFlow } from 'reactflow'
 import { twMerge } from 'tailwind-merge'
 import { VisualScriptPanelTab } from '..'
+import { useOnPressKey } from '../../../components/VisualScript/VisualScriptUIModule'
 import { categoryColorMap, colors } from '../util/colors'
 
 const createPickerNodes = (tree, onPickNode, position, instance) => {

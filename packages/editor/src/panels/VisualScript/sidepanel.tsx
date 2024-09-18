@@ -30,9 +30,6 @@ import { useTranslation } from 'react-i18next'
 import { useReactFlow } from 'reactflow'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
-import { useVisualScriptFlow, visualToFlow } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
-import { useTemplateHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useTemplateHandler'
-import { useVariableHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useVariableHandler'
 import { NodetoEnginetype } from '@ir-engine/engine'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
@@ -42,7 +39,10 @@ import NodeEditor from '@ir-engine/ui/src/components/editor/properties/nodeEdito
 import ParameterInput from '@ir-engine/ui/src/components/editor/properties/parameter'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@ir-engine/visual-script'
-import { Examples } from './modals/load/load'
+import { useVisualScriptFlow, visualToFlow } from '../../components/visualscript/VisualScriptUIModule'
+import { useTemplateHandler } from '../../components/visualscript/hooks/useTemplateHandler'
+import { useVariableHandler } from '../../components/visualscript/hooks/useVariableHandler'
+import { Examples } from './modals/load'
 
 type templateHandler = ReturnType<typeof useTemplateHandler>
 type variableHandler = ReturnType<typeof useVariableHandler>

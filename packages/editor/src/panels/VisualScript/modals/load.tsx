@@ -29,7 +29,7 @@ import { useReactFlow } from 'reactflow'
 
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { GraphJSON } from '@ir-engine/visual-script'
-import { Modal } from '..'
+import { Modal } from '.'
 
 export type Examples = {
   [key: string]: GraphJSON

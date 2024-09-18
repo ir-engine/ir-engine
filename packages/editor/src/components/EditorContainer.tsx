@@ -56,12 +56,12 @@ import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
-import { VisualScriptPanelTab } from '../panels/VisualScript'
 import { FilesPanelTab } from '../panels/files'
 import { HierarchyPanelTab } from '../panels/hierarchy'
 import { MaterialsPanelTab } from '../panels/materials'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
+import { VisualScriptPanelTab } from '../panels/visualscript'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {

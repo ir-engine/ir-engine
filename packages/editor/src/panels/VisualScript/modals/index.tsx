@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useOnPressKey } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
 import React, { PropsWithChildren } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { useOnPressKey } from '../../../components/VisualScript/VisualScriptUIModule'
 
 export type ModalAction = {
   label: string

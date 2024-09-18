@@ -27,15 +27,15 @@ import React from 'react'
 import { FaCircleMinus, FaCirclePlus } from 'react-icons/fa6'
 import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
+import { NodeSpecJSON } from '@ir-engine/visual-script'
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
 import {
   NodeSpecGenerator,
   isHandleConnected,
   useChangeNode
-} from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
-import { useModifyNodeSocket } from '@ir-engine/editor/src/components/visualScript/hooks/useModifyNodeSocket'
-import { NodeSpecJSON } from '@ir-engine/visual-script'
-import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
-import { twMerge } from 'tailwind-merge'
+} from '../../../components/VisualScript/VisualScriptUIModule'
+import { useModifyNodeSocket } from '../../../components/VisualScript/hooks/useModifyNodeSocket'
 import { categoryColorMap, colors } from '../util/colors'
 import InputSocket from './socket/input'
 import OutputSocket from './socket/output'

@@ -27,18 +27,18 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Background, BackgroundVariant, NodeToolbar, Panel, Position, ReactFlow } from 'reactflow'
 
-import {
-  useFlowHandlers,
-  useNodeSpecGenerator,
-  useVisualScriptFlow
-} from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
-import { useSelectionHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useSelectionHandler'
-import { useTemplateHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useTemplateHandler'
-import { useVariableHandler } from '@ir-engine/editor/src/components/visualScript/hooks/useVariableHandler'
 import { useVisualScriptRunner } from '@ir-engine/engine/src/visualscript/systems/useVisualScriptRunner'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { GraphJSON, IRegistry } from '@ir-engine/visual-script'
+import {
+  useFlowHandlers,
+  useNodeSpecGenerator,
+  useVisualScriptFlow
+} from '../../components/VisualScript/VisualScriptUIModule'
+import { useSelectionHandler } from '../../components/VisualScript/hooks/useSelectionHandler'
+import { useTemplateHandler } from '../../components/VisualScript/hooks/useTemplateHandler'
+import { useVariableHandler } from '../../components/VisualScript/hooks/useVariableHandler'
 import CustomControls from './controls'
 import { Examples } from './modals/load'
 import { NodePicker } from './node/picker'

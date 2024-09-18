@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { NodeTypes } from 'reactflow'
 
-import { Node } from '@ir-engine/ui/src/components/editor/panels/VisualScript/node'
+import { Node } from '../../../panels/visualscript/node'
 import { NodeSpecGenerator } from './useNodeSpecGenerator'
 
 const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {

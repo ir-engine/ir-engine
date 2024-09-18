@@ -29,8 +29,8 @@ import { useEdges, useNodes } from 'reactflow'
 
 import { VariableJSON } from '@ir-engine/visual-script'
 
-import { NodeSpecGenerator, flowToVisual } from '@ir-engine/editor/src/components/visualScript/VisualScriptUIModule'
 import { Modal } from '.'
+import { NodeSpecGenerator, flowToVisual } from '../../../components/VisualScript/VisualScriptUIModule'
 
 export type SaveModalProps = {
   open?: boolean
