@@ -76,7 +76,8 @@ export const EditorState = defineState({
     uiAddons: {
       container: {},
       newScene: {}
-    } as StudioUIAddons
+    } as StudioUIAddons,
+    acknowledgedUnsupportedBrowser: false
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
@@ -101,5 +102,6 @@ export const EditorState = defineState({
     }, [linkState.location])
 
     return null
-  }
+  },
+  extension: syncStateWithLocalStorage(['acknowledgedUnsupportedBrowser'])
 })
