@@ -59,9 +59,9 @@ export const ScriptComponent = defineComponent({
     }
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      src: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.src.get({ noproxy: true }))))
+      src: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.src)))
     }
   },
 
