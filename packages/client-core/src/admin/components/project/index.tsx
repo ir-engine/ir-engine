@@ -102,7 +102,11 @@ export default function AdminProject() {
             tabLabel: t('admin:components.common.all'),
             rightComponent: <ProjectTopMenu />,
             bottomComponent: <ProjectTable search={search.query.value} />,
-            topComponent: <SearchBar search={search} />
+            topComponent: (
+              <div className="mb-4 flex justify-between">
+                <SearchBar search={search} />
+              </div>
+            )
           },
           {
             title: t('admin:components.buildStatus.buildStatus'),
