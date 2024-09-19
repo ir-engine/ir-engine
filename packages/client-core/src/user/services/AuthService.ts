@@ -207,7 +207,7 @@ const getToken = async (): Promise<string> => {
           try {
             window.removeEventListener('message', clickResponseListener)
             const data = e?.data?.data
-            if (data.skipCrossOriginCookieCheck === 'true' || data.storageAccessPermission === 'denied') {
+            if (data.skipCrossOriginCookieCheck === true || data.storageAccessPermission === 'denied') {
               localStorage.setItem('skipCrossOriginCookieCheck', 'true')
               iframe.style.visibility = 'hidden'
               resolve('')
