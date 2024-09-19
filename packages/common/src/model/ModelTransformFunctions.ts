@@ -733,10 +733,23 @@ const writeFiles = async (
       await fileBrowserService.create(folderURL)
     }
 
+    const removeExtension = (uri: string) => {
+      const pathSegments = uri.split('/')
+      const filename = pathSegments.pop()
+      if (filename != null) {
+        const nameSegments = filename.split('.')
+        nameSegments.pop()
+        pathSegments.push(nameSegments.join('.'))
+      }
+      return pathSegments.join('/')
+    }
+
     json.images?.map((image) => {
       const nuURI = pathJoin(
-        resourceUri ? resourceUri : resourceName + '_resources',
-        `${image.uri ? image.uri.split('.')[0] : image.name}.${mimeToFileType(image.mimeType)}`
+        resourceUri.length > 0 ? resourceUri : resourceName + '_resources',
+        `${
+          (image.uri ?? '').length > 0 ? removeExtension(image.uri!).replaceAll(/^\.\//g, '') : image.name
+        }.${mimeToFileType(image.mimeType)}`
       )
       resources[nuURI] = resources[image.uri!]
       delete resources[image.uri!]
