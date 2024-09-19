@@ -23,19 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getState } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-
 import { GLTF } from '@gltf-transform/core'
-import { UUIDComponent } from '@ir-engine/ecs'
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { Entity, entityExists, EntityUUID, getComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
+import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
-import { EditorState } from '../../services/EditorServices'
+import { getState } from '@ir-engine/hyperflux'
+import { t } from 'i18next'
+import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { HierarchyTreeState } from '../../services/HierarchyNodeState'
+import { SelectionState } from '../../services/SelectionServices'
 
 export type HierarchyTreeNodeType = {
   depth: number
@@ -46,9 +47,58 @@ export type HierarchyTreeNodeType = {
   isCollapsed?: boolean
 }
 
-export type HierarchyTreeCollapsedNodeType = { [key: number]: boolean }
-
 type NestedHierarchyTreeNode = HierarchyTreeNodeType & { children: NestedHierarchyTreeNode[] }
+
+/* COMMON */
+
+export const uploadOptions = {
+  multiple: true,
+  accepts: AllFileTypes
+}
+
+/** UTILITIES **/
+
+/* NODE FUNCTIONALITIES */
+
+const getSelectedEntities = (entity?: Entity) => {
+  const selected = entity
+    ? getState(SelectionState).selectedEntities.includes(getComponent(entity, UUIDComponent))
+    : true
+  const selectedEntities = selected ? SelectionState.getSelectedEntities() : [entity!]
+  return selectedEntities
+}
+
+export const deleteNode = (entity: Entity) => {
+  EditorControlFunctions.removeObject(getSelectedEntities(entity))
+}
+
+export const duplicateNode = (entity?: Entity) => {
+  EditorControlFunctions.duplicateObject(getSelectedEntities(entity))
+}
+
+export const groupNodes = (entity?: Entity) => {
+  EditorControlFunctions.groupObjects(getSelectedEntities(entity))
+}
+
+export const copyNodes = (entity?: Entity) => {
+  CopyPasteFunctions.copyEntities(getSelectedEntities(entity))
+}
+
+export const pasteNodes = (entity?: Entity) => {
+  CopyPasteFunctions.getPastedEntities()
+    .then((nodeComponentJSONs) => {
+      nodeComponentJSONs.forEach((componentJSONs) => {
+        EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, getSelectedEntities(entity)[0])
+      })
+    })
+    .catch(() => {
+      NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes') as string, {
+        variant: 'error'
+      })
+    })
+}
+
+/* HIERARCHY TREE WALKER */
 
 function isChild(index: number, nodes: GLTF.INode[]) {
   for (const node of nodes) {
@@ -76,7 +126,7 @@ function buildHierarchyTree(
     depth,
     childIndex,
     entity: entity,
-    isCollapsed: !getState(EditorState).expandedNodes[sceneID]?.[entity],
+    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[entity],
     children: [],
     isLeaf: !(node.children && node.children.length > 0),
     lastChild: lastChild
@@ -157,7 +207,7 @@ export function gltfHierarchyTreeWalker(
     entity: rootEntity,
     childIndex: 0,
     lastChild: true,
-    isCollapsed: !getState(EditorState).expandedNodes[sceneID]?.[rootEntity]
+    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[rootEntity]
   }
   const tree = [rootNode] as HierarchyTreeNodeType[]
 
@@ -167,56 +217,4 @@ export function gltfHierarchyTreeWalker(
   }
 
   return tree
-}
-
-/**
- * treeWalker function used to handle tree.
- *
- * @param  {entityNode}    expandedNodes
- */
-
-export function* hierarchyTreeWalker(sceneID: string, treeNode: Entity): Generator<HierarchyTreeNodeType> {
-  if (!treeNode) return
-
-  const stack = [] as HierarchyTreeNodeType[]
-
-  stack.push({ depth: 0, entity: treeNode, childIndex: 0, lastChild: true })
-
-  while (stack.length !== 0) {
-    const { depth, entity: entityNode, childIndex, lastChild } = stack.pop() as HierarchyTreeNodeType
-
-    if (!entityExists(entityNode) || !hasComponent(entityNode, SourceComponent)) continue
-
-    const expandedNodes = getState(EditorState).expandedNodes
-
-    const isCollapsed = !expandedNodes[sceneID]?.[entityNode]
-
-    const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
-
-    // treat entites with all helper children as leaf nodes
-    const allhelperChildren = entityTreeComponent.children.every((child) => !hasComponent(child, SourceComponent))
-
-    yield {
-      isLeaf: entityTreeComponent.children.length === 0 || allhelperChildren,
-      isCollapsed,
-      depth,
-      entity: entityNode,
-      childIndex,
-      lastChild
-    }
-
-    if (entityTreeComponent.children.length !== 0 && !isCollapsed) {
-      for (let i = entityTreeComponent.children.length - 1; i >= 0; i--) {
-        const childEntity = entityTreeComponent.children[i]
-        if (hasComponent(childEntity, SourceComponent)) {
-          stack.push({
-            depth: depth + 1,
-            entity: childEntity,
-            childIndex: i,
-            lastChild: i === 0
-          })
-        }
-      }
-    }
-  }
 }
