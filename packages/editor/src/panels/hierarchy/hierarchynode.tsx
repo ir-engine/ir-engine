@@ -31,6 +31,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -38,9 +39,15 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
+import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -54,6 +61,7 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
+import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
@@ -271,6 +279,29 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     }
     setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
+  const isModelRoot = hasComponent(entity, ModelComponent)
+  const isModified = isModelRoot && !!getState(GLTFModifiedState)[getModelSceneID(entity)]
+
+  const onSaveChanges = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    const modelComponent = getComponent(node.entity, ModelComponent)
+    const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(modelComponent.src)!
+    const fullProjectName = `${orgName}/${projectName}`
+    exportRelativeGLTF(node.entity, fullProjectName, fileName).then(() => {
+      setComponent(node.entity, ModelComponent, { src: modelComponent.src })
+      ResourceLoaderManager.updateResource(modelComponent.src)
+      getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
+    })
+  }
+
+  const onRevert = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    const sourceId = getModelSceneID(entity)
+    const snapshotState = getMutableState(GLTFSnapshotState)[sourceId]
+    snapshotState.index.set(0)
+    snapshotState.snapshots.set([JSON.parse(JSON.stringify(snapshotState.snapshots.at(0)!.value))])
+    getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
+  }
 
   return (
     <li
@@ -357,6 +388,24 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 </div>
               )}
             </div>
+            {isModified && (
+              <>
+                <button
+                  type="button"
+                  className="m-0 h-5 w-auto flex-shrink-0 border-none p-0 hover:opacity-80"
+                  onClick={onSaveChanges}
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="m-0 ml-3 mr-3 h-5 w-auto flex-shrink-0 border-none p-0 hover:opacity-80"
+                  onClick={onRevert}
+                >
+                  Revert
+                </button>
+              </>
+            )}
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
