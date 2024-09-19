@@ -43,7 +43,7 @@ import assert from 'assert'
 import { BoxGeometry, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../common/NameComponent'
-import { Axis } from '../common/constants/MathConstants'
+import { Axis, Vector3_Zero } from '../common/constants/MathConstants'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { SceneComponent } from '../renderer/components/SceneComponents'
@@ -148,6 +148,8 @@ function getScaleFromMatrixWorld(entity: Entity): Vector3 {
   getComponent(entity, TransformComponent).matrixWorld.decompose(new Vector3(), new Quaternion(), result)
   return result
 }
+
+const GravityOneFrame = new Vector3(0, 0.002723, 0)
 
 describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSystem', () => {
   describe('Physics Driven Transformations', () => {
@@ -352,7 +354,6 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
     it('should allow moving the RigidBody of an entity separately from its Transform, and the movement should be relative to its parent', () => {
       const ChangeAmount = 42
-      const GravityOneFrame = new Vector3(0, 0.002723, 0)
       const Initial = new Vector3(42, 43, 44)
       const Expected = Initial.clone().sub(GravityOneFrame)
       // Set the data as expected
@@ -619,15 +620,48 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       })
     })
 
-    /**
-    // @todo
-    it("should allow moving the Collider of a child entity separately when the collider is set into a different entity and the Transform of that entity moves, and its movement should be relative to its parent", () => {})
-    */
-  }) //:: Transform Overrides (aka teleportation)
+    it('should allow moving the Collider of a child entity separately when the collider is set into a different entity and the Transform of that entity moves. Its movement should be relative to its parent', () => {
+      const ChangeAmount = 42
+      const Expected = Initial.position.clone().addScalar(ChangeAmount).sub(GravityOneFrame)
+      // Set the data as expected
+      setupEntityTree()
+      setComponent(physicsWorldEntity, TransformComponent, { position: Initial.position })
+      updateTransforms()
+      // Sanity check before running
+      for (let id = 0; id < childrenCount; ++id) assert.equal(hasComponent(children[id], TransformComponent), true)
 
-  // Cases  (transform / teleport-overrides)
-  //   rigidbody+collider
-  //   rigidbody+ colliderChild
-  //   parent +rigidbody+ colliderChild
-  //
+      // Run the processes
+      // .. Phase 0
+      const colliderChildEntity = children.find((entity: Entity) => hasComponent(entity, ColliderComponent))!
+      getComponent(colliderChildEntity, TransformComponent).position.addScalar(ChangeAmount)
+      {
+        /** @todo This is a BUG. See TransformComponent.getMatrixRelativeToScene */
+        computeTransformMatrix(physicsWorldEntity)
+        computeTransformMatrix(parentEntity)
+      }
+      // .. Phase 1
+      execute.physicsSystem()
+      // .. Phase 2
+      getMutableState(ECSState).simulationTime.set(
+        getState(ECSState).simulationTime - getState(ECSState).simulationTimestep
+      )
+      execute.transformDirtyUpdateSystem()
+      execute.physicsPreTransformSystem()
+      // .. Phase 3
+      execute.transformSystem()
+
+      // Check the result
+      // .. Should change the Collider transform inside the physics world data
+      const physicsPosition = physicsWorld.Colliders.get(colliderChildEntity)?.translation()
+      const transformPosition = getPositionFromMatrix(colliderChildEntity).sub(GravityOneFrame)
+      const transformPositionWorld = getPositionFromMatrixWorld(colliderChildEntity)
+      assert.notEqual(physicsPosition, undefined)
+      assertVecAnyApproxNotEq(transformPosition, Vector3_Zero, 3)
+      assertVecApproxEq(physicsPosition, transformPosition, 3)
+      assertVecApproxEq(transformPositionWorld, Expected, 3)
+
+      // Cleanup after we are done
+      removeChidren()
+    })
+  }) //:: Transform Overrides (aka teleportation)
 }) //:: Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSystem
