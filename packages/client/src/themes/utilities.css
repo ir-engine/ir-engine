@@ -1,25 +1,16 @@
 @import "tailwindcss/utilities";
 
-.table-size-xs {
-  height: calc(100vh - 436px);
+/* WebKit/Blink (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.table-size-sm {
-  height: calc(100vh - 418px);
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
 }
 
-.table-size-md {
-  height: calc(100vh - 402px);
-}
-
-.table-size-lg {
-  height: calc(100vh - 386px);
-}
-
-.table-size-xl {
-  height: calc(100vh - 318px);
-}
-
-.table-size-full {
-  height: 100%;
+/* Firefox */
+html {
+  scrollbar-width: thin;
 }

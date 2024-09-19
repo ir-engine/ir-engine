@@ -28,23 +28,23 @@ import CopyText from '../CopyText'
 import Tooltip from '../Tooltip'
 
 type TruncateTextOptions = {
-  ellipsisChar?: string
+  truncatorChar?: string
   visibleChars?: number
-  ellipsisPosition?: 'start' | 'middle' | 'end'
+  truncatorPosition?: 'start' | 'middle' | 'end'
 }
 
 export const truncateText = (text: string, options: TruncateTextOptions = {}) => {
-  const { visibleChars = 3, ellipsisPosition = 'middle', ellipsisChar = '...' } = options
+  const { visibleChars = 3, truncatorPosition = 'middle', truncatorChar = '...' } = options
 
   if (text.length <= visibleChars * 2) return text
 
-  const truncators: Record<NonNullable<TruncateTextOptions['ellipsisPosition']>, () => string> = {
-    start: () => `${ellipsisChar}${text.slice(-visibleChars)}`,
-    middle: () => `${text.slice(0, visibleChars)}${ellipsisChar}${text.slice(-visibleChars)}`,
-    end: () => `${text.slice(0, visibleChars)}${ellipsisChar}`
+  const truncators = {
+    start: () => `${truncatorChar}${text.slice(-visibleChars)}`,
+    middle: () => `${text.slice(0, visibleChars)}${truncatorChar}${text.slice(-visibleChars)}`,
+    end: () => `${text.slice(0, visibleChars)}${truncatorChar}`
   }
 
-  return truncators[ellipsisPosition]()
+  return truncators[truncatorPosition]()
 }
 
 type TruncatedTextProps = {
@@ -53,19 +53,21 @@ type TruncatedTextProps = {
 } & TruncateTextOptions
 
 const TruncatedText: FC<TruncatedTextProps> = (props) => {
-  const { variant = 'copy', text, visibleChars = 3, ellipsisPosition = 'middle', ellipsisChar = '...' } = props
+  const { variant = 'text', text, visibleChars = 3, truncatorPosition = 'middle', truncatorChar = '...' } = props
 
   const variants = {
     copy: (
       <span className="flex items-center">
         <Tooltip content={text}>
-          <>{truncateText(text, { visibleChars, ellipsisPosition, ellipsisChar })}</>
+          <>{truncateText(text, { visibleChars, truncatorPosition, truncatorChar })}</>
         </Tooltip>
         <CopyText text={text} className="ml-2" />
       </span>
     ),
     text: (
-      <span className="flex items-center">{truncateText(text, { visibleChars, ellipsisPosition, ellipsisChar })}</span>
+      <span className="flex items-center">
+        {truncateText(text, { visibleChars, truncatorPosition, truncatorChar })}
+      </span>
     )
   }
   return variants[variant]
@@ -78,7 +80,7 @@ type TruncatedLinkProps = {
   AnchorHTMLAttributes<HTMLAnchorElement>
 
 export const TruncatedLink: FC<TruncatedLinkProps> = (props) => {
-  const { visibleChars = 3, ellipsisPosition = 'middle', ellipsisChar = '...', copyable = true, text, href } = props
+  const { visibleChars = 3, truncatorPosition = 'middle', truncatorChar = '...', copyable = true, text, href } = props
 
   if (copyable) {
     return (
@@ -86,15 +88,15 @@ export const TruncatedLink: FC<TruncatedLinkProps> = (props) => {
         <TruncatedText
           text={text}
           visibleChars={visibleChars}
-          ellipsisPosition={ellipsisPosition}
-          ellipsisChar={ellipsisChar}
+          truncatorPosition={truncatorPosition}
+          truncatorChar={truncatorChar}
         />
       </a>
     )
   }
   return (
     <a href={href} target="_blank" rel="noopener noreferrer">
-      {truncateText(text, { visibleChars, ellipsisPosition })}
+      {truncateText(text, { visibleChars, truncatorPosition: truncatorPosition })}
     </a>
   )
 }
