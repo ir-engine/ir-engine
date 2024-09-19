@@ -805,14 +805,7 @@ if (typeof navigator !== 'undefined') {
   firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
 }
 
-let textureLoader: TextureLoader | ImageBitmapLoader
-
-/** @todo use resource loader hooks */
-if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
-  textureLoader = new TextureLoader()
-} else {
-  textureLoader = new ImageBitmapLoader()
-}
+const textureLoader = new TextureLoader()
 
 type KHRTextureBasisu = {
   source: number
@@ -834,7 +827,7 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
   /** @todo properly support texture extensions, this is a hack */
   const sourceIndex =
     (extensions && Object.values(extensions).find((ext) => typeof ext.source === 'number')?.source) ??
-    textureDef?.source!
+    textureDef?.source
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
   const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)

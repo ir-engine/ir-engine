@@ -41,10 +41,14 @@ import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { AssetLoader } from '../classes/AssetLoader'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
-import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
 import { ResourceLoadingManagerState } from '../state/ResourceLoadingManagerState'
 import { loadResource, setGLTFResource } from './resourceLoaderFunctions'
+
+const defaultLoaders = {
+  fileLoader: new FileLoader(),
+  audioLoader: new AudioLoader()
+}
 
 function useLoader<T extends ResourceAssetType>(
   url: string,
@@ -328,7 +332,7 @@ export function useFile(
   url: string,
   entity?: Entity,
   onUnload?: (url: string) => void,
-  loader: AssetLoader = new FileLoader()
+  loader: AssetLoader = defaultLoaders.fileLoader
 ): [ArrayBuffer | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   return useLoader<ArrayBuffer>(url, ResourceType.File, entity, loader, onUnload)
 }
@@ -347,7 +351,7 @@ export function useFile(
 export async function getTextureAsync(
   url: string,
   entity?: Entity,
-  loader: AssetLoader = new TextureLoader()
+  loader?: AssetLoader
 ): Promise<[Texture | null, () => void, ErrorEvent | Error | null]> {
   return getLoader<Texture>(url, ResourceType.Texture, entity, loader)
 }
@@ -355,7 +359,7 @@ export async function getTextureAsync(
 export async function getAudioAsync(
   url: string,
   entity?: Entity,
-  loader: AssetLoader = new AudioLoader()
+  loader: AssetLoader = defaultLoaders.audioLoader
 ): Promise<[AudioBuffer | null, () => void, ErrorEvent | Error | null]> {
   return getLoader<AudioBuffer>(url, ResourceType.Audio, entity)
 }
