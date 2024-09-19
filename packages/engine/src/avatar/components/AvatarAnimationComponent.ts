@@ -64,7 +64,7 @@ import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { AnimationState } from '../AnimationManager'
-import { mixamoVRMRigMap } from '../AvatarBoneMatching'
+import { mixamoVRMRigMap, recursiveHipsLookupECS } from '../AvatarBoneMatching'
 import { preloadedAnimations } from '../animation/Util'
 import {
   setAvatarAnimations,
@@ -220,19 +220,20 @@ export default function createVRM(rootEntity: Entity) {
     iterateEntityNode(rootEntity, (entity) => {
       const bone = getOptionalComponent(entity, BoneComponent)
       bone?.matrixWorld.identity()
+      bone?.quaternion.set(0, 0, 0, 1)
       if (entity !== bones.hips.node.parent!.entity) bone?.matrixWorld.makeRotationY(Math.PI)
     })
     bones.hips.node.rotateY(Math.PI)
 
     const humanoid = new VRMHumanoid(bones)
 
-    const scene = getComponent(rootEntity, Object3DComponent) as any as Group
+    const scene = getComponent(rootEntity, Object3DComponent)
 
     const meta = vrmExtensionDefinition.meta! as any
 
     const vrm = new VRM({
-      scene,
       humanoid,
+      scene,
       meta
       // expressionManager: gltf.userData.vrmExpressionManager,
       // firstPerson: gltf.userData.vrmFirstPerson,
@@ -240,7 +241,7 @@ export default function createVRM(rootEntity: Entity) {
       // materials: gltf.userData.vrmMToonMaterials,
       // springBoneManager: gltf.userData.vrmSpringBoneManager,
       // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
-    })
+    } as VRMParameters)
 
     return vrm
   }
@@ -248,21 +249,8 @@ export default function createVRM(rootEntity: Entity) {
   return createVRMFromGLTF(rootEntity, gltf)
 }
 
-const hipsRegex = /hip|pelvis/i
-export const recursiveHipsLookup = (entity: Entity): Entity | undefined => {
-  const name = getComponent(entity, NameComponent).toLowerCase()
-  if (hipsRegex.test(name)) {
-    return entity
-  }
-  const children = getComponent(entity, EntityTreeComponent).children
-  for (const child of children) {
-    const e = recursiveHipsLookup(child)
-    if (e) return e
-  }
-}
-
 const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
-  const hipsEntity = recursiveHipsLookup(rootEntity)!
+  const hipsEntity = recursiveHipsLookupECS(rootEntity)!
 
   const hipsName = getComponent(hipsEntity, NameComponent)
 
@@ -296,7 +284,9 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 
     const bone = mixamoVRMRigMap[boneName] as string
     if (bone) {
-      bones[bone] = { node: getComponent(entity, BoneComponent) } as VRMHumanBone
+      const node = getComponent(entity, BoneComponent)
+      node.quaternion.set(0, 0, 0, 1)
+      bones[bone] = { node } as VRMHumanBone
     }
   })
   const humanoid = enforceTPose(bones)
@@ -306,7 +296,7 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 
   const vrm = new VRM({
     humanoid,
-    scene: scene,
+    scene,
     meta: { name: childName } as VRM1Meta
     // expressionManager: gltf.userData.vrmExpressionManager,
     // firstPerson: gltf.userData.vrmFirstPerson,
