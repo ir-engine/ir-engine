@@ -74,7 +74,7 @@
                   if (storageAccessPermission.state === 'prompt') {
                     message.data.hasStorageAccess = false
                     message.data.cookieSet = cookieSet
-                    parent.postMessage(JSON.stringify({ hasStorageAccess: false, cookieSet }), e.origin)
+                    parent.postMessage(message, e.origin)
                     break
                   } else if (storageAccessPermission.state === 'denied') {
                     message.data.hasStorageAccess = false
