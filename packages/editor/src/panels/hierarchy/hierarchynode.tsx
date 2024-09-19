@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { entityExists, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -31,7 +32,6 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -42,7 +42,6 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
@@ -54,6 +53,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { KeyboardEvent, useEffect } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -282,25 +282,45 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const isModelRoot = hasComponent(entity, ModelComponent)
   const isModified = isModelRoot && !!getState(GLTFModifiedState)[getModelSceneID(entity)]
 
-  const onSaveChanges = (event: React.MouseEvent) => {
-    event.stopPropagation()
+  const onSaveChanges = () => {
     const modelComponent = getComponent(node.entity, ModelComponent)
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(modelComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
     exportRelativeGLTF(node.entity, fullProjectName, fileName).then(() => {
-      setComponent(node.entity, ModelComponent, { src: modelComponent.src })
       ResourceLoaderManager.updateResource(modelComponent.src)
       getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
     })
   }
 
-  const onRevert = (event: React.MouseEvent) => {
-    event.stopPropagation()
-    const sourceId = getModelSceneID(entity)
-    const snapshotState = getMutableState(GLTFSnapshotState)[sourceId]
-    snapshotState.index.set(0)
-    snapshotState.snapshots.set([JSON.parse(JSON.stringify(snapshotState.snapshots.at(0)!.value))])
+  const onRevert = () => {
+    const modelComponent = getComponent(node.entity, ModelComponent)
+    ResourceLoaderManager.updateResource(modelComponent.src)
+
+    // const snapshotState = getMutableState(GLTFSnapshotState)[sourceId]
+    // snapshotState.index.set(0)
+    // snapshotState.snapshots.set([JSON.parse(JSON.stringify(snapshotState.snapshots.at(0)!.value))])
     getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
+  }
+
+  const onOpenConfirmModal = (title: string, text: string, callback: () => void) => (event: React.MouseEvent) => {
+    event.stopPropagation()
+    PopoverState.showPopupover(
+      <Modal
+        title={title}
+        onSubmit={() => {
+          callback()
+          PopoverState.hidePopupover()
+        }}
+        onClose={() => {
+          PopoverState.hidePopupover()
+        }}
+        className="w-1/3 max-w-md p-4"
+      >
+        <div className="flex justify-end">
+          <p>{text}</p>
+        </div>
+      </Modal>
+    )
   }
 
   return (
@@ -393,14 +413,22 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 <button
                   type="button"
                   className="m-0 h-5 w-auto flex-shrink-0 border-none p-0 hover:opacity-80"
-                  onClick={onSaveChanges}
+                  onClick={onOpenConfirmModal(
+                    'Save Changes',
+                    'Are you sure you want to save changes to this file?',
+                    onSaveChanges
+                  )}
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   className="m-0 ml-3 mr-3 h-5 w-auto flex-shrink-0 border-none p-0 hover:opacity-80"
-                  onClick={onRevert}
+                  onClick={onOpenConfirmModal(
+                    'Revert Changes',
+                    'Are you sure you want to revert changes to this file?',
+                    onRevert
+                  )}
                 >
                   Revert
                 </button>
