@@ -38,7 +38,7 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
 import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'

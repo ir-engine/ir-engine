@@ -37,8 +37,8 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import assert from 'assert'
-import { isArray } from 'lodash'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { isArray } from 'lodash-es'
 import sinon from 'sinon'
 import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'

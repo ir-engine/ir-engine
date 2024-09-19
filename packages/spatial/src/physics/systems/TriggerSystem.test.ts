@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 
 import {
   EntityUUID,

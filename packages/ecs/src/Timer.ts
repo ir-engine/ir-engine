@@ -23,9 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isClient } from '@ir-engine/hyperflux'
-
-const performance: Performance = isClient ? window.performance : require('perf_hooks').performance
+const performance: Performance = window.performance
 
 /**
  * return current time of the system.

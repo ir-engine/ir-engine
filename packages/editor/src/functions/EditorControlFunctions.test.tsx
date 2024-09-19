@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { Cache, Color, MathUtils } from 'three'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'

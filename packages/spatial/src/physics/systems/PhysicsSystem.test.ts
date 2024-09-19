@@ -39,7 +39,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { Vector3_Zero } from '../../common/constants/MathConstants'

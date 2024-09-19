@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
 import { getAllEntities } from 'bitecs'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 
@@ -140,15 +140,12 @@ describe('ECS', () => {
     // assert.equal(exit[0], entity)
 
     removeComponent(entity, MockComponent)
-    // @ts-expect-error - should have type error for wrong unknown property
     setComponent(entity, MockComponent, { mockValueWrong: 44 })
 
     removeComponent(entity, MockComponent)
-    // @ts-expect-error - should have type error for wrong missing required property
     setComponent(entity, MockComponent, {})
 
     removeComponent(entity, MockComponent)
-    // @ts-expect-error - should have type error for wrong value type
     setComponent(entity, MockComponent, { mockValue: 'hi' })
   })
 

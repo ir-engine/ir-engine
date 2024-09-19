@@ -35,7 +35,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getState, startReactor } from '@ir-engine/hyperflux'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { useEffect } from 'react'
 import sinon from 'sinon'
 import { Vector2 } from 'three'

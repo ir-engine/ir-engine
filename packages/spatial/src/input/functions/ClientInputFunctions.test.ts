@@ -35,7 +35,7 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import sinon from 'sinon'
 import { Quaternion, Vector2, Vector3 } from 'three'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'

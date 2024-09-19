@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 
@@ -765,5 +765,5 @@ describe('ComponentFunctions Hooks', async () => {
   }) // useOptionalComponent : Isolated Test Cases
 
   // TODO
-  describe('defineQuery', () => {})
+  // describe('defineQuery', () => {})
 })

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { TransformComponent } from './TransformComponent'
 
 describe('TransformComponent', () => {

@@ -21,7 +21,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --config .mocharc.js",
+    "test": "cross-env TEST=true vitest run",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
@@ -52,7 +52,7 @@
     "fflate": "0.7.4",
     "hls.js": "^1.3.5",
     "js-sha3": "^0.8.0",
-    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
     "node-cache": "^5.1.2",
     "node-schedule": "^2.1.1",
     "noisejs": "2.1.0",
@@ -73,7 +73,6 @@
     "web-worker": "1.2.0"
   },
   "devDependencies": {
-    "@types/mocha": "10.0.1",
     "@types/mock-require": "2.0.1",
     "@types/offscreencanvas": "2019.7.0",
     "@types/sinon": "10.0.13",
@@ -81,7 +80,6 @@
     "@types/webxr": "0.5.13",
     "jsdom": "21.1.1",
     "jsdom-global": "3.0.2",
-    "mocha": "10.2.0",
     "mock-require": "3.0.3",
     "sinon": "15.0.2",
     "trace-unhandled": "2.0.1",

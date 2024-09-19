@@ -37,7 +37,7 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { Color, ColorRepresentation, ShaderMaterial } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { assertFloatApproxEq, assertFloatApproxNotEq } from '../../physics/classes/Physics.test'

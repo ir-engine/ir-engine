@@ -38,7 +38,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --experimental-specifier-resolution=node --config .mocharc.json",
+    "test": "cross-env TEST=true vitest run",
     "build": "vite build",
     "build-publish": "npm run build && cd dist && npm publish --access public --dry-run"
   }

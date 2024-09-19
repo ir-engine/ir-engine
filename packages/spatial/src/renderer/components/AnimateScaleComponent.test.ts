@@ -33,7 +33,7 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../initializeEngine'
 import { TransformComponent } from '../RendererModule'

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 

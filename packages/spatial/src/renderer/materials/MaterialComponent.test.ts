@@ -37,7 +37,7 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { BoxGeometry, Material, Mesh, MeshBasicMaterial } from 'three'
 import { assertArrayEqual, assertArrayNotEqual } from '../../physics/components/RigidBodyComponent.test'
 import { MeshComponent } from '../components/MeshComponent'

@@ -5,7 +5,7 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -24,7 +24,7 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": false,
-    "types": ["@types/node", "@types/mocha"]
+    "types": ["@types/node"]
   },
-  "include": ["./src", "./index.ts"]
+  "include": ["../../__global.d.ts", "./src", "./index.ts"]
 }

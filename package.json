@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "homepage": "ir-engine.org",
   "private": true,
+  "type": "module",
   "bin": {
     "ir-engine": "npx/cli.js"
   },
@@ -47,7 +48,7 @@
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "clone-project": "cross-env vite-node scripts/clone-project.ts",
     "create-root-package-json": "cross-env vite-node scripts/create-root-package-json",
-    "create-project": "cross-env vite-node scripts/create-project",
+    "create-project": "cross-env vite-node scripts/create-pr  oject",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
     "dev": "npm run dev-docker && concurrently -n agones,server,client,taskserver -c '#CEB793,#FF9800,#7E2D40,#B2B4B2' npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver",
     "dev-noclient": "npm run dev-docker && concurrently -n agones,server,taskserver npm:dev-agones-silent npm:dev-server npm:dev-taskserver",
@@ -80,7 +81,7 @@
     "publish": "lerna publish from-package --yes --registry https://registry.npmjs.org",
     "publish-npm": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://registry.npmjs.org",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
-    "test": "cross-env TEST=true lerna run --scope '@ir-engine/*' --ignore '@ir-engine/server-core' test && lerna run --scope '@ir-engine/server-core' test && lerna run --ignore '@ir-engine/*' test",
+    "test": "lerna run --scope '@ir-engine/*' --ignore '@ir-engine/server-core' test && lerna run --scope '@ir-engine/server-core' test && lerna run --ignore '@ir-engine/*' test",
     "test-e2e": "vite-node scripts/run_e2e_tests.ts",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
@@ -117,9 +118,9 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@swc/core": "1.3.41",
     "@testing-library/react": "15.0.4",
+    "@vitejs/plugin-react": "4.3.1",
     "@types/app-root-path": "1.2.4",
     "@types/cli": "0.11.21",
-    "@types/mocha": "10.0.1",
     "@types/primus": "^7.3.6",
     "@types/three": "0.158.0",
     "@typescript-eslint/eslint-plugin": "7.13.1",
@@ -133,7 +134,6 @@
     "kill-port": "2.0.1",
     "lerna": "6.5.1",
     "lint-staged": "13.2.0",
-    "mocha": "10.2.0",
     "nyc": "^15.1.0",
     "package-json-type": "1.0.3",
     "pre-commit": "1.2.2",
@@ -147,7 +147,8 @@
     "stylelint-config-standard-scss": "^7.0.1",
     "stylelint-scss": "^4.5.0",
     "supertest": "6.3.3",
-    "vite-node": "^2.1.1"
+    "vite-node": "2.1.1",
+    "vitest": "2.1.1"
   },
   "dependencies": {
     "@aws-sdk/client-ecr": "^3.319.0",

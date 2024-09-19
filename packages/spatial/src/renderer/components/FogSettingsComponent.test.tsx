@@ -40,7 +40,7 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getState } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'

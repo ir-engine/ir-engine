@@ -219,6 +219,7 @@ overrideOnBeforeCompile()
 globalThis.THREE = { ...THREE } as any
 
 if (!isClient) {
+  window.performance = require('perf_hooks').performance
   const { Blob } = require('buffer')
   const fetch = require('node-fetch')
 

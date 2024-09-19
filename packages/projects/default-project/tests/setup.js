@@ -28,10 +28,6 @@ Infinite Reality Engine. All Rights Reserved.
 const { register } = require('trace-unhandled')
 register()
 
-require("ts-node").register({
-  project: "./tsconfig.json",
-})
-
 process.on('warning', e => console.warn(e.stack));
 
 process.on('SIGTERM', async (err) => {

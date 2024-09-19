@@ -28,7 +28,6 @@
     "outDir": "./lib",
     "types": [
       "vite/client",
-      "mocha",
       "@types/offscreencanvas"
     ]
   },

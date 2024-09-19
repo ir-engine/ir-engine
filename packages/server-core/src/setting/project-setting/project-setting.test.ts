@@ -31,7 +31,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
 import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
 import appRootPath from 'app-root-path'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import path from 'path'
 import {
   createProject,

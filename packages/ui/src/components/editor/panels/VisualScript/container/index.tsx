@@ -30,7 +30,7 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { VisualScriptComponent } from '@ir-engine/engine'
 import { getState } from '@ir-engine/hyperflux'
 import { VisualScriptState } from '@ir-engine/visual-script'
-import { isEqual } from 'lodash'
+import { isEqual } from 'lodash-es'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'

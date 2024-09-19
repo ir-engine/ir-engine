@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { render } from '@testing-library/react'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'

@@ -22,7 +22,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "cross-env": "7.0.3",
-    "test": "mocha --config .mocharc.json",
+    "test": "cross-env TEST=true vitest run",
     "validate": "npm run test",
     "local-minikube-start": "minikube start",
     "local-minikube-stop": "minikube stop",
@@ -36,8 +36,6 @@
     "typescript": "5.4.5"
   },
   "devDependencies": {
-    "@types/mocha": "10.0.1",
-    "mocha": "10.2.0",
     "nock": "13.3.0"
   }
 }

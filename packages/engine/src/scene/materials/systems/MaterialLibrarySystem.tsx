@@ -56,7 +56,7 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { isArray } from 'lodash'
+import { isArray } from 'lodash-es'
 import { Material, MeshBasicMaterial } from 'three'
 import { SourceComponent } from '../../components/SourceComponent'
 

@@ -18,7 +18,7 @@
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --experimental-specifier-resolution=node --config .mocharc.js"
+    "test": "cross-env TEST=true vitest run"
   },
   "resolutions": {
     "@types/react": "18.2.0",
@@ -59,7 +59,7 @@
     "i18next": "21.6.16",
     "image-palette-core": "0.2.2",
     "jszip": "^3.10.1",
-    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
     "material-ui-confirm": "3.0.9",
     "mediasoup-client": "3.6.82",
     "moment": "2.29.4",
@@ -87,7 +87,6 @@
     "@types/three": "0.158.0",
     "css-modules-require-hook": "4.2.3",
     "esbuild": "0.17.12",
-    "mocha": "10.2.0",
     "react-dom": "18.2.0",
     "rimraf": "4.4.0",
     "sass": "1.59.3",

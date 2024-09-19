@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 
 import { InstanceID, instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { LocationID, LocationType, RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'

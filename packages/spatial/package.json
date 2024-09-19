@@ -9,7 +9,7 @@
   "description": "Core spatial system for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --jobs 1"
+    "test": "cross-env TEST=true vitest run"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",
@@ -22,7 +22,7 @@
     "@ir-engine/network": "^1.6.0",
     "@tweenjs/tween.js": "^23.1.2",
     "bitecs": "0.3.40",
-    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
     "noisejs": "2.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -33,7 +33,6 @@
     "postprocessing": "6.34.1"
   },
   "devDependencies": {
-    "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",
     "rimraf": "4.4.0"
   },

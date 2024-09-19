@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import fs from 'fs'
 import nock from 'nock'
 import path from 'path'

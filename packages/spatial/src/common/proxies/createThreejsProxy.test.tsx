@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { createEntity, defineComponent, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { Matrix4 } from 'three'
 import { Mat4Proxy, Vec3Proxy } from './createThreejsProxy'
 

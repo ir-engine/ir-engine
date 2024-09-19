@@ -23,7 +23,7 @@
 // Infinite Reality Engine. All Rights Reserved.
 // */
 
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { MathUtils } from 'three'
 
 import {

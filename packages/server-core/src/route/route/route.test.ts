@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'

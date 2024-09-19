@@ -36,7 +36,7 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { SceneComponent } from '../../renderer/components/SceneComponents'

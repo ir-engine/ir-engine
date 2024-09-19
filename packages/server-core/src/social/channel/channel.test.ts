@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { Paginated } from '@feathersjs/feathers'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'

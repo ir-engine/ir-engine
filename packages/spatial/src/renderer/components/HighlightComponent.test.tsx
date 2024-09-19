@@ -43,7 +43,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import { BoxGeometry, MathUtils, Mesh } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'

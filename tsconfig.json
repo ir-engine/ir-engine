@@ -1,39 +1,30 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
-    "allowJs": true,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
     "noEmit": true,
-    "module": "CommonJS",
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": false,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
-    "declaration": true,
-    "outDir": "./lib",
-    "types": ["vite/client", "mocha"]
+    "declaration": false,
+    "types": ["@types/node"]
   },
-  "exclude": [
-    "**/node_modules/**",
-    "./packages/server/upload/**",
-    "./packages/**"
-  ],
-  "include": [
-    "scripts/*.ts"
-  ]
+  "include": ["./src", "./index.ts"]
 }

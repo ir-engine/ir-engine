@@ -37,7 +37,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true mocha --config .mocharc.js",
+    "test": "cross-env TEST=true vitest run",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback --all",
@@ -95,7 +95,7 @@
     "koa-helmet": "^7.0.2",
     "koa-mount": "^4.0.0",
     "koa-simple-healthcheck": "^0.0.1",
-    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
     "meshoptimizer": "^0.18.1",
     "mime-types": "^2.1.35",
     "minio": "7.1.3",

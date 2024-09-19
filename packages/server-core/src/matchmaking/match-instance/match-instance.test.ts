@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import nock from 'nock'
 
 import { matchInstancePath } from '@ir-engine/common/src/schemas/matchmaking/match-instance.schema'

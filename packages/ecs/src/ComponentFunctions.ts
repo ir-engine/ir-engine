@@ -28,7 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
-import React, { startTransition, use } from 'react'
+import React, { startTransition } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
@@ -708,7 +708,7 @@ export function useComponent<C extends Component>(entity: Entity, component: C):
   const componentState = component.stateMap[entity]!
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (componentState.promise) {
-    ;(use ?? _use)(componentState.promise)
+    ;(React.use ?? _use)(componentState.promise)
   }
   return useHookstate(componentState) as State<ComponentType<C>>
 }

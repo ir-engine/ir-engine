@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
-import assert from 'assert'
+import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
