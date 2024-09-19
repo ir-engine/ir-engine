@@ -28,6 +28,7 @@ import { BoxGeometry, CapsuleGeometry, CylinderGeometry, SphereGeometry, Vector3
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CollisionGroups } from '../enums/CollisionGroups'
 
 export interface Vec3 {
@@ -130,6 +131,7 @@ export const RapierShapeToString = {
 }
 
 export type Shape = (typeof Shapes)[keyof typeof Shapes]
+export const ShapeSchema = (init?: Shape) => S.LiteralUnion(Object.values(Shapes) as Shape[], init)
 
 export type ColliderOptions = {
   shape: Shape

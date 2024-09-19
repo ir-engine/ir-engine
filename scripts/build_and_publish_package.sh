@@ -74,6 +74,7 @@ if [ "$DOCKERFILE" != "client-serve-static" ]; then
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
     --build-arg VITE_SOURCEMAPS=$VITE_SOURCEMAPS \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
+    --build-arg VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
     --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
@@ -123,18 +124,13 @@ else
     --build-arg VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD \
     --build-arg VITE_SOURCEMAPS=$VITE_SOURCEMAPS \
     --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
+    --build-arg VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS \
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG \
     --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
     --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
     --build-arg VITE_ZENDESK_ENABLED=$VITE_ZENDESK_ENABLED \
     --build-arg VITE_ZENDESK_KEY=$VITE_ZENDESK_KEY \
     --build-arg VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED .
-fi
-
-if [ $PRIVATE_REPO == "true" ]; then
-  npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
-else
-  npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
 fi
 
 BUILD_END_TIME=$(date +"%d-%m-%yT%H-%M-%S")

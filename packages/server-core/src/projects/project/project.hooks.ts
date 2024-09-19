@@ -54,10 +54,10 @@ import {
   GithubRepoAccessType
 } from '@ir-engine/common/src/schemas/user/github-repo-access.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import templateManifestJson from '@ir-engine/projects/template-project/manifest.json'
-import { checkScope } from '@ir-engine/spatial/src/common/functions/checkScope'
 
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
@@ -259,14 +259,14 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
   }
 
   const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
-
   const projectName = data[0].name!
+  const slashIndex = projectName.indexOf('/')
 
-  const orgName = projectName.slice(0, projectName.indexOf('/'))
-
-  const cleanedProjectName = cleanString(projectName.slice(projectName.indexOf('/')))
-
-  context.projectName = `${orgName}/${cleanedProjectName}`.toLowerCase()
+  if (slashIndex > -1) {
+    const orgName = projectName.slice(0, projectName.indexOf('/'))
+    const cleanedProjectName = cleanString(projectName.slice(projectName.indexOf('/')))
+    context.projectName = `${orgName}/${cleanedProjectName}`.toLowerCase()
+  } else context.projectName = projectName.toLowerCase()
 
   const projectExists = (await context.service._find({
     query: { name: context.projectName, $limit: 1 }

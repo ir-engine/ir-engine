@@ -40,22 +40,7 @@ import os from 'os'
 
 import { API } from '@ir-engine/common'
 import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, State } from '@ir-engine/hyperflux'
-import {
-  DataChannelRegistryState,
-  DataChannelType,
-  MediasoupDataConsumerActions,
-  MediasoupDataProducerActions,
-  MediasoupDataProducersConsumersObjectsState,
-  MediasoupMediaConsumerActions,
-  MediasoupMediaProducerActions,
-  MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState,
-  MediasoupTransportActions,
-  MediasoupTransportObjectsState,
-  MediasoupTransportState,
-  MediaStreamAppData,
-  NetworkState
-} from '@ir-engine/network'
+import { DataChannelRegistryState, DataChannelType, NetworkState } from '@ir-engine/network'
 import config from '@ir-engine/server-core/src/appconfig'
 import { config as mediaConfig, sctpParameters } from '@ir-engine/server-core/src/config'
 import multiLogger from '@ir-engine/server-core/src/ServerLogger'
@@ -64,7 +49,24 @@ import { WebRtcTransportParams } from '@ir-engine/server-core/src/types/WebRtcTr
 
 import { CREDENTIAL_OFFSET, HASH_ALGORITHM } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { PUBLIC_STUN_SERVERS } from '@ir-engine/common/src/constants/STUNServers'
-import { instanceServerSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { MediaStreamAppData } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
+import { IceServerType, instanceServerSettingPath } from '@ir-engine/common/src/schema.type.module'
+import {
+  MediasoupDataConsumerActions,
+  MediasoupDataProducerActions,
+  MediasoupDataProducersConsumersObjectsState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
+import {
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions,
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import {
+  MediasoupTransportActions,
+  MediasoupTransportObjectsState,
+  MediasoupTransportState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import crypto from 'crypto'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
@@ -397,15 +399,11 @@ export async function handleWebRtcTransportCreate(
 
     getMutableState(MediasoupTransportObjectsState)[newTransport.id].set(newTransport)
 
-    let { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
+    const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
     const instanceServerSettingsResponse = await API.instance.service(instanceServerSettingPath).find()
     const webRTCSettings = instanceServerSettingsResponse.data[0].webRTCSettings
-    const iceServers: {
-      urls: string | string[]
-      username?: string
-      credential?: string
-    }[] = webRTCSettings.useCustomICEServers
+    const iceServers: IceServerType[] = webRTCSettings.useCustomICEServers
       ? webRTCSettings.iceServers
       : config.kubernetes.enabled
       ? PUBLIC_STUN_SERVERS
@@ -439,18 +437,25 @@ export async function handleWebRtcTransportCreate(
       }
     }
 
-    if (webRTCSettings.useCustomICEServers && webRTCSettings.useTimeLimitedCredentials) {
-      const timestamp = Math.floor(Date.now() / 1000) + CREDENTIAL_OFFSET
-      const username = [timestamp, peerID.replaceAll('-', '')].join(':')
-      const secret = webRTCSettings.webRTCStaticAuthSecretKey || ''
+    if (webRTCSettings.useCustomICEServers) {
+      iceServers.forEach((iceServer) => {
+        if (iceServer.useTimeLimitedCredentials) {
+          const timestamp = Math.floor(Date.now() / 1000) + CREDENTIAL_OFFSET
+          const username = [timestamp, peerID.replaceAll('-', '')].join(':')
+          const secret = iceServer.webRTCStaticAuthSecretKey || ''
 
-      const hmac = crypto.createHmac(HASH_ALGORITHM, secret)
-      hmac.setEncoding('base64')
-      hmac.write(username)
-      hmac.end()
+          const hmac = crypto.createHmac(HASH_ALGORITHM, secret)
+          hmac.setEncoding('base64')
+          hmac.write(username)
+          hmac.end()
 
-      iceServers[0].username = username
-      iceServers[0].credential = hmac.read()
+          iceServer.username = username
+          iceServer.credential = hmac.read()
+        }
+        delete iceServer.useTimeLimitedCredentials
+        delete iceServer.useFixedCredentials
+        delete iceServer.webRTCStaticAuthSecretKey
+      })
     }
 
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
@@ -793,8 +798,7 @@ export async function handleRequestProducer(
         paused,
         producerId: producer.id,
         globalMute: false,
-        encodings: (rtpParameters as any).encodings,
-        channelId: appData.channelId
+        encodings: (rtpParameters as any).encodings
       }
     }
     dispatchAction(

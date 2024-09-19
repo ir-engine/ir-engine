@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
@@ -31,7 +31,7 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { clientContextParams } from '../../util/contextParams'
+import { clientContextParams } from '../../util/ClientContextState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
@@ -42,11 +42,27 @@ export const Fullscreen = () => {
   const [fullScreenActive, setFullScreenActive] = useState(false)
   const { bottomShelfStyle } = useShelfStyles()
 
+  useEffect(() => {
+    const onFullScreenChange = () => {
+      if (document.fullscreenElement) {
+        setFullScreenActive(true)
+        logger.info({ event_name: 'view_fullscreen', event_value: true })
+      } else {
+        setFullScreenActive(false)
+        logger.info({ event_name: 'view_fullscreen', event_value: false })
+      }
+    }
+
+    document.addEventListener('fullscreenchange', onFullScreenChange)
+
+    return () => {
+      document.removeEventListener('fullscreenchange', onFullScreenChange)
+    }
+  }, [])
+
   const setFullscreen = (input: boolean) => {
-    setFullScreenActive(input)
     if (input) document.body.requestFullscreen()
     else document.exitFullscreen()
-    logger.info({ event_name: 'view_fullscreen', event_value: input })
   }
 
   return (

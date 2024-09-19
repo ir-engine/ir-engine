@@ -33,7 +33,7 @@ import { UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const users: UserType[] = []
 
@@ -43,8 +43,9 @@ describe('user.test', () => {
     app = createFeathersKoaApp()
     await app.setup()
   })
-  after(() => {
-    return destroyEngine()
+  after(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   let avatar: AvatarType

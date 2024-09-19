@@ -27,10 +27,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiTrash } from 'react-icons/hi2'
 
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { recordingPath, RecordingType } from '@ir-engine/common/src/schema.type.module'
-import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { validate as isValidUUID } from 'uuid'
 
 import { PopoverState } from '../../../common/services/PopoverState'
 import { recordingColumns } from '../../common/constants/recordings'
@@ -51,14 +52,10 @@ export default function RecordingsTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: {
-            $like: `%${search}%`
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
-          userId: {
-            $like: `%${search}%`
-          }
+          userId: isValidUUID(search) ? search : undefined
         }
       ]
     },

@@ -25,19 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, Group, Matrix4, SkeletonHelper, Vector3 } from 'three'
+import { AnimationAction, Group, Matrix4, SkeletonHelper } from 'three'
 
 import {
   defineComponent,
   getComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, matches, none, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -46,7 +44,9 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import {
@@ -55,72 +55,51 @@ import {
   setupAvatarForUser,
   setupAvatarProportions
 } from '../functions/avatarFunctions'
-import { AvatarState } from '../state/AvatarNetworkState'
-import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
 
-  onInit: (entity) => {
-    return {
-      animationGraph: {
-        blendAnimation: undefined as undefined | AnimationAction,
-        fadingOut: false,
-        blendStrength: 0,
-        layer: 0
-      },
-      /** ratio between original and target skeleton's root.position.y */
-      rootYRatio: 1,
-      /** The input vector for 2D locomotion blending space */
-      locomotion: new Vector3(),
-      /** Time since the last update */
-      deltaAccumulator: 0,
-      /** Tells us if we are suspended in midair */
-      isGrounded: true
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.number.test(json.rootYRatio)) component.rootYRatio.set(json.rootYRatio)
-    if (matches.object.test(json.locomotion)) component.locomotion.value.copy(json.locomotion)
-    if (matches.number.test(json.deltaAccumulator)) component.deltaAccumulator.set(json.deltaAccumulator)
-    if (matches.boolean.test(json.isGrounded)) component.isGrounded.set(json.isGrounded)
-  }
+  schema: S.Object({
+    animationGraph: S.Object({
+      blendAnimation: S.Optional(S.Type<AnimationAction>()),
+      fadingOut: S.Bool(false),
+      blendStrength: S.Number(0),
+      layer: S.Number(0)
+    }),
+    /** ratio between original and target skeleton's root.position.y */
+    rootYRatio: S.Number(1),
+    /** The input vector for 2D locomotion blending space */
+    locomotion: S.Vec3(),
+    /** Time since the last update */
+    deltaAccumulator: S.Number(0),
+    /** Tells us if we are suspended in midair */
+    isGrounded: S.Bool(true)
+  })
 })
 
 export type Matrices = { local: Matrix4; world: Matrix4 }
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
-  onInit: (entity) => {
-    return {
-      /** rig bones with quaternions relative to the raw bones in their bind pose */
-      normalizedRig: null! as VRMHumanBones,
-      /** contains the raw bone quaternions */
-      rawRig: null! as VRMHumanBones,
-      /** contains ik solve data */
-      ikMatrices: {} as Record<VRMHumanBoneName, Matrices>,
-      helperEntity: null as Entity | null,
-      /** The VRM model */
-      vrm: null! as VRM,
-      avatarURL: null as string | null
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
-    if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
-    if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
-  },
-
-  onRemove: (entity, component) => {
-    // ensure synchronously removed
-    if (component.helperEntity.value) removeComponent(component.helperEntity.value, ComputedTransformComponent)
-  },
+  schema: S.Object({
+    /** rig bones with quaternions relative to the raw bones in their bind pose */
+    normalizedRig: S.Type<VRMHumanBones>(),
+    /** contains the raw bone quaternions */
+    rawRig: S.Type<VRMHumanBones>(),
+    /** contains ik solve data */
+    ikMatrices: S.Record(
+      S.LiteralUnion(Object.values(VRMHumanBoneName)),
+      S.Object({
+        local: S.Mat4(),
+        world: S.Mat4()
+      }),
+      {}
+    ),
+    /** The VRM model */
+    vrm: S.Type<VRM>(),
+    avatarURL: S.Nullable(S.String())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
@@ -144,7 +123,6 @@ export const AvatarRigComponent = defineComponent({
       const helperEntity = createEntity()
       setVisibleComponent(helperEntity, true)
       addObjectToGroup(helperEntity, helper)
-      rigComponent.helperEntity.set(helperEntity)
       setComponent(helperEntity, NameComponent, helper.name)
       setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
@@ -158,7 +136,6 @@ export const AvatarRigComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
-        rigComponent.helperEntity.set(none)
       }
     }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
 
@@ -193,7 +170,10 @@ export const AvatarRigComponent = defineComponent({
         retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
-        if (entity === AvatarComponent.getSelfAvatarEntity()) AvatarState.selectRandomAvatar()
+        addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        return () => {
+          removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        }
       }
     }, [rigComponent.vrm])
 
@@ -203,5 +183,7 @@ export const AvatarRigComponent = defineComponent({
     }, [locomotionAnimationState])
 
     return null
-  }
+  },
+
+  errors: ['UNSUPPORTED_AVATAR']
 })

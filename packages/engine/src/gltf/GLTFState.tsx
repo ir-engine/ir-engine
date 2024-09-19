@@ -27,7 +27,6 @@ import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   createEntity,
@@ -57,7 +56,6 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -76,13 +74,6 @@ import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
   initial: {} as Record<string, Entity>, // sceneID => entity
-
-  useScene: (sceneID: string | undefined) => {
-    const scene = useGet(staticResourcePath, sceneID).data
-    const scenes = useMutableState(GLTFAssetState)
-    const sceneKey = scene?.url
-    return sceneKey ? scenes[sceneKey].value : null
-  },
 
   loadScene: (sceneURL: string, uuid: string) => {
     const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(EngineState).originEntity)

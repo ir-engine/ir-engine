@@ -26,21 +26,23 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
 
-import { config } from '@ir-engine/common/src/config'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { Engine } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { getState, isClient, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { loadCubeMapTexture } from '../constants/Util'
@@ -48,50 +50,24 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
-
   jsonID: 'EE_skybox',
 
-  onInit: (entity) => {
-    return {
-      backgroundColor: new Color(0x000000),
-      equirectangularPath: '',
-      cubemapPath: `${config.client.fileServer}/projects/ir-engine/default-project/assets/skyboxsun25deg/`,
-      backgroundType: 1,
-      sky: null! as Sky | null,
-      skyboxProps: {
-        turbidity: 10,
-        rayleigh: 1,
-        luminance: 1,
-        mieCoefficient: 0.004999999999999893,
-        mieDirectionalG: 0.99,
-        inclination: 0.10471975511965978,
-        azimuth: 0.16666666666666666
-      }
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (typeof json?.backgroundColor === 'number') component.backgroundColor.set(new Color(json.backgroundColor))
-    if (typeof json?.equirectangularPath === 'string') component.equirectangularPath.set(json.equirectangularPath)
-    if (typeof json?.cubemapPath === 'string') component.cubemapPath.set(json.cubemapPath)
-    if (typeof json?.backgroundType === 'number') component.backgroundType.set(json.backgroundType)
-    if (typeof json?.skyboxProps === 'object') component.skyboxProps.set(json.skyboxProps)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      backgroundColor: component.backgroundColor.value,
-      equirectangularPath: component.equirectangularPath.value,
-      cubemapPath: component.cubemapPath.value,
-      backgroundType: component.backgroundType.value,
-      skyboxProps: component.skyboxProps.get({ noproxy: true }) as any
-    }
-  },
-
-  /** @todo remove this wil proper useEffect cleanups, after resource reworking callbacks */
-  onRemove: (entity, component) => {
-    removeComponent(entity, BackgroundComponent)
-  },
+  schema: S.Object({
+    backgroundColor: S.Color(0x000000),
+    equirectangularPath: S.String(''),
+    cubemapPath: S.String(''),
+    backgroundType: S.Number(1),
+    sky: S.Nullable(S.Type<Sky>()),
+    skyboxProps: S.Object({
+      turbidity: S.Number(10),
+      rayleigh: S.Number(1),
+      luminance: S.Number(1),
+      mieCoefficient: S.Number(0.004999999999999893),
+      mieDirectionalG: S.Number(0.99),
+      inclination: S.Number(0.10471975511965978),
+      azimuth: S.Number(0.16666666666666666)
+    })
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
@@ -100,6 +76,17 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
 
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
+
+    useImmediateEffect(() => {
+      if (!skyboxState.cubemapPath.value)
+        skyboxState.cubemapPath.set(
+          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
+        )
+      return () => {
+        if (entityExists(entity) && hasComponent(entity, BackgroundComponent))
+          removeComponent(entity, BackgroundComponent)
+      }
+    }, [])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
@@ -116,7 +103,7 @@ export const SkyboxComponent = defineComponent({
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
-      setComponent(entity, BackgroundComponent, skyboxState.backgroundColor.value)
+      setComponent(entity, BackgroundComponent, new Color(skyboxState.backgroundColor.value))
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
     useEffect(() => {

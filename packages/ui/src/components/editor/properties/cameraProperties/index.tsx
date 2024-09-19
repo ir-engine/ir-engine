@@ -28,7 +28,6 @@ import React from 'react'
 
 import { getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
-import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
 
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import {
@@ -40,41 +39,13 @@ import {
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { Button } from '@mui/material'
 import { HiOutlineCamera } from 'react-icons/hi'
 import { Box3, Vector3 } from 'three'
+import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import PropertyGroup from '../group'
-
-/** Types copied from Camera Modes of engine. */
-const cameraModeSelect = [
-  {
-    label: 'First Person',
-    value: FollowCameraMode.FirstPerson
-  },
-  {
-    label: 'Shoulder Cam',
-    value: FollowCameraMode.ShoulderCam
-  },
-  {
-    label: 'Third Person',
-    value: FollowCameraMode.ThirdPerson
-  },
-  {
-    label: 'Top Down',
-    value: FollowCameraMode.TopDown
-  },
-  {
-    label: 'Strategic',
-    value: FollowCameraMode.Strategic
-  },
-  {
-    label: 'Dynamic',
-    value: FollowCameraMode.Dynamic
-  }
-]
 
 /** Types copied from Camera Modes of engine. */
 const projectionTypeSelect = [
@@ -134,14 +105,6 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           options={projectionTypeSelect}
         />
       </InputGroup>
-      <InputGroup name="Camera mode" label={'Camera mode'}>
-        <SelectInput
-          // placeholder={cameraModeSelect[0].label}
-          value={cameraSettings.cameraMode.value}
-          onChange={commitProperty(CameraSettingsComponent, 'cameraMode')}
-          options={cameraModeSelect}
-        />
-      </InputGroup>
       <InputGroup name="Field of view" label={'FOV'}>
         <NumericInput
           onChange={updateProperty(CameraSettingsComponent, 'fov')}
@@ -154,7 +117,12 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           value={cameraSettings.fov.value}
         />
       </InputGroup>
-      <Button onClick={calculateClippingPlanes}>Calculate Clipping Planes</Button>
+      <div className="my-1 flex flex-wrap items-center justify-end">
+        <Button className="flex flex-wrap items-center justify-end" onClick={calculateClippingPlanes}>
+          Calculate Clipping Planes
+        </Button>
+      </div>
+
       <InputGroup name="cameraNearClip" label={'Projection distance'} containerClassName="gap-2">
         <div className="flex gap-2">
           <NumericInput

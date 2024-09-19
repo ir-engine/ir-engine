@@ -53,6 +53,7 @@ import { RendererComponent } from '../WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'
 import { FogShaders } from './FogShaders'
 import { FogComponent } from './SceneComponents'
+import { VisibleComponent } from './VisibleComponent'
 
 const FogSettingsComponentDefaults = {
   type: FogType.Disabled as FogType,
@@ -211,24 +212,6 @@ describe('FogSettingsComponent', () => {
       assertFloatApproxNotEq(result.height, FogSettingsComponentDefaults.height)
       assertFloatApproxEq(result.height, Data.height)
     })
-
-    it('should not change values of an initialized FogSettingsComponent when the data passed had incorrect types', () => {
-      assertFogSettingsComponentEq(getComponent(testEntity, FogSettingsComponent), FogSettingsComponentDefaults)
-      const Incorrect = {
-        type: 1,
-        color: 2,
-        density: 'dense',
-        near: '1234',
-        far: 'far',
-        timeScale: 'timeScale',
-        height: 'height'
-      }
-      // @ts-ignore Coerce the data with incorrect types into the setComponent call
-      setComponent(testEntity, FogSettingsComponent, Incorrect)
-
-      const result = getComponent(testEntity, FogSettingsComponent)
-      assertFogSettingsComponentEq(result, FogSettingsComponentDefaults)
-    })
   }) //:: onSet
 
   describe('reactor', () => {
@@ -238,6 +221,7 @@ describe('FogSettingsComponent', () => {
       createEngine()
       initializeSpatialEngine()
       testEntity = createEntity()
+      setComponent(testEntity, VisibleComponent)
     })
 
     afterEach(() => {
@@ -370,6 +354,7 @@ describe('FogSettingsComponent', () => {
 
       entity = createEntity()
       setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+      setComponent(entity, VisibleComponent)
       setComponent(entity, FogSettingsComponent)
       setComponent(entity, EntityTreeComponent)
 

@@ -24,13 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { MathUtils, Vector2, Vector3 } from 'three'
-import matches from 'ts-matches'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   ECSState,
   Entity,
-  EntityUUID,
   getComponent,
   getMutableComponent,
   removeComponent,
@@ -46,7 +43,7 @@ import {
   hasComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { getState, isClient, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
@@ -62,6 +59,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
@@ -168,6 +166,7 @@ export const updateInteractableUI = (entity: Entity) => {
     } else {
       activateUI = interactable.uiVisibilityOverride !== XRUIVisibilityOverride.off //could be more explicit, needs to be if we add more enum options
     }
+    getMutableComponent(entity, InteractableComponent).canInteract.set(activateUI)
   }
 
   //highlight if hovering OR if closest, otherwise turn off highlight
@@ -235,71 +234,38 @@ const removeInteractableUI = (entity: Entity) => {
 export const InteractableComponent = defineComponent({
   name: 'InteractableComponent',
   jsonID: 'EE_interactable',
-  onInit: () => {
-    return {
-      //TODO reimpliment the frustum culling for interactables
 
-      //TODO check if highlight works properly on init and with non clickInteract
-      //TODO simplify button logic in inputUpdate
+  schema: S.Object({
+    //TODO reimpliment the frustum culling for interactables
 
-      //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
+    //TODO check if highlight works properly on init and with non clickInteract
+    //TODO simplify button logic in inputUpdate
 
-      //TODO canInteract for grabbed state on grabbable?
-      uiInteractable: true,
-      uiEntity: UndefinedEntity,
-      label: 'E',
-      uiVisibilityOverride: XRUIVisibilityOverride.none as XRUIVisibilityOverride,
-      uiActivationType: XRUIActivationType.proximity as XRUIActivationType,
-      activationDistance: 2,
-      clickInteract: false,
-      highlighted: false,
-      callbacks: [] as Array<{
+    //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
+
+    //TODO canInteract for grabbed state on grabbable?
+    canInteract: S.Bool(false),
+    uiInteractable: S.Bool(true),
+    uiEntity: S.Entity(),
+    label: S.String('E'),
+    uiVisibilityOverride: S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none),
+    uiActivationType: S.Enum(XRUIActivationType, XRUIActivationType.proximity),
+    activationDistance: S.Number(2),
+    clickInteract: S.Bool(false),
+    highlighted: S.Bool(false),
+    callbacks: S.Array(
+      S.Object({
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
          */
-        callbackID: null | string
+        callbackID: S.Nullable(S.String()),
         /**
          * empty string represents self
          */
-        target: null | EntityUUID
-      }>
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.label) component.label.set(json.label)
-    if (typeof json.uiActivationType === 'number' && component.uiActivationType.value !== json.uiActivationType)
-      component.uiActivationType.set(json.uiActivationType)
-    if (typeof json.clickInteract === 'boolean' && component.clickInteract.value !== json.clickInteract)
-      component.clickInteract.set(json.clickInteract)
-    if (typeof json.uiInteractable === 'boolean' && component.uiInteractable.value !== json.uiInteractable)
-      component.uiInteractable.set(json.uiInteractable)
-    if (json.activationDistance) component.activationDistance.set(json.activationDistance)
-    if (
-      matches
-        .arrayOf(
-          matches.shape({
-            callbackID: matches.nill.orParser(matches.string),
-            target: matches.nill.orParser(matches.string)
-          })
-        )
-        .test(json.callbacks)
-    ) {
-      component.callbacks.set(json.callbacks)
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      label: component.label.value,
-      clickInteract: component.clickInteract.value,
-      activationDistance: component.activationDistance.value,
-      uiActivationType: component.uiActivationType.value,
-      uiInteractable: component.uiInteractable.value,
-      callbacks: component.callbacks.get(NO_PROXY)
-    }
-  },
+        target: S.Nullable(S.EntityUUID())
+      })
+    )
+  }),
 
   reactor: () => {
     if (!isClient) return null

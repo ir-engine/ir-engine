@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, HemisphereLight } from 'three'
+import { HemisphereLight } from 'three'
 
 import {
   defineComponent,
@@ -34,8 +34,9 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { RendererState } from '../../RendererState'
@@ -46,32 +47,11 @@ export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
   jsonID: 'EE_hemisphere_light',
 
-  onInit: (entity) => {
-    return {
-      skyColor: new Color(),
-      groundColor: new Color(),
-      intensity: 1
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.skyColor) && json.skyColor.isColor) component.skyColor.set(json.skyColor)
-    if (matches.string.test(json.skyColor) || matches.number.test(json.skyColor))
-      component.skyColor.value.set(json.skyColor)
-    if (matches.object.test(json.groundColor) && json.groundColor.isColor) component.groundColor.set(json.groundColor)
-    if (matches.string.test(json.groundColor) || matches.number.test(json.groundColor))
-      component.groundColor.value.set(json.groundColor)
-    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      skyColor: component.skyColor.value,
-      groundColor: component.groundColor.value,
-      intensity: component.intensity.value
-    }
-  },
+  schema: S.Object({
+    skyColor: S.Color(0xffffff),
+    groundColor: S.Color(0xffffff),
+    intensity: S.Number(1)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
@@ -88,6 +68,7 @@ export const HemisphereLightComponent = defineComponent({
         removeObjectFromGroup(entity, light)
       }
     }, [])
+
     useEffect(() => {
       light.groundColor.set(hemisphereLightComponent.groundColor.value)
     }, [hemisphereLightComponent.groundColor])

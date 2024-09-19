@@ -24,30 +24,31 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import type Hls from 'hls.js'
-import { startTransition, useEffect } from 'react'
-import { DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
+import { useEffect, useLayoutEffect } from 'react'
+import { DoubleSide, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
-import { ComponentType, Engine, UndefinedEntity } from '@ir-engine/ecs'
+import { ComponentType, Engine } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { State, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -85,16 +86,14 @@ export const createAudioNodeGroup = (
 export const MediaElementComponent = defineComponent({
   name: 'MediaElement',
 
-  onInit: (entity) => {
-    return {
-      element: undefined! as HTMLMediaElement,
-      hls: undefined as Hls | undefined,
-      abortController: new AbortController()
-    }
-  },
+  schema: S.Object({
+    element: S.Type<HTMLMediaElement>(),
+    hls: S.Optional(S.Type<Hls>()),
+    abortController: S.Class(() => new AbortController())
+  }),
 
   toJSON: () => {
-    return undefined as any as { element: HTMLMediaElement }
+    return null! as { element: HTMLMediaElement }
   },
 
   onSet: (entity, component, json) => {
@@ -103,19 +102,27 @@ export const MediaElementComponent = defineComponent({
       component.element.set(json.element as HTMLMediaElement)
   },
 
-  onRemove: (entity, component) => {
-    const element = component.element.get({ noproxy: true }) as HTMLMediaElement
-    component.hls.value?.destroy()
-    component.hls.set(none)
-    const audioNodeGroup = AudioNodeGroups.get(element)
-    if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
-    AudioNodeGroups.delete(element)
-    element.pause()
-    element.removeAttribute('src')
-    element.load()
-    element.remove()
-    component.element.set(none)
-    component.abortController.value.abort()
+  reactor: () => {
+    const entity = useEntityContext()
+    const mediaElementComponent = useComponent(entity, MediaElementComponent)
+
+    useLayoutEffect(() => {
+      const media = mediaElementComponent.get({ noproxy: true })
+      return () => {
+        if (!entityExists(entity) || !hasComponent(entity, MediaElementComponent)) {
+          const element = media.element as HTMLMediaElement
+          media.hls?.destroy()
+          const audioNodeGroup = AudioNodeGroups.get(element)
+          if (audioNodeGroup && audioNodeGroup.panner) removePannerNode(audioNodeGroup)
+          AudioNodeGroups.delete(element)
+          element.pause()
+          element.removeAttribute('src')
+          element.load()
+          element.remove()
+          media.abortController.abort()
+        }
+      }
+    }, [mediaElementComponent])
   },
 
   errors: ['MEDIA_ERROR', 'HLS_ERROR']
@@ -125,115 +132,47 @@ export const MediaComponent = defineComponent({
   name: 'MediaComponent',
   jsonID: 'EE_media',
 
-  onInit: (entity) => {
+  schema: S.Object({
+    controls: S.Bool(false),
+    synchronize: S.Bool(true),
+    autoplay: S.Bool(true),
+    uiOffset: S.Vec3(),
+    xruiEntity: S.Entity(),
+    volume: S.Number(1),
+    resources: S.Array(S.String()),
+    playMode: S.Enum(PlayMode, PlayMode.loop),
+    isMusic: S.Bool(false),
+    seekTime: S.Number(0),
+    /**@deprecated */
+    paths: S.Array(S.String()),
+    // runtime props
+    paused: S.Bool(true),
+    ended: S.Bool(true),
+    waiting: S.Bool(false),
+    track: S.Number(-1),
+    trackDurations: S.Array(S.Number())
+    /**
+     * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
+     * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
+     * If this value is negative, media playback must be explicitly started.
+     * If this value is non-negative and in the past, playback as soon as possible.
+     * If this value is in the future, begin playback at the appointed time.
+     */
+    // autoStartTime: -1
+  }),
+
+  toJSON: (component) => {
     return {
-      controls: false,
-      synchronize: true,
-      autoplay: true,
-      uiOffset: new Vector3(),
-      xruiEntity: UndefinedEntity,
-      volume: 1,
-      resources: [] as string[],
-      playMode: PlayMode.loop as PlayMode,
-      isMusic: false,
-      seekTime: 0,
-      /**@deprecated */
-      paths: [] as string[],
-      // runtime props
-      paused: true,
-      ended: true,
-      waiting: false,
-      track: 0,
-      trackDurations: [] as number[]
-      /**
-       * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
-       * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
-       * If this value is negative, media playback must be explicitly started.
-       * If this value is non-negative and in the past, playback as soon as possible.
-       * If this value is in the future, begin playback at the appointed time.
-       */
-      // autoStartTime: -1
+      controls: component.controls,
+      autoplay: component.autoplay,
+      resources: [...component.resources].filter(Boolean), // filter empty strings
+      volume: component.volume,
+      uiOffset: component.uiOffset,
+      synchronize: component.synchronize,
+      playMode: component.playMode,
+      isMusic: component.isMusic,
+      seekTime: component.seekTime // we can start media from a specific point if needed
     }
-  },
-
-  onRemove: (entity, component) => {
-    removeComponent(entity, MediaElementComponent)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      controls: component.controls.value,
-      autoplay: component.autoplay.value,
-      resources: [...component.resources.value].filter(Boolean), // filter empty strings
-      volume: component.volume.value,
-      uiOffset: component.uiOffset.value,
-      synchronize: component.synchronize.value,
-      playMode: component.playMode.value,
-      isMusic: component.isMusic.value,
-      seekTime: component.seekTime.value // we can start media from a specific point if needed
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    startTransition(() => {
-      if (typeof (json as any).paths === 'object') {
-        // backwards-compat: update uvol paths to point to the video files
-        const paths = (json as any).paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
-        component.resources.set(paths)
-      }
-      if (typeof json.resources === 'object') {
-        if (typeof json.resources[0] === 'string') {
-          component.resources.set(json.resources)
-        } else {
-          component.resources.set(json.resources.map((resource: any) => resource.path))
-        }
-      }
-
-      if (typeof json.uiOffset === 'object') {
-        component.uiOffset.set(new Vector3(json.uiOffset.x, json.uiOffset.y, json.uiOffset.z))
-      }
-      if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
-        component.controls.set(json.controls)
-
-      // backwars-compat: convert from number enums to strings
-      if (
-        (typeof json.playMode === 'number' || typeof json.playMode === 'string') &&
-        json.playMode !== component.playMode.value
-      ) {
-        if (typeof json.playMode === 'number') {
-          switch (json.playMode) {
-            case 1:
-              component.playMode.set(PlayMode.single)
-              break
-            case 2:
-              component.playMode.set(PlayMode.random)
-              break
-            case 3:
-              component.playMode.set(PlayMode.loop)
-              break
-            case 4:
-              component.playMode.set(PlayMode.singleloop)
-              break
-          }
-        } else {
-          component.playMode.set(json.playMode)
-        }
-      }
-
-      if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
-        component.isMusic.set(json.isMusic)
-
-      if (typeof json.volume === 'number') component.volume.set(json.volume)
-
-      // @ts-ignore deprecated autoplay field
-      if (typeof json.paused === 'boolean') component.autoplay.set(!json.paused)
-      if (typeof json.seekTime === 'number') component.seekTime.set(json.seekTime)
-
-      if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
-
-      if (typeof json.synchronize === 'boolean') component.synchronize.set(json.synchronize)
-    })
   },
 
   reactor: MediaReactor,
@@ -288,6 +227,10 @@ export function MediaReactor() {
       document.body.removeEventListener('touchend', handleAutoplay)
       renderer.domElement.removeEventListener('pointerup', handleAutoplay)
       renderer.domElement.removeEventListener('touchend', handleAutoplay)
+
+      removeComponent(entity, BoundingBoxComponent)
+      removeComponent(entity, InputComponent)
+      removeComponent(entity, MediaElementComponent)
     }
   }, [])
 
@@ -322,6 +265,18 @@ export function MediaReactor() {
       clearErrors(entity, MediaComponent)
 
       const paths = media.resources.value
+
+      // If no paths or currently play path has been removed stop the track from playing
+      // and signal to move to next track if one exists
+      if (hasComponent(entity, MediaElementComponent)) {
+        const mediaElement = getComponent(entity, MediaElementComponent).element
+        if (paths.length === 0 || !paths.includes(mediaElement.src)) {
+          mediaElement.pause()
+          removeComponent(entity, MediaElementComponent)
+          media.ended.set(true)
+        }
+      }
+
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
@@ -368,7 +323,7 @@ export function MediaReactor() {
 
       //check if we haven't set up for single play yet, or if our sources don't match the new resources
       //** todo  make this more robust in a refactor, feels very error prone with edge cases */
-      if (nextTrack === -1 && mediaElement?.element?.src === media.resources.value[0]) return
+      if (nextTrack === -1) return
 
       let path = media.resources.value[nextTrack]
 
@@ -570,11 +525,15 @@ export function setTime(element: State<HTMLMediaElement>, time: number) {
 }
 
 export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayMode) {
-  if (currentMode === PlayMode.single || trackCount === 0) return -1
+  if (trackCount === 0) return -1
 
   let nextTrack = 0
-
-  if (currentMode == PlayMode.random) {
+  if (currentMode == PlayMode.single) {
+    nextTrack = currentTrack + 1
+    if (nextTrack >= trackCount) {
+      return -1
+    }
+  } else if (currentMode == PlayMode.random) {
     // todo: smart random, i.e., lower probability of recently played tracks
     nextTrack = Math.floor(Math.random() * trackCount)
   } else if (currentMode == PlayMode.singleloop) {

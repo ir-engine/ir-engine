@@ -144,12 +144,15 @@ export const InviteService = {
     }
 
     try {
+      const { spawnDetails, ...query } = data
       const existingInviteResult = (await API.instance.service(invitePath).find({
-        query: { ...data, action: 'sent' }
+        query: {
+          ...query,
+          action: 'sent'
+        }
       })) as Paginated<InviteType>
 
-      let inviteResult
-      if (existingInviteResult.total === 0) inviteResult = await API.instance.service(invitePath).create(data)
+      if (existingInviteResult.total === 0) await API.instance.service(invitePath).create(data)
 
       NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
       getMutableState(InviteState).sentUpdateNeeded.set(true)

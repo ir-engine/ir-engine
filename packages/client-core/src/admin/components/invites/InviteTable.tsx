@@ -28,11 +28,12 @@ import { useTranslation } from 'react-i18next'
 import { HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useSearch } from '@ir-engine/common'
 import { invitePath, InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 import { State } from '@ir-engine/hyperflux'
-import { useFind, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import { validate as isValidUUID } from 'uuid'
 
 import { inviteColumns, InviteRowType } from '../../common/constants/invite'
 import DataTable from '../../common/Table'
@@ -62,14 +63,13 @@ export default function InviteTable({
     {
       $or: [
         {
-          userId: {
-            $like: '%' + search + '%'
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
-          inviteeId: {
-            $like: '%' + search + '%'
-          }
+          userId: isValidUUID(search) ? search : undefined
+        },
+        {
+          inviteeId: isValidUUID(search) ? search : undefined
         },
         {
           inviteType: {

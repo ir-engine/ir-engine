@@ -30,29 +30,31 @@ import { MdOutlineViewInAr } from 'react-icons/md'
 import { Object3D, Scene } from 'three'
 
 import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import config from '@ir-engine/common/src/config'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { STATIC_ASSET_REGEX } from '@ir-engine/common/src/regex'
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { recursiveHipsLookup } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { getState, useState } from '@ir-engine/hyperflux'
+import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
+import Accordion from '../../../../primitives/tailwind/Accordion'
 import Button from '../../../../primitives/tailwind/Button'
+import LoadingView from '../../../../primitives/tailwind/LoadingView'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
 import NodeEditor from '../nodeEditor'
-import ScreenshareTargetNodeEditor from '../screenShareTarget'
 import ModelTransformProperties from './transform'
 
 /**
@@ -82,7 +84,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   ])
 
   const getRelativePath = useCallback(() => {
-    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[2]
+    const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3]
     if (!relativePath) {
       return 'assets/new-model'
     } else {
@@ -172,47 +174,58 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           />
         </InputGroup>
       )}
-      {!exporting.value && (
-        <div className="m-2 flex flex-col rounded-md p-1">
-          <div className="property-group-header">{t('editor:properties.model.lbl-export')}</div>
-          <InputGroup name="Export Project" label="Project">
-            <SelectInput
-              value={srcProject.value}
-              options={
-                loadedProjects.value.map((project) => ({
-                  label: project,
-                  value: project
-                })) ?? []
-              }
-              onChange={(val) => srcProject.set(val as string)}
-            />
-          </InputGroup>
-          <InputGroup name="File Path" label="File Path">
-            <StringInput value={srcPath.value} onChange={srcPath.set} />
-          </InputGroup>
-          <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
-            <SelectInput
-              options={[
-                {
-                  label: 'glB',
-                  value: 'glb'
-                },
-                {
-                  label: 'glTF',
-                  value: 'gltf'
+
+      <Accordion
+        className="space-y-4 p-4"
+        title={t('editor:properties.model.lbl-export')}
+        expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+        shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+        titleClassName="text-gray-300"
+        titleFontSize="base"
+      >
+        {!exporting.value && (
+          <>
+            <InputGroup name="Export Project" label="Project">
+              <SelectInput
+                value={srcProject.value}
+                options={
+                  loadedProjects.value.map((project) => ({
+                    label: project,
+                    value: project
+                  })) ?? []
                 }
-              ]}
-              value={exportType.value}
-              onChange={(val) => exportType.set(val as string)}
-            />
-          </InputGroup>
-          <Button className="self-end" onClick={onExportModel}>
-            {t('editor:properties.model.saveChanges')}
-          </Button>
-        </div>
-      )}
-      {exporting.value && <p>Exporting...</p>}
-      <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
+                onChange={(val) => srcProject.set(val as string)}
+              />
+            </InputGroup>
+            <InputGroup name="File Path" label="File Path">
+              <StringInput value={srcPath.value} onChange={srcPath.set} />
+            </InputGroup>
+            <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
+              <SelectInput
+                options={[
+                  {
+                    label: 'glB',
+                    value: 'glb'
+                  },
+                  {
+                    label: 'glTF',
+                    value: 'gltf'
+                  }
+                ]}
+                value={exportType.value}
+                onChange={(val) => exportType.set(val as string)}
+              />
+            </InputGroup>
+            <Button className="self-end" onClick={onExportModel}>
+              {t('editor:properties.model.saveChanges')}
+            </Button>
+          </>
+        )}
+        {exporting.value && (
+          <LoadingView fullSpace className="mb-2 flex h-[20%] w-[20%] justify-center" title=" Exporting..." />
+        )}
+      </Accordion>
+
       {gltfTransformFeatureFlag && (
         <ModelTransformProperties entity={entity} onChangeModel={commitProperty(ModelComponent, 'src')} />
       )}

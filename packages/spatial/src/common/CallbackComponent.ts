@@ -34,7 +34,7 @@ export const enum StandardCallbacks {
 
 export const CallbackComponent = defineComponent({
   name: 'CallbackComponent',
-  onInit: (entity) => new Map<string, (...params: any) => void>()
+  onInit: () => new Map<string, (...params: any) => void>()
 })
 
 export function setCallback(entity: Entity, key: string, callback: (...params: any) => void) {

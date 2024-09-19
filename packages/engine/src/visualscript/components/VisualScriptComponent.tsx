@@ -26,14 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 
-import { cleanStorageProviderURLs, parseStorageProviderURLs } from '@ir-engine/common/src/utils/parseSceneJSON'
 import { Entity } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
+import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@ir-engine/visual-script'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
@@ -45,25 +46,12 @@ export const VisualScriptComponent = defineComponent({
   name: 'VisualScriptComponent',
   jsonID: 'EE_visual_script',
 
-  onInit: (entity) => {
-    const domain = VisualScriptDomain.ECS
-    const visualScript = parseStorageProviderURLs(defaultVisualScript) as unknown as GraphJSON
-    return {
-      domain: domain,
-      visualScript: visualScript,
-      run: false,
-      disabled: false
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      domain: component.domain.value,
-      visualScript: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.visualScript.get({ noproxy: true })))),
-      run: false,
-      disabled: component.disabled.value
-    }
-  },
+  schema: S.Object({
+    domain: S.Enum(VisualScriptDomain, VisualScriptDomain.ECS),
+    visualScript: S.Nullable(S.Type<GraphJSON>()),
+    run: S.Bool(false),
+    disabled: S.Bool(false)
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return
@@ -87,6 +75,11 @@ export const VisualScriptComponent = defineComponent({
     const canPlay = visualScript.run.value && !visualScript.disabled.value
     const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true }) as IRegistry
     const gltfAncestor = useAncestorWithComponents(entity, [GLTFComponent])
+
+    useImmediateEffect(() => {
+      if (visualScript.visualScript.value === null)
+        visualScript.visualScript.set(parseStorageProviderURLs(defaultVisualScript))
+    }, [])
 
     const visualScriptRunner = useVisualScriptRunner({
       visualScriptJson: visualScript.visualScript.get({ noproxy: true }) as GraphJSON,

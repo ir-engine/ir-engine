@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useDidMount } from '@ir-engine/common/src/utils/useDidMount'
 import {
   defineComponent,
   getComponent,
@@ -35,11 +34,11 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useState } from '@ir-engine/hyperflux'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { getMutableState, useDidMount, useState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
-import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -51,7 +50,7 @@ import {
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
-import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { Box3, BufferGeometry, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { ModelComponent } from './ModelComponent'
 
 function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
@@ -112,25 +111,14 @@ function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: numbe
 export const BoundingBoxHelperComponent = defineComponent({
   name: 'BoundingBoxHelperComponent',
 
-  onInit: (entity) => {
-    return {
-      name: 'bounding-box-helper',
-      bbox: new Box3(),
-      density: 2,
-      color: 0xff0000 as ColorRepresentation,
-      layerMask: ObjectLayerMasks.NodeHelper,
-      entity: undefined as undefined | Entity
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json || !json.bbox || !json.bbox.isBox3) throw new Error('BoundingBoxHelperComponent: Requires Box3')
-    component.bbox.set(json.bbox)
-
-    if (typeof json.density === 'number') component.density.set(json.density)
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
-  },
+  schema: S.Object({
+    name: S.String('bounding-box-helper'),
+    bbox: S.Required(S.Type<Box3>()),
+    density: S.Number(2),
+    color: S.Color(0xff0000),
+    layerMask: S.Number(ObjectLayerMasks.NodeHelper),
+    entity: S.Entity()
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
@@ -178,17 +166,9 @@ const originalScale = new Vector3()
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
-  onInit: (entity) => {
-    return {
-      bbox: new Box3()
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    //if (typeof json.density === 'number') component.density.set(json.density)
-    if (typeof json.bbox === 'object' && json.bbox.isBox3) component.bbox.set(json.bbox)
-  },
+  schema: S.Object({
+    bbox: S.Class(() => new Box3())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

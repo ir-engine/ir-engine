@@ -149,35 +149,31 @@ export const LocationService = {
   },
   getLocationByName: async (locationName: string) => {
     LocationState.fetchingCurrentSocialLocation()
-    const locationResult = (await API.instance.service(locationPath).find({
-      query: {
-        slugifiedName: locationName
-      }
-    })) as Paginated<LocationType>
+    try {
+      const locationResult = (await API.instance.service(locationPath).find({
+        query: {
+          slugifiedName: locationName
+        }
+      })) as Paginated<LocationType>
 
-    if (locationResult && locationResult.total > 0) {
-      if (
-        locationResult.data[0].locationSetting?.locationType === 'private' &&
-        !locationResult.data[0].locationAuthorizedUsers?.find((authUser) => authUser.userId === Engine.instance.userID)
-      ) {
-        LocationState.socialLocationNotAuthorized()
-      } else LocationState.socialLocationRetrieved(locationResult.data[0])
-    } else {
-      LocationState.socialLocationNotFound()
-    }
-  },
-  getLobby: async () => {
-    const lobbyResult = (await API.instance.service(locationPath).find({
-      query: {
-        isLobby: true,
-        $limit: 1
+      if (locationResult && locationResult.total > 0) {
+        if (
+          locationResult.data[0].locationSetting?.locationType === 'private' &&
+          !locationResult.data[0].locationAuthorizedUsers?.find(
+            (authUser) => authUser.userId === Engine.instance.userID
+          )
+        ) {
+          LocationState.socialLocationNotAuthorized()
+        } else LocationState.socialLocationRetrieved(locationResult.data[0])
+      } else {
+        LocationState.socialLocationNotFound()
       }
-    })) as Paginated<LocationType>
-
-    if (lobbyResult && lobbyResult.total > 0) {
-      return lobbyResult.data[0]
-    } else {
-      return null
+    } catch (err) {
+      if (err.message.includes('Unable to find projectId'))
+        NotificationService.dispatchNotify('You do not have access to this location.', {
+          variant: 'error',
+          persist: true
+        })
     }
   },
   banUserFromLocation: async (userId: UserID, locationId: LocationID) => {

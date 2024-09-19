@@ -43,8 +43,8 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { AssetType, FileToAssetType } from '@ir-engine/common/src/constants/AssetType'
 import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@ir-engine/common/src/regex'
+import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
@@ -1626,7 +1626,7 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
 const getResourceType = (key: string, resource?: ResourceType) => {
   // TODO: figure out a better way of handling thumbnails rather than by convention
   if (key.startsWith('public/thumbnails') || key.endsWith('.thumbnail.jpg')) return 'thumbnail'
-  if (key.startsWith('public/scenes') && key.endsWith('.gltf')) return 'scene'
+  if (key.startsWith('public/scenes') && (key.endsWith('.gltf') || key.endsWith('.scene.json'))) return 'scene'
   if (!resource) return 'file'
   if (staticResourceClasses.includes(FileToAssetType(key))) return 'asset'
   if (resource.type) return resource.type

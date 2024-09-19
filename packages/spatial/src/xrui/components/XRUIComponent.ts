@@ -23,23 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import type { WebContainer3D } from '@ir-engine/xrui'
+import { useLayoutEffect } from 'react'
 
 export const XRUIComponent = defineComponent({
   name: 'XRUIComponent',
+  schema: S.Type<WebContainer3D>(),
 
-  onInit: (entity) => {
-    return null! as WebContainer3D
-  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const xruiComponent = useComponent(entity, XRUIComponent)
 
-  onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') {
-      component.set(json)
-    }
-  },
+    useLayoutEffect(() => {
+      const xrui = xruiComponent.value
+      return () => {
+        xrui.destroy()
+      }
+    }, [])
 
-  onRemove: (entity, component) => {
-    component.value.destroy()
+    return null
   }
 })

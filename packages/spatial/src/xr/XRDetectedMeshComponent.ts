@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh } from 'three'
-import matches from 'ts-matches'
 
 import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
@@ -34,6 +33,7 @@ import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctio
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
@@ -44,27 +44,14 @@ import { ReferenceSpace, XRState } from './XRState'
 export const XRDetectedMeshComponent = defineComponent({
   name: 'XRDetectedMeshComponent',
 
-  onInit(entity) {
-    return {
-      mesh: null! as XRMesh,
-      // internal
-      shadowMesh: null! as Mesh,
-      occlusionMesh: null! as Mesh,
-      geometry: null! as BufferGeometry,
-      placementHelper: null! as Mesh
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (matches.object.test(json.mesh)) {
-      component.mesh.set(json.mesh as XRMesh)
-    }
-    if (matches.object.test(json.geometry)) {
-      component.geometry.value?.dispose?.()
-      component.geometry.set(json.geometry as BufferGeometry)
-    }
-  },
+  schema: S.Object({
+    mesh: S.Type<XRMesh>(),
+    // internal
+    shadowMesh: S.Type<Mesh>(),
+    occlusionMesh: S.Type<Mesh>(),
+    geometry: S.Type<BufferGeometry>(),
+    placementHelper: S.Type<Mesh>()
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

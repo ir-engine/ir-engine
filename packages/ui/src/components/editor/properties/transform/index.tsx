@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getComponent, hasComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadTagComponent'
@@ -89,7 +89,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     EditorControlFunctions.positionObject(selectedEntities, [value])
   }
 
-  const onChangeRotation = (value: Euler) => {
+  const onChangeRotation = (value: Quaternion) => {
     const selectedEntities = SelectionState.getSelectedEntities()
     EditorControlFunctions.rotateObject(selectedEntities, [value])
   }
@@ -109,7 +109,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         name="Dynamically Load Children"
         label={t('editor:properties.lbl-dynamicLoad')}
         labelClassName="font-normal text-[#6B6D78]"
-        className="w-auto"
+        className="flex w-auto flex-row-reverse flex-nowrap items-center gap-1"
+        containerClassName="mb-4"
       >
         <BooleanInput
           value={hasComponent(props.entity, SceneDynamicLoadTagComponent)}

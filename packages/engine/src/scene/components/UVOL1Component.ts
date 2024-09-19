@@ -37,7 +37,6 @@ import {
   Vector3
 } from 'three'
 
-import { useVideoFrameCallback } from '@ir-engine/common/src/utils/useVideoFrameCallback'
 import { Engine } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -55,11 +54,14 @@ import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AudioState } from '../../audio/AudioState'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
@@ -93,15 +95,30 @@ interface ManifestSchema {
 export const UVOL1Component = defineComponent({
   name: 'UVOL1Component',
 
-  onInit: (entity) => {
-    return {
-      manifestPath: '',
-      data: {} as ManifestSchema,
-      firstGeometryFrameLoaded: false,
-      loadingEffectStarted: false,
-      loadingEffectEnded: false
-    }
-  },
+  schema: S.Object({
+    manifestPath: S.String(''),
+    data: S.Object(
+      {
+        maxVertices: S.Number(),
+        maxTriangles: S.Number(),
+        frameData: S.Array(
+          S.Object({
+            frameNumber: S.Number(),
+            keyframeNumber: S.Number(),
+            startBytePosition: S.Number(),
+            vertices: S.Number(),
+            faces: S.Number(),
+            meshLength: S.Number()
+          })
+        ),
+        frameRate: S.Number()
+      },
+      {}
+    ),
+    firstGeometryFrameLoaded: S.Bool(false),
+    loadingEffectStarted: S.Bool(false),
+    loadingEffectEnded: S.Bool(false)
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return
@@ -160,7 +177,7 @@ function UVOL1Reactor() {
   useEffect(() => {
     if (!getState(AssetLoaderState).cortoLoader) {
       const loader = new CORTOLoader()
-      loader.setDecoderPath(Engine.instance.store.publicPath + '/loader_decoders/')
+      loader.setDecoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/')
       loader.preload()
       const assetLoaderState = getMutableState(AssetLoaderState)
       assetLoaderState.cortoLoader.set(loader)

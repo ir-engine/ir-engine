@@ -1,7 +1,6 @@
 import * as Comlink from 'comlink'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { createWorkerFromCrossOriginURL } from '@ir-engine/common/src/utils/createWorkerFromCrossOriginURL'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -11,10 +10,12 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { SkinnedMeshComponent } from '@ir-engine/engine/src/avatar/components/SkinnedMeshComponent'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { defineActionQueue, getMutableState } from '@ir-engine/hyperflux'
+import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/functions/createWorkerFromCrossOriginURL'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { MediaStreamState } from '../../transports/MediaStreams'
+import logger from '@ir-engine/common/src/logger'
+import { MediaStreamState } from '../MediaStreamState'
 import { WebcamInputComponent } from './WebcamInputComponent'
 
 /*
@@ -59,6 +60,26 @@ let audioContext: AudioContext = null!
 let faceWorker: Comlink.Remote<any> = null!
 let faceVideo: HTMLVideoElement = null!
 let faceCanvas: OffscreenCanvas = null!
+
+export const toggleFaceTracking = async () => {
+  const mediaStreamState = getMutableState(MediaStreamState)
+  if (mediaStreamState.faceTracking.value) {
+    mediaStreamState.faceTracking.set(false)
+    stopFaceTracking()
+    stopLipsyncTracking()
+  } else {
+    try {
+      mediaStreamState.webcamEnabled.set(true)
+      mediaStreamState.microphoneEnabled.set(true)
+    } catch (e) {
+      logger.error(e, 'Error starting camera or mic')
+      return
+    }
+    mediaStreamState.faceTracking.set(true)
+    startFaceTracking()
+    startLipsyncTracking()
+  }
+}
 
 export const stopFaceTracking = () => {
   faceTrackingTimers.forEach((timer) => {
@@ -106,7 +127,7 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = getMutableState(MediaStreamState).videoStream.value
+  faceVideo.srcObject = getMutableState(MediaStreamState).webcamMediaStream.value
   faceVideo.muted = true
   faceVideo.play()
 }
@@ -154,7 +175,9 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(getMutableState(MediaStreamState).audioStream.value!)
+  const inputStream = audioContext.createMediaStreamSource(
+    getMutableState(MediaStreamState).microphoneMediaStream.value!
+  )
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)

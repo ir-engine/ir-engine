@@ -846,6 +846,7 @@ describe('EditorControlFunctions', () => {
       applyIncomingActions()
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
+      console.log('newSnapshot', newSnapshot)
       assert.equal(newSnapshot.nodes?.length, 4)
       assert.equal(newSnapshot.nodes?.[beforeNodeIndex].name, targetNodeName)
     })

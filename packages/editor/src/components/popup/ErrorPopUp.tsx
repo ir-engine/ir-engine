@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import ErrorSharp from '@mui/icons-material/ErrorSharp'
+import { MdError } from 'react-icons/md'
+
 import React from 'react'
 
 import PopUp from './PopUp'
@@ -36,7 +37,14 @@ import PopUp from './PopUp'
  */
 export function ErrorPopup(props) {
   if (!props) return null
-  return <PopUp className="error-pop-up-container" iconClassName="error-pop-up-icon-box" icon={ErrorSharp} {...props} />
+  return (
+    <PopUp
+      className="error-pop-up-container"
+      iconClassName="error-pop-up-icon-box"
+      icon={<MdError className="inline-block shrink-0 text-2xl" />}
+      {...props}
+    />
+  )
 }
 
 export default ErrorPopup

@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
-import matches from 'ts-matches'
 
 import {
   defineComponent,
@@ -41,6 +40,7 @@ import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctio
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
 import { MeshComponent } from '../renderer/components/MeshComponent'
@@ -64,27 +64,14 @@ occlusionMat.polygonOffsetFactor = -0.01
 export const XRDetectedPlaneComponent = defineComponent({
   name: 'XRDetectedPlaneComponent',
 
-  onInit(entity) {
-    return {
-      plane: null! as XRPlane,
-      // internal
-      shadowMesh: null! as Mesh,
-      occlusionMesh: null! as Mesh,
-      geometry: null! as BufferGeometry,
-      placementHelper: null! as Mesh
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (matches.object.test(json.plane)) {
-      component.plane.set(json.plane as XRPlane)
-    }
-    if (matches.object.test(json.geometry)) {
-      component.geometry.value?.dispose?.()
-      component.geometry.set(json.geometry as BufferGeometry)
-    }
-  },
+  schema: S.Object({
+    plane: S.Type<XRPlane>(),
+    // internal
+    shadowMesh: S.Type<Mesh>(),
+    occlusionMesh: S.Type<Mesh>(),
+    geometry: S.Type<BufferGeometry>(),
+    placementHelper: S.Type<Mesh>()
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

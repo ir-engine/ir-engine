@@ -57,7 +57,7 @@ const TableHeadRow = ({
   children: JSX.Element | JSX.Element[]
 }) => {
   const twClassName = twMerge('text-left capitalize', className)
-  const twClassNameThead = twMerge('sticky top-0 bg-theme-table-secondary', theadClassName)
+  const twClassNameThead = twMerge('sticky top-0 z-10 bg-theme-table-secondary', theadClassName)
   return (
     <thead className={twClassNameThead}>
       <tr className={twClassName}>{children}</tr>
@@ -199,6 +199,23 @@ const TablePagination = ({
           </li>
         ))}
 
+        {totalPages > 0 && nextPages[nextPages.length - 1] < totalPages - 2 && (
+          <li>
+            <button disabled={true} className={commonClasses}>
+              ...
+            </button>
+          </li>
+        )}
+
+        {totalPages > 0 && nextPages[nextPages.length - 1] < totalPages - 1 && (
+          <>
+            <li key={totalPages}>
+              <button onClick={() => onPageChange(totalPages - 1)} className={commonClasses}>
+                {totalPages}
+              </button>
+            </li>
+          </>
+        )}
         <li>
           <button
             disabled={currentPage === totalPages - 1}

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EventDispatcher } from '@ir-engine/spatial/src/common/classes/EventDispatcher'
+import { EventDispatcher } from '@ir-engine/hyperflux'
 import { DOMMatrix, DOMMatrixReadOnly, DOMPoint, DOMPointReadOnly } from './patchDOMMatrix'
 
 if (!globalThis.navigator) {

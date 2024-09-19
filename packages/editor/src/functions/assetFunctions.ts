@@ -31,9 +31,8 @@ import {
 import { API } from '@ir-engine/common'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
-
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
@@ -78,7 +77,19 @@ export const inputFileWithAddToScene = ({
 
     el.onchange = async () => {
       try {
-        if (el.files?.length) await handleUploadFiles(projectName, directoryPath, el.files)
+        if (el.files?.length) {
+          const newFiles: File[] = []
+          for (let i = 0; i < el.files.length; i++) {
+            let fileName = el.files[i].name
+            if (fileName.length > 64) {
+              fileName = fileName.slice(0, 64)
+            } else if (fileName.length < 4) {
+              fileName = fileName + '0000'
+            }
+            newFiles.push(new File([el.files[i]], fileName, { type: el.files[i].type }))
+          }
+          await handleUploadFiles(projectName, directoryPath, el.files)
+        }
         resolve(null)
       } catch (err) {
         reject(err)
@@ -119,7 +130,11 @@ export async function clearModelResources(projectName: string, modelName: string
   }
 }
 
-export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {
+export const uploadProjectAssetsFromUpload = async (
+  projectName: string,
+  entries: FileSystemEntry[],
+  onProgress = (...args: any[]) => {}
+) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < entries.length; i++) {
@@ -157,7 +172,12 @@ export const processEntry = async (
     const path = `assets${directory}/` + name
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { projectName, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        { args: [{ project: projectName, path, contentType: file.type }] },
+        onProgress
+      )
     )
   }
 }

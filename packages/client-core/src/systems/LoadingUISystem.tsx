@@ -42,7 +42,6 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { defineState, getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -65,6 +64,7 @@ import type { WebLayer3D } from '@ir-engine/xrui'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
+import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { LoadingSystemState } from './state/LoadingState'
@@ -334,7 +334,7 @@ const Reactor = () => {
   const themeState = useMutableState(AppThemeState)
   const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
+  const sceneEntity = useLoadedSceneEntity(locationSceneID)
   const gltfDocumentState = useMutableState(GLTFDocumentState)
 
   useEffect(() => {

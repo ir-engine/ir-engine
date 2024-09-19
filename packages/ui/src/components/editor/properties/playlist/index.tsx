@@ -29,11 +29,10 @@ import { useTranslation } from 'react-i18next'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 
-import { usePrevious } from '@ir-engine/common/src/utils/usePrevious'
 import { Entity } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
-import { NO_PROXY, State, none } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, none, usePrevious } from '@ir-engine/hyperflux'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { IoMdAdd, IoMdPause, IoMdPlay, IoMdSkipBackward, IoMdSkipForward } from 'react-icons/io'
@@ -95,7 +94,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
     commitProperties(
       PlaylistComponent,
       {
-        tracks: component.tracks.value
+        tracks: component.tracks.value as Track[]
       },
       [props.entity]
     )
@@ -127,7 +126,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
       commitProperties(
         PlaylistComponent,
         {
-          tracks: component.tracks.value
+          tracks: component.tracks.value as Track[]
         },
         [props.entity]
       )
@@ -165,7 +164,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
                         commitProperties(
                           PlaylistComponent,
                           {
-                            tracks: component.tracks.value
+                            tracks: component.tracks.value as Track[]
                           },
                           [props.entity]
                         )
