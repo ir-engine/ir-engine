@@ -348,7 +348,8 @@ export const AuthService = {
         if (
           err.className === 'not-found' ||
           (err.className === 'not-authenticated' && err.message === 'jwt expired') ||
-          (err.className === 'not-authenticated' && err.message === 'invalid algorithm')
+          (err.className === 'not-authenticated' && err.message === 'invalid algorithm') ||
+          (err.className === 'not-authenticated' && err.message === 'invalid signature')
         ) {
           authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
