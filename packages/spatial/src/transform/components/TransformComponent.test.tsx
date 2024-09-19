@@ -23,10 +23,47 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
+import {
+  UndefinedEntity,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeEntity,
+  serializeComponent,
+  setComponent
+} from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
+import { Matrix4, Quaternion, Vector3 } from 'three'
+import { assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { TransformComponent, TransformECS, TransformGizmoTagComponent } from './TransformComponent'
+
+type TransformComponentData = {
+  position: Vector3
+  rotation: Quaternion
+  scale: Vector3
+  matrix: Matrix4
+  matrixWorld: Matrix4
+}
+
+const TransformComponentDefaults: TransformComponentData = {
+  position: new Vector3(),
+  rotation: new Quaternion(0, 0, 0, 0),
+  scale: new Vector3(1, 1, 1),
+  matrix: new Matrix4(),
+  matrixWorld: new Matrix4()
+}
+
+function assertTransformComponentEq(A: TransformComponentData, B: TransformComponentData): void {
+  assertVecApproxEq(A.position, B.position, 3)
+  assertVecApproxEq(A.rotation, B.rotation, 4)
+  assertVecApproxEq(A.scale, B.scale, 3)
+  assertArrayEqual(A.matrix.elements, B.matrix.elements)
+  assertArrayEqual(A.matrixWorld.elements, B.matrixWorld.elements)
+}
 
 describe('TransformComponent', () => {
   describe('Fields', () => {
@@ -43,15 +80,164 @@ describe('TransformComponent', () => {
     })
   }) //:: Fields
 
-  describe('onInit', () => {}) //:: onInit
-  describe('onSet', () => {}) //:: onSet
-  describe('toJSON', () => {}) //:: toJSON
-  describe('reactor', () => {}) //:: reactor
-  describe('getWorldPosition', () => {}) //:: getWorldPosition
-  describe('getMatrixRelativeToEntity', () => {}) //:: getMatrixRelativeToEntity
-  describe('getMatrixRelativeToScene', () => {}) //:: getMatrixRelativeToScene
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should initialize the *Component with the expected default values', () => {
+      const result = getComponent(testEntity, TransformComponent)
+      assertTransformComponentEq(result, TransformComponentDefaults)
+    })
+  }) //:: onInit
+
+  describe('onSet', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should change the values of an initialized TransformComponent', () => {
+      const before = getComponent(testEntity, TransformComponent)
+      assertTransformComponentEq(before, TransformComponentDefaults)
+      const Expected = {
+        position: new Vector3(1, 2, 3),
+        rotation: new Quaternion(4, 5, 6, 7).normalize(),
+        scale: new Vector3(8, 9, 10),
+        matrix: new Matrix4(), // Ignored by onSet
+        matrixWorld: new Matrix4() // Ignored by onSet
+      }
+      setComponent(testEntity, TransformComponent, Expected)
+      const after = getComponent(testEntity, TransformComponent)
+      assertTransformComponentEq(after, Expected)
+    })
+
+    it('should not change values of an initialized TransformComponent when the data passed had incorrect types', () => {
+      const before = getComponent(testEntity, TransformComponent)
+      assertTransformComponentEq(before, TransformComponentDefaults)
+      const Incorrect = {
+        position: 'somePosition',
+        rotation: 'someRotation',
+        scale: false,
+        matrix: true,
+        matrixWorld: 42
+      }
+      // @ts-ignore Coerce incorrectly typed data into the onSet call
+      setComponent(testEntity, TransformComponent, Incorrect)
+      const after = getComponent(testEntity, TransformComponent)
+      assertTransformComponentEq(before, after)
+    })
+  }) //:: onSet
+
+  describe('toJSON', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it("should serialize the component's data correctly", () => {
+      const Expected = {
+        position: { x: 0, y: 0, z: 0 },
+        rotation: { x: 0, y: 0, z: 0, w: 0 },
+        scale: { x: 1, y: 1, z: 1 }
+      }
+      const json = serializeComponent(testEntity, TransformComponent)
+      assert.deepEqual(json, Expected)
+    })
+  }) //:: toJSON
+
+  /**
+  // @todo
+  describe('reactor', () => { }) //:: reactor
+  */
+
+  describe('getWorldPosition', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should set `@param vec3`.x to the value of `@param entity`.TransformComponent.matrixWorld.elements[12] ', () => {
+      const Expected = 42
+      const ID = 12
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      assert.notEqual(getComponent(testEntity, TransformComponent).matrixWorld.elements[ID], Expected)
+      // Set the data as expected
+      getMutableComponent(testEntity, TransformComponent).matrixWorld.elements[ID].set(Expected)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.getWorldPosition(testEntity, result)
+      assert.equal(result.x, Expected)
+    })
+
+    it('should set `@param vec3`.y to the value of `@param entity`.TransformComponent.matrixWorld.elements[13]', () => {
+      const Expected = 42
+      const ID = 13
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      assert.notEqual(getComponent(testEntity, TransformComponent).matrixWorld.elements[ID], Expected)
+      // Set the data as expected
+      getMutableComponent(testEntity, TransformComponent).matrixWorld.elements[ID].set(Expected)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.getWorldPosition(testEntity, result)
+      assert.equal(result.y, Expected)
+    })
+
+    it('should set `@param vec3`.z to the value of `@param entity`.TransformComponent.matrixWorld.elements[14]', () => {
+      const Expected = 42
+      const ID = 14
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      assert.notEqual(getComponent(testEntity, TransformComponent).matrixWorld.elements[ID], Expected)
+      // Set the data as expected
+      getMutableComponent(testEntity, TransformComponent).matrixWorld.elements[ID].set(Expected)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.getWorldPosition(testEntity, result)
+      assert.equal(result.z, Expected)
+    })
+  }) //:: getWorldPosition
+
   describe('getWorldRotation', () => {}) //:: getWorldRotation
   describe('getWorldScale', () => {}) //:: getWorldScale
+
+  describe('getMatrixRelativeToEntity', () => {}) //:: getMatrixRelativeToEntity
+  describe('getMatrixRelativeToScene', () => {}) //:: getMatrixRelativeToScene
   describe('getSceneScale', () => {}) //:: getSceneScale
   describe('updateFromWorldMatrix', () => {}) //:: updateFromWorldMatrix
   describe('setWorldPosition', () => {}) //:: setWorldPosition
