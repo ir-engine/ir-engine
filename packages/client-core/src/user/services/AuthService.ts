@@ -214,15 +214,15 @@ const getToken = async (): Promise<string> => {
             if (data.skipCrossOriginCookieCheck === true || data.storageAccessPermission === 'denied') {
               localStorage.setItem('skipCrossOriginCookieCheck', 'true')
               iframe.style.visibility = 'hidden'
-              return ''
+              resolve('')
             } else {
               const token = waitForToken(win, clientUrl)
               iframe.style.visibility = 'hidden'
-              return token
+              resolve(token)
             }
           } catch (err) {
             //Do nothing
-            return ''
+            resolve('')
           } finally {
             window.removeEventListener('message', clickResponseListener)
           }
