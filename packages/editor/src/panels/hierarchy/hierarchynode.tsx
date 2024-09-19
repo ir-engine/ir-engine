@@ -35,7 +35,6 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { HierarchyTreeNodeType } from '@ir-engine/editor/src/components/hierarchy/HierarchyTreeWalker'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -59,7 +58,7 @@ import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import { deleteNode } from './helpers'
+import { deleteNode, HierarchyTreeNodeType } from './helpers'
 import {
   useHierarchyNodes,
   useHierarchyTreeContextMenu,
