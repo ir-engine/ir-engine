@@ -85,7 +85,7 @@ const RigidBodyComponentDefaults = {
 export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
   assert.equal(A.length, B.length, err + ': Their length is not the same')
   for (let id = 0; id < A.length && id < B.length; id++) {
-    assert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same`)
+    assert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same : ${A[id]} : ${B[id]}`)
   }
 }
 
