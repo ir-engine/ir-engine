@@ -4,6 +4,17 @@
     <link rel="stylesheet" href="cookie-accessor.css" />
     <script>
       let origin
+
+      function getCookies() {
+        return document.cookie.split('; ').reduce((accumulator, current) => {
+          const values = current.split('=')
+          accumulator[values[0]] = values[1]
+          return accumulator
+        }, {})
+      }
+
+      let cookiesMapObj = getCookies()
+
       const processMessage = async (e) => {
         origin = e.origin
         const payload = e?.data?.payload
@@ -19,11 +30,8 @@
             }
             break
           case 'get':
-            const result = document.cookie
-              .split('; ')
-              .find((row) => row.startsWith(`${payload.key}=`))
-              ?.split('=')[1]
-            if (result === undefined) {
+            const result = cookiesMapObj[payload.key]
+            if (result === undefined || result === '') {
               message.success = false
               parent.postMessage(message, e.origin)
               break
@@ -40,9 +48,7 @@
             parent.postMessage(message, e.origin)
             break
           case 'checkAccess':
-            const cookieSet =
-              document.cookie &&
-              document.cookie.split('; ').find((row) => row.startsWith(`visited=`) || row.startsWith('allowedDomains='))
+            const cookieSet = cookiesMapObj['visited'] || cookiesMapObj['allowedDomains']
             if (!document.hasStorageAccess) {
               message.data.hasStorageAccess = false
               message.data.cookieSet = cookieSet
@@ -61,13 +67,8 @@
               } else {
                 try {
                   await document.requestStorageAccess()
-                  const postCookieSet =
-                    document.cookie &&
-                    document.cookie
-                      .split('; ')
-                      .find((row) => row.startsWith(`visited=`) || row.startsWith('allowedDomains='))
                   message.data.hasStorageAccess = true
-                  message.data.cookieSet = postCookieSet
+                  message.data.cookieSet = cookieSet
                   parent.postMessage(message, e.origin)
                   break
                 } catch (err) {
@@ -91,10 +92,11 @@
       }
       window.onmessage = async function (e) {
         let allowedDomains
+        cookiesMapObj = getCookies()
         try {
           await document.requestStorageAccess()
-          const allowedDomainCookie = document.cookie.split('; ').find((row) => row.startsWith(`allowedDomains=`))
-          allowedDomains = allowedDomainCookie ? JSON.parse(allowedDomainCookie.split('=')[1]) : []
+          const allowedDomainCookie = cookiesMapObj['allowedDomains']
+          allowedDomains = allowedDomainCookie !== '' ? JSON.parse(allowedDomains) : []
         } catch (err) {
           allowedDomains = []
         }
@@ -106,6 +108,7 @@
             if (body) {
               allowedDomains.push(e.origin)
               document.cookie = `allowedDomains=${JSON.stringify(allowedDomains)}; SameSite=None; Secure`
+              cookiesMapObj = getCookies()
               await processMessage(e)
             }
           } else {
@@ -119,11 +122,8 @@
           try {
             const requestStorageAccessResponse = await document.requestStorageAccess()
             if (requestStorageAccessResponse == null) {
-              const cookieSet =
-                document.cookie &&
-                document.cookie
-                  .split('; ')
-                  .find((row) => row.startsWith(`visited=`) || row.startsWith('allowedDomains='))
+              cookiesMapObj = getCookies()
+              const cookieSet = cookiesMapObj['visited'] || cookiesMapObj['allowedDomains']
               parent.postMessage({ success: true, data: { hasStorageAccess: true, cookieSet } }, origin)
             }
           } catch (err) {
@@ -139,17 +139,12 @@
           parent.postMessage({ success: true, data: { skipCrossOriginCookieCheck: true } }, origin)
 
         let data
-        if (document.cookie)
-          try {
-            data = JSON.parse(
-              document.cookie
-                .split('; ')
-                .find((row) => row.startsWith('ir.hyperflux.AuthState.authUser='))
-                ?.split('=')[1]
-            )
-          } catch {
-            //do nothing
-          }
+        if (document.cookie) cookiesMapObj = getCookies()
+        try {
+          data = JSON.parse(cookiesMapObj['ir.hyperflux.AuthState.authUser'])
+        } catch {
+          //do nothing
+        }
         if (data) {
           const token = data.accessToken
           const userId = data.identityProvider.userId
