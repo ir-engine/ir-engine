@@ -8,9 +8,9 @@
       function getCookies() {
         return document.cookie.split('; ').reduce((accumulator, current) => {
           const values = current.split('=')
-          accumulator[values[0]] = values[1]
+          accumulator.set(values[0], values[1])
           return accumulator
-        }, {})
+        }, new Map())
       }
 
       let cookiesMapObj = getCookies()
@@ -30,7 +30,7 @@
             }
             break
           case 'get':
-            const result = cookiesMapObj[payload.key]
+            const result = cookiesMapObj.get(payload.key)
             if (result === undefined || result === '') {
               message.success = false
               parent.postMessage(message, e.origin)
@@ -48,7 +48,7 @@
             parent.postMessage(message, e.origin)
             break
           case 'checkAccess':
-            const cookieSet = cookiesMapObj['visited'] || cookiesMapObj['allowedDomains']
+            const cookieSet = cookiesMapObj.get('visited') || cookiesMapObj.get('allowedDomains')
             if (!document.hasStorageAccess) {
               message.data.hasStorageAccess = false
               message.data.cookieSet = cookieSet
@@ -95,7 +95,7 @@
         cookiesMapObj = getCookies()
         try {
           await document.requestStorageAccess()
-          const allowedDomainCookie = cookiesMapObj['allowedDomains']
+          const allowedDomainCookie = cookiesMapObj.get('allowedDomains')
           allowedDomains = allowedDomainCookie !== '' ? JSON.parse(allowedDomains) : []
         } catch (err) {
           allowedDomains = []
