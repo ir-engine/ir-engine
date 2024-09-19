@@ -663,6 +663,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           endIcon={<Icon type="Check" />}
           onEndIconClick={updateUserName}
           onChange={handleUsernameChange}
+          maxLength={64}
           onKeyDown={(e) => {
             if (e.key === 'Enter') updateUserName(e)
           }}

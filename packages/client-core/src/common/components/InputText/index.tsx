@@ -58,6 +58,7 @@ interface Props {
   sx?: SxProps<Theme>
   type?: string
   value?: unknown
+  maxLength?: number
   onChange?: (e: any) => void
   onKeyDown?: (e: any) => void
   onBlur?: (e: any) => void
@@ -84,6 +85,7 @@ const InputText = ({
   sx,
   type,
   value,
+  maxLength,
   onChange,
   onKeyDown,
   onBlur,
@@ -133,6 +135,7 @@ const InputText = ({
             sx={{ opacity: disabled ? 0.38 : 1 }}
             type={type}
             value={value}
+            inputProps={{ maxLength }}
             startAdornment={
               <>
                 {startIcon && (
