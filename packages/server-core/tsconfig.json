@@ -26,10 +26,7 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": [
-      "vite/client",
-      "mocha"
-    ]
+    "types": ["vite/client"]
   },
   "exclude": [
     "../projects/projects/**",
