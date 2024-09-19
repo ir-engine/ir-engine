@@ -27,7 +27,6 @@ import { GLTF } from '@gltf-transform/core'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { Entity, entityExists, EntityUUID, getComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -123,8 +122,6 @@ function buildHierarchyTree(
   const entity = UUIDComponent.getEntityByUUID(uuid!)
   if (!entity || !entityExists(entity)) return
 
-  const isModified = hasComponent(entity, ModelComponent) && !!getState(GLTFModifiedState)[getModelSceneID(entity)]
-
   const item = {
     depth,
     childIndex,
@@ -132,7 +129,6 @@ function buildHierarchyTree(
     isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[entity],
     children: [],
     isLeaf: !(node.children && node.children.length > 0),
-    isModified,
     lastChild: lastChild
   }
   array.push(item)
