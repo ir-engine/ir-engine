@@ -131,7 +131,7 @@ export default function ServerTable({
 
   return (
     <DataTable
-      className="h-[calc(100vh_-_402px)]"
+      size="sm"
       query={serverInfoQuery}
       columns={serverColumns}
       rows={createRows(serverInfoQuery.data.find((serverInfo) => serverInfo.id === serverType)?.pods || [])}

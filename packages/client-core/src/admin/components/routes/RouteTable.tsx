@@ -67,12 +67,5 @@ export default function RoutesTable() {
       })
       .flat()
 
-  return (
-    <DataTable
-      className="h-[calc(100vh_-_318px)]"
-      query={routesQuery}
-      columns={routeColumns}
-      rows={createRows(installedRouteData)}
-    />
-  )
+  return <DataTable size="xl" query={routesQuery} columns={routeColumns} rows={createRows(installedRouteData)} />
 }

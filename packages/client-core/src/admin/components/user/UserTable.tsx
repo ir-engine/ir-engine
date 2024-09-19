@@ -169,7 +169,7 @@ export default function UserTable({
 
   return (
     <DataTable
-      className="h-[calc(100vh_-_386px)]"
+      size="lg"
       query={adminUserQuery}
       columns={[
         {

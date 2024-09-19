@@ -132,7 +132,7 @@ export default function LocationTable({ search }: { search: string }) {
 
   return (
     <DataTable
-      className="h-[calc(100vh_-_318px)]"
+      size="xl"
       query={adminLocationQuery}
       columns={locationColumns}
       rows={createRows(adminLocationQuery.data)}

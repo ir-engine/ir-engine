@@ -74,5 +74,7 @@ export default function ApiJobsTable() {
       returnData: row.returnData
     }))
 
-  return <DataTable query={adminApiJobsQuery} columns={apiJobColumns} rows={createRows(adminApiJobsQuery.data)} />
+  return (
+    <DataTable size="sm" query={adminApiJobsQuery} columns={apiJobColumns} rows={createRows(adminApiJobsQuery.data)} />
+  )
 }

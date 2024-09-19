@@ -105,12 +105,5 @@ export default function ResourceTable({ search }: { search: string }) {
       return createData(el)
     })
 
-  return (
-    <DataTable
-      className="h-[calc(100vh_-_318px)]"
-      query={resourceQuery}
-      columns={resourceColumns}
-      rows={createRows()}
-    />
-  )
+  return <DataTable size="xl" query={resourceQuery} columns={resourceColumns} rows={createRows()} />
 }

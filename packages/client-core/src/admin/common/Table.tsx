@@ -91,9 +91,10 @@ interface DataTableProps {
   query: ReturnType<typeof useFind>
   rows: RowType[]
   columns: ITableHeadCell[]
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
-const DataTable = ({ query, columns, rows, className }: DataTableProps) => {
+const DataTable = ({ query, columns, rows, className, size }: DataTableProps) => {
   const { t } = useTranslation()
 
   const storedRows = useHookstate<{ fetched: boolean; rows: RowType[] }>({ fetched: false, rows: [] })
@@ -121,7 +122,9 @@ const DataTable = ({ query, columns, rows, className }: DataTableProps) => {
           <Text className="mx-1">{t('common:table.refetching')}</Text>
         </div>
       )}
-      <Table containerClassName={twMerge(`${query.status === 'pending' && 'opacity-50'}`, className)}>
+      <Table
+        containerClassName={twMerge(`${query.status === 'pending' && 'opacity-50'} table-size-${size}`, className)}
+      >
         <TableHead
           order={query.sort}
           onRequestSort={(property, order) => query.setSort({ [property]: order })}

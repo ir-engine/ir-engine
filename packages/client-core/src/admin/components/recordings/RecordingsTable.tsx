@@ -96,11 +96,6 @@ export default function RecordingsTable({ search }: { search: string }) {
     }))
 
   return (
-    <DataTable
-      className="h-[calc(100vh_-_318px)]"
-      query={recordingsQuery}
-      columns={recordingColumns}
-      rows={createRows(recordingsQuery.data)}
-    />
+    <DataTable size="xl" query={recordingsQuery} columns={recordingColumns} rows={createRows(recordingsQuery.data)} />
   )
 }

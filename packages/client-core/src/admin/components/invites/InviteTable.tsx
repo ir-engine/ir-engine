@@ -124,7 +124,7 @@ export default function InviteTable({
 
   return (
     <DataTable
-      className="h-[calc(100vh_-_318px)]"
+      size="xl"
       query={adminInviteQuery}
       columns={[
         {

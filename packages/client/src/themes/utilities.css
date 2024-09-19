@@ -1,1 +1,25 @@
 @import "tailwindcss/utilities";
+
+.table-size-xs {
+  height: calc(100vh - 436px);
+}
+
+.table-size-sm {
+  height: calc(100vh - 418px);
+}
+
+.table-size-md {
+  height: calc(100vh - 402px);
+}
+
+.table-size-lg {
+  height: calc(100vh - 386px);
+}
+
+.table-size-xl {
+  height: calc(100vh - 318px);
+}
+
+.table-size-full {
+  height: 100%;
+}
