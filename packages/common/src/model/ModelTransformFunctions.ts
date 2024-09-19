@@ -600,11 +600,6 @@ const createTextureOperations = (
     }
   }
 
-  if (eeMaterialExtension) {
-    for (const texture of eeMaterialExtension.textures) {
-      document.createTexture().copy(texture)
-    }
-  }
   return operations
 }
 
@@ -819,6 +814,18 @@ export const transformModel = async (
   }
 
   const results: string[] = []
+
+  for (const document of documents) {
+    const eeMaterialExtension: EEMaterialExtension | undefined = document
+      .getRoot()
+      .listExtensionsUsed()
+      .find((ext) => ext.extensionName === 'EE_material') as EEMaterialExtension
+    if (eeMaterialExtension) {
+      for (const texture of eeMaterialExtension.textures) {
+        document.createTexture().copy(texture)
+      }
+    }
+  }
 
   for (let i = 0; i < numDocOperations; i++) {
     onProgress?.((i + 1 + numTextureOperations) / totalProgressSteps, Status.WritingFiles)
