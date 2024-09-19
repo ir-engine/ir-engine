@@ -23,22 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { Types } from 'bitecs'
 
-const argTypes = {}
-
-export default {
-  title: 'Editor/Panel/Hierarchy',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'HierarchyPanelTitle',
-    jest: 'HierarchyPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+const { f64 } = Types
+export const ECSSchema = {
+  Vec3: { x: f64, y: f64, z: f64 },
+  Quaternion: { x: f64, y: f64, z: f64, w: f64 },
+  Mat4: [f64, 16] as const
 }
-
-export const Default = { args: {} }

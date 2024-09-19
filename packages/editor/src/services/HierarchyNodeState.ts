@@ -23,32 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { Entity } from '@ir-engine/ecs'
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import MaterialLibraryPanel from './container'
-
-export const MaterialsPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <span>{'Materials'}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+interface IExpandedNodes {
+  [scene: string]: {
+    [entity: Entity]: true
+  }
 }
 
-export default MaterialsPanelTitle
-
-export const MaterialsPanelTab: TabData = {
-  id: 'materialsPanel',
-  closable: true,
-  title: <MaterialsPanelTitle />,
-  content: <MaterialLibraryPanel />
-}
+export const HierarchyTreeState = defineState({
+  name: 'HierarchyTreeState',
+  initial: {
+    expandedNodes: {} as IExpandedNodes,
+    search: { local: '', query: '' },
+    firstSelectedEntity: null as Entity | null
+  },
+  extension: syncStateWithLocalStorage(['expandedNodes'])
+})

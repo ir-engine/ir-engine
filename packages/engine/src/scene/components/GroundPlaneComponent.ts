@@ -28,6 +28,7 @@ import { ColorRepresentation, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMa
 
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { matches } from '@ir-engine/hyperflux'
 import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
@@ -41,6 +42,11 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
   jsonID: 'EE_ground_plane',
+
+  schema: S.Object({
+    color: S.Color(0xffffff),
+    visible: S.Bool(true)
+  }),
 
   onInit(entity) {
     return {
@@ -56,10 +62,10 @@ export const GroundPlaneComponent = defineComponent({
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
   },
 
-  toJSON(entity, component) {
+  toJSON: (component) => {
     return {
-      color: component.color.value,
-      visible: component.visible.value
+      color: component.color,
+      visible: component.visible
     }
   },
 

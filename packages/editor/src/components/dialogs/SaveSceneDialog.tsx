@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 import { getComponent } from '@ir-engine/ecs'
@@ -57,6 +58,7 @@ export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => 
     } else if (!sceneModified) {
       PopoverState.hidePopupover()
       if (props.onCancel) props.onCancel()
+      NotificationService.dispatchNotify(t('editor:dialog.saveScene.info-save-success'), { variant: 'success' })
       return
     }
 
@@ -64,6 +66,7 @@ export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => 
 
     try {
       await saveSceneGLTF(sceneAssetID!, projectName, sceneName, abortController.signal)
+      NotificationService.dispatchNotify(t('editor:dialog.saveScene.info-save-success'), { variant: 'success' })
       const sourceID = getComponent(rootEntity, SourceComponent)
       getMutableState(GLTFModifiedState)[sourceID].set(none)
 

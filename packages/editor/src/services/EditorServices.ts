@@ -27,7 +27,7 @@ import { LayoutData } from 'rc-dock'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { EntityUUID, getComponent } from '@ir-engine/ecs'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -40,12 +40,6 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-
-interface IExpandedNodes {
-  [scene: string]: {
-    [entity: Entity]: true
-  }
-}
 
 export enum UIMode {
   BASIC = 'BASIC',
@@ -67,7 +61,6 @@ export const EditorState = defineState({
     scenePath: null as string | null,
     /** just used to store the id of the current scene asset */
     sceneAssetID: null as string | null,
-    expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
@@ -76,7 +69,8 @@ export const EditorState = defineState({
     uiAddons: {
       container: {},
       newScene: {}
-    } as StudioUIAddons
+    } as StudioUIAddons,
+    acknowledgedUnsupportedBrowser: false
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
@@ -89,7 +83,6 @@ export const EditorState = defineState({
     if (!rootEntity) return false
     return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
   },
-  extension: syncStateWithLocalStorage(['expandedNodes']),
   reactor: () => {
     const linkState = useMutableState(LinkState)
 
@@ -101,5 +94,6 @@ export const EditorState = defineState({
     }, [linkState.location])
 
     return null
-  }
+  },
+  extension: syncStateWithLocalStorage(['acknowledgedUnsupportedBrowser'])
 })

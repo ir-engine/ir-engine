@@ -23,22 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+const { defineProperties } = Object
 
-const argTypes = {}
-
-export default {
-  title: 'Editor/Panel/Materials',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'MaterialsPanelTitle',
-    jest: 'MaterialsPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+export const ProxyWithECS = <T>(store: Record<string | keyof T, any>, obj: T, ...keys: (keyof T)[]) => {
+  return defineProperties(
+    obj,
+    keys.reduce(
+      (accum, key) => {
+        accum[key] = {
+          get() {
+            return store[key]
+          },
+          set(n) {
+            return (store[key] = n)
+          },
+          configurable: true
+        }
+        return accum
+      },
+      {} as Record<keyof T, any>
+    )
+  )
 }
-
-export const Default = { args: {} }

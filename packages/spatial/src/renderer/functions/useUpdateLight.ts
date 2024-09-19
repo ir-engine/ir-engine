@@ -28,6 +28,8 @@ import { DirectionalLight, SpotLight, Vector3 } from 'three'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
 
+const _vec3 = new Vector3()
+
 export const useUpdateLight = (light: DirectionalLight | SpotLight) => {
   useExecute(
     () => {
@@ -38,5 +40,3 @@ export const useUpdateLight = (light: DirectionalLight | SpotLight) => {
     { after: TransformSystem }
   )
 }
-
-const _vec3 = new Vector3()
