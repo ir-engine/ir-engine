@@ -62,80 +62,64 @@ export const Transition = {
       buffer: TimestampedValue<V>[]
       interpolationFunction: (a: V, b: V, t: number, out?: V) => V
     }
-  ): TransitionData<V> {
-    return Object.assign(
-      {
-        maxBufferSize: 10,
-        duration: 500,
-        easingFunction: Easing.Elastic.InOut
+  ) {
+    return S.Object({
+      buffer: S.Array(TimestampedValueSchema),
+      current: S.Any(),
+      maxBufferSize: S.Number(10),
+      duration: S.Number(500),
+      easingFunction: S.Func([S.Number()], S.Number(), Easing.Elastic.InOut),
+      interpolationFunction: S.Func([S.Any(), S.Any(), S.Number(), S.Optional(S.Any())], S.Any(), config.interpolationFunction)
+    })
+  },
+
+  defineScalarTransition: (config?: Partial<TransitionData<number>>) => {
+    return Transition.defineTransition({
+      buffer: [{ timestamp: 0, value: 0 }],
+      interpolationFunction: (a: number, b: number, t: number) => a + (b - a) * t,
+      ...config
+    })
+  },
+
+  defineVector3Transition: (config?: Partial<TransitionData<THREE.Vector3>>) => {
+    return Transition.defineTransition({
+      buffer: [{ timestamp: 0, value: new Vector3() }],
+      interpolationFunction: (a: THREE.Vector3, b: THREE.Vector3, t: number, out?: THREE.Vector3) => {
+        out = out || new Vector3()
+        out.x = a.x + (b.x - a.x) * t
+        out.y = a.y + (b.y - a.y) * t
+        out.z = a.z + (b.z - a.z) * t
+        return out
       },
-      config as TransitionData<V>
-    )
+      ...config
+    })
   },
 
-  defineScalarTransition: (config?: TransitionData<number>): TransitionData<number> => {
-    return Transition.defineTransition(
-      Object.assign(
-        {
-          buffer: [{ timestamp: 0, value: 0 }],
-          interpolationFunction: (a: number, b: number, t: number) => a + (b - a) * t
-        },
-        config
-      )
-    )
+  defineQuaternionTransition: (config?: Partial<TransitionData<Quaternion>>) => {
+    return Transition.defineTransition({
+      buffer: [{ timestamp: 0, value: new Quaternion() }],
+      interpolationFunction: (a: Quaternion, b: Quaternion, t: number, out?: Quaternion) => {
+        out = out || new Quaternion()
+        out.copy(a).slerp(b, t)
+        return out
+      },
+      ...config
+    })
   },
 
-  defineVector3Transition: (config?: TransitionData<THREE.Vector3>) => {
-    return Transition.defineTransition(
-      Object.assign(
-        {
-          buffer: [{ timestamp: 0, value: new Vector3() }],
-          interpolationFunction: (a: THREE.Vector3, b: THREE.Vector3, t: number, out?: THREE.Vector3) => {
-            out = out || new Vector3()
-            out.x = a.x + (b.x - a.x) * t
-            out.y = a.y + (b.y - a.y) * t
-            out.z = a.z + (b.z - a.z) * t
-            return out
-          }
-        },
-        config
-      )
-    )
-  },
-
-  defineQuaternionTransition: (config?: TransitionData<Quaternion>) => {
-    return Transition.defineTransition(
-      Object.assign(
-        {
-          buffer: [{ timestamp: 0, value: new Quaternion() }],
-          interpolationFunction: (a: Quaternion, b: Quaternion, t: number, out?: Quaternion) => {
-            out = out || new Quaternion()
-            out.copy(a).slerp(b, t)
-            return out
-          }
-        },
-        config
-      )
-    )
-  },
-
-  defineBorderRadiusTransition: (config?: TransitionData<BorderRadius>) => {
-    return Transition.defineTransition(
-      Object.assign(
-        {
-          buffer: [{ timestamp: 0, value: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } }],
-          interpolationFunction: (a: BorderRadius, b: BorderRadius, t: number, out?: BorderRadius) => {
-            out = out || { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 }
-            out.topLeft = a.topLeft + (b.topLeft - a.topLeft) * t
-            out.topRight = a.topRight + (b.topRight - a.topRight) * t
-            out.bottomLeft = a.bottomLeft + (b.bottomLeft - a.bottomLeft) * t
-            out.bottomRight = a.bottomRight + (b.bottomRight - a.bottomRight) * t
-            return out
-          }
-        },
-        config
-      )
-    )
+  defineBorderRadiusTransition: (config?: Partial<TransitionData<BorderRadius>>) => {
+    return Transition.defineTransition({
+      buffer: [{ timestamp: 0, value: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } }],
+      interpolationFunction: (a: BorderRadius, b: BorderRadius, t: number, out?: BorderRadius) => {
+        out = out || { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 }
+        out.topLeft = a.topLeft + (b.topLeft - a.topLeft) * t
+        out.topRight = a.topRight + (b.topRight - a.topRight) * t
+        out.bottomLeft = a.bottomLeft + (b.bottomLeft - a.bottomLeft) * t
+        out.bottomRight = a.bottomRight + (b.bottomRight - a.bottomRight) * t
+        return out
+      },
+      ...config
+    })
   },
 
   applyNewTarget<V>(value: V, timestamp: number, data: State<TransitionData<any>>) {

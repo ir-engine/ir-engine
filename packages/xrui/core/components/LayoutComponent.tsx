@@ -57,28 +57,28 @@ export const LayoutComponent = defineComponent({
 
   schema: S.Object({
     position: S.Optional(S.Vec3()),
-    positionTransition: S.Type<TransitionData<Vector3>>(),
-    effectivePosition: S.Vec3(),
+    positionTransition: Transition.defineVector3Transition(),
+    effectivePosition: S.Vec3(new Vector3()),
 
     positionOrigin: S.Optional(S.Vec3()),
-    positionOriginTransition: S.Type<TransitionData<Vector3>>(),
-    effectivePositionOrigin: S.Vec3(),
+    positionOriginTransition: Transition.defineVector3Transition(),
+    effectivePositionOrigin: S.Vec3(new Vector3()),
 
     alignmentOrigin: S.Optional(S.Vec3()),
-    alignmentTransition: S.Type<TransitionData<Vector3>>(),
-    effectiveAlignmentOrigin: S.Vec3(),
+    alignmentTransition: Transition.defineVector3Transition(),
+    effectiveAlignmentOrigin: S.Vec3(new Vector3()),
 
     rotation: S.Optional(S.Quaternion()),
-    rotationTransition: S.Type<TransitionData<Quaternion>>(),
-    effectiveRotation: S.Quaternion(),
+    rotationTransition: Transition.defineQuaternionTransition(),
+    effectiveRotation: S.Quaternion(new Quaternion()),
 
     rotationOrigin: S.Optional(S.Vec3()),
-    rotationOriginTransition: S.Type<TransitionData<Vector3>>(),
-    effectiveRotationOrigin: S.Vec3(),
+    rotationOriginTransition: Transition.defineVector3Transition(),
+    effectiveRotationOrigin: S.Vec3(new Vector3()),
 
     size: S.Optional(S.Vec3()),
-    sizeTransition: S.Type<TransitionData<Vector3>>(),
-    effectiveSize: S.Vec3(),
+    sizeTransition: Transition.defineVector3Transition(),
+    effectiveSize: S.Vec3(new Vector3()),
 
     sizeMode: S.Optional(S.Object({
       x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
@@ -86,109 +86,28 @@ export const LayoutComponent = defineComponent({
       z: S.Enum({ proportional: 'proportional', literal: 'literal' })
     })),
     effectiveSizeMode: S.Object({
-      x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
-      y: S.Enum({ proportional: 'proportional', literal: 'literal' }),
-      z: S.Enum({ proportional: 'proportional', literal: 'literal' })
+      x: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
+      y: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
+      z: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal')
     }),
 
     defaults: S.Object({
-      position: S.Vec3(),
-      positionOrigin: S.Vec3(),
-      alignmentOrigin: S.Vec3(),
-      rotation: S.Quaternion(),
-      rotationOrigin: S.Vec3(),
-      size: S.Vec3(),
+      position: S.Vec3(new Vector3()),
+      positionOrigin: S.Vec3(new Vector3()),
+      alignmentOrigin: S.Vec3(new Vector3()),
+      rotation: S.Quaternion(new Quaternion()),
+      rotationOrigin: S.Vec3(new Vector3()),
+      size: S.Vec3(new Vector3()),
       sizeMode: S.Object({
-        x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
-        y: S.Enum({ proportional: 'proportional', literal: 'literal' }),
-        z: S.Enum({ proportional: 'proportional', literal: 'literal' })
+        x: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
+        y: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
+        z: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal')
       })
     }),
 
-    anchorEntity: S.Entity(),
-    contentEntity: S.Entity()
+    anchorEntity: S.Entity(UndefinedEntity),
+    contentEntity: S.Entity(UndefinedEntity)
   }),
-
-  onInit: (entity) => {
-    return {
-      position: null,
-      positionTransition: Transition.defineVector3Transition(),
-      effectivePosition: new Vector3(),
-
-      positionOrigin: null,
-      positionOriginTransition: Transition.defineVector3Transition(),
-      effectivePositionOrigin: new Vector3(),
-
-      alignmentOrigin: null,
-      alignmentTransition: Transition.defineVector3Transition(),
-      effectiveAlignmentOrigin: new Vector3(),
-
-      rotation: null,
-      rotationTransition: Transition.defineQuaternionTransition(),
-      effectiveRotation: new Quaternion(),
-
-      rotationOrigin: null,
-      rotationOriginTransition: Transition.defineVector3Transition(),
-      effectiveRotationOrigin: new Vector3(),
-
-      size: null,
-      sizeTransition: Transition.defineVector3Transition(),
-      effectiveSize: new Vector3(),
-
-      sizeMode: null,
-      effectiveSizeMode: { x: 'literal', y: 'literal', z: 'literal' },
-
-      defaults: {
-        position: new Vector3(),
-        positionOrigin: new Vector3(),
-        alignmentOrigin: new Vector3(),
-        rotation: new Quaternion(),
-        rotationOrigin: new Vector3(),
-        size: new Vector3(),
-        sizeMode: { x: 'literal', y: 'literal', z: 'literal' }
-      },
-
-      anchorEntity: UndefinedEntity,
-      contentEntity: UndefinedEntity
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (json?.position) component.position.set(new Vector3().copy(json.position))
-    if (json?.positionOrigin) component.positionOrigin.set(new Vector3().copy(json.positionOrigin))
-    if (json?.alignmentOrigin) component.alignmentOrigin.set(new Vector3().copy(json.alignmentOrigin))
-    if (json?.rotation) component.rotation.set(new Quaternion().copy(json.rotation))
-    if (json?.rotationOrigin) component.rotationOrigin.set(new Vector3().copy(json.rotationOrigin))
-    if (json?.size) component.size.set(new Vector3().copy(json.size))
-    if (json?.sizeMode) component.sizeMode.set(json.sizeMode)
-
-    if (json?.position == null) component.position.set(null)
-    if (json?.positionOrigin == null) component.positionOrigin.set(null)
-    if (json?.alignmentOrigin == null) component.alignmentOrigin.set(null)
-    if (json?.rotation == null) component.rotation.set(null)
-    if (json?.rotationOrigin == null) component.rotationOrigin.set(null)
-    if (json?.size == null) component.size.set(null)
-    if (json?.sizeMode == null) component.sizeMode.set(null)
-
-    if (json?.defaults) {
-      if (json.defaults.position) component.defaults.position.set(new Vector3().copy(json.defaults.position))
-      if (json.defaults.positionOrigin)
-        component.defaults.positionOrigin.set(new Vector3().copy(json.defaults.positionOrigin))
-      if (json.defaults.alignmentOrigin)
-        component.defaults.alignmentOrigin.set(new Vector3().copy(json.defaults.alignmentOrigin))
-      if (json.defaults.rotation) component.defaults.rotation.set(new Quaternion().copy(json.defaults.rotation))
-      if (json.defaults.rotationOrigin)
-        component.defaults.rotationOrigin.set(new Vector3().copy(json.defaults.rotationOrigin))
-      if (json.defaults.size) component.defaults.size.set(new Vector3().copy(json.defaults.size))
-      if (json.defaults.sizeMode) component.defaults.sizeMode.set(json.defaults.sizeMode)
-    }
-
-    if (json?.anchorEntity) component.anchorEntity.set(json.anchorEntity)
-  },
-
-  toJSON: (component) => {
-    return component
-  },
 
   reactor: () => {
     const entity = useEntityContext()
