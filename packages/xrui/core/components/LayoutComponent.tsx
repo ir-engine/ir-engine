@@ -24,22 +24,23 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  AnimationSystemGroup,
   ECSState,
   UndefinedEntity,
   defineComponent,
+  getMutableComponent,
   setComponent,
   useComponent,
   useEntityContext,
-  useExecute,
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { ArrayCamera, Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
 
 export interface SizeMode {
@@ -165,6 +166,7 @@ export const LayoutComponent = defineComponent({
     const anchorEntity = layout.anchorEntity.value
     const anchorLayout = useOptionalComponent(anchorEntity, LayoutComponent)
     const anchorCamera = useOptionalComponent(anchorEntity, CameraComponent)
+    const anchorRenderer = useOptionalComponent(anchorEntity, RendererComponent)
     const anchorBounds = useOptionalComponent(anchorEntity, BoundingBoxComponent)
 
     // Compute effective properties
@@ -200,11 +202,11 @@ export const LayoutComponent = defineComponent({
       Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
       Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
     }, [
-      layout?.positionTransition,
-      layout?.positionOriginTransition,
-      layout?.alignmentTransition,
-      layout?.rotationTransition,
-      layout?.rotationOriginTransition
+      layout.positionTransition,
+      layout.positionOriginTransition,
+      layout.alignmentTransition,
+      layout.rotationTransition,
+      layout.rotationOriginTransition
     ])
 
     // Reusable objects for calculations
@@ -215,74 +217,118 @@ export const LayoutComponent = defineComponent({
     const finalRotation = new Quaternion()
     const finalScale = new Vector3()
 
-    // Update transitions every frame
-    useExecute(
-      () => {
-        if (!layout) return
-        const frameTime = getState(ECSState).frameTime
+    useImmediateEffect(() => {
+      setComponent(entity, ComputedTransformComponent, {
+        referenceEntities: [anchorEntity],
 
-        Transition.computeCurrentValue(frameTime, layout.positionTransition.value as TransitionData<Vector3>)
-        Transition.computeCurrentValue(frameTime, layout.positionOriginTransition.value as TransitionData<Vector3>)
-        Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
-        Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
-        Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
-        // The current values are now stored in the TransitionData.current property
-        const position = layout.positionTransition.value.current
-        const positionOrigin = layout.positionOriginTransition.value.current
-        const alignmentOrigin = layout.alignmentTransition.value.current
-        const rotation = layout.rotationTransition.value.current
-        const rotationOrigin = layout.rotationOriginTransition.value.current
-        const size = layout.effectiveSize.value
+        computeFunction: () => {
+          const frameTime = getState(ECSState).frameTime
 
-        // Compute the final position
-        let anchorSize = Vector3_Zero
+          // Update transitions
+          Transition.computeCurrentValue(frameTime, layout.positionTransition.value as TransitionData<Vector3>)
+          Transition.computeCurrentValue(frameTime, layout.positionOriginTransition.value as TransitionData<Vector3>)
+          Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
+          Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
+          Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
 
-        if (anchorLayout?.ornull?.effectiveSize.value) {
-          anchorSize = anchorLayout.effectiveSize.value
-        } else if (anchorCamera?.value) {
-          // depends on frustum position
-        } else if (anchorBounds?.box) {
-          anchorSize = anchorBounds.box.value.getSize(_size)
+          // Get current values
+          const position = layout.positionTransition.value.current
+          const positionOrigin = layout.positionOriginTransition.value.current
+          const alignmentOrigin = layout.alignmentTransition.value.current
+          const rotation = layout.rotationTransition.value.current
+          const rotationOrigin = layout.rotationOriginTransition.value.current
+          const size = layout.effectiveSize.value
+
+          // Compute the final position
+          const finalPosition = new Vector3()
+          let anchorSize = Vector3_Zero
+
+          if (anchorCamera?.value && anchorRenderer?.canvas.value) {
+            // Handle camera anchor
+            const canvas = anchorRenderer.canvas.value
+            const rect = canvas.getBoundingClientRect()
+
+            // Screen-space position in pixels
+            const screenPosition = new Vector3(
+              position.x + positionOrigin.x * rect.width - alignmentOrigin.x * size.x,
+              position.y + positionOrigin.y * rect.height - alignmentOrigin.y * size.y,
+              0 // We'll set the depth separately
+            )
+
+            // Convert screen position to NDC (Normalized Device Coordinates)
+            const ndc = new Vector3(
+              (screenPosition.x / rect.width) * 2 - 1,
+              -(screenPosition.y / rect.height) * 2 + 1,
+              0 // NDC z-value (we'll set depth later)
+            )
+
+            // Set depth (z-coordinate in NDC space)
+            // Assuming you want to place the entity at a specific distance from the camera
+            // For example, at depth = -0.5 in NDC space corresponds to halfway between near and far planes
+            const depth = position.z !== 0 ? position.z : -0.001 // Default depth
+            ndc.z = -1 + 2 * ((depth - anchorCamera.value.near) / (anchorCamera.value.far - anchorCamera.value.near))
+
+            // Unproject NDC to world space
+            ndc.unproject(anchorCamera.value as ArrayCamera)
+
+            finalPosition.copy(ndc)
+          } else if (anchorLayout?.ornull?.effectiveSize.value) {
+            // Handle anchor layout
+            anchorSize = anchorLayout.effectiveSize.value
+            finalPosition.set(
+              position.x + positionOrigin.x * anchorSize.x - alignmentOrigin.x * size.x,
+              position.y + positionOrigin.y * anchorSize.y - alignmentOrigin.y * size.y,
+              position.z + positionOrigin.z * anchorSize.z - alignmentOrigin.z * size.z
+            )
+          } else if (anchorBounds?.box) {
+            // Handle bounding box anchor
+            anchorSize = anchorBounds.box.value.getSize(_size)
+            finalPosition.set(
+              position.x + positionOrigin.x * anchorSize.x - alignmentOrigin.x * size.x,
+              position.y + positionOrigin.y * anchorSize.y - alignmentOrigin.y * size.y,
+              position.z + positionOrigin.z * anchorSize.z - alignmentOrigin.z * size.z
+            )
+          } else {
+            // Default case
+            finalPosition.set(
+              position.x - alignmentOrigin.x * size.x,
+              position.y - alignmentOrigin.y * size.y,
+              position.z - alignmentOrigin.z * size.z
+            )
+          }
+
+          // Apply rotation origin offset
+          rotationOriginOffset.set(
+            (rotationOrigin.x - 0.5) * size.x,
+            (rotationOrigin.y - 0.5) * size.y,
+            (rotationOrigin.z - 0.5) * size.z
+          )
+
+          // Create a matrix to combine rotation and position
+          matrix.compose(finalPosition, rotation, Vector3_One)
+
+          // Apply rotation origin offset
+          tempMatrix.makeTranslation(rotationOriginOffset.x, rotationOriginOffset.y, rotationOriginOffset.z)
+          matrix.multiply(tempMatrix)
+          tempMatrix.makeRotationFromQuaternion(rotation)
+          matrix.multiply(tempMatrix)
+          tempMatrix.makeTranslation(-rotationOriginOffset.x, -rotationOriginOffset.y, -rotationOriginOffset.z)
+          matrix.multiply(tempMatrix)
+
+          // Extract final position and rotation from the matrix
+          matrix.decompose(finalPosition, finalRotation, finalScale)
+
+          // Update the transform component
+          const transform = getMutableComponent(entity, TransformComponent)
+          transform.position.value.copy(finalPosition)
+          transform.rotation.value.copy(finalRotation)
+          transform.scale.value.copy(size)
+          transform.matrix.value.copy(matrix)
+
+          return false
         }
-
-        finalPosition.set(
-          position.x + positionOrigin.x * anchorSize.x - alignmentOrigin.x * size.x,
-          position.y + positionOrigin.y * anchorSize.y - alignmentOrigin.y * size.y,
-          position.z + positionOrigin.z * anchorSize.z - alignmentOrigin.z * size.z
-        )
-
-        // Apply rotation origin offset
-        rotationOriginOffset.set(
-          (rotationOrigin.x - 0.5) * size.x,
-          (rotationOrigin.y - 0.5) * size.y,
-          (rotationOrigin.z - 0.5) * size.z
-        )
-
-        // Create a matrix to combine rotation and position
-        matrix.compose(finalPosition, rotation, Vector3_One)
-
-        // Apply rotation origin offset
-        tempMatrix.makeTranslation(rotationOriginOffset.x, rotationOriginOffset.y, rotationOriginOffset.z)
-        matrix.multiply(tempMatrix)
-        tempMatrix.makeRotationFromQuaternion(rotation)
-        matrix.multiply(tempMatrix)
-        tempMatrix.makeTranslation(-rotationOriginOffset.x, -rotationOriginOffset.y, -rotationOriginOffset.z)
-        matrix.multiply(tempMatrix)
-
-        // Extract final position and rotation from the matrix
-        matrix.decompose(finalPosition, finalRotation, finalScale)
-
-        // Update the transform component
-        setComponent(entity, TransformComponent, {
-          position: finalPosition,
-          rotation: finalRotation,
-          scale: size
-        })
-      },
-      {
-        with: AnimationSystemGroup
-      }
-    )
+      })
+    }, [anchorEntity])
 
     return null
   }
