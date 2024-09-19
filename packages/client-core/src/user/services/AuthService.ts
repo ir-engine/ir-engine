@@ -168,6 +168,9 @@ const waitForToken = (win: Window, clientUrl: string): Promise<string> => {
       }
     })
     .catch((message) => {
+      if (message instanceof SyntaxError) {
+        throw message
+      }
       invalidDomainHandling(message)
       return message
     })
