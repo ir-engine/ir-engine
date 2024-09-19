@@ -60,6 +60,12 @@ const ITextureInfoSchema = S.Object({
   extras: S.Optional(S.Record(S.String(), S.Any()))
 })
 
+const IMaterialNormalTextureInfoSchema = S.Object({
+  scale: S.Optional(S.Number()),
+  index: S.Number(),
+  texCoord: S.Optional(S.Number())
+})
+
 export const MaterialDefinitionComponent = defineComponent({
   name: 'MaterialDefinitionComponent',
   onInit: (entity) => {
@@ -167,7 +173,7 @@ export const KHRClearcoatExtensionComponent = defineComponent({
     clearcoatTexture: S.Optional(ITextureInfoSchema),
     clearcoatRoughnessFactor: S.Optional(S.Number()),
     clearcoatRoughnessTexture: S.Optional(ITextureInfoSchema),
-    clearcoatNormalTexture: S.Optional(S.Type<GLTF.IMaterialNormalTextureInfo>())
+    clearcoatNormalTexture: S.Optional(IMaterialNormalTextureInfoSchema)
   }),
 
   reactor: () => {

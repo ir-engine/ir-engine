@@ -93,9 +93,8 @@ class TextureLoader extends Loader<Texture> {
       ;[url, canvas] = await getScaledTextureURI(url, this.maxResolution)
     }
 
-    const texture = new Texture()
     if (!isClient) {
-      onLoad(texture)
+      onLoad(new Texture())
       return
     }
 
@@ -107,7 +106,7 @@ class TextureLoader extends Loader<Texture> {
     loader.load(
       url,
       (image: HTMLImageElement | ImageBitmap) => {
-        texture.image = image
+        const texture = new Texture(image)
         texture.needsUpdate = true
         if (canvas) canvas.remove()
         onLoad(texture)

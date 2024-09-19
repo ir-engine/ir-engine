@@ -795,16 +795,6 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
   return result.get(NO_PROXY) as Texture | null
 }
 
-let isSafari = false
-let isFirefox = false
-let firefoxVersion = -1 as any // ???
-
-if (typeof navigator !== 'undefined') {
-  isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
-  isFirefox = navigator.userAgent.indexOf('Firefox') > -1
-  firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
-}
-
 const textureLoader = new TextureLoader()
 
 type KHRTextureBasisu = {
