@@ -50,7 +50,7 @@ import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { TruncatedCopyableText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedLink'
+import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import DataTable from '../../common/Table'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -254,7 +254,7 @@ export default function ProjectTable(props: { search: string }) {
         ),
         visibility: <Toggle value={row.visibility === 'public'} onChange={() => handleVisibilityChange(row)} />,
         commitSHA: (
-          <TruncatedCopyableText text={row.commitSHA || ''} ellipsisChar=" " visibleChars={8} ellipsisPosition="end" />
+          <TruncatedText text={row.commitSHA || ''} ellipsisChar=" " visibleChars={8} ellipsisPosition="end" />
         ),
         commitDate: toDisplayDateTime(row.commitDate),
         actions: <RowActions project={row} />

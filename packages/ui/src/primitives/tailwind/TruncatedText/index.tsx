@@ -49,18 +49,26 @@ export const truncateText = (text: string, options: TruncateTextOptions = {}) =>
 
 type TruncatedTextProps = {
   text: string
+  variant?: 'copy' | 'text'
 } & TruncateTextOptions
 
-export const TruncatedCopyableText: FC<TruncatedTextProps> = (props) => {
-  const { text, visibleChars = 3, ellipsisPosition = 'middle', ellipsisChar = '...' } = props
-  return (
-    <span className="flex items-center">
-      <Tooltip content={text}>
-        <>{truncateText(text, { visibleChars, ellipsisPosition, ellipsisChar })}</>
-      </Tooltip>
-      <CopyText text={text} className="ml-2" />
-    </span>
-  )
+const TruncatedText: FC<TruncatedTextProps> = (props) => {
+  const { variant = 'copy', text, visibleChars = 3, ellipsisPosition = 'middle', ellipsisChar = '...' } = props
+
+  const variants = {
+    copy: (
+      <span className="flex items-center">
+        <Tooltip content={text}>
+          <>{truncateText(text, { visibleChars, ellipsisPosition, ellipsisChar })}</>
+        </Tooltip>
+        <CopyText text={text} className="ml-2" />
+      </span>
+    ),
+    text: (
+      <span className="flex items-center">{truncateText(text, { visibleChars, ellipsisPosition, ellipsisChar })}</span>
+    )
+  }
+  return variants[variant]
 }
 
 type TruncatedLinkProps = {
@@ -69,13 +77,13 @@ type TruncatedLinkProps = {
 } & TruncateTextOptions &
   AnchorHTMLAttributes<HTMLAnchorElement>
 
-const TruncatedLink: FC<TruncatedLinkProps> = (props) => {
+export const TruncatedLink: FC<TruncatedLinkProps> = (props) => {
   const { visibleChars = 3, ellipsisPosition = 'middle', ellipsisChar = '...', copyable = true, text, href } = props
 
   if (copyable) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer">
-        <TruncatedCopyableText
+        <TruncatedText
           text={text}
           visibleChars={visibleChars}
           ellipsisPosition={ellipsisPosition}
@@ -91,4 +99,4 @@ const TruncatedLink: FC<TruncatedLinkProps> = (props) => {
   )
 }
 
-export default TruncatedLink
+export default TruncatedText

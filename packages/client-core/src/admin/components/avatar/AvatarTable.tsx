@@ -37,7 +37,7 @@ import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
-import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedLink'
+import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import DataTable from '../../common/Table'
 import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
 import AddEditAvatarModal from './AddEditAvatarModal'

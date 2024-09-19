@@ -25,23 +25,23 @@ Infinite Reality Engine. All Rights Reserved.
 import { ArgTypes } from '@storybook/react'
 import React from 'react'
 
-import TruncatedLink from './index'
+import TruncatedText from './index'
 
 const argTypes: ArgTypes = {}
 
-const TruncatedLinkStory = (id: string) => {
+const TruncatedTextStory = (id: string) => {
   return (
     <div className="flex h-screen items-center justify-center">
-      <TruncatedLink text={id} href="https://google.com" />
+      <TruncatedText text={id} />
     </div>
   )
 }
 
 export default {
-  title: 'Primitives/Tailwind/TruncatedLink',
-  component: TruncatedLinkStory,
+  title: 'Primitives/Tailwind/TruncatedText',
+  component: TruncatedTextStory,
   parameters: {
-    componentSubtitle: 'TruncatedLink',
+    componentSubtitle: 'TruncatedText',
     design: {
       type: 'figma',
       url: ''
