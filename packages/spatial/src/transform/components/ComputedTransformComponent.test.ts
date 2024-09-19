@@ -40,12 +40,12 @@ import { TransformComponent } from './TransformComponent'
 
 type ComputedTransformComponentData = {
   referenceEntities: Entity[]
-  computeFunction: () => void
+  computeFunction: (() => void) | undefined
 }
 
 const ComputedTransformComponentDefaults: ComputedTransformComponentData = {
   referenceEntities: [] as Entity[],
-  computeFunction: () => {}
+  computeFunction: undefined
 }
 
 function assertComputedTransformComponentEq(
@@ -53,7 +53,7 @@ function assertComputedTransformComponentEq(
   B: ComputedTransformComponentData
 ): void {
   assertArrayEqual(A.referenceEntities, B.referenceEntities)
-  assert.equal(A.computeFunction.toString(), B.computeFunction.toString())
+  assert.equal(A.computeFunction?.toString(), B.computeFunction?.toString())
 }
 
 describe('ComputedTransformComponent', () => {
