@@ -45,6 +45,7 @@ export class ParentCommunicator {
     string,
     [(value: MessageResponse | PromiseLike<MessageResponse>) => void, (reason?: any) => void]
   > = new Map()
+  private destroyed = false
 
   constructor(iframeId: string, targetOrigin: string) {
     this.iframeId = iframeId
@@ -73,12 +74,18 @@ export class ParentCommunicator {
   }
 
   public sendMessage(method: string, payload?: any): Promise<MessageResponse> {
+    if (this.destroyed) throw 'ParentCommunicator has been destroyed already.'
     return new Promise((resolve, reject) => {
       const id = uuidv4()
       const message: Message = { id, method, payload }
       this.messageQueue.set(id, [resolve, reject])
       this.iframe?.contentWindow?.postMessage(message, this.targetOrigin)
     })
+  }
+
+  public destroy(): void {
+    this.destroyed = true
+    window.removeEventListener('message', this.handleMessage.bind(this))
   }
 }
 

@@ -147,8 +147,8 @@ const invalidDomainHandling = (error: MessageResponse): void => {
   }
 }
 
-const waitForToken = async (win: Window, clientUrl: string): Promise<string> => {
-  return await communicator
+const waitForToken = (win: Window, clientUrl: string): Promise<string> => {
+  return communicator
     .sendMessage('get', {
       key: `${stateNamespaceKey}.AuthState.authUser`
     })
@@ -159,6 +159,7 @@ const waitForToken = async (win: Window, clientUrl: string): Promise<string> => 
           if (data?.accessToken != null) {
             return data?.accessToken
           }
+          return ''
         } catch {
           return '' // Failed to parse token from cookie
         }
@@ -201,23 +202,25 @@ const getToken = async (): Promise<string> => {
       return Promise.resolve(accessToken?.length > 0 ? accessToken : '')
     } else {
       iframe.style.visibility = 'visible'
-      return await new Promise((resolve) => {
+      return new Promise((resolve) => {
         const clickResponseListener = async function (e) {
           if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
           try {
-            window.removeEventListener('message', clickResponseListener)
             const data = e?.data?.data
             if (data.skipCrossOriginCookieCheck === true || data.storageAccessPermission === 'denied') {
               localStorage.setItem('skipCrossOriginCookieCheck', 'true')
               iframe.style.visibility = 'hidden'
-              resolve('')
+              return ''
             } else {
-              const token = await waitForToken(win, clientUrl)
+              const token = waitForToken(win, clientUrl)
               iframe.style.visibility = 'hidden'
-              resolve(token)
+              return token
             }
           } catch (err) {
             //Do nothing
+            return ''
+          } finally {
+            window.removeEventListener('message', clickResponseListener)
           }
         }
         window.addEventListener('message', clickResponseListener)
@@ -903,6 +906,9 @@ export const useAuthenticated = () => {
 
   useEffect(() => {
     AuthService.doLoginAuto()
+    return () => {
+      communicator.destroy()
+    }
   }, [])
 
   useEffect(() => {
