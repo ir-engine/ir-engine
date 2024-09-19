@@ -42,6 +42,7 @@ import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/component
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { ArrayCamera, Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export interface SizeMode {
   x: 'proportional' | 'literal'
@@ -54,56 +55,89 @@ const _size = new Vector3()
 export const LayoutComponent = defineComponent({
   name: 'LayoutComponent',
 
-  onInit: () => {
+  schema: S.Object({
+    position: S.Optional(S.Vec3()),
+    positionTransition: S.Type<TransitionData<Vector3>>(),
+    effectivePosition: S.Vec3(),
+
+    positionOrigin: S.Optional(S.Vec3()),
+    positionOriginTransition: S.Type<TransitionData<Vector3>>(),
+    effectivePositionOrigin: S.Vec3(),
+
+    alignmentOrigin: S.Optional(S.Vec3()),
+    alignmentTransition: S.Type<TransitionData<Vector3>>(),
+    effectiveAlignmentOrigin: S.Vec3(),
+
+    rotation: S.Optional(S.Quaternion()),
+    rotationTransition: S.Type<TransitionData<Quaternion>>(),
+    effectiveRotation: S.Quaternion(),
+
+    rotationOrigin: S.Optional(S.Vec3()),
+    rotationOriginTransition: S.Type<TransitionData<Vector3>>(),
+    effectiveRotationOrigin: S.Vec3(),
+
+    size: S.Optional(S.Vec3()),
+    sizeTransition: S.Type<TransitionData<Vector3>>(),
+    effectiveSize: S.Vec3(),
+
+    sizeMode: S.Optional(S.Object({
+      x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
+      y: S.Enum({ proportional: 'proportional', literal: 'literal' }),
+      z: S.Enum({ proportional: 'proportional', literal: 'literal' })
+    })),
+    effectiveSizeMode: S.Object({
+      x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
+      y: S.Enum({ proportional: 'proportional', literal: 'literal' }),
+      z: S.Enum({ proportional: 'proportional', literal: 'literal' })
+    }),
+
+    defaults: S.Object({
+      position: S.Vec3(),
+      positionOrigin: S.Vec3(),
+      alignmentOrigin: S.Vec3(),
+      rotation: S.Quaternion(),
+      rotationOrigin: S.Vec3(),
+      size: S.Vec3(),
+      sizeMode: S.Object({
+        x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
+        y: S.Enum({ proportional: 'proportional', literal: 'literal' }),
+        z: S.Enum({ proportional: 'proportional', literal: 'literal' })
+      })
+    }),
+
+    anchorEntity: S.Entity(),
+    contentEntity: S.Entity()
+  }),
+
+  onInit: (entity) => {
     return {
-      /** The absolute position of the element relative to the anchor. */
-      position: null as Vector3 | null,
-      /** Transition data for smooth position changes. */
+      position: null,
       positionTransition: Transition.defineVector3Transition(),
-      /** Effective position after considering defaults. */
       effectivePosition: new Vector3(),
 
-      /** The origin point for positioning within the anchor. (0,0,0) is top-left-front, (1,1,1) is bottom-right-back. */
-      positionOrigin: null as Vector3 | null,
-      /** Transition data for smooth position origin changes. */
+      positionOrigin: null,
       positionOriginTransition: Transition.defineVector3Transition(),
-      /** Effective position origin after considering defaults. */
       effectivePositionOrigin: new Vector3(),
 
-      /** The alignment point of the element itself. (0,0,0) aligns top-left-front, (0.5,0.5,0.5) centers the element. */
-      alignmentOrigin: null as Vector3 | null,
-      /** Transition data for smooth alignment origin changes. */
+      alignmentOrigin: null,
       alignmentTransition: Transition.defineVector3Transition(),
-      /** Effective alignment origin after considering defaults. */
       effectiveAlignmentOrigin: new Vector3(),
 
-      /** The rotation of the element. */
-      rotation: null as Quaternion | null,
-      /** Transition data for smooth rotation changes. */
+      rotation: null,
       rotationTransition: Transition.defineQuaternionTransition(),
-      /** Effective rotation after considering defaults. */
       effectiveRotation: new Quaternion(),
 
-      /** The point around which the element rotates. (0,0,0) is element's top-left-front, (0.5,0.5,0.5) is center. */
-      rotationOrigin: null as Vector3 | null,
-      /** Transition data for smooth rotation origin changes. */
+      rotationOrigin: null,
       rotationOriginTransition: Transition.defineVector3Transition(),
-      /** Effective rotation origin after considering defaults. */
       effectiveRotationOrigin: new Vector3(),
 
-      /** The dimensions of the element. Can be absolute or proportional based on sizeMode. */
-      size: null as Vector3 | null,
-      /** Transition data for smooth size changes. */
+      size: null,
       sizeTransition: Transition.defineVector3Transition(),
-      /** Effective size after considering defaults. */
       effectiveSize: new Vector3(),
 
-      /** Determines how size is interpreted for each axis: 'proportional' or 'literal'. */
-      sizeMode: null as SizeMode | null,
-      /** Effective size mode after considering defaults. */
-      effectiveSizeMode: { x: 'literal', y: 'literal', z: 'literal' } as SizeMode,
+      sizeMode: null,
+      effectiveSizeMode: { x: 'literal', y: 'literal', z: 'literal' },
 
-      /** Default values for all properties. Used when the corresponding property is null. */
       defaults: {
         position: new Vector3(),
         positionOrigin: new Vector3(),
@@ -111,12 +145,10 @@ export const LayoutComponent = defineComponent({
         rotation: new Quaternion(),
         rotationOrigin: new Vector3(),
         size: new Vector3(),
-        sizeMode: { x: 'literal', y: 'literal', z: 'literal' } as SizeMode
+        sizeMode: { x: 'literal', y: 'literal', z: 'literal' }
       },
 
-      /** The entity that anchors this layout. */
       anchorEntity: UndefinedEntity,
-
       contentEntity: UndefinedEntity
     }
   },

@@ -26,13 +26,28 @@ import { State } from '@ir-engine/hyperflux'
 import { Easing } from '@tweenjs/tween.js'
 import { Quaternion, Vector3 } from 'three'
 import { BorderRadius } from '../components/HTMLComponent'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
-export interface TimestampedValue<V> {
+export const TimestampedValueSchema = S.Object({
+  timestamp: S.Number(),
+  value: S.Any()
+})
+
+export type TimestampedValue<V> = {
   timestamp: number
   value: V
 }
 
-export interface TransitionData<T> {
+export const TransitionDataSchema = S.Object({
+  buffer: S.Array(TimestampedValueSchema),
+  current: S.Any(),
+  maxBufferSize: S.Number(),
+  duration: S.Number(),
+  easingFunction: S.Func([S.Number()], S.Number()),
+  interpolationFunction: S.Func([S.Any(), S.Any(), S.Number(), S.Optional(S.Any())], S.Any())
+})
+
+export type TransitionData<T> = {
   buffer: TimestampedValue<T>[]
   current: T
   maxBufferSize: number
