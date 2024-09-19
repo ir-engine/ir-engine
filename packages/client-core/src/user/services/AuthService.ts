@@ -169,6 +169,7 @@ const waitForToken = (win: Window, clientUrl: string): Promise<string> => {
     })
     .catch((message) => {
       invalidDomainHandling(message)
+      return message
     })
 }
 
