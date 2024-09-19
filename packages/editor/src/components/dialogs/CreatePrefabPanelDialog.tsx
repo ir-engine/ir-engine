@@ -175,7 +175,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
           </Button>
           <div>
             {(prefabTag.value ?? []).map((tag, index) => (
-              <div style={{ display: 'flex', flexDirection: 'row', margin: '0, 16px 0 0' }}>
+              <div className="ml-4 flex items-end">
                 <Input
                   key={index}
                   label={t('editor:layout.filebrowser.fileProperties.tag')}
@@ -185,19 +185,19 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
                     prefabTag.set(tags)
                   }}
                   value={prefabTag.value[index]}
+                  endComponent={
+                    <Button
+                      onClick={() => {
+                        prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
+                      }}
+                      size="small"
+                      variant="outline"
+                      className="text-left text-xs"
+                    >
+                      x
+                    </Button>
+                  }
                 />
-                <Button
-                  onClick={() => {
-                    prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
-                  }}
-                  size="small"
-                  variant="outline"
-                  className="text-left text-xs"
-                >
-                  {' '}
-                  x{' '}
-                </Button>
-                a
               </div>
             ))}
           </div>

@@ -44,8 +44,6 @@ const _scale = new Vector3()
 export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) => {
   const hips = recursiveHipsLookupECS(gltfEntity)
   const hipsPositionScale = TransformComponent.getWorldScale(hips, _scale).y
-  console.log(hipsPositionScale)
-  // const hipsPositionScale = 0.01
   getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
   for (let i = 0; i < clip.tracks.length; i++) {
     const track = clip.tracks[i]
@@ -94,7 +92,6 @@ export const bindAnimationClipFromMixamo = (clip: AnimationClip) => {
     mixamoBoneName = mixamoBoneName.replace(':', '')
     const vrmBoneName = mixamoVRMRigMap[mixamoBoneName]
     const propertyName = trackSplitted[1]
-    console.log(mixamoBoneName, vrmBoneName, propertyName)
     trackClone.name = `${vrmBoneName}.${propertyName}`
     tracks.push(trackClone)
   }

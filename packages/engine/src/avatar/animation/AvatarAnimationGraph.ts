@@ -36,7 +36,6 @@ import { lerp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { bindAnimationClipFromMixamo } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { preloadedAnimations } from './Util'
 
@@ -130,17 +129,9 @@ export const playAvatarAnimationFromMixamo = (
   let retargetedAnimation = animationComponent.animations.find(
     (clip) => clip.name == (clipName ?? animationsScene.animations[0].name)
   )
-  console.log(animationsScene)
-  console.log(retargetedAnimation)
-  //otherwise retarget and push to animation component's animations
-  if (!retargetedAnimation) {
-    retargetedAnimation = bindAnimationClipFromMixamo(
-      clipName
-        ? animationsScene.animations.find((clip) => clip.name == clipName) ?? animationsScene.animations[0]
-        : animationsScene.animations[0]
-    )
-    animationComponent.animations.push(retargetedAnimation)
-  }
+
+  if (!retargetedAnimation) retargetedAnimation = animationsScene.animations[0]
+
   const currentAction = avatarAnimationComponent.animationGraph.blendAnimation
   //before setting animation, stop previous animation if it exists
   if (currentAction.value) currentAction.value.stop()

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneList, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationMixer, Matrix4, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
 
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import {
@@ -230,8 +230,8 @@ export const setAvatarSpeedFromRootMotion = () => {
     manager.loadedAnimations[preloadedAnimations.locomotion],
     AnimationComponent
   ).animations
-  const run = animations[3]!
-  const walk = animations[5]!
+  const run = AnimationClip.findByName(animations, 'Run_RootMotion')
+  const walk = AnimationClip.findByName(animations, 'Walk_RootMotion')
   const movement = getMutableState(AvatarMovementSettingsState)
   if (run) movement.runSpeed.set(getRootSpeed(run))
   if (walk) movement.walkSpeed.set(getRootSpeed(walk))
