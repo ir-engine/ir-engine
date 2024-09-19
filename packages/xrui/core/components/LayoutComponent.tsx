@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   ECSState,
-  UndefinedEntity,
   defineComponent,
   getMutableComponent,
   setComponent,
@@ -33,6 +32,7 @@ import {
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -42,7 +42,6 @@ import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/component
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { ArrayCamera, Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export interface SizeMode {
   x: 'proportional' | 'literal'
@@ -80,11 +79,13 @@ export const LayoutComponent = defineComponent({
     sizeTransition: Transition.defineVector3Transition(),
     effectiveSize: S.Vec3(new Vector3()),
 
-    sizeMode: S.Optional(S.Object({
-      x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
-      y: S.Enum({ proportional: 'proportional', literal: 'literal' }),
-      z: S.Enum({ proportional: 'proportional', literal: 'literal' })
-    })),
+    sizeMode: S.Optional(
+      S.Object({
+        x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
+        y: S.Enum({ proportional: 'proportional', literal: 'literal' }),
+        z: S.Enum({ proportional: 'proportional', literal: 'literal' })
+      })
+    ),
     effectiveSizeMode: S.Object({
       x: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
       y: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
@@ -105,8 +106,8 @@ export const LayoutComponent = defineComponent({
       })
     }),
 
-    anchorEntity: S.Entity(UndefinedEntity),
-    contentEntity: S.Entity(UndefinedEntity)
+    anchorEntity: S.Entity(),
+    contentEntity: S.Entity()
   }),
 
   reactor: () => {
