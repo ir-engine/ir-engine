@@ -887,7 +887,10 @@
       "lbl-penumbra": "Penumbra",
       "lbl-angle": "Angle",
       "lbl-range": "Range",
-      "lbl-decay": "Decay"
+      "lbl-decay": "Decay",
+      "lbl-shadowBias": "Shadow Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-castShadow": "Cast Shadow"
     },
     "transform": {
       "title": "Transform",
