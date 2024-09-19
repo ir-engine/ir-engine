@@ -35,7 +35,7 @@ import {
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
 import { useEffect } from 'react'
-import { AnimationAction, Euler, Group, Matrix4, Vector3 } from 'three'
+import { AnimationAction, Bone, Euler, Group, Matrix4, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
 import { UUIDComponent } from '@ir-engine/ecs'
@@ -284,8 +284,8 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 
     const bone = mixamoVRMRigMap[boneName] as string
     if (bone) {
+      if (boneComponent instanceof Bone) boneComponent.quaternion.set(0, 0, 0, 1)
       const node = getComponent(entity, BoneComponent)
-      node.quaternion.set(0, 0, 0, 1)
       bones[bone] = { node } as VRMHumanBone
     }
   })
@@ -316,6 +316,9 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 const legAngle = new Euler(0, 0, Math.PI)
 const rightShoulderAngle = new Euler(Math.PI / 2, 0, Math.PI / 2)
 const leftShoulderAngle = new Euler(Math.PI / 2, 0, -Math.PI / 2)
+const footAngle = new Euler(Math.PI / 3, 0, 0)
+const toesAngle = new Euler(Math.PI / 6, 0, 0)
+/**Rewrites avatar's bone quaternions and matrices to match a tpose */
 export const enforceTPose = (bones: VRMHumanBones) => {
   bones.rightShoulder!.node.quaternion.setFromEuler(rightShoulderAngle)
   iterateEntityNode(bones.rightShoulder!.node.entity, (entity) => {
@@ -343,6 +346,12 @@ export const enforceTPose = (bones: VRMHumanBones) => {
     getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(legAngle)
   })
   bones.leftLowerLeg.node.quaternion.set(0, 0, 0, 1)
+
+  bones.rightFoot.node.quaternion.setFromEuler(footAngle)
+  bones.rightToes?.node.quaternion.setFromEuler(toesAngle)
+
+  bones.leftFoot.node.quaternion.setFromEuler(footAngle)
+  bones.leftToes?.node.quaternion.setFromEuler(toesAngle)
 
   return new VRMHumanoid(bones)
 }
