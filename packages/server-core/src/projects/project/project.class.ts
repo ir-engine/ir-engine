@@ -123,7 +123,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = getProjectConfig(projectName)
+    const projectConfig = await getProjectConfig(projectName)
     const enabled = getProjectEnabled(projectName)
 
     // if no manifest.json exists, add one

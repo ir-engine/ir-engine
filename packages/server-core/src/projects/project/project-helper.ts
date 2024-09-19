@@ -300,7 +300,7 @@ export const onProjectEvent = async (
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hooks = require(path.resolve(projectsRootFolder, project.name, hookPath)).default
+  const hooks = (await import(path.resolve(projectsRootFolder, project.name, hookPath))).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
       return await hooks[eventType](app, project, ...args)
@@ -309,9 +309,9 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = (projectName: string) => {
+export const getProjectConfig = async (projectName: string) => {
   try {
-    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts'))
+    return (await import(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')))
       .default as ProjectConfigInterface
   } catch (e) {
     logger.error(
@@ -1443,7 +1443,7 @@ export const updateProject = async (
 
   const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
-  const projectConfig = getProjectConfig(projectName)
+  const projectConfig = await getProjectConfig(projectName)
 
   const enabled = getProjectEnabled(projectName)
 
