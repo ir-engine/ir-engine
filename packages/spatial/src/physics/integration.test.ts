@@ -63,39 +63,6 @@ import { ColliderComponent } from './components/ColliderComponent'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
 import { BodyTypes, Shapes } from './types/PhysicsTypes'
 
-/*
-# Physics : Integration
-We have a few situations:
-- manipulating `rigidbodies` & `collider` transform hierarchies in the studio
-  specifically, nested/complex entity hierarchies
-- multi-scene coordinate space support    (demos are in the dev test suite)
-  - XR locomotion demo
-  - scene placement demo
-  - multiple scenes demo
-- physics based dynamic object movement & inter-physics frame transform interpolation
-
-## Integration Test
-Integration testing is defined as testing the result of multiple modules.
-For the physics, the modules would be:
-- `RigidbodyComponent`
-- `ColliderComponent`
-- `TransformComponent`
-- `PhysicsSystem`
-- `PhysicsPreTransformSystem`
-- `TransformSystem`
-We'd be asserting between system executes once the components are set up correctly
-
-All it needs to be is:
-- What was added for PhysicsSystem.test.ts with physicsSystemExecute()
-- but for the three systems mentioned above, all in the same test
-
-Systems Execution Order
-1. InputSystemGroup         // executeSystem
-2. SimulationSystemGroup    // executeFixedSystem
-3. AnimationSystemGroup     // executeSystem
-4. PresentationSystemGroup  // executeSystem
-*/
-
 const execute = {
   physicsSystem: SystemDefinitions.get(PhysicsSystem)!.execute, // with: SimulationSystemGroup
   transformDirtyUpdateSystem: SystemDefinitions.get(TransformDirtyUpdateSystem)!.execute, // before: TransformSystem
