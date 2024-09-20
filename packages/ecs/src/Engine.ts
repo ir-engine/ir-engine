@@ -115,6 +115,6 @@ export function destroyEngine() {
 
   disposeStore()
 
-  bitECS.deleteWorld(Engine.instance)
+  bitECS.deleteWorld(HyperFlux.store)
   Engine.instance = null!
 }

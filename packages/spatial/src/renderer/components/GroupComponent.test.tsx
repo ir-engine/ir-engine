@@ -46,7 +46,7 @@ import {
   assertMatrixApproxEq,
   assertVecAllApproxNotEq,
   assertVecApproxEq
-} from '../../physics/classes/Physics.test'
+} from '../../../tests/util/mathAssertions'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { TransformComponent } from '../RendererModule'
 import {

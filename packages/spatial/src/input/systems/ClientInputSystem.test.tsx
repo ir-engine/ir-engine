@@ -45,7 +45,7 @@ import {
 import { getMutableState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { InputPointerComponent } from '../components/InputPointerComponent'

@@ -59,12 +59,13 @@ import {
 } from '../transform/systems/TransformSystem'
 import { PhysicsPreTransformSystem, PhysicsSystem } from './PhysicsModule'
 import { Physics, PhysicsWorld } from './classes/Physics'
-import { assertVecAnyApproxNotEq, assertVecApproxEq } from './classes/Physics.test'
 import { ColliderComponent } from './components/ColliderComponent'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
 import { BodyTypes, Shapes } from './types/PhysicsTypes'
-import './PhysicsModule'
+
+import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../tests/util/mathAssertions'
 import '../transform/TransformModule'
+import './PhysicsModule'
 
 const execute = {
   physicsSystem: SystemDefinitions.get(PhysicsSystem)!.execute, // with: SimulationSystemGroup

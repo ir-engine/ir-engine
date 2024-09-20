@@ -37,10 +37,11 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
+import assert from 'assert'
 import { Material, Uniform, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
-import { assertVecApproxEq } from '../../../../physics/classes/Physics.test'
+
+import { assertVecApproxEq } from '../../../../../tests/util/mathAssertions'
 import { generateNoiseTexture } from '../../../functions/generateNoiseTexture'
 import { MaterialStateComponent } from '../../MaterialComponent'
 import { NoiseOffsetPluginComponent, NoiseOffsetSystem } from './NoiseOffsetPlugin'

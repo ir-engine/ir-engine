@@ -41,7 +41,7 @@ import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
-import { ObjectDirection, Vector3_Zero } from '../../common/constants/MathConstants'
+import { ObjectDirection, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -58,9 +58,17 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, UndefinedEntity, removeEntity } from '@ir-engine/ecs'
 import { act, render } from '@testing-library/react'
 import React from 'react'
+import {
+  assertFloatApproxEq,
+  assertFloatApproxNotEq,
+  assertVecAllApproxNotEq,
+  assertVecApproxEq
+} from '../../../tests/util/mathAssertions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import '../../transform/TransformModule'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import '../PhysicsModule'
 import { PhysicsSystem } from '../systems/PhysicsSystem'
 import {
   BodyTypes,
@@ -71,60 +79,6 @@ import {
   Shapes
 } from '../types/PhysicsTypes'
 import { Physics, PhysicsWorld, RapierWorldState } from './Physics'
-
-const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
-
-const Epsilon = 0.001
-function floatApproxEq(A: number, B: number, epsilon = Epsilon): boolean {
-  return Math.abs(A - B) < epsilon
-}
-export function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
-}
-
-export function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(!floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
-}
-
-export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by RigidBodyComponent.test.ts
-  assertFloatApproxEq(A.x, B.x, epsilon)
-  assertFloatApproxEq(A.y, B.y, epsilon)
-  assertFloatApproxEq(A.z, B.z, epsilon)
-  if (elems > 3) assertFloatApproxEq(A.w, B.w, epsilon)
-}
-
-/**
- * @description
- * Triggers an assert if one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
- * Does nothing for members that are equal */
-export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by PhysicsSystem.test.ts
-  !floatApproxEq(A.x, B.x, epsilon) && assertFloatApproxNotEq(A.x, B.x, epsilon)
-  !floatApproxEq(A.y, B.y, epsilon) && assertFloatApproxNotEq(A.y, B.y, epsilon)
-  !floatApproxEq(A.z, B.z, epsilon) && assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) !floatApproxEq(A.w, B.w, epsilon) && assertFloatApproxEq(A.w, B.w, epsilon)
-}
-
-export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by RigidBodyComponent.test.ts
-  assertFloatApproxNotEq(A.x, B.x, epsilon)
-  assertFloatApproxNotEq(A.y, B.y, epsilon)
-  assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) assertFloatApproxNotEq(A.w, B.w, epsilon)
-}
-
-export function assertMatrixApproxEq(A, B, epsilon = Epsilon) {
-  for (let id = 0; id < 16; ++id) {
-    assertFloatApproxEq(A.elements[id], B.elements[id], epsilon)
-  }
-}
-
-export function assertMatrixAllApproxNotEq(A, B, epsilon = Epsilon) {
-  for (let id = 0; id < 16; ++id) {
-    assertFloatApproxNotEq(A.elements[id], B.elements[id], epsilon)
-  }
-}
 
 export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,
@@ -1605,16 +1559,14 @@ describe('Physics : Rapier->ECS API', () => {
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
-        testEntity = createEntity()
-        setComponent(testEntity, EntityTreeComponent, { parentEntity: rootEntity })
-        setComponent(testEntity, TransformComponent)
-        setComponent(testEntity, RigidBodyComponent)
-        setComponent(testEntity, ColliderComponent)
         rootEntity = createEntity()
         setComponent(rootEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(rootEntity, TransformComponent)
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: rootEntity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, ColliderComponent)
         setComponent(rootEntity, RigidBodyComponent)
-        setComponent(rootEntity, ColliderComponent)
       })
 
       afterEach(() => {
@@ -1631,7 +1583,13 @@ describe('Physics : Rapier->ECS API', () => {
 
       it('should return a descriptor with the expected default values', () => {
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        assert.deepEqual(result, Default)
+        for (const key in Default) {
+          if (typeof Default[key] === 'object' && 'x' in Default[key]) {
+            assertVecApproxEq(result[key], Default[key], 3)
+          } else {
+            assert.deepEqual(result[key], Default[key])
+          }
+        }
       })
 
       it('should set the friction to the same value as the ColliderComponent', () => {
@@ -1697,7 +1655,6 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should set the position relative to the parent entity', () => {
-        const Expected = new Vector3(1, 2, 3)
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         console.log(JSON.stringify(result))
         console.log(JSON.stringify(result.translation))
@@ -1705,10 +1662,8 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should set the rotation relative to the parent entity', () => {
-        const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        console.log(JSON.stringify(result.rotation))
-        assertVecApproxEq(result.rotation, Rotation_Zero, 4)
+        assertVecApproxEq(result.rotation, Q_IDENTITY, 4)
       })
     })
 

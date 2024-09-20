@@ -45,7 +45,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, getAncestorWithComponents } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'
-import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
+import { assertVecAllApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { BodyTypes, Shapes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'

@@ -53,7 +53,7 @@ import {
   assertFloatApproxNotEq,
   assertVecAllApproxNotEq,
   assertVecApproxEq
-} from '../classes/Physics.test'
+} from '../../../tests/util/mathAssertions'
 import { BodyTypes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'
 import {
