@@ -244,7 +244,8 @@
     "rigidbody": {
       "name": "Rigidbody",
       "description": "A rigidbody component that allows the entity to be affected by physics.",
-      "lbl-type": "Body Type"
+      "lbl-type": "Body Type",
+      "duplicateError": "A rigidbody component already exists in the current entity hierarchy, removing it from entity {{entity}} with name {{name}}"
     },
     "prefab": {
       "name": "Prefab",
@@ -887,7 +888,10 @@
       "lbl-penumbra": "Penumbra",
       "lbl-angle": "Angle",
       "lbl-range": "Range",
-      "lbl-decay": "Decay"
+      "lbl-decay": "Decay",
+      "lbl-shadowBias": "Shadow Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-castShadow": "Cast Shadow"
     },
     "transform": {
       "title": "Transform",
@@ -908,7 +912,7 @@
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
       "ph-selectNode": "Select node...",
-      "lbl-addRigidBody": "Add RigidBody..."
+      "lbl-addRigidBody": "Add RigidBody"
     },
     "video": {
       "name": "Video",
