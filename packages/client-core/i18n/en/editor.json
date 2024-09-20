@@ -940,9 +940,7 @@
       "lbl-alpha-uv-offset": "Alpha UV Offset",
       "lbl-alpha-uv-offset-info": "The offset of the alpha channel in UV space",
       "lbl-alpha-uv-scale": "Alpha UV Scale",
-      "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space",
-      "lbl-use-letterBox": "Use Letter Box",
-      "lbl-use-letterBox-info": "Letter Box the video output by adding black bars to areas beyond the video's aspect ratio"
+      "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space"
     },
     "volumetric": {
       "name": "Volumetric",

@@ -112,7 +112,6 @@ export const VideoComponent = defineComponent({
     useAlphaUVTransform: S.Bool(false),
     alphaThreshold: S.Number(0.5),
     fit: ContentFitTypeSchema('contain'),
-    useLetterBox: S.Bool(false),
     projection: ProjectionSchema,
     mediaUUID: S.EntityUUID(),
     // internal
@@ -137,7 +136,6 @@ export const VideoComponent = defineComponent({
     if (typeof json.useAlphaUVTransform === 'boolean') component.useAlphaUVTransform.set(json.useAlphaUVTransform)
     if (typeof json.alphaThreshold === 'number') component.alphaThreshold.set(json.alphaThreshold)
     if (typeof json.fit === 'string') component.fit.set(json.fit)
-    if (typeof json.useLetterBox === 'boolean') component.useLetterBox.set(json.useLetterBox)
     if (typeof json.projection === 'string' && (json.projection === 'Flat' || json.projection === 'Equirectangular360'))
       component.projection.set(json.projection)
   },
@@ -179,7 +177,6 @@ function VideoReactor() {
           useAlphaUVTransform: { value: false },
           alphaUVOffset: { value: new Vector2(0, 0) },
           alphaUVScale: { value: new Vector2(1, 1) },
-          useLetterBox: { value: false },
           wrapS: { value: ClampToEdgeWrapping },
           wrapT: { value: ClampToEdgeWrapping }
         },
@@ -202,7 +199,6 @@ function VideoReactor() {
         uniform bool useAlphaUVTransform;
         uniform vec2 alphaUVOffset;
         uniform vec2 alphaUVScale;
-        uniform bool useLetterBox;
         uniform int wrapS;
         uniform int wrapT;
 
@@ -251,12 +247,10 @@ function VideoReactor() {
                 float intensity = color.r * 0.3 + color.g * 0.59 + color.b * 0.11;
                 if (intensity < alphaThreshold) discard;
             }
-          }
-          if(useLetterBox){
-            if( adjustedUv.y < 0.0 || adjustedUv.y > 1.0 || adjustedUv.x < 0.0 || adjustedUv.x > 1.0) {
-              color = vec4(0.0, 0.0, 0.0, 1.0);
-            }
-          }
+          }          
+          if( adjustedUv.y < 0.0 || adjustedUv.y > 1.0 || adjustedUv.x < 0.0 || adjustedUv.x > 1.0) {
+            color = vec4(0.0, 0.0, 0.0, 1.0);
+          }          
           gl_FragColor = color;
         #else
           gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -371,11 +365,6 @@ function VideoReactor() {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.useAlpha.value = video.useAlpha.value
   }, [video.useAlpha])
-
-  useEffect(() => {
-    const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
-    uniforms.useLetterBox.value = video.useLetterBox.value
-  }, [video.useLetterBox])
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
