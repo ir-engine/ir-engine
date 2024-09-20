@@ -72,6 +72,7 @@ import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import {
+  EEArgEntry,
   EEMaterial,
   EEMaterialExtension
 } from '@ir-engine/engine/src/assets/compression/extensions/EE_MaterialTransformer'
@@ -445,7 +446,7 @@ const toTransformedDocument = async (srcDocument: Document, args: ModelTransform
       document.transform(removeUVsOnUntexturedMeshes),
       document.transform(palette(args.palette.options))
     ]))
-  args.prune && (await document.transform(prune()))
+  args.prune && (await document.transform(prune({ keepAttributes: true /*keepExtras: true*/ })))
 
   /* Separate Instanced Geometry */
   // TODO: make sure the order of operations is correct. They are very order dependent!
@@ -458,7 +459,6 @@ const toTransformedDocument = async (srcDocument: Document, args: ModelTransform
     node instanceof Node && parent?.removeChild(node)
   })
 
-  /* PROCESS MESHES */
   if (args.weld.enabled) {
     await document.transform(weld())
   }
@@ -537,19 +537,9 @@ const createTextureOperations = (
     for (const texture of textures) {
       console.log('considering texture ' + texture.getURI())
       if (texture.getMimeType() === 'image/ktx2') continue
-      // const oldImg = texture.getImage()
-      // if (!oldImg) continue
       const oldSize = texture.getSize()
       if (!oldSize) continue
       const maxDimension = Math.max(...oldSize!)
-
-      // I believe this is redundant. -JS
-      // if (
-      //   mimeToFileType(texture.getMimeType()) === mergedParms.textureFormat &&
-      //   maxDimension < mergedParms.maxTextureSize
-      // ) {
-      //   continue
-      // }
 
       // At this point, we have a texture
       // We want the relation between that texture and the parts of the document that reference it
@@ -609,10 +599,9 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
   const hash = hashTextureOperation(operation)
 
   const prevResult = resultCache.get(hash)
-  console.log('!!!', prevResult === texture) // If they're identical, then we'll need to duplicate textures when we clone document
   if (prevResult != null && prevResult !== texture) {
     const originalName = texture.getName()
-    texture.copy(prevResult) // Texture mutation
+    texture.copy(prevResult)
     texture.setName(originalName)
     return
   }
@@ -634,7 +623,7 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
         resize: [params.maxTextureSize, params.maxTextureSize]
       })
     )
-    texture.copy(nuTexture) // Texture mutation
+    texture.copy(nuTexture)
     texture.setName(originalName)
     texture.setURI(nuURI)
   }
@@ -653,7 +642,7 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
       yFlip: params.flipY
     })
 
-    texture.setImage(new Uint8Array(compressedData)) // Texture mutation
+    texture.setImage(new Uint8Array(compressedData))
     texture.setMimeType('image/ktx2')
     texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
   }
@@ -823,6 +812,35 @@ export const transformModel = async (
     if (eeMaterialExtension) {
       for (const texture of eeMaterialExtension.textures) {
         document.createTexture().copy(texture)
+        // Find all materials that reference the old texture, and change their reference to the new texture
+      }
+      for (const material of document.getRoot().listMaterials()) {
+        const eeMaterial = material.getExtension<EEMaterial>('EE_material')
+        if (eeMaterial == null) continue
+        const matArgs = eeMaterial.args!
+
+        const newTextures = document.getRoot().listTextures()
+        const materialArgsInfo = eeMaterialExtension.materialInfoMap.get(matArgs.getExtras().uuid as string)!
+        materialArgsInfo.map((field) => {
+          let argEntry: EEArgEntry
+          try {
+            argEntry = matArgs.getPropRef(field) as EEArgEntry
+          } catch (e) {
+            argEntry = matArgs.getProp(field) as EEArgEntry
+          }
+
+          if (argEntry.type === 'texture') {
+            const oldTexture = argEntry.contents as Texture
+            if (oldTexture != null) {
+              const uuid: string = oldTexture.getExtras().uuid as string
+              const newTexture = newTextures.find((texture) => texture.getExtras().uuid === uuid)
+              if (newTexture == null) {
+                throw new Error('Transformed texture is not listed.')
+              }
+              argEntry.contents = newTexture
+            }
+          }
+        })
       }
     }
   }

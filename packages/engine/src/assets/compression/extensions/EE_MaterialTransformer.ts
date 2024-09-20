@@ -35,7 +35,6 @@ import {
   WriterContext
 } from '@gltf-transform/core'
 import { KHRTextureTransform } from '@gltf-transform/extensions'
-import { listTextureInfo } from '@gltf-transform/functions'
 import { CopyableExtension } from './CopyableExtension'
 
 const EXTENSION_NAME = 'EE_material'
@@ -303,8 +302,6 @@ export class EEMaterialExtension extends CopyableExtension {
                 argEntry = matArgs.getProp(field) as EEArgEntry
               }
               if (argEntry.type === 'texture') {
-                const argEntry = new EEArgEntry(this.document.getGraph())
-                argEntry.type = 'texture'
                 const texture = argEntry.contents as Texture
                 if (texture) {
                   const textureUuid = texture.getExtras().uuid as string
@@ -351,52 +348,9 @@ export class EEMaterialExtension extends CopyableExtension {
       const uuid = sourceTexture.getExtras().uuid
       const targetTexture = targetTexturesByUUID.get(uuid)!
       target.textures.push(targetTexture)
-      for (const textureInfo of listTextureInfo(targetTexture)) {
-        const textureInfoUuid = textureInfo.getExtras().uuid as string
-        target.textureInfoMap.set(textureInfoUuid, textureInfo)
-      }
+      target.textureInfoMap = this.textureInfoMap // NOTE: our cloned documents' EE_Mat extension currently BORROWS the original texture info
       target.textureExtensions.push(targetTexture.listExtensions())
     }
-
-    // target.textureExtensions = this.textureExtensions.map(extensionList => extensionList.map(extension => extension.clone())) // CLONE
-    // target.textures = this.textures.map(texture => texture.clone()) // CLONE
-    // target.textureInfoMap = new Map(
-    //   [...this.textureInfoMap.entries()]
-    //   .map(([uuid, textureInfo]) => ([uuid, textureInfo.clone()])) // CLONE
-    // )
-
-    // const targetGraph = target.document.getGraph()
-
-    // for (const sourceTexture of this.textures) {
-    //   const texture = new Texture(targetGraph, sourceTexture.getName())
-
-    //   if (texture.getExtras().uuid === undefined) { // Breakpoint
-    //     texture.setExtras({...sourceTexture.getExtras()}) // Inspect
-    //   }
-
-    //   texture.copy(sourceTexture) // Breakpoint!
-    //   texture.setName(sourceTexture.getName())
-    //   texture.setURI(sourceTexture.getURI())
-
-    //   target.textures.push(texture)
-    //   target.textureExtensions.push(texture.listExtensions())
-    // }
-
-    // for (const [uuid, sourceTextureInfo] of this.textureInfoMap.entries()) {
-    //   const textureInfo = new TextureInfo(targetGraph, sourceTextureInfo.getName())
-
-    //   const ext = sourceTextureInfo.getExtension('KHR_texture_transform')
-    //   if (ext != null) {
-    //     const sourceTransform = ext as Transform
-    //     const transform = new KHRTextureTransform(target.document).createTransform()
-    //     transform.setOffset(sourceTransform.getOffset())
-    //     transform.setScale(sourceTransform.getScale())
-    //     transform.setRotation(sourceTransform.getRotation())
-    //     transform.setTexCoord(sourceTransform.getTexCoord())
-    //     textureInfo.setExtension('KHR_texture_transform', transform)
-    //   }
-    //   target.textureInfoMap.set(uuid, textureInfo)
-    // }
 
     target.materialInfoMap = new Map(
       [...this.materialInfoMap.entries()].map(([materialUUID, materialArgsInfo]) => [
