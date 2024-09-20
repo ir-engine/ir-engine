@@ -54,6 +54,7 @@ import {
 import { createHash } from 'crypto'
 import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
 import { getPixels } from 'ndarray-pixels'
+import { $attributes } from 'property-graph'
 import { LoaderUtils } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -510,7 +511,8 @@ const hashTextureOperation = (operation: TextureOperation): string => {
 const createTextureOperations = (
   document: Document,
   args: ExtractedImageTransformParameters,
-  resources: ResourceTransforms
+  resources: ResourceTransforms,
+  textureUsages: Map<string, Set<string>>
 ): TextureOperation[] => {
   const operations: TextureOperation[] = []
 
@@ -541,35 +543,33 @@ const createTextureOperations = (
       if (!oldSize) continue
       const maxDimension = Math.max(...oldSize!)
 
-      // At this point, we have a texture
-      // We want the relation between that texture and the parts of the document that reference it
+      const usages = textureUsages.get(texture.getURI()) ?? new Set()
 
-      // TODO: obtain relational context from EE_MaterialTransformer
-
-      const usageTypes = new Set<string>()
-      const relations = texture.getGraph().listParentEdges(texture)
-      for (const relation of relations) {
-        const { propertyType } = relation.getParent()
-        switch (propertyType) {
-          case 'Material':
-            usageTypes.add(relation.getName())
-            break
-          case 'Root':
-            break
-          default:
-            console.warn(
-              `Unhandled texture relation in texture transform: ${texture.getURI()} ${propertyType}::${relation.getName()}`
-            )
-            break
-        }
+      let { maxTextureSize, textureCompressionType } = args
+      if (usages.has('map')) {
+        console.log(
+          'Heuristic: diffuse maps should have twice the texture size',
+          texture.getURI(),
+          [...usages].join(', ')
+        )
+        maxTextureSize *= 2
       }
 
-      const shouldResize = maxDimension > args.maxTextureSize
+      const shouldResize = maxDimension > maxTextureSize
       const shouldConvertToKTX = args.textureFormat === 'ktx2' // && texture.getMimeType() !== 'image/ktx2' // We are already skipping ktx2 textures. -JS
 
       if (shouldConvertToKTX) {
         ktx2Encoder ??= new KTX2Encoder()
         document.createExtension(KHRTextureBasisu).setRequired(true)
+
+        if (usages.has('normalMap')) {
+          textureCompressionType = 'uastc'
+          console.log(
+            'Heuristic: normal maps should be compressed with UASTC',
+            texture.getURI(),
+            [...usages].join(', ')
+          )
+        }
       }
 
       if (shouldResize || shouldConvertToKTX) {
@@ -579,7 +579,9 @@ const createTextureOperations = (
         )
         const params = {
           ...args,
-          ...(resourceParms ? extractParameters(resourceParms) : {})
+          ...(resourceParms ? extractParameters(resourceParms) : {}),
+          maxTextureSize,
+          textureCompressionType
         }
 
         operations.push({
@@ -784,12 +786,44 @@ export const transformModel = async (
   const textureOperations: TextureOperation[] = []
   const numDocOperations = modelOperations.length
 
+  const textureUsages = new Map<string, Set<string>>()
+  {
+    const graph = srcDocument.getGraph()
+    for (const mat of srcDocument.getRoot().listMaterials()) {
+      const eeMat = mat.getExtension<EEMaterial>('EE_material')
+      const args = eeMat?.args
+      if (args == null) {
+        continue
+      }
+
+      for (const edge of graph.listChildEdges(args)) {
+        const argEntry = edge.getChild() as EEArgEntry
+        if (argEntry == null) {
+          continue
+        }
+        const { type, contents } = argEntry[$attributes]
+        if (type !== 'texture' || contents == null) {
+          continue
+        }
+
+        const uri = contents.getURI()
+
+        if (!textureUsages.has(uri)) {
+          textureUsages.set(uri, new Set())
+        }
+
+        textureUsages.get(uri)!.add(edge.getName())
+      }
+    }
+  }
+
   for (let i = 0; i < numDocOperations; i++) {
     const docOperation = modelOperations[i]
+
     const document = await toTransformedDocument(srcDocument, docOperation)
     documents.push(document)
 
-    const operations = createTextureOperations(document, docOperation, docOperation.resources)
+    const operations = createTextureOperations(document, docOperation, docOperation.resources, textureUsages)
     const maxTextureSize = Math.max(...operations.map(({ texture }) => texture.getSize()?.[0] ?? 0))
     onMetadata(i, 'maxTextureSize', maxTextureSize)
     textureOperations.push(...operations)
