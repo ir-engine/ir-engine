@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineComponent, setComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { TransformComponent } from '@ir-engine/spatial'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 

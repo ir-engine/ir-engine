@@ -38,7 +38,6 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { getState, isClient } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -51,6 +50,7 @@ import { MouseScroll } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { FlyControlComponent } from '../components/FlyControlComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 const ZOOM_SPEED = 0.1
 const MAX_FOCUS_DISTANCE = 1000

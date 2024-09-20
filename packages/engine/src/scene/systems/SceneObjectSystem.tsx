@@ -47,13 +47,11 @@ import {
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
@@ -77,7 +75,6 @@ import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 
 const disposeMaterial = (material: Material) => {
@@ -159,7 +156,6 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
 }
 
 const groupQuery = defineQuery([GroupComponent])
-const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   const { entity, obj } = props
@@ -193,12 +189,6 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const execute = () => {
-  const delta = getState(ECSState).deltaSeconds
-  for (const entity of updatableQuery()) {
-    const callbacks = getComponent(entity, CallbackComponent)
-    callbacks.get(UpdatableCallback)?.(delta)
-  }
-
   for (const entity of groupQuery()) {
     const group = getComponent(entity, GroupComponent)
     /**

@@ -36,7 +36,7 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { TransformComponent } from '@ir-engine/spatial'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'

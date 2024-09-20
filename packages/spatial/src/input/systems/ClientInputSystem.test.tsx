@@ -46,12 +46,12 @@ import { getMutableState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { assertVecApproxEq } from '../../physics/classes/Physics.test'
-import { TransformComponent } from '../../SpatialModule'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ClientInputCleanupSystem, ClientInputSystem } from './ClientInputSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 // describe('addClientInputListeners', () => {
 //   let documentAddEvent

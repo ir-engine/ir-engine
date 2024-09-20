@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { act, render, renderHook } from '@testing-library/react'
 import React, { useEffect } from 'react'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
 import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
@@ -53,7 +53,7 @@ describe('ResourceLoaderHooks', () => {
     return destroyEngine()
   })
 
-  it('Renders hook', (done) => {
+  it('Renders hook', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     let gltfRender = 0
@@ -71,9 +71,9 @@ describe('ResourceLoaderHooks', () => {
 
       return <></>
     })
-  })
+  }))
 
-  it('Loads GLTF file', (done) => {
+  it('Loads GLTF file', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     const Reactor = () => {
@@ -99,9 +99,9 @@ describe('ResourceLoaderHooks', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Loads Texture file', (done) => {
+  it('Loads Texture file', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     const Reactor = () => {
@@ -127,9 +127,9 @@ describe('ResourceLoaderHooks', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Unloads asset when component is unmounted', (done) => {
+  it('Unloads asset when component is unmounted', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     const Reactor = () => {
@@ -148,9 +148,9 @@ describe('ResourceLoaderHooks', () => {
       assert(!resourceState.resources[gltfURL])
       done()
     })
-  })
+  }))
 
-  it('Asset changes are reactive', (done) => {
+  it('Asset changes are reactive', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     let updatedCount = 0
@@ -175,9 +175,9 @@ describe('ResourceLoaderHooks', () => {
 
       return <></>
     })
-  })
+  }))
 
-  it('Errors correctly', (done) => {
+  it('Errors correctly', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const nonExistingUrl = '/doesNotExist.glb'
 
@@ -203,9 +203,9 @@ describe('ResourceLoaderHooks', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Unloads asset when source is change', (done) => {
+  it('Unloads asset when source is change', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     let src = gltfURL
 
@@ -245,7 +245,7 @@ describe('ResourceLoaderHooks', () => {
         done()
       })
     })
-  })
+  }))
 
   it('useGLTF calls loadResource synchronously', () => {
     const resourceState = getState(ResourceState)

@@ -27,7 +27,7 @@ import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
 import { AmbientLight, DirectionalLight } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, DoneCallback, it } from 'vitest'
 import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
@@ -46,7 +46,7 @@ describe('ResourceHooks', () => {
     return destroyEngine()
   })
 
-  it('Loads an Object3D correctly', (done) => {
+  it('Loads an Object3D correctly', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     let objUUID = undefined as undefined | string
@@ -72,9 +72,9 @@ describe('ResourceHooks', () => {
       assert(!resourceState.resources[objUUID])
       done()
     })
-  })
+  }))
 
-  it('Unloads an Object3D correctly', (done) => {
+  it('Unloads an Object3D correctly', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     let objUUID = undefined as undefined | string
@@ -99,9 +99,9 @@ describe('ResourceHooks', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Updates an Object3D correctly', (done) => {
+  it('Updates an Object3D correctly', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     const light1 = DirectionalLight
@@ -131,9 +131,9 @@ describe('ResourceHooks', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Can track any asset', (done) => {
+  it('Can track any asset', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     const spy = sinon.spy()
@@ -161,9 +161,9 @@ describe('ResourceHooks', () => {
       assert(!resourceObj.data)
       done()
     })
-  })
+  }))
 
-  it('Can track any asset tied to an id', (done) => {
+  it('Can track any asset tied to an id', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     const spy = sinon.spy()
@@ -196,9 +196,9 @@ describe('ResourceHooks', () => {
       assert(!resourceState.resources[id])
       done()
     })
-  })
+  }))
 
-  it('Can unload any asset tied to an id', (done) => {
+  it('Can unload any asset tied to an id', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     const spy = sinon.spy()
@@ -235,9 +235,9 @@ describe('ResourceHooks', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Can track any asset and callback when unloaded', (done) => {
+  it('Can track any asset and callback when unloaded', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
 
     const spy = sinon.spy()
@@ -267,9 +267,9 @@ describe('ResourceHooks', () => {
       assert(!resourceObj.data)
       done()
     })
-  })
+  }))
 
-  it('Can update any asset correctly', (done) => {
+  it('Can update any asset correctly', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const id = '3456345623215'
     const spy = sinon.spy()
@@ -308,5 +308,5 @@ describe('ResourceHooks', () => {
       unmount()
       done()
     })
-  })
+  }))
 })

@@ -37,12 +37,12 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
-import { PhysicsSystem } from '@ir-engine/spatial'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { PhysicsSystem } from '@ir-engine/spatial/src/physics/systems/PhysicsSystem'
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()

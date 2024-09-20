@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { LoadingManager } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
 import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
@@ -50,7 +50,7 @@ describe('ResourceLoadingManager', () => {
     return destroyEngine()
   })
 
-  it('Calls loading manager', (done) => {
+  it('Calls loading manager', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
@@ -76,5 +76,5 @@ describe('ResourceLoadingManager', () => {
         controller.signal
       )
     }, done)
-  })
+  }))
 })

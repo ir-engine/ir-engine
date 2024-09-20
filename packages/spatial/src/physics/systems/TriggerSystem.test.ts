@@ -41,7 +41,7 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { TransformComponent } from '../../SpatialModule'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setCallback } from '../../common/CallbackComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'

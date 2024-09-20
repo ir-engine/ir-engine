@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert, { strictEqual } from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { Quaternion, Vector3 } from 'three'
 
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'

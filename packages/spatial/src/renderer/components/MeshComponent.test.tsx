@@ -27,7 +27,7 @@ import { act, render } from '@testing-library/react'
 import React from 'react'
 import sinon from 'sinon'
 import { BoxGeometry, Color, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, DoneCallback, it } from 'vitest'
 import assert from 'assert'
 
 import {
@@ -216,7 +216,7 @@ describe('MeshComponent', () => {
       })
     })
 
-    it('should dispose resources correctly', (done) => {
+    it('should dispose resources correctly', () => new Promise((done: DoneCallback) => {
       const entity = createEntity()
       const geometry = new BoxGeometry(1, 1, 1)
       const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -251,9 +251,9 @@ describe('MeshComponent', () => {
           done()
         })
       })
-    })
+    }))
 
-    it("should update the mesh's geometry correctly", (done) => {
+    it("should update the mesh's geometry correctly", () => new Promise((done: DoneCallback) => {
       const entity = createEntity()
       const geometry = new BoxGeometry(1, 1, 1)
       const geometry2 = new SphereGeometry(0.5)
@@ -298,9 +298,9 @@ describe('MeshComponent', () => {
           done()
         })
       })
-    })
+    }))
 
-    it("should update the mesh's material correctly", (done) => {
+    it("should update the mesh's material correctly", () => new Promise((done: DoneCallback) => {
       const entity = createEntity()
       const geometry = new BoxGeometry(1, 1, 1)
       const material = new MeshBasicMaterial({ color: 0xdadada })
@@ -361,6 +361,6 @@ describe('MeshComponent', () => {
           })
         })
       })
-    })
+    }))
   }) //:: useMeshComponent
 })

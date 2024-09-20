@@ -41,7 +41,7 @@ import {
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Vector3 } from 'three'
-import { TransformComponent } from '../../SpatialModule'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, getAncestorWithComponents } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'

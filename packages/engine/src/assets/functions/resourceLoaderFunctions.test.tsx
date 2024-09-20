@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
 import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
@@ -55,7 +55,7 @@ describe('resourceLoaderFunctions', () => {
     return destroyEngine()
   })
 
-  it('Errors when resource is missing', (done) => {
+  it('Errors when resource is missing', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
@@ -78,9 +78,9 @@ describe('resourceLoaderFunctions', () => {
         controller.signal
       )
     }, done)
-  })
+  }))
 
-  it('Loads asset', (done) => {
+  it('Loads asset', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
@@ -102,9 +102,9 @@ describe('resourceLoaderFunctions', () => {
         controller.signal
       )
     }, done)
-  })
+  }))
 
-  it('Removes asset', (done) => {
+  it('Removes asset', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
@@ -126,9 +126,9 @@ describe('resourceLoaderFunctions', () => {
         controller.signal
       )
     }, done)
-  })
+  }))
 
-  it('Loads asset once, but references twice', (done) => {
+  it('Loads asset once, but references twice', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const entity2 = createEntity()
     const resourceState = getState(ResourceState)
@@ -175,9 +175,9 @@ describe('resourceLoaderFunctions', () => {
         controller.signal
       )
     }, done)
-  })
+  }))
 
-  it('Counts references when entity is the same', (done) => {
+  it('Counts references when entity is the same', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
@@ -221,9 +221,9 @@ describe('resourceLoaderFunctions', () => {
         controller.signal
       )
     }, done)
-  })
+  }))
 
-  it('Can load the same asset sequentially', (done) => {
+  it('Can load the same asset sequentially', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const entity2 = createEntity()
     const resourceState = getState(ResourceState)
@@ -264,9 +264,9 @@ describe('resourceLoaderFunctions', () => {
         controller2.signal
       )
     }, done)
-  })
+  }))
 
-  it('Tracks assets referenced by GLTFs', (done) => {
+  it('Tracks assets referenced by GLTFs', () => new Promise((done: DoneCallback) => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
@@ -293,5 +293,5 @@ describe('resourceLoaderFunctions', () => {
         controller.signal
       )
     }, done)
-  })
+  }))
 })

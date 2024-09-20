@@ -27,7 +27,7 @@ import { render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterAll, beforeAll, afterEach, beforeEach, describe, it, DoneCallback } from 'vitest'
 import assert from 'assert'
 
 import { ComponentType, destroyEngine } from '@ir-engine/ecs'
@@ -100,7 +100,7 @@ describe('PerformanceState', () => {
     assert(performanceState.maxVerticies === 10000)
   })
 
-  it('Increments performance offset', (done) => {
+  it('Increments performance offset', () => new Promise((done: DoneCallback) => {
     const performanceState = getMutableState(PerformanceState)
     const initialOffset = performanceState.gpuPerformanceOffset.value
 
@@ -127,9 +127,9 @@ describe('PerformanceState', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Increments performance tier', (done) => {
+  it('Increments performance tier', () => new Promise((done: DoneCallback) => {
     const performanceState = getMutableState(PerformanceState)
     const initialTier = performanceState.gpuTier.value
 
@@ -156,9 +156,9 @@ describe('PerformanceState', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Debounces performance offset', (done) => {
+  it('Debounces performance offset', () => new Promise((done: DoneCallback) => {
     const performanceState = getMutableState(PerformanceState)
     const initialOffset = performanceState.gpuPerformanceOffset.value
     const initialTier = performanceState.gpuTier.value
@@ -191,9 +191,9 @@ describe('PerformanceState', () => {
       unmount()
       done()
     })
-  })
+  }))
 
-  it('Updates render settings reactively', (done) => {
+  it('Updates render settings reactively', () => new Promise((done: DoneCallback) => {
     const performanceState = getMutableState(PerformanceState)
     const initialTier = performanceState.gpuTier.value
     let updatedTier = 5
@@ -218,5 +218,5 @@ describe('PerformanceState', () => {
       unmount()
       done()
     })
-  })
+  }))
 })

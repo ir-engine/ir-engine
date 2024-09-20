@@ -38,7 +38,7 @@ import {
   useQuery
 } from '@ir-engine/ecs'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 

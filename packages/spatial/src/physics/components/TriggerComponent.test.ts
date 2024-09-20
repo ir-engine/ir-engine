@@ -39,7 +39,7 @@ import {
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import assert from 'assert'
-import { TransformComponent } from '../../SpatialModule'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { Physics, PhysicsWorld } from '../classes/Physics'

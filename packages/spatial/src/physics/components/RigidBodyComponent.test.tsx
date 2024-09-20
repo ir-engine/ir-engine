@@ -44,7 +44,6 @@ import {
 } from '@ir-engine/ecs'
 import React from 'react'
 import { Vector3 } from 'three'
-import { PhysicsSystem, TransformComponent } from '../../SpatialModule'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
@@ -64,6 +63,8 @@ import {
   RigidBodyKinematicTagComponent,
   getTagComponentForRigidBody
 } from './RigidBodyComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { PhysicsSystem } from '../systems/PhysicsSystem'
 
 const RigidBodyComponentDefaults = {
   type: BodyTypes.Fixed,

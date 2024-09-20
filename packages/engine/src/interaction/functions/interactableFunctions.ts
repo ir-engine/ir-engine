@@ -28,7 +28,6 @@ import { Frustum, Matrix4, Vector3 } from 'three'
 import { getComponent, getOptionalComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import {
@@ -38,6 +37,7 @@ import {
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InteractableComponent } from '../components/InteractableComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 const worldPosVec3 = new Vector3()
 const mat4 = new Matrix4()
