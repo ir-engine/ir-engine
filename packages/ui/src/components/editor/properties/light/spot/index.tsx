@@ -32,6 +32,7 @@ import { MathUtils as _Math } from 'three'
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import ColorInput from '../../../../../primitives/tailwind/Color'
+import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
@@ -114,6 +115,32 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           value={lightComponent.decay.value}
           onChange={updateProperty(SpotLightComponent, 'decay')}
           onRelease={commitProperty(SpotLightComponent, 'decay')}
+        />
+      </InputGroup>
+      <InputGroup name="castShadow" label={t('editor:properties.spotLight.lbl-castShadow')}>
+        <BooleanInput
+          onChange={updateProperty(SpotLightComponent, 'castShadow')}
+          value={lightComponent.castShadow.value}
+        />
+      </InputGroup>
+      <InputGroup name="ShadowBias" label={t('editor:properties.spotLight.lbl-shadowBias')}>
+        <NumericInput
+          min={0}
+          max={1}
+          smallStep={0.00001}
+          mediumStep={0.001}
+          value={lightComponent.shadowBias.value}
+          onChange={updateProperty(SpotLightComponent, 'shadowBias')}
+          onRelease={commitProperty(SpotLightComponent, 'shadowBias')}
+        />
+      </InputGroup>
+      <InputGroup name="ShadowRadius" label={t('editor:properties.spotLight.lbl-shadowRadius')}>
+        <NumericInput
+          smallStep={0.1}
+          mediumStep={1}
+          value={lightComponent.shadowRadius.value}
+          onChange={updateProperty(SpotLightComponent, 'shadowRadius')}
+          onRelease={commitProperty(SpotLightComponent, 'shadowRadius')}
         />
       </InputGroup>
       {/* <LightShadowProperties entity={props.entity} component={SpotLightComponent} /> */}
