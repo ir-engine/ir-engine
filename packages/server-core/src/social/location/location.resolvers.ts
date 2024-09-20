@@ -44,6 +44,8 @@ import slugify from 'slugify'
 import config from '../../appconfig'
 import { LocationService } from './location.class'
 
+const MAX_USER_PER_INSTANCE = 10
+
 export const locationResolver = resolve<LocationType, HookContext>({
   locationSetting: virtual(async (location, context) => {
     const locationSetting = await context.app.service(locationSettingPath).find({
@@ -123,6 +125,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       updatedAt: await getDateTimeSql()
     }
   },
+  maxUsersPerInstance: resolvedMaxUserPerInstance,
   updatedBy: async (_, __, context) => {
     return context.params?.user?.id || null
   },
@@ -137,7 +140,15 @@ export const locationPatchResolver = resolve<LocationType, HookContext>({
   updatedBy: async (_, __, context) => {
     return context.params?.user?.id || null
   },
+  maxUsersPerInstance: resolvedMaxUserPerInstance,
   updatedAt: getDateTimeSql
 })
+
+async function resolvedMaxUserPerInstance(value, location) {
+  if (location.maxUsersPerInstance > MAX_USER_PER_INSTANCE) {
+    throw new BadRequest('You have entered higher than the allowed max users. Please enter a number between 1 and 10.')
+  }
+  return location.maxUsersPerInstance
+}
 
 export const locationQueryResolver = resolve<LocationQuery, HookContext>({})
