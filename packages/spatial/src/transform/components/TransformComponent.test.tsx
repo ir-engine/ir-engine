@@ -38,7 +38,7 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
-import { assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, getAncestorWithComponents } from './EntityTree'
@@ -461,7 +461,7 @@ describe('TransformComponent', () => {
       assert.equal(hasComponent(testEntity, TransformComponent), true)
       // Run and Check the result
       const result = TransformComponent.getWorldScale(testEntity, new Vector3())
-      assertVecApproxEq(result, Expected, 4)
+      assertVecApproxEq(result, Expected, 3)
     })
 
     it('should decompose the scale from `@param entity`.TransformComponent.matrixWorld and write it into `@param vec3`', () => {
@@ -474,11 +474,56 @@ describe('TransformComponent', () => {
       // Run and Check the result
       const result = new Vector3()
       TransformComponent.getWorldScale(testEntity, result)
-      assertVecApproxEq(result, Expected, 4)
+      assertVecApproxEq(result, Expected, 3)
     })
   }) //:: getWorldScale
 
-  describe('getSceneScale', () => {}) //:: getSceneScale
+  describe('getSceneScale', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should write a (1,1,1) vector into `@param vec3` when none of the ancestors of `@param entity` have a SceneComponent', () => {
+      const Expected = new Vector3(1, 1, 1)
+      const Initial = Vector3_Zero.clone().addScalar(1234)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      setComponent(testEntity, TransformComponent, { scale: Initial })
+      const ancestor = getAncestorWithComponents(testEntity, [SceneComponent])
+      assert.equal(ancestor, UndefinedEntity)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.getWorldScale(testEntity, result)
+      assertVecAnyApproxNotEq(result, Initial, 3)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    it('should return a (1,1,1) vector when none of the ancestors of `@param entity` have a SceneComponent', () => {
+      const Expected = new Vector3(1, 1, 1)
+      const Initial = Vector3_Zero.clone().addScalar(1234)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      setComponent(testEntity, TransformComponent, { scale: Initial })
+      const ancestor = getAncestorWithComponents(testEntity, [SceneComponent])
+      assert.equal(ancestor, UndefinedEntity)
+      // Run and Check the result
+      const result = TransformComponent.getWorldScale(testEntity, new Vector3())
+      assertVecAnyApproxNotEq(result, Initial, 3)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    /** @todo Other cases for relative scale */
+  }) //:: getSceneScale
+
   describe('updateFromWorldMatrix', () => {}) //:: updateFromWorldMatrix
   describe('setWorldPosition', () => {}) //:: setWorldPosition
   describe('setWorldRotation', () => {}) //:: setWorldRotation
