@@ -350,7 +350,7 @@ export const S = {
         z: S.Number()
       },
       {
-        initializer: (curr, value) => curr.copy(value),
+        deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Vec3'
       }
@@ -365,7 +365,7 @@ export const S = {
         y: S.Number()
       },
       {
-        initializer: (curr, value) => curr.copy(value),
+        deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Vec2'
       }
@@ -382,7 +382,7 @@ export const S = {
         w: S.Number()
       },
       {
-        initializer: (curr, value) => curr.copy(value),
+        deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Quaternion'
       }
@@ -399,7 +399,7 @@ export const S = {
         })
       },
       {
-        initializer: (curr, value) => curr.copy(value),
+        deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Mat4'
       }
@@ -423,8 +423,8 @@ export const S = {
         b: S.Number()
       },
       {
-        initializer: (curr, value) => (curr instanceof Color ? curr.set(value) : new Color(value)),
-        serializer: (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex()),
+        deserialize: (curr, value) => (curr instanceof Color ? curr.set(value) : new Color(value)),
+        serialize: (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex()),
         ...options,
         id: 'Color'
       }

@@ -60,8 +60,10 @@ export type Static<T extends Schema> = T['static']
 export interface Options<V = unknown> {
   id?: string
   default?: any
-  serializer?: (value: V) => unknown
-  initializer?: (curr: V, value: V) => V
+  serialize?: (value: V) => unknown
+  deserialize?: (curr: V, value: V) => V
+  /** @todo */
+  validate?: (value: V) => boolean
   [prop: string]: any
 }
 

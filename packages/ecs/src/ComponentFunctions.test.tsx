@@ -251,7 +251,7 @@ describe('ComponentFunctions', async () => {
         name: 'ObjComponent',
         schema: S.Object({
           val: S.Number(4, {
-            initializer: (curr, value) => {
+            deserialize: (curr, value) => {
               assert(curr === 4)
               spy()
               return value * 2
@@ -263,7 +263,7 @@ describe('ComponentFunctions', async () => {
       const TopLevelComponent = defineComponent({
         name: 'ObjComponent',
         schema: S.Number(2, {
-          initializer: (curr, value) => {
+          deserialize: (curr, value) => {
             assert(curr === 2)
             spy()
             return value * 3
@@ -281,7 +281,7 @@ describe('ComponentFunctions', async () => {
           },
           undefined,
           {
-            initializer: (curr, value) => {
+            deserialize: (curr, value) => {
               return new Vector3(value.x, value.y, value.z)
             }
           }

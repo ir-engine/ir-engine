@@ -54,10 +54,10 @@ import { defineQuery } from './QueryFunctions'
 import { Kind, SerializedType, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
-  HasInitializers,
+  HasDeserializers,
   HasRequiredSchema,
   HasRequiredValues,
-  InitializeValue,
+  DeserializeValue,
   IsSingleValueSchema,
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
@@ -291,7 +291,7 @@ export const defineComponent = <
   Component.isComponent = true
 
   // Memoize as much tree walking as possible during component creation
-  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasInitializers(def.schema)
+  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasDeserializers(def.schema)
   const hasRequiredSchema = schemaIsJSONSchema(def.schema) && HasRequiredSchema(def.schema)
   const isSingleValueSchema = schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema)
 
@@ -305,7 +305,7 @@ export const defineComponent = <
       if (json === null || json === undefined) return
 
       if (hasSchemaInitializers) {
-        json = InitializeValue(
+        json = DeserializeValue(
           def.schema as TSchema,
           component.get(NO_PROXY_STEALTH) as ComponentType,
           typeof json === 'object' ? ({ ...json } as ComponentType) : json
