@@ -624,6 +624,21 @@ describe('getAncestorWithComponents', () => {
 
     destroyEntityTree(rootEntity)
   })
+
+  it('only returns the self entity if the includeSelf flag is set', async () => {
+    const entity1 = createEntity()
+    const entity2 = createEntity()
+
+    setComponent(entity1, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    setComponent(entity2, EntityTreeComponent, { parentEntity: entity1 })
+
+    setComponent(entity1, NameComponent, '1')
+    setComponent(entity2, NameComponent, '2')
+
+    assert(getAncestorWithComponents(entity2, [NameComponent]) === entity2)
+    assert(getAncestorWithComponents(entity2, [NameComponent], false, false) === entity1)
+    assert(getAncestorWithComponents(entity2, [NameComponent], true, false) === entity1)
+  })
 })
 
 describe('useChildWithComponent', () => {

@@ -39,6 +39,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
+import { createHash } from 'crypto'
 import multiLogger from './ServerLogger'
 import {
   APPLE_SCOPES,
@@ -348,6 +349,9 @@ const authentication = {
     }
   }
 }
+
+if (authentication.jwtPublicKey && typeof authentication.jwtPublicKey === 'string')
+  (authentication.jwtOptions as any).keyid = createHash('sha3-256').update(authentication.jwtPublicKey).digest('hex')
 
 /**
  * AWS
