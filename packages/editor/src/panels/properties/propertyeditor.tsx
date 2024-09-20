@@ -23,29 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import { UUIDComponent } from '@ir-engine/ecs'
-import { Component, ComponentJSONIDMap, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { NO_PROXY, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-
 import { calculateAndApplyYOffset } from '@ir-engine/common/src/utils/offsets'
-import { EntityUUID } from '@ir-engine/ecs'
+import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { Component, ComponentJSONIDMap, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { GLTFNodeState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
+import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
-import Button from '../../../../../primitives/tailwind/Button'
-import { Popup } from '../../../../tailwind/Popup'
-import TransformPropertyGroup from '../../../properties/transform'
-import ElementList from '../elementList'
-import MaterialEditor from '../material'
+import ElementList from './elementlist'
+import MaterialEditor from './materialeditor'
 
-const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
-  const { entity, component, multiEdit } = props
+const EntityComponentEditor = ({
+  entity,
+  component,
+  multiEdit
+}: {
+  entity: Entity
+  component: Component
+  multiEdit: boolean
+}) => {
   const componentMounted = useOptionalComponent(entity, component)
   const Editor = getState(ComponentEditorsState)[component.name]!
   if (!componentMounted) return null
@@ -55,9 +59,8 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   return <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity} component={component} />
 }
 
-const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
+const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multiEdit: boolean }) => {
   const { t } = useTranslation()
-  const { entityUUID, multiEdit } = props
 
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
   const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
@@ -124,23 +127,20 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   )
 }
 
-const NodeEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
-  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
+const NodeEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multiEdit: boolean }) => {
+  const entity = UUIDComponent.useEntityByUUID(entityUUID)
   const node = GLTFNodeState.useMutableNode(entity)
   if (!node) return null
-  return <EntityEditor entityUUID={props.entityUUID} multiEdit={props.multiEdit} />
+  return <EntityEditor entityUUID={entityUUID} multiEdit={multiEdit} />
 }
 
-/**
- * PropertiesPanelContainer used to render editor view to customize property of selected element.
- */
-export const PropertiesPanelContainer = () => {
+const PropertiesEditor = () => {
+  const { t } = useTranslation()
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
   const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
+  const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
   const multiEdit = selectedEntities.length > 1
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
-  const { t } = useTranslation()
-  const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
     <div className="flex h-full flex-col gap-0.5 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
@@ -157,4 +157,4 @@ export const PropertiesPanelContainer = () => {
   )
 }
 
-export default PropertiesPanelContainer
+export default PropertiesEditor

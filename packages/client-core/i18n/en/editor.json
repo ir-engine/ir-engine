@@ -909,7 +909,7 @@
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
       "ph-selectNode": "Select node...",
-      "lbl-addRigidBody": "Add RigidBody..."
+      "lbl-addRigidBody": "Add RigidBody"
     },
     "video": {
       "name": "Video",
