@@ -37,6 +37,7 @@ import {
   TPropertyKeySchema,
   TRecordSchema,
   TRequiredSchema,
+  TTupleSchema,
   TUnionSchema
 } from './JSONSchemaTypes'
 
@@ -50,6 +51,86 @@ const CreateObject = (props?: TProperties) => {
     obj[key] = CreateSchemaValue(props[key])
   }
   return obj
+}
+
+export const HasInitializers = <T extends Schema>(schema: T): boolean => {
+  if (schema.options?.initializer) return true
+  switch (schema[Kind]) {
+    case 'Object':
+    case 'Class': {
+      const props = schema.properties as TProperties
+      const propKeys = Object.keys(props)
+
+      for (const key of propKeys) {
+        if (HasInitializers(props[key])) return true
+      }
+
+      return false
+    }
+
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties']
+      return HasInitializers(props)
+    }
+
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return HasInitializers(props)
+    }
+
+    case 'Required': {
+      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      return HasInitializers(props)
+    }
+
+    default:
+      return false
+  }
+}
+
+const validValue = (value) => {
+  return value !== undefined && value !== null
+}
+
+export const InitializeValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val => {
+  switch (schema[Kind]) {
+    case 'Object':
+    case 'Class': {
+      if (!validValue(value)) return value
+
+      if (schema.options?.initializer) return schema.options?.initializer(curr, value) as Val
+
+      const props = schema.properties as TProperties
+      const propKeys = Object.keys(props)
+
+      for (const key of propKeys) {
+        if (validValue(value[key])) value[key] = InitializeValue(props[key], curr[key], value[key])
+      }
+
+      break
+    }
+
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties']
+      return InitializeValue(props, curr, value)
+    }
+
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return InitializeValue(props, curr, value)
+    }
+
+    case 'Required': {
+      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      return InitializeValue(props, curr, value)
+    }
+
+    default:
+      if (validValue(value) && schema.options?.initializer) return schema.options?.initializer(curr, value) as Val
+      break
+  }
+
+  return value
 }
 
 export const HasRequiredSchema = <T extends Schema>(schema: T): boolean => {
@@ -133,6 +214,7 @@ export const IsSingleValueSchema = <T extends Schema>(schema?: T): boolean => {
     case 'Literal':
     case 'Class':
     case 'Array':
+    case 'Tuple':
     case 'Func':
       return true
 
@@ -196,6 +278,7 @@ export const CreateSchemaValue = <T extends Schema>(schema: T): Static<T> => {
     case 'Partial':
       return {}
     case 'Array':
+    case 'Tuple':
       return []
     case 'Union': {
       const props = schema.properties as TUnionSchema<Schema[]>['properties']
@@ -335,6 +418,18 @@ export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) =
       }
     }
 
+    case 'Tuple': {
+      const props = schema.properties as TTupleSchema<Schema[]>['properties']
+      if (!Array.isArray(value)) return false
+      // Tuple of optional values?
+      // else if (value.length !== props.length) return false
+      for (let i = 0; i < props.length; i++) {
+        if (!CheckSchemaValue(props[i], value[i])) return false
+      }
+
+      return true
+    }
+
     case 'Union': {
       const props = schema.properties as TUnionSchema<Schema[]>['properties']
       if (!props.length) return false
@@ -366,6 +461,7 @@ export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) =
 }
 
 const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
+  if (schema.options?.serializer) return schema.options?.serializer(value)
   switch (schema[Kind]) {
     case 'Null':
     case 'Undefined':
@@ -380,7 +476,6 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
 
     case 'Object':
     case 'Class': {
-      if (schema.serializer) return schema.serializer(value)
       const props = schema.properties as TProperties
       const propKeys = Object.keys(props)
       if (propKeys.length && value && typeof value === 'object') {
@@ -415,6 +510,12 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
       const props = schema.properties as TArraySchema<Schema>['properties']
       if (!isSerializable(props)) return null
       if (Array.isArray(value)) return value.map((item) => ConvertToSchema(props, item))
+      else return value
+    }
+
+    case 'Tuple': {
+      const props = schema.properties as TTupleSchema<Schema[]>['properties']
+      if (Array.isArray(value)) return value.map((item, i) => ConvertToSchema(props[i], item))
       else return value
     }
 

@@ -54,8 +54,10 @@ import { defineQuery } from './QueryFunctions'
 import { Kind, SerializedType, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
+  HasInitializers,
   HasRequiredSchema,
   HasRequiredValues,
+  InitializeValue,
   IsSingleValueSchema,
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
@@ -288,7 +290,11 @@ export const defineComponent = <
     SOAComponent
   Component.isComponent = true
 
+  // Memoize as much tree walking as possible during component creation
+  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasInitializers(def.schema)
   const hasRequiredSchema = schemaIsJSONSchema(def.schema) && HasRequiredSchema(def.schema)
+  const isSingleValueSchema = schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema)
+
   Component.onSet = (entity, component, json) => {
     if (schemaIsJSONSchema(def.schema) || def.onInit) {
       if (hasRequiredSchema) {
@@ -297,12 +303,16 @@ export const defineComponent = <
       }
 
       if (json === null || json === undefined) return
-      if (
-        Array.isArray(json) ||
-        typeof json !== 'object' ||
-        (schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema))
-      )
-        component.set(json as ComponentType)
+
+      if (hasSchemaInitializers) {
+        json = InitializeValue(
+          def.schema as TSchema,
+          component.get(NO_PROXY_STEALTH) as ComponentType,
+          json as ComponentType
+        ) as SetJSON | undefined
+      }
+
+      if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
       else component.merge(json as SetPartialStateAction<ComponentType>)
     }
   }
