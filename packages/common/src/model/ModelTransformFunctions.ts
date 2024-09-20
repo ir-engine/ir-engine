@@ -544,6 +544,8 @@ const createTextureOperations = (
       // At this point, we have a texture
       // We want the relation between that texture and the parts of the document that reference it
 
+      // TODO: obtain relational context from EE_MaterialTransformer
+
       const usageTypes = new Set<string>()
       const relations = texture.getGraph().listParentEdges(texture)
       for (const relation of relations) {
