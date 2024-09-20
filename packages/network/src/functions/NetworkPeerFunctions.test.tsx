@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import { EntityUUID, UUIDComponent, getComponent } from '@ir-engine/ecs'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'

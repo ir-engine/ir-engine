@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -37,7 +38,7 @@ const fileName1 = '/path/to/file3.jpg'
 
 describe('invalidation.test', () => {
   let app: Application
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
     await app.service(invalidationPath).remove(null, {
@@ -45,7 +46,7 @@ describe('invalidation.test', () => {
     })
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

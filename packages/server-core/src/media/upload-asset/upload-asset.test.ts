@@ -39,7 +39,7 @@ const testProject = 'test-project'
 describe('upload-asset', () => {
   let app: Application
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
@@ -61,7 +61,7 @@ describe('upload-asset', () => {
     })
   })
 
-  after(async () => {
+  afterAll(async () => {
     restoreFetch()
     await tearDownAPI()
     destroyEngine()

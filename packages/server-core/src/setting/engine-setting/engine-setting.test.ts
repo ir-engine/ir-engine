@@ -28,7 +28,8 @@ import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.sche
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
 import { createFeathersKoaApp } from '@ir-engine/server-core/src/createApp'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 import {
   createEngineSetting,
   findEngineSetting,
@@ -48,7 +49,7 @@ describe.only('engine-setting.test', () => {
   let user: UserType
   let engineSetting: EngineSettingType
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
@@ -57,7 +58,7 @@ describe.only('engine-setting.test', () => {
     user = engineSettingResponse.user
   })
 
-  after(async () => {
+  afterAll(async () => {
     await app.service(userPath).remove(user.id)
     await destroyEngine()
   })

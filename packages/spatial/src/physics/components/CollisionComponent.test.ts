@@ -33,7 +33,8 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 import { ColliderHitEvent } from '../types/PhysicsTypes'
 import { CollisionComponent } from './CollisionComponent'
 

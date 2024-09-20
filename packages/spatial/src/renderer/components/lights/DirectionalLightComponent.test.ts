@@ -36,8 +36,9 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { BoxGeometry, Color, ColorRepresentation, DirectionalLight, Mesh, MeshBasicMaterial } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'

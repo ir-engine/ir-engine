@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -49,12 +50,12 @@ const mockHookContext = (app: Application, query?: Partial<{ project: string }>)
 
 describe('resolve-project-id', () => {
   let app: Application
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

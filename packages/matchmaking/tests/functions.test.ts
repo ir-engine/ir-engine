@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import nock from 'nock'
+import { afterEach, assert, describe, it } from 'vitest'
 
 import { createTicket, deleteTicket, FRONTEND_SERVICE_URL, getTicket, getTicketsAssignment } from '../src/functions'
 

@@ -38,12 +38,12 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 // causes CI/CD weirdness
 describe('avatar-helper', () => {
   let app: Application
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

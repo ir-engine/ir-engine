@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { projectCheckUnfetchedCommitPath } from '@ir-engine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
@@ -51,7 +52,7 @@ describe('project-check-unfetched-commit.test', () => {
     }
   })
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
@@ -83,7 +84,7 @@ describe('project-check-unfetched-commit.test', () => {
     )
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

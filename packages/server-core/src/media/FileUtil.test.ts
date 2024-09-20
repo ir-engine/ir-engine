@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import fs from 'fs'
 import path from 'path/posix'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -39,7 +40,7 @@ describe('FileUtil functions', () => {
   let PROJECT_PATH: string
   let STORAGE_PATH: string
   let store: LocalStorage
-  before(() => {
+  beforeAll(() => {
     createEngine()
     store = new LocalStorage()
     PROJECT_PATH = path.join(projectsRootFolder, TEST_DIR)
@@ -193,7 +194,7 @@ describe('FileUtil functions', () => {
     })
   })
 
-  after(() => {
+  afterAll(() => {
     fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
     fs.rmSync(STORAGE_PATH, { force: true, recursive: true })
     return destroyEngine()

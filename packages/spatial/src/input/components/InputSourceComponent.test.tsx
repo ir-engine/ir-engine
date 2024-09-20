@@ -37,8 +37,9 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { Raycaster } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'

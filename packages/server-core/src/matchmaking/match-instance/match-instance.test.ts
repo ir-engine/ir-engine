@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import nock from 'nock'
+import { afterEach, assert, describe, it } from 'vitest'
 
 import { matchInstancePath } from '@ir-engine/common/src/schemas/matchmaking/match-instance.schema'
 import { instancePath } from '@ir-engine/common/src/schemas/networking/instance.schema'
@@ -84,7 +84,7 @@ describe.skip('matchmaking match-instance service', () => {
   }
 
   let app: Application
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
@@ -158,7 +158,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     tickets.push(...(await Promise.all(ticketsPromises)))
   })
-  after(async () => {
+  afterAll(async () => {
     const cleanupPromises: Promise<any>[] = []
 
     // delete tickets

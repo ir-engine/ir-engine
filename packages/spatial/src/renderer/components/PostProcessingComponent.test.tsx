@@ -23,8 +23,9 @@
 // Infinite Reality Engine. All Rights Reserved.
 // */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { MathUtils } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import {
   EntityUUID,

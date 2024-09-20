@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { LoadingManager } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'

@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
+import { afterEach, assert, describe, it } from 'vitest'
 
 import {
   avatarPath,
@@ -60,7 +60,7 @@ describe('project-destination-check.test', () => {
     }
   })
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
@@ -94,7 +94,7 @@ describe('project-destination-check.test', () => {
 
   afterEach(() => nock.cleanAll())
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

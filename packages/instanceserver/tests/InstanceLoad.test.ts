@@ -25,9 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
 import appRootPath from 'app-root-path'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { ChildProcess } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { API } from '@ir-engine/common'
 import {
@@ -50,7 +51,7 @@ import { InstanceServerState } from '../src/InstanceServerState'
 import { start } from '../src/start'
 
 describe('InstanceLoad', () => {
-  before(async () => {
+  beforeAll(async () => {
     const child: ChildProcess = require('child_process').spawn('npm', ['run', 'dev-agones'], {
       cwd: appRootPath.path,
       stdio: 'inherit',
@@ -121,7 +122,7 @@ describe('InstanceLoad', () => {
     assert.equal(getState(InstanceServerState).ready, true)
   })
 
-  after(() => {
+  afterAll(() => {
     return destroyEngine()
   })
 })

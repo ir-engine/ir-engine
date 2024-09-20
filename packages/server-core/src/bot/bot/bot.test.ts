@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { v4 as uuidv4 } from 'uuid'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { botPath, BotType } from '@ir-engine/common/src/schemas/bot/bot.schema'
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
@@ -46,16 +47,16 @@ describe('bot.service', () => {
 
   const params = { isInternal: true }
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
   })
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })
 
-  before(async () => {
+  beforeAll(async () => {
     testLocation = await createTestLocation(app, params)
 
     testInstance = await app
@@ -63,7 +64,7 @@ describe('bot.service', () => {
       .create({ locationId: testLocation.id as LocationID, roomCode: '' as RoomCode, currentUsers: 0 })
   })
 
-  before(async () => {
+  beforeAll(async () => {
     const name = ('test-bot-user-name-' + uuidv4()) as UserName
     const avatarName = 'test-bot-avatar-name-' + uuidv4()
 

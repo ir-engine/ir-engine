@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { projectCheckSourceDestinationMatchPath } from '@ir-engine/common/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
@@ -62,7 +63,7 @@ describe('project-check-source-destination-match.test', () => {
     }
   })
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
@@ -94,7 +95,7 @@ describe('project-check-source-destination-match.test', () => {
     )
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })
@@ -152,13 +153,13 @@ describe('project-check-source-destination-match.test', () => {
   describe('installed project check', () => {
     let createdProject: ProjectType
 
-    before(async () => {
+    beforeAll(async () => {
       createdProject = await app.service(projectPath).create({
         name: 'myorg/my-first-project'
       })
     })
 
-    after(async () => {
+    afterAll(async () => {
       await app.service(projectPath).remove(createdProject.id)
     })
 

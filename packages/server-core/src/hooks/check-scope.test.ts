@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -47,12 +48,12 @@ const mockUserHookContext = (user: UserType, app: Application) => {
 
 describe('check-scope', () => {
   let app: Application
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

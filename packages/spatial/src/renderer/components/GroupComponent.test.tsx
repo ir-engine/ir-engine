@@ -36,10 +36,11 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { ReactorRoot, startReactor } from '@ir-engine/hyperflux'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import sinon from 'sinon'
 import { BoxGeometry, Layers, Matrix4, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 import {
   assertMatrixAllApproxNotEq,
   assertMatrixApproxEq,

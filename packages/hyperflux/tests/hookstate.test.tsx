@@ -26,7 +26,8 @@ import '@hookstate/core' // required for hookstate to override react properly wo
 
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
-import { assert, describe, it } from 'vitest'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { createHyperStore, defineState, getMutableState, NO_PROXY, NO_PROXY_STEALTH, none, useHookstate } from '..'
 

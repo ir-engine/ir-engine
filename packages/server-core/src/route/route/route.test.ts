@@ -25,10 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
+import assert from 'assert'
 
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
@@ -82,12 +83,12 @@ describe('route.test', () => {
   let testRoute: string
   let testProjectId: string
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await cleanup(app, testProject, testProjectId)
     await tearDownAPI()
     destroyEngine()

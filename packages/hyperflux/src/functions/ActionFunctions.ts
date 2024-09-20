@@ -30,10 +30,10 @@ import { createHookableFunction } from './createHookableFunction'
 
 import { OpaqueType } from '../types/OpaqueType'
 import { NetworkID, PeerID } from '../types/Types'
+import { isDev } from './EnvironmentConstants'
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
-import { isDev } from './EnvironmentConstants'
 
 const matchesPeerID = matches.string as Validator<unknown, PeerID>
 

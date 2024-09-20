@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import {
   getComponent,

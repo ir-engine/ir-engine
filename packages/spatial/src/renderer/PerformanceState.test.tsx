@@ -24,10 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { render } from '@testing-library/react'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import { ComponentType, destroyEngine } from '@ir-engine/ecs'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
@@ -56,7 +57,7 @@ describe('PerformanceState', () => {
   let screen
   let dpr
 
-  before(() => {
+  beforeAll(() => {
     screen = globalThis.window.screen
     //@ts-ignore
     globalThis.window.screen = {
@@ -67,7 +68,7 @@ describe('PerformanceState', () => {
     globalThis.window.devicePixelRatio = 3
   })
 
-  after(() => {
+  afterAll(() => {
     globalThis.window.screen = screen
     globalThis.window.devicePixelRatio = dpr
   })

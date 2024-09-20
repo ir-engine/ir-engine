@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import sinon from 'sinon'
 import { Vector2, Vector3 } from 'three'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { enterLocomotionState, getLocomotionStateActions, updateLocomotionStateBlendValues } from './locomotionState'
 

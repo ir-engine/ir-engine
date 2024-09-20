@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import AbortController from 'abort-controller'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { createTicket, deleteTicket, getTicket, getTicketsAssignment } from '../src/functions'
 import { MatchTicketType } from '../src/match-ticket.schema'

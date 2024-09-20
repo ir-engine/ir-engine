@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import {
   createEngine,
@@ -62,7 +63,7 @@ import { ClientInputCleanupSystem, ClientInputSystem } from './ClientInputSystem
 //   const mockDocEvents = new MockEventListener()
 //   const mockWinEvents = new MockEventListener()
 
-//   before(() => {
+//   beforeAll(() => {
 //     documentAddEvent = globalThis.document.addEventListener
 //     documentRemoveEvent = globalThis.document.removeEventListener
 //     windowAddEvent = globalThis.window.addEventListener
@@ -77,7 +78,7 @@ import { ClientInputCleanupSystem, ClientInputSystem } from './ClientInputSystem
 //     globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
 //   })
 
-//   after(() => {
+//   afterAll(() => {
 //     globalThis.document.addEventListener = documentAddEvent
 //     globalThis.document.removeEventListener = documentRemoveEvent
 //     globalThis.window.addEventListener = windowAddEvent

@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { createHash } from 'crypto'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import { projectGithubPushPath } from '@ir-engine/common/src/schemas/projects/project-github-push.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
@@ -53,7 +54,7 @@ describe('project-github-push.test', () => {
     }
   })
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
@@ -103,7 +104,7 @@ describe('project-github-push.test', () => {
     nock.cleanAll()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await app.service(projectPath).remove(testProject.id)
 
     await tearDownAPI()

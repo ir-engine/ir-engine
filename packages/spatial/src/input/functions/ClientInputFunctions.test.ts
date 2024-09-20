@@ -35,9 +35,10 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import sinon from 'sinon'
 import { Quaternion, Vector2, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { assertVecApproxEq } from '../../physics/classes/Physics.test'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'

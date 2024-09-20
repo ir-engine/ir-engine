@@ -25,8 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import path from 'path'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import {
   projectPermissionPath,
@@ -71,7 +72,7 @@ describe('project-permission.test', () => {
   let user3: UserType
   let user4: UserType
   let project1, project1Permission1, project1Permission2, project1Permission4
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
@@ -154,7 +155,7 @@ describe('project-permission.test', () => {
     })
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })
@@ -529,7 +530,7 @@ describe('project-permission.test', () => {
       })
     })
 
-    after(async () => {
+    afterAll(async () => {
       await cleanup(app)
     })
   })

@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import sinon from 'sinon'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import {
   createEngine,

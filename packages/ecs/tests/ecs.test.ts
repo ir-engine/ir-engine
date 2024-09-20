@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getAllEntities } from 'bitecs'
-import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 

@@ -24,12 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import approot from 'app-root-path'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import fs from 'fs-extra'
 import https from 'https'
 import fetch from 'node-fetch'
 import path from 'path/posix'
 import { v4 as uuidv4 } from 'uuid'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -68,7 +69,7 @@ describe('storageprovider', () => {
         await fs.ensureDir(path.join(testRootPath, 'testDirectory'))
       }
 
-      before(async function () {
+      beforeAll(async function () {
         createEngine()
         provider = new providerType()
         await createTestDirectories()
@@ -236,7 +237,7 @@ describe('storageprovider', () => {
         )
       })
 
-      after(async function () {
+      afterAll(async function () {
         destroyEngine()
         await providerAfterTest(provider, testFolderName)
         // clean up the test directory

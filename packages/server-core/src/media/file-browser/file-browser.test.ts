@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -40,12 +41,12 @@ const getRandomizedName = (name: string, suffix = '', prefix = PREFIX) =>
 
 describe('file-browser.test', () => {
   let app: Application
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(async () => {
+  afterAll(async () => {
     const directories = (await getStorageProvider().listFolderContent('projects/'))
       .map((directory) => directory.key)
       .filter((directory) => directory.startsWith('projects/test'))
@@ -62,7 +63,7 @@ describe('file-browser.test', () => {
   describe('create', () => {
     const testProjectName = `@org/${getRandomizedName('directory')}`
     let project: ProjectType
-    after(async () => {
+    afterAll(async () => {
       await app.service(projectPath).remove(project.id)
     })
 
@@ -78,11 +79,11 @@ describe('file-browser.test', () => {
   describe('find', () => {
     const testProjectName = `@org/${getRandomizedName('directory')}`
     let project: ProjectType
-    before(async () => {
+    beforeAll(async () => {
       project = await app.service(projectPath).create({ name: testProjectName })
     })
 
-    after(async () => {
+    afterAll(async () => {
       await app.service(projectPath).remove(project.id)
     })
 
@@ -134,11 +135,11 @@ describe('file-browser.test', () => {
     const testFileSize = Buffer.byteLength(body)
     let project: ProjectType
 
-    before(async () => {
+    beforeAll(async () => {
       project = await app.service(projectPath).create({ name: testProjectName })
     })
 
-    after(async () => {
+    afterAll(async () => {
       await app.service(projectPath).remove(project.id)
     })
 
@@ -366,7 +367,7 @@ describe('file-browser.test', () => {
     const testFileFullName = getRandomizedName('file', '.txt')
     let project: ProjectType
 
-    before(async () => {
+    beforeAll(async () => {
       project = await app.service(projectPath).create({ name: testProjectName })
       await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
       await app.service(fileBrowserPath).patch(null, {
@@ -377,7 +378,7 @@ describe('file-browser.test', () => {
       })
     })
 
-    after(async () => {
+    afterAll(async () => {
       await app.service(projectPath).remove(project.id)
     })
 

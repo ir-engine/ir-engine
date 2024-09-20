@@ -31,8 +31,9 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
 import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
 import appRootPath from 'app-root-path'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import path from 'path'
+import { describe, it } from 'vitest'
+import assert from 'assert'
 import {
   createProject,
   createProjectSetting,
@@ -58,7 +59,7 @@ describe('project-setting.test', () => {
   let project: ProjectType
   let projectSetting: ProjectSettingType
 
-  before(async () => {
+  beforeAll(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
@@ -70,7 +71,7 @@ describe('project-setting.test', () => {
     projectSetting = projectSettingResponse.projectSetting
   })
 
-  after(async () => {
+  afterAll(async () => {
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
     cleanup(project.name)

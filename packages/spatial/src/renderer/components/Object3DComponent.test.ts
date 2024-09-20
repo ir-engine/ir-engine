@@ -32,8 +32,9 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import { assert, describe, it, beforeEach, afterEach } from 'vitest'
 import { BoxGeometry, Mesh, Object3D } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import assert from 'assert'
 import { NameComponent } from '../../common/NameComponent'
 import { Object3DComponent } from './Object3DComponent'
 
