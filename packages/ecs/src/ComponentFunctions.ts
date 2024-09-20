@@ -308,7 +308,7 @@ export const defineComponent = <
         json = InitializeValue(
           def.schema as TSchema,
           component.get(NO_PROXY_STEALTH) as ComponentType,
-          { ...json } as ComponentType
+          typeof json === 'object' ? ({ ...json } as ComponentType) : json
         ) as SetJSON | undefined
       }
 

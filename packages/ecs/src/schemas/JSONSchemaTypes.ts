@@ -52,7 +52,7 @@ export interface Schema {
   [Kind]: Kinds
   static: unknown
   properties?: unknown
-  options?: Options<unknown>
+  options?: Options<any>
 }
 
 export type Static<T extends Schema> = T['static']
