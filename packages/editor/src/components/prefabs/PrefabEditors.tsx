@@ -24,6 +24,7 @@ import React, { ReactNode } from 'react'
 
 import CameraIcon from './icons/camera.svg'
 import ColliderIcon from './icons/collider.svg'
+import EcommIcon from './icons/ecomm.svg'
 import AddIcon from './icons/empty.svg'
 import GeoIcon from './icons/geo.svg'
 import ImageIcon from './icons/image.svg'
@@ -48,7 +49,8 @@ export const PrefabIcons: Record<string, ReactNode> = {
   Video: <img src={VideoIcon} />,
   Lookdev: <img src={LookDevIcon} />,
   Camera: <img src={CameraIcon} />,
-  Add: <img src={AddIcon} />,
+  Empty: <img src={AddIcon} />,
+  Ecommerce: <img src={EcommIcon} />,
   default: <img src={GeoIcon} />
 }
 
