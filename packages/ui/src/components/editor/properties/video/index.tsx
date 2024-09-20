@@ -266,6 +266,14 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       >
         <SelectInput value={video.fit.value} onChange={commitProperty(VideoComponent, 'fit')} options={fitOptions} />
       </InputGroup>
+
+      <InputGroup
+        name="Use Letter Box"
+        label={t('editor:properties.video.lbl-use-letterBox')}
+        info={t('editor:properties.video.lbl-use-letterBox-info')}
+      >
+        <BooleanInput value={video.useLetterBox.value} onChange={commitProperty(VideoComponent, 'useLetterBox')} />
+      </InputGroup>
     </NodeEditor>
   )
 }
