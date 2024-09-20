@@ -23,13 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { startCase } from 'lodash'
-import React, { useEffect, useMemo, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import { Component } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-
 import { PrefabIcons, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
@@ -37,12 +31,16 @@ import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { ComponentShelfCategoriesState } from '@ir-engine/editor/src/services/ComponentShelfCategoriesState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import StringInput from '@ir-engine/ui/src/components/editor/input/String'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { startCase } from 'lodash'
+import React, { useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GrStatusPlaceholder } from 'react-icons/gr'
 import { IoMdAddCircle } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
-import Button from '../../../../../primitives/tailwind/Button'
-import Text from '../../../../../primitives/tailwind/Text'
-import StringInput from '../../../input/String'
 
 type ElementsType = 'components' | 'prefabs'
 
