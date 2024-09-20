@@ -23,45 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import { TabData } from 'rc-dock'
+import { BsStars } from 'react-icons/bs'
+import { FaRegCircle } from 'react-icons/fa6'
+import { FiSun } from 'react-icons/fi'
+import { LuWaves } from 'react-icons/lu'
+import { PiMountains } from 'react-icons/pi'
+import { RxCube } from 'react-icons/rx'
+import { TbMaximize, TbRoute } from 'react-icons/tb'
+
 import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { FileUploadProgress } from '../files/loaders'
-import CategoriesList, { VerticalDivider } from './categories'
-import { AssetsQueryProvider } from './hooks'
-import Resources from './resources'
-import Topbar from './topbar'
 
-const AssetsPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <span>{t('editor:tabs.scene-assets')}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+export const iconMap: { [key: string]: React.ReactElement } = {
+  Model: <RxCube />,
+  Material: <FaRegCircle />,
+  Texture: <LuWaves />,
+  Image: <PiMountains />,
+  Lighting: <FiSun />,
+  'Particle system': <BsStars />,
+  'Visual script': <TbRoute />
 }
 
-export const AssetsPanelTab: TabData = {
-  id: 'assetsPanel',
-  closable: true,
-  title: <AssetsPanelTitle />,
-  content: <AssetsContainer />
-}
+const defaultIcon = <TbMaximize />
 
-function AssetsContainer() {
-  return (
-    <div className="flex h-full flex-col">
-      <AssetsQueryProvider>
-        <Topbar />
-        <FileUploadProgress />
-        <VerticalDivider leftChildren={<CategoriesList />} rightChildren={<Resources />} />
-      </AssetsQueryProvider>
-    </div>
-  )
+export const AssetIconMap = ({ name }): React.ReactElement => {
+  return <div className="flex h-4 w-4 items-center justify-center">{iconMap[name] ?? defaultIcon}</div>
 }
