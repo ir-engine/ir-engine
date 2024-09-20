@@ -46,12 +46,6 @@ export enum UIMode {
   ADVANCED = 'ADVANCED'
 }
 
-export type StudioUIAddons = {
-  container: Record<string, JSX.Element>
-  newScene: Record<string, JSX.Element>
-  //more addon points to come here
-}
-
 export const EditorState = defineState({
   name: 'EditorState',
   initial: () => ({
@@ -65,12 +59,7 @@ export const EditorState = defineState({
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
     uiEnabled: true,
-    uiMode: UIMode.ADVANCED,
-    uiAddons: {
-      container: {},
-      newScene: {}
-    } as StudioUIAddons,
-    acknowledgedUnsupportedBrowser: false
+    uiMode: UIMode.ADVANCED
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value

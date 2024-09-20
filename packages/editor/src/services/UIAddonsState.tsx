@@ -24,8 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
-import { StudioUIAddons } from './EditorServices'
-
+export type StudioUIAddons = {
+  container: Record<string, JSX.Element>
+  newScene: Record<string, JSX.Element>
+  //more addon points to come here
+}
 export const UIAddonsState = defineState({
   name: 'UIAddonsState',
   initial: () => ({
