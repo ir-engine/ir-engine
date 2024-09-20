@@ -48,7 +48,8 @@ export const PrefabIcons: Record<string, ReactNode> = {
   Video: <img src={VideoIcon} />,
   Lookdev: <img src={LookDevIcon} />,
   Camera: <img src={CameraIcon} />,
-  default: <img src={AddIcon} />
+  Add: <img src={AddIcon} />,
+  default: <img src={GeoIcon} />
 }
 
 export const PrefabShelfState = defineState({
