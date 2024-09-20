@@ -307,6 +307,6 @@ describe('ResourceHooks', () => {
       assert((resourceState.resources[id].asset as AmbientLight).isAmbientLight)
       unmount()
       done()
-    })
+    }).catch((e) => done(e))
   }))
 })
