@@ -93,6 +93,7 @@ const validValue = (value) => {
 }
 
 export const InitializeValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val => {
+  if (validValue(value) && schema.options?.initializer) return schema.options?.initializer(curr, value) as Val
   switch (schema[Kind]) {
     case 'Object':
     case 'Class': {
@@ -126,7 +127,6 @@ export const InitializeValue = <T extends Schema, Val>(schema: T, curr: Val, val
     }
 
     default:
-      if (validValue(value) && schema.options?.initializer) return schema.options?.initializer(curr, value) as Val
       break
   }
 
