@@ -211,7 +211,7 @@ export class ServerLoop {
     this._deltas = Array<number>()
   }
   _nano() {
-    const hrtime = process.hrtime()
+    const hrtime = globalThis.process.hrtime()
     return +hrtime[0] * 1e9 + +hrtime[1]
   }
   _ConvertSecondsToNano(sec: number): number {
