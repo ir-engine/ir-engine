@@ -551,26 +551,27 @@ describe('PhysicsSerialization', () => {
 
       it('should return the resulting ViewCursor if one of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed', () => {
         // Set the data as expected
-        setComponent(testEntity, RigidBodyComponent)
+        const rigidBody = setComponent(testEntity, RigidBodyComponent)
+        rigidBody.position.x = 42
         const cursor: ViewCursor = createViewCursor()
         // Sanity check before running
         assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
         // Run and Check the result
         const result = writeRigidBody(cursor, testEntity)
         assert.notEqual(result, null)
+        assert.equal(ArrayBuffer.isView(result), true)
       })
 
       it('should return void if none of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed', () => {
         // Set the data as expected
         setComponent(testEntity, RigidBodyComponent)
         const cursor: ViewCursor = createViewCursor()
-        const before = writeRigidBody(cursor, testEntity)
         // Sanity check before running
         assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
-        assert.notEqual(before, null)
         // Run and Check the result
         const result = writeRigidBody(cursor, testEntity)
         assert.equal(result, null)
+        assert.equal(ArrayBuffer.isView(result), false)
       })
     }) //:: writeRigidBody
   }) //:: Write
