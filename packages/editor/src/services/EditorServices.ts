@@ -70,7 +70,8 @@ export const EditorState = defineState({
       container: {},
       newScene: {}
     } as StudioUIAddons,
-    acknowledgedUnsupportedBrowser: false
+    acknowledgedUnsupportedBrowser: false,
+    acknowledgedUnsupportedDevice: false
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
