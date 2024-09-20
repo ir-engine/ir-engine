@@ -59,7 +59,8 @@ export const EditorState = defineState({
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
     uiEnabled: true,
-    uiMode: UIMode.ADVANCED
+    uiMode: UIMode.ADVANCED,
+    acknowledgedUnsupportedBrowser: false
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
