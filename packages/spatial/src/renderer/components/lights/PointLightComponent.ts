@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ColorRepresentation, PointLight } from 'three'
+import { PointLight } from 'three'
 
 import {
   defineComponent,
@@ -33,12 +33,11 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
-import { matchesColor } from '../../../common/functions/MatchesUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
@@ -49,42 +48,16 @@ export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
   jsonID: 'EE_point_light',
 
-  onInit: (entity) => {
-    return {
-      color: 0xffffff as ColorRepresentation,
-      intensity: 1,
-      range: 0,
-      decay: 2,
-      castShadow: false,
-      shadowBias: 0.5,
-      shadowRadius: 1,
-      helperEntity: null as Entity | null
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
-    if (matches.number.test(json.range)) component.range.set(json.range)
-    if (matches.number.test(json.decay)) component.decay.set(json.decay)
-    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
-    /** backwards compat */
-    if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
-    if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      color: component.color.value,
-      intensity: component.intensity.value,
-      range: component.range.value,
-      decay: component.decay.value,
-      castShadow: component.castShadow.value,
-      shadowBias: component.shadowBias.value,
-      shadowRadius: component.shadowRadius.value
-    }
-  },
+  schema: S.Object({
+    color: S.Color(0xffffff),
+    intensity: S.Number(1),
+    range: S.Number(0),
+    decay: S.Number(2),
+    castShadow: S.Bool(false),
+    shadowBias: S.Number(0.5),
+    shadowRadius: S.Number(1),
+    helperEntity: S.NonSerialized(S.Nullable(S.Entity()))
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

@@ -49,6 +49,7 @@ export const ActiveVisualScript = (props: { entity }) => {
   // get underlying data, avoid hookstate error 202
   const visualScriptComponent = getComponent(entity, VisualScriptComponent)
 
+  if (visualScriptComponent.visualScript === null) return null
   return (
     <ReactFlowProvider>
       <Flow

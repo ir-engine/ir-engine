@@ -278,8 +278,10 @@ const Reactor = () => {
       if (xrSession.interactionMode === 'screen-space') {
         setVisibleComponent(originAnchorEntity, true)
         setComponent(scenePlacementEntity, XRHitTestComponent, {
-          space: ReferenceSpace.viewer!,
-          entityTypes: ['plane', 'point', 'mesh']
+          options: {
+            space: ReferenceSpace.viewer!,
+            entityTypes: ['plane', 'point', 'mesh']
+          }
         })
       }
     }
@@ -347,8 +349,10 @@ const Reactor = () => {
 
       setVisibleComponent(originAnchorEntity, true)
       setComponent(scenePlacementEntity, XRHitTestComponent, {
-        space: inputSourceComponent.source.targetRaySpace,
-        entityTypes: ['plane', 'point', 'mesh']
+        options: {
+          space: inputSourceComponent.source.targetRaySpace,
+          entityTypes: ['plane', 'point', 'mesh']
+        }
       })
     }
   }, [scenePlacementMode, xrSession, inputSourceEntities.length])

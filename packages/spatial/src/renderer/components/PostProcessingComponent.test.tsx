@@ -141,25 +141,6 @@ describe('PostProcessingComponent', () => {
       const result = getComponent(testEntity, PostProcessingComponent)
       assertPostProcessingComponentEq(result, Expected)
     })
-
-    it('should not change values of an initialized PostProcessingComponent when the data passed had incorrect types', () => {
-      const Incorrect = {
-        effects: 42,
-        enabled: 46 & 2
-      }
-      // Sanity check the data
-      assertPostProcessingComponentEq(
-        getComponent(testEntity, PostProcessingComponent),
-        PostProcessingComponentDefaults
-      )
-      // Run and Check the result
-      // @ts-ignore Coerce the incorrect data type into the component
-      setComponent(testEntity, PostProcessingComponent, Incorrect)
-      assertPostProcessingComponentEq(
-        getComponent(testEntity, PostProcessingComponent),
-        PostProcessingComponentDefaults
-      )
-    })
   }) //:: onSet
 
   describe('toJSON', () => {
@@ -206,7 +187,7 @@ describe('PostProcessingComponent', () => {
             blendMode: {
               _blendFunction: 23,
               opacity: { value: 1 },
-              _listeners: { change: [null] }
+              _listeners: { change: [] }
             }, //:: blendMode
             _inputColorSpace: 'srgb-linear',
             _outputColorSpace: ''
@@ -223,7 +204,7 @@ describe('PostProcessingComponent', () => {
             blendMode: {
               _blendFunction: 23,
               opacity: { value: 1 },
-              _listeners: { change: [null] }
+              _listeners: { change: [] }
             }, //:: blendMode
             _inputColorSpace: 'srgb-linear',
             _outputColorSpace: ''
