@@ -51,7 +51,7 @@ export const PrefabIcons: Record<string, ReactNode> = {
   Lookdev: <img src={LookDevIcon} />,
   Camera: <img src={CameraIcon} />,
   Empty: <img src={AddIcon} />,
-  'E-commerce': <img src={EcommIcon} />,
+  Ecommerce: <img src={EcommIcon} />,
   default: <IoCubeOutline className="h-5 w-5 text-white" />
 }
 
