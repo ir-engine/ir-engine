@@ -24,9 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, render } from '@testing-library/react'
+import assert from 'assert'
 import React from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
 
 import {
   Engine,
@@ -53,6 +53,7 @@ import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { createMockNetwork } from '../../../../network/tests/createMockNetwork'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
+import './CameraSystem'
 
 describe('CameraSystem', async () => {
   let viewerEntity = UndefinedEntity

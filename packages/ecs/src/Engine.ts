@@ -115,7 +115,6 @@ export function destroyEngine() {
 
   disposeStore()
 
-  /** @todo include in next bitecs update */
-  // bitecs.deleteWorld(Engine.instance)
+  bitECS.deleteWorld(Engine.instance)
   Engine.instance = null!
 }

@@ -63,6 +63,8 @@ import { assertVecAnyApproxNotEq, assertVecApproxEq } from './classes/Physics.te
 import { ColliderComponent } from './components/ColliderComponent'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
 import { BodyTypes, Shapes } from './types/PhysicsTypes'
+import './PhysicsModule'
+import '../transform/TransformModule'
 
 const execute = {
   physicsSystem: SystemDefinitions.get(PhysicsSystem)!.execute, // with: SimulationSystemGroup
@@ -270,6 +272,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
     })
 
     afterEach(() => {
+      removeChidren()
       removeEntity(testEntity)
       removeEntity(parentEntity)
       removeEntity(physicsWorldEntity)
