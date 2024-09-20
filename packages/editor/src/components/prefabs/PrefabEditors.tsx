@@ -22,6 +22,7 @@ import { useGLTF } from '@ir-engine/engine/src/assets/functions/resourceLoaderHo
 import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import React, { ReactNode } from 'react'
 
+import { IoCubeOutline } from 'react-icons/io5'
 import CameraIcon from './icons/camera.svg'
 import ColliderIcon from './icons/collider.svg'
 import EcommIcon from './icons/ecomm.svg'
@@ -50,8 +51,8 @@ export const PrefabIcons: Record<string, ReactNode> = {
   Lookdev: <img src={LookDevIcon} />,
   Camera: <img src={CameraIcon} />,
   Empty: <img src={AddIcon} />,
-  Ecommerce: <img src={EcommIcon} />,
-  default: <img src={GeoIcon} />
+  'E-commerce': <img src={EcommIcon} />,
+  default: <IoCubeOutline className="h-5 w-5 text-white" />
 }
 
 export const PrefabShelfState = defineState({
