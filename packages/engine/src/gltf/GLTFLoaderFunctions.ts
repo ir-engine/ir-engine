@@ -1024,7 +1024,7 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
           const meshWeightsLoaded = meshHasWeights
             ? meshComponent?.get(NO_PROXY)?.morphTargetInfluences !== undefined
             : true
-          if (!meshWeightsLoaded || !boneComponent) return
+          if (!meshWeightsLoaded && !boneComponent) return
           channelData[i].nodes.set(
             getOptionalComponent(targetNodeEntity, MeshComponent) ??
               getOptionalComponent(targetNodeEntity, BoneComponent)!
@@ -1047,9 +1047,12 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
       }
 
       useEffect(() => {
-        if (Object.values(channelData.get(NO_PROXY)).some((data) => !data.outputAccessors || !data.inputAccessors))
+        const channelDataArray = Object.values(channelData.get(NO_PROXY))
+        if (
+          (channelDataArray.length === 1 && channelDataArray[0].nodes === null) /**@todo reevaluate this check */ ||
+          channelDataArray.some((data) => !data.outputAccessors || !data.inputAccessors)
+        )
           return
-
         const values = Object.values(channelData.get(NO_PROXY))
         const nodes = values.map((data) => data.nodes)
         const inputAccessors = values.map((data) => data.inputAccessors) as BufferAttribute[]
@@ -1058,13 +1061,14 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         const targets = values.map((data) => data.targets) as GLTF.IAnimationChannelTarget[]
 
         const tracks = [] as any[] // todo
+        if (animationName === 'Sphere') console.log(nodes)
         for (let i = 0, il = nodes.length; i < il; i++) {
           const node = nodes[i] as Mesh | SkinnedMesh
           const inputAccessor = inputAccessors[i]
           const outputAccessor = outputAccessors[i]
           const sampler = samplers[i]
           const target = targets[i]
-          if (!node || !inputAccessors[i] || !outputAccessors[i]) continue
+          if (!node || !outputAccessor || !inputAccessor) continue
 
           if (node.updateMatrix) {
             node.updateMatrix()
