@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
+import { useHookstate } from '@hookstate/core'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
@@ -56,6 +57,7 @@ export default function SceneItem({
   const { t } = useTranslation()
 
   const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
+  const isOptionsPopupOpen = useHookstate(false)
 
   const deleteSelectedScene = async (scene: StaticResourceType) => {
     if (scene) {
@@ -91,12 +93,14 @@ export default function SceneItem({
         </div>
         <div className="relative h-6 w-6">
           <Popup
+            open={isOptionsPopupOpen.value}
             trigger={
               <Button
                 variant="transparent"
                 size="small"
                 className="px-2 py-1.5"
                 startIcon={<BsThreeDotsVertical className="text-neutral-100" />}
+                onClick={() => isOptionsPopupOpen.set(true)}
               />
             }
           >
@@ -108,6 +112,7 @@ export default function SceneItem({
                   className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                   startIcon={<MdOutlineEdit />}
                   onClick={() => {
+                    isOptionsPopupOpen.set(false)
                     PopoverState.showPopupover(
                       <RenameSceneModal
                         sceneName={sceneName}
@@ -128,6 +133,7 @@ export default function SceneItem({
                   className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                   startIcon={<LuTrash />}
                   onClick={() => {
+                    isOptionsPopupOpen.set(false)
                     PopoverState.showPopupover(
                       <ConfirmDialog
                         title={t('editor:hierarchy.lbl-deleteScene')}

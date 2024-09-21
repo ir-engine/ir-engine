@@ -53,12 +53,12 @@ export function getDefaultType(value) {
     case 'number':
       return FloatArg.type
     case 'object':
-      if ((value as Texture).isTexture) return TextureArg.type
-      if ((value as Color).isColor) return ColorArg.type
-      if ((value as Vector2).isVector2) return Vec2Arg.type
-      if ((value as Vector3).isVector3) return Vec3Arg.type
-      if ((value as Quaternion).isQuaternion || (value as Vector4).isVector4) return Vec4Arg.type
-      if ((value as Euler).isEuler) return EulerArg.type
+      if ((value as Texture)?.isTexture) return TextureArg.type
+      if ((value as Color)?.isColor) return ColorArg.type
+      if ((value as Vector2)?.isVector2) return Vec2Arg.type
+      if ((value as Vector3)?.isVector3) return Vec3Arg.type
+      if ((value as Quaternion)?.isQuaternion || (value as Vector4)?.isVector4) return Vec4Arg.type
+      if ((value as Euler)?.isEuler) return EulerArg.type
       return ''
     //todo: selects, objects
     default:
