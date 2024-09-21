@@ -27,8 +27,6 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { AssetsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Assets'
-import { MaterialsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Materials'
-import { PropertiesPanelTab } from '@ir-engine/ui/src/components/editor/panels/Properties'
 import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/VisualScript'
 
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -60,8 +58,11 @@ import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import { FilesPanelTab } from '../panels/files'
 import { HierarchyPanelTab } from '../panels/hierarchy'
+import { MaterialsPanelTab } from '../panels/materials'
+import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
+import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -126,8 +127,8 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled, uiAddons } = useMutableState(EditorState)
-
+  const { sceneAssetID, sceneName, projectName, scenePath, uiEnabled } = useMutableState(EditorState)
+  const editorUIAddon = useMutableState(UIAddonsState).editor
   const currentLoadedSceneURL = useHookstate(null as string | null)
 
   /**
@@ -241,7 +242,7 @@ const EditorContainer = () => {
             </div>
           </DndWrapper>
         )}
-        {Object.entries(uiAddons.container.get(NO_PROXY)).map(([key, value]) => {
+        {Object.entries(editorUIAddon.container.get(NO_PROXY)).map(([key, value]) => {
           return value
         })}
       </div>

@@ -208,9 +208,11 @@ const ResourceFile = (props: {
       className={`mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center ${props.className}`}
     >
       <div
-        className={`mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ${
-          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
-        }`}
+        className={twMerge(
+          "mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ",
+          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : '',
+          'max-h-40 min-h-20 min-w-20 max-w-40'
+        )}
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </div>
