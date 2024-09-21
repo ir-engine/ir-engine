@@ -49,7 +49,7 @@ import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'th
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { createMockXRUI } from '../../../tests/util/MockXRUI'
 import { EngineState } from '../../EngineState'
-import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
+import { destroySpatialEngine, destroySpatialViewer, initializeSpatialEngine } from '../../initializeEngine'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { assertFloatApproxEq, assertFloatApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
@@ -97,6 +97,7 @@ describe('ClientInputHeuristics', () => {
 
     beforeEach(async () => {
       createEngine()
+      mockSpatialEngine()
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, VisibleComponent)
@@ -104,6 +105,8 @@ describe('ClientInputHeuristics', () => {
 
     afterEach(() => {
       removeEntity(testEntity)
+      destroySpatialEngine()
+      destroySpatialViewer()
       return destroyEngine()
     })
 
@@ -237,6 +240,7 @@ describe('ClientInputHeuristics', () => {
 
     beforeEach(async () => {
       createEngine()
+      mockSpatialEngine()
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, VisibleComponent)
@@ -244,6 +248,8 @@ describe('ClientInputHeuristics', () => {
 
     afterEach(() => {
       removeEntity(testEntity)
+      destroySpatialEngine()
+      destroySpatialViewer()
       return destroyEngine()
     })
 
@@ -355,12 +361,15 @@ describe('ClientInputHeuristics', () => {
 
     beforeEach(async () => {
       createEngine()
+      mockSpatialEngine()
       await Physics.load()
       testEntity = createEntity()
     })
 
     afterEach(() => {
       removeEntity(testEntity)
+      destroySpatialEngine()
+      destroySpatialViewer()
       return destroyEngine()
     })
 
@@ -473,11 +482,14 @@ describe('ClientInputHeuristics', () => {
   })
 
   describe('findMeshes', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       createEngine()
+      mockSpatialEngine()
     })
 
     afterEach(() => {
+      destroySpatialEngine()
+      destroySpatialViewer()
       return destroyEngine()
     })
 
@@ -620,9 +632,12 @@ describe('ClientInputHeuristics', () => {
   describe('findEditor', () => {
     beforeEach(async () => {
       createEngine()
+      mockSpatialEngine()
     })
 
     afterEach(() => {
+      destroySpatialEngine()
+      destroySpatialViewer()
       return destroyEngine()
     })
 
@@ -855,12 +870,14 @@ describe('ClientInputHeuristics', () => {
   })
 
   describe('findXRUI', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       createEngine()
-      initializeSpatialEngine()
+      mockSpatialEngine()
     })
 
     afterEach(() => {
+      destroySpatialEngine()
+      destroySpatialViewer()
       return destroyEngine()
     })
 
@@ -901,13 +918,15 @@ describe('ClientInputHeuristics', () => {
   })
 
   describe('findProximity', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       createEngine()
+      Engine.instance.store.userID = 'testUserID' as UserID
       mockSpatialEngine()
     })
 
     afterEach(() => {
       destroySpatialEngine()
+      destroySpatialViewer()
       return destroyEngine()
     })
 
@@ -947,7 +966,6 @@ describe('ClientInputHeuristics', () => {
         setComponent(sourceEntity, TransformComponent)
         const sorted = [] as IntersectionData[]
         const intersections = new Set<IntersectionData>()
-        Engine.instance.store.userID = 'testUserID' as UserID
         const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
         const testEntity = createEntity()
         setComponent(testEntity, VisibleComponent)

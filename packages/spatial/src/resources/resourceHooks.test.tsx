@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import "@hookstate/core"
+
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
@@ -307,6 +309,6 @@ describe('ResourceHooks', () => {
       assert((resourceState.resources[id].asset as AmbientLight).isAmbientLight)
       unmount()
       done()
-    }).catch((e) => done(e))
+    })
   }))
 })

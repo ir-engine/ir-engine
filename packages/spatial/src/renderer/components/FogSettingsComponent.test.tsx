@@ -377,9 +377,8 @@ describe('FogSettingsComponent', () => {
       fogSettingsComponent.density.set(0.02)
       const { rerender, unmount } = render(<></>)
 
-      await act(() => {
-        rerender(<></>)
-      })
+      await act(() => rerender(<></>))
+
       const fogComponent = getComponent(entity, FogComponent)
       assert(fogComponent, 'created fog component')
       assert(fogComponent.color.r == 1 && fogComponent.color.g == 0 && fogComponent.color.b == 0, 'fog set color')
