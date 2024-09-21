@@ -66,7 +66,7 @@ describe('api job service', () => {
   })
 
   it('gets the job', async () => {
-    assert.doesNotThrow(async () => await app.service(apiJobPath).get(jobId))
+    await assert.doesNotThrow(async () => await app.service(apiJobPath).get(jobId))
   })
 
   it('finds multiple jobs', async () => {

@@ -67,8 +67,8 @@ describe('verify-project-permission', () => {
 
   it('should fail if user is not authenticated', async () => {
     const verifyPermission = verifyProjectPermission(['owner'])
-    const hookContext = mockHookContext(app)
-    await assert.rejects(() => verifyPermission(hookContext), NotAuthenticated)
+    const hookContext = mockHookContext(app, {})
+    await assert.rejects(async () => await verifyPermission(hookContext), NotAuthenticated)
   })
 
   it('should fail if project id is missing', async () => {
@@ -109,6 +109,13 @@ describe('verify-project-permission', () => {
   })
 
   it('should fail if user does not have required permission', async () => {
+    const userOwner = await app.service(userPath).create({
+      name: `Test #${Math.random()}` as UserName,
+      isGuest: true,
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
+      scopes: []
+    })
     const user = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: true,
@@ -120,11 +127,23 @@ describe('verify-project-permission', () => {
       name: `@org/project #${Math.random()}`
     })
 
-    await app.service(projectPermissionPath).create({
-      type: 'reviewer',
-      userId: user.id,
+    // owner must exist, or next user will be made owner
+    const ownerPerms = await app.service(projectPermissionPath).create({
+      type: 'owner',
+      userId: userOwner.id,
       projectId: project.id
     })
+
+    const perms = await app.service(projectPermissionPath).create(
+      {
+        type: 'reviewer',
+        userId: user.id,
+        projectId: project.id
+      },
+      {
+        user
+      }
+    )
 
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user, query: { projectId: project.id } })
@@ -133,6 +152,7 @@ describe('verify-project-permission', () => {
     // cleanup
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
+    await app.service(userPath).remove(userOwner.id)
     const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
     deleteFolderRecursive(projectDir)
   })
@@ -145,6 +165,7 @@ describe('verify-project-permission', () => {
       inviteCode: '' as InviteCode,
       scopes: []
     })
+
     const project = await app.service(projectPath).create({
       name: `@org/project #${Math.random()}`
     })
@@ -154,10 +175,9 @@ describe('verify-project-permission', () => {
       userId: user.id,
       projectId: project.id
     })
-
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user, query: { projectId: project.id } })
-    assert.doesNotThrow(async () => await verifyPermission(hookContext))
+    await assert.doesNotThrow(async () => await verifyPermission(hookContext))
 
     // cleanup
     await app.service(userPath).remove(user.id)
@@ -166,9 +186,9 @@ describe('verify-project-permission', () => {
     deleteFolderRecursive(projectDir)
   })
 
-  it('should verify if isInternal', () => {
+  it('should verify if isInternal', async () => {
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { isInternal: true })
-    assert.doesNotThrow(() => verifyPermission(hookContext))
+    await assert.doesNotThrow(() => verifyPermission(hookContext))
   })
 })

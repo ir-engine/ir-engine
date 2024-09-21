@@ -86,7 +86,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    await assert.rejects(() => verifyLocationReadScope(hookContext), Forbidden)
+    await assert.rejects(async () => await verifyLocationReadScope(hookContext), Forbidden)
 
     // cleanup
     await app.service(userPath).remove(user.id!)

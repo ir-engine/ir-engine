@@ -71,7 +71,7 @@ describe('resolve-project-id', () => {
   it('should fail if project is not found', async () => {
     const resolveProject = resolveProjectId()
     const hookContext = mockHookContext(app, { project: `Test #${Math.random()}` })
-    await assert.rejects(() => resolveProject(hookContext), BadRequest)
+    await assert.rejects(async () => await resolveProject(hookContext), BadRequest)
   })
 
   it('should find project id by name', async () => {
