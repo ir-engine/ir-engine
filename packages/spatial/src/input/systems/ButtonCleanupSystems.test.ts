@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { describe } from "vitest";
+import { describe } from 'vitest'
 
 describe('ButtonCleanupSystem', () => {
   // let focusCopy

@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import '../../patchEngineNode'
+
 import assert from 'assert'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
 
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -310,7 +312,7 @@ describe('file-browser.test', () => {
 
       const storageProvider = getStorageProvider()
       assert.ok(await storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileName3))
-      assert.rejects(storageProvider.getObject('projects/' + testProjectName2 + '/public/' + testFileName3))
+      await assert.rejects(storageProvider.getObject('projects/' + testProjectName2 + '/public/' + testFileName3))
     })
 
     it('moves directory', async () => {
@@ -389,7 +391,7 @@ describe('file-browser.test', () => {
       assert.ok(removeResult)
 
       const storageProvider = getStorageProvider()
-      assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileFullName))
+      await assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileFullName))
     })
 
     it('removes directory', async () => {
@@ -397,7 +399,7 @@ describe('file-browser.test', () => {
       assert.ok(removeResult)
 
       const storageProvider = getStorageProvider()
-      assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/'))
+      await assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/'))
     })
   })
 })

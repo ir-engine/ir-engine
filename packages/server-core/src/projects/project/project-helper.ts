@@ -314,11 +314,7 @@ export const getProjectConfig = async (projectName: string) => {
     return (await import(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')))
       .default as ProjectConfigInterface
   } catch (e) {
-    logger.error(
-      e,
-      '[Projects]: WARNING project with ' +
-        `name ${projectName} has no xrengine.config.ts file - this is not recommended.`
-    )
+    // asset only projects do not have a config file
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {

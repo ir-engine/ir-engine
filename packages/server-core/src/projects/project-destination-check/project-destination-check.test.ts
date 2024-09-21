@@ -23,9 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
-import { afterEach, assert, describe, it } from 'vitest'
+import { afterAll, afterEach, assert, beforeAll, describe, it } from 'vitest'
 
 import {
   avatarPath,

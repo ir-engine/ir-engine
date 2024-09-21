@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { PeerID, UserID } from '@ir-engine/hyperflux'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { NetworkId } from './NetworkId'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
 

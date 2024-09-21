@@ -24,9 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, renderHook } from '@testing-library/react'
+import assert from 'assert'
 import { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
 
 import { AvatarID, UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'

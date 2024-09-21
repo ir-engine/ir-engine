@@ -35,11 +35,11 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getState, startReactor } from '@ir-engine/hyperflux'
+import assert from 'assert'
 import { useEffect } from 'react'
 import sinon from 'sinon'
 import { Vector2 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
 import { CameraPointerHash, InputPointerComponent, InputPointerState } from './InputPointerComponent'
 
 const InputPointerComponentDefaults = {

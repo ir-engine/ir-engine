@@ -33,9 +33,9 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { ImmutableObject } from '@ir-engine/hyperflux'
+import assert from 'assert'
 import { Color, CubeTexture, FogBase, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
 import { BackgroundComponent, EnvironmentMapComponent, FogComponent, SceneComponent } from './SceneComponents'
 
 describe('SceneComponent', () => {

@@ -37,11 +37,11 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import assert from 'assert'
 import { Color, ColorRepresentation, ShaderMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
-import { NameComponent } from '../../common/NameComponent'
 import { assertFloatApproxEq, assertFloatApproxNotEq } from '../../../tests/util/mathAssertions'
+import { NameComponent } from '../../common/NameComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
 import { createInfiniteGridHelper, InfiniteGridComponent } from './InfiniteGridHelper'

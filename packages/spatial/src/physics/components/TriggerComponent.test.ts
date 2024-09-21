@@ -36,12 +36,12 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
+import assert from 'assert'
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { Shapes } from '../types/PhysicsTypes'

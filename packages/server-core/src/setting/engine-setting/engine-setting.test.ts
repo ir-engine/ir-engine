@@ -23,13 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
 import { createFeathersKoaApp } from '@ir-engine/server-core/src/createApp'
-import { describe, it } from 'vitest'
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 import {
   createEngineSetting,
   findEngineSetting,

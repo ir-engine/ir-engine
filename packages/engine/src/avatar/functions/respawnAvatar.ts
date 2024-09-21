@@ -28,9 +28,9 @@ import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 
+import { SpawnPoseState } from '@ir-engine/spatial/src/transform/SpawnPoseState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { teleportAvatar } from './moveAvatar'
-import { SpawnPoseState } from '@ir-engine/spatial/src/transform/SpawnPoseState'
 
 export const respawnAvatar = (entity?: Entity) => {
   if (!entity) return

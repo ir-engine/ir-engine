@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, beforeEach, describe, it } from 'vitest'
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   createEngine,
@@ -44,14 +44,14 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
-import { CameraComponent } from '../../camera/components/CameraComponent'
 import { assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ClientInputCleanupSystem, ClientInputSystem } from './ClientInputSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 
 // describe('addClientInputListeners', () => {
 //   let documentAddEvent

@@ -36,8 +36,8 @@ import {
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { InteractableComponent } from '../components/InteractableComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { InteractableComponent } from '../components/InteractableComponent'
 
 const worldPosVec3 = new Vector3()
 const mat4 = new Matrix4()

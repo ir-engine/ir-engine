@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import assert from 'assert'
 import { Vector3 } from 'three'
 import { describe, it } from 'vitest'
-import assert from 'assert'
 
 import {
   animationTimeTransitionRule,

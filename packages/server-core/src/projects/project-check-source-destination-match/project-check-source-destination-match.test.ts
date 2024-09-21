@@ -23,10 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
+import assert from 'assert'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
-import { describe, it } from 'vitest'
-import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { projectCheckSourceDestinationMatchPath } from '@ir-engine/common/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'

@@ -23,11 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
-import path from 'path'
-import { describe, it } from 'vitest'
 import assert from 'assert'
+import path from 'path'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import {
   projectPermissionPath,
@@ -237,7 +239,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        assert.rejects(
+        await assert.rejects(
           async () => {
             await app.service(projectPermissionPath).create(
               {
@@ -260,7 +262,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        assert.rejects(
+        await assert.rejects(
           async () => {
             await app.service(projectPermissionPath).create(
               {
@@ -283,7 +285,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        assert.rejects(
+        await assert.rejects(
           async () => {
             const res = await app.service(projectPermissionPath).create(
               {
@@ -306,7 +308,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        assert.rejects(
+        await assert.rejects(
           async () => {
             await app.service(projectPermissionPath).create(
               {
@@ -397,7 +399,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        assert.rejects(
+        await assert.rejects(
           async () => {
             await app.service(projectPermissionPath).patch(
               project1Permission2.id,
@@ -425,7 +427,7 @@ describe('project-permission.test', () => {
           },
           paginate: false
         })
-        assert.rejects(
+        await assert.rejects(
           async () => {
             await app.service(projectPermissionPath).patch(
               project1Permission2.id,
@@ -449,7 +451,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        assert.rejects(
+        await assert.rejects(
           async () => {
             await app.service(projectPermissionPath).remove(project1Permission2.id, params)
           },
@@ -465,7 +467,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        assert.rejects(
+        await assert.rejects(
           async () => {
             await app.service(projectPermissionPath).remove(project1Permission2.id, params)
           },

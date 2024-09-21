@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 // Do not delete json and urlencoded, they are used even if some IDEs show them as unused
+import './patchEngineNode'
 
 import { feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'

@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { describe, it } from 'vitest'
+import '../../patchEngineNode'
+
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'

@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { LinearTosRGBEffect } from './LinearTosRGBEffect'
 import { BlendFunction } from './blending/BlendFunction'

@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { ProjectType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { ProjectSettingType } from '@ir-engine/common/src/schemas/setting/project-setting.schema'
 import { UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -31,9 +33,9 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
 import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
 import appRootPath from 'app-root-path'
-import path from 'path'
-import { describe, it } from 'vitest'
 import assert from 'assert'
+import path from 'path'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 import {
   createProject,
   createProjectSetting,

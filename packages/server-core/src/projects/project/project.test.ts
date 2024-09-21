@@ -23,14 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
+import assert from 'assert'
 import fs from 'fs'
 import nock from 'nock'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
 
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
@@ -121,8 +123,8 @@ describe('project.test', () => {
       assert.equal(testProject.name, projectName)
     })
 
-    it('should not add new project with same name as existing project', () => {
-      assert.rejects(async () => {
+    it('should not add new project with same name as existing project', async () => {
+      await assert.rejects(async () => {
         await app.service(projectPath).create(
           {
             name: testProject.name

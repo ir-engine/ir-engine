@@ -22,9 +22,10 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import './patchEngineNode'
 
-import { describe, it } from 'vitest'
 import assert from 'assert'
+import { afterAll, describe, it } from 'vitest'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 

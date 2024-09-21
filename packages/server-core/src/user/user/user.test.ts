@@ -23,9 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { v4 as uuidv4 } from 'uuid'
-import { describe, it } from 'vitest'
+import '../../patchEngineNode'
+
 import assert from 'assert'
+import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -192,7 +194,7 @@ describe('user.test', () => {
 
     const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
 
-    assert.rejects(
+    await assert.rejects(
       async () =>
         await app.service(userPath).remove(adminUser.id, {
           provider: 'rest',

@@ -23,12 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
+import { afterAll, beforeAll, describe } from 'vitest'
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'

@@ -23,11 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
+import assert from 'assert'
 import { createHash } from 'crypto'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
-import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
 
 import { projectGithubPushPath } from '@ir-engine/common/src/schemas/projects/project-github-push.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'

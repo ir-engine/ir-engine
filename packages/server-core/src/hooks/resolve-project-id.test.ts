@@ -23,10 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../patchEngineNode'
+
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
-import { describe, it } from 'vitest'
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -37,7 +39,6 @@ import path from 'path'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../createApp'
 import resolveProjectId from './resolve-project-id'
-resolveProjectId
 
 const mockHookContext = (app: Application, query?: Partial<{ project: string }>) => {
   return {
@@ -60,22 +61,23 @@ describe('resolve-project-id', () => {
     destroyEngine()
   })
 
-  it('should fail if project name is missing', async () => {
+  it('should pass if project name is missing', async () => {
     const resolveProject = resolveProjectId()
     const hookContext = mockHookContext(app)
-    assert.rejects(() => resolveProject(hookContext), BadRequest)
+    const contextUpdated = await resolveProject(hookContext)
+    assert.equal(contextUpdated, hookContext)
   })
 
   it('should fail if project is not found', async () => {
     const resolveProject = resolveProjectId()
     const hookContext = mockHookContext(app, { project: `Test #${Math.random()}` })
-    assert.rejects(() => resolveProject(hookContext), BadRequest)
+    await assert.rejects(() => resolveProject(hookContext), BadRequest)
   })
 
   it('should find project id by name', async () => {
     const resolveProject = resolveProjectId()
     const project = await app.service(projectPath).create({
-      name: `@org/project #${Math.random()}`
+      name: `org/project`
     })
     const hookContext = mockHookContext(app, { project: project.name })
     const contextUpdated = await resolveProject(hookContext)

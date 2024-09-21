@@ -23,10 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../patchEngineNode'
+
 import { BadRequest, Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
-import { describe, it } from 'vitest'
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -66,7 +68,7 @@ describe('verify-project-permission', () => {
   it('should fail if user is not authenticated', async () => {
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app)
-    assert.rejects(() => verifyPermission(hookContext), NotAuthenticated)
+    await assert.rejects(() => verifyPermission(hookContext), NotAuthenticated)
   })
 
   it('should fail if project id is missing', async () => {
@@ -79,7 +81,7 @@ describe('verify-project-permission', () => {
     })
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user })
-    assert.rejects(async () => await verifyPermission(hookContext), BadRequest)
+    await assert.rejects(async () => await verifyPermission(hookContext), BadRequest)
     // cleanup
     await app.service(userPath).remove(user.id)
   })
@@ -100,7 +102,7 @@ describe('verify-project-permission', () => {
         projectId: uuidv4()
       }
     })
-    assert.rejects(async () => await verifyPermission(hookContext), NotFound)
+    await assert.rejects(async () => await verifyPermission(hookContext), NotFound)
 
     // cleanup
     await app.service(userPath).remove(user.id)
@@ -126,7 +128,7 @@ describe('verify-project-permission', () => {
 
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user, query: { projectId: project.id } })
-    assert.rejects(async () => await verifyPermission(hookContext), Forbidden)
+    await assert.rejects(async () => await verifyPermission(hookContext), Forbidden)
 
     // cleanup
     await app.service(userPath).remove(user.id)

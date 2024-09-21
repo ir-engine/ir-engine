@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, beforeEach, describe, it } from 'vitest'
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { AssetExt, AssetType, FileToAssetExt, FileToAssetType } from './AssetType'
 
 describe('AssetType', () => {

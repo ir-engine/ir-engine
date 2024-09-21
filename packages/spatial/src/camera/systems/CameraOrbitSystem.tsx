@@ -49,8 +49,8 @@ import { InputPointerComponent } from '../../input/components/InputPointerCompon
 import { MouseScroll } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { FlyControlComponent } from '../components/FlyControlComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { FlyControlComponent } from '../components/FlyControlComponent'
 
 const ZOOM_SPEED = 0.1
 const MAX_FOCUS_DISTANCE = 1000

@@ -35,9 +35,9 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
+import assert from 'assert'
 import { BoxGeometry, Color, ColorRepresentation, Mesh } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import assert from 'assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../RendererModule'

@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { describe, it } from 'vitest'
+import '../../patchEngineNode'
+
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { inviteCodeLookupPath } from '@ir-engine/common/src/schemas/social/invite-code-lookup.schema'
 import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'

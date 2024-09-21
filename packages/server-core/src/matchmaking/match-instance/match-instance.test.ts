@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import nock from 'nock'
-import { afterEach, assert, describe, it } from 'vitest'
+import { afterAll, afterEach, assert, beforeAll, describe, it } from 'vitest'
 
 import { matchInstancePath } from '@ir-engine/common/src/schemas/matchmaking/match-instance.schema'
 import { instancePath } from '@ir-engine/common/src/schemas/networking/instance.schema'

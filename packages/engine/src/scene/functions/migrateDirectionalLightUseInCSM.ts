@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { EntityUUID, SerializedComponentType } from '@ir-engine/ecs'
 
+import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneJsonType } from '../types/SceneTypes'
-import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 
 export const migrateDirectionalLightUseInCSM = (json: SceneJsonType) => {
   const renderSettingsEntity = Object.entries(json.entities).find(([, entity]) =>

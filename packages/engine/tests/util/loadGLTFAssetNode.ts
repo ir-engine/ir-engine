@@ -27,8 +27,8 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
+import { afterEach, beforeEach } from 'vitest'
 import { FileLoader } from '../../src/assets/loaders/base/FileLoader'
-import { beforeEach, afterEach } from 'vitest'
 
 const toArrayBuffer = (buf) => {
   const arrayBuffer = new ArrayBuffer(buf.length)
