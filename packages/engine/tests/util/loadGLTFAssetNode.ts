@@ -28,6 +28,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { FileLoader } from '../../src/assets/loaders/base/FileLoader'
+import { beforeEach, afterEach } from 'vitest'
 
 const toArrayBuffer = (buf) => {
   const arrayBuffer = new ArrayBuffer(buf.length)

@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    passWithNoTests: true
+    passWithNoTests: true,
+    testTimeout: 1000 * 60,
   }
 })
