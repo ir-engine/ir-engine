@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { ReactNode } from 'react'
 
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
@@ -124,9 +123,7 @@ export const ModalFooter = ({
 const Modal = ({
   id,
   title,
-  onClose = () => {
-    PopoverState.hidePopupover()
-  },
+  onClose,
   onSubmit,
   hideFooter,
   rawChildren,
