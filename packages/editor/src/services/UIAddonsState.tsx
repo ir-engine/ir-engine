@@ -23,37 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { v4 as uuidv4 } from 'uuid'
-
-import { LocationID, locationPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-
-import { Application } from '../../declarations'
-
-export const createTestLocation = async (app: Application, params = { isInternal: true } as any) => {
-  const name = `Test Location ${uuidv4()}`
-
-  const scene = await app.service(staticResourcePath).find({
-    query: {
-      key: 'projects/ir-engine/default-project/public/scenes/default.gltf'
-    }
-  })
-
-  return await app.service(locationPath).create(
-    {
-      name,
-      sceneId: scene.data[0].id,
-      maxUsersPerInstance: 10,
-      locationSetting: {
-        locationType: 'public',
-        audioEnabled: true,
-        videoEnabled: true,
-        faceStreamingEnabled: false,
-        screenSharingEnabled: false,
-        locationId: '' as LocationID
-      },
-      isLobby: false,
-      isFeatured: false
-    },
-    { ...params }
-  )
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+export type StudioUIAddons = {
+  container: Record<string, JSX.Element>
+  newScene: Record<string, JSX.Element>
+  //more addon points to come here
 }
+export const UIAddonsState = defineState({
+  name: 'UIAddonsState',
+  initial: () => ({
+    projectName: null as string | null,
+    editor: {
+      container: {},
+      newScene: {}
+    } as StudioUIAddons,
+    dashboard: {
+      newScene: {}
+    } as StudioUIAddons
+  }),
+  extension: syncStateWithLocalStorage(['projectName'])
+})
