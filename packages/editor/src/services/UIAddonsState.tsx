@@ -23,32 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import MaterialLibraryPanel from './container'
-
-export const MaterialsPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <span>{'Materials'}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+export type StudioUIAddons = {
+  container: Record<string, JSX.Element>
+  newScene: Record<string, JSX.Element>
+  //more addon points to come here
 }
-
-export default MaterialsPanelTitle
-
-export const MaterialsPanelTab: TabData = {
-  id: 'materialsPanel',
-  closable: true,
-  title: <MaterialsPanelTitle />,
-  content: <MaterialLibraryPanel />
-}
+export const UIAddonsState = defineState({
+  name: 'UIAddonsState',
+  initial: () => ({
+    projectName: null as string | null,
+    editor: {
+      container: {},
+      newScene: {}
+    } as StudioUIAddons,
+    dashboard: {
+      newScene: {}
+    } as StudioUIAddons
+  }),
+  extension: syncStateWithLocalStorage(['projectName'])
+})

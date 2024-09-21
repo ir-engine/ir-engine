@@ -23,45 +23,44 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Texture, Uniform } from 'three'
-
 import {
   Entity,
   EntityUUID,
+  UUIDComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent,
-  UUIDComponent
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import styles from '@ir-engine/editor/src/components/layout/styles.module.scss'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { NO_PROXY, none, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/constants/DefaultArgs'
 import {
   MaterialPlugins,
   MaterialPrototypeComponent,
   MaterialStateComponent,
   prototypeQuery
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/constants/DefaultArgs'
 import { formatMaterialArgs, getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import Button from '../../../../../primitives/tailwind/Button'
-import Tooltip from '../../../../../primitives/tailwind/Tooltip'
-import InputGroup from '../../../input/Group'
-import SelectInput from '../../../input/Select'
-import StringInput from '../../../input/String'
-import { PanelDragContainer, PanelTitle } from '../../../layout/Panel'
-import ParameterInput from '../../../properties/parameter'
+import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
+import StringInput from '@ir-engine/ui/src/components/editor/input/String'
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import ParameterInput from '@ir-engine/ui/src/components/editor/properties/parameter'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import React, { useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Texture, Uniform } from 'three'
 
 type ThumbnailData = {
   src: string

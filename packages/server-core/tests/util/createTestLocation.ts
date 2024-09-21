@@ -42,7 +42,7 @@ export const createTestLocation = async (app: Application, params = { isInternal
     {
       name,
       sceneId: scene.data[0].id,
-      maxUsersPerInstance: 20,
+      maxUsersPerInstance: 10,
       locationSetting: {
         locationType: 'public',
         audioEnabled: true,
