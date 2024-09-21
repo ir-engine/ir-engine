@@ -94,7 +94,7 @@ describe('regex.test', () => {
   })
 
   describe('HEIRARCHY_SEARCH_REPLACE_REGEX', () => {
-    it('should replace special characters in search', () => {
+    describe('should replace special characters in search', () => {
       const escapeSpecialChars = (input) => {
         return input.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       }
