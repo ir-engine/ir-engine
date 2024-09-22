@@ -110,7 +110,7 @@ describe('project.test', () => {
     })
 
     it('should add new project', async () => {
-      const projectName = `@org/test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `testorg/test-project-${uuidv4().slice(0, 8)}`
 
       testProject = await app.service(projectPath).create(
         {
@@ -152,9 +152,9 @@ describe('project.test', () => {
       await git.add('.')
       await git.commit('initial commit')
 
-      testUpdateProjectName = `@org1/test-update-project-name-${uuidv4().slice(0, 8)}`
+      testUpdateProjectName = `testorg1/test-update-project-name-${uuidv4().slice(0, 8)}`
 
-      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `testorg1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName
@@ -213,7 +213,7 @@ describe('project.test', () => {
 
   describe('patch', () => {
     beforeEach(async () => {
-      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `testorg1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName
@@ -237,7 +237,7 @@ describe('project.test', () => {
 
   describe('remove', () => {
     beforeEach(async () => {
-      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `testorg1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName

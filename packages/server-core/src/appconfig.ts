@@ -26,7 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
+import fs from 'fs'
 import path from 'path'
+import traceUnhandled from 'trace-unhandled'
 import url from 'url'
 
 import { oembedPath } from '@ir-engine/common/src/schemas/media/oembed.schema'
@@ -55,8 +57,7 @@ const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
 if (!testEnabled) {
-  const { register } = require('trace-unhandled')
-  register()
+  traceUnhandled.register()
 
   // ensure process fails properly
   process.on('exit', async (code) => {
@@ -101,7 +102,6 @@ if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-  const fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
     const fromEnvPath = appRootPath.path + '/.env.local.default'
     const toEnvPath = appRootPath.path + '/.env.local'

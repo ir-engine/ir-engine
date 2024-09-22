@@ -97,8 +97,8 @@ describe('route.test', () => {
   })
 
   it('should find the installed project routes', async () => {
-    testProject = `@org1/test-project-${uuidv4()}`
-    testRoute = `test-route-${uuidv4()}`
+    testProject = `org1/test-project-${Math.random()}`.replace('.', '')
+    testRoute = `test-route`
 
     testProjectId = await (await app.service(projectPath).create({ name: testProject }, params)).id
     updateXREngineConfigForTest(testProject, testRoute)

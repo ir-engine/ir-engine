@@ -300,7 +300,8 @@ export const onProjectEvent = async (
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hooks = (await import(path.resolve(projectsRootFolder, project.name, hookPath))).default
+  const hookFilePath = path.resolve(projectsRootFolder, project.name, hookPath)
+  const hooks = (await import(hookFilePath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
       return await hooks[eventType](app, project, ...args)
@@ -311,7 +312,8 @@ export const onProjectEvent = async (
 
 export const getProjectConfig = async (projectName: string) => {
   try {
-    return (await import(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')))
+    const configFilePath = path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')
+    return (await import(configFilePath))
       .default as ProjectConfigInterface
   } catch (e) {
     // asset only projects do not have a config file

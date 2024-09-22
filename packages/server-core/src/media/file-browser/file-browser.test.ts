@@ -63,7 +63,7 @@ describe('file-browser.test', () => {
   })
 
   describe('create', () => {
-    const testProjectName = `@org/${getRandomizedName('directory')}`
+    const testProjectName = `testorg/${getRandomizedName('directory')}`
     let project: ProjectType
     afterAll(async () => {
       await app.service(projectPath).remove(project.id)
@@ -79,7 +79,7 @@ describe('file-browser.test', () => {
   })
 
   describe('find', () => {
-    const testProjectName = `@org/${getRandomizedName('directory')}`
+    const testProjectName = `testorg/${getRandomizedName('directory')}`
     let project: ProjectType
     beforeAll(async () => {
       project = await app.service(projectPath).create({ name: testProjectName })
@@ -127,7 +127,7 @@ describe('file-browser.test', () => {
   })
 
   describe('patch', () => {
-    const testProjectName = `@org/${getRandomizedName('directory')}`
+    const testProjectName = `testorg/${getRandomizedName('directory')}`
     const testFileFullName = getRandomizedName('file', '.txt')
     const testFileFullPath = 'projects/' + testProjectName + '/public/' + testFileFullName
     const testFileName = testFileFullName.split('.')[0]
@@ -201,8 +201,8 @@ describe('file-browser.test', () => {
     let project2: ProjectType
 
     beforeEach(async () => {
-      testProjectName = `@org/${getRandomizedName('directory')}`
-      testProjectName2 = `@org/${getRandomizedName('directory2')}`
+      testProjectName = `testorg/${getRandomizedName('directory')}`
+      testProjectName2 = `testorg/${getRandomizedName('directory2')}`
 
       project = await app.service(projectPath).create({ name: testProjectName })
       project2 = await app.service(projectPath).create({ name: testProjectName2 })
@@ -365,7 +365,7 @@ describe('file-browser.test', () => {
   })
 
   describe('remove', () => {
-    const testProjectName = `@org/${getRandomizedName('directory')}`
+    const testProjectName = `testorg/${getRandomizedName('directory')}`
     const testFileFullName = getRandomizedName('file', '.txt')
     let project: ProjectType
 

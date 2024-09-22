@@ -60,9 +60,6 @@ import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('fix-esm').register()
-
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
