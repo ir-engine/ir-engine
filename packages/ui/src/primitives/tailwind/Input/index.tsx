@@ -44,6 +44,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   labelClassname?: string
   errorBorder?: boolean
   maxLength?: number
+  dataTestId?: string
 }
 
 const variants = {
@@ -69,6 +70,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       variant = 'outlined',
       labelClassname,
       errorBorder,
+      dataTestId,
       ...props
     },
     ref
@@ -123,6 +125,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={twClassname}
             value={value}
             onChange={onChange}
+            data-testid={dataTestId}
             {...props}
           />
 
