@@ -120,6 +120,7 @@ export const LayoutComponent = defineComponent({
     contentFit: S.Optional(S.Enum(ContentFit)),
     contentFitTransition: Transition.defineVector3Transition(),
     effectiveContentFit: S.Enum(ContentFit, ContentFit.none),
+    effectiveContentFitScale: S.Vec3(1, 1, 1),
 
     anchorEntity: S.Entity(),
     contentEntity: S.Entity()
@@ -170,7 +171,7 @@ export const LayoutComponent = defineComponent({
       Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
       Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
       Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
-      Transition.applyNewTarget(layout.effectiveContentFit, simulationTime, layout.contentFitTransition)
+      Transition.applyNewTarget(layout.effectiveContentFitScale.value, simulationTime, layout.contentFitTransition)
     }, [
       layout.positionTransition,
       layout.positionOriginTransition,
@@ -210,7 +211,8 @@ export const LayoutComponent = defineComponent({
           const rotation = layout.rotationTransition.value.current
           const rotationOrigin = layout.rotationOriginTransition.value.current
           const size = layout.effectiveSize.value
-          const contentFit = layout.contentFitTransition.value.current
+          const contentFit = layout.effectiveContentFit.value
+          const contentFitScale = layout.contentFitTransition.value.current
 
           // Compute the final position
           const finalPosition = new Vector3()
@@ -302,7 +304,6 @@ export const LayoutComponent = defineComponent({
           if (layout.contentEntity.value !== UndefinedEntity) {
             const contentTransform = getMutableComponent(layout.contentEntity.value, TransformComponent)
             if (contentTransform) {
-              const contentScale = new Vector3(1, 1, 1)
               const contentBounds = getComponent(layout.contentEntity.value, BoundingBoxComponent)
 
               if (contentBounds) {
@@ -310,38 +311,43 @@ export const LayoutComponent = defineComponent({
                 const containerAspectRatio = size.x / size.y
                 const contentAspectRatio = contentSize.x / contentSize.y
 
+                let baseScaleX = 1
+                let baseScaleY = 1
+
                 switch (contentFit) {
                   case ContentFit.contain:
                     if (containerAspectRatio > contentAspectRatio) {
-                      contentScale.set(size.y / contentSize.y, size.y / contentSize.y, 1)
+                      baseScaleX = baseScaleY = size.y / contentSize.y
                     } else {
-                      contentScale.set(size.x / contentSize.x, size.x / contentSize.x, 1)
+                      baseScaleX = baseScaleY = size.x / contentSize.x
                     }
                     break
                   case ContentFit.cover:
                     if (containerAspectRatio > contentAspectRatio) {
-                      contentScale.set(size.x / contentSize.x, size.x / contentSize.x, 1)
+                      baseScaleX = baseScaleY = size.x / contentSize.x
                     } else {
-                      contentScale.set(size.y / contentSize.y, size.y / contentSize.y, 1)
+                      baseScaleX = baseScaleY = size.y / contentSize.y
                     }
                     break
                   case ContentFit.fill:
-                    contentScale.set(size.x / contentSize.x, size.y / contentSize.y, 1)
+                    baseScaleX = size.x / contentSize.x
+                    baseScaleY = size.y / contentSize.y
                     break
                   case ContentFit.none:
                     // No scaling
                     break
-                  case ContentFit.scaleDown: {
-                    const scaleX = size.x / contentSize.x
-                    const scaleY = size.y / contentSize.y
-                    const scale = Math.min(1, Math.min(scaleX, scaleY))
-                    contentScale.set(scale, scale, 1)
+                  case ContentFit.scaleDown:
+                    baseScaleX = baseScaleY = Math.min(1, size.x / contentSize.x, size.y / contentSize.y)
                     break
-                  }
                 }
-              }
 
-              contentTransform.scale.value.copy(contentScale)
+                // Apply the contentFitScale
+                contentTransform.scale.value.set(
+                  baseScaleX * contentFitScale.x,
+                  baseScaleY * contentFitScale.y,
+                  contentFitScale.z
+                )
+              }
             }
           }
 
