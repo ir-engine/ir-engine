@@ -43,10 +43,9 @@ import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/com
 import { ArrayCamera, Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
 
-export interface SizeMode {
-  x: 'proportional' | 'literal'
-  y: 'proportional' | 'literal'
-  z: 'proportional' | 'literal'
+export enum SizeMode {
+  proportional = 'proportional',
+  literal = 'literal'
 }
 
 const _size = new Vector3()
@@ -57,52 +56,53 @@ export const LayoutComponent = defineComponent({
   schema: S.Object({
     position: S.Optional(S.Vec3()),
     positionTransition: Transition.defineVector3Transition(),
-    effectivePosition: S.Vec3(new Vector3()),
+    effectivePosition: S.Vec3(),
 
     positionOrigin: S.Optional(S.Vec3()),
     positionOriginTransition: Transition.defineVector3Transition(),
-    effectivePositionOrigin: S.Vec3(new Vector3()),
+    effectivePositionOrigin: S.Vec3(),
 
     alignmentOrigin: S.Optional(S.Vec3()),
     alignmentTransition: Transition.defineVector3Transition(),
-    effectiveAlignmentOrigin: S.Vec3(new Vector3()),
+    effectiveAlignmentOrigin: S.Vec3(),
 
     rotation: S.Optional(S.Quaternion()),
     rotationTransition: Transition.defineQuaternionTransition(),
-    effectiveRotation: S.Quaternion(new Quaternion()),
+    effectiveRotation: S.Quaternion(),
 
     rotationOrigin: S.Optional(S.Vec3()),
     rotationOriginTransition: Transition.defineVector3Transition(),
-    effectiveRotationOrigin: S.Vec3(new Vector3()),
+    effectiveRotationOrigin: S.Vec3(),
 
     size: S.Optional(S.Vec3()),
     sizeTransition: Transition.defineVector3Transition(),
-    effectiveSize: S.Vec3(new Vector3()),
+    effectiveSize: S.Vec3(),
 
     sizeMode: S.Optional(
       S.Object({
-        x: S.Enum({ proportional: 'proportional', literal: 'literal' }),
-        y: S.Enum({ proportional: 'proportional', literal: 'literal' }),
-        z: S.Enum({ proportional: 'proportional', literal: 'literal' })
+        x: S.Enum(SizeMode),
+        y: S.Enum(SizeMode),
+        z: S.Enum(SizeMode)
       })
     ),
+
     effectiveSizeMode: S.Object({
-      x: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
-      y: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
-      z: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal')
+      x: S.Enum(SizeMode, SizeMode.literal),
+      y: S.Enum(SizeMode, SizeMode.literal),
+      z: S.Enum(SizeMode, SizeMode.literal)
     }),
 
     defaults: S.Object({
-      position: S.Vec3(new Vector3()),
-      positionOrigin: S.Vec3(new Vector3()),
-      alignmentOrigin: S.Vec3(new Vector3()),
-      rotation: S.Quaternion(new Quaternion()),
-      rotationOrigin: S.Vec3(new Vector3()),
-      size: S.Vec3(new Vector3()),
+      position: S.Vec3(),
+      positionOrigin: S.Vec3(),
+      alignmentOrigin: S.Vec3(),
+      rotation: S.Quaternion(),
+      rotationOrigin: S.Vec3(),
+      size: S.Vec3(),
       sizeMode: S.Object({
-        x: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
-        y: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal'),
-        z: S.Enum({ proportional: 'proportional', literal: 'literal' }, 'literal')
+        x: S.Enum(SizeMode, SizeMode.literal),
+        y: S.Enum(SizeMode, SizeMode.literal),
+        z: S.Enum(SizeMode, SizeMode.literal)
       })
     }),
 
