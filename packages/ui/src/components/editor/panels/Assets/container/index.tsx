@@ -215,9 +215,11 @@ const ResourceFile = (props: {
       data-testid="assets-panel-file-item"
     >
       <div
-        className={`mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ${
-          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
-        }`}
+        className={twMerge(
+          "mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ",
+          selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : '',
+          'max-h-40 min-h-20 min-w-20 max-w-40'
+        )}
         data-testid="assets-panel-file-item-thumbnail"
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />

@@ -23,22 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
-
-const argTypes = {}
-
-export default {
-  title: 'Editor/Panel/Properties',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'PropertiesPanelTitle',
-    jest: 'PropertiesPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+export type StudioUIAddons = {
+  container: Record<string, JSX.Element>
+  newScene: Record<string, JSX.Element>
+  //more addon points to come here
 }
-
-export const Default = { args: {} }
+export const UIAddonsState = defineState({
+  name: 'UIAddonsState',
+  initial: () => ({
+    projectName: null as string | null,
+    editor: {
+      container: {},
+      newScene: {}
+    } as StudioUIAddons,
+    dashboard: {
+      newScene: {}
+    } as StudioUIAddons
+  }),
+  extension: syncStateWithLocalStorage(['projectName'])
+})
