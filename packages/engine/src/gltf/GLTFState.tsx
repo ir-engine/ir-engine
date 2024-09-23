@@ -45,6 +45,7 @@ import {
   ComponentJSONIDMap,
   createEntity,
   Entity,
+  entityExists,
   EntityUUID,
   getComponent,
   getMutableComponent,
@@ -434,10 +435,12 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
       animations: scene.animations
     })
     return () => {
-      removeComponent(rootEntity, AnimationComponent)
-      if (hasObject3d) {
-        removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
-        removeComponent(rootEntity, Object3DComponent)
+      if (entityExists(rootEntity)) {
+        removeComponent(rootEntity, AnimationComponent)
+        if (hasObject3d) {
+          removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
+          removeComponent(rootEntity, Object3DComponent)
+        }
       }
     }
   }, [animationState])
