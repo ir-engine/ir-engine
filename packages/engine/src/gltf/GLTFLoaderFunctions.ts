@@ -938,7 +938,6 @@ const useLoadImageSource = (
     if (!loadedTexture) return
 
     let resultTexture
-    console.log(loadedTexture)
     if (loadedTexture instanceof ImageBitmap) {
       resultTexture = new Texture(loadedTexture as ImageBitmap)
       resultTexture.needsUpdate = true
@@ -959,7 +958,7 @@ const useLoadImageSource = (
     if (isObjectURL === true) {
       URL.revokeObjectURL(sourceURI.value!)
     } else {
-      texture.userData.src = sourceURI
+      texture.userData.src = sourceURI.value
     }
 
     texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
