@@ -82,23 +82,23 @@ export const FileIcon = ({
     <>
       {isFolder ? (
         <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'object-contain')}
+          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
           crossOrigin="anonymous"
           src={FOLDER_ICON_PATH}
           alt="folder-icon"
         />
       ) : thumbnailURL ? (
         <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'object-contain')}
+          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
           crossOrigin="anonymous"
           src={thumbnailURL}
           alt="file-thumbnail"
         />
       ) : FallbackIcon ? (
-        <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full w-full')} />
+        <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40')} />
       ) : (
         <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full w-full', 'object-contain')}
+          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
           crossOrigin="anonymous"
           src={FILE_ICON_PATH}
           alt="file-icon"
