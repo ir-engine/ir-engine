@@ -29,6 +29,7 @@ module.exports = {
   parallel: false,
   require: [
     'tests/mocha.env', // init env here
+    'tests/setupTestDependencies.ts',
     'jsdom-global/register'
   ],
   spec: [

@@ -82,13 +82,17 @@ function BreadcrumbItems() {
         <Fragment key={index}>
           {index !== 0 && <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>}
           {index === arr.length - 1 ? (
-            <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
+            <span
+              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline"
+              data-testid={'files-panel-breadcrumb-current-directory'}
+            >
               {file}
             </span>
           ) : (
             <a
               className="inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
               onClick={() => handleBreadcrumbDirectoryClick(file)}
+              data-testid={`files-panel-breadcrumb-nested-level-${index}`}
             >
               <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
                 {file}
@@ -112,12 +116,15 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-transparent p-0" />
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-transparent p-0" data-testid="files-panel-view-options-button" />
         </Tooltip>
       }
     >
       {filesViewMode.value === 'icons' ? (
-        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+        <InputGroup
+          label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+          data-testid="files-panel-view-options-icon-size-value"
+        >
           <Slider
             min={10}
             max={100}
@@ -125,6 +132,8 @@ const ViewModeSettings = () => {
             value={viewModeSettings.icons.iconSize.value}
             onChange={viewModeSettings.icons.iconSize.set}
             onRelease={viewModeSettings.icons.iconSize.set}
+            dataTestIdForValueInput="files-panel-view-options-icon-size-value-input"
+            dataTestIdForSlider="files-panel-view-options-icon-size-slider"
           />
         </InputGroup>
       ) : (
@@ -141,10 +150,10 @@ const ViewModeSettings = () => {
           </InputGroup>
 
           <div>
-            <div className="mt-1 flex flex-auto text-white">
+            <div className="mt-1 flex flex-auto text-white" data-testid="can-you-see-ddddd">
               <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
             </div>
-            <div className="flex-col">
+            <div className="flex-col" data-testid="test">
               {availableTableColumns.map((column) => (
                 <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
                   <BooleanInput
@@ -184,14 +193,26 @@ export default function FilesToolbar() {
       {showBackButton && (
         <div id="backDir" className="pointer-events-auto flex h-7 w-7 items-center rounded-lg">
           <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-            <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={backDirectory} />
+            <Button
+              variant="transparent"
+              startIcon={<IoArrowBack />}
+              className={`p-0`}
+              data-testid="files-panel-back-directory-button"
+              onClick={backDirectory}
+            />
           </Tooltip>
         </div>
       )}
 
       <div id="refreshDir" className="flex h-7 w-7 items-center rounded-lg">
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
+          <Button
+            variant="transparent"
+            startIcon={<FiRefreshCcw />}
+            className="p-0"
+            data-testid="files-panel-refresh-directory-button"
+            onClick={refreshDirectory}
+          />
         </Tooltip>
       </div>
 
@@ -205,6 +226,7 @@ export default function FilesToolbar() {
             startIcon={icon}
             className={`p-0 ${filesViewMode.value !== mode ? 'opacity-50' : ''}`}
             onClick={() => filesViewMode.set(mode as 'icons' | 'list')}
+            data-testid={`files-panel-view-mode-${mode}-button`}
           />
         ))}
       </div>
@@ -221,6 +243,7 @@ export default function FilesToolbar() {
           containerClassName="flex h-full w-auto rounded-lg overflow-hidden"
           className="h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
           startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
+          dataTestId="files-panel-search-input"
         />
       </div>
 
@@ -238,13 +261,20 @@ export default function FilesToolbar() {
             className="p-0"
             onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
             disabled={!showDownloadButtons}
+            data-testid="files-panel-download-project-button"
           />
         </Tooltip>
       </div>
 
       <div id="newFolder" className="flex h-7 w-7 items-center rounded-lg">
         <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
-          <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
+          <Button
+            variant="transparent"
+            startIcon={<PiFolderPlusBold />}
+            className="p-0"
+            onClick={createNewFolder}
+            data-testid="files-panel-create-new-folder-button"
+          />
         </Tooltip>
       </div>
 
@@ -265,6 +295,7 @@ export default function FilesToolbar() {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
             })
         }
+        data-testid="files-panel-upload-files-button"
       >
         {t('editor:layout.filebrowser.uploadFiles')}
       </Button>
@@ -286,6 +317,7 @@ export default function FilesToolbar() {
               NotificationService.dispatchNotify(err.message, { variant: 'error' })
             })
         }
+        data-testid="files-panel-upload-folder-button"
       >
         {t('editor:layout.filebrowser.uploadFolder')}
       </Button>

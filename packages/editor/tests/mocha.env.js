@@ -40,7 +40,7 @@ const hook = require('css-modules-require-hook')
 const sass = require('sass')
 
 hook({
-  extensions: [ '.scss' ],
+  extensions: [ '.scss', '.css' ],
   preprocessCss: data => sass.renderSync({ data }).css
 })
 
