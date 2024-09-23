@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { render, screen } from '@testing-library/react'
 import { expect } from 'chai'
 import React from 'react'
-import FilesToolbar from './toolbar' // Assuming the component is in the same directory
+import FilesToolbar from './toolbar'
 
 describe('toolbar Component', () => {
   let useCurrentFilesStub
