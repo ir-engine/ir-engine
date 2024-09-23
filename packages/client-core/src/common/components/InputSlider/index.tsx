@@ -66,9 +66,11 @@ const InputSlider = ({
     <Box className={className} sx={{ display: 'flex', alignItems: 'center', mt: 1, mb: 1, ...sx }}>
       {icon}
 
-      <Text className={styles.label} variant="body2" ml={1} mr={1}>
-        {label}
-      </Text>
+      {label && (
+        <Text className={styles.label} variant="body2" ml={1} mr={1}>
+          {label}
+        </Text>
+      )}
 
       <Slider
         className={styles.slider}
