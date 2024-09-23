@@ -45,14 +45,6 @@ import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/com
 import { ArrayCamera, Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
 
-const contentFitToNumber = (fit: ContentFit): number => {
-  return Object.values(ContentFit).indexOf(fit)
-}
-
-const numberToContentFit = (num: number): ContentFit => {
-  return Object.values(ContentFit)[num] as ContentFit
-}
-
 export enum SizeMode {
   proportional = 'proportional',
   literal = 'literal'
@@ -121,11 +113,12 @@ export const LayoutComponent = defineComponent({
         x: S.Enum(SizeMode, SizeMode.literal),
         y: S.Enum(SizeMode, SizeMode.literal),
         z: S.Enum(SizeMode, SizeMode.literal)
-      })
+      }),
+      contentFit: S.Enum(ContentFit, ContentFit.none)
     }),
 
-    contentFit: S.Enum(ContentFit, ContentFit.none),
-    contentFitTransition: Transition.defineScalarTransition(),
+    contentFit: S.Optional(S.Enum(ContentFit)),
+    contentFitTransition: Transition.defineVector3Transition(),
     effectiveContentFit: S.Enum(ContentFit, ContentFit.none),
 
     anchorEntity: S.Entity(),
@@ -154,7 +147,7 @@ export const LayoutComponent = defineComponent({
       layout.effectiveRotationOrigin.set(new Vector3().copy(layout.rotationOrigin.value ?? defaults.rotationOrigin))
       layout.effectiveSizeMode.set({ ...(layout.sizeMode.value ?? defaults.sizeMode) })
       layout.effectiveSize.set(new Vector3().copy(layout.size.value ?? defaults.size))
-      layout.effectiveContentFit.set(layout.contentFit.value)
+      layout.effectiveContentFit.set(layout.contentFit.value ?? defaults.contentFit)
     }, [
       layout.position,
       layout.size,
@@ -177,11 +170,7 @@ export const LayoutComponent = defineComponent({
       Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
       Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
       Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
-      Transition.applyNewTarget(
-        contentFitToNumber(layout.effectiveContentFit.value),
-        simulationTime,
-        layout.contentFitTransition
-      )
+      Transition.applyNewTarget(layout.effectiveContentFit, simulationTime, layout.contentFitTransition)
     }, [
       layout.positionTransition,
       layout.positionOriginTransition,
@@ -212,7 +201,7 @@ export const LayoutComponent = defineComponent({
           Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
           Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
           Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.contentFitTransition.value as TransitionData<number>)
+          Transition.computeCurrentValue(frameTime, layout.contentFitTransition.value as TransitionData<Vector3>)
 
           // Get current values
           const position = layout.positionTransition.value.current
@@ -221,7 +210,7 @@ export const LayoutComponent = defineComponent({
           const rotation = layout.rotationTransition.value.current
           const rotationOrigin = layout.rotationOriginTransition.value.current
           const size = layout.effectiveSize.value
-          const contentFit = numberToContentFit(Math.round(layout.contentFitTransition.value.current))
+          const contentFit = layout.contentFitTransition.value.current
 
           // Compute the final position
           const finalPosition = new Vector3()
@@ -264,9 +253,9 @@ export const LayoutComponent = defineComponent({
               position.y + positionOrigin.y * anchorSize.y - alignmentOrigin.y * size.y,
               position.z + positionOrigin.z * anchorSize.z - alignmentOrigin.z * size.z
             )
-          } else if (anchorBounds?.box) {
+          } else if (anchorBounds?.worldSpaceBox) {
             // Handle bounding box anchor
-            anchorSize = anchorBounds.box.value.getSize(_size)
+            anchorSize = anchorBounds.worldSpaceBox.value.getSize(_size)
             finalPosition.set(
               position.x + positionOrigin.x * anchorSize.x - alignmentOrigin.x * size.x,
               position.y + positionOrigin.y * anchorSize.y - alignmentOrigin.y * size.y,
@@ -317,7 +306,7 @@ export const LayoutComponent = defineComponent({
               const contentBounds = getComponent(layout.contentEntity.value, BoundingBoxComponent)
 
               if (contentBounds) {
-                const contentSize = contentBounds.box.getSize(new Vector3())
+                const contentSize = contentBounds.worldSpaceBox.getSize(new Vector3())
                 const containerAspectRatio = size.x / size.y
                 const contentAspectRatio = contentSize.x / contentSize.y
 
