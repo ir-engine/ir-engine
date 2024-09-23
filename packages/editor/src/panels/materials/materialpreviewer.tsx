@@ -45,13 +45,13 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { MaterialsPanelTab } from '../../Materials'
+import { MATERIALS_PANEL_ID } from './helpers'
 
-export const MaterialPreviewCanvas = () => {
+function MaterialPreviewCanvas() {
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  const panel = document.getElementById(MaterialsPanelTab.id!)
+  const panel = document.getElementById(MATERIALS_PANEL_ID)
   const materialComponent = useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!), MaterialStateComponent)
 
   useEffect(() => {
@@ -101,8 +101,12 @@ export const MaterialPreviewCanvas = () => {
   )
 }
 
-export const MaterialPreviewPanel = (props) => {
+export const MaterialPreviewer = () => {
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   if (!selectedMaterial.value) return null
-  return <MaterialPreviewCanvas key={selectedMaterial.value} />
+  return (
+    <div className="rounded-lg bg-zinc-800 p-2">
+      <MaterialPreviewCanvas />
+    </div>
+  )
 }
