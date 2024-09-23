@@ -173,7 +173,7 @@ const NumericInput = ({
           'w-full bg-inherit text-xs font-normal leading-normal text-[#8B8B8D] focus:outline-none',
           inputClassName
         )}
-        value={focused.value ? tempValue.value : toPrecisionString(value, displayPrecision)}
+        value={focused.value ? tempValue.value : toPrecisionString(value ?? 0, displayPrecision)}
         onKeyDown={handleKeyPress}
         onFocus={handleFocus}
         onChange={handleChange}
