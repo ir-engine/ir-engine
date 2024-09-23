@@ -48,6 +48,14 @@ export enum SizeMode {
   literal = 'literal'
 }
 
+export enum ObjectFit {
+  contain = 'contain',
+  cover = 'cover',
+  fill = 'fill',
+  none = 'none',
+  scaleDown = 'scale-down'
+}
+
 const _size = new Vector3()
 
 export const LayoutComponent = defineComponent({
@@ -107,7 +115,8 @@ export const LayoutComponent = defineComponent({
     }),
 
     anchorEntity: S.Entity(),
-    contentEntity: S.Entity()
+    contentEntity: S.Entity(),
+    objectFit: S.Enum(ObjectFit, ObjectFit.none)
   }),
 
   reactor: () => {
@@ -274,13 +283,59 @@ export const LayoutComponent = defineComponent({
           const transform = getMutableComponent(entity, TransformComponent)
           transform.position.value.copy(finalPosition)
           transform.rotation.value.copy(finalRotation)
-          transform.scale.value.copy(size)
+          transform.scale.value.copy(Vector3_One)
           transform.matrix.value.copy(matrix)
+
+          // Apply object-fit to contentEntity
+          if (layout.contentEntity.value !== UndefinedEntity) {
+            const contentTransform = getMutableComponent(layout.contentEntity.value, TransformComponent)
+            if (contentTransform) {
+              const contentScale = new Vector3(1, 1, 1)
+              const contentBounds = getComponent(layout.contentEntity.value, BoundingBoxComponent)
+              
+              if (contentBounds) {
+                const contentSize = contentBounds.box.value.getSize(new Vector3())
+                const containerAspectRatio = size.x / size.y
+                const contentAspectRatio = contentSize.x / contentSize.y
+
+                switch (layout.objectFit.value) {
+                  case ObjectFit.contain:
+                    if (containerAspectRatio > contentAspectRatio) {
+                      contentScale.set(size.y / contentSize.y, size.y / contentSize.y, 1)
+                    } else {
+                      contentScale.set(size.x / contentSize.x, size.x / contentSize.x, 1)
+                    }
+                    break
+                  case ObjectFit.cover:
+                    if (containerAspectRatio > contentAspectRatio) {
+                      contentScale.set(size.x / contentSize.x, size.x / contentSize.x, 1)
+                    } else {
+                      contentScale.set(size.y / contentSize.y, size.y / contentSize.y, 1)
+                    }
+                    break
+                  case ObjectFit.fill:
+                    contentScale.set(size.x / contentSize.x, size.y / contentSize.y, 1)
+                    break
+                  case ObjectFit.none:
+                    // No scaling
+                    break
+                  case ObjectFit.scaleDown:
+                    const scaleX = size.x / contentSize.x
+                    const scaleY = size.y / contentSize.y
+                    const scale = Math.min(1, Math.min(scaleX, scaleY))
+                    contentScale.set(scale, scale, 1)
+                    break
+                }
+              }
+
+              contentTransform.scale.value.copy(contentScale)
+            }
+          }
 
           return false
         }
       })
-    }, [anchorEntity])
+    }, [anchorEntity, layout.contentEntity, layout.objectFit])
 
     return null
   }
