@@ -282,8 +282,9 @@
     }
   },
   "oauth": {
-    "authenticating": "Authenticating...",
-    "authFailed": "{{service}} authentication failed.",
+    "error": "Sign In Error",
+    "authFailed": "We encountered an issue while trying to sign you in with {{name}}. This could be due to a temporary problem or an issue with your account.",
+    "showError": "Show Error Details",
     "redirectToRoot": "Return to Home"
   },
   "magikLink": {
