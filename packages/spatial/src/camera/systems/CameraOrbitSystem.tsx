@@ -44,7 +44,7 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 
-import { selectionBox } from '@ir-engine/editor/src/panels/viewport/tools/SelectionBoxTool'
+import { SelectionBoxState } from '@ir-engine/editor/src/panels/viewport/tools/SelectionBoxTool'
 import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
@@ -80,7 +80,7 @@ const execute = () => {
    * assign active orbit camera based on which input source registers input
    */
   for (const cameraEid of orbitCameraQuery()) {
-    if (!getMutableState(selectionBox).selectionBoxEnabled.value) {
+    if (!getMutableState(SelectionBoxState).selectionBoxEnabled.value) {
       const inputPointerEntity = InputPointerComponent.getPointersForCamera(cameraEid)[0]
 
       const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)

@@ -34,7 +34,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbPointer, TbRefresh, TbSquareDotFilled, TbVector, TbWindowMaximize } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
-import { selectionBox } from './SelectionBoxTool'
+import { SelectionBoxState } from './SelectionBoxTool'
 
 function Placer() {
   return (
@@ -85,7 +85,7 @@ export default function GizmoTool({
   }
   const handleClickSelectionBox = () => {
     setIsClickedSelectionBox(!isClickedSelectionBox)
-    getMutableState(selectionBox).selectionBoxEnabled.set(!isClickedSelectionBox)
+    getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
   }
   const handleMouseUp = () => {
     setIsDragging(false)

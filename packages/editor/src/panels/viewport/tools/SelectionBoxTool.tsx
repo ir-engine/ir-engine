@@ -33,8 +33,8 @@ import { EditorState } from '../../../services/EditorServices'
 import { SelectionState } from '../../../services/SelectionServices'
 
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-export const selectionBox = defineState({
-  name: 'selection Box',
+export const SelectionBoxState = defineState({
+  name: 'selectionBox State',
   initial: () => ({
     selectionBoxEnabled: false
   })
