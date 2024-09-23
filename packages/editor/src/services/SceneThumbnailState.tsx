@@ -47,7 +47,7 @@ export const SceneThumbnailState = defineState({
     uploadingLoadingScreen: false,
     resolution: 2048
   }),
-  CreateThumbnail: async () => {
+  createThumbnail: async () => {
     const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
     if (!thumbnailBlob) return
     const thumbnailURL = URL.createObjectURL(thumbnailBlob)
@@ -58,7 +58,7 @@ export const SceneThumbnailState = defineState({
       thumbnail: file
     })
   },
-  UploadThumbnail: async () => {
+  uploadThumbnail: async () => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     if (!sceneThumbnailState.thumbnail.value) return
     sceneThumbnailState.uploadingThumbnail.set(true)
@@ -74,7 +74,7 @@ export const SceneThumbnailState = defineState({
       uploadingThumbnail: false
     })
   },
-  CreateLoadingScreen: async () => {
+  createLoadingScreen: async () => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     const envmapImageData = generateEnvmapBake(sceneThumbnailState.resolution.value)
     const blob = await imageDataToBlob(envmapImageData)
@@ -83,7 +83,7 @@ export const SceneThumbnailState = defineState({
       loadingScreenImageData: envmapImageData
     })
   },
-  UploadLoadingScreen: async () => {
+  uploadLoadingScreen: async () => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     const envmapImageData = sceneThumbnailState.loadingScreenImageData.value
     if (!envmapImageData) return
