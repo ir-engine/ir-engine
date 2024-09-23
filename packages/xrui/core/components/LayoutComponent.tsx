@@ -27,6 +27,7 @@ import {
   ECSState,
   UndefinedEntity,
   defineComponent,
+  getComponent,
   getMutableComponent,
   setComponent,
   useComponent,
@@ -42,6 +43,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { ArrayCamera, Matrix4, Quaternion, Vector3 } from 'three'
+import { Transition, TransitionData } from '../classes/Transition'
 
 const contentFitToNumber = (fit: ContentFit): number => {
   return Object.values(ContentFit).indexOf(fit)
@@ -50,7 +52,6 @@ const contentFitToNumber = (fit: ContentFit): number => {
 const numberToContentFit = (num: number): ContentFit => {
   return Object.values(ContentFit)[num] as ContentFit
 }
-import { Transition, TransitionData } from '../classes/Transition'
 
 export enum SizeMode {
   proportional = 'proportional',
@@ -126,10 +127,9 @@ export const LayoutComponent = defineComponent({
     contentFit: S.Enum(ContentFit, ContentFit.none),
     contentFitTransition: Transition.defineScalarTransition(),
     effectiveContentFit: S.Enum(ContentFit, ContentFit.none),
-    
+
     anchorEntity: S.Entity(),
-    contentEntity: S.Entity(),
-    
+    contentEntity: S.Entity()
   }),
 
   reactor: () => {
@@ -177,7 +177,11 @@ export const LayoutComponent = defineComponent({
       Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
       Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
       Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
-      Transition.applyNewTarget(contentFitToNumber(layout.effectiveContentFit.value), simulationTime, layout.contentFitTransition)
+      Transition.applyNewTarget(
+        contentFitToNumber(layout.effectiveContentFit.value),
+        simulationTime,
+        layout.contentFitTransition
+      )
     }, [
       layout.positionTransition,
       layout.positionOriginTransition,
@@ -311,9 +315,9 @@ export const LayoutComponent = defineComponent({
             if (contentTransform) {
               const contentScale = new Vector3(1, 1, 1)
               const contentBounds = getComponent(layout.contentEntity.value, BoundingBoxComponent)
-              
+
               if (contentBounds) {
-                const contentSize = contentBounds.box.value.getSize(new Vector3())
+                const contentSize = contentBounds.box.getSize(new Vector3())
                 const containerAspectRatio = size.x / size.y
                 const contentAspectRatio = contentSize.x / contentSize.y
 
@@ -338,12 +342,13 @@ export const LayoutComponent = defineComponent({
                   case ContentFit.none:
                     // No scaling
                     break
-                  case ContentFit.scaleDown:
+                  case ContentFit.scaleDown: {
                     const scaleX = size.x / contentSize.x
                     const scaleY = size.y / contentSize.y
                     const scale = Math.min(1, Math.min(scaleX, scaleY))
                     contentScale.set(scale, scale, 1)
                     break
+                  }
                 }
               }
 

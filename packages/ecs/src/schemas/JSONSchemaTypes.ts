@@ -97,7 +97,7 @@ export interface TStringSchema extends Schema {
   static: string
 }
 
-export interface TEnumSchema<T extends Record<string, string | number>> extends Schema {
+export interface TEnumSchema<T extends object> extends Schema {
   [Kind]: 'Enum'
   static: T[keyof T]
   properties: T
