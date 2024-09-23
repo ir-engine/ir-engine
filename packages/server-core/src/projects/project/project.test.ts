@@ -124,14 +124,15 @@ describe('project.test', () => {
     })
 
     it('should not add new project with same name as existing project', async () => {
-      await assert.rejects(async () => {
-        await app.service(projectPath).create(
-          {
-            name: testProject.name
-          },
-          getParams()
-        )
-      })
+      await assert.rejects(
+        async () =>
+          await app.service(projectPath).create(
+            {
+              name: testProject.name
+            },
+            getParams()
+          )
+      )
     })
   })
 

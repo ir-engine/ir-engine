@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../patchEngineNode'
 
-import { Forbidden } from '@feathersjs/errors'
+import { Forbidden, NotFound } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 import { afterAll, beforeAll, describe, it } from 'vitest'
@@ -86,7 +86,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    await assert.rejects(async () => await verifyLocationReadScope(hookContext), Forbidden)
+    await assert.rejects(async () => await verifyLocationReadScope(hookContext), NotFound)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
