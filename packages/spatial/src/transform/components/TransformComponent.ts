@@ -137,6 +137,7 @@ export const TransformComponent = defineComponent({
   getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
     const relativeEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
+    /** @todo We should force updating the parent chain between entity and relativeEntity (for completeness) */
     return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
   },
 

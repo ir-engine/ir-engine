@@ -52,6 +52,7 @@ import {
 
 import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
+import { createHash } from 'crypto'
 import appConfig from './appconfig'
 import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -100,15 +101,19 @@ export const updateAppConfig = async (): Promise<void> => {
         appConfig.authentication = {
           ...appConfig.authentication,
           ...(dbAuthenticationConfig as any),
-          secret: appConfig.authentication.secret.split(String.raw`\n`).join('\n'),
+          secret: dbAuthenticationConfig.secret.split(String.raw`\n`).join('\n'),
           authStrategies: authStrategies
         }
         if (dbAuthenticationConfig.oauth?.github?.privateKey)
           appConfig.authentication.oauth.github.privateKey = dbAuthenticationConfig.oauth.github.privateKey
             .split(String.raw`\n`)
             .join('\n')
-        if (dbAuthenticationConfig.jwtPublicKey)
-          appConfig.authentication.jwtPublicKey = dbAuthenticationConfig.jwtPublicKey.split(String.raw`\n`).join('\n')
+        if (dbAuthentication.jwtPublicKey && typeof dbAuthentication.jwtPublicKey === 'string') {
+          appConfig.authentication.jwtPublicKey = dbAuthentication.jwtPublicKey.split(String.raw`\n`).join('\n')
+          ;(appConfig.authentication.jwtOptions as any).keyid = createHash('sha3-256')
+            .update(appConfig.authentication.jwtPublicKey)
+            .digest('hex')
+        }
         appConfig.authentication.jwtOptions.algorithm = dbAuthentication.jwtAlgorithm || 'HS256'
       }
     })
