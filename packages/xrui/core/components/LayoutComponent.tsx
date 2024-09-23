@@ -307,7 +307,10 @@ export const LayoutComponent = defineComponent({
               const contentBounds = getComponent(layout.contentEntity.value, BoundingBoxComponent)
 
               if (contentBounds) {
-                const contentSize = contentBounds.objectSpaceBox.getSize(new Vector3())
+                // Apply rotation to the content bounds
+                const rotatedBox = contentBounds.objectSpaceBox.clone()
+                rotatedBox.applyQuaternion(rotation)
+                const contentSize = rotatedBox.getSize(new Vector3())
                 const containerAspectRatio = size.x / size.y
                 const contentAspectRatio = contentSize.x / contentSize.y
 
