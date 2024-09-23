@@ -23,22 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import multiLogger from '@ir-engine/common/src/logger'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useTranslation } from 'react-i18next'
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
+import { MdErrorOutline } from 'react-icons/md'
+import { useLocation } from 'react-router-dom'
 import { AuthService, AuthState } from '../../services/AuthService'
-import styles from './styles.module.scss'
-const logger = multiLogger.child({ component: 'engine:ecs:AppleCallback' })
-const AppleCallbackComponent = (props): JSX.Element => {
+
+interface ErrorPageProps {
+  name: string
+}
+
+export default function ErrorPage({ name }: ErrorPageProps) {
   const { t } = useTranslation()
   const initialState = { error: '', token: '' }
   const [state, setState] = useState(initialState)
   const search = new URLSearchParams(useLocation().search)
+  const showError = useHookstate(false)
 
   useEffect(() => {
     const error = search.get('error') as string
@@ -65,17 +72,47 @@ const AppleCallbackComponent = (props): JSX.Element => {
     window.location.href = '/'
   }
 
-  return state.error && state.error !== '' ? (
-    <div className={styles.oauthError}>
-      <div className={styles.title}>{t('user:oauth.authFailed', { service: 'Apple' })}</div>
-      <div className={styles.message}>{state.error}</div>
-      <Button onClick={redirectToRoot} className={styles.gradientButton}>
-        {t('user:oauth.redirectToRoot')}
-      </Button>
+  return (
+    <div className="pointer-events-auto flex h-full w-full items-center justify-center bg-gray-900 p-2">
+      {state.error ? (
+        <div className="grid w-full gap-y-3 rounded-md border border-gray-700 bg-gray-800 p-3 sm:w-2/3 md:w-1/2 lg:w-1/3 xl:w-1/4">
+          <MdErrorOutline size="4rem" className="w-full text-center text-red-400" />
+
+          <Text fontWeight="bold" fontSize="2xl" className="mt-1 text-center text-white" component="h2">
+            {t('user:oauth.error')}
+          </Text>
+
+          <Text className="p text-center text-gray-400">{t('user:oauth.authFailed', { name })}</Text>
+
+          <button
+            className="flex items-center justify-center rounded border-gray-600 bg-gray-700 p-2 text-gray-200 hover:bg-gray-600 hover:text-gray-100"
+            onClick={() => {
+              showError.set((v) => !v)
+            }}
+          >
+            <span>
+              {t('user:oauth.showError')}
+              {showError.value ? (
+                <IoIosArrowUp className="inline-block" size="1.25rem" />
+              ) : (
+                <IoIosArrowDown className="inline-block" size="1.25rem" />
+              )}
+            </span>
+          </button>
+
+          {showError.value && (
+            <div className="w-full overflow-x-auto rounded border bg-white p-5 font-mono text-black">
+              <code>{JSON.stringify({ error: state.error })}</code>
+            </div>
+          )}
+
+          <button onClick={redirectToRoot} className="rounded bg-blue-500 p-2 text-white">
+            {t('user:oauth.redirectToRoot')}
+          </button>
+        </div>
+      ) : (
+        <LoadingView className="h-20 w-20" />
+      )}
     </div>
-  ) : (
-    <div>{t('user:oauth.authenticating')}</div>
   )
 }
-
-export const AppleCallback = AppleCallbackComponent as any
