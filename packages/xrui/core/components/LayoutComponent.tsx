@@ -42,6 +42,14 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { ArrayCamera, Matrix4, Quaternion, Vector3 } from 'three'
+
+const contentFitToNumber = (fit: ContentFit): number => {
+  return Object.values(ContentFit).indexOf(fit)
+}
+
+const numberToContentFit = (num: number): ContentFit => {
+  return Object.values(ContentFit)[num] as ContentFit
+}
 import { Transition, TransitionData } from '../classes/Transition'
 
 export enum SizeMode {
@@ -116,10 +124,7 @@ export const LayoutComponent = defineComponent({
     }),
 
     contentFit: S.Enum(ContentFit, ContentFit.none),
-    contentFitTransition: Transition.defineTransition({
-      buffer: [{ timestamp: 0, value: ContentFit.none }],
-      interpolationFunction: (a: ContentFit, b: ContentFit, t: number) => (t < 0.5 ? a : b)
-    }),
+    contentFitTransition: Transition.defineScalarTransition(),
     effectiveContentFit: S.Enum(ContentFit, ContentFit.none),
     
     anchorEntity: S.Entity(),
@@ -172,7 +177,7 @@ export const LayoutComponent = defineComponent({
       Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
       Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
       Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
-      Transition.applyNewTarget(layout.effectiveContentFit.value, simulationTime, layout.contentFitTransition)
+      Transition.applyNewTarget(contentFitToNumber(layout.effectiveContentFit.value), simulationTime, layout.contentFitTransition)
     }, [
       layout.positionTransition,
       layout.positionOriginTransition,
@@ -203,7 +208,7 @@ export const LayoutComponent = defineComponent({
           Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
           Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
           Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.contentFitTransition.value as TransitionData<ContentFit>)
+          Transition.computeCurrentValue(frameTime, layout.contentFitTransition.value as TransitionData<number>)
 
           // Get current values
           const position = layout.positionTransition.value.current
@@ -212,7 +217,7 @@ export const LayoutComponent = defineComponent({
           const rotation = layout.rotationTransition.value.current
           const rotationOrigin = layout.rotationOriginTransition.value.current
           const size = layout.effectiveSize.value
-          const contentFit = layout.contentFitTransition.value.current
+          const contentFit = numberToContentFit(Math.round(layout.contentFitTransition.value.current))
 
           // Compute the final position
           const finalPosition = new Vector3()
