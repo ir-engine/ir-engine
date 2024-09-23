@@ -590,12 +590,12 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
 export const onConnection = (app: Application) => async (connection: PrimusConnectionType) => {
   logger.info('Connection: %o', connection)
 
-  if (!connection.socketQuery?.token) return
+  if (!connection.headers['sec-websocket-protocol']) return
 
   let authResult
   try {
     authResult = await app.service('authentication').strategies.jwt.authenticate!(
-      { accessToken: connection.socketQuery.token },
+      { accessToken: connection.headers['sec-websocket-protocol'] },
       {}
     )
   } catch (err) {
@@ -719,7 +719,7 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
 
 const onDisconnection = (app: Application) => async (connection: PrimusConnectionType) => {
   logger.info('Disconnection or end: %o', connection)
-  const token = connection.socketQuery?.token
+  const token = connection.headers['sec-websocket-protocol']
   if (!token) return
 
   let authResult

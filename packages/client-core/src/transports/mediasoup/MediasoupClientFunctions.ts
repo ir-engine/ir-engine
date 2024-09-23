@@ -36,7 +36,7 @@ import {
 } from 'mediasoup-client/lib/types'
 import { encode } from 'msgpackr'
 import type { EventEmitter } from 'primus'
-import Primus from 'primus-client'
+import Primus from '@ir-engine/primus-client'
 import { v4 as uuidv4 } from 'uuid'
 
 import config from '@ir-engine/common/src/config'
@@ -205,8 +205,7 @@ export const connectToInstance = (
       instanceID,
       locationId: locationID,
       channelId: channelID,
-      roomCode,
-      token
+      roomCode
     }
 
     if (locationID) delete query.channelId
@@ -219,12 +218,16 @@ export const connectToInstance = (
         (config.client.appEnv === 'development' && config.client.localNginx !== 'true')
       ) {
         const queryString = new URLSearchParams(query).toString()
-        primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
+        primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`, {
+          token
+        })
       } else {
         query.address = ipAddress
         query.port = port.toString()
         const queryString = new URLSearchParams(query).toString()
-        primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
+        primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`, {
+          token
+        })
       }
     } catch (err) {
       logger.error('Failed to connect to primus', err)

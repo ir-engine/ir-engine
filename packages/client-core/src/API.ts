@@ -27,7 +27,7 @@ import type { AuthenticationClient } from '@feathersjs/authentication-client'
 import authentication from '@feathersjs/authentication-client'
 import feathers from '@feathersjs/client'
 import type { FeathersApplication } from '@feathersjs/feathers'
-import Primus from 'primus-client'
+import Primus from '@ir-engine/primus-client'
 
 import { API as CommonAPI } from '@ir-engine/common'
 
@@ -48,11 +48,11 @@ export class API {
   static instance: API
   client: FeathersApplication<ServiceTypes>
 
-  static createAPI = () => {
+  static createAPI = (token) => {
     const feathersClient = feathers()
 
     const primus = new Primus(`${config.client.serverUrl}?pathName=${window.location.pathname}`, {
-      withCredentials: true
+      token: token
     })
     feathersClient.configure(primusClient(primus, { timeout: 10000 }))
 

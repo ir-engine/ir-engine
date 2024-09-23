@@ -70,6 +70,8 @@ import {
 } from '@ir-engine/hyperflux'
 import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
+import restApiCall from "../../util/rest-api-call";
+import { API as ClientAPI } from "../../API";
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
@@ -292,19 +294,40 @@ export const writeAuthUserToIframe = async () => {
 /**
  * Resets the current user's accessToken to a new random guest token.
  */
-async function _resetToGuestToken(options = { reset: true }) {
-  if (options.reset) {
-    await API.instance.authentication.reset()
-  }
-  const newProvider = await API.instance.service(identityProviderPath).create({
-    type: 'guest',
-    token: uuidv4(),
-    userId: '' as UserID
-  })
-  const accessToken = newProvider.accessToken!
-  await API.instance.authentication.setAccessToken(accessToken as string)
+async function _resetToGuestToken(): Promise<string> {
+  const newProviderResponse = await createGuestUser()
+  const accessToken = (await newProviderResponse.json()).accessToken
   writeAuthUserToIframe()
   return accessToken
+}
+
+function createGuestUser() {
+  return restApiCall({
+    path: identityProviderPath,
+    method: 'POST',
+    body: JSON.stringify({
+      type: 'guest',
+      token: uuidv4(),
+      userId: '' as UserID
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+}
+
+function authenticateToken(token) {
+  return restApiCall({
+    path: 'authentication',
+    method: 'POST',
+    body: JSON.stringify({
+      strategy: 'jwt',
+      accessToken: token
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
 }
 
 export const AuthService = {
@@ -316,12 +339,24 @@ export const AuthService = {
     if (location.pathname.startsWith('/auth')) return
     const authState = getMutableState(AuthState)
     try {
-      const rootDomainToken = await getToken()
+      let reset = true
+      let rootDomainToken = await getToken()
 
-      if (forceClientAuthReset) await API.instance.authentication.reset()
+      if (rootDomainToken?.length > 0) {
+        const authResponse = await authenticateToken(rootDomainToken)
+        if (authResponse.status > 299) {
+          reset = false
+          rootDomainToken = await _resetToGuestToken()
+        }
+      }
+      else {
+        rootDomainToken = await _resetToGuestToken()
+      }
 
-      if (rootDomainToken?.length > 0) await API.instance.authentication.setAccessToken(rootDomainToken as string)
-      else await _resetToGuestToken({ reset: false })
+      ClientAPI.createAPI(rootDomainToken)
+
+      document.cookie = `jwtAuth=${rootDomainToken}`
+      await API.instance.authentication.setAccessToken(rootDomainToken)
 
       let res: AuthenticationResult
       try {
@@ -486,6 +521,7 @@ export const AuthService = {
   async loginUserByOAuth(service: string, location: any) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
+    ClientAPI.createAPI(token)
     const path = new URLSearchParams(location.search).get('redirectUrl') || location.pathname
 
     const redirectConfig = {
@@ -533,6 +569,7 @@ export const AuthService = {
   },
 
   async loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
+    ClientAPI.createAPI(accessToken)
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
@@ -573,6 +610,7 @@ export const AuthService = {
 
   async loginUserMagicLink(token, redirectSuccess, redirectError) {
     try {
+      ClientAPI.createAPI(token)
       const res = await API.instance.service(loginPath).get(token)
       await AuthService.loginUserByJwt(res.token!, '/', '/')
     } catch (err) {
