@@ -116,7 +116,12 @@ export const LayoutComponent = defineComponent({
 
     anchorEntity: S.Entity(),
     contentEntity: S.Entity(),
-    contentFit: S.Enum(ContentFit, ContentFit.none)
+    contentFit: S.Enum(ContentFit, ContentFit.none),
+    contentFitTransition: Transition.defineTransition({
+      buffer: [{ timestamp: 0, value: ContentFit.none }],
+      interpolationFunction: (a: ContentFit, b: ContentFit, t: number) => (t < 0.5 ? a : b)
+    }),
+    effectiveContentFit: S.Enum(ContentFit, ContentFit.none)
   }),
 
   reactor: () => {
@@ -141,6 +146,7 @@ export const LayoutComponent = defineComponent({
       layout.effectiveRotationOrigin.set(new Vector3().copy(layout.rotationOrigin.value ?? defaults.rotationOrigin))
       layout.effectiveSizeMode.set({ ...(layout.sizeMode.value ?? defaults.sizeMode) })
       layout.effectiveSize.set(new Vector3().copy(layout.size.value ?? defaults.size))
+      layout.effectiveContentFit.set(layout.contentFit.value)
     }, [
       layout.position,
       layout.size,
@@ -149,6 +155,7 @@ export const LayoutComponent = defineComponent({
       layout.alignmentOrigin,
       layout.rotation,
       layout.rotationOrigin,
+      layout.contentFit,
       layout.defaults
     ])
 
@@ -162,12 +169,14 @@ export const LayoutComponent = defineComponent({
       Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
       Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
       Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
+      Transition.applyNewTarget(layout.effectiveContentFit.value, simulationTime, layout.contentFitTransition)
     }, [
       layout.positionTransition,
       layout.positionOriginTransition,
       layout.alignmentTransition,
       layout.rotationTransition,
-      layout.rotationOriginTransition
+      layout.rotationOriginTransition,
+      layout.contentFitTransition
     ])
 
     // Reusable objects for calculations
@@ -191,6 +200,7 @@ export const LayoutComponent = defineComponent({
           Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
           Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
           Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
+          Transition.computeCurrentValue(frameTime, layout.contentFitTransition.value as TransitionData<ContentFit>)
 
           // Get current values
           const position = layout.positionTransition.value.current
@@ -199,6 +209,7 @@ export const LayoutComponent = defineComponent({
           const rotation = layout.rotationTransition.value.current
           const rotationOrigin = layout.rotationOriginTransition.value.current
           const size = layout.effectiveSize.value
+          const contentFit = layout.contentFitTransition.value.current
 
           // Compute the final position
           const finalPosition = new Vector3()
@@ -298,7 +309,7 @@ export const LayoutComponent = defineComponent({
                 const containerAspectRatio = size.x / size.y
                 const contentAspectRatio = contentSize.x / contentSize.y
 
-                switch (layout.contentFit.value) {
+                switch (contentFit) {
                   case ContentFit.contain:
                     if (containerAspectRatio > contentAspectRatio) {
                       contentScale.set(size.y / contentSize.y, size.y / contentSize.y, 1)
