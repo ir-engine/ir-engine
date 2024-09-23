@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../patchEngineNode'
 
-import { Forbidden, NotFound } from '@feathersjs/errors'
+import { NotFound } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 import { afterAll, beforeAll, describe, it } from 'vitest'

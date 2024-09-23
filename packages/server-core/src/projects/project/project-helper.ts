@@ -313,8 +313,7 @@ export const onProjectEvent = async (
 export const getProjectConfig = async (projectName: string) => {
   try {
     const configFilePath = path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')
-    return (await import(configFilePath))
-      .default as ProjectConfigInterface
+    return (await import(configFilePath)).default as ProjectConfigInterface
   } catch (e) {
     // asset only projects do not have a config file
   }

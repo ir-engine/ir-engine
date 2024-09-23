@@ -30,7 +30,6 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import { v4 as uuidv4 } from 'uuid'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
