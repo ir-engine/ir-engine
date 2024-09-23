@@ -65,16 +65,16 @@ export const Transition = {
   ) {
     return S.Object({
       buffer: S.Array(TimestampedValueSchema),
-      current: S.Any(),
+      current: S.Type<V>(),
       maxBufferSize: S.Number(10),
       duration: S.Number(500),
       easingFunction: S.Func([S.Number()], S.Number(), Easing.Elastic.InOut),
-      interpolationFunction: S.Func([S.Any(), S.Any(), S.Number(), S.Optional(S.Any())], S.Any(), config.interpolationFunction)
+      interpolationFunction: S.Func([S.Type<V>(), S.Type<V>(), S.Number(), S.Optional(S.Type<V>())], S.Type<V>(), config.interpolationFunction)
     })
   },
 
   defineScalarTransition: (config?: Partial<TransitionData<number>>) => {
-    return Transition.defineTransition({
+    return Transition.defineTransition<number>({
       buffer: [{ timestamp: 0, value: 0 }],
       interpolationFunction: (a: number, b: number, t: number) => a + (b - a) * t,
       ...config
@@ -82,7 +82,7 @@ export const Transition = {
   },
 
   defineVector3Transition: (config?: Partial<TransitionData<THREE.Vector3>>) => {
-    return Transition.defineTransition({
+    return Transition.defineTransition<THREE.Vector3>({
       buffer: [{ timestamp: 0, value: new Vector3() }],
       interpolationFunction: (a: THREE.Vector3, b: THREE.Vector3, t: number, out?: THREE.Vector3) => {
         out = out || new Vector3()
@@ -96,7 +96,7 @@ export const Transition = {
   },
 
   defineQuaternionTransition: (config?: Partial<TransitionData<Quaternion>>) => {
-    return Transition.defineTransition({
+    return Transition.defineTransition<Quaternion>({
       buffer: [{ timestamp: 0, value: new Quaternion() }],
       interpolationFunction: (a: Quaternion, b: Quaternion, t: number, out?: Quaternion) => {
         out = out || new Quaternion()
@@ -108,7 +108,7 @@ export const Transition = {
   },
 
   defineBorderRadiusTransition: (config?: Partial<TransitionData<BorderRadius>>) => {
-    return Transition.defineTransition({
+    return Transition.defineTransition<BorderRadius>({
       buffer: [{ timestamp: 0, value: { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 } }],
       interpolationFunction: (a: BorderRadius, b: BorderRadius, t: number, out?: BorderRadius) => {
         out = out || { topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0 }
