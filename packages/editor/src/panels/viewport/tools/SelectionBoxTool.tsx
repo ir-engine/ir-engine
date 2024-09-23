@@ -51,8 +51,11 @@ export default function SelectionBox({
   const [startY, setStartY] = useState(0)
   const [left, setLeft] = useState(0)
   const [top, setTop] = useState(0)
+  // const [width, setWidth] = useState(0)
+  // const [height, setHeight] = useState(0)
   const width = useHookstate(0)
   const height = useHookstate(0)
+
   const [isDragging, setIsDragging] = useState(false)
   const handleMouseDown = (e: React.MouseEvent) => {
     const viewportRect = viewportRef.current!.getBoundingClientRect()
@@ -61,42 +64,22 @@ export default function SelectionBox({
     setStartX(e.clientX)
     setStartY(e.clientY)
     setIsDragging(true)
-
-    // Calculate initial left and top position relative to viewport
     setLeft(Math.max(e.clientX - viewportRect.left, 0))
     setTop(Math.max(e.clientY - viewportRect.top - toolbarRect.height, 0))
-
-    // Reset width and height
     width.set(0)
     height.set(0)
+    // setWidth(0)
+    // setHeight(0)
 
     SelectionState.updateSelection([])
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return
-
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
-
-    // Calculate mouse position relative to the viewport
-    const currentX = Math.max(Math.min(e.clientX, viewportRect.right), viewportRect.left)
-    const currentY = Math.max(Math.min(e.clientY, viewportRect.bottom), viewportRect.top)
-
-    // Handle dragging in all directions by calculating top/left based on the direction
-    const newLeft = Math.min(currentX, startX)
-    const newTop = Math.min(currentY, startY)
-
-    // Set the left and top of the selection box
-    setLeft(Math.max(newLeft - viewportRect.left, 0))
-    setTop(Math.max(newTop - viewportRect.top, 0))
-
-    // Calculate and constrain the width and height
-    const newWidth = Math.abs(currentX - startX)
-    const newHeight = Math.abs(currentY - startY)
-
-    width.set(Math.min(newWidth, viewportRect.width - (newLeft - viewportRect.left)))
-    height.set(Math.min(newHeight, viewportRect.height - (newTop - viewportRect.top)))
+    if (!isDragging) return
+    width.set(Math.min(e.clientX - startX, viewportRect.width - startX))
+    height.set(Math.min(e.clientY - startY, viewportRect.height + toolbarRect.height - startY))
   }
   const handleMouseUp = (e: React.MouseEvent) => {
     // width.set(e.clientX - startX)
@@ -114,7 +97,7 @@ export default function SelectionBox({
     const ndcY2 = 1 - ((top + height.value) / viewportRect.height) * 2
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const selectedUUIDs = [] as EntityUUID[]
-    // Convert NDC points to world space (for both near and far planes)
+    // convert NDC points to world space (for both near and far planes)
     const p1Near = new Vector3(ndcX1, ndcY1, -1).unproject(camera) // top-left near
     const p2Near = new Vector3(ndcX2, ndcY1, -1).unproject(camera) // top-right near
     const p3Near = new Vector3(ndcX1, ndcY2, -1).unproject(camera) // bottom-left near
@@ -125,7 +108,7 @@ export default function SelectionBox({
     const p3Far = new Vector3(ndcX1, ndcY2, 1).unproject(camera) // bottom-left far
     const p4Far = new Vector3(ndcX2, ndcY2, 1).unproject(camera) // bottom-right far
 
-    // Now construct the frustum with six planes
+    // construct the frustum with six planes
     const frustum = new Frustum(
       new Plane().setFromCoplanarPoints(p1Near, p2Near, p3Near), // Near plane
       new Plane().setFromCoplanarPoints(p1Far, p2Far, p3Far), // Far plane
@@ -137,14 +120,12 @@ export default function SelectionBox({
 
     const parentEntity = getState(EditorState).rootEntity
     iterateEntityNode(parentEntity, (entity) => {
-      console.log('entity:', entity)
       if (hasComponent(entity, ModelComponent)) {
         const scene = getComponent(entity, ModelComponent).scene
         if (!scene) return {}
         scene.traverse((mesh: Mesh) => {
           if (!mesh.isMesh) return
           if (frustum.intersectsObject(mesh)) {
-            console.log('selected entity:', entity)
             selectedUUIDs.push(getComponent(entity, UUIDComponent))
           }
         })
