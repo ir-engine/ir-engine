@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   ECSState,
+  UndefinedEntity,
   defineComponent,
   getMutableComponent,
   setComponent,
@@ -114,14 +115,16 @@ export const LayoutComponent = defineComponent({
       })
     }),
 
-    anchorEntity: S.Entity(),
-    contentEntity: S.Entity(),
     contentFit: S.Enum(ContentFit, ContentFit.none),
     contentFitTransition: Transition.defineTransition({
       buffer: [{ timestamp: 0, value: ContentFit.none }],
       interpolationFunction: (a: ContentFit, b: ContentFit, t: number) => (t < 0.5 ? a : b)
     }),
-    effectiveContentFit: S.Enum(ContentFit, ContentFit.none)
+    effectiveContentFit: S.Enum(ContentFit, ContentFit.none),
+    
+    anchorEntity: S.Entity(),
+    contentEntity: S.Entity(),
+    
   }),
 
   reactor: () => {
