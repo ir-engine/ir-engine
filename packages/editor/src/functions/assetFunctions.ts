@@ -34,6 +34,20 @@ import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
+const unsupportedFileMessage = {
+  '3D': 'Unsuppoted File Type! Please upload either a GLTF or a GLB.',
+  Image: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
+  Audio: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
+  Video: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.'
+}
+
+const supportedFiles = {
+  '3D': new Set(['GLTF', 'GLB']),
+  Image: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
+  Audio: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
+  Video: new Set(['.mp4', '.mkv', '.avi'])
+}
+
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
