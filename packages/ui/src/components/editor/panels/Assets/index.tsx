@@ -34,7 +34,7 @@ export const AssetsPanelTitle = () => {
 
   return (
     <div>
-      <PanelDragContainer>
+      <PanelDragContainer dataTestId="assets-panel-tab">
         <PanelTitle>
           <span>{'Assets'}</span>
         </PanelTitle>

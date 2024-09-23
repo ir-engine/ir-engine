@@ -134,7 +134,11 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+          <Button
+            startIcon={<IoSettingsSharp />}
+            className="h-7 w-7 rounded-lg bg-[#2F3137] p-0"
+            data-testid="assets-panel-view-options"
+          />
         </Tooltip>
       }
     >
@@ -147,6 +151,8 @@ const ViewModeSettings = () => {
             value={viewModeSettings.list.fontSize.value}
             onChange={viewModeSettings.list.fontSize.set}
             onRelease={viewModeSettings.list.fontSize.set}
+            dataTestIdForValueInput="assets-panel-view-options-font-size-input"
+            dataTestIdForSlider="assets-panel-view-options-font-size-slider"
           />
         </InputGroup>
       </div>
@@ -206,17 +212,24 @@ const ResourceFile = (props: {
       }
       onContextMenu={handleContextMenu}
       className={`mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center ${props.className}`}
+      data-testid="assets-panel-file-item"
     >
       <div
         className={`mx-auto mt-2 flex h-full w-28 items-center justify-center font-['Figtree'] ${
           selected ? 'rounded-lg border border-blue-primary bg-theme-studio-surface' : ''
         }`}
+        data-testid="assets-panel-file-item-thumbnail"
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </div>
 
       <Tooltip content={name}>
-        <span className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
+        <span
+          className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]"
+          data-testid="assets-panel-file-item-name"
+        >
+          {name}
+        </span>
       </Tooltip>
 
       <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)} className="gap-1">
@@ -359,6 +372,7 @@ const AssetCategory = (props: {
           marginLeft: category.depth > 0 ? category.depth * 16 : 0
         }}
         onClick={handleSelectCategory}
+        data-testid="assets-panel-category"
       >
         <Button
           variant="transparent"
@@ -366,6 +380,7 @@ const AssetCategory = (props: {
           title={category.collapsed ? 'expand' : 'collapse'}
           startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
           iconContainerClassName="ml-2"
+          data-testid="assets-panel-category-expand-collapse-button"
         />
         <AssetIconMap name={category.name} />
         <div className="flex w-full items-center gap-1 text-nowrap pr-2">
@@ -374,6 +389,7 @@ const AssetCategory = (props: {
               "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
               selectedCategory?.name === category.name && 'text-[#F5F5F5]'
             )}
+            data-testid="assets-panel-category-name"
           >
             {category.name}
           </span>
@@ -396,16 +412,20 @@ export function AssetsBreadcrumb({
   return (
     <div className="flex h-[28px] w-96 items-center gap-2 rounded-lg border border-theme-input bg-[#141619] px-2 ">
       <HiOutlineFolder className="text-xs text-[#A3A3A3]" />
-      {parentCategories.map((category) => (
+      {parentCategories.map((category, index) => (
         <span
           key={category.name}
           className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline"
           onClick={() => onSelectCategory(category)}
+          data-testid={`assets-panel-breadcrumbs-parent-category-${index}`}
         >
           {category.name + ' > '}
         </span>
       ))}
-      <span className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]">
+      <span
+        className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+        data-testid="assets-panel-breadcrumbs-selected-category"
+      >
         {selectedCategory?.name}
       </span>
     </div>
@@ -656,13 +676,25 @@ const AssetPanel = () => {
           <div className="ml-2"></div>
           <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
             <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-              <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
+              <Button
+                variant="transparent"
+                startIcon={<IoArrowBack />}
+                className="p-0"
+                onClick={handleBack}
+                data-testid="assets-panel-back-button"
+              />
             </Tooltip>
           </div>
 
           <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
             <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-              <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
+              <Button
+                variant="transparent"
+                startIcon={<FiRefreshCcw />}
+                className="p-0"
+                onClick={handleRefresh}
+                data-testid="assets-panel-refresh-button"
+              />
             </Tooltip>
           </div>
 
@@ -695,6 +727,7 @@ const AssetPanel = () => {
               containerClassName="flex h-full w-auto"
               className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
               startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
+              data-testid="assets-panel-search-input"
             />
           </div>
 
@@ -713,6 +746,7 @@ const AssetPanel = () => {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })
                 })
             }
+            data-testid="assets-panel-upload-assets-button"
           >
             {t('editor:layout.filebrowser.uploadAssets')}
           </Button>
@@ -726,7 +760,7 @@ const AssetPanel = () => {
             onSelectCategory={handleSelectCategory}
             style={{ width: width.value }}
           />
-          <div className="flex w-[20px] cursor-pointer items-center">
+          <div className="flex w-[20px] cursor-pointer items-center" data-testid="assets-panel-window-resizer">
             <HiDotsVertical onMouseDown={handleMouseDown} className="text-white" />
           </div>
           <div id="asset-panel" className="flex h-full w-full flex-col overflow-auto">

@@ -123,7 +123,7 @@ const ScenePanelTitle = () => {
 
   return (
     <div>
-      <PanelDragContainer>
+      <PanelDragContainer dataTestId="scenes-panel-tab">
         <PanelTitle>{t('editor:properties.scene.name')}</PanelTitle>
       </PanelDragContainer>
     </div>
