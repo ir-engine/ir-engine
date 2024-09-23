@@ -45,6 +45,7 @@ interface Props {
   sx?: SxProps<Theme>
   value?: number
   onChange?: (value: number) => void
+  onRelease?: (value: number) => void
   displaySliderLabel?: boolean
 }
 
@@ -60,7 +61,8 @@ const InputSlider = ({
   sx,
   value,
   displaySliderLabel,
-  onChange
+  onChange,
+  onRelease
 }: Props) => {
   return (
     <Box className={className} sx={{ display: 'flex', alignItems: 'center', mt: 1, mb: 1, ...sx }}>
@@ -81,6 +83,7 @@ const InputSlider = ({
         step={step}
         value={value}
         onChange={(_, value: number) => onChange && onChange(value)}
+        onChangeCommitted={(_, value: number) => onRelease && onRelease(value)}
         onPointerUp={handleSoundEffect}
         onPointerEnter={handleSoundEffect}
         valueLabelDisplay={displaySliderLabel ? 'on' : 'auto'}

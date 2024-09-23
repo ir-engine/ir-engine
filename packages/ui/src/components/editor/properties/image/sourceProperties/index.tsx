@@ -76,6 +76,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
             step={0.01}
             value={imageComponent.alphaCutoff.value}
             onChange={updateProperty(ImageComponent, 'alphaCutoff')}
+            onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
           />
         </InputGroup>
       )}
