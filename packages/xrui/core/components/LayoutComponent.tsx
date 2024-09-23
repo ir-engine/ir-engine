@@ -48,7 +48,7 @@ export enum SizeMode {
   literal = 'literal'
 }
 
-export enum ObjectFit {
+export enum ContentFit {
   contain = 'contain',
   cover = 'cover',
   fill = 'fill',
@@ -116,7 +116,7 @@ export const LayoutComponent = defineComponent({
 
     anchorEntity: S.Entity(),
     contentEntity: S.Entity(),
-    objectFit: S.Enum(ObjectFit, ObjectFit.none)
+    contentFit: S.Enum(ContentFit, ContentFit.none)
   }),
 
   reactor: () => {
@@ -286,7 +286,7 @@ export const LayoutComponent = defineComponent({
           transform.scale.value.copy(Vector3_One)
           transform.matrix.value.copy(matrix)
 
-          // Apply object-fit to contentEntity
+          // Apply content-fit to contentEntity
           if (layout.contentEntity.value !== UndefinedEntity) {
             const contentTransform = getMutableComponent(layout.contentEntity.value, TransformComponent)
             if (contentTransform) {
@@ -298,28 +298,28 @@ export const LayoutComponent = defineComponent({
                 const containerAspectRatio = size.x / size.y
                 const contentAspectRatio = contentSize.x / contentSize.y
 
-                switch (layout.objectFit.value) {
-                  case ObjectFit.contain:
+                switch (layout.contentFit.value) {
+                  case ContentFit.contain:
                     if (containerAspectRatio > contentAspectRatio) {
                       contentScale.set(size.y / contentSize.y, size.y / contentSize.y, 1)
                     } else {
                       contentScale.set(size.x / contentSize.x, size.x / contentSize.x, 1)
                     }
                     break
-                  case ObjectFit.cover:
+                  case ContentFit.cover:
                     if (containerAspectRatio > contentAspectRatio) {
                       contentScale.set(size.x / contentSize.x, size.x / contentSize.x, 1)
                     } else {
                       contentScale.set(size.y / contentSize.y, size.y / contentSize.y, 1)
                     }
                     break
-                  case ObjectFit.fill:
+                  case ContentFit.fill:
                     contentScale.set(size.x / contentSize.x, size.y / contentSize.y, 1)
                     break
-                  case ObjectFit.none:
+                  case ContentFit.none:
                     // No scaling
                     break
-                  case ObjectFit.scaleDown:
+                  case ContentFit.scaleDown:
                     const scaleX = size.x / contentSize.x
                     const scaleY = size.y / contentSize.y
                     const scale = Math.min(1, Math.min(scaleX, scaleY))
@@ -335,7 +335,7 @@ export const LayoutComponent = defineComponent({
           return false
         }
       })
-    }, [anchorEntity, layout.contentEntity, layout.objectFit])
+    }, [anchorEntity, layout.contentEntity, layout.contentFit])
 
     return null
   }
