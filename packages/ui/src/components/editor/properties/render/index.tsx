@@ -51,7 +51,7 @@ import Slider from '../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
-import PropertyGroup from '../group'
+import NodeEditor from '../nodeEditor'
 
 const ToneMappingOptions = [
   {
@@ -141,7 +141,8 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   }, [rendererSettingsState.primaryLight])
 
   return (
-    <PropertyGroup
+    <NodeEditor
+      {...props}
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
       icon={<RenderSettingsEditor.iconComponent />}
@@ -223,7 +224,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           onChange={commitProperty(RenderSettingsComponent, 'shadowMapType')}
         />
       </InputGroup>
-    </PropertyGroup>
+    </NodeEditor>
   )
 }
 

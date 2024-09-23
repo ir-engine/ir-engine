@@ -23,10 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { DiscordCallback } from '@ir-engine/client-core/src/user/components/Oauth/DiscordCallback'
-
-export const DiscordHomePage = () => <DiscordCallback />
-
-export default DiscordHomePage
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+export type StudioUIAddons = {
+  container: Record<string, JSX.Element>
+  newScene: Record<string, JSX.Element>
+  //more addon points to come here
+}
+export const UIAddonsState = defineState({
+  name: 'UIAddonsState',
+  initial: () => ({
+    projectName: null as string | null,
+    editor: {
+      container: {},
+      newScene: {}
+    } as StudioUIAddons,
+    dashboard: {
+      newScene: {}
+    } as StudioUIAddons
+  }),
+  extension: syncStateWithLocalStorage(['projectName'])
+})
