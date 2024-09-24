@@ -30,6 +30,7 @@ import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/sc
 
 import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
+import logger from '../../ServerLogger'
 import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -193,7 +194,7 @@ const deleteOldThumbnail = async (context: HookContext<StaticResourceService>) =
       }
     })
     if (resourcesWithOldThumbnail.data.length > 1) {
-      console.warn('Thumbnail is still in use, not deleting')
+      logger.warn('Thumbnail is still in use, not deleting')
       continue
     }
     const oldThumbnail = await context.app.service(staticResourcePath).find({
@@ -206,7 +207,7 @@ const deleteOldThumbnail = async (context: HookContext<StaticResourceService>) =
       const oldThumbnailResource = oldThumbnail.data[0]
       await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
     } else {
-      console.warn('Old thumbnail resource not found')
+      logger.warn('Old thumbnail resource not found')
     }
   }
   return context
