@@ -199,11 +199,13 @@ export const DONUT_SHAPE_DEFAULT: DonutShapeJSON = {
 export type MeshShapeJSON = {
   type: 'mesh_surface'
   mesh?: string
+  geometry: BufferGeometry
 }
 
 export const MESH_SHAPE_DEFAULT: MeshShapeJSON = {
   type: 'mesh_surface',
-  mesh: ''
+  mesh: '',
+  geometry: new BufferGeometry()
 }
 
 export type GridShapeJSON = {
@@ -782,7 +784,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   material: S.String(''),
   transparent: S.Optional(S.Bool()),
   duration: S.Number(5),
-  shape: S.Object({ type: S.String('point'), mesh: S.Optional(S.String()) }),
+  shape: S.Object({ type: S.String('point'), mesh: S.Optional(S.String()), geometry: S.Optional(S.String()) }),
   startLife: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(1),
@@ -924,7 +926,9 @@ export const ParticleSystemComponent = defineComponent({
       if (!geoDependency || !geoDependency.scene) return
 
       const scene = geoDependency.scene
+
       const geo = getFirstMesh(scene)?.geometry
+
       !!geo && metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry!).set(geo)
     }, [geoDependency])
 
@@ -933,7 +937,15 @@ export const ParticleSystemComponent = defineComponent({
 
       const scene = shapeMesh.scene
       const mesh = getFirstMesh(scene)
-      mesh && metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mesh.geometry)
+
+      if (mesh) {
+        const scaledGeometry = mesh.geometry.clone()
+        const scale = getNestedScale(mesh)
+        scaledGeometry.scale(scale.x, scale.y, scale.z)
+
+        componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
+        metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(scaledGeometry)
+      }
     }, [shapeMesh])
 
     useEffect(() => {
@@ -1017,3 +1029,14 @@ export const ParticleSystemComponent = defineComponent({
     return null
   }
 })
+
+function getNestedScale(node: Object3D): Vector3 {
+  const scale = node.scale.clone()
+  // node.getWorldScale(scale)
+
+  if (node.parent) {
+    scale.multiply(getNestedScale(node.parent))
+  }
+
+  return scale
+}
