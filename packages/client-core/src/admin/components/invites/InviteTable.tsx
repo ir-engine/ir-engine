@@ -124,6 +124,7 @@ export default function InviteTable({
 
   return (
     <DataTable
+      size="xl"
       query={adminInviteQuery}
       columns={[
         {
