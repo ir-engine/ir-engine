@@ -94,17 +94,7 @@ export const ModalFooter = ({
 }) => {
   const { t } = useTranslation()
   return (
-    <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
-      {showCloseButton && (
-        <Button
-          data-test-id={`${id}-close-button`}
-          variant="secondary"
-          disabled={closeButtonDisabled}
-          onClick={() => onCancel && onCancel(false)}
-        >
-          {closeButtonText || t('common:components.cancel')}
-        </Button>
-      )}
+    <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5" dir="rtl">
       {onSubmit && (
         <Button
           data-test-id={`${id}-submit-button`}
@@ -114,6 +104,16 @@ export const ModalFooter = ({
           className="place-self-end"
         >
           {submitButtonText || t('common:components.confirm')}
+        </Button>
+      )}
+      {showCloseButton && (
+        <Button
+          data-test-id={`${id}-close-button`}
+          variant="secondary"
+          disabled={closeButtonDisabled}
+          onClick={() => onCancel && onCancel(false)}
+        >
+          {closeButtonText || t('common:components.cancel')}
         </Button>
       )}
     </div>
