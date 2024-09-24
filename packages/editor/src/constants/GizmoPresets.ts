@@ -219,6 +219,7 @@ const matGray = getGizmoMaterial(GizmoMaterial.GRAY);
 // reusable geometry
 
 const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12).translate(0, 0.05, 0)
+const sphereGeometry = new SphereGeometry(0.04).translate(0, 0.05, 0)
 const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08).translate(0, 0.04, 0)
 const lineGeometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3))
 const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3).translate(0, 0.25, 0)
@@ -256,6 +257,24 @@ function TranslateHelperGeometry() {
 // Creates an Object3D with gizmos described in custom hierarchy definition.
 
 // Gizmo definitions - custom hierarchy definitions for setupGizmo() function
+
+const cameraGizmo = {
+  X: [
+    [new Mesh(sphereGeometry, matRed), [0.5, 0, 0]],
+    [new Mesh(sphereGeometry, matRed), [-0.5, 0, 0]],
+    [new Mesh(lineGeometry2, matRed), [0, 0, 0]]
+  ],
+  Y: [
+    [new Mesh(sphereGeometry, matGreen), [0, 0.5, 0]],
+    [new Mesh(sphereGeometry, matGreen), [0, -0.5, 0]],
+    [new Mesh(lineGeometry2, matGreen)]
+  ],
+  Z: [
+    [new Mesh(sphereGeometry, matBlue), [0, 0, 0.5]],
+    [new Mesh(sphereGeometry, matBlue), [0, 0, -0.5]],
+    [new Mesh(lineGeometry2, matBlue), null, [Math.PI / 2, 0, 0]]
+  ]
+}
 
 const gizmoTranslate = {
   X: [
@@ -421,6 +440,7 @@ function setupGizmo(gizmoMap) {
 
 export {
   GizmoMaterial,
+  cameraGizmo,
   gizmoMaterialProperties,
   gizmoPlane,
   gizmoRotate,
