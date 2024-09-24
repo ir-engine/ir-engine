@@ -35,5 +35,5 @@ export const PanelTitle = ({ children }: { children: ReactNode }) => {
 }
 
 export const PanelDragContainer = ({ children }: { children: ReactNode }) => {
-  return <div className="flex cursor-pointer rounded-t-md bg-[#212226] px-4 py-2">{children}</div>
+  return <div className="flex cursor-pointer rounded-t-md px-4 py-2">{children}</div>
 }
