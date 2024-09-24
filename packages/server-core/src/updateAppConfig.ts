@@ -31,15 +31,12 @@ import {
 } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
 import { AwsSettingDatabaseType, awsSettingPath } from '@ir-engine/common/src/schemas/setting/aws-setting.schema'
 import {
-  chargebeeSettingPath,
-  ChargebeeSettingType
-} from '@ir-engine/common/src/schemas/setting/chargebee-setting.schema'
-import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { coilSettingPath, CoilSettingType } from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import {
   instanceServerSettingPath,
   InstanceServerSettingType
@@ -50,6 +47,7 @@ import {
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { createHash } from 'crypto'
@@ -141,13 +139,21 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const chargebeeSettingPromise = knexClient
     .select()
-    .from<ChargebeeSettingType>(chargebeeSettingPath)
-    .then(([dbChargebee]) => {
-      if (dbChargebee) {
-        appConfig.chargebee = {
-          ...appConfig.chargebee,
-          ...dbChargebee
-        }
+    .from<EngineSettingType>(engineSettingPath)
+    .whereIn('key', [EngineSettings.Chargebee.Url, EngineSettings.Chargebee.ApiKey])
+    .then((dbChargebeeSettings) => {
+      const chargebeeSettings = dbChargebeeSettings.reduce(
+        (acc, setting) => {
+          acc[setting.key] = setting.value
+          return acc
+        },
+        {} as Record<string, string>
+      )
+
+      appConfig.chargebee = {
+        ...appConfig.chargebee,
+        url: chargebeeSettings[EngineSettings.Chargebee.Url],
+        apiKey: chargebeeSettings[EngineSettings.Chargebee.ApiKey]
       }
     })
     .catch((e) => {
