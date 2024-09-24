@@ -34,18 +34,54 @@ import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
+enum FileType {
+  THREE_D = '3D',
+  IMAGE = 'Image',
+  AUDIO = 'Audio',
+  VIDEO = 'Video',
+  UNKNOWN = 'Unknown'
+}
+
 const unsupportedFileMessage = {
-  '3D': 'Unsuppoted File Type! Please upload either a GLTF or a GLB.',
-  Image: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
-  Audio: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
-  Video: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.'
+  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a GLTF or a GLB.',
+  [FileType.IMAGE]: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
+  [FileType.AUDIO]: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
+  [FileType.VIDEO]: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.',
+  [FileType.UNKNOWN]: 'Unsupported File Type! Please upload a valid 3D, Image, Audio, or Video file.'
 }
 
 const supportedFiles = {
-  '3D': new Set(['GLTF', 'GLB']),
-  Image: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
-  Audio: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
-  Video: new Set(['.mp4', '.mkv', '.avi'])
+  [FileType.THREE_D]: new Set(['GLTF', 'GLB']),
+  [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
+  [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
+  [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
+}
+
+function findMimeType(file): FileType {
+  let fileType = FileType.UNKNOWN
+  if (file.type.startsWith('image/')) {
+    fileType = FileType.IMAGE
+  } else if (file.type.startsWith('audio/')) {
+    fileType = FileType.AUDIO
+  } else if (file.type.startsWith('video/')) {
+    fileType = FileType.VIDEO
+  }
+
+  return fileType
+}
+
+function isValidFileType(file): boolean {
+  const mimeType: FileType = findMimeType(file)
+  const fileName = file.name
+  const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase()
+
+  for (const [type, extensions] of Object.entries(supportedFiles)) {
+    if (extensions.has(extension)) {
+      return true
+    }
+  }
+
+  throw new Error(unsupportedFileMessage[mimeType])
 }
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
@@ -94,6 +130,7 @@ export const inputFileWithAddToScene = ({
         if (el.files?.length) {
           const newFiles: File[] = []
           for (let i = 0; i < el.files.length; i++) {
+            isValidFileType(el.files[i])
             let fileName = el.files[i].name
             if (fileName.length > 64) {
               fileName = fileName.slice(0, 64)
