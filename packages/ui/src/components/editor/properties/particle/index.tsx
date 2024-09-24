@@ -207,7 +207,14 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           ]}
         />
       </InputGroup>
-
+      {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
+        <InputGroup name="Shape Mesh" label={t('editor:properties.particle-system.shape-mesh')}>
+          <ModelInput
+            value={particleSystem.systemParameters.shape.mesh!}
+            onRelease={onSetState(particleSystemState.systemParameters.shape.mesh as any)}
+          />
+        </InputGroup>
+      )}
       <InputGroup name="Emission Bursts" label={t('editor:properties.particle-system.emission-bursts')}>
         <Button onClick={onAddBurst}>Add Burst</Button>
       </InputGroup>
@@ -245,14 +252,6 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           )
         }}
       />
-      {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
-        <InputGroup name="Shape Mesh" label={t('editor:properties.particle-system.shape-mesh')}>
-          <ModelInput
-            value={particleSystem.systemParameters.shape.mesh!}
-            onRelease={onSetState(particleSystemState.systemParameters.shape.mesh as any)}
-          />
-        </InputGroup>
-      )}
 
       <InputGroup name="Start Life" label={t('editor:properties.particle-system.start-life')}>
         <ValueGenerator
