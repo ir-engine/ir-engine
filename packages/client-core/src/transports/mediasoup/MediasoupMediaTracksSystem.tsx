@@ -365,10 +365,10 @@ const ScreenshareReactor = () => {
 }
 
 const reactor = () => {
-  const mediaNetworkState = useMediaNetwork()?.value
+  const mediaNetworkState = useMediaNetwork()
 
   /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
-  if (!mediaNetworkState?.hostPeerID) return null
+  if (!mediaNetworkState?.hostPeerID?.value) return null
 
   return (
     <>

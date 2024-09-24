@@ -96,12 +96,19 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
   const joinResponse = useHookstate<null | { index: number }>(null)
 
   useEffect(() => {
+    const abortController = new AbortController()
+
     API.instance
       .service(instanceSignalingPath)
       .create({ instanceID })
       .then((response) => {
+        if (abortController.signal.aborted) return
         joinResponse.set(response)
       })
+
+    return () => {
+      abortController.abort()
+    }
   }, [])
 
   useEffect(() => {
@@ -144,8 +151,6 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     }
   }, [instanceAttendanceQuery.status])
 
-  // console.log('otherPeers',props.instance.locationId ? NetworkTopics.world : NetworkTopics.media, [...otherPeers.get(NO_PROXY)])
-
   if (!joinResponse.value) return null
 
   return (
@@ -185,16 +190,29 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       await WebRTCTransportFunctions.onMessage(sendMessage, data.instanceID, props.peerID, data.message)
     })
 
+    const abortController = new AbortController()
+
     /**
      * We only need one peer to initiate the connection, so do so if the peerID is greater than our own.
      */
-    const isInitiator = Engine.instance.store.peerID < props.peerID
+    const isInitiator = Engine.instance.store.peerID > props.peerID
 
     if (isInitiator) {
-      WebRTCTransportFunctions.makeCall(sendMessage, props.instanceID, props.peerID)
+      // poll to ensure the other peer's listener has been set up before we try to connect
+
+      WebRTCTransportFunctions.poll(sendMessage, props.instanceID, props.peerID)
+
+      const interval = setInterval(() => {
+        if (abortController.signal.aborted || getState(RTCPeerConnectionState)[props.instanceID]?.[props.peerID]) {
+          clearInterval(interval)
+        } else {
+          WebRTCTransportFunctions.poll(sendMessage, props.instanceID, props.peerID)
+        }
+      }, 1000)
     }
 
     return () => {
+      abortController.abort()
       WebRTCTransportFunctions.close(props.instanceID, props.peerID)
     }
   }, [])
@@ -386,7 +404,6 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
 
   useEffect(() => {
     if (!mediaTag || !stream || !peerMediaStream) return
-    console.log('MediaReceiveChannelReactor', mediaTag, stream, peerMediaStream)
 
     if (isAudio) {
       const track = stream.getAudioTracks()[0]
@@ -394,6 +411,7 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
       peerMediaStream.audioMediaStream.set(newMediaStream)
       return () => {
         newMediaStream.getTracks().forEach((track) => track.stop())
+        if (type && !getState(PeerMediaChannelState)[props.peerID]?.[type]) return
         peerMediaStream.audioMediaStream.set(null)
       }
     } else {
@@ -402,6 +420,7 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
       peerMediaStream.videoMediaStream.set(newMediaStream)
       return () => {
         newMediaStream.getTracks().forEach((track) => track.stop())
+        if (type && !getState(PeerMediaChannelState)[props.peerID]?.[type]) return
         peerMediaStream.videoMediaStream.set(null)
       }
     }

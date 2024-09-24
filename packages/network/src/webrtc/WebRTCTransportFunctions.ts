@@ -1,9 +1,9 @@
-import { defineState, getMutableState, getState, NetworkID, none, PeerID } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isDev, NetworkID, none, PeerID } from '@ir-engine/hyperflux'
 import { DataChannelType } from '../DataChannelRegistry'
 import { MediaTagType } from '../NetworkState'
 
-const loggingEnabled = true
-const logger = loggingEnabled ? console : { log: () => {} }
+const loggingEnabled = isDev
+const logger = loggingEnabled ? console : { log: () => {}, warn: () => {}, error: () => {} }
 
 export const RTCPeerConnectionState = defineState({
   name: 'ir.network.webrtc.RTCPeerConnection',
@@ -21,6 +21,10 @@ export const RTCPeerConnectionState = defineState({
     >
   >
 })
+
+export type PollMessage = {
+  type: 'poll'
+}
 
 export type OfferMessage = {
   type: 'offer'
@@ -67,6 +71,7 @@ export type PauseTrackMessage = {
 }
 
 export type MessageTypes =
+  | PollMessage
   | OfferMessage
   | AnswerMessage
   | CandidateMessage
@@ -79,8 +84,10 @@ export type MessageTypes =
 export type SendMessageType = (networkID: NetworkID, targetPeerID: PeerID, message: MessageTypes) => void
 
 const onMessage = (sendMessage: SendMessageType, networkID: NetworkID, fromPeerID: PeerID, message: MessageTypes) => {
-  console.log('onMessage', message)
+  // console.log('onMessage', message)
   switch (message.type) {
+    case 'poll':
+      return WebRTCTransportFunctions.makeCall(sendMessage, networkID, fromPeerID)
     case 'offer':
       return WebRTCTransportFunctions.handleOffer(sendMessage, networkID, fromPeerID, message)
     case 'answer':
@@ -98,7 +105,7 @@ const onMessage = (sendMessage: SendMessageType, networkID: NetworkID, fromPeerI
     case 'pause-track':
       return WebRTCTransportFunctions.handlePauseMediaChannel(networkID, fromPeerID, message)
     default:
-      console.warn('Unknown message type', (message as any).type)
+      logger.warn('Unknown message type', (message as any).type)
       break
   }
 }
@@ -167,9 +174,11 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
   }
 
   pc.onnegotiationneeded = (e) => {
-    // if (pc.connectionState !== 'connected') {
-    //   return console.error('onnegotiationneeded called when not connected. state:', pc.connectionState)
-    // }
+    if (pc.connectionState !== 'connected') {
+      console.warn('onnegotiationneeded called when not connected. state:', pc.connectionState)
+      // return // todo?
+    }
+    // if (!getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]?.ready) return // todo?
     logger.log('[WebRTCTransportFunctions] onnegotiationneeded', networkID, e)
     pc.createOffer()
       .then((offer) => pc.setLocalDescription(offer))
@@ -196,8 +205,14 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
   return pc
 }
 
+const poll = (sendMessage: SendMessageType, networkID: NetworkID, peerID: PeerID) => {
+  sendMessage(networkID, peerID, { type: 'poll' })
+}
+
 const makeCall = async (sendMessage: SendMessageType, networkID: NetworkID, targetPeerID: PeerID) => {
   logger.log('[WebRTCTransportFunctions] makeCall', networkID, targetPeerID)
+  if (getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]) return // already polled
+
   const pc = WebRTCTransportFunctions.createPeerConnection(sendMessage, networkID, targetPeerID)
   const dc = pc.createDataChannel('actions')
   // timeout require to delay the reactor until the next update
@@ -220,22 +235,22 @@ const handleOffer = async (
 ) => {
   logger.log('[WebRTCTransportFunctions] handleOffer', networkID, targetPeerID)
   if (getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]) {
-    return console.error('Peer connection already exists')
+    return logger.error('Peer connection already exists')
   }
   const pc = WebRTCTransportFunctions.createPeerConnection(sendMessage, networkID, targetPeerID)
 
   await pc.setRemoteDescription(offer)
 
   const answer = await pc.createAnswer()
-  sendMessage(networkID, targetPeerID, { type: 'answer', sdp: answer.sdp! })
   await pc.setLocalDescription(answer)
+  sendMessage(networkID, targetPeerID, { type: 'answer', sdp: answer.sdp! })
 }
 
 const handleAnswer = async (networkID: NetworkID, targetPeerID: PeerID, answer: AnswerMessage) => {
   logger.log('[WebRTCTransportFunctions] handleAnswer', networkID, targetPeerID)
   const pc = getState(RTCPeerConnectionState)[networkID][targetPeerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   await pc.setRemoteDescription({
     type: 'answer',
@@ -246,7 +261,7 @@ const handleAnswer = async (networkID: NetworkID, targetPeerID: PeerID, answer: 
 const handleCandidate = async (networkID: NetworkID, targetPeerID: PeerID, candidate: CandidateMessage) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   if (!candidate.candidate) {
     return
@@ -297,7 +312,7 @@ const close = (networkID: NetworkID, peerID: PeerID) => {
 const createDataChannel = (networkID: NetworkID, peerID: PeerID, label: DataChannelType) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   const dc = pc.createDataChannel(label)
   dc.onopen = () => {
@@ -324,7 +339,7 @@ const createMediaChannel = (
 ) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   const stream = new MediaStream([track])
   logger.log('[WebRTCTransportFunctions] createMediaChannel', networkID, stream.id, track)
@@ -345,7 +360,7 @@ const closeMediaChannel = (
 ) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   logger.log('[WebRTCTransportFunctions] closeMediaChannel', networkID, stream.id, track)
   pc.getSenders().forEach((sender) => {
@@ -361,7 +376,7 @@ const handleStartTrack = (networkID: NetworkID, peerID: PeerID, message: StartTr
   logger.log('[WebRTCTransportFunctions] handleStartTrack', networkID, peerID, message.id)
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].incomingMediaTracks
   if (!mediaTracks.value[message.id]) {
@@ -375,7 +390,7 @@ const handleStopTrack = (networkID: NetworkID, peerID: PeerID, message: StopTrac
   logger.log('[WebRTCTransportFunctions] handleStopTrack', networkID, peerID, message.id)
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].incomingMediaTracks
   if (mediaTracks.value[message.id]) {
@@ -393,10 +408,9 @@ const pauseMediaChannel = (
 ) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   const state = getState(RTCPeerConnectionState)[networkID][peerID].incomingMediaTracks?.[stream.id]
-  console.log('pausing media channel', state.mediaTag, paused, stream)
   if (!state.stream) return
   sendMessage(networkID, peerID, { type: 'pause-track', id: state.stream.id, paused })
 }
@@ -405,12 +419,11 @@ const handlePauseMediaChannel = (networkID: NetworkID, peerID: PeerID, message: 
   logger.log('[WebRTCTransportFunctions] handlePauseMediaChannel', networkID, peerID, message.id)
   const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
   if (!pc) {
-    return console.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist')
   }
   const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].outgoingMediaTracks
   if (mediaTracks.value[message.id]) {
     const stream = mediaTracks[message.id].stream.value!
-    console.log('pausing track', message.id, message.paused, stream.getTracks()[0])
     stream.getTracks().forEach((track) => (track.enabled = !message.paused))
     // const track = stream.getTracks()[0]
     // pc.getSenders().forEach((sender) => {
@@ -426,6 +439,7 @@ const handlePauseMediaChannel = (networkID: NetworkID, peerID: PeerID, message: 
 export const WebRTCTransportFunctions = {
   onMessage,
   createPeerConnection,
+  poll,
   makeCall,
   handleOffer,
   handleAnswer,

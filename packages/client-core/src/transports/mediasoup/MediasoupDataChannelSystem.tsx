@@ -50,6 +50,7 @@ import {
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { PresentationSystemGroup } from '@ir-engine/ecs'
 import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from './MediasoupClientFunctions'
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 
 function createDataConsumer(network: SocketWebRTCClientNetwork, dataChannel: DataChannelType) {
   dispatchAction(
@@ -199,6 +200,11 @@ const reactor = () => {
 
   const networkConfig = useHookstate(getMutableState(NetworkState).config)
   const isOnline = networkConfig.world.value || networkConfig.media.value
+
+  const mediaNetworkState = useMediaNetwork()
+
+  /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
+  if (!mediaNetworkState?.hostPeerID?.value) return null
 
   /** @todo - instead of checking for network config, we should filter NetworkConnectionReactor by networks with a "real" transport */
   if (!isOnline) return null

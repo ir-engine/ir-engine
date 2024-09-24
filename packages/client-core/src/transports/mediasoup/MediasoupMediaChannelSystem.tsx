@@ -47,6 +47,7 @@ import { MediasoupTransportState } from '@ir-engine/common/src/transports/medias
 import { Engine, PresentationSystemGroup } from '@ir-engine/ecs'
 import { NetworkState } from '@ir-engine/network'
 import { ConsumerExtension, SocketWebRTCClientNetwork, WebRTCTransportExtension } from './MediasoupClientFunctions'
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 
 export const receiveConsumerHandler = async (networkID: NetworkID, consumerState: MediasoupMediaConsumerType) => {
   const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
@@ -165,6 +166,10 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
 
 const reactor = () => {
   const mediaProducerConsumerState = useMutableState(MediasoupMediaProducerConsumerState)
+  const mediaNetworkState = useMediaNetwork()
+
+  /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
+  if (!mediaNetworkState?.hostPeerID?.value) return null
 
   return (
     <>

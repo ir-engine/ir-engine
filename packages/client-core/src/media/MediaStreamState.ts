@@ -28,7 +28,9 @@ import { defineState, getMutableState, getState, useMutableState } from '@ir-eng
 import { VideoConstants } from '@ir-engine/network'
 
 import config from '@ir-engine/common/src/config'
+import { Engine } from '@ir-engine/ecs'
 import { useEffect } from 'react'
+import { createPeerMediaChannels, PeerMediaChannelState, removePeerMediaChannels } from './PeerMediaChannelState'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreamState' })
 
@@ -81,6 +83,32 @@ export const MediaStreamState = defineState({
 
   reactor: () => {
     const state = useMutableState(MediaStreamState)
+
+    useEffect(() => {
+      createPeerMediaChannels(Engine.instance.store.peerID)
+      return () => {
+        removePeerMediaChannels(Engine.instance.store.peerID)
+      }
+    }, [])
+
+    const peerMediaChannelState = useMutableState(PeerMediaChannelState)[Engine.instance.store.peerID]
+
+    useEffect(() => {
+      const microphoneEnabled = state.microphoneEnabled.value
+      peerMediaChannelState.cam.audioMediaStream.set(microphoneEnabled ? state.microphoneMediaStream.value : null)
+    }, [state.microphoneMediaStream.value, state.microphoneEnabled.value])
+
+    useEffect(() => {
+      const webcamEnabled = state.webcamEnabled.value
+      peerMediaChannelState.cam.videoMediaStream.set(webcamEnabled ? state.webcamMediaStream.value : null)
+    }, [state.value.webcamMediaStream, state.webcamEnabled.value])
+
+    useEffect(() => {
+      const videoStreamPaused = state.screenshareEnabled.value
+      const audioStreamPaused = videoStreamPaused && state.screenShareAudioPaused.value
+      peerMediaChannelState.screen.videoMediaStream.set(videoStreamPaused ? state.screenshareMediaStream.value : null)
+      peerMediaChannelState.screen.audioMediaStream.set(audioStreamPaused ? state.screenshareMediaStream.value : null)
+    }, [state.screenshareMediaStream.value, state.screenshareEnabled.value, state.screenShareAudioPaused.value])
 
     useEffect(() => {
       navigator.mediaDevices.enumerateDevices().then((devices) => {

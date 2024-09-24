@@ -109,14 +109,19 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   useEffect(() => {
     const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
     if (!peerMediaChannelState) return
-    const paused = (isAudio ? peerMediaChannelState.audioStreamPaused.value : peerMediaChannelState.videoStreamPaused.value) || !!consumerState.producerPaused.value
+    const paused =
+      (isAudio ? peerMediaChannelState.audioStreamPaused.value : peerMediaChannelState.videoStreamPaused.value) ||
+      !!consumerState.producerPaused.value
     const network = getState(NetworkState).networks[props.networkID]
     if (paused) {
       MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
     } else {
       MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
     }
-  }, [isAudio ? peerMediaChannelState.audioStreamPaused.value : peerMediaChannelState.videoStreamPaused.value, consumerState.producerPaused?.value])
+  }, [
+    isAudio ? peerMediaChannelState.audioStreamPaused.value : peerMediaChannelState.videoStreamPaused.value,
+    consumerState.producerPaused?.value
+  ])
 
   // useEffect(() => {
   //   const globalMute = !!producerState.globalMute?.value
@@ -180,41 +185,6 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   return null
 }
 
-const SelfMedia = () => {
-  const mediaStreamState = useMutableState(MediaStreamState)
-
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[Engine.instance.store.peerID]
-
-  useEffect(() => {
-    const microphoneEnabled = mediaStreamState.microphoneEnabled.value
-    peerMediaChannelState.cam.audioMediaStream.set(
-      microphoneEnabled ? mediaStreamState.microphoneMediaStream.value : null
-    )
-  }, [mediaStreamState.microphoneMediaStream.value, mediaStreamState.microphoneEnabled.value])
-
-  useEffect(() => {
-    const webcamEnabled = mediaStreamState.webcamEnabled.value
-    peerMediaChannelState.cam.videoMediaStream.set(webcamEnabled ? mediaStreamState.webcamMediaStream.value : null)
-  }, [mediaStreamState.value.webcamMediaStream, mediaStreamState.webcamEnabled.value])
-
-  useEffect(() => {
-    const videoStreamPaused = mediaStreamState.screenshareEnabled.value
-    const audioStreamPaused = videoStreamPaused && mediaStreamState.screenShareAudioPaused.value
-    peerMediaChannelState.screen.videoMediaStream.set(
-      videoStreamPaused ? mediaStreamState.screenshareMediaStream.value : null
-    )
-    peerMediaChannelState.screen.audioMediaStream.set(
-      audioStreamPaused ? mediaStreamState.screenshareMediaStream.value : null
-    )
-  }, [
-    mediaStreamState.screenshareMediaStream.value,
-    mediaStreamState.screenshareEnabled.value,
-    mediaStreamState.screenShareAudioPaused.value
-  ])
-
-  return null
-}
-
 const NetworkConsumers = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)
@@ -244,8 +214,10 @@ export const PeerMediaChannels = () => {
 
   useEffect(() => {
     const mediaChannelPeers = mediaNetwork?.peers?.keys?.length
-      ? Array.from(mediaNetwork.peers.keys as PeerID[]).filter((peerID) => peerID !== mediaNetwork.value.hostPeerID)
-      : [Engine.instance.store.peerID]
+      ? Array.from(mediaNetwork.peers.keys as PeerID[]).filter(
+          (peerID) => peerID !== mediaNetwork.value.hostPeerID && peerID !== Engine.instance.store.peerID
+        )
+      : []
     mediaPeers.set(mediaChannelPeers)
   }, [mediaNetwork?.peers?.keys?.length])
 
@@ -259,13 +231,16 @@ export const PeerMediaChannels = () => {
 }
 
 export const reactor = () => {
+  const mediaNetworkState = useMediaNetwork()
   const networkIDs = useMutableState(MediasoupMediaProducerConsumerState)
   const networks = useHookstate(getMutableState(NetworkState).networks)
-  const selfPeerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.store.peerID])
+
+  /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
+  if (!mediaNetworkState?.hostPeerID?.value) return null
+
   return (
     <>
       <PeerMediaChannels />
-      {selfPeerMediaChannelState.value && <SelfMedia key={'SelfMedia'} />}
       {networkIDs.keys
         .filter((id) => !!networks[id])
         .map((id: InstanceID) => (
