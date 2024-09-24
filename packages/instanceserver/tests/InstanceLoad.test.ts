@@ -89,7 +89,6 @@ describe('InstanceLoad', () => {
     console.log('localIp', localIp)
     await app.service(instancePath).create({
       ipAddress: `${localIp}:3031`,
-      currentUsers: 0,
       locationId: skyStationScene.data[0].id,
       assigned: false,
       assignedAt: toDateTimeSql(new Date()),

@@ -69,8 +69,7 @@ describe('instance.test', () => {
   it('should create an instance', async () => {
     const instance = (await app.service(instancePath).create({
       locationId: testLocation.id as LocationID,
-      roomCode: testInstance.roomCode as RoomCode,
-      currentUsers: testInstance.currentUsers
+      roomCode: testInstance.roomCode as RoomCode
     })) as InstanceType
 
     assert.ok(instance)

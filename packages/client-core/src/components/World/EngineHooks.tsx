@@ -164,7 +164,6 @@ export const useNetwork = (props: { online?: boolean }) => {
 
     const userID = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
-    const userIndex = 1
     const peerIndex = 1
 
     const networkState = getMutableState(NetworkState)
@@ -174,7 +173,7 @@ export const useNetwork = (props: { online?: boolean }) => {
 
     NetworkState.worldNetworkState.ready.set(true)
 
-    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userID, userIndex)
+    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userID)
 
     const network = NetworkState.worldNetwork as Network
 

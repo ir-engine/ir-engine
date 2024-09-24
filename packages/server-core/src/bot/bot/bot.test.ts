@@ -60,7 +60,7 @@ describe('bot.service', () => {
 
     testInstance = await app
       .service(instancePath)
-      .create({ locationId: testLocation.id as LocationID, roomCode: '' as RoomCode, currentUsers: 0 })
+      .create({ locationId: testLocation.id as LocationID, roomCode: '' as RoomCode })
   })
 
   before(async () => {
