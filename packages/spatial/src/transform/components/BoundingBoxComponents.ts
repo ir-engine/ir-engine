@@ -38,6 +38,8 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { Matrix4 } from 'three'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
@@ -113,7 +115,7 @@ export const updateBoundingBox = (entity: Entity) => {
 
   const callback = (child: Entity) => {
     const obj = getOptionalComponent(child, MeshComponent)
-    if (obj) expandBoxByObject(obj, worldBox, objectBox)
+    if (obj) expandBoxByObject(obj, entity, worldBox, objectBox)
   }
 
   iterateEntityNode(entity, callback)
@@ -130,8 +132,9 @@ export const updateBoundingBox = (entity: Entity) => {
 
 const _box = new Box3()
 const _worldBox = new Box3()
+const _localBox = new Box3()
 
-const expandBoxByObject = (object: Mesh<BufferGeometry>, worldBox: Box3, objectBox: Box3) => {
+const expandBoxByObject = (object: Mesh<BufferGeometry>, parentEntity: Entity, worldBox: Box3, objectBox: Box3) => {
   const geometry = object.geometry
 
   if (geometry) {
@@ -141,11 +144,14 @@ const expandBoxByObject = (object: Mesh<BufferGeometry>, worldBox: Box3, objectB
 
     _box.copy(geometry.boundingBox!)
     
-    // Update object space box
-    objectBox.union(_box)
-
     // Update world space box
     _worldBox.copy(_box).applyMatrix4(object.matrixWorld)
     worldBox.union(_worldBox)
+
+    // Update object space box (local to the parent entity)
+    const parentWorldMatrix = getComponent(parentEntity, TransformComponent).matrix
+    const parentWorldMatrixInverse = new Matrix4().copy(parentWorldMatrix).invert()
+    _localBox.copy(_worldBox).applyMatrix4(parentWorldMatrixInverse)
+    objectBox.union(_localBox)
   }
 }
