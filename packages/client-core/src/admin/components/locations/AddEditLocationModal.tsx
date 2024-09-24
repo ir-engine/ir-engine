@@ -293,11 +293,11 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             <div className="flex flex-row gap-2">
               <ImagePreviewInput value={sceneThumbnailState.thumbnailURL.value ?? ''} previewOnly={true} />
               <div className="flex flex-col gap-2 ">
-                <Button onClick={SceneThumbnailState.CreateThumbnail} className="w-full">
+                <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
                   {t('editor:properties.sceneSettings.generate')}
                 </Button>
                 <Button
-                  onClick={SceneThumbnailState.UploadThumbnail}
+                  onClick={SceneThumbnailState.uploadThumbnail}
                   disabled={!sceneThumbnailState.thumbnail.value}
                   className="w-full"
                 >
@@ -309,11 +309,11 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             <div className="flex flex-row gap-2">
               <ImagePreviewInput value={sceneThumbnailState.loadingScreenURL.value ?? ''} previewOnly={true} />
               <div className="flex flex-col gap-2">
-                <Button onClick={SceneThumbnailState.CreateLoadingScreen} className="w-full">
+                <Button onClick={SceneThumbnailState.createLoadingScreen} className="w-full">
                   {t('editor:properties.sceneSettings.generate')}
                 </Button>
                 <Button
-                  onClick={SceneThumbnailState.UploadLoadingScreen}
+                  onClick={SceneThumbnailState.uploadLoadingScreen}
                   disabled={!sceneThumbnailState.loadingScreenImageData.value}
                   className="w-full"
                 >
