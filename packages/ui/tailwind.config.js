@@ -23,16 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React from 'react'
+import tailwindConfig from '../../tailwind.config'
 
-import Button from './index'
-import { Default as story } from './index.stories'
-
-describe('Button', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<Button {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+module.exports = {
+  ...tailwindConfig
+}
