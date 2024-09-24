@@ -55,7 +55,7 @@ import {
   pickerScale,
   pickerTranslate,
   setupGizmo
-} from '../constants/GizmoPresets'
+} from '../../../constants/GizmoPresets'
 
 const useTranslateRotateScaleEntities = () => {
   const translate = useHookstate(createEntity)
