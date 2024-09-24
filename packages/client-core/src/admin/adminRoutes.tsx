@@ -90,7 +90,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="mx-8 h-fit max-h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl bg-theme-surface-main px-2 py-4">
+    <aside className="mx-8 h-fit overflow-y-auto overflow-x-hidden rounded-2xl bg-theme-surface-main px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -153,18 +153,18 @@ const AdminRoutes = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <AdminTopBar />
-      <main className="pointer-events-auto mt-6 flex gap-1.5">
+      <main className="pointer-events-auto flex h-[calc(100vh_-_88px_-_4rem)] gap-1.5 overflow-y-auto">
         <AdminSideBar />
-        <div className="mb-8 h-[calc(100vh_-_88px_-_4rem)] w-full overflow-x-auto overflow-y-auto px-3">
+        <div className="h-full w-full overflow-x-auto overflow-y-auto px-3">
           <Routes>
             <Route path="/*" element={<$allowed />} />
           </Routes>
         </div>
         <PopupMenu />
       </main>
-    </>
+    </div>
   )
 }
 
