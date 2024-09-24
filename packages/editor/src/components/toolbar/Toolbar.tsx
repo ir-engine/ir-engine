@@ -159,7 +159,7 @@ export default function Toolbar() {
       <div className="flex h-10 items-center justify-between bg-theme-primary">
         <div className="flex items-center">
           <div className="ml-3 mr-6 cursor-pointer" onClick={onCloseProject}>
-            <img src="favicon-32x32.png" alt="iR Engine Logo" className={`h-7 w-7 opacity-50`} />
+            <img src="ir-studio-icon.svg" alt="iR Engine Logo" className={`h-6 w-6`} />
           </div>
           <Button
             endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-[#A3A3A3]" />}
