@@ -45,6 +45,7 @@ import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
+import { UIAddonsState } from '../../services/UIAddonsState'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog'
@@ -77,7 +78,8 @@ export const confirmSceneSaveIfModified = async () => {
 const onClickNewScene = async () => {
   if (!(await confirmSceneSaveIfModified())) return
 
-  const newSceneUIAddons = getState(EditorState).uiAddons.newScene
+  const newSceneUIAddons = getState(UIAddonsState).editor.newScene
+
   if (Object.keys(newSceneUIAddons).length > 0) {
     PopoverState.showPopupover(<CreateSceneDialog />)
   } else {

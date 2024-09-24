@@ -43,7 +43,8 @@ export async function seed(knex: Knex): Promise<void> {
         key: process.env.MAILCHIMP_KEY!,
         server: process.env.MAILCHIMP_SERVER!,
         audienceId: process.env.MAILCHIMP_AUDIENCE_ID!,
-        defaultTags: process.env.MAILCHIMP_DEFAULT_TAGS!
+        defaultTags: process.env.MAILCHIMP_DEFAULT_TAGS!,
+        groupId: process.env.MAILCHIMP_GROUP_ID!
       }
     ].map(async (item) => ({
       ...item,
