@@ -23,10 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import Alert, { AlertVariantEnum } from './index'
 
-import { DiscordCallback } from '@ir-engine/client-core/src/user/components/Oauth/DiscordCallback'
+export default {
+  title: 'Primitives/Tailwind/Alert',
+  component: Alert,
+  parameters: {
+    componentSubtitle: 'Alert',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
 
-export const DiscordHomePage = () => <DiscordCallback />
-
-export default DiscordHomePage
+export const Default = {
+  args: {
+    title: 'Alert',
+    message: 'Here alert message.',
+    variant: AlertVariantEnum.SUCCESS
+  }
+}
