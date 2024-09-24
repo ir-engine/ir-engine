@@ -10,7 +10,6 @@ import {
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import {
-  NO_PROXY,
   PeerID,
   UserID,
   defineState,

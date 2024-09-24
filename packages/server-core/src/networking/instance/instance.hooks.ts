@@ -153,7 +153,11 @@ const createInstanceChannel = async (context: HookContext<InstanceService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const data = Array.isArray(context.result) ? context.result : 'data' in context.result ? context.result!.data : [context.result]
+  const data = Array.isArray(context.result)
+    ? context.result
+    : 'data' in context.result
+    ? context.result!.data
+    : [context.result]
 
   for (const instance of data) {
     if (instance.locationId) {

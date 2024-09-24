@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Action, HyperFlux, NetworkID, PeerID, Topic, UserID, getState } from '@ir-engine/hyperflux'
 import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
-import { MediaTagType, NetworkPeer } from './NetworkState'
+import { NetworkPeer } from './NetworkState'
 import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
 
 /**
@@ -128,7 +128,7 @@ export const createNetwork = <Ext = unknown>(
     users: {},
     hostPeerID,
     get hostUserID() {
-      return network.hostPeerID && network.peers[network.hostPeerID]?.userId as UserID | undefined
+      return network.hostPeerID && (network.peers[network.hostPeerID]?.userId as UserID | undefined)
     },
     id,
     ready: false,

@@ -49,8 +49,8 @@ import {
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { PresentationSystemGroup } from '@ir-engine/ecs'
-import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from './MediasoupClientFunctions'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from './MediasoupClientFunctions'
 
 function createDataConsumer(network: SocketWebRTCClientNetwork, dataChannel: DataChannelType) {
   dispatchAction(
@@ -173,7 +173,7 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const dataChannelRegistry = useMutableState(DataChannelRegistryState)
   const dataProducerConsumerState = useMutableState(MediasoupDataProducerConsumerState)[props.networkID]
-  
+
   useMutableState(MediasoupTransportState).value[props.networkID]
   const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
   const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension

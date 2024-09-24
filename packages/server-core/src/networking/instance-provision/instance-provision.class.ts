@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
-import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
+import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import https from 'https'
 import { Knex } from 'knex'
@@ -480,10 +480,10 @@ export async function getP2PInstance({
   if (channelId) query.channelId = channelId
   if (!channelId && !locationId) throw new BadRequest('Missing location ID or channel ID')
   /** @todo consider createPrivateRoom */
-  const instances = await app.service(instancePath).find({
+  const instances = (await app.service(instancePath).find({
     query,
     paginate: false
-  }) as any as InstanceType[]
+  })) as any as InstanceType[]
 
   const activeInstances = instances.filter(
     (instance) => instance.currentUsers < config.instanceserver.p2pMaxConnections

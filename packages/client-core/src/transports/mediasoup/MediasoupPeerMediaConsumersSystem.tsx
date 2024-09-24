@@ -44,7 +44,6 @@ import { useFind } from '@ir-engine/common'
 import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { MediaStreamState } from '../../media/MediaStreamState'
 import {
   createPeerMediaChannels,
   PeerMediaChannelState,
