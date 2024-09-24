@@ -56,6 +56,7 @@ function calculateSceneComplexity(params: SceneComplexityParams): number {
     SceneComplexityWeights.lightsWeight * params.lights +
     SceneComplexityWeights.drawCallsWeight * params.drawCalls +
     SceneComplexityWeights.shaderComplexityWeight * params.shaderComplexity
+
   return complexity
 }
 
@@ -63,9 +64,12 @@ function calculateSceneComplexity(params: SceneComplexityParams): number {
 function getShaderComplexity(resources: Record<string, any>): number {
   const countLines = (code?: string): number => (code || '').split('\n').length
   const totalComplexity = Object.values(resources)
-    .filter((resource) => resource.type === ResourceType.Material)
-    .flatMap((resource) => (Array.isArray(resource.asset) ? resource.asset : [resource.asset]))
-    .filter((material) => material.isShaderMaterial || material.isMeshStandardMaterial)
+    .filter(
+      (resource) =>
+        resource.type === ResourceType.Material &&
+        (resource.asset?.isShaderMaterial || resource.asset?.isMeshStandardMaterial)
+    )
+    .map((resource) => resource.asset)
     .reduce(
       (total, material) => {
         total.vertexInstructions += countLines(material.vertexShader)
