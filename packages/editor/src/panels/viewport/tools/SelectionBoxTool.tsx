@@ -85,7 +85,7 @@ export default function SelectionBox({
     // width.set(e.clientX - startX)
     // height.set(e.clientY - startY)
     setIsDragging(false)
-    if (getMutableState(selectionBox).selectionBoxEnabled.value) {
+    if (getMutableState(SelectionBoxState).selectionBoxEnabled.value) {
       updateSelectionEntity()
     }
   }
@@ -146,7 +146,7 @@ export default function SelectionBox({
   }, [isDragging])
   return (
     <div className="relative h-full w-full">
-      {getMutableState(selectionBox).selectionBoxEnabled.value && isDragging && (
+      {getMutableState(SelectionBoxState).selectionBoxEnabled.value && isDragging && (
         <div
           className="absolute z-[5] flex flex-col items-center border-2 border-dashed border-white bg-transparent"
           style={{
