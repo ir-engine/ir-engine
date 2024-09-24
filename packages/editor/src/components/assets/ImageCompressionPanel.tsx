@@ -149,7 +149,7 @@ export default function ImageCompressionPanel({
   }
 
   return (
-    <div className="max-h-[80vh] w-full min-w-[400px] max-w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-full min-w-[400px] max-w-[680px] overflow-y-auto rounded-xl bg-[#212226]">
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
         <Button
@@ -167,7 +167,7 @@ export default function ImageCompressionPanel({
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-theme-input bg-[#141619] px-2 py-1.5" value={title} disabled />
+          <Input className="border-theme-input bg-[#2C2E33] px-2 py-1.5" value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
@@ -198,7 +198,7 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.flipYTooltip')}
         >
           <BooleanInput
-            className="bg-[#141619]"
+            className="bg-[#2C2E33]"
             value={compressProperties.flipY.value}
             onChange={compressProperties.flipY.set}
           />
@@ -212,7 +212,7 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.srgbTooltip')}
         >
           <BooleanInput
-            className="bg-[#141619]"
+            className="bg-[#2C2E33]"
             value={compressProperties.srgb.value}
             onChange={compressProperties.srgb.set}
           />
@@ -226,7 +226,7 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.mipmapsTooltip')}
         >
           <BooleanInput
-            className="bg-[#141619]"
+            className="bg-[#2C2E33]"
             value={compressProperties.mipmaps.value}
             onChange={compressProperties.mipmaps.set}
           />
@@ -240,7 +240,7 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.normalMapTooltip')}
         >
           <BooleanInput
-            className="bg-[#141619]"
+            className="bg-[#2C2E33]"
             value={compressProperties.normalMap.value}
             onChange={compressProperties.normalMap.set}
           />
@@ -313,7 +313,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}
             >
               <BooleanInput
-                className="bg-[#141619]"
+                className="bg-[#2C2E33]"
                 value={compressProperties.uastcZstandard.value}
                 onChange={compressProperties.uastcZstandard.set}
               />
