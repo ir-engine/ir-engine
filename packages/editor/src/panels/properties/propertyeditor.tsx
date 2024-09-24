@@ -143,7 +143,7 @@ const PropertiesEditor = () => {
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   return (
-    <div className="flex h-full flex-col gap-0.5 overflow-y-auto rounded-[5px] bg-[#0E0F11] px-1">
+    <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-[#0E0F11]">
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (

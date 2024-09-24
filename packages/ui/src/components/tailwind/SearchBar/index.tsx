@@ -74,7 +74,7 @@ export default function SearchBar({
       }}
       className={twMerge('bg-theme-surface-main', variants[size])}
       containerClassName="w-1/5 block bg-[#141619]"
-      startComponent={<HiMagnifyingGlass />}
+      startComponent={<HiMagnifyingGlass className="text-white" />}
       {...inputProps}
     />
   )

@@ -654,7 +654,7 @@ const AssetPanel = () => {
   return (
     <>
       <div className="flex h-full flex-col">
-        <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+        <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226]">
           <div className="ml-2"></div>
           <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
             <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
@@ -695,7 +695,7 @@ const AssetPanel = () => {
               }}
               labelClassname="text-sm text-red-500"
               containerClassName="flex h-full w-auto"
-              className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+              className="h-7 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
               startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
             />
           </div>

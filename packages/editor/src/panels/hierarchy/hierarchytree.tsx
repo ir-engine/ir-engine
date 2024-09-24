@@ -43,10 +43,15 @@ export function Topbar() {
   const isAddEntityMenuOpen = useHookstate(false)
 
   return (
-    <div className="flex items-center gap-2 bg-[#212226]">
+    <div className="flex h-8 items-center gap-2 bg-[#212226]">
       <SearchBar
         search={search}
-        inputProps={{ containerClassName: 'bg-[#212226] text-[#A3A3A3]', className: 'm-1 rounded' }}
+        inputProps={{
+          className:
+            'text-[#A3A3A3] bg-theme-surface-main h-7 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-xs placeholder:text-[#A3A3A3] focus-visible:ring-0',
+          containerClassName: 'flex h-auto w-auto',
+          variant: 'underlined'
+        }}
       />
       <Popup
         keepInside
