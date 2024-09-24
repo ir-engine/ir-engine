@@ -60,6 +60,7 @@ export const BoundingBoxComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (json.worldSpaceBox?.isBox3) component.worldSpaceBox.value.copy(json.worldSpaceBox)
+    if (json.objectSpaceBox?.isBox3) component.objectSpaceBox.value.copy(json.objectSpaceBox)
   },
 
   reactor: function () {
@@ -105,12 +106,14 @@ export const updateBoundingBox = (entity: Entity) => {
     return
   }
 
-  const box = boxComponent.worldSpaceBox
-  box.makeEmpty()
+  const worldBox = boxComponent.worldSpaceBox
+  const objectBox = boxComponent.objectSpaceBox
+  worldBox.makeEmpty()
+  objectBox.makeEmpty()
 
   const callback = (child: Entity) => {
     const obj = getOptionalComponent(child, MeshComponent)
-    if (obj) expandBoxByObject(obj, box)
+    if (obj) expandBoxByObject(obj, worldBox, objectBox)
   }
 
   iterateEntityNode(entity, callback)
@@ -121,12 +124,14 @@ export const updateBoundingBox = (entity: Entity) => {
   if (!helperEntity) return
 
   const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
+  helperObject.box = worldBox
   helperObject.updateMatrixWorld(true)
 }
 
 const _box = new Box3()
+const _worldBox = new Box3()
 
-const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
+const expandBoxByObject = (object: Mesh<BufferGeometry>, worldBox: Box3, objectBox: Box3) => {
   const geometry = object.geometry
 
   if (geometry) {
@@ -135,7 +140,12 @@ const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
     }
 
     _box.copy(geometry.boundingBox!)
-    _box.applyMatrix4(object.matrixWorld)
-    box.union(_box)
+    
+    // Update object space box
+    objectBox.union(_box)
+
+    // Update world space box
+    _worldBox.copy(_box).applyMatrix4(object.matrixWorld)
+    worldBox.union(_worldBox)
   }
 }
