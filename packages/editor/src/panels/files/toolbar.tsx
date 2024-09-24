@@ -24,18 +24,21 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { FiDownload, FiGrid, FiRefreshCcw } from 'react-icons/fi'
+import { GoAlert } from 'react-icons/go'
 import { HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
@@ -178,117 +181,156 @@ export default function FilesToolbar() {
 
   const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
 
+  const UnsupportedFileModal = ({ message }) => {
+    return (
+      <Modal
+        onSubmit={() => {
+          return true
+        }}
+        onClose={() => {
+          PopoverState.hidePopupover()
+        }}
+        className="w-[50vw] max-w-2xl"
+        hideFooter
+      >
+        <div className="flex flex-col items-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#191B1F]">
+            <GoAlert className="h-6 w-6 text-[#C33243]" />
+          </div>
+          <div className="flex flex-col items-center gap-3 p-4 px-12 pb-12">
+            <span className="text-center font-bold">{t('editor:unsupportedFile.title')}</span>
+            <span className="text-center">{message}</span>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="primary"
+              onClick={() => {
+                PopoverState.hidePopupover()
+              }}
+            >
+              {t('editor:unsupportedFile.okay')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
   return (
-    <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
-      <div className="ml-2" />
-      {showBackButton && (
-        <div id="backDir" className={`pointer-events-auto flex h-7 w-7 items-center rounded-lg bg-[#2F3137]`}>
-          <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-            <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={backDirectory} />
+    <>
+      <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+        <div className="ml-2" />
+        {showBackButton && (
+          <div id="backDir" className={`pointer-events-auto flex h-7 w-7 items-center rounded-lg bg-[#2F3137]`}>
+            <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+              <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={backDirectory} />
+            </Tooltip>
+          </div>
+        )}
+
+        <div id="refreshDir" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip content={t('editor:layout.filebrowser.refresh')}>
+            <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
           </Tooltip>
         </div>
-      )}
 
-      <div id="refreshDir" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-        <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={refreshDirectory} />
-        </Tooltip>
-      </div>
+        <ViewModeSettings />
 
-      <ViewModeSettings />
+        <div className="w-30 flex h-7 flex-row items-center gap-1 rounded-lg bg-[#2F3137] px-2 py-1 ">
+          {VIEW_MODES.map(({ mode, icon }) => (
+            <Button
+              key={mode}
+              variant="transparent"
+              startIcon={icon}
+              className={`p-0 ${filesViewMode.value !== mode ? 'opacity-50' : ''}`}
+              onClick={() => filesViewMode.set(mode as 'icons' | 'list')}
+            />
+          ))}
+        </div>
 
-      <div className="w-30 flex h-7 flex-row items-center gap-1 rounded-lg bg-[#2F3137] px-2 py-1 ">
-        {VIEW_MODES.map(({ mode, icon }) => (
-          <Button
-            key={mode}
-            variant="transparent"
-            startIcon={icon}
-            className={`p-0 ${filesViewMode.value !== mode ? 'opacity-50' : ''}`}
-            onClick={() => filesViewMode.set(mode as 'icons' | 'list')}
+        <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+          <BreadcrumbItems />
+          <Input
+            placeholder={t('editor:layout.filebrowser.search-placeholder')}
+            value={filesState.searchText.value}
+            onChange={(e) => {
+              filesState.searchText.set(e.target.value)
+            }}
+            labelClassname="text-sm text-red-500"
+            containerClassName="flex h-full w-auto"
+            className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
-        ))}
-      </div>
+        </div>
 
-      <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-        <BreadcrumbItems />
-        <Input
-          placeholder={t('editor:layout.filebrowser.search-placeholder')}
-          value={filesState.searchText.value}
-          onChange={(e) => {
-            filesState.searchText.set(e.target.value)
-          }}
-          labelClassname="text-sm text-red-500"
-          containerClassName="flex h-full w-auto"
-          className="h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
-          startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
-        />
-      </div>
+        <div id="downloadProject" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip
+            content={
+              showDownloadButtons
+                ? t('editor:layout.filebrowser.downloadProject')
+                : t('editor:layout.filebrowser.downloadProjectUnavailable')
+            }
+          >
+            <Button
+              variant="transparent"
+              startIcon={<FiDownload />}
+              className="p-0"
+              onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
+              disabled={!showDownloadButtons}
+            />
+          </Tooltip>
+        </div>
 
-      <div id="downloadProject" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-        <Tooltip
-          content={
-            showDownloadButtons
-              ? t('editor:layout.filebrowser.downloadProject')
-              : t('editor:layout.filebrowser.downloadProjectUnavailable')
+        <div id="newFolder" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+          <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
+            <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
+          </Tooltip>
+        </div>
+
+        <Button
+          id="uploadFiles"
+          startIcon={<HiOutlinePlusCircle />}
+          disabled={!showUploadButtons}
+          rounded="none"
+          className="h-full whitespace-nowrap bg-theme-highlight px-2"
+          size="small"
+          onClick={() =>
+            inputFileWithAddToScene({
+              projectName: filesState.projectName.value,
+              directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
+            })
+              .then(() => refreshDirectory())
+              .catch((err) => {
+                PopoverState.showPopupover(<UnsupportedFileModal message={err.message} />)
+                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              })
           }
         >
-          <Button
-            variant="transparent"
-            startIcon={<FiDownload />}
-            className="p-0"
-            onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
-            disabled={!showDownloadButtons}
-          />
-        </Tooltip>
-      </div>
-
-      <div id="newFolder" className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
-        <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
-          <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
-        </Tooltip>
-      </div>
-
-      <Button
-        id="uploadFiles"
-        startIcon={<HiOutlinePlusCircle />}
-        disabled={!showUploadButtons}
-        rounded="none"
-        className="h-full whitespace-nowrap bg-theme-highlight px-2"
-        size="small"
-        onClick={() =>
-          inputFileWithAddToScene({
-            projectName: filesState.projectName.value,
-            directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
-          })
-            .then(() => refreshDirectory())
-            .catch((err) => {
-              NotificationService.dispatchNotify(err.message, { variant: 'error' })
+          {t('editor:layout.filebrowser.uploadFiles')}
+        </Button>
+        <Button
+          id="uploadFiles"
+          startIcon={<HiOutlinePlusCircle />}
+          disabled={!showUploadButtons}
+          rounded="none"
+          className="h-full whitespace-nowrap bg-theme-highlight px-2"
+          size="small"
+          onClick={() =>
+            inputFileWithAddToScene({
+              projectName: filesState.projectName.value,
+              directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
+              preserveDirectory: true
             })
-        }
-      >
-        {t('editor:layout.filebrowser.uploadFiles')}
-      </Button>
-      <Button
-        id="uploadFiles"
-        startIcon={<HiOutlinePlusCircle />}
-        disabled={!showUploadButtons}
-        rounded="none"
-        className="h-full whitespace-nowrap bg-theme-highlight px-2"
-        size="small"
-        onClick={() =>
-          inputFileWithAddToScene({
-            projectName: filesState.projectName.value,
-            directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
-            preserveDirectory: true
-          })
-            .then(refreshDirectory)
-            .catch((err) => {
-              NotificationService.dispatchNotify(err.message, { variant: 'error' })
-            })
-        }
-      >
-        {t('editor:layout.filebrowser.uploadFolder')}
-      </Button>
-    </div>
+              .then(refreshDirectory)
+              .catch((err) => {
+                PopoverState.showPopupover(<UnsupportedFileModal message={err.message} />)
+                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              })
+          }
+        >
+          {t('editor:layout.filebrowser.uploadFolder')}
+        </Button>
+      </div>
+    </>
   )
 }
