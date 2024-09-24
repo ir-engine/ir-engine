@@ -91,7 +91,7 @@ const gizmoMaterialProperties = {
 
 const matInvisible = gizmoMaterial.clone()
 matInvisible.opacity = gizmoMaterialProperties[GizmoMaterial.INVISIBLE].opacity
-matInvisible.visible = false
+//matInvisible.visible = false
 
 const matHelper = gizmoLineMaterial.clone()
 matHelper.opacity = gizmoMaterialProperties[GizmoMaterial.HELPER].opacity
@@ -219,7 +219,7 @@ const matGray = getGizmoMaterial(GizmoMaterial.GRAY);
 // reusable geometry
 
 const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12).translate(0, 0.05, 0)
-const sphereGeometry = new SphereGeometry(0.04).translate(0, 0.05, 0)
+const sphereGeometry = new SphereGeometry(0.04)
 const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08).translate(0, 0.04, 0)
 const lineGeometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3))
 const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3).translate(0, 0.25, 0)
@@ -262,7 +262,7 @@ const cameraGizmo = {
   X: [
     [new Mesh(sphereGeometry, matRed), [0.5, 0, 0]],
     [new Mesh(sphereGeometry, matRed), [-0.5, 0, 0]],
-    [new Mesh(lineGeometry2, matRed), [0, 0, 0]]
+    [new Mesh(lineGeometry2, matRed), [0, 0, 0], [0, 0, -Math.PI / 2]]
   ],
   Y: [
     [new Mesh(sphereGeometry, matGreen), [0, 0.5, 0]],

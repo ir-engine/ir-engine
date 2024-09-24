@@ -70,7 +70,7 @@ export const CameraGizmoControlComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, CameraGizmoControlComponent)
-
+        console.log('DEBUG :', gizmoControlComponent)
         if (!gizmoControlComponent.enabled || !gizmoControlComponent.visualEntity) return
 
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, CameraGizmoVisualComponent)

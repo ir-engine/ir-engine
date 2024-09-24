@@ -36,7 +36,6 @@ import {
 } from '@ir-engine/ecs'
 import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { NO_PROXY } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
@@ -45,7 +44,6 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 
 import { CameraGizmoControlComponent } from '../classes/gizmo/camera/CameraGizmoControlComponent'
 import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
-import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 
 const _raycaster = new Raycaster()
@@ -164,6 +162,18 @@ function pointerHover(gizmoEntity) {
   const targetEntity = gizmoControlComponent.controlledCameras.get(NO_PROXY)[0]
 
   if (targetEntity === UndefinedEntity) return
+
+  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
+  _raycaster.setFromCamera(pointerPosition, camera)
+  const intersect = intersectObjectWithRay(picker, _raycaster, true)
+
+  console.log('DEBUG: onPointerHover intersect', intersect)
+
+  if (intersect) {
+    gizmoControlComponent.axis.set(intersect.object.name)
+  } else {
+    gizmoControlComponent.axis.set(null)
+  }
 }
 
 function pointerDown(gizmoEntity) {
@@ -171,54 +181,10 @@ function pointerDown(gizmoEntity) {
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
-  const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
-  const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0]
-  const targetEntity =
-    gizmoControlComponent.controlledEntities.value.length > 1
-      ? gizmoControlComponent.pivotEntity.value
-      : gizmoControlComponent.controlledEntities.get(NO_PROXY)[0]
+  const gizmoControlComponent = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
+  const targetEntity = gizmoControlComponent.controlledCameras.get(NO_PROXY)[0]
 
-  if (
-    targetEntity === UndefinedEntity ||
-    gizmoControlComponent.dragging.value === true ||
-    pointer.movement.length() !== 0
-  )
-    return
-
-  if (gizmoControlComponent.axis.value !== null) {
-    const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
-    _raycaster.setFromCamera(pointer.position, camera)
-
-    const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
-    if (planeIntersect) {
-      const currenttransform = getComponent(targetEntity, TransformComponent)
-      _positionStart.copy(currenttransform.position)
-      _quaternionStart.copy(currenttransform.rotation)
-      _scaleStart.copy(currenttransform.scale)
-      gizmoControlComponent.worldPositionStart.set(_positionStart)
-      gizmoControlComponent.worldQuaternionStart.set(_quaternionStart)
-
-      gizmoControlComponent.pointStart.set(planeIntersect.point.sub(_positionStart))
-
-      if (
-        gizmoControlComponent.controlledEntities.value.length > 1 &&
-        gizmoControlComponent.pivotEntity.value !== UndefinedEntity
-      ) {
-        for (const cEntity of gizmoControlComponent.controlledEntities.value) {
-          const currenttransform = getComponent(cEntity, TransformComponent)
-          const _cMultiStart = new Vector3()
-          const _cQuaternionStart = new Quaternion()
-          const _cScaleStart = new Vector3()
-          currenttransform.matrix.decompose(_cMultiStart, _cQuaternionStart, _cScaleStart)
-          _positionMultiStart[cEntity] = _cMultiStart
-          _quaternionMultiStart[cEntity] = _cQuaternionStart
-          _scaleMultiStart[cEntity] = _cScaleStart
-        }
-      }
-    }
-
-    gizmoControlComponent.dragging.set(true)
-  }
+  if (targetEntity === UndefinedEntity || pointer.movement.length() !== 0) return
 }
 
 /*function pointerMove(gizmoEntity) {
@@ -277,15 +243,17 @@ function pointerUp(gizmoEntity) {
 }
 
 export function onPointerHover(gizmoEntity) {
-  const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
+  console.log('DEBUG: gizmoControl', gizmoControl, gizmoEntity)
+
   if (gizmoControl === undefined) return
   if (!gizmoControl.enabled) return
-
+  console.log('DEBUG: onPointerHover')
   pointerHover(gizmoEntity)
 }
 
 export function onPointerDown(gizmoEntity) {
-  const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
@@ -304,7 +272,7 @@ export function onPointerDown(gizmoEntity) {
 }*/
 
 export function onPointerUp(gizmoEntity) {
-  const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
@@ -325,5 +293,5 @@ export function intersectObjectWithRay(object, raycaster, includeInvisible?) {
 }
 
 export function onPointerLost(gizmoEntity: Entity) {
-  setComponent(gizmoEntity, TransformGizmoControlComponent, { dragging: false, axis: null })
+  setComponent(gizmoEntity, CameraGizmoControlComponent, { axis: null })
 }

@@ -31,6 +31,7 @@ import {
   Engine,
   removeEntity,
   setComponent,
+  UndefinedEntity,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
@@ -69,6 +70,7 @@ export const CameraGizmoVisualComponent = defineComponent({
   name: 'CameraGizmoVisual',
 
   schema: S.Object({
+    sceneEntity: S.Entity(),
     gizmo: S.Entity(),
     picker: S.Entity()
   }),
@@ -88,7 +90,12 @@ export const CameraGizmoVisualComponent = defineComponent({
       addObjectToGroup(gizmo, gizmoObject)
       setComponent(gizmo, TransformGizmoTagComponent)
       setComponent(gizmo, VisibleComponent)
-      setComponent(gizmo, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(gizmo, EntityTreeComponent, {
+        parentEntity:
+          visualComponent.sceneEntity.value === UndefinedEntity
+            ? Engine.instance.originEntity
+            : visualComponent.sceneEntity.value
+      })
 
       visualComponent.gizmo.set(gizmo)
 
@@ -97,7 +104,12 @@ export const CameraGizmoVisualComponent = defineComponent({
       addObjectToGroup(picker, pickerObject)
       setComponent(picker, TransformGizmoTagComponent)
       setComponent(picker, VisibleComponent)
-      setComponent(picker, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(picker, EntityTreeComponent, {
+        parentEntity:
+          visualComponent.sceneEntity.value === UndefinedEntity
+            ? Engine.instance.originEntity
+            : visualComponent.sceneEntity.value
+      })
 
       visualComponent.picker.set(picker)
 

@@ -45,7 +45,7 @@ export const CameraGizmoControlledComponent = defineComponent({
 
   reactor: function (props) {
     const entity = useEntityContext()
-    const transformGizmoControlledComponent = useComponent(entity, CameraGizmoControlledComponent)
+    const cameraGizmoControlledComponent = useComponent(entity, CameraGizmoControlledComponent)
 
     useEffect(() => {
       const gizmoControlEntity = createEntity()
@@ -63,7 +63,7 @@ export const CameraGizmoControlledComponent = defineComponent({
       setComponent(gizmoControlEntity, CameraGizmoTagComponent)
       setComponent(gizmoControlEntity, VisibleComponent)
 
-      transformGizmoControlledComponent.controller.set(gizmoControlEntity)
+      cameraGizmoControlledComponent.controller.set(gizmoControlEntity)
 
       setComponent(gizmoVisualEntity, NameComponent, 'cameraGizmoVisualEntity')
       setComponent(gizmoVisualEntity, CameraGizmoVisualComponent)
