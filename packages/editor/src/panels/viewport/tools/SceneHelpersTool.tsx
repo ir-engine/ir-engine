@@ -46,7 +46,7 @@ export default function SceneHelpersTool() {
   const [pointClickEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.PointClick])
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 rounded bg-[#0E0F11]">
       {pointClickEnabled && (
         <Tooltip content={t('editor:toolbar.placement.click')}>
           <Button
@@ -54,6 +54,7 @@ export default function SceneHelpersTool() {
             onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
             variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
             className="px-0"
+            size="small"
           />
         </Tooltip>
       )}
@@ -63,6 +64,7 @@ export default function SceneHelpersTool() {
           onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
           variant={editorHelperState.placementMode.value === PlacementMode.DRAG ? 'outline' : 'transparent'}
           className="px-0"
+          size="small"
         />
       </Tooltip>
       <Tooltip
@@ -74,6 +76,7 @@ export default function SceneHelpersTool() {
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
           variant={rendererState.physicsDebug.value ? 'outline' : 'transparent'}
           className={twMerge('px-0', rendererState.physicsDebug.value && 'border border-solid border-transparent')}
+          size="small"
         />
       </Tooltip>
       <Tooltip
@@ -88,6 +91,7 @@ export default function SceneHelpersTool() {
             'px-0',
             rendererState.nodeHelperVisibility.value && 'border border-solid border-transparent'
           )}
+          size="small"
         />
       </Tooltip>
       <Tooltip title={t('editor:toolbar.sceneScreenshot.lbl')} content={t('editor:toolbar.sceneScreenshot.info')}>
@@ -96,6 +100,7 @@ export default function SceneHelpersTool() {
           onClick={() => downloadScreenshot()}
           variant="transparent"
           className="border border-solid border-transparent px-0"
+          size="small"
         />
       </Tooltip>
     </div>

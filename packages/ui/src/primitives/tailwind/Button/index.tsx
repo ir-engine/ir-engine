@@ -48,7 +48,7 @@ const roundedTypes = {
 }
 
 const sizes = {
-  small: 'text-sm px-3 py-2',
+  small: 'text-sm px-3 py-1',
   medium: 'text-base px-4 py-2',
   large: 'text-lg px-7 py-3'
 }

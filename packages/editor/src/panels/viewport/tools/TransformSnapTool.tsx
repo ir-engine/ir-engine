@@ -80,13 +80,14 @@ const TransformSnapTool = () => {
   }
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center rounded bg-[#0E0F11]">
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}>
         <Button
           startIcon={<LuUtilityPole className="text-theme-input" />}
           onClick={toggleAttachmentPointSnap}
           variant={objectSnapState.enabled.value ? 'outline' : 'transparent'}
           className="px-0"
+          size="small"
         />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
@@ -95,6 +96,7 @@ const TransformSnapTool = () => {
           onClick={toggleSnapMode}
           variant={editorHelperState.gridSnap.value === SnapMode.Grid ? 'outline' : 'transparent'}
           className="px-0"
+          size="small"
         />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right center">
