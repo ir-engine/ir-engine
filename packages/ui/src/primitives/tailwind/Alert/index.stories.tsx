@@ -23,22 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
-
-const argTypes = {}
+import Alert, { AlertVariantEnum } from './index'
 
 export default {
-  title: 'Editor/Panel/Properties/Container',
-  component: Component,
+  title: 'Primitives/Tailwind/Alert',
+  component: Alert,
   parameters: {
-    componentSubtitle: 'PropertiesPanelContainer',
-    jest: 'PropertiesPanelContainer.test.tsx',
+    componentSubtitle: 'Alert',
     design: {
       type: 'figma',
       url: ''
     }
-  },
-  argTypes
+  }
 }
 
-export const Default = { args: {} }
+export const Default = {
+  args: {
+    title: 'Alert',
+    message: 'Here alert message.',
+    variant: AlertVariantEnum.SUCCESS
+  }
+}

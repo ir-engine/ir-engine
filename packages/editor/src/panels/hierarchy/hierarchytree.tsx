@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import ElementList from '@ir-engine/ui/src/components/editor/panels/Properties/elementList'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -34,6 +33,7 @@ import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
+import ElementList from '../properties/elementlist'
 import HierarchyTreeNode from './hierarchynode'
 import { useHierarchyNodes, useHierarchyTreeDrop, useHierarchyTreeHotkeys } from './hooks'
 

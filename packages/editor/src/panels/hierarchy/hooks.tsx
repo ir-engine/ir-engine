@@ -48,7 +48,6 @@ import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { useHotkeys } from 'react-hotkeys-hook'
 import useUpload from '../../components/assets/useUpload'
-import { gltfHierarchyTreeWalker, HierarchyTreeNodeType } from '../../components/hierarchy/HierarchyTreeWalker'
 import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -56,7 +55,15 @@ import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
-import { copyNodes, duplicateNode, groupNodes, pasteNodes, uploadOptions } from './helpers'
+import {
+  copyNodes,
+  duplicateNode,
+  gltfHierarchyTreeWalker,
+  groupNodes,
+  HierarchyTreeNodeType,
+  pasteNodes,
+  uploadOptions
+} from './helpers'
 
 type DragItemType = {
   type: (typeof ItemTypes)[keyof typeof ItemTypes]

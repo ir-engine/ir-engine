@@ -39,17 +39,19 @@ import config from '@ir-engine/common/src/config'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
 import TagManager from '@sooro-io/react-gtm-module'
 import { initializei18n } from './util'
 
-const initializeLogs = async () => {
+const authenticate = async () => {
   await waitForClientAuthenticated()
+}
+
+const initializeLogs = async () => {
   pipeLogs(API.instance)
 }
 
 const initializeGoogleServices = async () => {
-  await waitForClientAuthenticated()
-
   //@ts-ignore
   const clientSettings = await API.instance.service(clientSettingPath).find({})
   const [settings] = clientSettings.data
@@ -74,7 +76,6 @@ const publicDomain = import.meta.env.BASE_URL === '/client/' ? location.origin :
 createHyperStore()
 initializei18n()
 ClientAPI.createAPI()
-initializeLogs()
 
 getMutableState(DomainConfigState).merge({
   publicDomain,
@@ -86,7 +87,10 @@ export default function ({ children }): JSX.Element {
   const { t } = useTranslation()
 
   useEffect(() => {
-    initializeGoogleServices()
+    authenticate().then(() => {
+      initializeLogs()
+      initializeGoogleServices()
+    })
 
     const urlSearchParams = new URLSearchParams(window.location.search)
     const redirectUrl = urlSearchParams.get('redirectUrl')
@@ -95,8 +99,10 @@ export default function ({ children }): JSX.Element {
     }
   }, [])
 
+  const theme = createTheme({})
+
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <MetaTags>
         <link
           href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
@@ -110,6 +116,6 @@ export default function ({ children }): JSX.Element {
           {children}
         </Suspense>
       </BrowserRouter>
-    </>
+    </ThemeProvider>
   )
 }
