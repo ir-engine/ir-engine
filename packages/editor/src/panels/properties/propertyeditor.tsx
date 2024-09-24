@@ -100,7 +100,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
               startIcon={<HiOutlinePlusCircle />}
               variant="transparent"
               rounded="none"
-              className="ml-auto w-40 bg-[#2F3137] px-2"
+              className="ml-auto w-40 bg-[#212226] px-2"
               size="small"
               onClick={() => setIsAddComponentMenuOpen(true)}
             >
