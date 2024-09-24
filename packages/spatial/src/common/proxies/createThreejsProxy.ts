@@ -42,8 +42,7 @@ export interface ProxyExtensions {
 }
 
 export const Vec3Proxy = (vec3Proxy: Vector3Proxy) => {
-  const vector3 = new Vector3()
-  return defineProperties(vector3, {
+  return defineProperties(new Vector3(), {
     x: {
       get() {
         return vec3Proxy.x
@@ -75,9 +74,8 @@ export const Vec3Proxy = (vec3Proxy: Vector3Proxy) => {
 }
 
 export const Vec3ProxyDirty = (vec3Proxy: Vector3Proxy, entity: Entity, dirty: Record<Entity, boolean>) => {
-  const vector3 = new Vector3()
   dirty[entity] = true
-  return defineProperties(vector3, {
+  return defineProperties(new Vector3(), {
     x: {
       get() {
         return vec3Proxy.x
@@ -112,8 +110,11 @@ export const Vec3ProxyDirty = (vec3Proxy: Vector3Proxy, entity: Entity, dirty: R
 }
 
 export const QuaternionProxy = (quatProxy: QuaternionProxy) => {
-  const quat = new Quaternion()
-  return defineProperties(quat, {
+  quatProxy.x = 0
+  quatProxy.y = 0
+  quatProxy.z = 0
+  quatProxy.w = 1
+  return defineProperties(new Quaternion(), {
     x: {
       get() {
         return quatProxy.x
@@ -190,9 +191,12 @@ export const QuaternionProxy = (quatProxy: QuaternionProxy) => {
 }
 
 export const QuaternionProxyDirty = (quatProxy: QuaternionProxy, entity: Entity, dirty: Record<Entity, boolean>) => {
-  const quat = new Quaternion()
+  quatProxy.x = 0
+  quatProxy.y = 0
+  quatProxy.z = 0
+  quatProxy.w = 1
   dirty[entity] = true
-  return defineProperties(quat, {
+  return defineProperties(new Quaternion(), {
     x: {
       get() {
         return quatProxy.x
