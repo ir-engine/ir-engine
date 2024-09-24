@@ -119,7 +119,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <div className="my-1 flex flex-wrap items-center justify-end">
         <Button className="flex flex-wrap items-center justify-end" onClick={calculateClippingPlanes}>
-          {t('editor:properties.cameraSettings.lbl-calcClippingPlanes')}
+          {t('editor:properties.cameraSettings.lbl-calcClippingPlanes') as string}
         </Button>
       </div>
 
