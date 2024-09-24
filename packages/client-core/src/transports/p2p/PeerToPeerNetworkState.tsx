@@ -3,12 +3,14 @@ import {
   InstanceAttendanceType,
   InstanceID,
   InstanceType,
+  clientSettingPath,
   instanceAttendancePath,
   instancePath,
   instanceSignalingPath
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
+import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import {
   PeerID,
   UserID,
@@ -25,6 +27,7 @@ import {
   NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
+  VideoConstants,
   addNetwork,
   createNetwork,
   removeNetwork,
@@ -383,8 +386,35 @@ const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
     }
   }, [webcamMediaStream, webcamEnabled])
 
+  const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
+
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[props.peerID]?.cam
+
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
+
+  const isPiP = peerMediaChannelState.videoQuality.value === 'largest'
+
+  useEffect(() => {
+    if (!webcamMediaStream) return
+
+    const isScreen = false
+
+    const mediaTrack = webcamMediaStream.getVideoTracks()[0]
+
+    const { maxResolution } = clientSetting.mediaSettings.video
+    const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
+
+    // @todo this isn't correct
+    const scale = isPiP || immersiveMedia ? 1 : !isScreen && resolution.height.ideal > MAX_RES_TO_USE_TOP_LAYER ? 2 : 4
+
+    WebRTCTransportFunctions.setVideoQuality(props.instanceID, props.peerID, mediaTrack, scale)
+  }, [webcamMediaStream, immersiveMedia, isPiP])
+
   return null
 }
+
+const MAX_RES_TO_USE_TOP_LAYER = 540 // If under 540p, use the topmost video layer, otherwise use layer n-1
 
 const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; trackID: string }) => {
   const peerConnectionState = useMutableState(RTCPeerConnectionState)[props.instanceID][props.peerID].value

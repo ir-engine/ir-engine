@@ -436,6 +436,31 @@ const handlePauseMediaChannel = (networkID: NetworkID, peerID: PeerID, message: 
   }
 }
 
+const setVideoQuality = async (
+  networkID: NetworkID,
+  peerID: PeerID,
+  track: MediaStreamTrack,
+  scale: number
+  // bitrate: number
+) => {
+  if (scale < 1) return logger.error('Invalid ratio')
+  if (track.kind !== 'video') return logger.error('Invalid track')
+
+  const pc = getState(RTCPeerConnectionState)[networkID]?.[peerID]?.peerConnection
+  if (!pc) {
+    return logger.error('Peer connection does not exist')
+  }
+
+  const senders = pc.getSenders()
+  const sender = senders.find((sender) => sender.track === track)
+  if (!sender) return logger.error('Sender not found')
+
+  const parameters = sender.getParameters()
+  parameters.encodings[0].scaleResolutionDownBy = scale
+  // parameters.encodings[0].maxBitrate = bitrate
+  await sender.setParameters(parameters)
+}
+
 export const WebRTCTransportFunctions = {
   onMessage,
   createPeerConnection,
@@ -454,5 +479,6 @@ export const WebRTCTransportFunctions = {
   handleStartTrack,
   handleStopTrack,
   pauseMediaChannel,
-  handlePauseMediaChannel
+  handlePauseMediaChannel,
+  setVideoQuality
 }
