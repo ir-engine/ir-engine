@@ -41,7 +41,10 @@ export interface ProxyExtensions {
   store: Vector3Proxy | QuaternionProxy
 }
 
-export const Vec3Proxy = (vec3Proxy: Vector3Proxy) => {
+export const Vec3Proxy = (vec3Proxy: Vector3Proxy, initial = { x: 0, y: 0, z: 0 }) => {
+  vec3Proxy.x = initial.x
+  vec3Proxy.y = initial.y
+  vec3Proxy.z = initial.z
   return defineProperties(new Vector3(), {
     x: {
       get() {
@@ -73,7 +76,15 @@ export const Vec3Proxy = (vec3Proxy: Vector3Proxy) => {
   })
 }
 
-export const Vec3ProxyDirty = (vec3Proxy: Vector3Proxy, entity: Entity, dirty: Record<Entity, boolean>) => {
+export const Vec3ProxyDirty = (
+  vec3Proxy: Vector3Proxy,
+  entity: Entity,
+  dirty: Record<Entity, boolean>,
+  initial = { x: 0, y: 0, z: 0 }
+) => {
+  vec3Proxy.x = initial.x
+  vec3Proxy.y = initial.y
+  vec3Proxy.z = initial.z
   dirty[entity] = true
   return defineProperties(new Vector3(), {
     x: {
@@ -109,11 +120,11 @@ export const Vec3ProxyDirty = (vec3Proxy: Vector3Proxy, entity: Entity, dirty: R
   })
 }
 
-export const QuaternionProxy = (quatProxy: QuaternionProxy) => {
-  quatProxy.x = 0
-  quatProxy.y = 0
-  quatProxy.z = 0
-  quatProxy.w = 1
+export const QuaternionProxy = (quatProxy: QuaternionProxy, initial = { x: 0, y: 0, z: 0, w: 1 }) => {
+  quatProxy.x = initial.x
+  quatProxy.y = initial.y
+  quatProxy.z = initial.z
+  quatProxy.w = initial.w
   return defineProperties(new Quaternion(), {
     x: {
       get() {
@@ -190,11 +201,16 @@ export const QuaternionProxy = (quatProxy: QuaternionProxy) => {
   })
 }
 
-export const QuaternionProxyDirty = (quatProxy: QuaternionProxy, entity: Entity, dirty: Record<Entity, boolean>) => {
-  quatProxy.x = 0
-  quatProxy.y = 0
-  quatProxy.z = 0
-  quatProxy.w = 1
+export const QuaternionProxyDirty = (
+  quatProxy: QuaternionProxy,
+  entity: Entity,
+  dirty: Record<Entity, boolean>,
+  initial = { x: 0, y: 0, z: 0, w: 1 }
+) => {
+  quatProxy.x = initial.x
+  quatProxy.y = initial.y
+  quatProxy.z = initial.z
+  quatProxy.w = initial.w
   dirty[entity] = true
   return defineProperties(new Quaternion(), {
     x: {
