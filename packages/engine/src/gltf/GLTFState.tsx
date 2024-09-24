@@ -436,6 +436,8 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
     return () => {
       removeComponent(rootEntity, AnimationComponent)
       if (!hasObject3d) {
+        // todo ??
+        if (!hasComponent(rootEntity, Object3DComponent)) return
         removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
         removeComponent(rootEntity, Object3DComponent)
       }
