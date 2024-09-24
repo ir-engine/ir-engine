@@ -60,7 +60,8 @@ export const EditorState = defineState({
     rootEntity: UndefinedEntity,
     uiEnabled: true,
     uiMode: UIMode.ADVANCED,
-    acknowledgedUnsupportedBrowser: false
+    acknowledgedUnsupportedBrowser: false,
+    acknowledgedUnsupportedDevice: false
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value

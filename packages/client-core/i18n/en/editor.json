@@ -1506,5 +1506,10 @@
     "description": "Please use Google Chrome for the best experience with the iR Studio.",
     "downloadChrome": "Download Chrome",
     "continue": "Continue Anyway"
+  },
+  "unsupportedDevice": {
+    "title": "Unsupported Device Type!",
+    "description": "We have detected you are using an unsupported device. You may experience errors using this device. If you want to have the best experience with IR Studio, please use a desktop running the latest version of Google Chrome. Thank you!",
+    "continue": "Continue Anyway"
   }
 }
