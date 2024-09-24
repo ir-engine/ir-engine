@@ -65,7 +65,7 @@ const variantMap: Record<string, AlertVariant> = {
   },
   warning: {
     containerClass: 'bg-[#3A2715]',
-    iconClass: 'text-orange-500',
+    iconClass: 'text-[#EAB308]',
     icon: <HiExclamationCircle />
   }
 }
@@ -73,15 +73,15 @@ const variantMap: Record<string, AlertVariant> = {
 const Alert = forwardRef<HTMLDivElement, AlertProps>(({ title, message, variant, className, children }, ref) => {
   const { containerClass, iconClass, icon } = variantMap[variant]
   const twContainerClass = twMerge('rounded-lg px-4 py-3 shadow-md', containerClass, className)
-  const twIconClass = twMerge('mr-4 py-1 text-xl', iconClass)
+  const twIconClass = twMerge('mr-4 py-1 text-2xl', iconClass)
 
   return (
     <div className={twContainerClass} role="alert" ref={ref}>
       <div className="flex">
         <div className={twIconClass}>{icon}</div>
         <div>
-          {title && <p className="font-bold text-white">{title}</p>}
-          {isEmpty(children) && <p className="text-sm text-white">{message}</p>}
+          {title && <p className="font-medium">{title}</p>}
+          {isEmpty(children) && <p className="text-sm text-gray-400">{message}</p>}
           {!isEmpty(children) && <>{children}</>}
         </div>
       </div>
