@@ -131,6 +131,7 @@ export const authenticationSettingSchema = Type.Object(
     secret: Type.String({ maxLength: 4095 }),
     jwtAlgorithm: Type.Optional(Type.String()),
     jwtPublicKey: Type.Optional(Type.String({ maxLength: 1023 })),
+    jwtCertificate: Type.Optional(Type.String({ maxLength: 4095 })),
     authStrategies: Type.Array(Type.Ref(authStrategiesSchema)),
     jwtOptions: Type.Optional(Type.Ref(authJwtOptionsSchema)),
     bearerToken: Type.Optional(Type.Ref(authBearerTokenSchema)),

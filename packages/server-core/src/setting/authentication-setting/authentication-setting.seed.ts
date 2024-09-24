@@ -53,6 +53,7 @@ export async function seed(knex: Knex): Promise<void> {
         secret: process.env.AUTH_SECRET || 'test',
         jwtAlgorithm: process.env.JWT_ALGORITHM,
         jwtPublicKey: process.env.JWT_PUBLIC_KEY,
+        jwtCertificate: process.env.JWT_CERTIFICATE,
         authStrategies: JSON.stringify([
           { jwt: true },
           { smsMagicLink: true },

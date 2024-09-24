@@ -60,6 +60,10 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     loading: false,
     errorMessage: ''
   })
+  const jwtPublicKey = useHookstate(authSetting?.jwtPublicKey)
+  const jwtAlgorithm = useHookstate(authSetting?.jwtAlgorithm)
+  const secret = useHookstate(authSetting?.secret)
+  const jwtCertificate = useHookstate(authSetting?.jwtCertificate)
   const state = useHookstate(initialAuthState)
   const holdAuth = useHookstate(initialAuthState)
   const keySecret = useHookstate({
@@ -96,10 +100,15 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         })
       )
       keySecret.set(tempKeySecret)
+      jwtPublicKey.set(authSetting.jwtPublicKey)
+      secret.set(authSetting.secret)
+      jwtAlgorithm.set(authSetting.jwtAlgorithm)
+      jwtCertificate.set(authSetting.jwtCertificate)
     }
   }, [authSetting])
 
   const handleSubmit = () => {
+    console.log('handleSubmit')
     loadingState.loading.set(true)
     const auth = Object.keys(state.value)
       .filter((item) => (state[item].value ? item : null))
@@ -112,7 +121,15 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
     }
 
-    patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
+    console.log('patching', secret.value, jwtPublicKey)
+    patchAuthSettings(id, {
+      secret: secret.value,
+      jwtPublicKey: jwtPublicKey.value,
+      jwtAlgorithm: jwtAlgorithm.value,
+      jwtCertificate: jwtCertificate.value,
+      authStrategies: auth,
+      oauth
+    })
       .then(() => {
         loadingState.set({ loading: false, errorMessage: '' })
         NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
@@ -208,22 +225,29 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         <Input
           className="col-span-1"
           label={t('admin:components.setting.jwtAlgorithm')}
-          value={authSetting?.jwtAlgorithm || ''}
-          disabled
+          value={jwtAlgorithm.value || ''}
+          onChange={(e) => jwtAlgorithm.set(e.target.value)}
         />
 
         <PasswordInput
           className="col-span-1"
           label={t('admin:components.setting.secret')}
-          value={authSetting?.secret || ''}
-          disabled
+          value={secret.value || ''}
+          onChange={(e) => secret.set(e.target.value)}
         />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.jwtPublicKey')}
-          value={authSetting?.jwtPublicKey || ''}
-          disabled
+          value={jwtPublicKey.value || ''}
+          onChange={(e) => jwtPublicKey.set(e.target.value)}
+        />
+
+        <PasswordInput
+          className="col-span-1"
+          label={t('admin:components.setting.jwtCertificate')}
+          value={jwtCertificate.value || ''}
+          onChange={(e) => jwtCertificate.set(e.target.value)}
         />
       </div>
 

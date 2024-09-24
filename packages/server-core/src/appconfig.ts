@@ -263,6 +263,7 @@ const authentication = {
   authStrategies: ['jwt', 'apple', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   jwtAlgorithm: process.env.JWT_ALGORITHM,
   jwtPublicKey: process.env.JWT_PUBLIC_KEY?.split(String.raw`\n`).join('\n'),
+  jwtCertificate: process.env.JWT_CERTIFICATE?.split(String.raw`\n`).join('\n'),
   jwtOptions: {
     algorithm: process.env.JWT_ALGORITHM || 'HS256',
     expiresIn: '30 days'

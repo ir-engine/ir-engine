@@ -67,7 +67,7 @@ const db = {
 const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
 
 export const updateAppConfig = async (): Promise<void> => {
-  if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
+  // if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
 
   const knexClient = knex({
     client: 'mysql',
@@ -110,6 +110,8 @@ export const updateAppConfig = async (): Promise<void> => {
             .update(appConfig.authentication.jwtPublicKey)
             .digest('hex')
         }
+        if (dbAuthentication.jwtCertificate && typeof dbAuthentication.jwtCertificate === 'string')
+          appConfig.authentication.jwtCertificate = dbAuthentication.jwtCertificate.split(String.raw`\n`).join('\n')
         appConfig.authentication.jwtOptions.algorithm = dbAuthentication.jwtAlgorithm || 'HS256'
       }
     })

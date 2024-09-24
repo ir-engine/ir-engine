@@ -70,12 +70,7 @@ async function waitForClientAuthenticated(): Promise<void> {
   const api = API.instance // as FeathersClient
   console.log('Client authenticated?', api?.authentication?.authenticated)
   // Reference to `api` gets fixed on initial value inside checkFunction, so need to reference API.instance directly
-  await logarithmicStateCheck(
-    () => API.instance?.authentication?.authenticated === true,
-    Infinity,
-    1000,
-    16 * 1000
-  )
+  await logarithmicStateCheck(() => API.instance?.authentication?.authenticated === true, Infinity, 1000, 16 * 1000)
   console.log('Client authenticated?', api?.authentication?.authenticated)
 }
 

@@ -605,10 +605,10 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
   if (!identityProvider?.id) return
 
   const userId = identityProvider.userId
-  let locationId = connection.socketQuery.locationId!
-  let channelId = connection.socketQuery.channelId!
-  let roomCode = connection.socketQuery.roomCode!
-  const instanceID = connection.socketQuery.instanceID!
+  let locationId = connection.socketQuery!.locationId!
+  let channelId = connection.socketQuery!.channelId!
+  let roomCode = connection.socketQuery!.roomCode!
+  const instanceID = connection.socketQuery!.instanceID!
 
   if (locationId === '') {
     locationId = undefined!

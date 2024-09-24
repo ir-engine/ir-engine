@@ -375,6 +375,7 @@
       "secret": "Secret",
       "jwtAlgorithm": "JWT Algorithm",
       "jwtPublicKey": "JWT Public Key",
+      "jwtCertificate": "JWT x509 Certificate",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
       "userName": "User Name",

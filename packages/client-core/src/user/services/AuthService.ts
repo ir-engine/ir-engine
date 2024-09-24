@@ -68,10 +68,10 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
+import { API as ClientAPI } from '../../API'
 import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
-import restApiCall from "../../util/rest-api-call";
-import { API as ClientAPI } from "../../API";
+import restApiCall from '../../util/rest-api-call'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
@@ -348,8 +348,7 @@ export const AuthService = {
           reset = false
           rootDomainToken = await _resetToGuestToken()
         }
-      }
-      else {
+      } else {
         rootDomainToken = await _resetToGuestToken()
       }
 

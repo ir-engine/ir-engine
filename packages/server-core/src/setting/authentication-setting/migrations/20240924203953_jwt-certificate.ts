@@ -23,26 +23,36 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NetworkID, PeerID } from '@ir-engine/hyperflux'
-import { MediaTagType } from '@ir-engine/network'
-import { ChannelID, LocationID, RoomCode } from '../schema.type.module'
+import type { Knex } from 'knex'
 
-export type NetworkConnectionParams = {
-  locationId?: LocationID
-  instanceID?: NetworkID
-  channelId?: ChannelID
-  roomCode?: RoomCode
-  /** Address and port are used by ingress to route traffic */
-  address?: string
-  port?: string
+import { authenticationSettingPath } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const jwtCertificateExists = await knex.schema.hasColumn(authenticationSettingPath, 'jwtCertificate')
+  if (!jwtCertificateExists)
+    await knex.schema.alterTable(authenticationSettingPath, async (table) => {
+      table.string('jwtCertificate', 4095).nullable()
+    })
+
+  const authSettings = await knex.table(authenticationSettingPath).first()
+
+  if (authSettings && process.env.JWT_CERTIFICATE) {
+    await knex.table(authenticationSettingPath).update({
+      jwtCertificate: process.env.JWT_CERTIFICATE
+    })
+  }
 }
 
-export type TransportDirection = 'send' | 'receive'
-
-export type MediaStreamAppData = {
-  mediaTag: MediaTagType
-  peerID: PeerID
-  direction: TransportDirection
-  channelId: ChannelID
-  clientDirection?: 'recv' | 'send'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.alterTable(authenticationSettingPath, async (table) => {
+    table.dropColumn('jwtCertificate')
+  })
 }

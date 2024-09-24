@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import Primus from '@ir-engine/primus-client'
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
@@ -36,7 +37,6 @@ import {
 } from 'mediasoup-client/lib/types'
 import { encode } from 'msgpackr'
 import type { EventEmitter } from 'primus'
-import Primus from '@ir-engine/primus-client'
 import { v4 as uuidv4 } from 'uuid'
 
 import config from '@ir-engine/common/src/config'
