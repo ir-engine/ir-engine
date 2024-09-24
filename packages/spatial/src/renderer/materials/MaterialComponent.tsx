@@ -36,7 +36,8 @@ import {
   getOptionalMutableComponent,
   hasComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
@@ -151,9 +152,9 @@ export const MaterialInstanceComponent = defineComponent({
   },
   reactor: () => {
     const entity = useEntityContext()
-    const materialComponent = useComponent(entity, MaterialInstanceComponent)
+    const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
 
-    if (materialComponent.uuid.value.length === 0) return null
+    if (!materialComponent || materialComponent.uuid.value.length === 0) return null
 
     if (materialComponent.uuid.value.length > 1)
       return (
@@ -179,7 +180,7 @@ export const MaterialInstanceComponent = defineComponent({
 const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; entity: Entity; index: number }) => {
   const { uuid, entity, index } = props
   const materialStateEntity = UUIDComponent.useEntityByUUID(uuid)
-  const materialStateComponent = useComponent(materialStateEntity, MaterialStateComponent)
+  const materialStateComponent = useOptionalComponent(materialStateEntity, MaterialStateComponent)
   const meshComponent = useComponent(entity, MeshComponent)
 
   useEffect(() => {
@@ -190,7 +191,7 @@ const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; e
     } else {
       getMutableComponent(entity, MeshComponent).material.set(material)
     }
-  }, [materialStateComponent.material])
+  }, [materialStateComponent?.material])
 
   return null
 }
