@@ -23,22 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+export const isSupportedDevice = () => {
+  const userAgent = window.navigator.userAgent
 
-const argTypes = {}
+  const toMatch = [/Android/i, /webOS/i, /iPhone/i, /iPad/i, /iPod/i, /BlackBerry/i, /Windows Phone/i]
 
-export default {
-  title: 'Editor/Panel/Properties',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'PropertiesPanelTitle',
-    jest: 'PropertiesPanelTitle.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+  const isMobile = toMatch.some((toMatchItem) => {
+    return userAgent.match(toMatchItem)
+  })
+
+  return !isMobile
 }
-
-export const Default = { args: {} }

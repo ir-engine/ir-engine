@@ -23,10 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { TabData } from 'rc-dock'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import PropertiesEditor from './propertyeditor'
 
-import { DiscordCallback } from '@ir-engine/client-core/src/user/components/Oauth/DiscordCallback'
+const PropertiesPanelTitle = () => {
+  const { t } = useTranslation()
 
-export const DiscordHomePage = () => <DiscordCallback />
+  return (
+    <div>
+      <PanelDragContainer>
+        <PanelTitle>
+          <Tooltip content={t('editor:properties.info')}>{t('editor:properties.title')}</Tooltip>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
+}
 
-export default DiscordHomePage
+export const PropertiesPanelTab: TabData = {
+  id: 'propertiesPanel',
+  closable: true,
+  cached: true,
+  title: <PropertiesPanelTitle />,
+  content: <PropertiesEditor />
+}

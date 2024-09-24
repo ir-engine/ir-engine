@@ -36,7 +36,7 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
@@ -367,6 +367,7 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
+    if (!isClient) return null
     return (
       <>
         <Reactor />

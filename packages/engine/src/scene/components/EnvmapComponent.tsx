@@ -192,7 +192,7 @@ export const EnvmapComponent = defineComponent({
     }, [component.type, component.envMapSourceURL])
 
     useEffect(() => {
-      // if (!component.envmap.value) return
+      if (!component.envmap.value) return
       console.log(getComponent(entity, NameComponent), mesh?.material)
       if (!mesh?.value) return
       updateEnvMap(mesh.value as Mesh, component.envmap.value as Texture)
@@ -247,13 +247,12 @@ export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null)
     obj.material.forEach((mat: MeshStandardMaterial) => {
       if (mat instanceof MeshMatcapMaterial) return
       mat.envMap = envmap
-      mat.needsUpdate = true
+      console.log(mat, envmap)
     })
   } else {
     if (obj.material instanceof MeshMatcapMaterial) return
     const material = obj.material as MeshStandardMaterial
     material.envMap = envmap
-    material.needsUpdate = true
   }
 }
 

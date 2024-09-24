@@ -454,7 +454,7 @@
     },
     "shadow": {
       "name": "Shadows",
-      "description": "Shadow properties for the model",
+      "description": "Configure ability for the model to cast or receive shadows for improved visual realism.",
       "lbl-castShadow": "Cast Shadow",
       "lbl-receiveShadow": "Receive Shadow"
     },
@@ -743,11 +743,18 @@
     },
     "cameraSettings": {
       "name": "Camera Settings",
-      "description": "Change the camera settings for this scene."
+      "description": "Adjust camera settings to optimize scene visualization, including projection type, field of view, and distance parameters.",
+      "lbl-projectionType" : "Projection Type",
+      "lbl-fov": "Field of View",
+      "lbl-calcClippingPlanes": "Calculate Clipping Planes",
+      "lbl-projectionDistance": "Projection Distance",
+      "lbl-cameraDistance": "Camera Distance",
+      "lbl-startCameraDistance": "Start Camera Distance",
+      "lbl-phi": "Phi"
     },
     "cameraComponent": {
       "name": "Camera",
-      "description": "Camera Component",
+      "description": "Configure camera parameters for optimal scene rendering.",
       "lbl-fov": "FOV",
       "lbl-aspect": "Aspect",
       "lbl-near": "Near",
@@ -760,7 +767,7 @@
     },
     "mediaSettings": {
       "name": "Media Settings",
-      "description": "Customise the scene media settings",
+      "description": "Enhance immersion by adjusting media settings, including positional audio, distance-based sound, and immersive media for a more dynamic auditory experience.",
       "lbl-audioSettings": "Use Positional Audio",
       "lbl-avatarDistanceModel": "Avatar Distance Model",
       "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
@@ -792,6 +799,7 @@
     },
     "audioAnalysis": {
       "name": "Audio Analysis",
+      "description": "Adjust advanced audio settings with options to enable and fine-tune bass, treble, and mid frequencies using configurable multipliers for precise sound control.",
       "lbl-bassEnabled": "Bass Enabled",
       "lbl-trebleEnabled": "Treble Enabled",
       "lbl-midEnabled": "Mid Enabled",
@@ -806,7 +814,7 @@
     },
     "renderSettings": {
       "name": "Render Settings",
-      "description": "Customise the scene renderer settings",
+      "description": "Configure various rendering settings for the scene, including lighting, shadows, post-processing effects, tone mapping, and level of detail adjustments.",
       "lbl-bgcolor": "Background Color",
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
@@ -830,7 +838,7 @@
     },
     "sceneSettings": {
       "name": "Scene Settings",
-      "description": "Customise the scene settings",
+      "description": "Enhance user experience by customizing thumbnails, loading screens, colors, and spectating options.",
       "lbl-thumbnail": "Thumbnail",
       "info-thumbnail": "Change the thumbnail",
       "generate": "Generate",
@@ -888,7 +896,10 @@
       "lbl-penumbra": "Penumbra",
       "lbl-angle": "Angle",
       "lbl-range": "Range",
-      "lbl-decay": "Decay"
+      "lbl-decay": "Decay",
+      "lbl-shadowBias": "Shadow Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-castShadow": "Cast Shadow"
     },
     "transform": {
       "title": "Transform",
@@ -909,7 +920,7 @@
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
       "ph-selectNode": "Select node...",
-      "lbl-addRigidBody": "Add RigidBody..."
+      "lbl-addRigidBody": "Add RigidBody"
     },
     "video": {
       "name": "Video",
@@ -1028,6 +1039,8 @@
       "lbl-dismount": "Dismount point, offsets this transform"
     },
     "text": {
+      "name": "3D Text",
+      "description": "A 3D text object.",
       "textGroup": "Text",
       "textOpacity": "Opacity",
       "textWidth": "Width",
@@ -1255,7 +1268,8 @@
         "add": "Add",
         "save-changes": "Save Changes",
         "discard": "Discard",
-        "mixedValues": "Mixed"
+        "mixedValues": "Mixed",
+        "uploadThumbnail": "Upload Thumbnail"
       },
       "view-mode": {
         "icons": "View: Icons",
@@ -1491,6 +1505,11 @@
     "title": "Browser Not Supported!",
     "description": "Please use Google Chrome for the best experience with the iR Studio.",
     "downloadChrome": "Download Chrome",
+    "continue": "Continue Anyway"
+  },
+  "unsupportedDevice": {
+    "title": "Unsupported Device Type!",
+    "description": "We have detected you are using an unsupported device. You may experience errors using this device. If you want to have the best experience with IR Studio, please use a desktop running the latest version of Google Chrome. Thank you!",
     "continue": "Continue Anyway"
   }
 }
