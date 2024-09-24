@@ -179,7 +179,7 @@ export default function FilesToolbar() {
   const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
 
   return (
-    <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+    <div className="mb-1 flex h-9 items-center gap-2 bg-[#212226]">
       <div className="ml-2" />
       {showBackButton && (
         <div id="backDir" className={`pointer-events-auto flex h-7 w-7 items-center rounded-lg bg-[#2C2E33]`}>

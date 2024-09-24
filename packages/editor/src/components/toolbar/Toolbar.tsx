@@ -174,7 +174,7 @@ export default function Toolbar() {
           />
         </div>
         {/* TO BE ADDED */}
-        {/* <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
+        {/* <div className="flex items-center gap-2.5 rounded-full bg-[#212226] p-0.5">
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
@@ -184,17 +184,20 @@ export default function Toolbar() {
           <span>{sceneName.value}</span>
         </div>
         {sceneAssetID.value && (
-          <Button
-            rounded="none"
-            disabled={!hasPublishAccess}
-            onClick={() =>
-              PopoverState.showPopupover(
-                <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
-              )
-            }
-          >
-            {t('editor:toolbar.lbl-publish')}
-          </Button>
+          <div className="p-2">
+            <Button
+              rounded="full"
+              disabled={!hasPublishAccess}
+              onClick={() =>
+                PopoverState.showPopupover(
+                  <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+                )
+              }
+              className="py-1 text-base"
+            >
+              {t('editor:toolbar.lbl-publish')}
+            </Button>
+          </div>
         )}
       </div>
       <ContextMenu

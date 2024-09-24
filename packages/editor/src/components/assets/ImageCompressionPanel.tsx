@@ -256,7 +256,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
               <Slider
-                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
+                className="bg-[#212226] [&::-moz-range-track]:bg-[#212226]"
                 width={160}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
@@ -275,7 +275,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
               <Slider
-                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
+                className="bg-[#212226] [&::-moz-range-track]:bg-[#212226]"
                 width={160}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
