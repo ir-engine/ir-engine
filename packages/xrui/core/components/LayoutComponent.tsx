@@ -73,7 +73,7 @@ export const LayoutComponent = defineComponent({
     effectivePositionOrigin: S.Vec3(),
 
     alignmentOrigin: S.Optional(S.Vec3()),
-    alignmentTransition: Transition.defineVector3Transition(),
+    alignmentOriginTransition: Transition.defineVector3Transition(),
     effectiveAlignmentOrigin: S.Vec3(),
 
     rotation: S.Optional(S.Quaternion()),
@@ -120,7 +120,7 @@ export const LayoutComponent = defineComponent({
     contentFit: S.Optional(S.Enum(ContentFit)),
     contentFitTransition: Transition.defineVector3Transition(),
     effectiveContentFit: S.Enum(ContentFit, ContentFit.none),
-    effectiveContentFitScale: S.Vec3(1, 1, 1),
+    effectiveContentFitScale: S.Vec3(Vector3_One),
 
     anchorEntity: S.Entity(),
     contentEntity: S.Entity()
@@ -167,7 +167,7 @@ export const LayoutComponent = defineComponent({
       const simulationTime = getState(ECSState).simulationTime
       Transition.applyNewTarget(layout.effectivePosition.value, simulationTime, layout.positionTransition)
       Transition.applyNewTarget(layout.effectivePositionOrigin.value, simulationTime, layout.positionOriginTransition)
-      Transition.applyNewTarget(layout.effectiveAlignmentOrigin.value, simulationTime, layout.alignmentTransition)
+      Transition.applyNewTarget(layout.effectiveAlignmentOrigin.value, simulationTime, layout.alignmentOriginTransition)
       Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
       Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
       Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
@@ -175,7 +175,7 @@ export const LayoutComponent = defineComponent({
     }, [
       layout.positionTransition,
       layout.positionOriginTransition,
-      layout.alignmentTransition,
+      layout.alignmentOriginTransition,
       layout.rotationTransition,
       layout.rotationOriginTransition,
       layout.contentFitTransition
@@ -199,7 +199,7 @@ export const LayoutComponent = defineComponent({
           // Update transitions
           Transition.computeCurrentValue(frameTime, layout.positionTransition.value as TransitionData<Vector3>)
           Transition.computeCurrentValue(frameTime, layout.positionOriginTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
+          Transition.computeCurrentValue(frameTime, layout.alignmentOriginTransition.value as TransitionData<Vector3>)
           Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
           Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
           Transition.computeCurrentValue(frameTime, layout.contentFitTransition.value as TransitionData<Vector3>)
@@ -207,7 +207,7 @@ export const LayoutComponent = defineComponent({
           // Get current values
           const position = layout.positionTransition.value.current
           const positionOrigin = layout.positionOriginTransition.value.current
-          const alignmentOrigin = layout.alignmentTransition.value.current
+          const alignmentOrigin = layout.alignmentOriginTransition.value.current
           const rotation = layout.rotationTransition.value.current
           const rotationOrigin = layout.rotationOriginTransition.value.current
           const size = layout.effectiveSize.value

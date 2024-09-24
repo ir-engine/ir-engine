@@ -211,7 +211,7 @@ const execute = () => {
   for (const entity of frustumCulledQuery()) {
     const boundingBox = (
       getOptionalComponent(entity, BoundingBoxComponent) ?? getOptionalComponent(entity, BoundingBoxComponent)
-    )?.box
+    )?.worldSpaceBox
     const cull = boundingBox
       ? _frustum.intersectsBox(boundingBox)
       : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))

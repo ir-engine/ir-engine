@@ -52,13 +52,14 @@ export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
 
   schema: S.Object({
-    box: S.Class(() => new Box3()),
+    worldSpaceBox: S.Class(() => new Box3()),
+    objectSpaceBox: S.Class(() => new Box3()),
     helper: S.Entity()
   }),
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (json.box?.isBox3) component.box.value.copy(json.box)
+    if (json.worldSpaceBox?.isBox3) component.worldSpaceBox.value.copy(json.worldSpaceBox)
   },
 
   reactor: function () {
@@ -73,7 +74,7 @@ export const BoundingBoxComponent = defineComponent({
 
       const helperEntity = createEntity()
 
-      const helper = new Box3Helper(boundingBox.box.value)
+      const helper = new Box3Helper(boundingBox.worldSpaceBox.value)
       helper.name = `bounding-box-helper-${entity}`
 
       setComponent(helperEntity, NameComponent, helper.name)
@@ -104,7 +105,7 @@ export const updateBoundingBox = (entity: Entity) => {
     return
   }
 
-  const box = boxComponent.box
+  const box = boxComponent.worldSpaceBox
   box.makeEmpty()
 
   const callback = (child: Entity) => {

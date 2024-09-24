@@ -425,7 +425,7 @@ const ThumbnailJobReactor = () => {
     try {
       updateBoundingBox(modelEntity)
 
-      const bbox = getComponent(modelEntity, BoundingBoxComponent).box
+      const bbox = getComponent(modelEntity, BoundingBoxComponent).worldSpaceBox
       // const length = bbox.getSize(new Vector3(0, 0, 0)).length()
       // const normalizedSize = new Vector3().setScalar(length / 2)
 

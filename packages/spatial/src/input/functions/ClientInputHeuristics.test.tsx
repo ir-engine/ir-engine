@@ -288,7 +288,7 @@ describe('ClientInputHeuristics', () => {
         const box = new Box3(boxMin, boxMax)
 
         setComponent(testEntity, BoundingBoxComponent)
-        getMutableComponent(testEntity, BoundingBoxComponent).box.set(box)
+        getMutableComponent(testEntity, BoundingBoxComponent).worldSpaceBox.set(box)
 
         const inputState = getMutableState(InputState)
         inputState.inputBoundingBoxes.set(new Set([testEntity]))
@@ -326,7 +326,7 @@ describe('ClientInputHeuristics', () => {
 
         for (const box of boxes) {
           setComponent(box.entity, BoundingBoxComponent)
-          getMutableComponent(box.entity, BoundingBoxComponent).box.set(box.box)
+          getMutableComponent(box.entity, BoundingBoxComponent).worldSpaceBox.set(box.box)
         }
 
         const inputState = getMutableState(InputState)
