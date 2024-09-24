@@ -121,7 +121,7 @@ export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) 
   !floatApproxEq(A.x, B.x, epsilon) && assertFloatApproxNotEq(A.x, B.x, epsilon)
   !floatApproxEq(A.y, B.y, epsilon) && assertFloatApproxNotEq(A.y, B.y, epsilon)
   !floatApproxEq(A.z, B.z, epsilon) && assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) !floatApproxEq(A.w, B.w, epsilon) && assertFloatApproxEq(A.w, B.w, epsilon)
+  if (elems > 3) !floatApproxEq(A.w, B.w, epsilon) && assertFloatApproxNotEq(A.w, B.w, epsilon)
 }
 
 /**
