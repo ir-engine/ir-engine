@@ -25,15 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
-import appRootPath from 'app-root-path'
-import * as path from 'path'
 import * as pug from 'pug'
 
 import { emailPath } from '@ir-engine/common/src/schemas/user/email.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { smsPath } from '@ir-engine/common/src/schemas/user/sms.schema'
-import { UserName } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { BadRequest } from '@feathersjs/errors'
 import { EMAIL_REGEX } from '@ir-engine/common/src/regex'
@@ -41,7 +38,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 
-const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
+import { getEmailTemplate } from '@ir-engine/server-core/email-templates'
 
 export interface MagicLinkParams extends KnexAdapterParams {}
 
@@ -64,15 +61,14 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    */
   async sendEmail(toEmail: string, token: string, redirectUrl?: string): Promise<void> {
     const hashLink = `${config.server.url}/login/${token}${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`
-    let username = '' as UserName
 
-    const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
+    const template = getEmailTemplate('magiclink-email')
 
-    const compiledHTML = pug.compileFile(templatePath)({
+    const compiledHTML = pug.compileFile(template.path)({
       logo: config.client.logo,
       title: config.client.title,
       hashLink,
-      username: username
+      ...template.defaultVars
     })
     const mailSender = config.email.from
     const email = {
@@ -96,9 +92,9 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
 
   async sendSms(mobile: string, token: string, redirectUrl?: string): Promise<void> {
     const hashLink = `${config.server.url}/login/${token}${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`
-    const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
+    const template = getEmailTemplate('magiclink-sms')
     const compiledHTML = pug
-      .compileFile(templatePath)({
+      .compileFile(template.path)({
         title: config.client.title,
         hashLink
       })
