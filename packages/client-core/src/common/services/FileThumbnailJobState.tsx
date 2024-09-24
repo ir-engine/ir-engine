@@ -97,6 +97,13 @@ import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/mate
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
+export function generateThumbnailKey(src: string, projectName: string) {
+  return `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
+    .replace(projectName + '/', '')
+    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '_')
+    .replaceAll(/\s/g, '-')}-thumbnail.png`
+}
+
 type ThumbnailJob = {
   key: string
   project: string // the project name
@@ -129,10 +136,7 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
 const uploadThumbnail = async (src: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailMode = 'automatic'
-  const thumbnailKey = `${decodeURI(stripSearchFromURL(src).replace(/^.*?\/projects\//, ''))
-    .replace(projectName + '/', '')
-    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '_')
-    .replaceAll(/\s/g, '-')}-thumbnail.png`
+  const thumbnailKey = generateThumbnailKey(src, projectName)
   const file = new File([blob], thumbnailKey)
   const thumbnailURL = new URL(
     await uploadToFeathersService(fileBrowserUploadPath, [file], {
