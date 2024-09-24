@@ -23,13 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { API, useFind } from '@ir-engine/common'
-import { StaticResourceType, UserType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import config from '@ir-engine/common/src/config'
+import {
+  StaticResourceType,
+  UserType,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
@@ -160,6 +167,38 @@ export default function FilePropertiesModal() {
     resourceDigest.tags.set(resourceDigest.tags.value!.filter((_, i) => i !== index))
   }
 
+  const handleUploadThumbnail = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      for (const resource of resources.data) {
+        const src = await uploadToFeathersService(fileBrowserUploadPath, [file], {
+          args: [
+            {
+              fileName: file.name,
+              project: projectName,
+              path: 'public/thumbnails/' + file.name,
+              contentType: file.type,
+              type: 'thumbnail'
+            }
+          ]
+        }).promise
+        const thumbnailURL = new URL(src)
+        thumbnailURL.search = ''
+        thumbnailURL.hash = ''
+        const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
+        API.instance.service(staticResourcePath).patch(resource.id, {
+          thumbnailKey: _thumbnailKey,
+          thumbnailMode: 'custom'
+        })
+      }
+    }
+  }
+
+  const uploadThumbnailRef = useRef<HTMLInputElement>(null)
+  const onClickUploadThumbnail = () => {
+    uploadThumbnailRef.current?.click()
+  }
+
   return (
     <Modal
       title={title}
@@ -184,6 +223,22 @@ export default function FilePropertiesModal() {
         >
           {t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
         </Button>
+        <label className="mt-2 text-xs">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleUploadThumbnail}
+            className="hidden"
+            ref={uploadThumbnailRef}
+          />
+          <Button
+            title={t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
+            className="mt-2 text-xs"
+            onClick={onClickUploadThumbnail}
+          >
+            {t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
+          </Button>
+        </label>
       </div>
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">

@@ -1268,7 +1268,8 @@
         "add": "Add",
         "save-changes": "Save Changes",
         "discard": "Discard",
-        "mixedValues": "Mixed"
+        "mixedValues": "Mixed",
+        "uploadThumbnail": "Upload Thumbnail"
       },
       "view-mode": {
         "icons": "View: Icons",
