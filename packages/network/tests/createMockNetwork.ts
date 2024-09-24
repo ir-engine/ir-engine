@@ -38,5 +38,5 @@ export const createMockNetwork = (networkType = NetworkTopics.world) => {
   else getMutableState(NetworkState).hostIds.media.set(instanceID)
   const network = createNetwork(instanceID, hostPeerID, networkType)
   addNetwork(network)
-  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, hostUserID, 0)
+  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, hostUserID)
 }
