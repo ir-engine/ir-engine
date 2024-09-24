@@ -27,6 +27,7 @@
       "selectScene": "Select a Scene",
       "sceneCantEmpty": "Scene can't be empty",
       "maxUserCantEmpty": "Max users can't be empty",
+      "maxUserExceeded": "You have entered higher than the allowed max users. Please enter a number between 1 and 10.",
       "nameCantEmpty": "Name can't be empty",
       "typeCantEmpty": "Type can't be empty",
       "nameRequired": "Name is required",
@@ -604,7 +605,8 @@
         "key": "Key",
         "server": "Server",
         "audienceId": "Audience Id",
-        "defaultTags": "Default Tags (comma separated)"
+        "defaultTags": "Default Tags (comma separated)",
+        "groupId": "Group Id"
       },
       "keyName": "key Name",
       "kid": "Key Id"
