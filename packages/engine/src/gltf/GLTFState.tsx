@@ -686,7 +686,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
           const document = documents[documentID]
           if (!document?.nodes) continue
           for (const node of document.nodes) {
-            if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
+            if (node.extensions?.[UUIDComponent.jsonID] !== uuid) return
           }
         }
       }
