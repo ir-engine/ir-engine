@@ -23,10 +23,35 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { mailchimpSettingPath } from '@ir-engine/common/src/schemas/setting/mailchimp-setting.schema'
+import { Knex } from 'knex'
 
-import { GithubCallback } from '@ir-engine/client-core/src/user/components/Oauth/GithubCallback'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const groupId = await knex.schema.hasColumn(mailchimpSettingPath, 'groupId')
 
-export const GithubHomePage = () => <GithubCallback />
+  if (!groupId) {
+    await knex.schema.alterTable(mailchimpSettingPath, (table) => {
+      table.string('groupId').nullable()
+    })
+  }
+}
 
-export default GithubHomePage
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+  const groupId = await knex.schema.hasColumn(mailchimpSettingPath, 'groupId')
+
+  if (groupId) {
+    await knex.schema.alterTable(mailchimpSettingPath, (table) => {
+      table.dropColumn('groupId')
+    })
+  }
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

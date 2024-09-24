@@ -23,10 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+export const isSupportedDevice = () => {
+  const userAgent = window.navigator.userAgent
 
-import { AppleCallback } from '@ir-engine/client-core/src/user/components/Oauth/AppleCallback'
+  const toMatch = [/Android/i, /webOS/i, /iPhone/i, /iPad/i, /iPod/i, /BlackBerry/i, /Windows Phone/i]
 
-export const AppleHomePage = () => <AppleCallback />
+  const isMobile = toMatch.some((toMatchItem) => {
+    return userAgent.match(toMatchItem)
+  })
 
-export default AppleHomePage
+  return !isMobile
+}
