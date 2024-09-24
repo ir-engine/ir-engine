@@ -60,8 +60,7 @@ const variants = {
   outline: 'border border-solid border-[#162546] bg-transparent text-theme-primary',
   success: 'bg-[#0D9467] hover:bg-[#10B981] focus:bg-[#10B981] disabled:bg-[#0A6F4D]',
   danger: 'bg-[#F43F5E] hover:bg-[#FB7185] focus:bg-[#F43F5E] disabled:bg-[#C3324B]',
-  transparent: 'bg-transparent dark:bg-transparent',
-  sidebar: 'bg-[#141619]'
+  transparent: 'bg-transparent dark:bg-transparent'
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -75,9 +74,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rounded = 'partial',
       variant = 'primary',
       disabled = false,
-      className,
-      iconContainerClassName,
-      textContainerClassName,
       ...props
     },
     ref
@@ -93,17 +89,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth ? 'w-full' : 'w-fit',
       roundedTypes[rounded],
       disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
-      variants[variant],
-      className
+      variants[variant]
     )
 
     return (
       <button ref={ref} role="button" disabled={disabled} className={twClassName} {...props}>
-        {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
-        {children && (
-          <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}>{children}</span>
-        )}
-        {EndIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{EndIcon}</span>}
+        {StartIcon && <span className="mx-1">{StartIcon}</span>}
+        {children && <span className={twMerge('mx-1', fullWidth && 'w-full')}>{children}</span>}
+        {EndIcon && <span className="mx-1">{EndIcon}</span>}
       </button>
     )
   }
