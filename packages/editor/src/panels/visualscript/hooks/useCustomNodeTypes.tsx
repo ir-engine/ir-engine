@@ -23,21 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import React, { useEffect, useState } from 'react'
+import { NodeTypes } from 'reactflow'
 
-const argTypes = {}
+import { Node } from '../../../panels/visualscript/node'
+import { NodeSpecGenerator } from './useNodeSpecGenerator'
 
-export default {
-  title: 'Editor/Node',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ModelInput',
-    jest: 'Model.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
+const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
+  return specGenerator.getNodeTypes().reduce((nodes: NodeTypes, nodeType) => {
+    nodes[nodeType] = (props) => {
+      const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
+      return <Node spec={spec} specGenerator={specGenerator} {...props} />
     }
-  },
-  argTypes
+    return nodes
+  }, {})
 }
-export const Default = { args: Component.defaultProps }
+
+export const useCustomNodeTypes = ({ specGenerator }: { specGenerator: NodeSpecGenerator | undefined }) => {
+  const [customNodeTypes, setCustomNodeTypes] = useState<NodeTypes>()
+  useEffect(() => {
+    if (!specGenerator) return
+    const customNodeTypes = getCustomNodeTypes(specGenerator)
+
+    setCustomNodeTypes(customNodeTypes)
+  }, [specGenerator])
+
+  return customNodeTypes
+}

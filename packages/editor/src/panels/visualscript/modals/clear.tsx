@@ -23,21 +23,41 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { useReactFlow } from 'reactflow'
+import { Modal } from '.'
 
-const argTypes = {}
-
-export default {
-  title: 'Editor/Node',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ModelInput',
-    jest: 'Model.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+export type ClearModalProps = {
+  open?: boolean
+  onClose: () => void
 }
-export const Default = { args: Component.defaultProps }
+
+export const ClearModal: React.FC<ClearModalProps> = ({ open = false, onClose }) => {
+  const instance = useReactFlow()
+  const { t } = useTranslation()
+
+  const handleClear = () => {
+    instance.setNodes([])
+    instance.setEdges([])
+    // TODO better way to call fit vew after edges render
+    setTimeout(() => {
+      instance.fitView()
+    }, 100)
+    onClose()
+  }
+
+  return (
+    <Modal
+      title={t('editor:visualScript.modal.clear.title')}
+      actions={[
+        { label: t('editor:visualScript.modal.buttons.cancel'), onClick: onClose },
+        { label: t('editor:visualScript.modal.buttons.clear'), onClick: handleClear }
+      ]}
+      open={open}
+      onClose={onClose}
+    >
+      <p>{t('editor:visualScript.modal.clear.confirm')}</p>
+    </Modal>
+  )
+}
