@@ -26,18 +26,20 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
+import { validate as isValidUUID } from 'uuid'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { AvatarID, avatarPath, AvatarType, UserName } from '@ir-engine/common/src/schema.type.module'
+import { AvatarID, AvatarType, UserName, avatarPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { ConfirmDialog } from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
-import { avatarColumns, AvatarRowType } from '../../common/constants/avatar'
+import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import DataTable from '../../common/Table'
+import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
 import AddEditAvatarModal from './AddEditAvatarModal'
 
 export default function AvatarTable({ search }: { search: string }) {
@@ -58,9 +60,7 @@ export default function AvatarTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: {
-            $like: `%${search}%`
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
           name: {
@@ -100,7 +100,7 @@ export default function AvatarTable({ search }: { search: string }) {
   const createRows = (rows: readonly AvatarType[]): AvatarRowType[] =>
     rows.map((row) => ({
       id: row.id,
-      name: row.name,
+      name: truncateText(row.name, { visibleChars: 16, truncatorPosition: 'end' }),
       user: (row.user?.name || '') as UserName,
       isPublic: <IsPublicToggle id={row.id} isPublic={row.isPublic} />,
       thumbnail: <AvatarImage src={row.thumbnailResource?.url + '?' + new Date().getTime()} className="mx-auto" />,
@@ -112,9 +112,8 @@ export default function AvatarTable({ search }: { search: string }) {
             className="h-8 w-8"
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditAvatarModal avatar={row} />)}
-          >
-            <HiPencil className="place-self-center text-theme-iconGreen" />
-          </Button>
+            startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+          />
           <Button
             rounded="full"
             variant="outline"
@@ -130,12 +129,13 @@ export default function AvatarTable({ search }: { search: string }) {
                 />
               )
             }}
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+          />
         </div>
       )
     }))
 
-  return <DataTable query={adminAvatarQuery} columns={avatarColumns} rows={createRows(adminAvatarQuery.data)} />
+  return (
+    <DataTable size="xl" query={adminAvatarQuery} columns={avatarColumns} rows={createRows(adminAvatarQuery.data)} />
+  )
 }

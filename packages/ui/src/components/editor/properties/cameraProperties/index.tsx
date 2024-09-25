@@ -28,7 +28,6 @@ import React from 'react'
 
 import { getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
-import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
 
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import {
@@ -47,34 +46,6 @@ import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import PropertyGroup from '../group'
-
-/** Types copied from Camera Modes of engine. */
-const cameraModeSelect = [
-  {
-    label: 'First Person',
-    value: FollowCameraMode.FirstPerson
-  },
-  {
-    label: 'Shoulder Cam',
-    value: FollowCameraMode.ShoulderCam
-  },
-  {
-    label: 'Third Person',
-    value: FollowCameraMode.ThirdPerson
-  },
-  {
-    label: 'Top Down',
-    value: FollowCameraMode.TopDown
-  },
-  {
-    label: 'Strategic',
-    value: FollowCameraMode.Strategic
-  },
-  {
-    label: 'Dynamic',
-    value: FollowCameraMode.Dynamic
-  }
-]
 
 /** Types copied from Camera Modes of engine. */
 const projectionTypeSelect = [
@@ -126,7 +97,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.cameraSettings.description')}
       icon={<CameraPropertiesNodeEditor.iconComponent />}
     >
-      <InputGroup name="Projection type" label={'Projection type'}>
+      <InputGroup name="Projection type" label={t('editor:properties.cameraSettings.lbl-projectionType')}>
         <SelectInput
           // placeholder={projectionTypeSelect[0].label}
           value={cameraSettings.projectionType.value}
@@ -134,15 +105,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           options={projectionTypeSelect}
         />
       </InputGroup>
-      <InputGroup name="Camera mode" label={'Camera mode'}>
-        <SelectInput
-          // placeholder={cameraModeSelect[0].label}
-          value={cameraSettings.cameraMode.value}
-          onChange={commitProperty(CameraSettingsComponent, 'cameraMode')}
-          options={cameraModeSelect}
-        />
-      </InputGroup>
-      <InputGroup name="Field of view" label={'FOV'}>
+      <InputGroup name="Field of view" label={t('editor:properties.cameraSettings.lbl-fov')}>
         <NumericInput
           onChange={updateProperty(CameraSettingsComponent, 'fov')}
           onRelease={commitProperty(CameraSettingsComponent, 'fov')}
@@ -156,11 +119,15 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <div className="my-1 flex flex-wrap items-center justify-end">
         <Button className="flex flex-wrap items-center justify-end" onClick={calculateClippingPlanes}>
-          Calculate Clipping Planes
+          {t('editor:properties.cameraSettings.lbl-calcClippingPlanes') as string}
         </Button>
       </div>
 
-      <InputGroup name="cameraNearClip" label={'Projection distance'} containerClassName="gap-2">
+      <InputGroup
+        name="cameraNearClip"
+        label={t('editor:properties.cameraSettings.lbl-projectionDistance')}
+        containerClassName="gap-2"
+      >
         <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'cameraNearClip')}
@@ -184,7 +151,11 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
-      <InputGroup name="minCameraDistance" label={'Camera distance'} containerClassName="gap-2">
+      <InputGroup
+        name="minCameraDistance"
+        label={t('editor:properties.cameraSettings.lbl-cameraDistance')}
+        containerClassName="gap-2"
+      >
         <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'minCameraDistance')}
@@ -208,7 +179,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
-      <InputGroup name="startCameraDistance" label={'Start camera distance'}>
+      <InputGroup name="startCameraDistance" label={t('editor:properties.cameraSettings.lbl-startCameraDistance')}>
         <NumericInput
           onChange={updateProperty(CameraSettingsComponent, 'startCameraDistance')}
           onRelease={commitProperty(CameraSettingsComponent, 'startCameraDistance')}
@@ -219,7 +190,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           value={cameraSettings.startCameraDistance.value}
         />
       </InputGroup>
-      <InputGroup name="minPhi" label={'Phi'} containerClassName="gap-2">
+      <InputGroup name="minPhi" label={t('editor:properties.cameraSettings.lbl-phi')} containerClassName="gap-2">
         <div className="flex gap-2">
           <NumericInput
             onChange={updateProperty(CameraSettingsComponent, 'minPhi')}

@@ -39,6 +39,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
+import { createHash } from 'crypto'
 import multiLogger from './ServerLogger'
 import {
   APPLE_SCOPES,
@@ -261,7 +262,7 @@ const authentication = {
   secret: process.env.AUTH_SECRET!.split(String.raw`\n`).join('\n'),
   authStrategies: ['jwt', 'apple', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   jwtAlgorithm: process.env.JWT_ALGORITHM,
-  jwtPublicKey: process.env.JWT_PUBLIC_KEY,
+  jwtPublicKey: process.env.JWT_PUBLIC_KEY?.split(String.raw`\n`).join('\n'),
   jwtOptions: {
     algorithm: process.env.JWT_ALGORITHM || 'HS256',
     expiresIn: '30 days'
@@ -329,7 +330,8 @@ const authentication = {
       appId: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
-      scope: GITHUB_SCOPES
+      scope: GITHUB_SCOPES,
+      privateKey: process.env.GITHUB_PRIVATE_KEY?.split(String.raw`\n`).join('\n')
     },
     google: {
       key: process.env.GOOGLE_CLIENT_ID!,
@@ -347,6 +349,9 @@ const authentication = {
     }
   }
 }
+
+if (authentication.jwtPublicKey && typeof authentication.jwtPublicKey === 'string')
+  (authentication.jwtOptions as any).keyid = createHash('sha3-256').update(authentication.jwtPublicKey).digest('hex')
 
 /**
  * AWS
@@ -428,7 +433,8 @@ const mailchimp = {
   key: process.env.MAILCHIMP_KEY,
   server: process.env.MAILCHIMP_SERVER,
   audienceId: process.env.MAILCHIMP_AUDIENCE_ID,
-  defaultTags: process.env.MAILCHIMP_DEFAULT_TAGS
+  defaultTags: process.env.MAILCHIMP_DEFAULT_TAGS,
+  groupId: process.env.MAILCHIMP_GROUP_ID
 }
 
 /**

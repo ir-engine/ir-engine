@@ -28,13 +28,14 @@ import { useTranslation } from 'react-i18next'
 import { HiTrash } from 'react-icons/hi2'
 
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { recordingPath, RecordingType } from '@ir-engine/common/src/schema.type.module'
+import { RecordingType, recordingPath } from '@ir-engine/common/src/schema.type.module'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { validate as isValidUUID } from 'uuid'
 
 import { PopoverState } from '../../../common/services/PopoverState'
-import { recordingColumns } from '../../common/constants/recordings'
 import DataTable from '../../common/Table'
+import { recordingColumns } from '../../common/constants/recordings'
 
 export default function RecordingsTable({ search }: { search: string }) {
   const { t } = useTranslation()
@@ -51,14 +52,10 @@ export default function RecordingsTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: {
-            $like: `%${search}%`
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
-          userId: {
-            $like: `%${search}%`
-          }
+          userId: isValidUUID(search) ? search : undefined
         }
       ]
     },
@@ -98,5 +95,7 @@ export default function RecordingsTable({ search }: { search: string }) {
       )
     }))
 
-  return <DataTable query={recordingsQuery} columns={recordingColumns} rows={createRows(recordingsQuery.data)} />
+  return (
+    <DataTable size="xl" query={recordingsQuery} columns={recordingColumns} rows={createRows(recordingsQuery.data)} />
+  )
 }

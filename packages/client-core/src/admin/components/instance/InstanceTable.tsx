@@ -23,25 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
+import { InstanceType, instancePath } from '@ir-engine/common/src/schema.type.module'
+import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiEye, HiTrash } from 'react-icons/hi2'
-
-import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { instancePath, InstanceType } from '@ir-engine/common/src/schema.type.module'
-import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-
+import { validate as isValidUUID } from 'uuid'
 import { PopoverState } from '../../../common/services/PopoverState'
-import { instanceColumns } from '../../common/constants/instance'
 import DataTable from '../../common/Table'
+import { instanceColumns } from '../../common/constants/instance'
 import ViewModal from './ViewModal'
 
 export default function InstanceTable({ search }: { search: string }) {
   const { t } = useTranslation()
   const instancesQuery = useFind(instancePath, {
     query: {
-      $sort: { ended: 1 },
+      $sort: { createdAt: 1 },
       $limit: 20,
       action: 'admin'
     }
@@ -50,7 +49,17 @@ export default function InstanceTable({ search }: { search: string }) {
   useSearch(
     instancesQuery,
     {
-      search
+      $or: [
+        {
+          id: isValidUUID(search) ? search : undefined
+        },
+        {
+          locationId: isValidUUID(search) ? search : undefined
+        },
+        {
+          channelId: isValidUUID(search) ? search : undefined
+        }
+      ]
     },
     search
   )
@@ -62,7 +71,6 @@ export default function InstanceTable({ search }: { search: string }) {
       id: row.id,
       ipAddress: row.ipAddress,
       currentUsers: row.currentUsers,
-      ended: row.ended ? t('admin:components.instance.ended') : t('admin:components.instance.active'),
       locationName: row.location && row.location.name ? row.location.name : '',
       channelId: row.channelId,
       podName: row.podName,
@@ -98,5 +106,5 @@ export default function InstanceTable({ search }: { search: string }) {
       )
     }))
 
-  return <DataTable query={instancesQuery} columns={instanceColumns} rows={createRows(instancesQuery.data)} />
+  return <DataTable size="xl" query={instancesQuery} columns={instanceColumns} rows={createRows(instancesQuery.data)} />
 }

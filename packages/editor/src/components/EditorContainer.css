@@ -31,7 +31,7 @@
 }
 
 .dock-tab.dock-tab-active {
-  background: var(--bg-surface-main) !important;
+  background: #212226 !important;
 }
 
 .dock-tab:not(.dock-tab-active):hover {

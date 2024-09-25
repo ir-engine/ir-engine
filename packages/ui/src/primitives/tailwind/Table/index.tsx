@@ -57,7 +57,7 @@ const TableHeadRow = ({
   children: JSX.Element | JSX.Element[]
 }) => {
   const twClassName = twMerge('text-left capitalize', className)
-  const twClassNameThead = twMerge('sticky top-0 bg-theme-table-secondary', theadClassName)
+  const twClassNameThead = twMerge('sticky top-[-2px] z-10 bg-theme-table-secondary', theadClassName)
   return (
     <thead className={twClassNameThead}>
       <tr className={twClassName}>{children}</tr>
@@ -112,7 +112,10 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 }
 
 const Table = ({ containerClassName, className, children }: TableProps) => {
-  const twClassname = twMerge('relative w-full border-collapse whitespace-nowrap text-sm', className)
+  const twClassname = twMerge(
+    'relative w-full table-auto border-collapse overflow-scroll whitespace-nowrap text-sm',
+    className
+  )
   return (
     <div className={twMerge('overflow-x-auto rounded-md', containerClassName)}>
       <table className={twClassname}>{children}</table>
@@ -199,6 +202,23 @@ const TablePagination = ({
           </li>
         ))}
 
+        {totalPages > 0 && nextPages[nextPages.length - 1] < totalPages - 2 && (
+          <li>
+            <button disabled={true} className={commonClasses}>
+              ...
+            </button>
+          </li>
+        )}
+
+        {totalPages > 0 && nextPages[nextPages.length - 1] < totalPages - 1 && (
+          <>
+            <li key={totalPages}>
+              <button onClick={() => onPageChange(totalPages - 1)} className={commonClasses}>
+                {totalPages}
+              </button>
+            </li>
+          </>
+        )}
         <li>
           <button
             disabled={currentPage === totalPages - 1}

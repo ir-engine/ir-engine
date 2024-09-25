@@ -34,6 +34,7 @@ import { State } from '@ir-engine/hyperflux'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import { validate as isValidUUID } from 'uuid'
 
 import { channelColumns, ChannelRowType } from '../../common/constants/channel'
 import DataTable from '../../common/Table'
@@ -64,9 +65,7 @@ export default function ChannelTable({
     {
       $or: [
         {
-          id: {
-            $like: `%${search}%`
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
           name: {
@@ -99,9 +98,8 @@ export default function ChannelTable({
             className="h-8 w-8"
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditChannelModal channel={row} />)}
-          >
-            <HiPencil className="place-self-center text-theme-iconGreen" />
-          </Button>
+            startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+          />
           <Button
             rounded="full"
             variant="outline"
@@ -117,15 +115,15 @@ export default function ChannelTable({
                 />
               )
             }
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+          />
         </div>
       )
     }))
 
   return (
     <DataTable
+      size="xl"
       query={adminChannelsQuery}
       columns={[
         {

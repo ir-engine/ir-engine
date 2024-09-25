@@ -47,6 +47,7 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
   const server = useHookstate<string>('')
   const audienceId = useHookstate<string>('')
   const defaultTags = useHookstate<string>('')
+  const groupId = useHookstate<string>('')
   const mailchimpMutation = useMutation(mailchimpSettingPath)
 
   const { data } = useFind(mailchimpSettingPath)
@@ -58,6 +59,7 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
       server.set(data[0].server)
       audienceId.set(data[0].audienceId)
       defaultTags.set(data[0].defaultTags)
+      groupId.set(data[0].groupId)
     }
   }, [data])
 
@@ -71,7 +73,8 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
       key: key.value,
       server: server.value,
       audienceId: audienceId.value,
-      defaultTags: defaultTags.value
+      defaultTags: defaultTags.value,
+      groupId: groupId.value
     }
     const operation = !id.value ? mailchimpMutation.create(setting) : mailchimpMutation.patch(id.value, setting)
     operation
@@ -90,6 +93,7 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
       server.set(data[0].server)
       audienceId.set(data[0].audienceId)
       defaultTags.set(data[0].defaultTags)
+      groupId.set(data[0].groupId)
     }
   }
 
@@ -126,6 +130,12 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
           label={t('admin:components.setting.mailchimp.defaultTags')}
           value={defaultTags?.value || ''}
           onChange={(e) => defaultTags.set(e.target.value)}
+        />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.mailchimp.groupId')}
+          value={groupId?.value || ''}
+          onChange={(e) => groupId.set(e.target.value)}
         />
       </div>
 

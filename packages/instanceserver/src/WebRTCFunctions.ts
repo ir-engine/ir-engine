@@ -399,7 +399,7 @@ export async function handleWebRtcTransportCreate(
 
     getMutableState(MediasoupTransportObjectsState)[newTransport.id].set(newTransport)
 
-    let { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
+    const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
     const instanceServerSettingsResponse = await API.instance.service(instanceServerSettingPath).find()
     const webRTCSettings = instanceServerSettingsResponse.data[0].webRTCSettings

@@ -28,6 +28,7 @@ import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
@@ -107,7 +108,7 @@ export default function UserTable({
           />
         ),
         id: row.id,
-        name: row.name,
+        name: truncateText(row.name, { visibleChars: 14, truncatorPosition: 'end' }),
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin: row.lastLogin && (
@@ -141,9 +142,8 @@ export default function UserTable({
               disabled={!userHasAccess('location:write')}
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
-            >
-              <HiPencil className="place-self-center text-theme-iconGreen" />
-            </Button>
+              startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+            />
             <Button
               rounded="full"
               variant="outline"
@@ -160,9 +160,8 @@ export default function UserTable({
                   />
                 )
               }}
-            >
-              <HiTrash className="place-self-center text-theme-iconRed" />
-            </Button>
+              startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+            />
           </div>
         )
       }
@@ -170,6 +169,7 @@ export default function UserTable({
 
   return (
     <DataTable
+      size="lg"
       query={adminUserQuery}
       columns={[
         {

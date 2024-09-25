@@ -33,6 +33,7 @@ import { invitePath, InviteType, UserName } from '@ir-engine/common/src/schema.t
 import { State } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import { validate as isValidUUID } from 'uuid'
 
 import { inviteColumns, InviteRowType } from '../../common/constants/invite'
 import DataTable from '../../common/Table'
@@ -62,14 +63,13 @@ export default function InviteTable({
     {
       $or: [
         {
-          userId: {
-            $like: '%' + search + '%'
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
-          inviteeId: {
-            $like: '%' + search + '%'
-          }
+          userId: isValidUUID(search) ? search : undefined
+        },
+        {
+          inviteeId: isValidUUID(search) ? search : undefined
         },
         {
           inviteType: {
@@ -124,6 +124,7 @@ export default function InviteTable({
 
   return (
     <DataTable
+      size="xl"
       query={adminInviteQuery}
       columns={[
         {
