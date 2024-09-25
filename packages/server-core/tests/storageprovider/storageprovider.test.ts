@@ -179,8 +179,6 @@ describe('storageprovider', () => {
       })
 
       it(`should put over 1000 objects in ${providerType.name}`, async function () {
-        this.timeout(30000) // increase timeout to 30 seconds
-
         const batchSize = 100
         const totalObjects = 1010
 
@@ -200,7 +198,7 @@ describe('storageprovider', () => {
           await Promise.all(promises)
           await new Promise((resolve) => setTimeout(resolve, 100)) // Add a small delay between batches
         }
-      })
+      }, 30000)
 
       it(`should list over 1000 objects in ${providerType.name}`, async function () {
         const res = await provider.listFolderContent(testFolderName, true)

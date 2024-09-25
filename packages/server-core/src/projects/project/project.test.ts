@@ -105,10 +105,6 @@ describe('project.test', () => {
   })
 
   describe('create', () => {
-    afterEach(async () => {
-      await cleanup(app, testProject.name)
-    })
-
     it('should add new project', async () => {
       const projectName = `testorg/test-project-${uuidv4().slice(0, 8)}`
 
@@ -124,6 +120,15 @@ describe('project.test', () => {
     })
 
     it('should not add new project with same name as existing project', async () => {
+      const projectName = `testorg/test-project-${uuidv4().slice(0, 8)}`
+
+      testProject = await app.service(projectPath).create(
+        {
+          name: projectName
+        },
+        getParams()
+      )
+
       await assert.rejects(
         async () =>
           await app.service(projectPath).create(
