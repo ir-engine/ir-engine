@@ -27,8 +27,6 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { AssetsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Assets'
-import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/VisualScript'
-
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -62,6 +60,7 @@ import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
+import { VisualScriptPanelTab } from '../panels/visualscript'
 import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
 
