@@ -80,8 +80,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const twClassName = twMerge(
       'flex items-center justify-center',
-      'text-sm font-medium leading-4 text-white',
-      'px-4 py-1',
+      'font-medium text-white',
       'transition ease-in-out',
       'disabled:cursor-not-allowed',
       (StartIcon || EndIcon) && 'justify-center',
