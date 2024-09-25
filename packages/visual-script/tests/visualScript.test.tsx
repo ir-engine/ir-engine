@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../server-core/src/patchEngineNode'
+
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'

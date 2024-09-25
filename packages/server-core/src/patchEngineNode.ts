@@ -1,4 +1,4 @@
-import 'jsdom-global/register'
+import 'jsdom'
 
 import { Blob } from 'buffer'
 import fetch, { Headers, Request, Response } from 'node-fetch'
