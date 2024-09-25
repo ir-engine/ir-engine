@@ -423,7 +423,7 @@ export function useAncestorWithComponents(
       unmounted = true
       root?.stop()
     }
-  }, [entity, componentsString, includeSelf, parentEntity])
+  }, [entity, componentsString, includeSelf, parentEntity?.value])
 
   return result
 }
