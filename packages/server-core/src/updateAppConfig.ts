@@ -49,12 +49,7 @@ import {
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
-import {
-  engineSettingPath,
-  EngineSettingType,
-  mailchimpSettingPath,
-  MailchimpSettingType
-} from '@ir-engine/common/src/schema.type.module'
+import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
@@ -158,27 +153,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
     })
   promises.push(chargebeeSettingPromise)
-
-  const coilSettingPromise = knexClient
-    .select()
-    .from<EngineSettingType>(engineSettingPath)
-    .where('category', 'coil')
-    .then((coilSettings) => {
-      if (coilSettings) {
-        appConfig.coil = {
-          ...appConfig.coil,
-          ...coilSettings.map((engineConfig) => {
-            return {
-              [engineConfig.key]: engineConfig.value
-            }
-          })
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read coilSetting: ${e.message}`)
-    })
-  promises.push(coilSettingPromise)
 
   const clientSettingPromise = knexClient
     .select()
