@@ -23,42 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+export const isSupportedDevice = () => {
+  const userAgent = window.navigator.userAgent
 
-import { useFind } from '@ir-engine/common'
-import { migrationsInfoPath, MigrationsInfoType } from '@ir-engine/common/src/schema.type.module'
+  const toMatch = [/Android/i, /webOS/i, /iPhone/i, /iPad/i, /iPod/i, /BlackBerry/i, /Windows Phone/i]
 
-import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { migrationsInfoColumns, MigrationsInfoRowType } from '../../common/constants/migrations-info'
-import DataTable from '../../common/Table'
-
-export default function MigrationsInfoTable() {
-  const { t } = useTranslation()
-
-  const adminMigrationsInfoQuery = useFind(migrationsInfoPath, {
-    query: {
-      $limit: 100,
-      $sort: {
-        id: -1
-      }
-    }
+  const isMobile = toMatch.some((toMatchItem) => {
+    return userAgent.match(toMatchItem)
   })
 
-  const createRows = (rows: readonly MigrationsInfoType[]): MigrationsInfoRowType[] =>
-    rows.map((row) => ({
-      id: row.id.toString(),
-      name: row.name,
-      batch: row.batch.toString(),
-      migration_time: toDisplayDateTime(row.migration_time)
-    }))
-
-  return (
-    <DataTable
-      size="sm"
-      query={adminMigrationsInfoQuery}
-      columns={migrationsInfoColumns}
-      rows={createRows(adminMigrationsInfoQuery.data)}
-    />
-  )
+  return !isMobile
 }

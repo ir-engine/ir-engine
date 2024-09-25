@@ -23,42 +23,35 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { mailchimpSettingPath } from '@ir-engine/common/src/schemas/setting/mailchimp-setting.schema'
+import { Knex } from 'knex'
 
-import { useFind } from '@ir-engine/common'
-import { migrationsInfoPath, MigrationsInfoType } from '@ir-engine/common/src/schema.type.module'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const groupId = await knex.schema.hasColumn(mailchimpSettingPath, 'groupId')
 
-import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
-import { migrationsInfoColumns, MigrationsInfoRowType } from '../../common/constants/migrations-info'
-import DataTable from '../../common/Table'
+  if (!groupId) {
+    await knex.schema.alterTable(mailchimpSettingPath, (table) => {
+      table.string('groupId').nullable()
+    })
+  }
+}
 
-export default function MigrationsInfoTable() {
-  const { t } = useTranslation()
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+  const groupId = await knex.schema.hasColumn(mailchimpSettingPath, 'groupId')
 
-  const adminMigrationsInfoQuery = useFind(migrationsInfoPath, {
-    query: {
-      $limit: 100,
-      $sort: {
-        id: -1
-      }
-    }
-  })
-
-  const createRows = (rows: readonly MigrationsInfoType[]): MigrationsInfoRowType[] =>
-    rows.map((row) => ({
-      id: row.id.toString(),
-      name: row.name,
-      batch: row.batch.toString(),
-      migration_time: toDisplayDateTime(row.migration_time)
-    }))
-
-  return (
-    <DataTable
-      size="sm"
-      query={adminMigrationsInfoQuery}
-      columns={migrationsInfoColumns}
-      rows={createRows(adminMigrationsInfoQuery.data)}
-    />
-  )
+  if (groupId) {
+    await knex.schema.alterTable(mailchimpSettingPath, (table) => {
+      table.dropColumn('groupId')
+    })
+  }
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
