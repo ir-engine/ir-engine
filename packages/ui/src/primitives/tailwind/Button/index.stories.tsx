@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { ArgTypes, StoryObj } from '@storybook/react'
 import React from 'react'
 
-import { HiMail } from 'react-icons/hi'
+import { HiOutlineMail } from 'react-icons/hi'
 import Button, { ButtonProps } from './index'
 
 const sizes: ButtonProps['size'][] = ['xs', 'sm', 'l', 'xl']
@@ -63,10 +63,10 @@ type Story = StoryObj<typeof Button>
 
 const ButtonRenderer = (args: ButtonProps) => {
   if (args.startIcon) {
-    args.startIcon = <HiMail />
+    args.startIcon = <HiOutlineMail />
   }
   if (args.endIcon) {
-    args.endIcon = <HiMail />
+    args.endIcon = <HiOutlineMail />
   }
 
   return (
