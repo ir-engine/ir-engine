@@ -87,6 +87,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       (StartIcon || EndIcon) && 'justify-center',
       sizes[size],
       fullWidth ? 'w-full' : 'w-fit',
+      'min-w-[66px]',
       roundedTypes[rounded],
       disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
       variants[variant]
