@@ -62,7 +62,7 @@ export const decorators = [
 const preview: Preview = {
   globalTypes: {
     eeEnabled: {
-      description: 'Ethereal Engine',
+      description: 'Infinite Reality Engine',
       defaultValue: false
     }
   },
