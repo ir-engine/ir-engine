@@ -45,6 +45,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
+import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 
 const newProjectName1 = 'testorg/projecttest_test_project_name_1'
 
@@ -250,7 +251,7 @@ describe('project-permission.test', () => {
               params
             )
           },
-          { message: 'Invalid project ID' }
+          new NotFound('No record found for id \'abcdefg\'')
         )
       })
 
@@ -273,7 +274,7 @@ describe('project-permission.test', () => {
               params
             )
           },
-          { message: 'Invalid user ID and/or user invite code' }
+          new BadRequest('validation failed')
         )
       })
 
@@ -296,7 +297,7 @@ describe('project-permission.test', () => {
               params
             )
           },
-          { message: 'You are not an owner of this project' }
+          new Forbidden('Missing required project permission')
         )
       })
 
@@ -319,7 +320,7 @@ describe('project-permission.test', () => {
               params
             )
           },
-          { message: 'You are not an owner of this project' }
+          new Forbidden('Project permission not found')
         )
       })
 
@@ -409,7 +410,7 @@ describe('project-permission.test', () => {
               params
             )
           },
-          { message: 'You are not an owner of this project' }
+          new Forbidden('Missing required project permission')
         )
       })
 
@@ -437,7 +438,7 @@ describe('project-permission.test', () => {
               params
             )
           },
-          { message: 'You are not an owner of this project' }
+          new Forbidden('Project permission not found')
         )
       })
     })
@@ -455,7 +456,7 @@ describe('project-permission.test', () => {
           async () => {
             await app.service(projectPermissionPath).remove(project1Permission2.id, params)
           },
-          { message: 'You are not an owner of this project' }
+          new Forbidden('Missing required project permission')
         )
       })
 
@@ -471,7 +472,7 @@ describe('project-permission.test', () => {
           async () => {
             await app.service(projectPermissionPath).remove(project1Permission2.id, params)
           },
-          { message: 'You are not an owner of this project' }
+          new Forbidden('Project permission not found')
         )
       })
 
