@@ -34,12 +34,14 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { NO_PROXY } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { CameraOrbitComponent } from '../../../spatial/src/camera/components/CameraOrbitComponent'
 import { CameraGizmoControlComponent } from '../classes/gizmo/camera/CameraGizmoControlComponent'
 import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
 import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
@@ -56,12 +58,7 @@ export function gizmoUpdate(gizmoEntity) {
 
   if (gizmo.gizmo === UndefinedEntity) return
 
-  let handles: any[] = []
-  handles = handles.concat(getComponent(gizmo.gizmo, GroupComponent)[0].children)
-  //handles = handles.concat(getComponent(gizmo.picker, GroupComponent)[0].children)
-
-  console.log('DEBUG handles', handles)
-  for (const handle of handles) {
+  for (const handle of getComponent(gizmo.gizmo, GroupComponent)[0].children as any[]) {
     handle.visible = true
     handle.rotation.set(0, 0, 0)
     handle.position.set(0, 0, 0)
@@ -102,20 +99,6 @@ export function gizmoUpdate(gizmoEntity) {
   }
 }
 
-export function controlUpdate(gizmoEntity: Entity) {
-  /*const gizmoControl = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
-  if (gizmoControl === undefined) return
-  const targetEntity = gizmoControl.controlledCamera.get(NO_PROXY)
-  if (targetEntity === UndefinedEntity) return
-
-  let parentEntity = UndefinedEntity
-  const parent = getComponent(targetEntity, EntityTreeComponent)
-
-  if (parent && parent.parentEntity !== UndefinedEntity) {
-    parentEntity = parent.parentEntity!
-  }*/
-}
-
 function pointerHover(gizmoEntity) {
   // TODO support gizmos in multiple viewports
   const gizmoControlComponent = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
@@ -132,19 +115,35 @@ function pointerHover(gizmoEntity) {
   _raycaster.setFromCamera(pointerPosition, camera)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
-  console.log('DEBUG intersect', intersect?.object?.name)
   gizmoControlComponent.axis.set(intersect?.object?.name ?? null)
 }
 
 function pointerDown(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  /*const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
+  const gizmoControl = getComponent(gizmoEntity, CameraGizmoControlComponent)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(gizmoControl.panelCamera)[0]
   if (!inputPointerEntity) return
-  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
-  const gizmoControlComponent = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
-  const targetEntity = gizmoControlComponent.controlledCamera.get(NO_PROXY)
+  const panelOrbitCamera = getComponent(gizmoControl.panelCamera, CameraOrbitComponent)
+  const sceneOrbitCamera = getComponent(getState(EngineState).viewerEntity, CameraOrbitComponent)
+  if (!panelOrbitCamera || !sceneOrbitCamera) return
+  const axis = gizmoControl.axis
+  switch (axis) {
+    case TransformAxis.X:
+      break
+    case TransformAxis.Y:
+      break
+    case TransformAxis.Z:
+      break
+    case TransformAxis.Xn:
+      break
+    case TransformAxis.Yn:
+      break
+    case TransformAxis.Zn:
+      break
+  }
+  console.log(`DEBUG move camera along ${axis} axis`)
 
-  if (targetEntity === UndefinedEntity || pointer.movement.length() !== 0) return*/
+  // trigger the movement of the camera
 }
 
 /*function pointerMove(gizmoEntity) {
@@ -211,13 +210,13 @@ export function onPointerHover(gizmoEntity) {
 }
 
 export function onPointerDown(gizmoEntity) {
-  /*const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
 
   pointerHover(gizmoEntity)
-  pointerDown(gizmoEntity)*/
+  pointerDown(gizmoEntity)
 }
 
 /*export function onPointerMove(gizmoEntity) {
