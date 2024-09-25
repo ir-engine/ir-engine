@@ -23,21 +23,45 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import { TabData } from 'rc-dock'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { FileUploadProgress } from '../files/loaders'
+import CategoriesList, { VerticalDivider } from './categories'
+import { AssetsQueryProvider } from './hooks'
+import Resources from './resources'
+import Topbar from './topbar'
 
-const argTypes = {}
+const AssetsPanelTitle = () => {
+  const { t } = useTranslation()
 
-export default {
-  title: 'Editor/Node',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ModelInput',
-    jest: 'Model.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+  return (
+    <div>
+      <PanelDragContainer>
+        <PanelTitle>
+          <span>{t('editor:tabs.scene-assets')}</span>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
 }
-export const Default = { args: Component.defaultProps }
+
+export const AssetsPanelTab: TabData = {
+  id: 'assetsPanel',
+  closable: true,
+  title: <AssetsPanelTitle />,
+  content: <AssetsContainer />
+}
+
+function AssetsContainer() {
+  return (
+    <div className="flex h-full flex-col">
+      <AssetsQueryProvider>
+        <Topbar />
+        <FileUploadProgress />
+        <VerticalDivider leftChildren={<CategoriesList />} rightChildren={<Resources />} />
+      </AssetsQueryProvider>
+    </div>
+  )
+}

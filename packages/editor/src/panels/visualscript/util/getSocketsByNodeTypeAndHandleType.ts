@@ -23,21 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { NodeConfigurationJSON } from '@ir-engine/visual-script'
+import { NodeSpecGenerator } from '../hooks'
 
-const argTypes = {}
-
-export default {
-  title: 'Editor/Node',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ModelInput',
-    jest: 'Model.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+export const getSocketsByNodeTypeAndHandleType = (
+  specGenerator: NodeSpecGenerator,
+  nodeType: string | undefined,
+  nodeConfiguration: NodeConfigurationJSON,
+  handleType: 'source' | 'target' | null
+) => {
+  if (nodeType === undefined) return []
+  const nodeSpec = specGenerator.getNodeSpec(nodeType, nodeConfiguration)
+  return handleType === 'source' ? nodeSpec.outputs : nodeSpec.inputs
 }
-export const Default = { args: Component.defaultProps }

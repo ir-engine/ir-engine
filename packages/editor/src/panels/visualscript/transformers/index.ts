@@ -23,21 +23,5 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
-
-const argTypes = {}
-
-export default {
-  title: 'Editor/Node',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ModelInput',
-    jest: 'Model.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
-}
-export const Default = { args: Component.defaultProps }
+export * from './VisualToFlow'
+export * from './flowToVisual'
