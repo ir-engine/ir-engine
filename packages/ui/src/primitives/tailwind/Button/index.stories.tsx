@@ -81,7 +81,7 @@ const ButtonRenderer = (args: ButtonProps) => {
 export const Default: Story = {
   name: 'Primary',
   args: {
-    children: 'Submit',
+    children: 'Label',
     variant: 'primary'
   },
   render: ButtonRenderer
@@ -89,7 +89,7 @@ export const Default: Story = {
 
 export const Secondary: Story = {
   args: {
-    children: 'Click',
+    children: 'Label',
     variant: 'secondary'
   },
   render: ButtonRenderer
@@ -98,7 +98,7 @@ export const Secondary: Story = {
 export const Tertiary: Story = {
   name: 'Outline',
   args: {
-    children: 'Open',
+    children: 'Label',
     variant: 'outline'
   },
   render: ButtonRenderer
@@ -106,7 +106,7 @@ export const Tertiary: Story = {
 
 export const Success: Story = {
   args: {
-    children: 'Finish',
+    children: 'Label',
     variant: 'success'
   },
   render: ButtonRenderer
@@ -114,7 +114,7 @@ export const Success: Story = {
 
 export const Danger: Story = {
   args: {
-    children: 'Cancel',
+    children: 'Label',
     variant: 'danger'
   },
   render: ButtonRenderer
@@ -122,7 +122,7 @@ export const Danger: Story = {
 
 export const Transparent: Story = {
   args: {
-    children: 'Try',
+    children: 'Label',
     variant: 'transparent'
   },
   render: ButtonRenderer
