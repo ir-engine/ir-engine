@@ -36,7 +36,6 @@ import {
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { coilSettingPath, CoilSettingType } from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
-import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import {
   instanceServerSettingPath,
   InstanceServerSettingType
@@ -47,7 +46,6 @@ import {
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
-import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { createHash } from 'crypto'
@@ -136,30 +134,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read ${awsSettingPath}: ${e.message}`)
     })
   promises.push(awsSettingPromise)
-
-  const chargebeeSettingPromise = knexClient
-    .select()
-    .from<EngineSettingType>(engineSettingPath)
-    .whereIn('key', [EngineSettings.Chargebee.Url, EngineSettings.Chargebee.ApiKey])
-    .then((dbChargebeeSettings) => {
-      const chargebeeSettings = dbChargebeeSettings.reduce(
-        (acc, setting) => {
-          acc[setting.key] = setting.value
-          return acc
-        },
-        {} as Record<string, string>
-      )
-
-      appConfig.chargebee = {
-        ...appConfig.chargebee,
-        url: chargebeeSettings[EngineSettings.Chargebee.Url],
-        apiKey: chargebeeSettings[EngineSettings.Chargebee.ApiKey]
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
-    })
-  promises.push(chargebeeSettingPromise)
 
   const coilSettingPromise = knexClient
     .select()
