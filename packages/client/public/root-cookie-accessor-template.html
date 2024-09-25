@@ -56,9 +56,14 @@
               break
             } else {
               const hasAccess = await document.hasStorageAccess()
-              const storageAccessPermission = await navigator.permissions.query({
-                name: 'storage-access'
-              })
+              let storageAccessPermission = { state: 'denied' } 
+              try {
+                await navigator.permissions.query({
+                  name: 'storage-access'
+                })
+              } catch (error) {
+                console.error('Failed to query storage permission', error)
+              }
               if (hasAccess && storageAccessPermission.state === 'granted') {
                 message.data.hasStorageAccess = hasAccess
                 message.data.cookieSet = cookieSet
