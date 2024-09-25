@@ -32,5 +32,9 @@ export const EngineSettings = {
     PaymentPointer: 'paymentPointer',
     ClientId: 'clientId',
     ClientSecret: 'clientSecret'
+  },
+  Chargebee: {
+    ApiKey: 'apiKey',
+    Url: 'url'
   }
 }

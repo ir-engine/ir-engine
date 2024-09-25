@@ -55,6 +55,7 @@ export async function seed(knex: Knex): Promise<void> {
       updatedAt: await getDateTimeSql()
     }))
   )
+
   const coilSeedData: EngineSettingType[] = await Promise.all(
     [
       {
@@ -79,7 +80,27 @@ export async function seed(knex: Knex): Promise<void> {
     }))
   )
 
-  const seedData: EngineSettingType[] = [...taskServerSeedData, ...coilSeedData]
+  const chargebeeSettingSeedData: EngineSettingType[] = await Promise.all(
+    [
+      {
+        key: EngineSettings.Chargebee.Url,
+        value: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com'
+      },
+      {
+        key: EngineSettings.Chargebee.ApiKey,
+        value: process.env.CHARGEBEE_API_KEY || ''
+      }
+    ].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      type: 'private' as EngineSettingType['type'],
+      category: 'chargebee' as EngineSettingType['category'],
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
+
+  const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData, ...coilSeedData]
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
