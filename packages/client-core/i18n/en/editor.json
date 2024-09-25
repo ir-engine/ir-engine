@@ -1404,6 +1404,15 @@
       "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
       "lbl-confirm": "Save Scene"
     },
+    "saveModel": {
+      "title": "Save Changes",
+      "text": "Are you sure you want to save changes to this file?"
+    },
+    "revertModel": {
+      "lbl-name": "Revert",
+      "title": "Revert Changes",
+      "text": "Are you sure you want to revert changes to this file?"
+    },
     "support": {
       "title": "Support",
       "header": "Need to report a problem?",
