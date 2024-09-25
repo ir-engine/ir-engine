@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   BoxGeometry,
   BufferGeometry,
@@ -91,7 +90,7 @@ const gizmoMaterialProperties = {
 
 const matInvisible = gizmoMaterial.clone()
 matInvisible.opacity = gizmoMaterialProperties[GizmoMaterial.INVISIBLE].opacity
-//matInvisible.visible = false
+matInvisible.visible = false
 
 const matHelper = gizmoLineMaterial.clone()
 matHelper.opacity = gizmoMaterialProperties[GizmoMaterial.HELPER].opacity
@@ -426,7 +425,7 @@ function setupGizmo(gizmoMap) {
       tempGeometry.applyMatrix4(object.matrix)
       object.geometry = tempGeometry
       object.renderOrder = Infinity
-      object.layers.set(ObjectLayers.TransformGizmo)
+      //object.layers.set(ObjectLayers.TransformGizmo)
       object.position.set(0, 0, 0)
       object.rotation.set(0, 0, 0)
       object.scale.set(1, 1, 1)

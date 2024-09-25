@@ -65,7 +65,7 @@ export const CameraGizmoControlledComponent = defineComponent({
       })
 
       const controlledEntities = [entity]
-      setComponent(gizmoControlEntity, NameComponent, 'CameraGizmoControllerEntity')
+      setComponent(gizmoControlEntity, NameComponent, 'cameraGizmoControllerEntity')
       setComponent(gizmoControlEntity, CameraGizmoControlComponent, {
         controlledCameras: controlledEntities,
         visualEntity: gizmoVisualEntity

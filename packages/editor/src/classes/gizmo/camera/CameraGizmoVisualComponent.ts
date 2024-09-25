@@ -36,7 +36,6 @@ import {
   useEntityContext
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -116,15 +115,13 @@ export const CameraGizmoVisualComponent = defineComponent({
       setComponent(picker, InputComponent)
 
       return () => {
-        for (const mode in TransformMode) {
-          removeObjectFromGroup(gizmo, gizmoObject)
-          cleanupGizmo(gizmoObject)
-          removeObjectFromGroup(picker, pickerObject)
-          cleanupGizmo(pickerObject)
+        removeObjectFromGroup(gizmo, gizmoObject)
+        cleanupGizmo(gizmoObject)
+        removeObjectFromGroup(picker, pickerObject)
+        cleanupGizmo(pickerObject)
 
-          removeEntity(gizmo)
-          removeEntity(picker)
-        }
+        removeEntity(gizmo)
+        removeEntity(picker)
       }
     }, [])
 

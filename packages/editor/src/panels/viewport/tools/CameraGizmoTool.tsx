@@ -24,12 +24,22 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { createEntity, generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  generateEntityUUID,
+  getComponent,
+  setComponent,
+  UndefinedEntity,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useRef } from 'react'
+import { Vector3 } from 'three'
 import { CameraGizmoControlledComponent } from '../../../classes/gizmo/camera/CameraGizmoControlledComponent'
 
 export default function CameraGizmoTool({
@@ -44,21 +54,18 @@ export default function CameraGizmoTool({
 
   useEffect(() => {
     const { sceneEntity, cameraEntity } = cameraGizmoRenderPanel
+
     const uuid = generateEntityUUID()
+
+    const camera = getComponent(cameraEntity, CameraComponent)
+    camera.layers.set(ObjectLayerMasks[ObjectLayers.TransformGizmo])
+
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, NameComponent, 'Camera Gizmo Scene')
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    //setComponent(sceneEntity, ModelComponent, { src: "https://localhost:8642/projects/ir-engine/default-project/assets/avatars/female_05.vrm", convertToVRM: true })
-
+    setComponent(sceneEntity, TransformComponent, { scale: new Vector3(13, 13, 13) })
     setComponent(sceneEntity, VisibleComponent, true)
-    //setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
-    //setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
     setComponent(sceneEntity, CameraGizmoControlledComponent, { sceneEntity: sceneEntity })
-
-    //setComponent(sceneEntity , CameraGizmoVisualComponent  , {sceneEntity : sceneEntity} )
-
-    //addObjectToGroup(sceneEntity, setupGizmo(cameraGizmo))
-    //setComponent(sceneEntity, TransformComponent, {scale : new Vector3 (10,10,10)})
 
     const lightEntity = createEntity()
     setComponent(lightEntity, AmbientLightComponent)
@@ -69,7 +76,7 @@ export default function CameraGizmoTool({
   }, [])
 
   return (
-    <div id="stage" className="z-[4] h-20 w-20 rounded-lg border border-white bg-theme-studio-surface">
+    <div className="z-[4] ml-auto h-20 w-20 ">
       <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
     </div>
   )
