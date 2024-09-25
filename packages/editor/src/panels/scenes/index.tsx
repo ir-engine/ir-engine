@@ -30,7 +30,7 @@ import CreateSceneDialog from '@ir-engine/editor/src/components/dialogs/CreateSc
 import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/toolbar/Toolbar'
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -38,6 +38,7 @@ import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePlusCircle } from 'react-icons/hi2'
+import { UIAddonsState } from '../../services/UIAddonsState'
 import SceneItem from './SceneItem'
 
 function ScenesPanel() {
@@ -63,7 +64,7 @@ function ScenesPanel() {
   const isCreatingScene = useHookstate(false)
   const handleCreateScene = async () => {
     isCreatingScene.set(true)
-    const newSceneUIAddons = editorState.uiAddons.newScene.value
+    const newSceneUIAddons = getState(UIAddonsState).editor.newScene
     if (Object.keys(newSceneUIAddons).length > 0) {
       PopoverState.showPopupover(<CreateSceneDialog />)
     } else {

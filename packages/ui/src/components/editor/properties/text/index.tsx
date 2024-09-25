@@ -148,7 +148,12 @@ export const TextNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   return (
-    <NodeEditor {...props} name="Text Component" description="A Text component" icon={<TextNodeEditor.iconComponent />}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.text.name')}
+      description={t('editor:properties.text.description')}
+      icon={<TextNodeEditor.iconComponent />}
+    >
       <InputGroup name="TextContents" label="Contents">
         <ControlledStringInput
           value={text.text.value}
