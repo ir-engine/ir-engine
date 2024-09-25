@@ -514,7 +514,7 @@ const MaterialEntityReactor = (props: { index: number; parentUUID: EntityUUID; d
           const document = documents[documentID]
           if (!document?.materials) continue
           for (const material of document.materials) {
-            if (material.extensions?.[UUIDComponent.jsonID] === uuid) return
+            if (material.extensions?.[UUIDComponent.jsonID] !== uuid) return
           }
         }
       }
