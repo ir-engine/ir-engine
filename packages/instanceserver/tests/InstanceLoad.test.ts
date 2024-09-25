@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import '../../server-core/src/patchEngineNode'
+import '@hookstate/core'
 
 import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
 import appRootPath from 'app-root-path'
