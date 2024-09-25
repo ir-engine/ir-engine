@@ -54,10 +54,12 @@ import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/re
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React, { KeyboardEvent, useEffect } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
+import { IoArrowUndo, IoSaveOutline } from 'react-icons/io5'
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
@@ -386,10 +388,13 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
               )}
             </div>
             {isModified && (
-              <>
-                <button
-                  type="button"
-                  className="m-0 h-5 w-auto flex-shrink-0 border-none p-0 hover:opacity-80"
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="transparent"
+                  size="small"
+                  className="p-0"
+                  startIcon={<IoSaveOutline />}
+                  title={t('common:components.save')}
                   onClick={() =>
                     PopoverState.showPopupover(
                       <ConfirmDialog
@@ -399,12 +404,13 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                       />
                     )
                   }
-                >
-                  {t('common:components.save')}
-                </button>
-                <button
-                  type="button"
-                  className="m-0 ml-3 mr-3 h-5 w-auto flex-shrink-0 border-none p-0 hover:opacity-80"
+                />
+                <Button
+                  variant="transparent"
+                  size="small"
+                  className="p-0"
+                  startIcon={<IoArrowUndo />}
+                  title={t('editor:dialog.revertModel.lbl-name')}
                   onClick={() =>
                     PopoverState.showPopupover(
                       <ConfirmDialog
@@ -414,10 +420,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                       />
                     )
                   }
-                >
-                  {t('editor:dialog.revertModel.lbl-name')}
-                </button>
-              </>
+                />
+              </div>
             )}
             <button
               type="button"
