@@ -37,6 +37,7 @@ import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
 import { isSupportedBrowser } from '../functions/browserCheck'
+import { isSupportedDevice } from '../functions/deviceCheck'
 import { EditorState } from '../services/EditorServices'
 import { ProjectPage } from './ProjectPage'
 
@@ -59,8 +60,11 @@ export const useStudioEditor = () => {
 export const EditorPage = () => {
   const { t } = useTranslation()
   const [params] = useSearchParams()
-  const { scenePath, projectName, acknowledgedUnsupportedBrowser } = useHookstate(getMutableState(EditorState))
+  const { scenePath, projectName, acknowledgedUnsupportedBrowser, acknowledgedUnsupportedDevice } = useHookstate(
+    getMutableState(EditorState)
+  )
   const supportedBrowser = useHookstate(isSupportedBrowser)
+  const supportedDevice = useHookstate(isSupportedDevice)
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
@@ -121,6 +125,44 @@ export const EditorPage = () => {
                     }}
                   >
                     {t('editor:unsupportedBrowser.continue')}
+                  </span>
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        )}
+
+      {!supportedDevice.value &&
+        !acknowledgedUnsupportedDevice.value &&
+        PopoverState.showPopupover(
+          <Modal
+            onSubmit={() => {
+              return true
+            }}
+            onClose={() => {
+              acknowledgedUnsupportedDevice.set(true)
+              PopoverState.hidePopupover()
+            }}
+            className="w-[50vw] max-w-2xl"
+            hideFooter
+          >
+            <div className="flex flex-col items-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#191B1F]">
+                <FiInfo className="h-6 w-6" />
+              </div>
+              <div className="flex flex-col items-center gap-3 p-4 px-12 pb-12">
+                <span className="text-center font-bold">{t('editor:unsupportedDevice.title')}</span>
+                <span className="text-center">{t('editor:unsupportedDevice.description')}</span>
+              </div>
+              <div className="flex gap-3">
+                <Button>
+                  <span
+                    onClick={() => {
+                      PopoverState.hidePopupover()
+                      acknowledgedUnsupportedDevice.set(true)
+                    }}
+                  >
+                    {t('editor:unsupportedDevice.continue')}
                   </span>
                 </Button>
               </div>

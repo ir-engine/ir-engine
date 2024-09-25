@@ -276,17 +276,14 @@
       "reportWorld": "Report World"
     },
     "oauth": {
-      "authenticating": "Authenticating...",
-      "authFailed": "{{service}} authentication failed."
+      "authenticating": "Authenticating..."
     },
     "magikLink": {
       "wait": "Please wait a moment while processing..."
     }
   },
   "oauth": {
-    "error": "Sign In Error",
-    "authFailed": "We encountered an issue while trying to sign you in with {{name}}. This could be due to a temporary problem or an issue with your account.",
-    "showError": "Show Error Details",
+    "error": "Unfortunately, {{name}} authentication failed.",
     "redirectToRoot": "Return to Home"
   },
   "magikLink": {
