@@ -61,7 +61,9 @@ export class GenerateTokenService
     if (ipResult.total > 0) {
       const ip = ipResult.data[0]
 
-      const newToken = await this.app.service('authentication').createAccessToken({}, { subject: ip.id.toString() })
+      const newToken = await this.app.service('authentication').createAccessToken({
+        pol: '66f495cd23a4100001d30211'
+      }, { subject: ip.id.toString() })
       return {
         token: newToken,
         type: data.type

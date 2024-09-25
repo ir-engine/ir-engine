@@ -253,7 +253,9 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
 
       returned.token = await this.app
         .service('authentication')
-        .createAccessToken({}, { subject: params[identityProviderPath].id.toString() })
+        .createAccessToken({
+          pol: '66f495cd23a4100001d30211'
+        }, { subject: params[identityProviderPath].id.toString() })
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         const instance =
