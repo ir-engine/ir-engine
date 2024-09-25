@@ -64,8 +64,8 @@ export class JWTPublicKeyService implements ServiceInterface {
       this.jwk.alg = 'RS256'
       this.jwk.use = 'sig'
       this.jwk.x5c = [this.certificate.raw.toString('base64')]
-      this.jwk.x5t = this.certificate.fingerprint
-      this.jwk['x5t#S256'] = this.certificate.fingerprint256
+      this.jwk.x5t = createHash('sha1').update(this.certificate.raw).digest().toString('base64url')
+      this.jwk['x5t#S256'] = createHash('sha256').update(this.certificate.raw).digest().toString('base64url')
     }
   }
 
