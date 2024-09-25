@@ -53,10 +53,11 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import React, { KeyboardEvent, useEffect } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { useTranslation } from 'react-i18next'
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
@@ -103,6 +104,7 @@ function IconComponent({ entity }: { entity: Entity }) {
 }
 
 export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
+  const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
   const entity = node.entity
@@ -295,32 +297,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const onRevert = () => {
     const modelComponent = getComponent(node.entity, ModelComponent)
     ResourceLoaderManager.updateResource(modelComponent.src)
-
-    // const snapshotState = getMutableState(GLTFSnapshotState)[sourceId]
-    // snapshotState.index.set(0)
-    // snapshotState.snapshots.set([JSON.parse(JSON.stringify(snapshotState.snapshots.at(0)!.value))])
     getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
-  }
-
-  const onOpenConfirmModal = (title: string, text: string, callback: () => void) => (event: React.MouseEvent) => {
-    event.stopPropagation()
-    PopoverState.showPopupover(
-      <Modal
-        title={title}
-        onSubmit={() => {
-          callback()
-          PopoverState.hidePopupover()
-        }}
-        onClose={() => {
-          PopoverState.hidePopupover()
-        }}
-        className="w-1/3 max-w-md p-4"
-      >
-        <div className="flex justify-end">
-          <p>{text}</p>
-        </div>
-      </Modal>
-    )
   }
 
   return (
@@ -413,24 +390,32 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 <button
                   type="button"
                   className="m-0 h-5 w-auto flex-shrink-0 border-none p-0 hover:opacity-80"
-                  onClick={onOpenConfirmModal(
-                    'Save Changes',
-                    'Are you sure you want to save changes to this file?',
-                    onSaveChanges
-                  )}
+                  onClick={() =>
+                    PopoverState.showPopupover(
+                      <ConfirmDialog
+                        onSubmit={onSaveChanges}
+                        title={t('editor:dialog.saveModel.title')}
+                        text={t('editor:dialog.saveModel.text')}
+                      />
+                    )
+                  }
                 >
-                  Save
+                  {t('common:components.save')}
                 </button>
                 <button
                   type="button"
                   className="m-0 ml-3 mr-3 h-5 w-auto flex-shrink-0 border-none p-0 hover:opacity-80"
-                  onClick={onOpenConfirmModal(
-                    'Revert Changes',
-                    'Are you sure you want to revert changes to this file?',
-                    onRevert
-                  )}
+                  onClick={() =>
+                    PopoverState.showPopupover(
+                      <ConfirmDialog
+                        onSubmit={onRevert}
+                        title={t('editor:dialog.revertModel.title')}
+                        text={t('editor:dialog.revertModel.text')}
+                      />
+                    )
+                  }
                 >
-                  Revert
+                  {t('editor:dialog.revertModel.lbl-name')}
                 </button>
               </>
             )}
