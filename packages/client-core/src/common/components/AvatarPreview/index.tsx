@@ -31,8 +31,6 @@ import commonStyles from '@ir-engine/client-core/src/common/components/common.mo
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { createEntity, generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
-import { preloadedAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
-import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@ir-engine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
@@ -44,10 +42,8 @@ import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
-import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { getState } from '@ir-engine/hyperflux'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import styles from './index.module.scss'
 
@@ -74,17 +70,16 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(sceneEntity, SceneComponent)
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
-    setComponent(sceneEntity, LoopAnimationComponent, {
-      animationPack:
-        getState(DomainConfigState).cloudDomain + defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
-      activeClipIndex: 5
-    })
+    // setComponent(sceneEntity, LoopAnimationComponent, {
+    //   animationPack:
+    //     getState(DomainConfigState).cloudDomain + defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
+    //   activeClipIndex: 5
+    // })
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
     setComponent(sceneEntity, AvatarComponent)
     setComponent(sceneEntity, AvatarRigComponent, { avatarURL: avatarUrl })
-
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
     const lightEntity = createEntity()
