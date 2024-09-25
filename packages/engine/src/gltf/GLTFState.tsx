@@ -39,7 +39,7 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -370,7 +370,8 @@ const ChildGLTFReactor = (props: { source: string }) => {
   }, [index])
 
   const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
-  const parentUUID = useComponent(entity, UUIDComponent).value
+  const parentUUID = useOptionalComponent(entity, UUIDComponent)?.value
+  if (!entity || !parentUUID) return null
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }

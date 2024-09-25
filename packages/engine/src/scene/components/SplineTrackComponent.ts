@@ -112,8 +112,8 @@ export const SplineTrackComponent = defineComponent({
         transform.position.copy(_point1Vector)
 
         // rotation
-        const q1 = elements[index].quaternion
-        const q2 = elements[nextIndex].quaternion
+        const q1 = elements[index].rotation
+        const q2 = elements[nextIndex].rotation
 
         if (component.enableRotation.value) {
           if (component.lockToXZPlane.value) {

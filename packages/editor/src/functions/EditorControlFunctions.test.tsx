@@ -266,6 +266,12 @@ describe('EditorControlFunctions', () => {
                       x: 0,
                       y: 0,
                       z: 0
+                    },
+                    rotation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1
                     }
                   },
                   {
@@ -273,6 +279,12 @@ describe('EditorControlFunctions', () => {
                       x: 5,
                       y: 5,
                       z: 5
+                    },
+                    rotation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1
                     }
                   }
                 ]
