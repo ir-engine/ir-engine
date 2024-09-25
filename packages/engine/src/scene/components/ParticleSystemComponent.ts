@@ -77,13 +77,12 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
-import getFirstMesh, { getMeshes } from '../util/meshUtils'
+import getFirstMesh, { getMeshes, mergeGeometries } from '../util/meshUtils'
 import { SourceComponent } from './SourceComponent'
 
 export type ParticleSystemRendererInstance = {
@@ -947,8 +946,10 @@ export const ParticleSystemComponent = defineComponent({
         })
         const mergedGeometry = mergeGeometries(geometries)
 
-        componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
-        metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
+        if (mergedGeometry) {
+          componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
+          metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
+        }
       }
     }, [shapeMesh])
 
