@@ -33,7 +33,7 @@ import { TbMaximize, TbRoute } from 'react-icons/tb'
 
 import React from 'react'
 
-export const iconMap: { [key: string]: React.ReactElement } = {
+const iconMap: { [key: string]: React.ReactElement } = {
   Model: <RxCube />,
   Material: <FaRegCircle />,
   Texture: <LuWaves />,
