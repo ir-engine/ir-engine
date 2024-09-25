@@ -48,8 +48,8 @@ export function Topbar() {
         search={search}
         inputProps={{
           className:
-            'text-[#A3A3A3] bg-theme-surface-main h-7 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-xs placeholder:text-[#A3A3A3] focus-visible:ring-0',
-          containerClassName: 'flex h-auto w-full',
+            'text-[#A3A3A3] bg-[#141619] h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-xs placeholder:text-[#A3A3A3] focus-visible:ring-0',
+          containerClassName: 'flex h-auto w-full pl-2',
           variant: 'underlined'
         }}
       />
