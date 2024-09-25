@@ -5,7 +5,7 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -26,5 +26,5 @@
     "declaration": false,
     "types": ["@types/node"]
   },
-  "include": ["./src", "./index.ts"]
+  "include": ["./__global.d.ts"]
 }

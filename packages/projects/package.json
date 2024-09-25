@@ -5,7 +5,9 @@
   "main": "index.ts",
   "private": true,
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "test": "exit 0"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/ir-engine/ir-engine.git"

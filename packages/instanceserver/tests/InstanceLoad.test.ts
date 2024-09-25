@@ -22,13 +22,14 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import '../../server-core/src/patchEngineNode'
 
 import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import { ChildProcess } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
-import { describe, it } from 'vitest'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { API } from '@ir-engine/common'
 import {
@@ -49,6 +50,8 @@ import { StartTestFileServer } from '../../server-core/src/createFileServer'
 import { onConnection } from '../src/channels'
 import { InstanceServerState } from '../src/InstanceServerState'
 import { start } from '../src/start'
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 describe('InstanceLoad', () => {
   beforeAll(async () => {
