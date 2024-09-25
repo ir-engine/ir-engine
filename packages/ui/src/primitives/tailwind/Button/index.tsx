@@ -87,6 +87,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       (StartIcon || EndIcon) && 'justify-center',
       sizes[size],
       fullWidth ? 'w-full' : 'w-fit',
+      'min-w-[66px]',
       roundedTypes[rounded],
       disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
       variants[variant]
@@ -94,9 +95,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <button ref={ref} role="button" disabled={disabled} className={twClassName} {...props}>
-        {StartIcon && <span className="mx-1">{StartIcon}</span>}
-        {children && <span className={twMerge('mx-1', fullWidth && 'w-full')}>{children}</span>}
-        {EndIcon && <span className="mx-1">{EndIcon}</span>}
+        {StartIcon && <span className="mr-1">{StartIcon}</span>}
+        {children && <span className={fullWidth ? 'w-full' : ''}>{children}</span>}
+        {EndIcon && <span className="ml-1">{EndIcon}</span>}
       </button>
     )
   }
