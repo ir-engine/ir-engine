@@ -60,6 +60,8 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, generateEntityUUID, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import {
   NO_PROXY,
   defineState,
@@ -75,15 +77,13 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
-import getFirstMesh from '../util/meshUtils'
+import getFirstMesh, { getMeshes } from '../util/meshUtils'
 import { SourceComponent } from './SourceComponent'
 
 export type ParticleSystemRendererInstance = {
@@ -936,15 +936,19 @@ export const ParticleSystemComponent = defineComponent({
       if (!shapeMesh || !shapeMesh.scene) return
 
       const scene = shapeMesh.scene
-      const mesh = getFirstMesh(scene)
+      const meshes = getMeshes(scene)
 
-      if (mesh) {
-        const scaledGeometry = mesh.geometry.clone()
-        const scale = getNestedScale(mesh)
-        scaledGeometry.scale(scale.x, scale.y, scale.z)
+      if (meshes) {
+        const geometries = meshes.map((mesh) => {
+          const scaledGeometry = mesh.geometry.clone()
+          const scale = getNestedScale(mesh)
+          scaledGeometry.scale(scale.x, scale.y, scale.z)
+          return scaledGeometry
+        })
+        const mergedGeometry = mergeGeometries(geometries)
 
         componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
-        metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(scaledGeometry)
+        metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
       }
     }, [shapeMesh])
 
@@ -1032,7 +1036,6 @@ export const ParticleSystemComponent = defineComponent({
 
 function getNestedScale(node: Object3D): Vector3 {
   const scale = node.scale.clone()
-  // node.getWorldScale(scale)
 
   if (node.parent) {
     scale.multiply(getNestedScale(node.parent))
