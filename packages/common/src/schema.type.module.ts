@@ -71,7 +71,6 @@ export type * from './schemas/scope/scope-type.schema'
 export type * from './schemas/scope/scope.schema'
 export type * from './schemas/setting/authentication-setting.schema'
 export type * from './schemas/setting/aws-setting.schema'
-export type * from './schemas/setting/chargebee-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/coil-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
@@ -237,8 +236,6 @@ export const instanceServerSettingPath = 'instance-server-setting'
 export const clientSettingPath = 'client-setting'
 
 export const redisSettingPath = 'redis-setting'
-
-export const chargebeeSettingPath = 'chargebee-setting'
 
 export const matchUserPath = 'match-user'
 

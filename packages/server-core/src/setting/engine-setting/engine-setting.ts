@@ -63,6 +63,8 @@ export default (app: Application): void => {
     for (const setting of args) {
       if (setting.category === 'task-server') {
         appConfig.taskserver[setting.key] = setting.value
+      } else if (setting.category === 'chargebee') {
+        appConfig.chargebee[setting.key] = setting.value
       }
     }
   }

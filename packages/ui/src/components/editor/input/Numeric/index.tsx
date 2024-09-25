@@ -176,7 +176,7 @@ const NumericInput = ({
           inputClassName
         )}
         disabled={disabled ?? false}
-        value={focused.value ? tempValue.value : toPrecisionString(value, displayPrecision)}
+        value={focused.value ? tempValue.value : toPrecisionString(value ?? 0, displayPrecision)}
         onKeyDown={handleKeyPress}
         onFocus={handleFocus}
         onChange={handleChange}

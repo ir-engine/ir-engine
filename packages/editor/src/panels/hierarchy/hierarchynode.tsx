@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { entityExists, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -35,31 +36,40 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { HierarchyTreeNodeType } from '@ir-engine/editor/src/components/hierarchy/HierarchyTreeWalker'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
+import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
+import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React, { KeyboardEvent, useEffect } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { useTranslation } from 'react-i18next'
+import { IoArrowUndo, IoSaveOutline } from 'react-icons/io5'
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
+import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
-import { deleteNode } from './helpers'
+import { deleteNode, HierarchyTreeNodeType } from './helpers'
 import {
   useHierarchyNodes,
   useHierarchyTreeContextMenu,
@@ -96,6 +106,7 @@ function IconComponent({ entity }: { entity: Entity }) {
 }
 
 export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
+  const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
   const entity = node.entity
@@ -272,6 +283,24 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     }
     setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
+  const isModelRoot = hasComponent(entity, ModelComponent)
+  const isModified = isModelRoot && !!getState(GLTFModifiedState)[getModelSceneID(entity)]
+
+  const onSaveChanges = () => {
+    const modelComponent = getComponent(node.entity, ModelComponent)
+    const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(modelComponent.src)!
+    const fullProjectName = `${orgName}/${projectName}`
+    exportRelativeGLTF(node.entity, fullProjectName, fileName).then(() => {
+      ResourceLoaderManager.updateResource(modelComponent.src)
+      getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
+    })
+  }
+
+  const onRevert = () => {
+    const modelComponent = getComponent(node.entity, ModelComponent)
+    ResourceLoaderManager.updateResource(modelComponent.src)
+    getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
+  }
 
   return (
     <li
@@ -281,8 +310,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         'cursor-pointer',
         selected ? 'border text-white' : 'text-[#b2b5bd]',
         selected && (props.index % 2 ? 'bg-[#1d1f23]' : 'bg-zinc-900'),
-        !selected && (props.index % 2 ? 'bg-[#141619] hover:bg-[#1d1f23]' : 'bg-[#080808] hover:bg-zinc-900'),
-        !visible && (props.index % 2 ? 'bg-[#191B1F]' : 'bg-[#0e0f11]'),
+        !selected && (props.index % 2 ? 'bg-[#080808] hover:bg-[#1d1f23]' : 'bg-[#0E0F11] hover:bg-zinc-900'),
+        !visible && (props.index % 2 ? 'bg-[#212226]' : 'bg-[#212226]'),
         !visible && 'text-[#42454d]',
         isOverOn && canDropOn && 'border border-dotted',
         'hover:text-white'
@@ -358,6 +387,42 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 </div>
               )}
             </div>
+            {isModified && (
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="transparent"
+                  size="small"
+                  className="p-0"
+                  startIcon={<IoSaveOutline />}
+                  title={t('common:components.save')}
+                  onClick={() =>
+                    PopoverState.showPopupover(
+                      <ConfirmDialog
+                        onSubmit={onSaveChanges}
+                        title={t('editor:dialog.saveModel.title')}
+                        text={t('editor:dialog.saveModel.text')}
+                      />
+                    )
+                  }
+                />
+                <Button
+                  variant="transparent"
+                  size="small"
+                  className="p-0"
+                  startIcon={<IoArrowUndo />}
+                  title={t('editor:dialog.revertModel.lbl-name')}
+                  onClick={() =>
+                    PopoverState.showPopupover(
+                      <ConfirmDialog
+                        onSubmit={onRevert}
+                        title={t('editor:dialog.revertModel.title')}
+                        text={t('editor:dialog.revertModel.text')}
+                      />
+                    )
+                  }
+                />
+              </div>
+            )}
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"

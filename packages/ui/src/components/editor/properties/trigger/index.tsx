@@ -103,7 +103,7 @@ const TriggerProperties: EditorComponentType = (props) => {
           <Button
             title={t('editor:properties.triggerVolume.lbl-addRigidBody')}
             startIcon={<HiPlus />}
-            className="text-sm text-[#8B8B8D]"
+            className="text-sm text-[#FFFFFF]"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
               EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })

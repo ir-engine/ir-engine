@@ -61,7 +61,8 @@ function Browser() {
 
   return (
     <div
-      className="h-full"
+      className={twMerge('h-full overflow-y-scroll', isFileDropOver ? 'border-2 border-gray-300' : '')}
+      ref={fileDropRef}
       onContextMenu={(event) => {
         event.preventDefault()
         event.stopPropagation()
@@ -69,12 +70,7 @@ function Browser() {
       }}
     >
       <div
-        ref={fileDropRef}
-        className={twMerge(
-          'mb-2 h-auto px-3 pb-6 text-gray-400 ',
-          !isListView && 'flex py-8',
-          isFileDropOver ? 'border-2 border-gray-300' : ''
-        )}
+        className={twMerge('mb-2 h-auto px-3 pb-6 text-gray-400 ', !isListView && 'flex py-8')}
         onClick={(event) => {
           event.stopPropagation()
           selectedFiles.set([])
