@@ -26,5 +26,10 @@
     "declaration": false,
     "types": ["@types/node"]
   },
-  "include": ["../../__global.d.ts", "./src", "./index.ts"]
+  "include": [
+    "../../../../../__global.d.ts",
+    "../../../../client-core/src/",
+    "../../../../server-core/src/",
+    "./src"
+  ]
 }
