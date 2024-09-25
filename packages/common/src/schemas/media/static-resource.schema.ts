@@ -54,7 +54,7 @@ export const staticResourceSchema = Type.Object(
     attribution: Type.Optional(Type.String()),
     licensing: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
-    name: Type.String(),
+    name: Type.Optional(Type.String()),
     url: Type.String(),
     stats: Type.Optional(Type.Record(Type.String(), Type.Any())),
     thumbnailKey: Type.Optional(Type.String()),
