@@ -42,7 +42,7 @@ const ThemeProvider = () => {
 }
 
 export const decorators = [
-  (Story: () => JSX.Element) => (
+  (Story: any) => (
     <Engine>
       <DndProvider backend={HTML5Backend}>
         <ThemeProvider />
@@ -62,7 +62,7 @@ export const decorators = [
 const preview: Preview = {
   globalTypes: {
     eeEnabled: {
-      description: 'Ethereal Engine',
+      description: 'Infinite Reality Engine',
       defaultValue: false
     }
   },

@@ -4,7 +4,7 @@ CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and
 provide for limited attribution for the Original Developer. In addition,
@@ -14,13 +14,13 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 
-The Original Code is Ethereal Engine.
+The Original Code is Infinite Reality Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
-Ethereal Engine. All Rights Reserved.
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
+Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
@@ -31,8 +31,8 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   startIcon?: ReactNode
   endIcon?: ReactNode
   children?: ReactNode
-  size?: 'xs' | 'sm' | 'l' | 'xl'
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent' | 'sidebar'
+  size?: 'small' | 'medium' | 'large'
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: 'partial' | 'full' | 'none'
@@ -48,18 +48,17 @@ const roundedTypes = {
 }
 
 const sizes = {
-  xs: 'h-6',
-  sm: 'h-7',
-  l: 'h-8',
-  xl: 'h-10'
+  small: 'text-sm px-3 py-2',
+  medium: 'text-base px-4 py-2',
+  large: 'text-lg px-7 py-3'
 }
 
 const variants = {
-  primary: 'bg-[#375DAF] hover:bg-[#214AA6] focus:bg-blue-primary disabled:bg-[#5F7DBF]',
-  secondary: 'bg-[#162546] hover:bg-[#213869] focus:bg-[#213869] disabled:bg-[#375DAF]',
-  outline: 'border border-solid border-[#162546] bg-transparent text-theme-primary',
-  success: 'bg-[#0D9467] hover:bg-[#10B981] focus:bg-[#10B981] disabled:bg-[#0A6F4D]',
-  danger: 'bg-[#F43F5E] hover:bg-[#FB7185] focus:bg-[#F43F5E] disabled:bg-[#C3324B]',
+  primary: 'bg-blue-primary',
+  secondary: 'bg-theme-blue-secondary',
+  outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
+  danger: 'bg-red-500',
+  success: 'bg-teal-700',
   transparent: 'bg-transparent dark:bg-transparent'
 }
 
@@ -74,6 +73,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rounded = 'partial',
       variant = 'primary',
       disabled = false,
+      className,
+      iconContainerClassName,
+      textContainerClassName,
       ...props
     },
     ref
@@ -88,14 +90,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth ? 'w-full' : 'w-fit',
       roundedTypes[rounded],
       disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
-      variants[variant]
+      variants[variant],
+      className
     )
 
     return (
       <button ref={ref} role="button" disabled={disabled} className={twClassName} {...props}>
-        {StartIcon && <span className="mx-1">{StartIcon}</span>}
-        {children && <span className={twMerge('mx-1', fullWidth && 'w-full')}>{children}</span>}
-        {EndIcon && <span className="mx-1">{EndIcon}</span>}
+        {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
+        {children && (
+          <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}>{children}</span>
+        )}
+        {EndIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{EndIcon}</span>}
       </button>
     )
   }
