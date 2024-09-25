@@ -3,78 +3,256 @@ doctype html
 html
   head
     style.
-      body{
-        font-family: Roboto, Arial;
+      @font-face {
+        font-family: "Campton";
+        src: url("https://irfont.5edev.com/fonts/Campton-Book.woff") format("woff");
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Campton";
+        src: url("https://irfont.5edev.com/fonts/Campton-Light.woff") format("woff");
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Campton";
+        src: url("https://irfont.5edev.com/fonts/Campton-SemiBold.woff")
+        format("woff");
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Campton";
+        src: url("https://irfont.5edev.com/fonts/Campton-Bold.woff") format("woff");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+      html {
         height: 100%;
-        width: auto;
-        background: #fff;
-        margin: 0;
-        padding-top: 2.5rem;
       }
-      .container {
-        width: 75%;
-        max-width: 75%;
-        height: auto;
-        margin: 0 auto;
-        background: #383650;
-        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-        padding: 2rem;
-        padding-bottom: 4rem;
-        border-radius: 10px;
+      body {
+        background-color: #fff !important;
+        height: 100% !important;
+        min-height: 800px !important;
+        font-family: 'Campton', Arial, sans-serif !important;
+        font-size: 14px;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        display: block !important;
+        min-width: 100% !important;
+        width: 100% !important;
+        background: #fff !important;
+        -webkit-text-size-adjust: none;
+      } 
+      a, p, strong, h1, h2  {
+        font-family: 'Campton', Arial, sans-serif !important;
       }
-      .main {
-        margin: 0 auto;
-        max-width: 90%;
-      }
-      .header {
-        padding-bottom: 2rem;
-      }
-      .logo{
-        display: block; 
-        margin: 0 auto; 
-        heigh: auto;
-        max-width: 3em;
-        max-height: 4em;
-      }
-      .title-container{
-        background: #5045AB;
-        padding: 2rem;
-      }
-      .message-container{
-        background: #fff;
-        padding: 2rem;
-      }
-      h1 {
-        color: #fff;
-        font-size: 1.8rem;
-        text-wrap: wrap;
-        text-overflow: ellipsis;
-      }
-      h2 {
-        color: #918EAD;
-      }
-      p {
-        color: #8f9299;
-        font-weight: bold;
+      a, p, strong  {
+        font-size: 14px;
       }
       a {
-        word-wrap: break-word;
-      }
-      .link-btn {
-        width: 96%;
-        display: inline-block;
-        background: #5045AB;
-        text-align: center;
-        padding: 0.6rem;
-        border-radius: 5px;
         text-decoration: none;
-        color: #fff !important;
-        font-weight: bold;
-        font-size: 1.2rem;
       }
-body
-    div(class='container')
-      .header
-        img(src=logo, class='logo')
-      .main
-        block content
+      p {
+      }
+      table {
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+      }
+      img {
+        margin: 0 !important;
+        -ms-interpolation-mode: bicubic;
+      }
+      img,
+        a img {
+        border: 0;
+        outline: none;
+        text-decoration: none;
+      }
+      #outlook a {
+        padding: 0;
+      }
+      .ReadMsgBody {
+        width: 100%;
+      }
+      .ExternalClass {
+        width: 100%;
+      }
+      div,
+      p,
+      a,
+      li,
+      td,
+      blockquote {
+        mso-line-height-rule: exactly;
+        font-family: 'Campton', Arial, sans-serif !important;
+      }
+      a[href^="tel"],
+      a[href^="sms"] {
+        color: inherit;
+        text-decoration: none;
+      }
+      .ExternalClass,
+      .ExternalClass p,
+      .ExternalClass td,
+      .ExternalClass div,
+      .ExternalClass span,
+      .ExternalClass font {
+        line-height: 100%;
+      }
+      a[x-apple-data-detectors] {
+        color: inherit !important;
+        text-decoration: none !important;
+        font-size: inherit !important;
+        font-family: inherit !important;
+        font-weight: inherit !important;
+        line-height: inherit !important;
+      }
+      #MessageViewBody,
+      #MessageWebViewDiv {
+        width: 100% !important;
+      }
+      .dijitReset {
+        color: #000001 !important;
+      }
+      .x-gmail-data-detectors,
+      .x-gmail-data-detectors *,
+      .aBn {
+        border-bottom: 0 !important;
+        cursor: default !important;
+      }
+      .a6S {
+        display: none !important;
+        opacity: 0.01 !important;
+      }
+      img.g-img + div {
+        display: none !important;
+      }
+      u + #body a {
+        color: inherit !important;
+        font-size: inherit !important;
+        font-family: inherit !important;
+        font-weight: inherit !important;
+        line-height: inherit !important;
+      }
+      #MessageViewBody a {
+        color: inherit !important;
+        font-size: inherit !important;
+        font-family: inherit !important;
+        font-weight: inherit !important;
+        line-height: inherit !important;
+      }
+      table {
+        border-spacing: 0;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      td,
+      tr,
+      th {
+        padding: 0;
+        margin: 0;
+      }
+      .email-container {
+        margin: 0 auto;
+        background-color: #fff;
+        max-width: 600px;
+        min-height: 800px !important;
+      }
+      .header {
+        padding: 20px;
+        text-align: center;
+        background-color: #fff;
+      }
+      .header img {
+        width: 175px;
+      }
+      .content {
+        padding: 30px;
+        padding-bottom: 20px;
+        background-color: #edecec;
+      }
+      .content h1 {
+        font-size: 34px;
+        font-weight: 400;
+      }
+      .content h2 {
+        font-style: normal;
+        font-weight: 700;
+        line-height: 27px;
+        font-size: 14px;
+      }
+      .content p {
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 27px;
+        margin-top: auto;
+        color: red;
+        color: #000;
+        font-family: Campton !important;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 27.2px;
+      }
+      .cta-button {
+        display: block;
+        width: 100%;
+        max-width: 200px;
+        margin: 20px auto;
+        font-size: 16px;
+        text-align: center;
+        text-decoration: none;
+        height: 3rem;
+        background: #c10d8b;
+        padding: 5px, 12px, 5px, 12px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 3rem;
+      }
+      .cta-button:hover {
+        background-color: #a02074;
+      }
+      .magic-link {
+        font-style: normal;
+        font-weight: 700;
+        max-width: 200px !important;
+        width: 200px !important;
+        text-decoration: none;
+        word-wrap: break-word;
+        white-space: normal
+      }
+      .footer {
+        padding: 20px;
+        padding-bottom: 0px;
+        text-align: center;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 27px;
+        margin-top: auto;
+      }
+      .section {
+        min-height: 400px;
+        background-image: url('#{templateBg}');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+body(style='background-color:#fff;')
+  table.email-container(cellpadding='0' cellspacing='0' rowspacing='0' height='100%' width='100%')
+    tr(height='10%')
+      td(valign='top', style='background-color:#fff;')
+        table(cellpadding='0' cellspacing='0' width='100%')
+          tr
+            td.header
+              img(src=headerLogo alt='Infinite Reality')
+    block content
