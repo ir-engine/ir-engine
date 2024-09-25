@@ -42,7 +42,7 @@ const ThemeProvider = () => {
 }
 
 export const decorators = [
-  (Story: () => JSX.Element) => (
+  (Story: any) => (
     <Engine>
       <DndProvider backend={HTML5Backend}>
         <ThemeProvider />
