@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  SystemDefinitions,
   UndefinedEntity,
   createEntity,
   destroyEngine,
@@ -37,12 +38,25 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
-import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { Axis, PI, Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
+import {
+  assertFloatApproxEq,
+  assertFloatApproxNotEq,
+  assertVecAnyApproxNotEq,
+  assertVecApproxEq
+} from '../../physics/classes/Physics.test'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { TransformDirtyUpdateSystem } from '../systems/TransformSystem'
 import { EntityTreeComponent, getAncestorWithComponents } from './EntityTree'
-import { TransformComponent, TransformECS, TransformGizmoTagComponent } from './TransformComponent'
+import {
+  TransformComponent,
+  TransformECS,
+  TransformGizmoTagComponent,
+  composeMatrix,
+  decomposeMatrix,
+  setFromRotationMatrix
+} from './TransformComponent'
 
 const _position = Vector3_Zero.clone()
 const _rotation = new Quaternion()
@@ -502,7 +516,7 @@ describe('TransformComponent', () => {
       assert.equal(ancestor, UndefinedEntity)
       // Run and Check the result
       const result = new Vector3()
-      TransformComponent.getWorldScale(testEntity, result)
+      TransformComponent.getSceneScale(testEntity, result)
       assertVecAnyApproxNotEq(result, Initial, 3)
       assertVecApproxEq(result, Expected, 3)
     })
@@ -510,31 +524,537 @@ describe('TransformComponent', () => {
     it('should return a (1,1,1) vector when none of the ancestors of `@param entity` have a SceneComponent', () => {
       const Expected = new Vector3(1, 1, 1)
       const Initial = Vector3_Zero.clone().addScalar(1234)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { scale: Initial })
       // Sanity check before running
       assert.equal(hasComponent(testEntity, TransformComponent), true)
-      setComponent(testEntity, TransformComponent, { scale: Initial })
       const ancestor = getAncestorWithComponents(testEntity, [SceneComponent])
       assert.equal(ancestor, UndefinedEntity)
       // Run and Check the result
-      const result = TransformComponent.getWorldScale(testEntity, new Vector3())
+      const result = TransformComponent.getSceneScale(testEntity, new Vector3())
       assertVecAnyApproxNotEq(result, Initial, 3)
       assertVecApproxEq(result, Expected, 3)
     })
 
-    /** @todo Other cases for relative scale */
+    it('should write into `@param vec3` the scale extracted from the `@param entity`.TransformComponent.matrixWorld relative to its closest ancestor that has a SceneComponent', () => {
+      const scale = 0.02380952380952381 // Expected scale value for each axis
+      const Expected = new Vector3(scale, scale, scale)
+      const Initial = new Vector3(42, 42, 42)
+      // Set the data as expected
+      const parentEntity = createEntity()
+      setComponent(parentEntity, SceneComponent)
+      setComponent(parentEntity, TransformComponent, { scale: Initial })
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      setComponent(testEntity, TransformComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      assert.equal(hasComponent(parentEntity, SceneComponent), true)
+      const ancestor = getAncestorWithComponents(testEntity, [SceneComponent])
+      assert.notEqual(ancestor, UndefinedEntity)
+      assert.equal(ancestor, parentEntity)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.getSceneScale(testEntity, result)
+      assertVecAnyApproxNotEq(result, Initial, 3)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    it('should return the scale extracted from the `@param entity`.TransformComponent.matrixWorld relative to its closest ancestor that has a SceneComponent', () => {
+      const scale = 0.02380952380952381 // Expected scale value for each axis
+      const Expected = new Vector3(scale, scale, scale)
+      const Initial = new Vector3(42, 42, 42)
+      // Set the data as expected
+      const parentEntity = createEntity()
+      setComponent(parentEntity, SceneComponent)
+      setComponent(parentEntity, TransformComponent, { scale: Initial })
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      setComponent(testEntity, TransformComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      assert.equal(hasComponent(parentEntity, SceneComponent), true)
+      const ancestor = getAncestorWithComponents(testEntity, [SceneComponent])
+      assert.notEqual(ancestor, UndefinedEntity)
+      assert.equal(ancestor, parentEntity)
+      // Run and Check the result
+      const result = TransformComponent.getSceneScale(testEntity, new Vector3())
+      assertVecAnyApproxNotEq(result, Initial, 3)
+      assertVecApproxEq(result, Expected, 3)
+    })
   }) //:: getSceneScale
 
-  describe('updateFromWorldMatrix', () => {}) //:: updateFromWorldMatrix
-  describe('setWorldPosition', () => {}) //:: setWorldPosition
-  describe('setWorldRotation', () => {}) //:: setWorldRotation
-  describe('setWorldScale', () => {}) //:: setWorldScale
-  describe('forward', () => {}) //:: forward
-  describe('back', () => {}) //:: back
-  describe('up', () => {}) //:: up
-  describe('down', () => {}) //:: down
-  describe('right', () => {}) //:: right
-  describe('left', () => {}) //:: left
-  describe('transformsNeedSorting', () => {}) //:: transformsNeedSorting
+  describe('updateFromWorldMatrix', () => {
+    let parentEntity = UndefinedEntity
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      parentEntity = createEntity()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      removeEntity(parentEntity)
+      return destroyEngine()
+    })
+
+    it('should mark TransformComponent.dirtyTransforms for `@param entity` as true', () => {
+      const Expected = true
+      // Set the data as expected
+      setComponent(parentEntity, SceneComponent)
+      setComponent(parentEntity, TransformComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      setComponent(testEntity, TransformComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      assert.equal(hasComponent(testEntity, EntityTreeComponent), true)
+      assert.equal(getComponent(testEntity, EntityTreeComponent).parentEntity, parentEntity)
+      // Run and Check the result
+      TransformComponent.updateFromWorldMatrix(testEntity)
+      const result = TransformComponent.dirtyTransforms[testEntity]
+      assert.equal(result, Expected)
+    })
+
+    it('should set the TransformComponent.matrixWorld of `@param entity` to be its transform relative to its parent when the entity has a parent', () => {
+      const Expected = new Matrix4().compose(
+        new Vector3(42, 43, 44),
+        new Quaternion(1, 2, 3, 4).normalize(),
+        new Vector3(21, 21, 21)
+      )
+      // Set the data as expected
+      setComponent(parentEntity, SceneComponent)
+      setComponent(parentEntity, TransformComponent)
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      setComponent(testEntity, TransformComponent)
+      getMutableComponent(testEntity, TransformComponent).matrixWorld.set(Expected)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      assert.equal(hasComponent(testEntity, EntityTreeComponent), true)
+      assert.equal(getComponent(testEntity, EntityTreeComponent).parentEntity, parentEntity)
+      // Run and Check the result
+      TransformComponent.updateFromWorldMatrix(testEntity)
+      const result = getComponent(testEntity, TransformComponent)
+      assertArrayEqual(result.matrix.elements, Expected.elements)
+      assertArrayEqual(result.matrix.elements, result.matrixWorld.elements)
+    })
+
+    it('should copy the TransformComponent.matrixWorld of `@param entity` into its TransformComponent.matrix when the entity has no parent', () => {
+      const Expected = new Matrix4().compose(
+        new Vector3(42, 43, 44),
+        new Quaternion(1, 2, 3, 4).normalize(),
+        new Vector3(21, 21, 21)
+      )
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent)
+      getMutableComponent(testEntity, TransformComponent).matrixWorld.set(Expected)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      assert.equal(hasComponent(testEntity, EntityTreeComponent), false)
+      // Run and Check the result
+      TransformComponent.updateFromWorldMatrix(testEntity)
+      const result = getComponent(testEntity, TransformComponent)
+      assertArrayEqual(result.matrix.elements, Expected.elements)
+      assertArrayEqual(result.matrix.elements, result.matrixWorld.elements)
+    })
+  }) //:: updateFromWorldMatrix
+
+  describe('setWorldPosition', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should set the `@param entity`.TransformComponent.matrixWorld[12,13,14] elements to the values of `@param position`.(x,y,z)', () => {
+      const Expected = new Vector3(42, 43, 44)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      const before = getComponent(testEntity, TransformComponent).matrixWorld.clone().elements
+      assertFloatApproxNotEq(before[12], Expected.x)
+      assertFloatApproxNotEq(before[13], Expected.y)
+      assertFloatApproxNotEq(before[14], Expected.z)
+      // Run and Check the result
+      TransformComponent.setWorldPosition(testEntity, Expected)
+      const result = getComponent(testEntity, TransformComponent).matrixWorld
+      assertFloatApproxEq(result[12], Expected.x)
+      assertFloatApproxEq(result[13], Expected.y)
+      assertFloatApproxEq(result[14], Expected.z)
+    })
+  }) //:: setWorldPosition
+
+  describe('setWorldRotation', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should set the rotation values of `@param entity`.TransformComponent.matrixWorld to the values of `@param quaternion`', () => {
+      const Expected = new Quaternion(42, 43, 44, 45).normalize()
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      const before = {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3()
+      }
+      getComponent(testEntity, TransformComponent).matrixWorld.decompose(before.position, before.rotation, before.scale)
+      assertVecAnyApproxNotEq(before.rotation, Expected, 4)
+      // Run and Check the result
+      TransformComponent.setWorldRotation(testEntity, Expected)
+      const result = {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3()
+      }
+      getComponent(testEntity, TransformComponent).matrixWorld.decompose(result.position, result.rotation, result.scale)
+      assertVecApproxEq(result.rotation, Expected, 4)
+    })
+  }) //:: setWorldRotation
+
+  describe('setWorldScale', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should set the scale values of `@param entity`.TransformComponent.matrixWorld to the values of `@param scale`', () => {
+      const Expected = new Vector3(42, 43, 44)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      const before = {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3()
+      }
+      getComponent(testEntity, TransformComponent).matrixWorld.decompose(before.position, before.rotation, before.scale)
+      assertVecAnyApproxNotEq(before.scale, Expected, 4)
+      // Run and Check the result
+      TransformComponent.setWorldScale(testEntity, Expected)
+      const result = {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3()
+      }
+      getComponent(testEntity, TransformComponent).matrixWorld.decompose(result.position, result.rotation, result.scale)
+      assertVecApproxEq(result.scale, Expected, 4)
+    })
+  }) //:: setWorldScale
+
+  describe('forward', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should copy into `@param outVector` the `@param entity`.TransformComponent.matrixWorld[8,9,10] elements as a normalized Vector3', () => {
+      const Expected = new Vector3(0, -0.7191960944793238, 0.6948071514353372)
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.X, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.forward(testEntity, result)
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    it('should return the `@param entity`.TransformComponent.matrixWorld[8,9,10] elements as a normalized Vector3', () => {
+      const Expected = new Vector3(0, -0.7191960944793238, 0.6948071514353372)
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.X, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = TransformComponent.forward(testEntity, new Vector3())
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+  }) //:: forward
+
+  describe('back', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should copy into `@param outVector` the `@param entity`.TransformComponent.matrixWorld[8,9,10] elements as a negated and normalized Vector3', () => {
+      const Expected = new Vector3(0, -0.7191960944793238, 0.6948071514353372).negate()
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.X, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.back(testEntity, result)
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    it('should return the `@param entity`.TransformComponent.matrixWorld[8,9,10] elements as a negated and normalized Vector3', () => {
+      const Expected = new Vector3(0, -0.7191960944793238, 0.6948071514353372).negate()
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.X, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = TransformComponent.back(testEntity, new Vector3())
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+  }) //:: back
+
+  describe('up', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should copy into `@param outVector` the `@param entity`.TransformComponent.matrixWorld[4,5,6] elements as a normalized Vector3', () => {
+      const Expected = new Vector3(0, 0.6948071514353372, 0.7191960944793238)
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.X, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.up(testEntity, result)
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    it('should return the `@param entity`.TransformComponent.matrixWorld[4,5,6] elements as a normalized Vector3', () => {
+      const Expected = new Vector3(0, 0.6948071514353372, 0.7191960944793238)
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.X, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = TransformComponent.up(testEntity, new Vector3())
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+  }) //:: up
+
+  describe('down', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should copy into `@param outVector` the `@param entity`.TransformComponent.matrixWorld[4,5,6] elements as a negated and normalized Vector3', () => {
+      const Expected = new Vector3(0, 0.6948071514353372, 0.7191960944793238).negate()
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.X, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.down(testEntity, result)
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    it('should return the `@param entity`.TransformComponent.matrixWorld[4,5,6] elements as a negated and normalized Vector3', () => {
+      const Expected = new Vector3(0, 0.6948071514353372, 0.7191960944793238).negate()
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.X, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = TransformComponent.down(testEntity, new Vector3())
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+  }) //:: down
+
+  describe('right', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should copy into `@param outVector` the `@param entity`.TransformComponent.matrixWorld[0,1,2] elements as a normalized Vector3', () => {
+      const Expected = new Vector3(0.6948071514353372, 0, -0.7191960944793238)
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.Y, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.right(testEntity, result)
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    it('should return the `@param entity`.TransformComponent.matrixWorld[0,1,2] elements as a normalized Vector3', () => {
+      const Expected = new Vector3(0.6948071514353372, 0, -0.7191960944793238)
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.Y, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = TransformComponent.right(testEntity, new Vector3())
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+  }) //:: right
+
+  describe('left', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    it('should copy into `@param outVector` the `@param entity`.TransformComponent.matrixWorld[0,1,2] elements as a negated and normalized Vector3', () => {
+      const Expected = new Vector3(0.6948071514353372, 0, -0.7191960944793238).negate()
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.Y, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = new Vector3()
+      TransformComponent.left(testEntity, result)
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+
+    it('should return the `@param entity`.TransformComponent.matrixWorld[0,1,2] elements as a negated and normalized Vector3', () => {
+      const Expected = new Vector3(0.6948071514353372, 0, -0.7191960944793238).negate()
+      const rotation = new Quaternion().identity().setFromAxisAngle(Axis.Y, 42 / PI)
+      // Set the data as expected
+      setComponent(testEntity, TransformComponent, { rotation: rotation })
+      // Sanity check before running
+      assert.equal(hasComponent(testEntity, TransformComponent), true)
+      // Run and Check the result
+      const result = TransformComponent.left(testEntity, new Vector3())
+      assert.equal(result.x <= 1 && result.x >= -1, true)
+      assert.equal(result.y <= 1 && result.y >= -1, true)
+      assert.equal(result.z <= 1 && result.z >= -1, true)
+      assertVecApproxEq(result, Expected, 3)
+    })
+  }) //:: left
+
+  describe('transformsNeedSorting', () => {
+    beforeEach(async () => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should start with the expected default value', () => {
+      // Required because running other tests will override this value.
+      // Unnecesary when running this test with `.only`
+      SystemDefinitions.get(TransformDirtyUpdateSystem)?.execute()
+
+      const Expected = false
+      const result = TransformComponent.transformsNeedSorting
+      assert.equal(result, Expected)
+    })
+  }) //:: transformsNeedSorting
 
   describe('General Purpose', () => {
     beforeEach(async () => {
@@ -557,9 +1077,129 @@ describe('TransformComponent', () => {
   }) //:: General Purpose
 }) //:: TransformComponent
 
-describe('composeMatrix', () => {}) //:: composeMatrix
-describe('decomposeMatrix', () => {}) //:: decomposeMatrix
-describe('setFromRotationMatrix', () => {}) //:: setFromRotationMatrix
+describe('composeMatrix', () => {
+  let testEntity = UndefinedEntity
+
+  beforeEach(async () => {
+    createEngine()
+    testEntity = createEntity()
+  })
+
+  afterEach(() => {
+    removeEntity(testEntity)
+    return destroyEngine()
+  })
+
+  it('should have the same behavior as Matrix4.compose', () => {
+    const Expected = {
+      position: new Vector3(1, 2, 3),
+      rotation: new Quaternion(4, 5, 6, 7).normalize(),
+      scale: new Vector3(9, 10, 11),
+      matrix: new Matrix4()
+    }
+    Expected.matrix = new Matrix4().compose(Expected.position, Expected.rotation, Expected.scale)
+    // Set the data as expected
+    setComponent(testEntity, TransformComponent)
+    TransformComponent.position.x[testEntity] = Expected.position.x
+    TransformComponent.position.y[testEntity] = Expected.position.y
+    TransformComponent.position.z[testEntity] = Expected.position.z
+    TransformComponent.rotation.x[testEntity] = Expected.rotation.x
+    TransformComponent.rotation.y[testEntity] = Expected.rotation.y
+    TransformComponent.rotation.z[testEntity] = Expected.rotation.z
+    TransformComponent.rotation.w[testEntity] = Expected.rotation.w
+    TransformComponent.scale.x[testEntity] = Expected.scale.x
+    TransformComponent.scale.y[testEntity] = Expected.scale.y
+    TransformComponent.scale.z[testEntity] = Expected.scale.z
+    // Sanity check before running
+    assert.equal(hasComponent(testEntity, TransformComponent), true)
+    // Run and Check the result
+    composeMatrix(testEntity)
+    const result = {
+      position: getComponent(testEntity, TransformComponent).position.clone(),
+      rotation: getComponent(testEntity, TransformComponent).rotation.clone(),
+      scale: getComponent(testEntity, TransformComponent).scale.clone(),
+      matrix: new Matrix4()
+    }
+    result.matrix = new Matrix4().compose(result.position, result.rotation, result.scale)
+    assertArrayEqual(result.matrix.elements, Expected.matrix.elements)
+  })
+}) //:: composeMatrix
+
+describe('decomposeMatrix', () => {
+  let testEntity = UndefinedEntity
+
+  beforeEach(async () => {
+    createEngine()
+    testEntity = createEntity()
+  })
+
+  afterEach(() => {
+    removeEntity(testEntity)
+    return destroyEngine()
+  })
+
+  it('should have the same behavior as Matrix4.decompose', () => {
+    const Expected = {
+      position: new Vector3(1, 2, 3),
+      rotation: new Quaternion(4, 5, 6, 7).normalize(),
+      scale: new Vector3(9, 10, 11)
+    }
+    // Set the data as expected
+    setComponent(testEntity, TransformComponent, {
+      position: Expected.position,
+      rotation: Expected.rotation,
+      scale: Expected.scale
+    })
+    // Sanity check before running
+    assert.equal(hasComponent(testEntity, TransformComponent), true)
+    // Run and Check the result
+    decomposeMatrix(testEntity)
+    const result = {
+      position: new Vector3(),
+      rotation: new Quaternion(),
+      scale: new Vector3(1, 1, 1)
+    }
+    getComponent(testEntity, TransformComponent).matrix.decompose(result.position, result.rotation, result.scale)
+    assertFloatApproxEq(TransformComponent.position.x[testEntity], Expected.position.x)
+    assertFloatApproxEq(TransformComponent.position.y[testEntity], Expected.position.y)
+    assertFloatApproxEq(TransformComponent.position.z[testEntity], Expected.position.z)
+    assertFloatApproxEq(TransformComponent.rotation.x[testEntity], Expected.rotation.x)
+    assertFloatApproxEq(TransformComponent.rotation.y[testEntity], Expected.rotation.y)
+    assertFloatApproxEq(TransformComponent.rotation.z[testEntity], Expected.rotation.z)
+    assertFloatApproxEq(TransformComponent.rotation.w[testEntity], Expected.rotation.w)
+    assertFloatApproxEq(TransformComponent.scale.x[testEntity], Expected.scale.x)
+    assertFloatApproxEq(TransformComponent.scale.y[testEntity], Expected.scale.y)
+    assertFloatApproxEq(TransformComponent.scale.z[testEntity], Expected.scale.z)
+  })
+}) //:: decomposeMatrix
+
+describe('setFromRotationMatrix', () => {
+  let testEntity = UndefinedEntity
+
+  beforeEach(async () => {
+    createEngine()
+    testEntity = createEntity()
+  })
+
+  afterEach(() => {
+    removeEntity(testEntity)
+    return destroyEngine()
+  })
+
+  it('should set the TransformComponent.rotation.(x,y,z,w) for `@param entity` based on the 3x3 rotation matrix contained in `@param m`', () => {
+    const Expected = new Quaternion(4, 5, 6, 7).normalize()
+    // Set the data as expected
+    setComponent(testEntity, TransformComponent)
+    // Sanity check before running
+    assert.equal(hasComponent(testEntity, TransformComponent), true)
+    // Run and Check the result
+    setFromRotationMatrix(testEntity, new Matrix4().makeRotationFromQuaternion(Expected))
+    assertFloatApproxEq(TransformComponent.rotation.x[testEntity], Expected.x)
+    assertFloatApproxEq(TransformComponent.rotation.y[testEntity], Expected.y)
+    assertFloatApproxEq(TransformComponent.rotation.z[testEntity], Expected.z)
+    assertFloatApproxEq(TransformComponent.rotation.w[testEntity], Expected.w)
+  })
+}) //:: setFromRotationMatrix
 
 describe('TransformGizmoTagComponent', () => {
   describe('Fields', () => {
