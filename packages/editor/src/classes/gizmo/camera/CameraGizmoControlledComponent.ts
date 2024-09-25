@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { Engine } from '@ir-engine/ecs'
+import { Engine, UndefinedEntity } from '@ir-engine/ecs'
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -41,7 +41,7 @@ import { CameraGizmoVisualComponent } from './CameraGizmoVisualComponent'
 export const CameraGizmoControlledComponent = defineComponent({
   name: 'CameraGizmoControlled',
 
-  schema: S.Object({ controller: S.Entity() }),
+  schema: S.Object({ controller: S.Entity(), sceneEntity: S.Entity() }),
 
   reactor: function (props) {
     const entity = useEntityContext()
@@ -51,8 +51,18 @@ export const CameraGizmoControlledComponent = defineComponent({
       const gizmoControlEntity = createEntity()
       const gizmoVisualEntity = createEntity()
 
-      setComponent(gizmoControlEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-      setComponent(gizmoVisualEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(gizmoControlEntity, EntityTreeComponent, {
+        parentEntity:
+          cameraGizmoControlledComponent.sceneEntity.value === UndefinedEntity
+            ? Engine.instance.originEntity
+            : cameraGizmoControlledComponent.sceneEntity.value
+      })
+      setComponent(gizmoVisualEntity, EntityTreeComponent, {
+        parentEntity:
+          cameraGizmoControlledComponent.sceneEntity.value === UndefinedEntity
+            ? Engine.instance.originEntity
+            : cameraGizmoControlledComponent.sceneEntity.value
+      })
 
       const controlledEntities = [entity]
       setComponent(gizmoControlEntity, NameComponent, 'CameraGizmoControllerEntity')
@@ -66,7 +76,9 @@ export const CameraGizmoControlledComponent = defineComponent({
       cameraGizmoControlledComponent.controller.set(gizmoControlEntity)
 
       setComponent(gizmoVisualEntity, NameComponent, 'cameraGizmoVisualEntity')
-      setComponent(gizmoVisualEntity, CameraGizmoVisualComponent)
+      setComponent(gizmoVisualEntity, CameraGizmoVisualComponent, {
+        sceneEntity: cameraGizmoControlledComponent.sceneEntity.value
+      })
       setComponent(gizmoVisualEntity, CameraGizmoTagComponent)
       setComponent(gizmoVisualEntity, VisibleComponent)
 

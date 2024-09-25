@@ -53,7 +53,7 @@ export default function CameraGizmoTool({
     setComponent(sceneEntity, VisibleComponent, true)
     //setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
     //setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
-    setComponent(sceneEntity, CameraGizmoControlledComponent)
+    setComponent(sceneEntity, CameraGizmoControlledComponent, { sceneEntity: sceneEntity })
 
     //setComponent(sceneEntity , CameraGizmoVisualComponent  , {sceneEntity : sceneEntity} )
 
