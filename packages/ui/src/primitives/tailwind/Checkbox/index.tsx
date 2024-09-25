@@ -23,39 +23,36 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useId } from 'react'
 import { HiCheck } from 'react-icons/hi'
 
 import { twMerge } from 'tailwind-merge'
-import { v4 as uuidv4 } from 'uuid'
-
-import Label from '../Label'
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: boolean
   label?: React.ReactNode
-  className?: string
-  containerClassName?: string
+  description?: React.ReactNode
   onChange: (value: boolean) => void
-  disabled?: boolean
 }
 
-const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
+const Checkbox = ({ label, value, onChange, description, ...props }: CheckboxProps) => {
+  const id = useId()
+
   const handleChange = () => {
-    if (!disabled) {
+    if (!props.disabled) {
       onChange(!value)
     }
   }
 
-  const id = uuidv4()
-
   return (
-    <div className={twMerge('relative flex cursor-pointer items-end', containerClassName)}>
+    <div
+      className={twMerge('relative flex cursor-pointer items-center accent-[#5F7DBF]', description && 'items-start')}
+    >
       <input
+        id={id}
         type="checkbox"
         checked={value}
         onChange={handleChange}
-        id={id}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             handleChange()
@@ -63,18 +60,31 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
         }}
         className={twMerge(
           'peer relative appearance-none',
-          'grid h-4 w-4 place-items-center rounded border border-theme-primary focus:border-2 focus:border-theme-focus focus:outline-none',
-          value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
-          disabled ? 'cursor-not-allowed opacity-50' : '',
-          className
+          'grid h-4 w-4 place-items-center rounded',
+          'border border-[#42454D] bg-[#141619]',
+          !value && 'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
+          !value && 'focus:border-[#375DAF] focus:bg-[#212226] focus:outline-none',
+          value && 'border-[#5F7DBF] bg-[#212226]',
+          'disabled:-z-10 disabled:border-[#42454D] disabled:bg-[#191B1F]'
+        )}
+        {...props}
+      />
+      <HiCheck
+        onClick={handleChange}
+        className={twMerge(
+          'absolute m-0.5 hidden h-3 w-3 text-[#5F7DBF]  peer-checked:block peer-disabled:text-[#42454D]',
+          props.disabled && 'cursor-not-allowed'
         )}
       />
-      <HiCheck onClick={handleChange} className="absolute m-0.5 hidden h-3 w-3 text-white peer-checked:block" />
-
       {label && (
-        <Label className="ml-2 cursor-pointer self-stretch leading-[1.15]" htmlFor={id}>
+        <label
+          htmlFor={id}
+          className="ml-2 block cursor-pointer self-stretch text-sm text-[#D3D5D9] peer-disabled:cursor-auto peer-disabled:text-[#6B6F78]"
+          onClick={handleChange}
+        >
           {label}
-        </Label>
+          <span className="block max-w-[220px] text-wrap">{description}</span>
+        </label>
       )}
     </div>
   )

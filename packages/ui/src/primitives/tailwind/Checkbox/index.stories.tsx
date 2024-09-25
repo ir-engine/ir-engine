@@ -23,33 +23,66 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import React from 'react'
+import { ArgTypes } from 'storybook/internal/types'
+import Checkbox, { CheckboxProps } from './index'
+
+const argTypes: ArgTypes = {
+  value: {
+    control: 'boolean'
+  },
+  disabled: {
+    control: 'boolean'
+  },
+  label: {
+    control: 'text',
+    if: { arg: 'label', exists: true }
+  },
+  description: {
+    control: 'text',
+    if: { arg: 'description', exists: true }
+  }
+}
 
 export default {
   title: 'Primitives/Tailwind/Checkbox',
-  component: Component,
+  component: Checkbox,
   parameters: {
     componentSubtitle: 'Checkbox',
-    jest: 'Checkbox.test.tsx',
     design: {
       type: 'figma',
-      url: ''
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2786-21102&node-type=frame&t=TlQtKBH49KjD5Efr-0'
     }
+  },
+  argTypes
+}
+
+const CheckboxRenderer = (args: CheckboxProps) => {
+  return (
+    <div className="flex items-center gap-3">
+      <Checkbox {...args} />
+    </div>
+  )
+}
+
+export const Default = {
+  name: 'Default',
+  render: CheckboxRenderer
+}
+
+export const WithLabel = {
+  name: 'With Label',
+  render: CheckboxRenderer,
+  args: {
+    label: 'Checkbox label'
   }
 }
 
-export const Unchecked = {
+export const WithDescription = {
+  name: 'With Description',
+  render: CheckboxRenderer,
   args: {
-    label: 'Checkbox Example',
-    value: false,
-    onChange: () => {}
-  }
-}
-
-export const Checked = {
-  args: {
-    label: 'Checkbox Checked Example',
-    value: true,
-    onChange: () => {}
+    label: 'Checkbox label',
+    description: 'Save my login details for next time.'
   }
 }
