@@ -194,6 +194,7 @@ export function useFileBrowserDrop() {
 
       await Promise.all(
         data.files.map(async (file) => {
+          file = convertFileExtensionToLowercase(file)
           const assetType = !file.type || file.type.length === 0 ? AssetLoader.getAssetType(file.name) : file.type
           if (!assetType || assetType === file.name) {
             await fileService.create(`${destinationPath}${file.name}`)
@@ -216,6 +217,35 @@ export function useFileBrowserDrop() {
   }
 
   return dropItemsOnFileBrowser
+}
+
+/**
+ * Returns a new File object with the same properties as the input file, but with the extension in lowercase.
+ * @param file
+ */
+export function convertFileExtensionToLowercase(file) {
+  const fileName = file.name
+
+  // Find the last period in the filename (the start of the extension)
+  const lastDotIndex = fileName.lastIndexOf('.')
+
+  // If no dot is found, return the original file (no extension to modify)
+  if (lastDotIndex === -1) return file
+
+  // Split the name into the part before and after the dot
+  const nameWithoutExtension = fileName.substring(0, lastDotIndex)
+  const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
+
+  // Combine the name with the lowercase extension
+  const newFileName = `${nameWithoutExtension}.${extension}`
+
+  // Create a new File object with the modified name, keeping other properties the same
+  const newFile = new File([file], newFileName, {
+    type: file.type,
+    lastModified: file.lastModified
+  })
+
+  return newFile
 }
 
 /* UTILITIES */

@@ -80,13 +80,14 @@ const TransformSnapTool = () => {
   }
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center rounded bg-[#0E0F11]">
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}>
         <Button
           startIcon={<LuUtilityPole className="text-theme-input" />}
           onClick={toggleAttachmentPointSnap}
           variant={objectSnapState.enabled.value ? 'outline' : 'transparent'}
           className="px-0"
+          size="small"
         />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
@@ -95,12 +96,13 @@ const TransformSnapTool = () => {
           onClick={toggleSnapMode}
           variant={editorHelperState.gridSnap.value === SnapMode.Grid ? 'outline' : 'transparent'}
           className="px-0"
+          size="small"
         />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right center">
         <Select
           key={editorHelperState.translationSnap.value}
-          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs"
+          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs"
           className="w-20 border-theme-input p-1 text-theme-gray3"
           onChange={onChangeTranslationSnap}
           options={translationSnapOptions}
@@ -110,7 +112,7 @@ const TransformSnapTool = () => {
       <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right center">
         <Select
           key={editorHelperState.rotationSnap.value}
-          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs pe-9"
+          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs pe-9"
           className="w-20 border-theme-input p-1 text-theme-gray3"
           onChange={onChangeRotationSnap}
           options={rotationSnapOptions}

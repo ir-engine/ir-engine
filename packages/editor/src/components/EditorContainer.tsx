@@ -235,7 +235,7 @@ const EditorContainer = () => {
                 <DockLayout
                   ref={dockPanelRef}
                   defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
-                  style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
+                  style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
                 />
               </DockContainer>
             </div>

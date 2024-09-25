@@ -61,9 +61,8 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
 
   return (
     <Button
-      variant="transparent"
       fullWidth
-      className="w-full bg-theme-primary p-2 text-[#B2B5BD]"
+      className="w-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
@@ -86,9 +85,8 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
 const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: () => void }) => {
   return (
     <Button
-      variant="transparent"
       fullWidth
-      className="w-full bg-theme-primary p-2 text-[#B2B5BD]"
+      className="w-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
       onClick={() => {
         const url = item.url
         if (!url.length) {
@@ -124,8 +122,8 @@ const SceneElementListItem = ({
   return (
     <button
       className={twMerge(
-        'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-theme-primary px-3 py-2.5 text-sm font-medium',
-        selected ? 'text-primary border-[#42454D] bg-[#212226]' : 'text-[#B2B5BD]'
+        'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
+        selected ? 'text-primary border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
       )}
       onClick={onClick}
     >
@@ -234,8 +232,8 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
   }
 
   return (
-    <div className="rounded-xl bg-theme-primary p-4">
-      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll  p-2">
+    <div className="rounded-xl bg-[#191B1F] p-4">
+      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll p-2">
         <Text className="mb-1.5 w-full text-center uppercase text-white">{t(`editor:layout.assetGrid.${type}`)}</Text>
         <StringInput
           placeholder={t(`editor:layout.assetGrid.${type}-search`)}
@@ -268,7 +266,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
       )}
 
       {(isInSearchMode.value || selectedCategories.value.length > 0) && (
-        <ul className="w-full">
+        <ul className="flex w-full flex-col space-y-1 pt-3">
           {shelves.flatMap(([_, items], index) =>
             selectedCategories.value.includes(index)
               ? items.map((item: Component | PrefabShelfItem) =>
