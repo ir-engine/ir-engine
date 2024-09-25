@@ -35,69 +35,35 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const taskServerSeedData: EngineSettingType[] = await Promise.all(
+  const taskServerSeedData = await generateSeedData(
     [
-      // Task Server Settings:
-      {
-        key: EngineSettings.TaskServer.Port,
-        value: process.env.TASKSERVER_PORT || '3030'
-      },
-      {
-        key: EngineSettings.TaskServer.ProcessInterval,
-        value: process.env.TASKSERVER_PROCESS_INTERVAL_SECONDS || '30'
-      }
-    ].map(async (item) => ({
-      ...item,
-      id: uuidv4(),
-      type: 'private' as EngineSettingType['type'],
-      category: 'task-server' as EngineSettingType['category'],
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
-    }))
+      { key: EngineSettings.TaskServer.Port, value: process.env.TASKSERVER_PORT || '3030' },
+      { key: EngineSettings.TaskServer.ProcessInterval, value: process.env.TASKSERVER_PROCESS_INTERVAL_SECONDS || '30' }
+    ],
+    'task-server',
+    'private'
   )
 
-  const coilSeedData: EngineSettingType[] = await Promise.all(
-    [
-      {
-        key: EngineSettings.Coil.PaymentPointer,
-        value: process.env.COIL_PAYMENT_POINTER || ''
-      },
-      {
-        key: EngineSettings.Coil.ClientId,
-        value: process.env.COIL_API_CLIENT_ID || ''
-      },
-      {
-        key: EngineSettings.Coil.ClientSecret,
-        value: process.env.COIL_API_CLIENT_SECRET || ''
-      }
-    ].map(async (item) => ({
-      ...item,
-      id: uuidv4(),
-      type: 'private' as EngineSettingType['type'],
-      category: 'coil' as EngineSettingType['category'],
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
-    }))
-  )
-
-  const chargebeeSettingSeedData: EngineSettingType[] = await Promise.all(
+  const chargebeeSettingSeedData = await generateSeedData(
     [
       {
         key: EngineSettings.Chargebee.Url,
         value: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com'
       },
-      {
-        key: EngineSettings.Chargebee.ApiKey,
-        value: process.env.CHARGEBEE_API_KEY || ''
-      }
-    ].map(async (item) => ({
-      ...item,
-      id: uuidv4(),
-      type: 'private' as EngineSettingType['type'],
-      category: 'chargebee' as EngineSettingType['category'],
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
-    }))
+      { key: EngineSettings.Chargebee.ApiKey, value: process.env.CHARGEBEE_API_KEY || '' }
+    ],
+    'chargebee',
+    'private'
+  )
+
+  const coilSeedData = await generateSeedData(
+    [
+      { key: EngineSettings.Coil.PaymentPointer, value: process.env.COIL_PAYMENT_POINTER || '' },
+      { key: EngineSettings.Coil.ClientId, value: process.env.COIL_API_CLIENT_ID || '' },
+      { key: EngineSettings.Coil.ClientSecret, value: process.env.COIL_API_CLIENT_SECRET || '' }
+    ],
+    'coil',
+    'private'
   )
 
   const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData, ...coilSeedData]
@@ -117,4 +83,21 @@ export async function seed(knex: Knex): Promise<void> {
       }
     }
   }
+}
+
+async function generateSeedData(
+  items: { key: string; value: string }[],
+  category: EngineSettingType['category'],
+  type: EngineSettingType['type']
+): Promise<EngineSettingType[]> {
+  return Promise.all(
+    items.map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      type: type,
+      category: category,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
 }
