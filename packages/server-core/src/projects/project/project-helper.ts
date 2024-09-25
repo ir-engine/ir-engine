@@ -301,6 +301,7 @@ export const onProjectEvent = async (
   ...args
 ) => {
   const hookFilePath = path.resolve(projectsRootFolder, project.name, hookPath)
+  if (!fs.existsSync(hookFilePath)) return logger.warn(`No hooks file found at ${hookFilePath}`)
   const hooks = (await import(hookFilePath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
