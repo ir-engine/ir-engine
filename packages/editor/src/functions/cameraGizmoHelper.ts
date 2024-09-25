@@ -167,13 +167,7 @@ function pointerHover(gizmoEntity) {
   _raycaster.setFromCamera(pointerPosition, camera)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
-  console.log('DEBUG: onPointerHover intersect', intersect)
-
-  if (intersect) {
-    gizmoControlComponent.axis.set(intersect.object.name)
-  } else {
-    gizmoControlComponent.axis.set(null)
-  }
+  gizmoControlComponent.axis.set(intersect?.object?.name ?? null)
 }
 
 function pointerDown(gizmoEntity) {
@@ -244,11 +238,9 @@ function pointerUp(gizmoEntity) {
 
 export function onPointerHover(gizmoEntity) {
   const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
-  console.log('DEBUG: gizmoControl', gizmoControl, gizmoEntity)
 
   if (gizmoControl === undefined) return
   if (!gizmoControl.enabled) return
-  console.log('DEBUG: onPointerHover')
   pointerHover(gizmoEntity)
 }
 

@@ -27,9 +27,8 @@ import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-
-import { TransformGizmoControlComponent as CameraGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
-import { TransformGizmoControlledComponent as CameraGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
+import { CameraGizmoControlComponent } from '../classes/gizmo/camera/CameraGizmoControlComponent'
+import { CameraGizmoControlledComponent } from '../classes/gizmo/camera/CameraGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate } from '../functions/cameraGizmoHelper'
 
 export const cameraGizmoControllerQuery = defineQuery([CameraGizmoControlComponent])

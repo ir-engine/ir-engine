@@ -27,7 +27,6 @@ import { defineComponent, Engine, getComponent, useComponent, useEntityContext }
 import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
@@ -56,7 +55,7 @@ export const CameraGizmoControlComponent = defineComponent({
   reactor: function (props) {
     const gizmoControlEntity = useEntityContext()
     const gizmoControlComponent = useComponent(gizmoControlEntity, CameraGizmoControlComponent)
-    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
+    //getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
     const inputPointerEntities = InputPointerComponent.usePointersForCamera(Engine.instance.viewerEntity)
 
     // Commit transform changes if the pointer entities are lost (ie. pointer dragged outside of the canvas)
@@ -70,7 +69,6 @@ export const CameraGizmoControlComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, CameraGizmoControlComponent)
-        console.log('DEBUG :', gizmoControlComponent)
         if (!gizmoControlComponent.enabled || !gizmoControlComponent.visualEntity) return
 
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, CameraGizmoVisualComponent)
