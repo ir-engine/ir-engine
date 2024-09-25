@@ -55,8 +55,31 @@ export async function seed(knex: Knex): Promise<void> {
       updatedAt: await getDateTimeSql()
     }))
   )
+  const coilSeedData: EngineSettingType[] = await Promise.all(
+    [
+      {
+        key: EngineSettings.Coil.PaymentPointer,
+        value: process.env.COIL_PAYMENT_POINTER || ''
+      },
+      {
+        key: EngineSettings.Coil.ClientId,
+        value: process.env.COIL_API_CLIENT_ID || ''
+      },
+      {
+        key: EngineSettings.Coil.ClientSecret,
+        value: process.env.COIL_API_CLIENT_SECRET || ''
+      }
+    ].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      type: 'private' as EngineSettingType['type'],
+      category: 'coil' as EngineSettingType['category'],
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
 
-  const seedData: EngineSettingType[] = [...taskServerSeedData]
+  const seedData: EngineSettingType[] = [...taskServerSeedData, ...coilSeedData]
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries

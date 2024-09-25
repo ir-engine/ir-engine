@@ -38,7 +38,6 @@ import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import { coilSettingPath, CoilSettingType } from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
   instanceServerSettingPath,
@@ -50,7 +49,12 @@ import {
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
-import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
+import {
+  engineSettingPath,
+  EngineSettingType,
+  mailchimpSettingPath,
+  MailchimpSettingType
+} from '@ir-engine/common/src/schema.type.module'
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
@@ -157,12 +161,17 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const coilSettingPromise = knexClient
     .select()
-    .from<CoilSettingType>(coilSettingPath)
-    .then(([dbCoil]) => {
-      if (dbCoil) {
+    .from<EngineSettingType>(engineSettingPath)
+    .where('category', 'coil')
+    .then((coilSettings) => {
+      if (coilSettings) {
         appConfig.coil = {
           ...appConfig.coil,
-          ...dbCoil
+          ...coilSettings.map((engineConfig) => {
+            return {
+              [engineConfig.key]: engineConfig.value
+            }
+          })
         }
       }
     })

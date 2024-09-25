@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import knex from 'knex'
 
-import { coilSettingPath, CoilSettingType } from '../../common/src/schemas/setting/coil-setting.schema'
+import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
 
 export const getCoilSetting = async () => {
   const knexClient = knex({
@@ -42,11 +42,17 @@ export const getCoilSetting = async () => {
 
   const coilSetting = await knexClient
     .select()
-    .from<CoilSettingType>(coilSettingPath)
-    .then(([dbCoil]) => {
-      if (dbCoil) {
-        return dbCoil
+    .from<EngineSettingType>(engineSettingPath)
+    .where('category', 'coil')
+    .then((coilEngineSettings) => {
+      if (coilEngineSettings && coilEngineSettings.length > 0) {
+        return coilEngineSettings.map((coilEngineSetting) => {
+          return {
+            [coilEngineSetting.key]: coilEngineSetting.value
+          }
+        })
       }
+      return []
     })
     .catch((e) => {
       console.warn('[vite.config]: Failed to read coilSetting')

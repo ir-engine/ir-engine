@@ -343,7 +343,7 @@ export default defineConfig(async () => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting?.paymentPointer || '',
+        paymentPointer: coilSetting['paymentPointer'] || '',
         rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`
       }),
       viteCompression({
