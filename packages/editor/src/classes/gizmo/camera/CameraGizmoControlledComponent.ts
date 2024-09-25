@@ -41,7 +41,7 @@ import { CameraGizmoVisualComponent } from './CameraGizmoVisualComponent'
 export const CameraGizmoControlledComponent = defineComponent({
   name: 'CameraGizmoControlled',
 
-  schema: S.Object({ controller: S.Entity(), sceneEntity: S.Entity() }),
+  schema: S.Object({ controller: S.Entity(), sceneEntity: S.Entity(), cameraEntity: S.Entity() }),
 
   reactor: function (props) {
     const entity = useEntityContext()
@@ -64,10 +64,9 @@ export const CameraGizmoControlledComponent = defineComponent({
             : cameraGizmoControlledComponent.sceneEntity.value
       })
 
-      const controlledEntities = [entity]
       setComponent(gizmoControlEntity, NameComponent, 'cameraGizmoControllerEntity')
       setComponent(gizmoControlEntity, CameraGizmoControlComponent, {
-        controlledCameras: controlledEntities,
+        panelCamera: cameraGizmoControlledComponent.cameraEntity.value,
         visualEntity: gizmoVisualEntity
       })
       setComponent(gizmoControlEntity, CameraGizmoTagComponent)

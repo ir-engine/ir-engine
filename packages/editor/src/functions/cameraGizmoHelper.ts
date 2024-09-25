@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
+import { Raycaster } from 'three'
 
 import {
-  Engine,
   Entity,
   getComponent,
   getMutableComponent,
@@ -40,47 +39,13 @@ import { CameraComponent } from '@ir-engine/spatial/src/camera/components/Camera
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { CameraGizmoControlComponent } from '../classes/gizmo/camera/CameraGizmoControlComponent'
 import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
 import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 
 const _raycaster = new Raycaster()
-_raycaster.layers.set(ObjectLayers.TransformGizmo)
-
-const _tempQuaternion = new Quaternion()
-const _tempVector = new Vector3()
-const _tempVector2 = new Vector3()
-
-const _offset = new Vector3()
-const _startNorm = new Vector3()
-const _endNorm = new Vector3()
-
-const _positionStart = new Vector3()
-const _positionMultiStart: Record<Entity, Vector3> = {}
-const _quaternionStart = new Quaternion()
-const _quaternionMultiStart: Record<Entity, Quaternion> = {}
-const _scaleStart = new Vector3()
-const _scaleMultiStart: Record<Entity, Vector3> = []
-
-const _worldPosition = new Vector3()
-const _worldQuaternion = new Quaternion()
-const _worldQuaternionInv = new Quaternion()
-const _worldScale = new Vector3()
-
-const _parentQuaternionInv = new Quaternion()
-const _parentScale = new Vector3()
-
-const _tempEuler = new Euler()
-const _alignVector = new Vector3(0, 1, 0)
-const _lookAtMatrix = new Matrix4()
-const _dirVector = new Vector3()
-const _tempMatrix = new Matrix4()
-
-const _v1 = new Vector3()
-const _v2 = new Vector3()
-const _v3 = new Vector3()
+_raycaster.layers.set(ObjectLayers.Scene)
 
 export function gizmoUpdate(gizmoEntity) {
   const gizmoControl = getComponent(gizmoEntity, CameraGizmoControlComponent)
@@ -92,21 +57,31 @@ export function gizmoUpdate(gizmoEntity) {
   if (gizmo.gizmo === UndefinedEntity) return
 
   let handles: any[] = []
-  handles = handles.concat(getComponent(gizmo.picker, GroupComponent)[0].children)
   handles = handles.concat(getComponent(gizmo.gizmo, GroupComponent)[0].children)
+  //handles = handles.concat(getComponent(gizmo.picker, GroupComponent)[0].children)
 
+  console.log('DEBUG handles', handles)
   for (const handle of handles) {
     handle.visible = true
     handle.rotation.set(0, 0, 0)
     handle.position.set(0, 0, 0)
 
     // Hide disabled axes
-    handle.visible = handle.visible && (handle.name.indexOf(TransformAxis.X) === -1 || gizmoControl.showX)
-    handle.visible = handle.visible && (handle.name.indexOf(TransformAxis.Y) === -1 || gizmoControl.showY)
-    handle.visible = handle.visible && (handle.name.indexOf(TransformAxis.Z) === -1 || gizmoControl.showZ)
     handle.visible =
       handle.visible &&
-      (handle.name.indexOf(TransformAxis.E) === -1 || (gizmoControl.showX && gizmoControl.showY && gizmoControl.showZ))
+      (handle.name.indexOf(TransformAxis.X) === -1 ||
+        handle.name.indexOf(TransformAxis.Xn) === -1 ||
+        gizmoControl.showX)
+    handle.visible =
+      handle.visible &&
+      (handle.name.indexOf(TransformAxis.Y) === -1 ||
+        handle.name.indexOf(TransformAxis.Yn) === -1 ||
+        gizmoControl.showY)
+    handle.visible =
+      handle.visible &&
+      (handle.name.indexOf(TransformAxis.Z) === -1 ||
+        handle.name.indexOf(TransformAxis.Zn) === -1 ||
+        gizmoControl.showZ)
 
     // highlight selected axis
 
@@ -119,28 +94,18 @@ export function gizmoUpdate(gizmoEntity) {
     handle.material.color.copy(handle.material._color)
     handle.material.opacity = handle.material._opacity
 
-    if (gizmoControl.enabled && gizmoControl.axis) {
-      if (handle.name === gizmoControl.axis) {
-        //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
-        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
-        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
-      } else if (
-        gizmoControl.axis.split('').some(function (a) {
-          return handle.name === a
-        })
-      ) {
-        //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
-        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
-        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
-      }
-    }
+    if (!gizmoControl.enabled || !gizmoControl.axis || handle.name !== gizmoControl.axis) continue
+
+    //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
+    handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+    handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
   }
 }
 
 export function controlUpdate(gizmoEntity: Entity) {
-  const gizmoControl = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
+  /*const gizmoControl = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
   if (gizmoControl === undefined) return
-  const targetEntity = gizmoControl.controlledCameras.get(NO_PROXY)[0]
+  const targetEntity = gizmoControl.controlledCamera.get(NO_PROXY)
   if (targetEntity === UndefinedEntity) return
 
   let parentEntity = UndefinedEntity
@@ -148,37 +113,38 @@ export function controlUpdate(gizmoEntity: Entity) {
 
   if (parent && parent.parentEntity !== UndefinedEntity) {
     parentEntity = parent.parentEntity!
-  }
+  }*/
 }
 
 function pointerHover(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
-  if (!inputPointerEntity) return
-  const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
+  const panelInputPointerEntity = InputPointerComponent.getPointersForCamera(gizmoControlComponent.panelCamera.value)[0]
+  if (!panelInputPointerEntity) return
+  const pointerPosition = getComponent(panelInputPointerEntity, InputPointerComponent).position
   const gizmoVisual = getComponent(gizmoControlComponent.visualEntity.value, CameraGizmoVisualComponent)
   const picker = getComponent(gizmoVisual.picker, GroupComponent)[0]
-  const targetEntity = gizmoControlComponent.controlledCameras.get(NO_PROXY)[0]
+  const targetEntity = gizmoControlComponent.panelCamera.get(NO_PROXY)
 
   if (targetEntity === UndefinedEntity) return
 
-  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
+  const camera = getComponent(gizmoControlComponent.panelCamera.value, CameraComponent)
   _raycaster.setFromCamera(pointerPosition, camera)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
+  console.log('DEBUG intersect', intersect?.object?.name)
   gizmoControlComponent.axis.set(intersect?.object?.name ?? null)
 }
 
 function pointerDown(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
+  /*const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
-  const targetEntity = gizmoControlComponent.controlledCameras.get(NO_PROXY)[0]
+  const targetEntity = gizmoControlComponent.controlledCamera.get(NO_PROXY)
 
-  if (targetEntity === UndefinedEntity || pointer.movement.length() !== 0) return
+  if (targetEntity === UndefinedEntity || pointer.movement.length() !== 0) return*/
 }
 
 /*function pointerMove(gizmoEntity) {
@@ -228,12 +194,12 @@ export function onGizmoCommit(gizmoEntity) {}
 
 function pointerUp(gizmoEntity) {
   // TODO support gizmos in multiple viewports
-  const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
+  /*const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
 
   if (pointer.movement.length() !== 0) return
-  onGizmoCommit(gizmoEntity)
+  onGizmoCommit(gizmoEntity)*/
 }
 
 export function onPointerHover(gizmoEntity) {
@@ -245,13 +211,13 @@ export function onPointerHover(gizmoEntity) {
 }
 
 export function onPointerDown(gizmoEntity) {
-  const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
+  /*const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
 
   pointerHover(gizmoEntity)
-  pointerDown(gizmoEntity)
+  pointerDown(gizmoEntity)*/
 }
 
 /*export function onPointerMove(gizmoEntity) {
@@ -264,12 +230,12 @@ export function onPointerDown(gizmoEntity) {
 }*/
 
 export function onPointerUp(gizmoEntity) {
-  const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
+  /*const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
 
-  pointerUp(gizmoEntity)
+  pointerUp(gizmoEntity)*/
 }
 
 export function intersectObjectWithRay(object, raycaster, includeInvisible?) {

@@ -44,7 +44,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Mesh, Object3D } from 'three'
-import { cameraGizmo, pickerTranslate, setupGizmo } from '../../../constants/GizmoPresets'
+import { cameraGizmo, cameraPicker, setupGizmo } from '../../../constants/GizmoPresets'
 
 const useCameraGizmoEntities = () => {
   const gizmo = useHookstate(createEntity)
@@ -83,7 +83,7 @@ export const CameraGizmoVisualComponent = defineComponent({
     useEffect(() => {
       // Gizmo creation
       const gizmoObject = setupGizmo(cameraGizmo)
-      const pickerObject = setupGizmo(pickerTranslate)
+      const pickerObject = setupGizmo(cameraPicker)
 
       setComponent(gizmo, NameComponent, `cameraGizmoEntity`)
       addObjectToGroup(gizmo, gizmoObject)

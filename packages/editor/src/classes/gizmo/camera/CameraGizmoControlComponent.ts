@@ -23,12 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, Engine, getComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, getComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import {
   onGizmoCommit,
@@ -43,7 +44,7 @@ export const CameraGizmoControlComponent = defineComponent({
   name: 'CameraGizmoControl',
 
   schema: S.Object({
-    controlledCameras: S.Array(S.Entity(), []),
+    panelCamera: S.Entity(),
     visualEntity: S.Entity(),
     enabled: S.Bool(true),
     axis: S.Nullable(S.LiteralUnion(Object.values(TransformAxis)), null),
@@ -56,7 +57,7 @@ export const CameraGizmoControlComponent = defineComponent({
     const gizmoControlEntity = useEntityContext()
     const gizmoControlComponent = useComponent(gizmoControlEntity, CameraGizmoControlComponent)
     //getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
-    const inputPointerEntities = InputPointerComponent.usePointersForCamera(Engine.instance.viewerEntity)
+    const inputPointerEntities = InputPointerComponent.usePointersForCamera(gizmoControlComponent.panelCamera.value)
 
     // Commit transform changes if the pointer entities are lost (ie. pointer dragged outside of the canvas)
     useImmediateEffect(() => {
@@ -69,13 +70,16 @@ export const CameraGizmoControlComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, CameraGizmoControlComponent)
+
         if (!gizmoControlComponent.enabled || !gizmoControlComponent.visualEntity) return
 
-        const visualComponent = getComponent(gizmoControlComponent.visualEntity, CameraGizmoVisualComponent)
-        const pickerEntity = visualComponent.picker
+        if (!gizmoControlComponent.panelCamera || !getState(EngineState).viewerEntity) return
+
         onPointerHover(gizmoControlEntity)
 
-        const pickerButtons = InputComponent.getMergedButtons(pickerEntity)
+        const pickerButtons = InputComponent.getMergedButtons(
+          getComponent(gizmoControlComponent.visualEntity, CameraGizmoVisualComponent).picker
+        )
 
         //pointer down
         if (pickerButtons?.PrimaryClick?.down) {

@@ -65,7 +65,7 @@ export default function CameraGizmoTool({
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(sceneEntity, TransformComponent, { scale: new Vector3(13, 13, 13) })
     setComponent(sceneEntity, VisibleComponent, true)
-    setComponent(sceneEntity, CameraGizmoControlledComponent, { sceneEntity: sceneEntity })
+    setComponent(sceneEntity, CameraGizmoControlledComponent, { sceneEntity: sceneEntity, cameraEntity: cameraEntity })
 
     const lightEntity = createEntity()
     setComponent(lightEntity, AmbientLightComponent)
