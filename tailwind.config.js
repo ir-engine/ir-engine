@@ -63,7 +63,7 @@ module.exports = {
           secondary: 'var(--bg-secondary)',
           highlight: 'var(--bg-highlight)',
           surfaceInput: 'var(--bg-surface-input)',
-          'surrface-bg': 'var(--bg-surface-bg)',
+          'surface-bg': 'var(--bg-surface-bg)',
           'surface-main': 'var(--bg-surface-main)',
           'surface-dropdown': 'var(--bg-surface-dropdown)',
           'surface-card': 'var(--bg-surface-card)',

@@ -51,7 +51,7 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-transparent p-0" />
         </Tooltip>
       }
     >
@@ -93,7 +93,7 @@ export function AssetsBreadcrumbs() {
   }
 
   return (
-    <div className="flex h-7 w-96 items-center gap-2 rounded-lg border border-theme-input bg-[#141619] px-2 ">
+    <div className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2">
       <HiOutlineFolder
         onClick={() => handleSelectParentCategory(0)}
         className="cursor-pointer text-xs text-[#A3A3A3]"
@@ -136,28 +136,28 @@ export default function Topbar() {
   useEffect(() => refetchResources(), [search.query])
 
   return (
-    <div className="mb-1 flex h-9 items-center gap-2 bg-theme-surface-main">
+    <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1">
       <div className="ml-2" />
-      <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+      <div className="flex h-7 w-7 items-center rounded-lg">
         <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
           <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
         </Tooltip>
       </div>
-      <div className="flex h-7 w-7 items-center rounded-lg bg-[#2F3137]">
+      <div className="flex h-7 w-7 items-center rounded-lg">
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
           <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
         </Tooltip>
       </div>
       <ViewModeSettings />
-      <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+      <div className="align-center flex h-6 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
         <AssetsBreadcrumbs />
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
             labelClassname: 'text-sm text-red-500',
-            containerClassName: 'flex h-full w-auto',
+            containerClassName: 'flex h-full w-auto rounded-lg overflow-hidden',
             className:
-              'h-7 rounded-lg border border-theme-input bg-[#141619] px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0',
+              'h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0',
             startComponent: <HiMagnifyingGlass className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}
