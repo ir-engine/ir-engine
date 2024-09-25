@@ -39,6 +39,7 @@ import config from '@ir-engine/common/src/config'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
 import TagManager from '@sooro-io/react-gtm-module'
 import { initializei18n } from './util'
 
@@ -98,8 +99,10 @@ export default function ({ children }): JSX.Element {
     }
   }, [])
 
+  const theme = createTheme({})
+
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <MetaTags>
         <link
           href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
@@ -113,6 +116,6 @@ export default function ({ children }): JSX.Element {
           {children}
         </Suspense>
       </BrowserRouter>
-    </>
+    </ThemeProvider>
   )
 }
