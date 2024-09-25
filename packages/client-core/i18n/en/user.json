@@ -276,16 +276,14 @@
       "reportWorld": "Report World"
     },
     "oauth": {
-      "authenticating": "Authenticating...",
-      "authFailed": "{{service}} authentication failed."
+      "authenticating": "Authenticating..."
     },
     "magikLink": {
       "wait": "Please wait a moment while processing..."
     }
   },
   "oauth": {
-    "authenticating": "Authenticating...",
-    "authFailed": "{{service}} authentication failed.",
+    "error": "Unfortunately, {{name}} authentication failed.",
     "redirectToRoot": "Return to Home"
   },
   "magikLink": {
