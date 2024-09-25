@@ -23,7 +23,7 @@ import { defineState } from '@ir-engine/hyperflux'
 export const AssetsPanelCategories = defineState({
   name: 'AssetsPanelCategories',
   initial: {
-    'Default Prefab': {},
+    // 'Default Prefab': {},
 
     Model: {
       // NPC: {},
@@ -47,7 +47,7 @@ export const AssetsPanelCategories = defineState({
       // },
       Kit: {
         Gothic: {},
-        Cottage: {},
+        // Cottage: {},
         Scifi: {},
         Modern: {},
         Nature: {},
@@ -130,11 +130,11 @@ export const AssetsPanelCategories = defineState({
       // Abstract: {},
       // 'Low Contrast': {},
       // 'High Contrast': {}
-    },
-    'Post Processing': {
-      // Fog: {},
-      // Cinematic: {}
     }
+    // 'Post Processing': {
+    // Fog: {},
+    // Cinematic: {}
+    // }
     // Agent: {},
     // Genre: {
     //   Office: {},
