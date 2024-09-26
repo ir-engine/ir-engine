@@ -216,6 +216,7 @@ export function FileContextMenu({
                 }}
               />
             )
+            setAnchorEvent(undefined)
           }}
         >
           {t('editor:layout.assetGrid.deleteAsset')}
@@ -225,7 +226,7 @@ export function FileContextMenu({
           size="small"
           fullWidth
           onClick={() => {
-            if (!selectedFiles.get(NO_PROXY).includes(file)) {
+            if (!selectedFiles.get(NO_PROXY).some((selectedFile) => selectedFile.key === file.key)) {
               if (selectedFiles.value.length > 1) {
                 selectedFiles.merge([file])
               } else {

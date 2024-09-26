@@ -31,6 +31,14 @@ module.exports = {
   important: true, // important in prod is must be
   theme: {
     extend: {
+      height: {
+        'table-size-xs': 'calc(100vh - 436px)',
+        'table-size-sm': 'calc(100vh - 418px)',
+        'table-size-md': 'calc(100vh - 402px)',
+        'table-size-lg': 'calc(100vh - 386px)',
+        'table-size-xl': 'calc(100vh - 318px)',
+        'table-size-full': '100%',
+      },
       gradientColorStops: {
         ...Array.from({ length: 101 }, (_, i) => i).reduce((acc, curr) => {
           acc[curr] = `${curr}%`
@@ -55,7 +63,7 @@ module.exports = {
           secondary: 'var(--bg-secondary)',
           highlight: 'var(--bg-highlight)',
           surfaceInput: 'var(--bg-surface-input)',
-          'surrface-bg': 'var(--bg-surface-bg)',
+          'surface-bg': 'var(--bg-surface-bg)',
           'surface-main': 'var(--bg-surface-main)',
           'surface-dropdown': 'var(--bg-surface-dropdown)',
           'surface-card': 'var(--bg-surface-card)',
