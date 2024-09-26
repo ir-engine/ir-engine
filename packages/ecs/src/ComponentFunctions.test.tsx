@@ -29,6 +29,7 @@ import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import sinon from 'sinon'
 import { DirectionalLight, Matrix4, Vector3 } from 'three'
 import {
   ComponentMap,
@@ -203,14 +204,23 @@ describe('ComponentFunctions', async () => {
         })
       })
 
+      const TopLevelComponent = defineComponent({
+        name: 'ObjComponent',
+        schema: S.NonSerialized(S.Number())
+      })
+
       const entity = createEntity()
-      setComponent(entity, ObjComponent, { other: 12 })
-      const objComponent = getComponent(entity, ObjComponent)
+      const objComponent = setComponent(entity, ObjComponent, { other: 12 })
       const json = ObjComponent.toJSON(objComponent)
       assert(!('light' in json))
       assert('other' in json)
       // The previous assert erases type for some reason
       assert((json as any).other === 12)
+
+      const topLevel = setComponent(entity, TopLevelComponent, 4)
+      assert(topLevel === 4)
+      const nonJson = TopLevelComponent.toJSON(topLevel)
+      assert(nonJson === null)
     })
 
     it('throws error when onSet is called without required fields', () => {
@@ -222,8 +232,93 @@ describe('ComponentFunctions', async () => {
         })
       })
 
+      const TopLevelComponent = defineComponent({
+        name: 'ObjComponent',
+        schema: S.Required(S.Class(() => new DirectionalLight()))
+      })
+
       const entity = createEntity()
+      const light = new DirectionalLight()
       assert.throws(() => setComponent(entity, ObjComponent, { other: 12 }))
+      assert.doesNotThrow(() => setComponent(entity, ObjComponent, { light }))
+      assert.throws(() => setComponent(entity, TopLevelComponent))
+      assert.doesNotThrow(() => setComponent(entity, TopLevelComponent, light))
+    })
+
+    it('uses schema initializers if they exist', () => {
+      const spy = sinon.spy()
+
+      const ObjComponent = defineComponent({
+        name: 'ObjComponent',
+        schema: S.Object({
+          val: S.Number(4, {
+            deserialize: (curr, value) => {
+              assert(curr === 4)
+              spy()
+              return value * 2
+            }
+          })
+        })
+      })
+
+      const TopLevelComponent = defineComponent({
+        name: 'ObjComponent',
+        schema: S.Number(2, {
+          deserialize: (curr, value) => {
+            assert(curr === 2)
+            spy()
+            return value * 3
+          }
+        })
+      })
+
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object(
+          {
+            x: S.Number(0),
+            y: S.Number(0),
+            z: S.Number(4)
+          },
+          undefined,
+          {
+            deserialize: (curr, value) => {
+              return new Vector3(value.x, value.y, value.z)
+            }
+          }
+        )
+      })
+
+      const Vec3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Vec3()
+      })
+
+      const entity = createEntity()
+
+      const objComponent = setComponent(entity, ObjComponent, { val: 12 })
+      assert(objComponent.val === 12 * 2)
+      assert(spy.calledOnce)
+
+      const topLevelComponent = setComponent(entity, TopLevelComponent, 6)
+      assert(topLevelComponent === 6 * 3)
+      assert(spy.calledTwice)
+
+      const vec3 = new Vector3(12, 13, 14)
+      const vector3Component = setComponent(entity, Vector3Component, new Vector3(12, 13, 14))
+      assert(!(vector3Component instanceof Vector3))
+      assert(vec3.x === vector3Component.x && vec3.y === vector3Component.y && vec3.z === vector3Component.z)
+      assert(vec3 !== vector3Component)
+
+      let vec3Component = setComponent(entity, Vec3Component)
+      assert(vec3Component instanceof Vector3)
+      assert(vec3Component.x === 0 && vec3Component.y === 0 && vec3Component.z === 0)
+
+      const vec3Obj = { x: 11, y: 12, z: 13 }
+      vec3Component = setComponent(entity, Vec3Component, vec3Obj)
+      assert(vec3Obj.x === vec3Component.x && vec3Obj.y === vec3Component.y && vec3Obj.z === vec3Component.z)
+      assert(vec3Obj !== vec3Component)
+      assert(vec3Component instanceof Vector3)
     })
 
     it('ECS Schema is proxied', () => {

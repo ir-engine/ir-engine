@@ -367,12 +367,14 @@ export function gizmoUpdate(gizmoEntity) {
 export function planeUpdate(gizmoEntity) {
   // update plane entity
 
-  const gizmoControl = getComponent(gizmoEntity, TransformGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   let space = gizmoControl.space
 
-  setComponent(gizmoControl.planeEntity, TransformComponent, { position: gizmoControl.worldPosition })
+  const planeTransform = setComponent(gizmoControl.planeEntity, TransformComponent, {
+    position: gizmoControl.worldPosition
+  })
 
   if (gizmoControl.mode === TransformMode.scale) space = TransformSpace.local // scale always oriented to local rotation
 
@@ -431,12 +433,10 @@ export function planeUpdate(gizmoEntity) {
   if (_dirVector.length() === 0) {
     // If in rotate mode, make the plane parallel to camera
     const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
-    setComponent(gizmoControl.planeEntity, TransformComponent, { rotation: camera.quaternion })
+    planeTransform.rotation.copy(camera.quaternion)
   } else {
     _tempMatrix.lookAt(Vector3_Zero, _dirVector, _alignVector)
-    setComponent(gizmoControl.planeEntity, TransformComponent, {
-      rotation: new Quaternion().setFromRotationMatrix(_tempMatrix)
-    })
+    planeTransform.rotation.setFromRotationMatrix(_tempMatrix)
   }
 }
 
