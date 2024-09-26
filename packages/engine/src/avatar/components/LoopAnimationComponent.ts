@@ -181,7 +181,7 @@ export const LoopAnimationComponent = defineComponent({
       animComponent.mixer.time.set(0)
       animComponent.mixer.value.stopAllAction()
       const animations = gltf.animations
-      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], gltf.scene)
+      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], entity)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
     }, [gltf, animComponent, gltfComponent?.progress])

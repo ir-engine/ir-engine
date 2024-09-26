@@ -30,7 +30,15 @@ import { useTranslation } from 'react-i18next'
 import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { createEntity, generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  generateEntityUUID,
+  getOptionalComponent,
+  setComponent,
+  UndefinedEntity,
+  useOptionalComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { AssetPreviewCameraComponent } from '@ir-engine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
@@ -42,9 +50,11 @@ import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
+import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { AnimationClip } from 'three'
 import styles from './index.module.scss'
 
 interface Props {
@@ -60,21 +70,15 @@ const defaultAnimationPath = '/projects/ir-engine/default-project/assets/animati
 const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: Props) => {
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
-  const renderPanel = useRender3DPanelSystem(panelRef)
+  const { sceneEntity, cameraEntity } = useRender3DPanelSystem(panelRef)
 
   useEffect(() => {
     if (!avatarUrl) return
 
-    const { sceneEntity, cameraEntity } = renderPanel
     const uuid = generateEntityUUID()
     setComponent(sceneEntity, SceneComponent)
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
-    // setComponent(sceneEntity, LoopAnimationComponent, {
-    //   animationPack:
-    //     getState(DomainConfigState).cloudDomain + defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
-    //   activeClipIndex: 5
-    // })
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
@@ -90,6 +94,16 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(lightEntity, NameComponent, 'Ambient Light')
     setComponent(lightEntity, EntityTreeComponent, { parentEntity: sceneEntity })
   }, [avatarUrl])
+
+  useEffect(() => {
+    const animationComponent = getOptionalComponent(sceneEntity, AnimationComponent)
+    if (!animationComponent) return
+    const animation = AnimationClip.findByName(animationComponent.animations, 'Idle')
+    console.log(animation)
+
+    if (!animation) return
+    animationComponent.mixer.clipAction(animation).play()
+  }, [useOptionalComponent(sceneEntity, AnimationComponent)?.animations])
 
   return (
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
