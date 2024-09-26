@@ -835,6 +835,9 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   }),
   renderMode: S.Enum(RenderMode, RenderMode.BillBoard),
   texture: S.String('/static/editor/dot.png'),
+  /**
+   * particle mesh geometry
+   */
   instancingGeometry: S.String(''),
   startTileIndex: S.Object({
     type: S.String('ConstantValue'),
@@ -886,9 +889,12 @@ export const ParticleSystemComponent = defineComponent({
     const sceneLoaded = GLTFComponent.useSceneLoaded(rootEntity)
     const refreshed = useHookstate(false)
 
+    //for particle meshes
     const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
+
+    //for mesh shape emitters
     const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
@@ -921,16 +927,23 @@ export const ParticleSystemComponent = defineComponent({
       metadata.materials.nested('dud').set(dudMaterial)
     }, [])
 
+    //for particle meshes
     useEffect(() => {
       if (!geoDependency || !geoDependency.scene) return
 
       const scene = geoDependency.scene
 
-      const geo = getFirstMesh(scene)?.geometry
-
-      !!geo && metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry!).set(geo)
+      const mesh = getFirstMesh(scene)
+      if (mesh) {
+        const scaledGeometry = mesh.geometry.clone()
+        const scale = getNestedScale(mesh)
+        scaledGeometry.scale(scale.x, scale.y, scale.z)
+        !!scaledGeometry &&
+          metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry!).set(scaledGeometry)
+      }
     }, [geoDependency])
 
+    //for mesh shape emitters
     useEffect(() => {
       if (!shapeMesh || !shapeMesh.scene) return
 
