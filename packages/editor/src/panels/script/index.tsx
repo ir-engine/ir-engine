@@ -29,11 +29,13 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { ScriptComponent, validateScriptUrl } from '@ir-engine/engine'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { clearErrors } from '@ir-engine/engine/src/scene/functions/ErrorFunctions'
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
 import { Editor } from '@monaco-editor/react'
+import { TabData } from 'rc-dock'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Button from '../../../../../primitives/tailwind/Button'
-import { fetchCode, updateScriptFile } from '../../../properties/script'
+import { Button } from '../../components/inputs/Button'
 
 const ActiveScript = () => {
   const entities = SelectionState.useSelectedEntities()
@@ -92,7 +94,7 @@ const ActiveScript = () => {
   )
 }
 
-export const ScriptPanel = () => {
+const ScriptContainer = () => {
   return (
     <>
       <div className="flex h-full w-full flex-col">
@@ -102,4 +104,21 @@ export const ScriptPanel = () => {
   )
 }
 
-export default ScriptPanel
+export const ScriptPanelTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div>
+      <PanelDragContainer>
+        <PanelTitle>{t('editor:script.panel.title')}</PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
+}
+
+export const ScriptPanelTab: TabData = {
+  id: 'scriptPanel',
+  closable: true,
+  title: <ScriptPanelTitle />,
+  content: <ScriptContainer />
+}
