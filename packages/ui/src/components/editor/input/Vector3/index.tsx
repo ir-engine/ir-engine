@@ -36,13 +36,13 @@ import NumericInput from '../Numeric'
 interface Vector3ScrubberProps {
   axis?: 'x' | 'y' | 'z' | string
   value: number
-  onChange: any
-  onPointerUp?: any
+  onChange: (v: number) => void
+  onRelease?: (v: number) => void
   children?: any
   className?: string
 }
 
-export const Vector3Scrubber = ({ axis, onChange, onPointerUp, value, children, ...props }: Vector3ScrubberProps) => {
+export const Vector3Scrubber = ({ axis, onChange, onRelease, value, children, ...props }: Vector3ScrubberProps) => {
   const color = (() => {
     switch (axis) {
       case 'x':
@@ -59,7 +59,7 @@ export const Vector3Scrubber = ({ axis, onChange, onPointerUp, value, children, 
   props.className = twMerge(`w-full text-${color}`)
   const content = children ?? `${axis?.toUpperCase()} - `
   return (
-    <Scrubber onChange={onChange} onRelease={onPointerUp} value={value} {...props}>
+    <Scrubber onChange={onChange} onRelease={onRelease} value={value} {...props}>
       {content}
     </Scrubber>
   )
@@ -140,7 +140,13 @@ export const Vector3Input = ({
         onRelease={onReleaseAxis('x')}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} value={vx} onChange={onChangeAxis('x')} onPointerUp={onRelease} axis="x" />
+            <Vector3Scrubber
+              {...rest}
+              value={vx}
+              onChange={onChangeAxis('x')}
+              onRelease={onReleaseAxis('x')}
+              axis="x"
+            />
           )
         }
       />
@@ -151,7 +157,13 @@ export const Vector3Input = ({
         onRelease={onReleaseAxis('y')}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} value={vy} onChange={onChangeAxis('y')} onPointerUp={onRelease} axis="y" />
+            <Vector3Scrubber
+              {...rest}
+              value={vy}
+              onChange={onChangeAxis('y')}
+              onRelease={onReleaseAxis('y')}
+              axis="y"
+            />
           )
         }
       />
@@ -162,7 +174,13 @@ export const Vector3Input = ({
         onRelease={onReleaseAxis('z')}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} value={vz} onChange={onChangeAxis('z')} onPointerUp={onRelease} axis="z" />
+            <Vector3Scrubber
+              {...rest}
+              value={vz}
+              onChange={onChangeAxis('z')}
+              onRelease={onReleaseAxis('z')}
+              axis="z"
+            />
           )
         }
       />
