@@ -41,7 +41,7 @@ import {
 } from '../../test-utils/setting-test-utils'
 import { createUser, createUserApiKey } from '../../test-utils/user-test-utils'
 
-describe.only('engine-setting.test', () => {
+describe('engine-setting.test', () => {
   let app: Application
 
   const key1 = 'MyKey1'
