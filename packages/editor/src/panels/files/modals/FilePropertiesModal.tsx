@@ -389,7 +389,7 @@ export default function FilePropertiesModal() {
               </div>
               <div className="flex h-24 flex-wrap gap-2 overflow-y-auto bg-theme-surfaceInput p-2">
                 {resourceDigest.tags.value!.map((tag, idx) => (
-                  <span key={idx} className="flex h-fit w-fit items-center rounded bg-[#2F3137] px-2 py-0.5">
+                  <span key={idx} className="flex h-fit w-fit items-center rounded bg-[#2C2E33] px-2 py-0.5">
                     {tag} <HiXMark className="ml-1 cursor-pointer" onClick={() => handleRemoveTag(idx)} />
                   </span>
                 ))}

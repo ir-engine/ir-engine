@@ -218,6 +218,7 @@ export const regenerateProjectResourcesJson = async (app: Application, projectNa
         dependencies: resource.dependencies ?? undefined,
         licensing: resource.licensing ?? undefined,
         description: resource.description ?? undefined,
+        name: resource.name ?? undefined,
         attribution: resource.attribution ?? undefined,
         thumbnailKey: resource.thumbnailKey ?? undefined,
         thumbnailMode: resource.thumbnailMode ?? undefined
@@ -273,6 +274,7 @@ export const patchSingleProjectResourcesJson = async (app: Application, id: stri
         dependencies: resource.dependencies ?? undefined,
         licensing: resource.licensing ?? undefined,
         description: resource.description ?? undefined,
+        name: resource.name ?? undefined,
         attribution: resource.attribution ?? undefined,
         thumbnailKey: resource.thumbnailKey ?? undefined,
         thumbnailMode: resource.thumbnailMode ?? undefined
@@ -317,6 +319,7 @@ export const patchSingleProjectResourcesJson = async (app: Application, id: stri
     dependencies: resource.dependencies ?? undefined,
     licensing: resource.licensing ?? undefined,
     description: resource.description ?? undefined,
+    name: resource.name ?? undefined,
     attribution: resource.attribution ?? undefined,
     thumbnailKey: resource.thumbnailKey ?? undefined,
     thumbnailMode: resource.thumbnailMode ?? undefined
