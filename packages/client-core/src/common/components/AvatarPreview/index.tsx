@@ -37,7 +37,7 @@ import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEn
 import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
@@ -82,6 +82,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(sceneEntity, AvatarRigComponent, { avatarURL: avatarUrl })
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
+    if (getChildrenWithComponents(sceneEntity, [AmbientLightComponent]).length) return
     const lightEntity = createEntity()
     setComponent(lightEntity, AmbientLightComponent)
     setComponent(lightEntity, TransformComponent)
