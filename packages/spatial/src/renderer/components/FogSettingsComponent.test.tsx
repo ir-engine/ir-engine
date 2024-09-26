@@ -39,7 +39,7 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getState } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
+import { act } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
@@ -366,18 +366,17 @@ describe('FogSettingsComponent', () => {
       return destroyEngine()
     })
 
-    it('should initialize/create a FogSettingsComponent, and all its data, as expected', async () => {
+    it('should initialize/create a FogSettingsComponent, and all its data, as expected', () => {
       const fogSettingsComponent = getMutableComponent(entity, FogSettingsComponent)
       assert(fogSettingsComponent.value, 'fog setting component exists')
 
-      fogSettingsComponent.type.set(FogType.Height)
-      fogSettingsComponent.color.set('#ff0000')
-      fogSettingsComponent.far.set(2000)
-      fogSettingsComponent.near.set(2)
-      fogSettingsComponent.density.set(0.02)
-      const { rerender, unmount } = render(<></>)
-
-      await act(() => rerender(<></>))
+      setComponent(entity, FogSettingsComponent, {
+        type: FogType.Height,
+        color: '#ff0000',
+        far: 2000,
+        near: 2,
+        density: 0.02
+      })
 
       const fogComponent = getComponent(entity, FogComponent)
       assert(fogComponent, 'created fog component')
@@ -393,25 +392,19 @@ describe('FogSettingsComponent', () => {
       assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.heightFog)
       assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.heightFog)
 
-      fogSettingsComponent.type.set(FogType.Linear)
-      await act(() => {
-        rerender(<></>)
-      })
+      setComponent(entity, FogSettingsComponent, { type: FogType.Linear })
+
       assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.default)
       assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.default)
       assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.default)
       assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.default)
 
-      fogSettingsComponent.type.set(FogType.Brownian)
-      await act(() => {
-        rerender(<></>)
-      })
+      setComponent(entity, FogSettingsComponent, { type: FogType.Brownian })
+
       assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.brownianMotionFog)
       assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.brownianMotionFog)
       assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.brownianMotionFog)
       assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.brownianMotionFog)
-
-      unmount()
     })
   })
 })
