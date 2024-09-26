@@ -39,7 +39,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useRef } from 'react'
 import { Vector3 } from 'three'
-import { CameraGizmoControlledComponent } from '../../../classes/gizmo/camera/CameraGizmoControlledComponent'
+import { CameraGizmoControlledComponent } from '../../../classes/gizmo/camera/CameraGizmoComponent'
 
 export default function CameraGizmoTool({
   viewportRef,
