@@ -91,7 +91,7 @@ export const ModelComponent = defineComponent({
     }
   },
 
-  errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
+  errors: ['LOADING_ERROR', 'INVALID_SOURCE', 'NO_SOURCE'],
 
   reactor: ModelReactor
 })
@@ -105,6 +105,14 @@ function ModelReactor() {
   const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
   useEffect(() => {
+    if (modelComponent.src.value) return
+    addError(entity, ModelComponent, 'NO_SOURCE', 'No source provided')
+    return () => {
+      removeError(entity, ModelComponent, 'NO_SOURCE')
+    }
+  }, [modelComponent.src])
+
+  useEffect(() => {
     const occlusion = modelComponent.cameraOcclusion.value
     if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
     else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
@@ -114,6 +122,9 @@ function ModelReactor() {
     if (!error) return
     console.error(error)
     addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
+    return () => {
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    }
   }, [error])
 
   useEffect(() => {
