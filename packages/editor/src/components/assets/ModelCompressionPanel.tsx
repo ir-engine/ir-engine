@@ -261,7 +261,7 @@ export default function ModelCompressionPanel({
   }
 
   return (
-    <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#212226]">
       <div className="relative flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compress')}</Text>
         <Button
@@ -310,7 +310,7 @@ export default function ModelCompressionPanel({
             <Button
               key={index}
               variant="transparent"
-              className="text-nowrap rounded-full bg-[#2F3137] px-2 py-0.5"
+              className="text-nowrap rounded-full bg-[#212226] px-2 py-0.5"
               onClick={() => applyPreset(lodItem.params)}
               endIcon={
                 !LODList.find((l) => l.params.dst === lodItem.params.dst) && (
