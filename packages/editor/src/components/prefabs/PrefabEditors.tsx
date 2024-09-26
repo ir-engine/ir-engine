@@ -20,7 +20,7 @@ Infinite Reality Engine. All Rights Reserved.
 import config from '@ir-engine/common/src/config'
 import { useGLTF } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import CameraIcon from './icons/camera.svg?react'
 import ColliderIcon from './icons/collider.svg?react'
@@ -39,16 +39,21 @@ export type PrefabShelfItem = {
   detail?: string
 }
 
-export const PrefabIcons: Record<string, ReactNode> = {
-  Geo: <GeoIcon />,
-  Lighting: <LightingIcon />,
-  Collider: <ColliderIcon />,
-  Text: <TextIcon />,
-  Image: <ImageIcon />,
-  Video: <VideoIcon />,
-  Lookdev: <LookDevIcon />,
-  Camera: <CameraIcon />,
-  default: <AddIcon />
+export const PrefabIcon = ({ categoryTitle, isSelected }: { categoryTitle: string; isSelected: boolean }) => {
+  const color = isSelected ? 'red' : 'red'
+  const icons: Record<string, JSX.Element> = {
+    Geo: <GeoIcon fill="green" stroke="blue" />,
+    Lighting: <LightingIcon stroke={color} />,
+    Collider: <ColliderIcon stroke={color} />,
+    Text: <TextIcon stroke={color} />,
+    Image: <ImageIcon stroke={color} />,
+    Video: <VideoIcon stroke={color} />,
+    Lookdev: <LookDevIcon stroke={color} />,
+    Camera: <CameraIcon stroke={color} />,
+    default: <AddIcon stroke={color} />
+  }
+
+  return icons[categoryTitle] ?? icons.Geo
 }
 
 export const PrefabShelfState = defineState({

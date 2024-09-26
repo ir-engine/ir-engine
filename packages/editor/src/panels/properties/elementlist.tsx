@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Component } from '@ir-engine/ecs/src/ComponentFunctions'
-import { PrefabIcons, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
+import { PrefabIcon, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
@@ -117,8 +117,6 @@ const SceneElementListItem = ({
   categoryTitle: string
   selected?: boolean
 }) => {
-  const icon = PrefabIcons[categoryTitle] || PrefabIcons.default
-
   return (
     <button
       className={twMerge(
@@ -128,7 +126,7 @@ const SceneElementListItem = ({
       onClick={onClick}
     >
       <div className="flex flex-col items-center justify-center">
-        {icon}
+        <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
         <div className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{categoryTitle}</div>
       </div>
     </button>
