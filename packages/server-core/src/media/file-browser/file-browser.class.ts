@@ -46,6 +46,7 @@ import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 
 import { BadRequest } from '@feathersjs/errors/lib'
+import { copyFolderRecursiveSync } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
@@ -285,8 +286,13 @@ export class FileBrowserService
         fs.mkdirSync(dirname, { recursive: true })
       }
       // move or copy the file
-      if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
-      else fs.renameSync(oldNamePath, newNamePath)
+      if (data.isCopy) {
+        if (isDirectory) {
+          copyFolderRecursiveSync(oldNamePath, newNamePath)
+        } else {
+          fs.copyFileSync(oldNamePath, newNamePath)
+        }
+      } else fs.renameSync(oldNamePath, newNamePath)
     }
 
     if (config.server.edgeCachingEnabled) {
