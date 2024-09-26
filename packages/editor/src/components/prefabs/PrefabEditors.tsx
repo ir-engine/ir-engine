@@ -22,6 +22,7 @@ import { useGLTF } from '@ir-engine/engine/src/assets/functions/resourceLoaderHo
 import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import React from 'react'
 
+import { IoCubeOutline } from 'react-icons/io5'
 import CameraIcon from './icons/camera.svg?react'
 import ColliderIcon from './icons/collider.svg?react'
 import AddIcon from './icons/empty.svg?react'
@@ -50,10 +51,11 @@ export const PrefabIcon = ({ categoryTitle, isSelected }: { categoryTitle: strin
     Video: <VideoIcon stroke={color} />,
     Lookdev: <LookDevIcon stroke={color} />,
     Camera: <CameraIcon stroke={color} />,
-    default: <AddIcon stroke={color} />
+    Empty: <AddIcon stroke={color} />,
+    Default: <IoCubeOutline className={`h-5 w-5 text-[${color}]`} />
   }
 
-  return icons[categoryTitle] ?? icons.Geo
+  return icons[categoryTitle] ?? icons.Default
 }
 
 export const PrefabShelfState = defineState({
