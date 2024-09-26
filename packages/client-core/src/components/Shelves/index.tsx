@@ -47,14 +47,14 @@ export const Shelves = () => {
 
   const handleShowMediaIcons = () => {
     appState.showTopShelf.set((prevValue) => {
-      logger.info({ event_name: 'header_show', event_value: !prevValue })
+      logger.info({ event_name: prevValue ? 'header_hide' : 'header_show', event_value: true })
       return !prevValue
     })
   }
 
   const handleShowBottomIcons = () => {
     appState.showBottomShelf.set((prevValue) => {
-      logger.info({ event_name: 'footer_show', event_value: !prevValue })
+      logger.info({ event_name: prevValue ? 'footer_hide' : 'footer_show', event_value: true })
       return !prevValue
     })
   }
