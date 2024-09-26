@@ -33,10 +33,12 @@ import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-en
 import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
+import { convertFileExtensionToLowercase } from '../panels/files/helpers'
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
+      file = convertFileExtensionToLowercase(file)
       const fileDirectory = file.webkitRelativePath || file.name
       return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [

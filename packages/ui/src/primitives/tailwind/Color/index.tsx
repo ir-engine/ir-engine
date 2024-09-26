@@ -72,7 +72,7 @@ export function ColorInput({
       >
         <SketchPicker
           className={twMerge(
-            'absolute z-10 mt-5 scale-0 bg-theme-surface-main focus-within:scale-100 group-focus:scale-100',
+            'absolute right-4 z-10 mt-5 scale-0 bg-theme-surface-main focus-within:scale-100 group-focus:scale-100',
             sketchPickerClassName
           )}
           color={hexColor}
