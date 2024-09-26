@@ -101,22 +101,23 @@ export const Vector3Input = ({
     uniformEnabled.set((v) => !v)
   }
 
-  const processChange = (field: string, fieldValue: number) => {
+  const toVec3 = (field: string, fieldValue: number): Vector3 => {
     if (uniformEnabled.value) {
-      value.set(fieldValue, fieldValue, fieldValue)
+      return new Vector3(fieldValue, fieldValue)
     } else {
-      value[field] = fieldValue
+      const vec = new Vector3()
+      vec.copy(value)
+      vec[field] = fieldValue
+      return vec
     }
   }
 
-  const onChangeAxis = (axis: 'x' | 'y' | 'z') => (axisValue: number) => {
-    processChange(axis, axisValue)
-    onChange(value)
+  const onChangeAxis = (axis: string) => (n: number) => {
+    onChange(toVec3(axis, n))
   }
 
-  const onReleaseAxis = (axis: 'x' | 'y' | 'z') => (axisValue: number) => {
-    processChange(axis, axisValue)
-    onRelease?.(value)
+  const onReleaseAxis = (axis: string) => (n: number) => {
+    onRelease?.(toVec3(axis, n))
   }
 
   const vx = value.x
