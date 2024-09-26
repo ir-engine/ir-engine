@@ -158,6 +158,15 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
       shelves[prefab.category] ??= []
       shelves[prefab.category].push(prefab)
     }
+
+    // Add Empty shelve
+    shelves['Empty'] ??= [
+      {
+        name: 'Create',
+        url: '',
+        category: 'Empty'
+      }
+    ]
     return shelves
   }, [prefabState])
 
@@ -251,15 +260,6 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
               selected={selectedCategories.value.includes(index)}
             />
           ))}
-          {type !== 'components' && (
-            <SceneElementListItem
-              categoryTitle="Empty"
-              onClick={() => {
-                EditorControlFunctions.createObjectFromSceneElement()
-                onSelect()
-              }}
-            />
-          )}
         </div>
       )}
 
