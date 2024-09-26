@@ -22,15 +22,15 @@ import { useGLTF } from '@ir-engine/engine/src/assets/functions/resourceLoaderHo
 import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import React, { ReactNode } from 'react'
 
-import CameraIcon from './icons/camera.svg'
-import ColliderIcon from './icons/collider.svg'
-import AddIcon from './icons/empty.svg'
-import GeoIcon from './icons/geo.svg'
-import ImageIcon from './icons/image.svg'
-import LightingIcon from './icons/lighting.svg'
-import LookDevIcon from './icons/lookdev.svg'
-import TextIcon from './icons/text.svg'
-import VideoIcon from './icons/video.svg'
+import CameraIcon from './icons/camera.svg?react'
+import ColliderIcon from './icons/collider.svg?react'
+import AddIcon from './icons/empty.svg?react'
+import GeoIcon from './icons/geo.svg?react'
+import ImageIcon from './icons/image.svg?react'
+import LightingIcon from './icons/lighting.svg?react'
+import LookDevIcon from './icons/lookdev.svg?react'
+import TextIcon from './icons/text.svg?react'
+import VideoIcon from './icons/video.svg?react'
 
 export type PrefabShelfItem = {
   name: string
@@ -40,15 +40,15 @@ export type PrefabShelfItem = {
 }
 
 export const PrefabIcons: Record<string, ReactNode> = {
-  Geo: <img src={GeoIcon} />,
-  Lighting: <img src={LightingIcon} />,
-  Collider: <img src={ColliderIcon} />,
-  Text: <img src={TextIcon} />,
-  Image: <img src={ImageIcon} />,
-  Video: <img src={VideoIcon} />,
-  Lookdev: <img src={LookDevIcon} />,
-  Camera: <img src={CameraIcon} />,
-  default: <img src={AddIcon} />
+  Geo: <GeoIcon />,
+  Lighting: <LightingIcon />,
+  Collider: <ColliderIcon />,
+  Text: <TextIcon />,
+  Image: <ImageIcon />,
+  Video: <VideoIcon />,
+  Lookdev: <LookDevIcon />,
+  Camera: <CameraIcon />,
+  default: <AddIcon />
 }
 
 export const PrefabShelfState = defineState({
