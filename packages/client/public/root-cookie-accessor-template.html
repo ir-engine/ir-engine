@@ -58,7 +58,7 @@
               const hasAccess = await document.hasStorageAccess()
               let storageAccessPermission
               try {
-                await navigator.permissions.query({
+                storageAccessPermission = await navigator.permissions.query({
                   name: 'storage-access'
                 })
               } catch (error) {
