@@ -249,11 +249,8 @@ export function useGLTFResource(url: string, entity: Entity): void {
   ResourceLoadingManagerState.initialize()
 
   useImmediateEffect(() => {
-    if (!loaded) {
-      setGLTFResource(url, entity, ResourceStatus.Loading)
-    } else {
-      setGLTFResource(url, entity, ResourceStatus.Loaded)
-    }
+    const status = loaded ? ResourceStatus.Loaded : ResourceStatus.Loading
+    setGLTFResource(url, entity, status)
   }, [loaded])
 
   useLayoutEffect(() => {

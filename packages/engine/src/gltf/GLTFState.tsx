@@ -82,7 +82,6 @@ import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spati
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
@@ -398,9 +397,10 @@ const ChildGLTFReactor = (props: { source: string }) => {
 
   const nodeState = useHookstate(getMutableState(GLTFNodeState))[source]
   const documentState = useMutableState(GLTFDocumentState)[source]
-  const physicsWorld = Physics.useWorld(entity)
+  // const physicsWorld = Physics.useWorld(entity)
 
-  if (!physicsWorld || !documentState.value || !nodeState.value) return null
+  //if (!physicsWorld || !documentState.value || !nodeState.value) return null
+  if (!documentState.value || !nodeState.value) return null
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
@@ -412,35 +412,25 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   const rootEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
   useEffect(() => {
-    if (
-      // animationState.length !== documentState.value?.animations?.length ||
-      hasComponent(rootEntity, AnimationComponent)
-    )
-      return
+    if (!animationState.length) return
 
-    const hasObject3d = hasComponent(rootEntity, Object3DComponent)
-    if (!hasObject3d) {
-      /** @todo this is a temporary hack */
-      const obj3d = new Group()
-      setComponent(rootEntity, Object3DComponent, obj3d)
-      addObjectToGroup(rootEntity, obj3d)
-      proxifyParentChildRelationships(obj3d)
-    }
+    /** @todo this is a temporary hack */
+    const obj3d = new Group()
+    setComponent(rootEntity, Object3DComponent, obj3d)
+    addObjectToGroup(rootEntity, obj3d)
+    proxifyParentChildRelationships(obj3d)
 
-    const scene = getComponent(rootEntity, Object3DComponent)
-    scene.animations = animationState.get(NO_PROXY) as AnimationClip[]
-    const mixer = new AnimationMixer(scene)
+    obj3d.animations = animationState.get(NO_PROXY) as AnimationClip[]
     setComponent(rootEntity, AnimationComponent, {
-      mixer,
-      animations: scene.animations
+      mixer: new AnimationMixer(obj3d),
+      animations: obj3d.animations
     })
+
     return () => {
       if (entityExists(rootEntity)) {
         removeComponent(rootEntity, AnimationComponent)
-        if (hasObject3d) {
-          removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
-          removeComponent(rootEntity, Object3DComponent)
-        }
+        removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
+        removeComponent(rootEntity, Object3DComponent)
       }
     }
   }, [animationState])

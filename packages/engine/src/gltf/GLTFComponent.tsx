@@ -160,13 +160,13 @@ export const GLTFComponent = defineComponent({
     )
   },
 
-  getInstanceID: (entity) => {
+  getInstanceID: (entity: Entity) => {
     return `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
   },
 
-  useInstanceID: (entity) => {
-    const uuid = useComponent(entity, UUIDComponent)?.value
-    const src = useComponent(entity, GLTFComponent)?.src.value
+  useInstanceID: (entity: Entity) => {
+    const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+    const src = useOptionalComponent(entity, GLTFComponent)?.src.value
     if (!uuid || !src) return ''
     return `${uuid}-${src}`
   }

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   Entity,
+  S,
   defineComponent,
   removeComponent,
   setComponent,
@@ -66,17 +67,9 @@ export type KHRPunctualLight = {
 export const KHRLightsPunctualComponent = defineComponent({
   name: 'KHRLightsPunctualComponent',
   jsonID: 'KHR_lights_punctual',
-
-  onInit(entity) {
-    return {} as {
-      light?: number
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.light === 'number') component.light.set(json.light)
-  },
+  schema: S.Object({
+    light: S.Optional(S.Number())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -168,17 +161,9 @@ export const KHRLightsPunctualComponent = defineComponent({
 export const EXTMeshGPUInstancingComponent = defineComponent({
   name: 'EXTMeshGPUInstancingComponent',
   jsonID: 'EXT_mesh_gpu_instancing',
-
-  onInit(entity) {
-    return {} as {
-      attributes: Record<string, number>
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (json.attributes) component.attributes.set(json.attributes)
-  },
+  schema: S.Object({
+    attributes: S.Record(S.String(), S.Number())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
