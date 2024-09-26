@@ -54,7 +54,6 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import {
   deleteProjectFilesInStorageProvider,
