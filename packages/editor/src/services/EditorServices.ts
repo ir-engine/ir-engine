@@ -90,7 +90,7 @@ export const EditorState = defineState({
     if (!rootEntity) return false
     return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
   },
-  extension: syncStateWithLocalStorage(['expandedNodes']),
+  extension: syncStateWithLocalStorage(['expandedNodes', 'acknowledgedUnsupportedBrowser']),
   reactor: () => {
     const linkState = useMutableState(LinkState)
 
@@ -102,6 +102,5 @@ export const EditorState = defineState({
     }, [linkState.location])
 
     return null
-  },
-  extension: syncStateWithLocalStorage(['acknowledgedUnsupportedBrowser'])
+  }
 })
