@@ -128,14 +128,14 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
             value={sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value}
           />
 
-          <Button onClick={SceneThumbnailState.CreateThumbnail} className="mt-2 w-full">
+          <Button onClick={SceneThumbnailState.createThumbnail} className="mt-2 w-full">
             {t('editor:properties.sceneSettings.generate')}
           </Button>
           {sceneThumbnailState.uploadingThumbnail.value ? (
             <LoadingView spinnerOnly />
           ) : (
             <Button
-              onClick={SceneThumbnailState.UploadThumbnail}
+              onClick={SceneThumbnailState.uploadThumbnail}
               disabled={!sceneThumbnailState.thumbnail.value}
               className="mt-2 w-full"
             >
@@ -154,14 +154,14 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           <ImagePreviewInput
             value={sceneThumbnailState.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value}
           />
-          <Button onClick={SceneThumbnailState.CreateLoadingScreen} className="mt-2 w-full">
+          <Button onClick={SceneThumbnailState.createLoadingScreen} className="mt-2 w-full">
             {t('editor:properties.sceneSettings.generate')}
           </Button>
           {sceneThumbnailState.uploadingLoadingScreen.value ? (
             <LoadingView spinnerOnly />
           ) : (
             <Button
-              onClick={SceneThumbnailState.UploadLoadingScreen}
+              onClick={SceneThumbnailState.uploadLoadingScreen}
               disabled={!sceneThumbnailState.loadingScreenImageData.value}
               className="mt-2 w-full"
             >
