@@ -218,11 +218,11 @@ const matGray = getGizmoMaterial(GizmoMaterial.GRAY);
 // reusable geometry
 
 const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12).translate(0, 0.05, 0)
-const sphereGeometry = new SphereGeometry(0.05)
+const sphereGeometry = new SphereGeometry(0.075)
 const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08).translate(0, 0.04, 0)
 const lineGeometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3))
-const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3).translate(0, 0.25, 0)
-const lineGeometry3 = new CylinderGeometry(0.01, 0.01, 0.5, 3).translate(0, 0.25, 0)
+const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 4).translate(0, 0.25, 0)
+const lineGeometry3 = new CylinderGeometry(0.02, 0.02, 0.5, 4).translate(0, 0.25, 0)
 
 //plane geomerty
 const gizmoPlane = new Mesh(
