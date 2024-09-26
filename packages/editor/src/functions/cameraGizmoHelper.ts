@@ -97,8 +97,10 @@ export function gizmoUpdate(gizmoEntity) {
 }
 
 export function controlUpdate(gizmoEntity) {
+  const sceneRot = getComponent(getState(EngineState).viewerEntity, TransformComponent).rotation
+  const inverse = new Quaternion().copy(sceneRot).invert()
   setComponent(getComponent(gizmoEntity, CameraGizmoComponent).sceneEntity, TransformComponent, {
-    rotation: getComponent(getState(EngineState).viewerEntity, TransformComponent).rotation
+    rotation: inverse
   })
 }
 
