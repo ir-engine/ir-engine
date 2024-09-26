@@ -27,5 +27,9 @@ export const EngineSettings = {
   TaskServer: {
     Port: 'port',
     ProcessInterval: 'processInterval'
+  },
+  Chargebee: {
+    ApiKey: 'apiKey',
+    Url: 'url'
   }
 }

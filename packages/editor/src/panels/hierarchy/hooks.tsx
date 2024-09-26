@@ -35,6 +35,7 @@ import {
   UndefinedEntity,
   useOptionalComponent
 } from '@ir-engine/ecs'
+import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -106,6 +107,8 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const snapshotIndex = GLTFSnapshotState.useSnapshotIndex(sourceId)
+  const modifiedState = useMutableState(GLTFModifiedState)
+
   if (snapshotIndex === undefined) return null
 
   const gltfSnapshot = gltfState[sourceId].snapshots[snapshotIndex.value]
@@ -140,7 +143,8 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
     gltfSnapshot,
     gltfState,
     selectionState.selectedEntities,
-    showModelChildren
+    showModelChildren,
+    modifiedState.keys
   ])
 
   useEffect(() => {

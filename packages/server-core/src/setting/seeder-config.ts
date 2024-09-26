@@ -27,7 +27,6 @@ import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
 
 import * as authenticationSeed from './authentication-setting/authentication-setting.seed'
 import * as awsSeed from './aws-setting/aws-setting.seed'
-import * as chargebeeSeed from './chargebee-setting/chargebee-setting.seed'
 import * as clientSeed from './client-setting/client-setting.seed'
 import * as coilSeed from './coil-setting/coil-setting.seed'
 import * as emailSeed from './email-setting/email-setting.seed'
@@ -43,7 +42,6 @@ export const settingSeeds: Array<KnexSeed> = [
   authenticationSeed,
   clientSeed,
   serverSeed,
-  chargebeeSeed,
   instanceServerSeed,
   coilSeed,
   emailSeed,
