@@ -39,6 +39,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -103,6 +104,12 @@ function ModelReactor() {
   const modelSceneID = getModelSceneID(entity)
 
   const [gltf, error] = useGLTF(modelComponent.src.value, entity)
+
+  useEffect(() => {
+    setCallback(entity, 'setSrc', (src: string) => {
+      setComponent(entity, ModelComponent, { src })
+    })
+  }, [])
 
   useEffect(() => {
     const occlusion = modelComponent.cameraOcclusion.value
