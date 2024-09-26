@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Raycaster } from 'three'
+import { Quaternion, Raycaster, Vector3 } from 'three'
 
 import {
   Entity,
@@ -40,14 +40,15 @@ import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/I
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
+import { TransformComponent } from '@ir-engine/spatial'
+import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { CameraOrbitComponent } from '../../../spatial/src/camera/components/CameraOrbitComponent'
 import { CameraGizmoControlComponent } from '../classes/gizmo/camera/CameraGizmoControlComponent'
 import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
-import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
+import { cameraGizmo, GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 
 const _raycaster = new Raycaster()
-_raycaster.layers.set(ObjectLayers.Scene)
+_raycaster.layers.set(ObjectLayers.TransformGizmo) // this needs to be gizmo layer, but it doesnt work when its set to gizmo layer, investugate why
 
 export function gizmoUpdate(gizmoEntity) {
   const gizmoControl = getComponent(gizmoEntity, CameraGizmoControlComponent)
@@ -99,8 +100,16 @@ export function gizmoUpdate(gizmoEntity) {
   }
 }
 
+export function controlUpdate(gizmoEntity) {
+  const gizmoVisualEntity = getComponent(gizmoEntity, CameraGizmoControlComponent).visualEntity
+  const sceneCameraRot = getComponent(getState(EngineState).viewerEntity, TransformComponent).rotation // from center of focused object
+  const sceneEntity = getComponent(gizmoVisualEntity, CameraGizmoVisualComponent).sceneEntity
+  setComponent(sceneEntity, TransformComponent, {
+    rotation: sceneCameraRot
+  })
+}
+
 function pointerHover(gizmoEntity) {
-  // TODO support gizmos in multiple viewports
   const gizmoControlComponent = getMutableComponent(gizmoEntity, CameraGizmoControlComponent)
   const panelInputPointerEntity = InputPointerComponent.getPointersForCamera(gizmoControlComponent.panelCamera.value)[0]
   if (!panelInputPointerEntity) return
@@ -119,31 +128,19 @@ function pointerHover(gizmoEntity) {
 }
 
 function pointerDown(gizmoEntity) {
-  // TODO support gizmos in multiple viewports
   const gizmoControl = getComponent(gizmoEntity, CameraGizmoControlComponent)
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(gizmoControl.panelCamera)[0]
   if (!inputPointerEntity) return
-  const panelOrbitCamera = getComponent(gizmoControl.panelCamera, CameraOrbitComponent)
-  const sceneOrbitCamera = getComponent(getState(EngineState).viewerEntity, CameraOrbitComponent)
-  if (!panelOrbitCamera || !sceneOrbitCamera) return
-  const axis = gizmoControl.axis
-  switch (axis) {
-    case TransformAxis.X:
-      break
-    case TransformAxis.Y:
-      break
-    case TransformAxis.Z:
-      break
-    case TransformAxis.Xn:
-      break
-    case TransformAxis.Yn:
-      break
-    case TransformAxis.Zn:
-      break
-  }
-  console.log(`DEBUG move camera along ${axis} axis`)
 
-  // trigger the movement of the camera
+  const focusCenter = getComponent(getState(EngineState).viewerEntity, CameraOrbitComponent).cameraOrbitCenter.clone()
+  const cameraDistance = focusCenter.distanceTo(
+    getComponent(getState(EngineState).viewerEntity, TransformComponent).position
+  )
+  const axis = gizmoControl.axis
+  const direction = new Vector3().fromArray(cameraGizmo[axis!][0][1]).normalize()
+  const newRotation = new Quaternion().setFromAxisAngle(direction.negate(), 0)
+  const newPosition = focusCenter.clone().add(direction.multiplyScalar(-cameraDistance))
+  setComponent(getState(EngineState).viewerEntity, TransformComponent, { position: newPosition, rotation: newRotation })
 }
 
 /*function pointerMove(gizmoEntity) {
@@ -192,13 +189,13 @@ function pointerDown(gizmoEntity) {
 export function onGizmoCommit(gizmoEntity) {}
 
 function pointerUp(gizmoEntity) {
-  // TODO support gizmos in multiple viewports
-  /*const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
+  const gizmoControl = getComponent(gizmoEntity, CameraGizmoControlComponent)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(gizmoControl.panelCamera)[0]
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
 
   if (pointer.movement.length() !== 0) return
-  onGizmoCommit(gizmoEntity)*/
+  onGizmoCommit(gizmoEntity)
 }
 
 export function onPointerHover(gizmoEntity) {
@@ -229,12 +226,12 @@ export function onPointerDown(gizmoEntity) {
 }*/
 
 export function onPointerUp(gizmoEntity) {
-  /*const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, CameraGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
 
-  pointerUp(gizmoEntity)*/
+  pointerUp(gizmoEntity)
 }
 
 export function intersectObjectWithRay(object, raycaster, includeInvisible?) {

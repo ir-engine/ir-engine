@@ -432,7 +432,6 @@ function setupGizmo(gizmoMap) {
       tempGeometry.applyMatrix4(object.matrix)
       object.geometry = tempGeometry
       object.renderOrder = Infinity
-      //object.layers.set(ObjectLayers.TransformGizmo)
       object.position.set(0, 0, 0)
       object.rotation.set(0, 0, 0)
       object.scale.set(1, 1, 1)

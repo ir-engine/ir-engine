@@ -29,7 +29,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { CameraGizmoControlComponent } from '../classes/gizmo/camera/CameraGizmoControlComponent'
 import { CameraGizmoControlledComponent } from '../classes/gizmo/camera/CameraGizmoControlledComponent'
-import { gizmoUpdate } from '../functions/cameraGizmoHelper'
+import { controlUpdate, gizmoUpdate } from '../functions/cameraGizmoHelper'
 
 export const cameraGizmoControllerQuery = defineQuery([CameraGizmoControlComponent])
 export const cameraGizmoControlledQuery = defineQuery([CameraGizmoControlledComponent])
@@ -39,6 +39,7 @@ const execute = () => {
     const gizmoControlComponent = getComponent(cameraGizmoEntity, CameraGizmoControlComponent)
     if (!gizmoControlComponent.enabled || !gizmoControlComponent.visualEntity) return
     gizmoUpdate(cameraGizmoEntity)
+    controlUpdate(cameraGizmoEntity)
   }
 }
 

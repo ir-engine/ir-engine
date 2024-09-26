@@ -37,13 +37,15 @@ import {
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Mesh, Object3D } from 'three'
+import { enableObjectLayer } from '../../../../../spatial/src/renderer/components/ObjectLayerComponent'
 import { cameraGizmo, cameraPicker, setupGizmo } from '../../../constants/GizmoPresets'
 
 const useCameraGizmoEntities = () => {
@@ -87,7 +89,7 @@ export const CameraGizmoVisualComponent = defineComponent({
 
       setComponent(gizmo, NameComponent, `cameraGizmoEntity`)
       addObjectToGroup(gizmo, gizmoObject)
-      setComponent(gizmo, TransformGizmoTagComponent)
+      setComponent(gizmo, CameraGizmoTagComponent)
       setComponent(gizmo, VisibleComponent)
       setComponent(gizmo, EntityTreeComponent, {
         parentEntity:
@@ -101,7 +103,7 @@ export const CameraGizmoVisualComponent = defineComponent({
       setComponent(picker, NameComponent, `cameraGizmoPickerEntity`)
       pickerObject.visible = false
       addObjectToGroup(picker, pickerObject)
-      setComponent(picker, TransformGizmoTagComponent)
+      setComponent(picker, CameraGizmoTagComponent)
       setComponent(picker, VisibleComponent)
       setComponent(picker, EntityTreeComponent, {
         parentEntity:
@@ -109,6 +111,7 @@ export const CameraGizmoVisualComponent = defineComponent({
             ? Engine.instance.originEntity
             : visualComponent.sceneEntity.value
       })
+      enableObjectLayer(pickerObject, ObjectLayers.TransformGizmo, true)
 
       visualComponent.picker.set(picker)
 

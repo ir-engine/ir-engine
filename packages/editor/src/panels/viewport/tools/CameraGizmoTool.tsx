@@ -27,16 +27,15 @@ import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/componen
 import {
   createEntity,
   generateEntityUUID,
-  getComponent,
+  removeComponent,
   setComponent,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useRef } from 'react'
 import { Vector3 } from 'three'
@@ -57,15 +56,13 @@ export default function CameraGizmoTool({
 
     const uuid = generateEntityUUID()
 
-    const camera = getComponent(cameraEntity, CameraComponent)
-    camera.layers.set(ObjectLayerMasks[ObjectLayers.TransformGizmo])
-
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, NameComponent, 'Camera Gizmo Scene')
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(sceneEntity, TransformComponent, { scale: new Vector3(13, 13, 13) })
     setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, CameraGizmoControlledComponent, { sceneEntity: sceneEntity, cameraEntity: cameraEntity })
+    removeComponent(cameraEntity, CameraOrbitComponent)
+    setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, 2) })
 
     const lightEntity = createEntity()
     setComponent(lightEntity, AmbientLightComponent)
