@@ -86,7 +86,7 @@ export const CameraGizmoVisualComponent = defineComponent({
       const gizmoObject = setupGizmo(cameraGizmo)
       const pickerObject = setupGizmo(cameraPicker)
 
-      setComponent(gizmo, NameComponent, `cameraGizmoEntity`)
+      setComponent(gizmo, NameComponent, `cameraGizmoMeshEntity`)
       addObjectToGroup(gizmo, gizmoObject)
       setComponent(gizmo, CameraGizmoTagComponent)
       setComponent(gizmo, VisibleComponent)
@@ -96,7 +96,7 @@ export const CameraGizmoVisualComponent = defineComponent({
 
       visualComponent.gizmo.set(gizmo)
 
-      setComponent(picker, NameComponent, `cameraGizmoPickerEntity`)
+      setComponent(picker, NameComponent, `cameraGizmoPickerMeshEntity`)
       pickerObject.visible = false
       addObjectToGroup(picker, pickerObject)
       setComponent(picker, CameraGizmoTagComponent)

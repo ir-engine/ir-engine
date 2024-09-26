@@ -263,14 +263,14 @@ const cameraGizmo = {
     [new Mesh(sphereGeometry, matRed.clone()), [0.5, 0, 0]],
     [new Mesh(lineGeometry3, matRed.clone()), [0, 0, 0], [0, 0, -Math.PI / 2]]
   ],
-  Xn: [[new Mesh(sphereGeometry, matRed), [-0.5, 0, 0]]],
+  Xn: [[new Mesh(sphereGeometry, matRed.clone()), [-0.5, 0, 0]]],
   Y: [[new Mesh(sphereGeometry, matGreen.clone()), [0, 0.5, 0]], [new Mesh(lineGeometry3, matGreen.clone())]],
-  Yn: [[new Mesh(sphereGeometry, matGreen), [0, -0.5, 0]]],
+  Yn: [[new Mesh(sphereGeometry, matGreen.clone()), [0, -0.5, 0]]],
   Z: [
     [new Mesh(sphereGeometry, matBlue.clone()), [0, 0, 0.5]],
     [new Mesh(lineGeometry3, matBlue.clone()), null, [Math.PI / 2, 0, 0]]
   ],
-  Zn: [[new Mesh(sphereGeometry, matBlue), [0, 0, -0.5]]]
+  Zn: [[new Mesh(sphereGeometry, matBlue.clone()), [0, 0, -0.5]]]
 }
 
 const cameraPicker = {

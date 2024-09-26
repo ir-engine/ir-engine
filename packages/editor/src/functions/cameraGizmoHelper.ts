@@ -46,7 +46,7 @@ import { Vector3_Forward } from '@ir-engine/spatial/src/common/constants/MathCon
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraGizmoComponent } from '../classes/gizmo/camera/CameraGizmoComponent'
 import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
-import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
+import { cameraGizmo, GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 
 const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.TransformGizmo) // this needs to be gizmo layer, but it doesnt work when its set to gizmo layer, investugate why
@@ -54,6 +54,7 @@ _raycaster.layers.set(ObjectLayers.TransformGizmo) // this needs to be gizmo lay
 export function gizmoUpdate(gizmoEntity) {
   const cameraGizmo = getComponent(gizmoEntity, CameraGizmoComponent)
   if (cameraGizmo === undefined) return
+  if (cameraGizmo.visualEntity === UndefinedEntity) return
 
   const gizmo = getComponent(cameraGizmo.visualEntity, CameraGizmoVisualComponent)
   if (gizmo === undefined) return
@@ -102,34 +103,36 @@ export function controlUpdate(gizmoEntity) {
 }
 
 function pointerHover(gizmoEntity) {
-  const cameraGizmoComponent = getMutableComponent(gizmoEntity, CameraGizmoComponent)
-  const panelInputPointerEntity = InputPointerComponent.getPointersForCamera(cameraGizmoComponent.cameraEntity.value)[0]
+  const cameraGizmo = getMutableComponent(gizmoEntity, CameraGizmoComponent)
+  const panelInputPointerEntity = InputPointerComponent.getPointersForCamera(cameraGizmo.cameraEntity.value)[0]
   if (!panelInputPointerEntity) return
-  if (cameraGizmoComponent.cameraEntity.value === UndefinedEntity) return
+  if (cameraGizmo.cameraEntity.value === UndefinedEntity) return
 
   _raycaster.setFromCamera(
     getComponent(panelInputPointerEntity, InputPointerComponent).position,
-    getComponent(cameraGizmoComponent.cameraEntity.value, CameraComponent)
+    getComponent(cameraGizmo.cameraEntity.value, CameraComponent)
   )
-  const gizmoVisual = getComponent(cameraGizmoComponent.visualEntity.value, CameraGizmoVisualComponent)
+  const gizmoVisual = getComponent(cameraGizmo.visualEntity.value, CameraGizmoVisualComponent)
   const intersect = intersectObjectWithRay(getComponent(gizmoVisual.picker, GroupComponent)[0], _raycaster, true)
 
-  cameraGizmoComponent.axis.set(intersect?.object?.name ?? null)
+  cameraGizmo.axis.set(intersect?.object?.name ?? null)
 }
 
 function pointerDown(gizmoEntity) {
-  const cameraGizmo = getComponent(gizmoEntity, CameraGizmoComponent)
-  const inputPointerEntity = InputPointerComponent.getPointersForCamera(cameraGizmo.cameraEntity)[0]
+  const cameraGizmoComponent = getComponent(gizmoEntity, CameraGizmoComponent)
+  const inputPointerEntity = InputPointerComponent.getPointersForCamera(cameraGizmoComponent.cameraEntity)[0]
+  console.log('DEBUG pointerDown', inputPointerEntity)
   if (!inputPointerEntity) return
 
   const focusCenter = getComponent(getState(EngineState).viewerEntity, CameraOrbitComponent).cameraOrbitCenter.clone()
   const cameraDistance = focusCenter.distanceTo(
     getComponent(getState(EngineState).viewerEntity, TransformComponent).position
   )
-  const direction = new Vector3().fromArray(cameraGizmo[cameraGizmo.axis!][0][1]).normalize()
+  const direction = new Vector3().fromArray(cameraGizmo[cameraGizmoComponent.axis!][0][1]).normalize()
   const newRotation = new Quaternion().setFromUnitVectors(Vector3_Forward, direction.normalize())
   const newPosition = focusCenter.clone().add(direction.multiplyScalar(-cameraDistance))
 
+  console.log('DEBUG newPosition', newPosition, 'newRotation', newRotation)
   setComponent(getState(EngineState).viewerEntity, TransformComponent, { position: newPosition, rotation: newRotation })
 }
 
@@ -198,6 +201,7 @@ export function onPointerHover(gizmoEntity) {
 
 export function onPointerDown(gizmoEntity) {
   const cameraGizmo = getOptionalComponent(gizmoEntity, CameraGizmoComponent)
+  console.log('DEBUG onPointerDown', cameraGizmo)
   if (cameraGizmo === undefined) return
 
   if (!cameraGizmo.enabled) return

@@ -37,6 +37,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
@@ -89,10 +90,11 @@ export const CameraGizmoComponent = defineComponent({
       })
       setComponent(gizmoVisualEntity, CameraGizmoTagComponent)
       setComponent(gizmoVisualEntity, VisibleComponent)
-
+      cameraGizmoComponent.visualEntity.set(gizmoVisualEntity)
       return () => {
         removeComponent(gizmoVisualEntity, CameraGizmoVisualComponent)
         removeEntity(gizmoVisualEntity)
+        cameraGizmoComponent.visualEntity.set(UndefinedEntity)
       }
     }, [])
 
