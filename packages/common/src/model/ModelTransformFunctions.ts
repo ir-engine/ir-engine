@@ -546,7 +546,7 @@ const createTextureOperations = (
       const usages = textureUsages.get(texture.getURI()) ?? new Set()
 
       let { maxTextureSize, textureCompressionType } = args
-      if (usages.has('map')) {
+      if (usages.has('map') || usages.has('baseColor')) {
         console.log(
           'Heuristic: diffuse maps should have twice the texture size',
           texture.getURI(),
@@ -562,7 +562,7 @@ const createTextureOperations = (
         ktx2Encoder ??= new KTX2Encoder()
         document.createExtension(KHRTextureBasisu).setRequired(true)
 
-        if (usages.has('normalMap')) {
+        if (usages.has('normal')) {
           textureCompressionType = 'uastc'
           console.log(
             'Heuristic: normal maps should be compressed with UASTC',
@@ -790,29 +790,46 @@ export const transformModel = async (
   {
     const graph = srcDocument.getGraph()
     for (const mat of srcDocument.getRoot().listMaterials()) {
-      const eeMat = mat.getExtension<EEMaterial>('EE_material')
-      const args = eeMat?.args
-      if (args == null) {
-        continue
-      }
-
-      for (const edge of graph.listChildEdges(args)) {
-        const argEntry = edge.getChild() as EEArgEntry
-        if (argEntry == null) {
-          continue
-        }
-        const { type, contents } = argEntry[$attributes]
-        if (type !== 'texture' || contents == null) {
+      for (const edge of graph.listChildEdges(mat)) {
+        const texture = edge.getChild() as Texture
+        if (texture?.propertyType !== 'Texture') {
           continue
         }
 
-        const uri = contents.getURI()
+        const uri = texture.getURI()
 
         if (!textureUsages.has(uri)) {
           textureUsages.set(uri, new Set())
         }
 
-        textureUsages.get(uri)!.add(edge.getName())
+        textureUsages.get(uri)!.add(edge.getName().replaceAll(/(Map|Texture)/g, ''))
+      }
+
+      eeMatScan: {
+        const eeMat = mat.getExtension<EEMaterial>('EE_material')
+        const args = eeMat?.args
+        if (args == null) {
+          break eeMatScan
+        }
+
+        for (const edge of graph.listChildEdges(args)) {
+          const argEntry = edge.getChild() as EEArgEntry
+          if (argEntry == null) {
+            continue
+          }
+          const { type, contents } = argEntry[$attributes]
+          if (type !== 'texture' || contents == null) {
+            continue
+          }
+
+          const uri = contents.getURI()
+
+          if (!textureUsages.has(uri)) {
+            textureUsages.set(uri, new Set())
+          }
+
+          textureUsages.get(uri)!.add(edge.getName().replaceAll(/(Map|Texture)/g, ''))
+        }
       }
     }
   }
