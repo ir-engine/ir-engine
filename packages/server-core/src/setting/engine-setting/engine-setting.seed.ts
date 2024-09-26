@@ -40,8 +40,7 @@ export async function seed(knex: Knex): Promise<void> {
       { key: EngineSettings.TaskServer.Port, value: process.env.TASKSERVER_PORT || '3030' },
       { key: EngineSettings.TaskServer.ProcessInterval, value: process.env.TASKSERVER_PROCESS_INTERVAL_SECONDS || '30' }
     ],
-    'task-server',
-    'private'
+    'task-server'
   )
 
   const chargebeeSettingSeedData = await generateSeedData(
@@ -52,8 +51,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       { key: EngineSettings.Chargebee.ApiKey, value: process.env.CHARGEBEE_API_KEY || '' }
     ],
-    'chargebee',
-    'private'
+    'chargebee'
   )
 
   const coilSeedData = await generateSeedData(
@@ -62,8 +60,7 @@ export async function seed(knex: Knex): Promise<void> {
       { key: EngineSettings.Coil.ClientId, value: process.env.COIL_API_CLIENT_ID || '' },
       { key: EngineSettings.Coil.ClientSecret, value: process.env.COIL_API_CLIENT_SECRET || '' }
     ],
-    'coil',
-    'private'
+    'coil'
   )
 
   const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData, ...coilSeedData]
@@ -88,7 +85,7 @@ export async function seed(knex: Knex): Promise<void> {
 async function generateSeedData(
   items: { key: string; value: string }[],
   category: EngineSettingType['category'],
-  type: EngineSettingType['type']
+  type: EngineSettingType['type'] = 'private'
 ): Promise<EngineSettingType[]> {
   return Promise.all(
     items.map(async (item) => ({

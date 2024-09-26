@@ -36,6 +36,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
 
 import appRootPath from 'app-root-path'
+import { EngineSettings } from '../common/src/constants/EngineSettings'
 import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
@@ -258,7 +259,7 @@ export default defineConfig(async () => {
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
-  const coilSetting = await getCoilSetting()
+  const coilSetting = await getCoilSetting([EngineSettings.Coil.PaymentPointer])
 
   resetSWFiles()
 

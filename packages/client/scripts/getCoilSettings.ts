@@ -27,7 +27,7 @@ import knex from 'knex'
 
 import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
 
-export const getCoilSetting = async () => {
+export const getCoilSetting = async (keys: string[]) => {
   const knexClient = knex({
     client: 'mysql',
     connection: {
@@ -44,6 +44,7 @@ export const getCoilSetting = async () => {
     .select()
     .from<EngineSettingType>(engineSettingPath)
     .where('category', 'coil')
+    .whereIn('key', keys)
     .then((coilEngineSettings) => {
       if (coilEngineSettings && coilEngineSettings.length > 0) {
         return coilEngineSettings.map((coilEngineSetting) => {
