@@ -121,7 +121,6 @@ function pointerHover(gizmoEntity) {
 function pointerDown(gizmoEntity) {
   const cameraGizmoComponent = getComponent(gizmoEntity, CameraGizmoComponent)
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(cameraGizmoComponent.cameraEntity)[0]
-  console.log('DEBUG pointerDown', inputPointerEntity)
   if (!inputPointerEntity) return
 
   const focusCenter = getComponent(getState(EngineState).viewerEntity, CameraOrbitComponent).cameraOrbitCenter.clone()
@@ -132,7 +131,6 @@ function pointerDown(gizmoEntity) {
   const newRotation = new Quaternion().setFromUnitVectors(Vector3_Forward, direction.normalize())
   const newPosition = focusCenter.clone().add(direction.multiplyScalar(-cameraDistance))
 
-  console.log('DEBUG newPosition', newPosition, 'newRotation', newRotation)
   setComponent(getState(EngineState).viewerEntity, TransformComponent, { position: newPosition, rotation: newRotation })
 }
 
@@ -201,7 +199,6 @@ export function onPointerHover(gizmoEntity) {
 
 export function onPointerDown(gizmoEntity) {
   const cameraGizmo = getOptionalComponent(gizmoEntity, CameraGizmoComponent)
-  console.log('DEBUG onPointerDown', cameraGizmo)
   if (cameraGizmo === undefined) return
 
   if (!cameraGizmo.enabled) return
