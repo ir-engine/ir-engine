@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Matrix4 } from 'three'
+import { Bounds } from './classes/Bounds'
+import { Edges } from './classes/Edges'
 
 function id(element: HTMLElement) {
   return element.id ? `#${element.id}` : ''
@@ -97,34 +99,6 @@ export function addCSSRule(sheet: any, selector: string, rules: string, index: n
     sheet.insertRule(selector + '{' + rules + '}', index)
   } else if ('addRule' in sheet) {
     sheet.addRule(selector, rules, index)
-  }
-}
-
-export class Bounds {
-  left = 0
-  top = 0
-  width = 0
-  height = 0
-  copy(rect: Bounds) {
-    this.top = rect.top
-    this.left = rect.left
-    this.width = rect.width
-    this.height = rect.height
-    return this
-  }
-}
-
-export class Edges {
-  left = 0
-  top = 0
-  right = 0
-  bottom = 0
-  copy(rect: Edges) {
-    this.top = rect.top
-    this.left = rect.left
-    this.right = rect.right
-    this.bottom = rect.bottom
-    return this
   }
 }
 
@@ -367,4 +341,120 @@ export function parseCSSTransform(
   }
 
   return out.premultiply(T2).multiply(T1)
+}
+
+async function loadFontsForSvg(fontFamilies) {
+  const fontLoadPromises = fontFamilies.map(async (fontFamily) => {
+    if (!isFontLoaded(fontFamily)) {
+      const fontFaceUrl = getFontFaceUrl(fontFamily)
+      if (fontFaceUrl) {
+        const fontFace = new FontFace(fontFamily, `url(${fontFaceUrl})`)
+        await fontFace.load() // Ensure the font is loaded
+        document.fonts.add(fontFace) // Add it to the document's FontFaceSet
+      }
+    }
+  })
+  return Promise.all(fontLoadPromises) // Wait for all fonts to load
+}
+
+export function extractFontFamilies(element: Element) {
+  const fontFamilies = new Set<string>()
+  const elements = element.querySelectorAll('*')
+  elements.forEach((el) => {
+    const computedStyle = getComputedStyle(el)
+    const fontFamily = computedStyle.fontFamily.split(',').map((f) => f.trim())
+    fontFamily.forEach((f) => {
+      fontFamilies.add(f.replace(/['"]/g, ''))
+    })
+  })
+  return Array.from(fontFamilies)
+}
+
+function isFontLoaded(fontFamily: string) {
+  return document.fonts.check(`1em ${fontFamily}`)
+}
+
+function getFontFaceRulesForFamilies(fontFamilies: string[], rootElement: Element) {
+  let cssText = ''
+
+  // Check global document stylesheets
+  cssText += extractFontFaceRulesFromStyleSheets(document.styleSheets, fontFamilies)
+
+  // Check shadow DOM stylesheets, if any
+  let currentNode: Element | null = rootElement
+  while (currentNode) {
+    if (currentNode.shadowRoot) {
+      cssText += extractFontFaceRulesFromStyleSheets(currentNode.shadowRoot.styleSheets, fontFamilies)
+    }
+    currentNode = currentNode.parentElement // Traverse up to handle nested shadow DOMs
+  }
+
+  return cssText
+}
+
+function extractFontFaceRulesFromStyleSheets(styleSheets, fontFamilies) {
+  let cssText = ''
+
+  for (const sheet of styleSheets) {
+    try {
+      for (const rule of sheet.cssRules) {
+        if (rule instanceof CSSFontFaceRule) {
+          const ruleFontFamily = rule.style.fontFamily.toLowerCase().replace(/['"]/g, '').trim()
+          if (fontFamilies.includes(ruleFontFamily)) {
+            cssText += rule.cssText + '\n'
+          }
+        }
+      }
+    } catch (e) {
+      console.warn(`Could not access stylesheet: ${sheet.href}`, e)
+    }
+  }
+
+  return cssText
+}
+
+function getFontFaceUrl(fontFamily: string, rootElement: Element) {
+  fontFamily = fontFamily.toLowerCase().replace(/['"]/g, '').trim()
+
+  // Check global document stylesheets first
+  let fontUrl = extractFontFaceUrlFromStyleSheets(document.styleSheets, fontFamily)
+  if (fontUrl) {
+    return fontUrl
+  }
+
+  // Check shadow DOM stylesheets, if any
+  let currentNode: Element | null = rootElement
+  while (currentNode) {
+    if (currentNode.shadowRoot) {
+      fontUrl = extractFontFaceUrlFromStyleSheets(currentNode.shadowRoot.styleSheets, fontFamily)
+      if (fontUrl) {
+        return fontUrl
+      }
+    }
+    currentNode = currentNode.parentElement // Traverse up to handle nested shadow DOMs
+  }
+
+  return null // No URL found
+}
+
+function extractFontFaceUrlFromStyleSheets(styleSheets, fontFamily) {
+  for (const sheet of styleSheets) {
+    try {
+      for (const rule of sheet.cssRules) {
+        if (rule instanceof CSSFontFaceRule) {
+          const ruleFontFamily = rule.style.fontFamily.toLowerCase().replace(/['"]/g, '').trim()
+          if (ruleFontFamily === fontFamily) {
+            const src = rule.style.getPropertyValue('src')
+            const urlMatch = src.match(/url\(["']?([^"')]+)["']?\)/)
+            if (urlMatch) {
+              return urlMatch[1] // Return the first URL found
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn(`Could not access stylesheet: ${sheet.href}`, e)
+    }
+  }
+  return null
 }

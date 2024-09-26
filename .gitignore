@@ -12,6 +12,9 @@ yarn-error.log
 .yarn/
 pnpm-lock.yaml
 
+# Aider AI metadata
+.aider*
+
 #IDEA project
 *.iml
 

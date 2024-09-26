@@ -112,7 +112,7 @@ export const S = {
   /**
    * Schema that infers as a enum,requires that the enum to infer as be passed in
    */
-  Enum: <T extends Record<string, string | number>>(item: T, init?: string | number, options?: Options) =>
+  Enum: <T extends object>(item: T, init?: T[keyof T], options?: Options) =>
     ({
       [Kind]: 'Enum',
       options: buildOptions(init, options),

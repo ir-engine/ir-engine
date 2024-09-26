@@ -288,7 +288,7 @@ export function getAncestorWithComponents(
   closest = true,
   includeSelf = true
 ): Entity {
-  let result = hasComponents(entity, components) ? entity : UndefinedEntity
+  let result = includeSelf && hasComponents(entity, components) ? entity : UndefinedEntity
   if (includeSelf && closest && result) return result
   else if (!includeSelf) result = UndefinedEntity
 
