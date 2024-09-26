@@ -48,7 +48,7 @@ const roundedTypes = {
 }
 
 const sizes = {
-  small: 'text-sm px-3 py-2',
+  small: 'text-sm px-3 py-1',
   medium: 'text-base px-4 py-2',
   large: 'text-lg px-7 py-3'
 }
@@ -56,7 +56,7 @@ const sizes = {
 const variants = {
   primary: 'bg-blue-primary',
   secondary: 'bg-theme-blue-secondary',
-  outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
+  outline: 'border border-solid border-theme-primary bg-[#212226] dark:bg-theme-highlight text-theme-primary',
   danger: 'bg-red-500',
   success: 'bg-teal-700',
   transparent: 'bg-transparent dark:bg-transparent'
