@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { UndefinedEntity } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -77,10 +76,7 @@ export const CameraGizmoComponent = defineComponent({
     useEffect(() => {
       const gizmoVisualEntity = createEntity()
       setComponent(gizmoVisualEntity, EntityTreeComponent, {
-        parentEntity:
-          cameraGizmoComponent.sceneEntity.value === UndefinedEntity
-            ? getState(EngineState).originEntity
-            : cameraGizmoComponent.sceneEntity.value
+        parentEntity: cameraGizmoComponent.sceneEntity.value ?? getState(EngineState).originEntity
       })
 
       setComponent(entity, NameComponent, 'cameraGizmoEntity')

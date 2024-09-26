@@ -28,17 +28,16 @@ import { useEffect } from 'react'
 import {
   createEntity,
   defineComponent,
-  Engine,
   removeEntity,
   setComponent,
-  UndefinedEntity,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useHookstate } from '@ir-engine/hyperflux'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -92,10 +91,7 @@ export const CameraGizmoVisualComponent = defineComponent({
       setComponent(gizmo, CameraGizmoTagComponent)
       setComponent(gizmo, VisibleComponent)
       setComponent(gizmo, EntityTreeComponent, {
-        parentEntity:
-          visualComponent.sceneEntity.value === UndefinedEntity
-            ? Engine.instance.originEntity
-            : visualComponent.sceneEntity.value
+        parentEntity: visualComponent.sceneEntity.value ?? getState(EngineState).originEntity
       })
 
       visualComponent.gizmo.set(gizmo)
@@ -106,10 +102,7 @@ export const CameraGizmoVisualComponent = defineComponent({
       setComponent(picker, CameraGizmoTagComponent)
       setComponent(picker, VisibleComponent)
       setComponent(picker, EntityTreeComponent, {
-        parentEntity:
-          visualComponent.sceneEntity.value === UndefinedEntity
-            ? Engine.instance.originEntity
-            : visualComponent.sceneEntity.value
+        parentEntity: visualComponent.sceneEntity.value ?? getState(EngineState).originEntity
       })
       enableObjectLayer(pickerObject, ObjectLayers.TransformGizmo, true)
 
