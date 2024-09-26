@@ -174,6 +174,10 @@ const ShareMenu = (): JSX.Element => {
     refLink
   })
 
+  useEffect(() => {
+    logger.info({ event_name: 'share_clicked' })
+  }, [])
+
   // Ref: https://developer.oculus.com/documentation/web/web-launch
   const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)

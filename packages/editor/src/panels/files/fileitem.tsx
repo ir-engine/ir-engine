@@ -135,7 +135,7 @@ function TableView({ file, onClick, onDoubleClick, drag, drop, isOver, onContext
     <tr
       key={file.key}
       ref={(ref) => drag(drop(ref))}
-      className={twMerge('h-9 text-[#a3a3a3] hover:bg-[#191B1F]', isOver && 'border-2 border-gray-400')}
+      className={twMerge('h-9 text-[#a3a3a3] hover:bg-[#212226]', isOver && 'border-2 border-gray-400')}
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
@@ -164,7 +164,7 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
       <div
         className={twMerge(
           'flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center',
-          isSelected && 'rounded bg-[#191B1F]'
+          isSelected && 'rounded bg-[#212226]'
         )}
         onDoubleClick={file.isFolder ? onDoubleClick : undefined}
         onClick={onClick}

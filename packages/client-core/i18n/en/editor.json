@@ -362,6 +362,7 @@
       "info-refDistance": "A double value representing the reference distance for reducing volume as the audio source moves further from the listener.",
       "lbl-maxDistance": "Max Distance",
       "info-maxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
+      "info-maxDistanceDisabled": "Only supported with the Linear Distance Model.",
       "lbl-coneInnerAngle": "Cone Inner Angle",
       "info-coneInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
       "lbl-coneOuterAngle": "Cone Outer Angle",
@@ -618,6 +619,7 @@
       "emitter-shape": "Emitter Shape",
       "emission-bursts": "Emission Bursts",
       "shape-mesh": "Emitter Shape Mesh",
+      "shape-mesh-info": "Drag Gltf or Glb file here (or paste it's file asset url) to set the mesh to use as the emitter shape",
       "start-life": "Start Life",
       "start-size": "Start Size",
       "start-speed": "Start Speed",
@@ -1403,6 +1405,15 @@
       "lbl-name": "Scene Name",
       "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
       "lbl-confirm": "Save Scene"
+    },
+    "saveModel": {
+      "title": "Save Changes",
+      "text": "Are you sure you want to save changes to this file?"
+    },
+    "revertModel": {
+      "lbl-name": "Revert",
+      "title": "Revert Changes",
+      "text": "Are you sure you want to revert changes to this file?"
     },
     "support": {
       "title": "Support",

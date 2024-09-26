@@ -102,7 +102,7 @@ export default function ImageConvertModal({
             <div className="flex items-center gap-2">
               <Label className="w-16">{t('editor:layout.filebrowser.image-convert.width')}</Label>
               <NumericInput
-                className="w-52 bg-[#141619] px-2 py-0.5"
+                className="w-52 bg-[#2C2E33] px-2 py-0.5"
                 value={convertProperties.width.value}
                 onChange={(value) => convertProperties.width.set(value)}
               />
@@ -110,7 +110,7 @@ export default function ImageConvertModal({
             <div className="flex items-center gap-2">
               <Label className="w-16">{t('editor:layout.filebrowser.image-convert.height')}</Label>
               <NumericInput
-                className="w-52 bg-[#141619] px-2 py-0.5"
+                className="w-52 bg-[#2C2E33] px-2 py-0.5"
                 value={convertProperties.height.value}
                 onChange={(value) => convertProperties.height.set(value)}
               />
