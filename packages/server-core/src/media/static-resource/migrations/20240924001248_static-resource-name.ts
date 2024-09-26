@@ -23,28 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { BsStars } from 'react-icons/bs'
-import { FaRegCircle } from 'react-icons/fa6'
-import { FiSun } from 'react-icons/fi'
-import { LuWaves } from 'react-icons/lu'
-import { PiMountains } from 'react-icons/pi'
-import { RxCube } from 'react-icons/rx'
-import { TbMaximize, TbRoute } from 'react-icons/tb'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-import React from 'react'
+const assetPath = 'asset'
 
-export const iconMap: { [key: string]: React.ReactElement } = {
-  Model: <RxCube />,
-  Material: <FaRegCircle />,
-  Texture: <LuWaves />,
-  Image: <PiMountains />,
-  Lighting: <FiSun />,
-  'Particle system': <BsStars />,
-  'Visual script': <TbRoute />
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const nameColumnExists = await knex.schema.hasColumn(staticResourcePath, 'name')
+  if (!nameColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.string('name', 255).nullable().defaultTo(null)
+    })
+  }
 }
 
-const defaultIcon = <TbMaximize />
-
-export const AssetIconMap = ({ name }): React.ReactElement => {
-  return <div className="flex h-4 w-4 items-center justify-center">{iconMap[name] ?? defaultIcon}</div>
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const nameColumnExists = await knex.schema.hasColumn(staticResourcePath, 'name')
+  if (nameColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('name')
+    })
+  }
 }

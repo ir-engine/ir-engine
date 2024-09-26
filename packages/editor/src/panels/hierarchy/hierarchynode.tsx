@@ -310,8 +310,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         'cursor-pointer',
         selected ? 'border text-white' : 'text-[#b2b5bd]',
         selected && (props.index % 2 ? 'bg-[#1d1f23]' : 'bg-zinc-900'),
-        !selected && (props.index % 2 ? 'bg-[#141619] hover:bg-[#1d1f23]' : 'bg-[#080808] hover:bg-zinc-900'),
-        !visible && (props.index % 2 ? 'bg-[#191B1F]' : 'bg-[#0e0f11]'),
+        !selected && (props.index % 2 ? 'bg-[#080808] hover:bg-[#1d1f23]' : 'bg-[#0E0F11] hover:bg-zinc-900'),
+        !visible && (props.index % 2 ? 'bg-[#212226]' : 'bg-[#212226]'),
         !visible && 'text-[#42454d]',
         isOverOn && canDropOn && 'border border-dotted',
         'hover:text-white'

@@ -54,6 +54,7 @@ export const staticResourceSchema = Type.Object(
     attribution: Type.Optional(Type.String()),
     licensing: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
+    name: Type.Optional(Type.String()),
     url: Type.String(),
     stats: Type.Optional(Type.Record(Type.String(), Type.Any())),
     thumbnailKey: Type.Optional(Type.String()),
@@ -93,7 +94,8 @@ export const staticResourceDataSchema = Type.Partial(
     'description',
     'stats',
     'thumbnailKey',
-    'thumbnailMode'
+    'thumbnailMode',
+    'name'
   ]),
   { $id: 'StaticResourceData' }
 )
@@ -116,7 +118,8 @@ export const staticResourcePatchSchema = Type.Partial(
     'description',
     'stats',
     'thumbnailKey',
-    'thumbnailMode'
+    'thumbnailMode',
+    'name'
   ]),
   {
     $id: 'StaticResourcePatch'
@@ -142,7 +145,8 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'thumbnailKey',
   'thumbnailMode',
   'createdAt',
-  'updatedAt'
+  'updatedAt',
+  'name'
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [

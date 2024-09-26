@@ -68,7 +68,6 @@ import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import NodeEditor from '../nodeEditor'
-import ParameterInput from '../parameter'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -143,8 +142,8 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const onRemoveBehavior = useCallback(
-    (behavior: BehaviorJSON) => () => {
-      const data = JSON.parse(JSON.stringify(particleSystem.behaviorParameters.filter((b) => b !== behavior)))
+    (index: number) => () => {
+      const data = JSON.parse(JSON.stringify(particleSystem.behaviorParameters.toSpliced(index, 1)))
       commitProperty(ParticleSystemComponent, 'behaviorParameters')(data)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     },
@@ -208,7 +207,18 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           ]}
         />
       </InputGroup>
-
+      {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
+        <InputGroup
+          name="Shape Mesh"
+          label={t('editor:properties.particle-system.shape-mesh')}
+          info={t('editor:properties.particle-system.shape-mesh-info')}
+        >
+          <ModelInput
+            value={particleSystem.systemParameters.shape.mesh!}
+            onRelease={onSetState(particleSystemState.systemParameters.shape.mesh as any)}
+          />
+        </InputGroup>
+      )}
       <InputGroup name="Emission Bursts" label={t('editor:properties.particle-system.emission-bursts')}>
         <Button onClick={onAddBurst}>Add Burst</Button>
       </InputGroup>
@@ -246,18 +256,6 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           )
         }}
       />
-      {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
-        <InputGroup name="Shape Mesh" label={t('editor:properties.particle-system.shape-mesh')}>
-          <ModelInput value={particleSystem.systemParameters.shape.mesh!} onChange={onChangeShapeParm('mesh')} />
-        </InputGroup>
-      )}
-      {particleSystem.systemParameters.shape.type !== 'mesh_surface' && (
-        <ParameterInput
-          entity={`${entity}-shape`}
-          values={particleSystem.systemParameters.shape}
-          onChange={onChangeShapeParm}
-        />
-      )}
 
       <InputGroup name="Start Life" label={t('editor:properties.particle-system.start-life')}>
         <ValueGenerator
@@ -413,11 +411,11 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </Button>
       <PaginatedList
         list={particleSystemState.behaviorParameters}
-        element={(behaviorState: State<BehaviorJSON>) => {
+        element={(behaviorState: State<BehaviorJSON>, index) => {
           return (
             <>
               <BehaviorInput scope={behaviorState} value={behaviorState.value as BehaviorJSON} onChange={onSetState} />
-              <Button onClick={onRemoveBehavior(behaviorState.value as BehaviorJSON)}>Remove</Button>
+              <Button onClick={onRemoveBehavior(index)}>Remove</Button>
             </>
           )
         }}
