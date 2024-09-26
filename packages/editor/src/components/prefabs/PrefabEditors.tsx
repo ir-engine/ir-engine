@@ -40,9 +40,9 @@ export type PrefabShelfItem = {
 }
 
 export const PrefabIcon = ({ categoryTitle, isSelected }: { categoryTitle: string; isSelected: boolean }) => {
-  const color = isSelected ? 'red' : 'red'
+  const color = isSelected ? '#FFFFFF' : '#9CA0AA'
   const icons: Record<string, JSX.Element> = {
-    Geo: <GeoIcon fill="green" stroke="blue" />,
+    Geo: <GeoIcon stroke={color} />,
     Lighting: <LightingIcon stroke={color} />,
     Collider: <ColliderIcon stroke={color} />,
     Text: <TextIcon stroke={color} />,
