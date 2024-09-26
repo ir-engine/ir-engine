@@ -42,6 +42,7 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
+import { Vector3_Forward } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraGizmoControlComponent } from '../classes/gizmo/camera/CameraGizmoControlComponent'
 import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
@@ -138,8 +139,10 @@ function pointerDown(gizmoEntity) {
   )
   const axis = gizmoControl.axis
   const direction = new Vector3().fromArray(cameraGizmo[axis!][0][1]).normalize()
-  const newRotation = new Quaternion().setFromAxisAngle(direction.negate(), 0)
+  const newRotation = new Quaternion().setFromUnitVectors(Vector3_Forward, direction.normalize())
   const newPosition = focusCenter.clone().add(direction.multiplyScalar(-cameraDistance))
+
+  console.log('newPosition ', newPosition, 'newRotation ', newRotation, 'direction', direction)
   setComponent(getState(EngineState).viewerEntity, TransformComponent, { position: newPosition, rotation: newRotation })
 }
 
