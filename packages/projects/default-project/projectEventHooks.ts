@@ -35,7 +35,8 @@ import { getStorageProvider } from '@ir-engine/server-core/src/media/storageprov
 
 import { patchStaticResourceAsAvatar, supportedAvatars } from '@ir-engine/server-core/src/user/avatar/avatar-helper'
 import appRootPath from 'app-root-path'
-import manifestJson from './manifest.json'
+// import manifestJson from './manifest.json' /** @todo vite-node struggles with this */
+const manifestJson = require('./manifest.json')
 
 const projectRelativeFolder = path.resolve(appRootPath.path, 'packages/projects')
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
