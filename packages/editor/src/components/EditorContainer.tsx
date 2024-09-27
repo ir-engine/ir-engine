@@ -26,9 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { AssetsPanelTab } from '@ir-engine/ui/src/components/editor/panels/Assets'
-import { VisualScriptPanelTab } from '@ir-engine/ui/src/components/editor/panels/VisualScript'
-
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -52,16 +49,19 @@ import { EntityUUID } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
+import { AssetsPanelTab } from '../panels/assets'
 import { FilesPanelTab } from '../panels/files'
 import { HierarchyPanelTab } from '../panels/hierarchy'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
+import { VisualScriptPanelTab } from '../panels/visualscript'
 import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
 
@@ -236,7 +236,7 @@ const EditorContainer = () => {
                 <DockLayout
                   ref={dockPanelRef}
                   defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
-                  style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
+                  style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
                 />
               </DockContainer>
             </div>
@@ -248,15 +248,24 @@ const EditorContainer = () => {
       </div>
       <PopupMenu />
       {!isWidgetVisible && initialized && (
-        <Button
-          rounded="partial"
-          size="small"
-          className="absolute bottom-5 right-5 z-10"
-          startIcon={<IoHelpCircleOutline fontSize={20} />}
-          onClick={openChat}
-        >
-          {t('editor:help')}
-        </Button>
+        <div className="absolute bottom-3 right-4">
+          <Tooltip
+            position="left center"
+            contentStyle={{ transform: 'translate(10px)', animation: 'fadeIn 0.3s ease-in-out forwards' }}
+            key={t('editor:help')}
+            content={t('editor:help')}
+            arrow={true}
+          >
+            <Button
+              rounded="full"
+              size="small"
+              className="h-8 w-8 p-0"
+              iconContainerClassName="m-0"
+              startIcon={<IoHelpCircleOutline fontSize={24} />}
+              onClick={openChat}
+            />
+          </Tooltip>
+        </div>
       )}
     </main>
   )

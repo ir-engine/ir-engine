@@ -74,21 +74,21 @@ function ScenesPanel() {
   }
 
   return (
-    <div className="h-full bg-theme-primary">
-      <div className="mb-4 w-full bg-theme-surface-main">
+    <div className="h-full bg-[#0E0F11]">
+      <div className="mb-4 h-8 w-full overflow-hidden bg-[#212226]">
         <Button
           startIcon={<HiOutlinePlusCircle />}
           endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
           disabled={isCreatingScene.value}
           rounded="none"
-          className="ml-auto bg-theme-highlight px-2"
+          className="ml-auto h-8 bg-theme-highlight px-2"
           size="small"
           onClick={handleCreateScene}
         >
           {t('editor:newScene')}
         </Button>
       </div>
-      <div className="h-full bg-theme-primary">
+      <div className="h-full bg-[#0E0F11]">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} fullSpace className="block h-12 w-12" />
         ) : (
