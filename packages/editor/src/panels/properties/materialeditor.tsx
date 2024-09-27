@@ -215,7 +215,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
-        <div className="border-grey-500 flex flex-row gap-2 rounded-lg border-2 border-solid bg-theme-surface-main p-1 text-xs text-white">
+        <div className="border-grey-500 flex flex-row gap-2 rounded-lg border-2 border-solid bg-[#212226] p-1 text-xs text-white">
           <div className="justify-cneter flex items-center align-middle">
             <label>{t('editor:properties.mesh.material.path')}</label>
           </div>
