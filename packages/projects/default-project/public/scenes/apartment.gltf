@@ -262,7 +262,7 @@
       }
     },
     {
-      "name": "EE_skybox",
+      "name": "iR_skybox",
       "extensions": {
         "EE_uuid": "86bda8f8-a9bc-4447-b92a-6514815a5b22",
         "EE_visible": true,
