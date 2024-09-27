@@ -29,7 +29,7 @@ import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/sche
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
-import { createFeathersKoaApp } from '@ir-engine/server-core/src/createApp'
+import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
 import assert from 'assert'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 import {
@@ -62,6 +62,7 @@ describe('engine-setting.test', () => {
 
   afterAll(async () => {
     await app.service(userPath).remove(user.id)
+    await tearDownAPI()
     await destroyEngine()
   })
 
