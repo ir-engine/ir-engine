@@ -38,7 +38,6 @@ export const LODList: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'Desktop - Low',
       dst: 'Desktop - Low',
       maxTextureSize: 1024
     },
@@ -48,7 +47,6 @@ export const LODList: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'Desktop - Medium',
       dst: 'Desktop - Medium',
       maxTextureSize: 2048
     },
@@ -58,7 +56,6 @@ export const LODList: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'Desktop - High',
       dst: 'Desktop - High',
       maxTextureSize: 2048
     },
@@ -68,7 +65,6 @@ export const LODList: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'Mobile - Low',
       dst: 'Mobile - Low',
       maxTextureSize: 512
     },
@@ -78,7 +74,6 @@ export const LODList: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'Mobile - High',
       dst: 'Mobile - High',
       maxTextureSize: 512
     },
@@ -88,7 +83,6 @@ export const LODList: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'XR - Low',
       dst: 'XR - Low',
       maxTextureSize: 1024
     },
@@ -98,7 +92,6 @@ export const LODList: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'XR - Medium',
       dst: 'XR - Medium',
       maxTextureSize: 1024
     },
@@ -108,7 +101,6 @@ export const LODList: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'XR - High',
       dst: 'XR - High',
       maxTextureSize: 2048
     },
@@ -121,7 +113,6 @@ export const defaultLODs: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: '-LOD0',
       dst: '-LOD0',
       maxTextureSize: 2048
     },
@@ -131,7 +122,6 @@ export const defaultLODs: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: '-LOD1',
       dst: '-LOD1',
       maxTextureSize: 1024,
       simplifyRatio: 0.85,
@@ -143,7 +133,6 @@ export const defaultLODs: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: '-LOD2',
       dst: '-LOD2',
       maxTextureSize: 512,
       simplifyRatio: 0.75,
