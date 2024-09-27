@@ -175,9 +175,10 @@ describe('verify-project-permission', () => {
       userId: user.id,
       projectId: project.id
     })
+
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user, query: { projectId: project.id } })
-    await assert.doesNotThrow(async () => await verifyPermission(hookContext))
+    await assert.doesNotReject(async () => await verifyPermission(hookContext))
 
     // cleanup
     await app.service(userPath).remove(user.id)
