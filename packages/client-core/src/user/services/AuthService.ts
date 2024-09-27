@@ -68,10 +68,14 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
+import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
+
+const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
+const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl) //Eventually we can configure iframe target seperatly
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -133,37 +137,46 @@ const resolveWalletUser = (credentials: any): UserType => {
   }
 }
 
-const waitForToken = async (win, clientUrl): Promise<string> => {
-  return new Promise((resolve) => {
-    win.postMessage(
-      JSON.stringify({
-        key: `${stateNamespaceKey}.AuthState.authUser`,
-        method: 'get'
-      }),
-      clientUrl
-    )
-    const getIframeResponse = function (e) {
-      if (e.origin !== clientUrl) return
-      if (e?.data) {
-        try {
-          const value = JSON.parse(e.data)
-          if (value?.accessToken != null) {
-            window.removeEventListener('message', getIframeResponse)
-            resolve(value?.accessToken)
-          }
-        } catch {
-          resolve('')
-        }
-      } else resolve(e)
+const invalidDomainHandling = (error: MessageResponse): void => {
+  if (error?.data?.invalidDomain) {
+    try {
+      localStorage.setItem('invalidCrossOriginDomain', 'true')
+    } catch (err) {
+      console.log('Was not able to read invalid Domain messaging', err)
     }
-    window.addEventListener('message', getIframeResponse)
-  })
+  }
+}
+
+const waitForToken = (win: Window, clientUrl: string): Promise<string> => {
+  return communicator
+    .sendMessage('get', {
+      key: `${stateNamespaceKey}.AuthState.authUser`
+    })
+    .then((response) => {
+      if (response.success) {
+        try {
+          const data = JSON.parse(response.data) //this is cookie data(e.data.data) so it's a string
+          if (data?.accessToken != null) {
+            return data?.accessToken
+          }
+          return ''
+        } catch {
+          return '' // Failed to parse token from cookie
+        }
+      } else {
+        return '' // didn't get data but can't guarantee
+      }
+    })
+    .catch((message) => {
+      if (message instanceof SyntaxError) {
+        throw message
+      }
+      invalidDomainHandling(message)
+      return message
+    })
 }
 
 const getToken = async (): Promise<string> => {
-  let gotResponse = false
-  const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
-  const iframeUrl = new URL(iframe.src).origin
   let win
   try {
     win = iframe!.contentWindow
@@ -171,52 +184,20 @@ const getToken = async (): Promise<string> => {
     win = iframe!.contentWindow
   }
 
-  const isRootCookieAncestorMessage = (message: MessageEvent<unknown>): boolean => {
-    return message.origin === iframeUrl
-  }
-
-  window.addEventListener('message', (e) => {
-    if (isRootCookieAncestorMessage(e) && e?.data) {
-      try {
-        const value = JSON.parse(e.data)
-        if (value?.invalidDomain != null) {
-          localStorage.setItem('invalidCrossOriginDomain', 'true')
-        }
-      } catch (err) {
-        console.log('ERROR MESSAGE', err)
-        //
-      }
-    }
-  })
-
   const clientUrl = config.client.clientUrl
-  let iteration = 0
-  const hasAccess = (await new Promise((resolve) => {
-    const checkAccessInterval = setInterval(() => {
-      if (iteration > 4) {
-        clearInterval(checkAccessInterval)
-        resolve({ cookieSet: false, hasStorageAccess: false })
-      }
-      if (!gotResponse) {
-        iteration++
-        win.postMessage(JSON.stringify({ method: 'checkAccess' }), clientUrl)
-      } else clearInterval(checkAccessInterval)
-    }, 100)
-    const hasAccessListener = async function (e) {
-      if (isRootCookieAncestorMessage(e)) {
-        gotResponse = true
-        window.removeEventListener('message', hasAccessListener)
-        if (!e.data) resolve({ hasStorageAccess: false, cookieSet: false })
-        const data = JSON.parse(e.data)
-        if (data.skipCrossOriginCookieCheck != null || data.storageAccessPermission === 'denied')
-          localStorage.setItem('skipCrossOriginCookieCheck', 'true')
-        resolve(data)
-      }
-    }
-    window.addEventListener('message', hasAccessListener)
-  })) as HasAccessType
+  const hasAccess = (await communicator
+    .sendMessage('checkAccess')
+    .then((message) => {
+      if (message?.data?.skipCrossOriginCookieCheck === true || message?.data?.storageAccessPermission === 'denied')
+        localStorage.setItem('skipCrossOriginCookieCheck', 'true')
+      return message.data
+    })
+    .catch((message) => {
+      invalidDomainHandling(message)
+      return {}
+    })) as HasAccessType
 
-  if (!hasAccess.cookieSet || !hasAccess.hasStorageAccess) {
+  if (!hasAccess?.cookieSet || !hasAccess?.hasStorageAccess) {
     const skipCheck = localStorage.getItem('skipCrossOriginCookieCheck')
     const invalidCrossOriginDomain = localStorage.getItem('invalidCrossOriginDomain')
     if (skipCheck === 'true' || invalidCrossOriginDomain === 'true') {
@@ -224,25 +205,26 @@ const getToken = async (): Promise<string> => {
       const accessToken = authState?.authUser?.accessToken?.value
       return Promise.resolve(accessToken?.length > 0 ? accessToken : '')
     } else {
-      iframe.style.display = 'block'
-      return await new Promise((resolve) => {
+      iframe.style.visibility = 'visible'
+      return new Promise((resolve) => {
         const clickResponseListener = async function (e) {
-          if (isRootCookieAncestorMessage(e)) {
-            try {
-              window.removeEventListener('message', clickResponseListener)
-              const parsed = !e.data ? {} : JSON.parse(e.data)
-              if (parsed.skipCrossOriginCookieCheck != null) {
-                localStorage.setItem('skipCrossOriginCookieCheck', parsed.skipCrossOriginCookieCheck)
-                iframe.style.display = 'none'
-                resolve('')
-              } else {
-                const token = await waitForToken(win, clientUrl)
-                iframe.style.display = 'none'
-                resolve(token)
-              }
-            } catch (err) {
-              //Do nothing
+          if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
+          try {
+            const data = e?.data?.data
+            if (data.skipCrossOriginCookieCheck === true || data.storageAccessPermission === 'denied') {
+              localStorage.setItem('skipCrossOriginCookieCheck', 'true')
+              iframe.style.visibility = 'hidden'
+              resolve('')
+            } else {
+              const token = waitForToken(win, clientUrl)
+              iframe.style.visibility = 'hidden'
+              resolve(token)
             }
+          } catch (err) {
+            //Do nothing
+            resolve('')
+          } finally {
+            window.removeEventListener('message', clickResponseListener)
           }
         }
         window.addEventListener('message', clickResponseListener)
@@ -287,7 +269,7 @@ export interface LinkedInLoginForm {
   email: string
 }
 
-export const writeAuthUserToIframe = () => {
+export const writeAuthUserToIframe = async () => {
   if (localStorage.getItem('skipCrossOriginCookieCheck') === 'true') return
   const iframe = document.getElementById('root-cookie-accessor') as HTMLFrameElement
   let win
@@ -297,14 +279,14 @@ export const writeAuthUserToIframe = () => {
     win = iframe!.contentWindow
   }
 
-  win.postMessage(
-    JSON.stringify({
+  await communicator
+    .sendMessage('set', {
       key: `${stateNamespaceKey}.${AuthState.name}.authUser`,
-      method: 'set',
       data: getState(AuthState).authUser
-    }),
-    config.client.clientUrl
-  )
+    })
+    .catch((message) => {
+      invalidDomainHandling(message)
+    })
 }
 
 /**
@@ -614,11 +596,11 @@ export const AuthService = {
       await new Promise<void>((resolve) => {
         const clientUrl = config.client.clientUrl
         const getIframeResponse = function (e) {
-          if (e.origin !== clientUrl) return
-          if (e?.data) {
+          if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
+          if (e?.data?.data) {
             try {
-              const value = JSON.parse(e.data)
-              if (value?.cookieWasSet === `${stateNamespaceKey}.${AuthState.name}.authUser`) {
+              const data = e?.data?.data
+              if (data?.cookieWasSet === `${stateNamespaceKey}.${AuthState.name}.authUser`) {
                 window.removeEventListener('message', getIframeResponse)
                 resolve()
               }
@@ -929,6 +911,9 @@ export const useAuthenticated = () => {
 
   useEffect(() => {
     AuthService.doLoginAuto()
+    return () => {
+      communicator.destroy()
+    }
   }, [])
 
   useEffect(() => {

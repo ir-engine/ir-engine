@@ -70,11 +70,10 @@ export const TransformComponent = defineComponent({
   onInit: (initial) => {
     const entity = initial.entity
     const dirtyTransforms = TransformComponent.dirtyTransforms
-    initial.scale = { x: 1, y: 1, z: 1 }
     const component = {
       position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
       rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
-      scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms),
+      scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms, { x: 1, y: 1, z: 1 }),
       matrix: new Matrix4(),
       matrixWorld: new Matrix4()
     } as TransformComponentType
@@ -137,6 +136,7 @@ export const TransformComponent = defineComponent({
   getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
     const relativeEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
+    /** @todo We should force updating the parent chain between entity and relativeEntity (for completeness) */
     return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
   },
 

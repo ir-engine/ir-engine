@@ -37,10 +37,10 @@ import { twMerge } from 'tailwind-merge'
 
 function Placer() {
   return (
-    <>
-      <div className="mt-2 h-1 w-6 bg-[#2B2C30]" />
-      <div className="mt-1 h-1 w-6 bg-[#2B2C30]" />
-    </>
+    <div className="flex flex-col gap-0.5">
+      <div className="h-0.5 w-6 bg-[#2B2C30]" />
+      <div className="h-0.5 w-6 bg-[#2B2C30]" />
+    </div>
   )
 }
 
@@ -99,7 +99,7 @@ export default function GizmoTool({
   return (
     <div
       ref={gizmoRef}
-      className={`absolute z-[5] flex flex-col items-center rounded-lg bg-black p-2`}
+      className={`absolute z-[5] flex flex-col items-center rounded-lg bg-[#080808] p-2`}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`
@@ -108,12 +108,11 @@ export default function GizmoTool({
       <div className={`z-[6] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`} onMouseDown={handleMouseDown}>
         <Placer />
       </div>
-      <div className="mt-2 flex flex-col rounded">
+      <div className="mt-2 flex flex-col overflow-hidden rounded bg-[#212226]">
         <Tooltip content={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
           <Button
-            variant="transparent"
             className={twMerge(
-              'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
               pointerSelected && 'bg-theme-highlight text-white'
             )}
             iconContainerClassName="m-0"
@@ -126,9 +125,8 @@ export default function GizmoTool({
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.translate')} position={'right center'}>
           <Button
-            variant="transparent"
             className={twMerge(
-              'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
               !pointerSelected && transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
             )}
             iconContainerClassName="m-0"
@@ -141,9 +139,8 @@ export default function GizmoTool({
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
           <Button
-            variant="transparent"
             className={twMerge(
-              'border-b border-b-theme-primary p-2 text-[#A3A3A3]',
+              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
               !pointerSelected && transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
             )}
             iconContainerClassName="m-0"
@@ -156,9 +153,8 @@ export default function GizmoTool({
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.scale')} position={'right center'}>
           <Button
-            variant="transparent"
             className={twMerge(
-              'p-2 text-[#A3A3A3]',
+              'rounded-none bg-[#212226] p-2 text-[#A3A3A3]',
               !pointerSelected && transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
             )}
             iconContainerClassName="m-0"

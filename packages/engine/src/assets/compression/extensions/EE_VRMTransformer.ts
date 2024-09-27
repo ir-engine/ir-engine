@@ -24,10 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Extension, ReaderContext, WriterContext } from '@gltf-transform/core'
+import { CopyableExtension } from './CopyableExtension'
 
 const EXTENSION_NAME = 'VRM'
 
-export class VRMExtension extends Extension {
+export class VRMExtension extends CopyableExtension {
   public readonly extensionName = EXTENSION_NAME
   public static readonly EXTENSION_NAME = EXTENSION_NAME
 
@@ -46,5 +47,11 @@ export class VRMExtension extends Extension {
       writerContext.jsonDoc.json.extensions[EXTENSION_NAME] = this.vrm
     }
     return this
+  }
+
+  copyTo(target: Extension | null): void {
+    const ext = target as VRMExtension
+    if (target == null) return
+    ext.vrm = this.vrm
   }
 }

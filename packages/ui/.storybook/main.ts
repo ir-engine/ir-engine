@@ -1,4 +1,3 @@
-import { dirname, join } from 'path'
 /*
 CPAL-1.0 License
 
@@ -25,9 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import type { StorybookConfig } from '@storybook/react-vite'
+import { dirname, join } from 'path'
 import { mergeConfig } from 'vite'
-
-const host = process.env['VITE_APP_HOST']
 
 const config: StorybookConfig = {
   env: (config) => ({
@@ -36,7 +34,13 @@ const config: StorybookConfig = {
       path: '../../.env.local'
     }).parsed
   }),
-  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  typescript: {
+    reactDocgen: false
+  },
+  stories: [
+    '../src/primitives/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
+    '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)'
+  ],
   addons: [
     getAbsolutePath('@storybook/addon-links'),
     getAbsolutePath('@storybook/addon-toolbars'),
@@ -72,38 +76,8 @@ const config: StorybookConfig = {
           '@': require('path').resolve(__dirname, '../../client/public')
         }
       },
-      server: {
-        ...userConfig?.server,
-        proxy: {
-          ...userConfig?.server?.proxy,
-          cors: false,
-          '^3030': {
-            target: `https://${host}:3030`,
-            changeOrigin: true,
-            secure: false,
-            ws: true
-          },
-          '^3031': {
-            target: `https://${host}:3031`,
-            changeOrigin: true,
-            secure: false,
-            ws: true
-          },
-          '/sfx': {
-            target: `https://${host}:3000`,
-            changeOrigin: true,
-            secure: false,
-            // replace port 6006 with 3000
-            pathRewrite: { '^6006': '3000' }
-          },
-          '/fonts': {
-            target: `https://${host}:3000`,
-            changeOrigin: true,
-            secure: false,
-            // replace port 6006 with 3000
-            pathRewrite: { '^6006': '3000' }
-          }
-        }
+      build: {
+        cssMinify: false
       },
       plugins: []
     })
