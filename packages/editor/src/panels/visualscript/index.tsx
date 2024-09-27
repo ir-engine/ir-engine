@@ -35,7 +35,7 @@ const VisualScriptPanelTitle = () => {
 
   return (
     <div>
-      <PanelDragContainer dataTestId="assets-panel-tab">
+      <PanelDragContainer>
         <PanelTitle>
           <span>{t('editor:visualScript.panel.title')}</span>
         </PanelTitle>

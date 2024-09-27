@@ -138,7 +138,10 @@ const ViewModeSettings = () => {
         </InputGroup>
       ) : (
         <>
-          <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+          <InputGroup
+            label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+            dataTestId="files-panel-view-options-list-font-size-group"
+          >
             <Slider
               min={10}
               max={100}
@@ -150,12 +153,15 @@ const ViewModeSettings = () => {
           </InputGroup>
 
           <div>
-            <div className="mt-1 flex flex-auto text-white" data-testid="can-you-see-ddddd">
+            <div className="mt-1 flex flex-auto text-white">
               <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
             </div>
-            <div className="flex-col" data-testid="test">
+            <div className="flex-col">
               {availableTableColumns.map((column) => (
-                <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                <InputGroup
+                  label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
+                  dataTestId={`files-panel-view-mode-list-options-column-${column}`}
+                >
                   <BooleanInput
                     value={viewModeSettings.list.selectedTableColumns[column].value}
                     onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
