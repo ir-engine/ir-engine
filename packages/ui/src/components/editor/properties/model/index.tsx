@@ -55,7 +55,6 @@ import ModelInput from '../../input/Model'
 import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
 import NodeEditor from '../nodeEditor'
-import ModelTransformProperties from './transform'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -78,10 +77,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     return `${orgName}/${projectName}`
   })
 
-  const [dereferenceFeatureFlag, gltfTransformFeatureFlag] = useFeatureFlags([
-    FeatureFlags.Studio.Model.Dereference,
-    FeatureFlags.Studio.Model.GLTFTransform
-  ])
+  const [dereferenceFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.Model.Dereference])
 
   const getRelativePath = useCallback(() => {
     const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3]
@@ -225,10 +221,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <LoadingView fullSpace className="mb-2 flex h-[20%] w-[20%] justify-center" title=" Exporting..." />
         )}
       </Accordion>
-
-      {gltfTransformFeatureFlag && (
-        <ModelTransformProperties entity={entity} onChangeModel={commitProperty(ModelComponent, 'src')} />
-      )}
     </NodeEditor>
   )
 }

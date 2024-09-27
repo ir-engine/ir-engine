@@ -50,6 +50,7 @@ import { EntityUUID } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
@@ -268,15 +269,24 @@ const EditorContainer = () => {
       </div>
       <PopupMenu />
       {!isWidgetVisible && initialized && (
-        <Button
-          rounded="partial"
-          size="small"
-          className="absolute bottom-5 right-5 z-10"
-          startIcon={<IoHelpCircleOutline fontSize={20} />}
-          onClick={openChat}
-        >
-          {t('editor:help')}
-        </Button>
+        <div className="absolute bottom-3 right-4">
+          <Tooltip
+            position="left center"
+            contentStyle={{ transform: 'translate(10px)', animation: 'fadeIn 0.3s ease-in-out forwards' }}
+            key={t('editor:help')}
+            content={t('editor:help')}
+            arrow={true}
+          >
+            <Button
+              rounded="full"
+              size="small"
+              className="h-8 w-8 p-0"
+              iconContainerClassName="m-0"
+              startIcon={<IoHelpCircleOutline fontSize={24} />}
+              onClick={openChat}
+            />
+          </Tooltip>
+        </div>
       )}
     </main>
   )
