@@ -29,18 +29,14 @@ import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
-import { VRMComponent } from '../components/VRMComponent'
-import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-const loopAnimationQuery = defineQuery([AnimationComponent, LoopAnimationComponent, VRMComponent, TransformComponent])
 
 const execute = () => {
   const { deltaSeconds } = getState(ECSState)
@@ -57,10 +53,6 @@ const execute = () => {
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
     animationActionComponent?._action.value &&
       animationActionComponent?.time.set(animationActionComponent._action.value.time)
-  }
-
-  for (const entity of loopAnimationQuery()) {
-    updateVRMRetargeting(getComponent(entity, VRMComponent), entity)
   }
 }
 
