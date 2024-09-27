@@ -208,11 +208,17 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
-        <InputGroup name="Shape Mesh" label={t('editor:properties.particle-system.shape-mesh')}>
-          <ModelInput value={particleSystem.systemParameters.shape.mesh!} onChange={onChangeShapeParm('mesh')} />
+        <InputGroup
+          name="Shape Mesh"
+          label={t('editor:properties.particle-system.shape-mesh')}
+          info={t('editor:properties.particle-system.shape-mesh-info')}
+        >
+          <ModelInput
+            value={particleSystem.systemParameters.shape.mesh!}
+            onRelease={onSetState(particleSystemState.systemParameters.shape.mesh as any)}
+          />
         </InputGroup>
       )}
-
       <InputGroup name="Emission Bursts" label={t('editor:properties.particle-system.emission-bursts')}>
         <Button onClick={onAddBurst}>Add Burst</Button>
       </InputGroup>

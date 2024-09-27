@@ -54,13 +54,14 @@ const TransformSpaceTool = () => {
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center rounded bg-[#0E0F11]">
       <Tooltip content={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
         <Button
           startIcon={<PiGlobeSimple className="text-theme-input" />}
           onClick={toggleTransformSpace}
           variant="transparent"
           className="px-0"
+          size="small"
         />
       </Tooltip>
       <Tooltip
@@ -74,7 +75,7 @@ const TransformSpaceTool = () => {
       >
         <Select
           key={transformSpace.value}
-          inputClassName="py-1 h-6 rounded-sm text-theme-gray3 text-xs"
+          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs"
           className="m-1 w-24 border-theme-input text-theme-gray3"
           onChange={setTransformSpace}
           options={transformSpaceOptions}
