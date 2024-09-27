@@ -93,31 +93,33 @@ export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActi
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
 
-  schema: S.Object({
-    /** Is resize needed? */
-    needsResize: S.Bool(false),
+  schema: S.NonSerialized(
+    S.Object({
+      /** Is resize needed? */
+      needsResize: S.Bool(false),
 
-    renderPass: S.Nullable(S.Type<RenderPass>()),
-    normalPass: S.Nullable(S.Type<NormalPass>()),
-    renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
-    effects: S.Record(S.String(), EffectSchema),
+      renderPass: S.Nullable(S.Type<RenderPass>()),
+      normalPass: S.Nullable(S.Type<NormalPass>()),
+      renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
+      effects: S.Record(S.String(), EffectSchema),
 
-    supportWebGL2: S.Bool(false),
-    canvas: S.Nullable(S.Type<HTMLCanvasElement>()),
+      supportWebGL2: S.Bool(false),
+      canvas: S.Nullable(S.Type<HTMLCanvasElement>()),
 
-    renderer: S.Nullable(S.Type<WebGLRenderer>()),
-    effectComposer: S.Nullable(S.Type<EffectComposer>()),
+      renderer: S.Nullable(S.Type<WebGLRenderer>()),
+      effectComposer: S.Nullable(S.Type<EffectComposer>()),
 
-    scenes: S.Array(S.Entity()),
-    scene: S.Class(() => new Scene()),
+      scenes: S.Array(S.Entity()),
+      scene: S.Class(() => new Scene()),
 
-    /** @todo deprecate and replace with engine implementation */
-    xrManager: S.Nullable(S.Type<WebXRManager>()),
-    webGLLostContext: S.Nullable(S.Type<WEBGL_lose_context>()),
+      /** @todo deprecate and replace with engine implementation */
+      xrManager: S.Nullable(S.Type<WebXRManager>()),
+      webGLLostContext: S.Nullable(S.Type<WEBGL_lose_context>()),
 
-    csm: S.Nullable(S.Type<CSM>()),
-    csmHelper: S.Nullable(S.Type<CSMHelper>())
-  }),
+      csm: S.Nullable(S.Type<CSM>()),
+      csmHelper: S.Nullable(S.Type<CSMHelper>())
+    })
+  ),
 
   onInit(initial) {
     initial.scene.matrixAutoUpdate = false

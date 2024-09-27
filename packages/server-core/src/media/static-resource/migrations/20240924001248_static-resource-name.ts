@@ -23,35 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as k8s from '@kubernetes/client-node'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-import { objectToArgs } from '@ir-engine/common/src/utils/objectToCommandLineArgs'
-import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
+const assetPath = 'asset'
 
-import { Application } from '../../../declarations'
-import { getJobBody } from '../../k8s-job-helper'
-
-export async function getModelTransformJobBody(
-  app: Application,
-  createParams: ModelTransformParameters
-): Promise<k8s.V1Job> {
-  const command = [
-    'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
-    'packages/server-core/src/assets/model-transform/model-transform.job.ts',
-    ...objectToArgs(createParams)
-  ]
-
-  const labels = {
-    'ir-engine/modelTransformer': 'true',
-    'ir-engine/transformSource': createParams.src,
-    'ir-engine/transformDestination': createParams.dst,
-    'ir-engine/release': process.env.RELEASE_NAME!
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const nameColumnExists = await knex.schema.hasColumn(staticResourcePath, 'name')
+  if (!nameColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.string('name', 255).nullable().defaultTo(null)
+    })
   }
+}
 
-  const name = `${process.env.RELEASE_NAME}-${createParams.src}-${createParams.dst}-transform`
-
-  return getJobBody(app, command, name, labels)
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const nameColumnExists = await knex.schema.hasColumn(staticResourcePath, 'name')
+  if (nameColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('name')
+    })
+  }
 }

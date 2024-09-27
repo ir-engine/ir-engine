@@ -29,7 +29,7 @@
   "loadingAssets": "Loading Assets",
   "loadingScenes": "Loading Scenes",
   "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
-  "help": "Help",
+  "help": "Customer Service Live Chat",
   "menubar": {
     "newScene": "New Scene",
     "newEmptyScene": "New Empty Scene",
@@ -537,9 +537,8 @@
         "useMeshoptimizer": "Use Meshoptimizer",
         "maxCodebooks": "Max Codebooks",
         "status": {
-          "initializing": "Initializing transform...",
+          "transformingmodels": "Transforming models...",
           "processingtexture": "Processing texture {{numerator}} of {{denominator}}...",
-          "finalizing": "Finalizing transform...",
           "writingfiles": "Writing files...",
           "complete": "Complete."
         },
@@ -619,6 +618,7 @@
       "emitter-shape": "Emitter Shape",
       "emission-bursts": "Emission Bursts",
       "shape-mesh": "Emitter Shape Mesh",
+      "shape-mesh-info": "Drag Gltf or Glb file here (or paste it's file asset url) to set the mesh to use as the emitter shape",
       "start-life": "Start Life",
       "start-size": "Start Size",
       "start-speed": "Start Speed",
@@ -1257,6 +1257,7 @@
         "header-plural": "Info for {{itemCount}} Items",
         "regenerateThumbnail": "Regenerate Thumbnail",
         "name": "Name",
+        "fileName": "File Name",
         "type": "Type",
         "size": "Size",
         "url": "URL",

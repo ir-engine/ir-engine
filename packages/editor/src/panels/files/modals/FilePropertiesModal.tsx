@@ -107,6 +107,7 @@ export default function FilePropertiesModal() {
         await API.instance.service(staticResourcePath).patch(resource.id, {
           key: resource.key,
           tags: newTags,
+          name: resourceDigest.name.value,
           licensing: resourceDigest.licensing.value,
           attribution: resourceDigest.attribution.value,
           description: resourceDigest.description.value,
@@ -242,8 +243,40 @@ export default function FilePropertiesModal() {
       </div>
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
-          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
+          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.fileName')}</Text>
           <Text className="text-theme-input">{filename}</Text>
+        </div>
+        <div className="grid grid-cols-2 items-center gap-2">
+          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
+          <span className="flex items-center">
+            {editedField.value === 'name' ? (
+              <>
+                <Input value={resourceDigest.name.value ?? ''} onChange={onChange('name', resourceDigest.name)} />
+                <Button
+                  title={t('common:components.save')}
+                  variant="transparent"
+                  size="small"
+                  startIcon={<RiSave2Line />}
+                  onClick={() => editedField.set(null)}
+                />
+              </>
+            ) : (
+              <>
+                <Text className="text-theme-input">
+                  {files.length > 1 && !sharedFields.value.includes('name')
+                    ? t('editor:layout.filebrowser.fileProperties.mixedValues')
+                    : resourceDigest.name.value || <em>{t('common:components.none')}</em>}
+                </Text>
+                <Button
+                  title={t('common:components.edit')}
+                  variant="transparent"
+                  size="small"
+                  startIcon={<HiPencil />}
+                  onClick={() => editedField.set('name')}
+                />
+              </>
+            )}
+          </span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
