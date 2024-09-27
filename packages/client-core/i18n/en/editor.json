@@ -1257,6 +1257,7 @@
         "header-plural": "Info for {{itemCount}} Items",
         "regenerateThumbnail": "Regenerate Thumbnail",
         "name": "Name",
+        "fileName": "File Name",
         "type": "Type",
         "size": "Size",
         "url": "URL",
