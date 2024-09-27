@@ -55,7 +55,6 @@ import {
 import { State } from '@ir-engine/hyperflux'
 import { HiSparkles } from 'react-icons/hi'
 
-import PaginatedList from '@ir-engine/editor/src/components/layout/PaginatedList'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
@@ -67,6 +66,7 @@ import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
+import PaginatedList from '../../layout/PaginatedList'
 import NodeEditor from '../nodeEditor'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
