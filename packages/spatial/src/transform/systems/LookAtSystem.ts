@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine, Entity, UUIDComponent, defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
+import { Entity, UUIDComponent, defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
+import { EngineState } from '../../EngineState'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '../components/TransformComponent'
 import { TransformDirtyUpdateSystem } from './TransformSystem'
@@ -42,7 +44,7 @@ export const LookAtSystem = defineSystem({
   uuid: 'ir.spatial.LookAtSystem',
   insert: { before: TransformDirtyUpdateSystem },
   execute: () => {
-    const viewerEntity = Engine.instance.viewerEntity
+    const viewerEntity = getState(EngineState).viewerEntity
     if (!viewerEntity) return
 
     for (const entity of facerQuery()) {
