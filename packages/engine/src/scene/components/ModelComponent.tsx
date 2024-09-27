@@ -91,7 +91,7 @@ export const ModelComponent = defineComponent({
     }
   },
 
-  errors: ['LOADING_ERROR', 'INVALID_SOURCE', 'NO_SOURCE'],
+  errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
   reactor: ModelReactor
 })
@@ -106,9 +106,9 @@ function ModelReactor() {
 
   useEffect(() => {
     if (modelComponent.src.value) return
-    addError(entity, ModelComponent, 'NO_SOURCE', 'No source provided')
+    addError(entity, ModelComponent, 'INVALID_SOURCE', 'No source provided')
     return () => {
-      removeError(entity, ModelComponent, 'NO_SOURCE')
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
     }
   }, [modelComponent.src])
 
