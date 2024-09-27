@@ -23,36 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import verifyScope from '../../hooks/verify-scope'
+import { Extension } from '@gltf-transform/core'
 
-export default {
-  before: {
-    all: [],
-    find: [],
-    get: [],
-    create: [verifyScope('editor', 'write')],
-    update: [verifyScope('editor', 'write')],
-    patch: [verifyScope('editor', 'write')],
-    remove: [verifyScope('editor', 'write')]
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export abstract class CopyableExtension extends Extension {
+  abstract copyTo(target: Extension | null): void
+}

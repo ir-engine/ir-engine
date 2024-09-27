@@ -37,8 +37,7 @@ export const FeatureFlags = {
   },
   Studio: {
     Model: {
-      Dereference: 'ir.studio.model.dereference',
-      GLTFTransform: 'ir.studio.model.gltfTransform'
+      Dereference: 'ir.studio.model.dereference'
     },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript'
