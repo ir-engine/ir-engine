@@ -119,27 +119,6 @@ export const VideoComponent = defineComponent({
     texture: S.Nullable(S.Type<VideoTexturePriorityQueue>())
   }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
-    if (typeof json.side === 'number') component.side.set(json.side)
-    if (typeof json.size === 'object') component.size.set(new Vector2(json.size.x, json.size.y))
-    if (typeof json.uvOffset === 'object') component.uvOffset.set(new Vector2(json.uvOffset.x, json.uvOffset.y))
-    if (typeof json.uvScale === 'object') component.uvScale.set(new Vector2(json.uvScale.x, json.uvScale.y))
-    if (typeof json.alphaUVOffset === 'object')
-      component.alphaUVOffset.set(new Vector2(json.alphaUVOffset.x, json.alphaUVOffset.y))
-    if (typeof json.alphaUVScale === 'object')
-      component.alphaUVScale.set(new Vector2(json.alphaUVScale.x, json.alphaUVScale.y))
-    if (typeof json.wrapS === 'number') component.wrapS.set(json.wrapS)
-    if (typeof json.wrapT === 'number') component.wrapT.set(json.wrapT)
-    if (typeof json.useAlpha === 'boolean') component.useAlpha.set(json.useAlpha)
-    if (typeof json.useAlphaUVTransform === 'boolean') component.useAlphaUVTransform.set(json.useAlphaUVTransform)
-    if (typeof json.alphaThreshold === 'number') component.alphaThreshold.set(json.alphaThreshold)
-    if (typeof json.fit === 'string') component.fit.set(json.fit)
-    if (typeof json.projection === 'string' && (json.projection === 'Flat' || json.projection === 'Equirectangular360'))
-      component.projection.set(json.projection)
-  },
-
   onRemove: (entity, component) => {
     if (VideoComponent.uniqueVideoEntities.includes(entity)) {
       VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
