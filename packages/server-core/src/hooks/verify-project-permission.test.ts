@@ -28,7 +28,7 @@ import '../patchEngineNode'
 import { BadRequest, Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
 import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -55,13 +55,15 @@ const mockHookContext = (
 
 describe('verify-project-permission', () => {
   let app: Application
-  beforeAll(async () => {
+  beforeEach(async () => {
     app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await tearDownAPI()
+    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/testorg`)
+    deleteFolderRecursive(projectDir)
     destroyEngine()
   })
 
@@ -124,7 +126,7 @@ describe('verify-project-permission', () => {
       scopes: []
     })
     const project = await app.service(projectPath).create({
-      name: `testorg/project #${Math.random()}`
+      name: `testorg/project${Math.random()}`
     })
 
     // owner must exist, or next user will be made owner
@@ -153,8 +155,6 @@ describe('verify-project-permission', () => {
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
     await app.service(userPath).remove(userOwner.id)
-    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
-    deleteFolderRecursive(projectDir)
   })
 
   it('should verify if user has required permission', async () => {
@@ -182,8 +182,6 @@ describe('verify-project-permission', () => {
     // cleanup
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
-    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
-    deleteFolderRecursive(projectDir)
   })
 
   it('should verify if isInternal', async () => {
