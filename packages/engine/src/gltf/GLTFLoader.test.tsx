@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
 import {
   createEntity,
+  Entity,
   EntityContext,
   generateEntityUUID,
   setComponent,
@@ -33,10 +35,13 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { applyIncomingActions, NO_PROXY, startReactor, useMutableState } from '@ir-engine/hyperflux'
+import { applyIncomingActions, NO_PROXY, startReactor, useDidMount, useMutableState } from '@ir-engine/hyperflux'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import assert from 'assert'
 import React, { useEffect } from 'react'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFSnapshotState } from './GLTFState'
+import { GLTFDocumentState, GLTFNode, GLTFNodeState } from './GLTFDocumentState'
+import { getNodeUUID } from './GLTFState'
 
 const CDN_URL = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0'
 const duck_gltf = CDN_URL + '/Duck/glTF/Duck.gltf'
@@ -53,6 +58,32 @@ describe('GLTF Loader', () => {
   it('can load a mesh', (done) => {
     const entity = createEntity()
 
+    const MeshReactor = (props: { entity: Entity; nodeIndex: number }) => {
+      const { entity, nodeIndex } = props
+      const meshComponent = useOptionalComponent(entity, MeshComponent)
+
+      useDidMount(() => {
+        assert(meshComponent)
+        assert(meshComponent.name.value === 'Node-' + nodeIndex)
+        assert(meshComponent.entity.value === entity)
+        done()
+      }, [meshComponent])
+
+      return null
+    }
+
+    const NodeReactor = (props: { source: string; node: GLTFNode; gltf: GLTF.IGLTF }) => {
+      const { source, node, gltf } = props
+      const nodeIndex = node.nodeIndex
+      const documentNode = gltf.nodes![nodeIndex]
+      const nodeUUID = getNodeUUID(documentNode, source, nodeIndex)
+      const entity = UUIDComponent.useEntityByUUID(nodeUUID)
+
+      return entity && typeof documentNode.mesh === 'number' ? (
+        <MeshReactor entity={entity} nodeIndex={nodeIndex} />
+      ) : null
+    }
+
     const root = startReactor(() => {
       return React.createElement(
         EntityContext.Provider,
@@ -61,10 +92,10 @@ describe('GLTF Loader', () => {
           const entity = useEntityContext()
           const gltfComponent = useOptionalComponent(entity, GLTFComponent)
           const instanceID = GLTFComponent.useInstanceID(entity)
-          const gltfState = useMutableState(GLTFSnapshotState)
-          const snapshots = gltfState[instanceID].value
-          const index = snapshots?.index
-          const snapshot = snapshots?.snapshots[index]
+          const gltfDocumentState = useMutableState(GLTFDocumentState)
+          const nodeState = useMutableState(GLTFNodeState)
+          const gltf = gltfDocumentState[instanceID].get(NO_PROXY)
+          const nodes = nodeState[instanceID].get(NO_PROXY)
 
           useEffect(() => {
             setComponent(entity, UUIDComponent, generateEntityUUID())
@@ -77,12 +108,13 @@ describe('GLTF Loader', () => {
             applyIncomingActions()
           }, [gltfComponent?.dependencies])
 
-          useEffect(() => {
-            if (!snapshot) return
-            const acc = snapshot.accessors
-          }, [snapshot])
-
-          return null
+          return nodes ? (
+            <>
+              {Object.entries(nodes).map(([source, node], index) => {
+                return <NodeReactor key={index} source={instanceID} node={node} gltf={gltf as GLTF.IGLTF} />
+              })}
+            </>
+          ) : null
         }, {})
       )
     })

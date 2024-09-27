@@ -412,14 +412,24 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   const rootEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
   useEffect(() => {
-    if (!animationState.length) return
-
     /** @todo this is a temporary hack */
     const obj3d = new Group()
     setComponent(rootEntity, Object3DComponent, obj3d)
     addObjectToGroup(rootEntity, obj3d)
     proxifyParentChildRelationships(obj3d)
 
+    return () => {
+      if (entityExists(rootEntity)) {
+        removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
+        removeComponent(rootEntity, Object3DComponent)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!animationState.length) return
+
+    const obj3d = getComponent(rootEntity, Object3DComponent)
     obj3d.animations = animationState.get(NO_PROXY) as AnimationClip[]
     setComponent(rootEntity, AnimationComponent, {
       mixer: new AnimationMixer(obj3d),
@@ -429,15 +439,15 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
     return () => {
       if (entityExists(rootEntity)) {
         removeComponent(rootEntity, AnimationComponent)
-        removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
-        removeComponent(rootEntity, Object3DComponent)
       }
     }
   }, [animationState])
 
+  const nodes = nodeState.get(NO_PROXY)
+  const document = documentState.get(NO_PROXY)
   return (
     <>
-      {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
+      {Object.entries(nodes).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
         <ParentNodeReactor
           key={uuid}
           childIndex={childIndex}
@@ -446,17 +456,15 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
           documentID={props.documentID}
         />
       ))}
-      {documentState
-        .get(NO_PROXY)
-        .materials?.map((material, index) => (
-          <MaterialEntityReactor
-            key={'material-' + index}
-            index={index}
-            parentUUID={props.parentUUID}
-            documentID={props.documentID}
-          />
-        ))}
-      {documentState.get(NO_PROXY).animations?.map((animation, index) => {
+      {document.materials?.map((material, index) => (
+        <MaterialEntityReactor
+          key={'material-' + index}
+          index={index}
+          parentUUID={props.parentUUID}
+          documentID={props.documentID}
+        />
+      ))}
+      {document.animations?.map((animation, index) => {
         return (
           <AnimationReactor
             key={'animation-' + index}
@@ -545,14 +553,10 @@ const MaterialStateReactor = (props: { index: number; parentUUID: EntityUUID; do
 
   useLayoutEffect(() => {
     if (!materialDefinition) return
-    return () => {
-      removeComponent(entity, MaterialDefinitionComponent)
-    }
-  }, [])
-
-  useLayoutEffect(() => {
-    if (!materialDefinition) return
     setComponent(entity, MaterialDefinitionComponent, materialDefinition)
+    return () => {
+      if (entityExists(entity)) removeComponent(entity, MaterialDefinitionComponent)
+    }
   }, [materialDefinition])
 
   return (
@@ -597,7 +601,7 @@ const ParentNodeReactor = (props: {
   return <NodeReactor {...props} />
 }
 
-const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
+export const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
   (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
 
 const isBoneNode = (json: GLTF.IGLTF, nodeIndex: number) => {
@@ -614,11 +618,9 @@ const isBoneNode = (json: GLTF.IGLTF, nodeIndex: number) => {
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes!
-
   const node = nodes[props.nodeIndex]! as State<GLTF.INode>
 
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
-
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
@@ -626,7 +628,6 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
-    setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, SourceComponent, props.documentID)
 
     /** Ensure all base components are added for synchronous mount */
@@ -698,10 +699,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   }, [entity, node.name])
 
   useLayoutEffect(() => {
-    if (!entity) return
-
-    setComponent(entity, TransformComponent)
-    if (!node.matrix.value) return
+    if (!entity || !node.matrix.value) return
 
     const mat4 = new Matrix4().fromArray(node.matrix.value)
     const position = new Vector3()
@@ -712,9 +710,8 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   }, [entity, node.matrix])
 
   useLayoutEffect(() => {
-    if (!entity) return
+    if (!entity || !node.translation.value) return
 
-    if (!node.translation.value) return
     const position = new Vector3().fromArray(node.translation.value)
     setComponent(entity, TransformComponent, { position })
   }, [entity, node.translation])
@@ -829,7 +826,6 @@ const SkinnedMeshReactor = (props: { nodeIndex: number; documentID: string; enti
   const node = nodes[props.nodeIndex]!
 
   const skinnedMeshComponent = useOptionalComponent(props.entity, SkinnedMeshComponent)
-
   const skin = documentState.skins.get(NO_PROXY)![node.skin!]
 
   const options = getParserOptions(props.entity)
@@ -938,14 +934,11 @@ const PrimitiveReactor = (props: {
   entity: Entity
 }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]! as GLTF.INode
 
   const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
-
   const options = getParserOptions(props.entity)
-
   const finalGeometry = GLTFLoaderFunctions.useLoadPrimitives(options, props.nodeIndex!)
 
   useEffect(() => {
@@ -982,9 +975,11 @@ const PrimitiveReactor = (props: {
 
     mesh.name = node.name ?? 'Node-' + props.nodeIndex
     return () => {
-      removeComponent(props.entity, SkinnedMeshComponent)
-      removeComponent(props.entity, MeshComponent)
-      removeObjectFromGroup(props.entity, mesh)
+      if (entityExists(props.entity)) {
+        removeComponent(props.entity, SkinnedMeshComponent)
+        removeComponent(props.entity, MeshComponent)
+        removeObjectFromGroup(props.entity, mesh)
+      }
     }
   }, [node.skin, finalGeometry])
 
@@ -1026,14 +1021,11 @@ const PrimitiveExtensionReactor = (props: {
   entity: Entity
 }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
 
   const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
-
   const primitive = mesh.primitives[props.primitiveIndex]
-
   const extensions = primitive.extensions
 
   useEffect(() => {
@@ -1057,16 +1049,15 @@ const MaterialInstanceReactor = (props: {
   isArray: boolean
 }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
 
   const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
-
   const primitive = mesh.primitives[props.primitiveIndex]
 
   const materialUUID = (props.documentID + '-material-' + primitive.material!) as EntityUUID
   const materialEntity = UUIDComponent.useEntityByUUID(materialUUID)
+
   useEffect(() => {
     if (typeof primitive.material !== 'number' || !materialEntity) return
 
@@ -1081,17 +1072,15 @@ const MaterialInstanceReactor = (props: {
 
 export const MorphTargetReactor = (props: { documentID: string; entity: Entity; nodeIndex: number }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
 
   const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
-
   const options = getParserOptions(props.entity)
-
   const loadedMorphTargets = GLTFLoaderFunctions.useMergeMorphTargets(options, props.nodeIndex)
 
   const mesh = useOptionalComponent(props.entity, MeshComponent)
+
   useEffect(() => {
     if (!loadedMorphTargets) return
 
