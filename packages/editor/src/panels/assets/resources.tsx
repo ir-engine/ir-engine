@@ -85,7 +85,7 @@ function ResourceFileContextMenu({
   const { refetchResources } = useAssetsQuery()
 
   const splitResourceKey = resource.key.split('/')
-  const name = splitResourceKey.at(-1)!
+  const name = resource.name || splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
   const assetType = AssetLoader.getAssetType(resource.key)
 
@@ -146,7 +146,7 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   const anchorEvent = useHookstate<React.MouseEvent | undefined>(undefined)
 
   const assetType = AssetLoader.getAssetType(resource.key)
-  const name = resource.key.split('/').at(-1)!
+  const name = resource.name || resource.key.split('/').at(-1)!
 
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,

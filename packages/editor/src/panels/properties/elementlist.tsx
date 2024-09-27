@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Component } from '@ir-engine/ecs/src/ComponentFunctions'
-import { PrefabIcons, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
+import { PrefabIcon, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
@@ -117,18 +117,16 @@ const SceneElementListItem = ({
   categoryTitle: string
   selected?: boolean
 }) => {
-  const icon = PrefabIcons[categoryTitle] || PrefabIcons.default
-
   return (
     <button
       className={twMerge(
         'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
-        selected ? 'text-primary border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
+        selected ? 'border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
       )}
       onClick={onClick}
     >
       <div className="flex flex-col items-center justify-center">
-        {icon}
+        <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
         <div className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{categoryTitle}</div>
       </div>
     </button>
@@ -160,6 +158,14 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
       shelves[prefab.category] ??= []
       shelves[prefab.category].push(prefab)
     }
+
+    shelves['Empty'] ??= [
+      {
+        name: 'Create',
+        url: '',
+        category: 'Empty'
+      }
+    ]
     return shelves
   }, [prefabState])
 
@@ -188,7 +194,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
   const onClickCategory = (index: number) => {
     const currentIndex = selectedCategories.value.indexOf(index)
     if (currentIndex === -1) {
-      selectedCategories.set([...selectedCategories.value, index])
+      selectedCategories.set([index])
     } else {
       const newSelectedCategories = [...selectedCategories.value]
       newSelectedCategories.splice(currentIndex, 1)
@@ -253,15 +259,6 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
               selected={selectedCategories.value.includes(index)}
             />
           ))}
-          {type !== 'components' && (
-            <SceneElementListItem
-              categoryTitle="Empty"
-              onClick={() => {
-                EditorControlFunctions.createObjectFromSceneElement()
-                onSelect()
-              }}
-            />
-          )}
         </div>
       )}
 
