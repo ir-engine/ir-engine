@@ -59,7 +59,6 @@ export class JWTPublicKeyService implements ServiceInterface {
     ) {
       this.publicKey = createPublicKey({ key: appconfig.authentication.jwtPublicKey, format: 'pem' })
       this.certificate = new X509Certificate(appconfig.authentication.jwtCertificate)
-      console.log('raw cert', this.certificate.raw, this.certificate.raw.toString('base64url'))
       this.jwk = this.publicKey.export({ format: 'jwk' })
       this.jwk.kid = createHash('sha3-256').update(appconfig.authentication.jwtPublicKey).digest('hex')
       this.jwk.alg = 'RS256'

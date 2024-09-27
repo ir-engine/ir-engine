@@ -33,6 +33,17 @@ import { Application } from '../../../declarations'
 
 export interface GenerateTokenParams extends KnexAdapterParams<GenerateTokenQuery> {
   authentication?: any
+  policy?: string
+  expiresIn?: number | string
+}
+
+export interface JWTPayload {
+  pol?: string
+}
+
+export interface JWTOptions {
+  subject: string
+  expiresIn?: string | number
 }
 
 /**
@@ -48,7 +59,7 @@ export class GenerateTokenService
     this.app = app
   }
 
-  async create(data: GenerateTokenData, params?: GenerateTokenParams) {
+  async create(data: GenerateTokenData, params: GenerateTokenParams) {
     const userId = params?.user?.id
     if (!data.token || !data.type) throw new Error('Must pass service and identity-provider token to generate JWT')
     const ipResult = (await this.app.service(identityProviderPath).find({
@@ -61,9 +72,11 @@ export class GenerateTokenService
     if (ipResult.total > 0) {
       const ip = ipResult.data[0]
 
-      const newToken = await this.app.service('authentication').createAccessToken({
-        pol: '66f495cd23a4100001d30211'
-      }, { subject: ip.id.toString() })
+      const payload: JWTPayload = {}
+      const opts: JWTOptions = { subject: ip.id.toString() }
+      if (params.policy) payload.pol = params.policy
+      if (params.expiresIn) opts.expiresIn = params.expiresIn
+      const newToken = await this.app.service('authentication').createAccessToken(payload, opts)
       return {
         token: newToken,
         type: data.type

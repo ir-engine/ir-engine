@@ -294,11 +294,11 @@ export const writeAuthUserToIframe = async () => {
 /**
  * Resets the current user's accessToken to a new random guest token.
  */
-async function _resetToGuestToken(): Promise<string> {
+async function _resetToGuest(): Promise<any> {
   const newProviderResponse = await createGuestUser()
-  const accessToken = (await newProviderResponse.json()).accessToken
+  const newProvider = await newProviderResponse.json()
   writeAuthUserToIframe()
-  return accessToken
+  return newProvider
 }
 
 function createGuestUser() {
@@ -330,8 +330,23 @@ function authenticateToken(token) {
   })
 }
 
+function createTempToken(authToken, identityProvider) {
+  return restApiCall({
+    path: generateTokenPath,
+    method: 'POST',
+    body: JSON.stringify({
+      type: identityProvider.type,
+      token: identityProvider.token
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`
+    }
+  })
+}
+
 export const AuthService = {
-  async doLoginAuto(forceClientAuthReset?: boolean) {
+  async doLoginAuto() {
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
     // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
@@ -340,22 +355,29 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     try {
       let reset = true
+      let identityProvider
       let rootDomainToken = await getToken()
 
       if (rootDomainToken?.length > 0) {
         const authResponse = await authenticateToken(rootDomainToken)
         if (authResponse.status > 299) {
           reset = false
-          rootDomainToken = await _resetToGuestToken()
+          identityProvider = await _resetToGuest()
+          rootDomainToken = identityProvider.accessToken
+        } else {
+          console.log('AuthUser when authentication is okay', authState.authUser)
+          identityProvider = authState.authUser.identityProvider.value
         }
       } else {
-        rootDomainToken = await _resetToGuestToken()
+        identityProvider = await _resetToGuest()
+        rootDomainToken = identityProvider.accessToken
       }
 
-      ClientAPI.createAPI(rootDomainToken)
+      const tempToken = await (await createTempToken(rootDomainToken, identityProvider)).json()
 
-      document.cookie = `jwtAuth=${rootDomainToken}`
-      await API.instance.authentication.setAccessToken(rootDomainToken)
+      ClientAPI.createAPI(tempToken.token)
+
+      await API.instance.authentication.setAccessToken(tempToken.token)
 
       let res: AuthenticationResult
       try {

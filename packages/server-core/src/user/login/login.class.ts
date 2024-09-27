@@ -92,9 +92,7 @@ export class LoginService implements ServiceInterface {
         })
       const token = await this.app
         .service('authentication')
-        .createAccessToken({
-          pol: '66f495cd23a4100001d30211'
-        }, { subject: identityProvider.id.toString() })
+        .createAccessToken({}, { subject: identityProvider.id.toString() })
 
       await this.app.service(identityProviderPath).remove(null, {
         query: {

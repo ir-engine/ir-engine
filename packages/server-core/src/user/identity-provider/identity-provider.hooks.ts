@@ -290,9 +290,7 @@ async function createAccessToken(context: HookContext<IdentityProviderService>) 
   if (!(context.result as IdentityProviderType).accessToken) {
     ;(context.result as IdentityProviderType).accessToken = await context.app
       .service('authentication')
-      .createAccessToken({
-        pol: '66f495cd23a4100001d30211'
-      }, { subject: (context.result as IdentityProviderType).id.toString() })
+      .createAccessToken({}, { subject: (context.result as IdentityProviderType).id.toString() })
   }
 }
 

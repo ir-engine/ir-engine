@@ -48,7 +48,10 @@ export default {
     all: [schemaHooks.validateQuery(generateTokenQueryValidator), schemaHooks.resolveQuery(generateTokenQueryResolver)],
     find: [],
     get: [],
-    create: [schemaHooks.validateData(generateTokenDataValidator), schemaHooks.resolveData(generateTokenDataResolver)],
+    create: [schemaHooks.validateData(generateTokenDataValidator), schemaHooks.resolveData(generateTokenDataResolver), (context) => {
+      context.params.policy = '66f495cd23a4100001d30211'
+      context.params.expiresIn = '30 seconds'
+    }],
     update: [],
     patch: [schemaHooks.validateData(generateTokenPatchValidator), schemaHooks.resolveData(generateTokenPatchResolver)],
     remove: []
