@@ -159,7 +159,6 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
       shelves[prefab.category].push(prefab)
     }
 
-    // Add Empty shelve
     shelves['Empty'] ??= [
       {
         name: 'Create',
