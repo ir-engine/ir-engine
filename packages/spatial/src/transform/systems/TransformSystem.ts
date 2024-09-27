@@ -212,10 +212,10 @@ const execute = () => {
     const boundingBox = (
       getOptionalComponent(entity, BoundingBoxComponent) ?? getOptionalComponent(entity, BoundingBoxComponent)
     )?.box
-    const cull = boundingBox
+    const shouldNotCull = boundingBox
       ? _frustum.intersectsBox(boundingBox)
       : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))
-    FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
+    FrustumCullCameraComponent.isCulled[entity] = shouldNotCull ? 0 : 1
   }
 }
 
