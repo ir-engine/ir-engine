@@ -72,7 +72,7 @@ type TransformComponentData = {
 
 const TransformComponentDefaults: TransformComponentData = {
   position: new Vector3(),
-  rotation: new Quaternion(0, 0, 0, 0),
+  rotation: new Quaternion(0, 0, 0, 1),
   scale: new Vector3(1, 1, 1),
   matrix: new Matrix4(),
   matrixWorld: new Matrix4()
@@ -184,7 +184,7 @@ describe('TransformComponent', () => {
     it("should serialize the component's data correctly", () => {
       const Expected = {
         position: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 0 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
         scale: { x: 1, y: 1, z: 1 }
       }
       const json = serializeComponent(testEntity, TransformComponent)

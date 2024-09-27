@@ -281,11 +281,10 @@ describe('TransformSerialization', () => {
 
       it('should return void if `@param entity` does not have a TransformComponent', () => {
         // Set the data as expected
-        setComponent(testEntity, RigidBodyComponent)
         const cursor: ViewCursor = createViewCursor()
         // Sanity check before running
         assert.equal(hasComponent(testEntity, TransformComponent), false)
-        assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
+        assert.equal(hasComponent(testEntity, RigidBodyComponent), false)
         // Run and Check the result
         const result = writeTransform(cursor, testEntity)
         assert.equal(result, null)
@@ -294,10 +293,11 @@ describe('TransformSerialization', () => {
       it('should return void if `@param entity` has a RigidBodyComponent', () => {
         // Set the data as expected
         setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent)
         const cursor: ViewCursor = createViewCursor()
         // Sanity check before running
         assert.equal(hasComponent(testEntity, TransformComponent), true)
-        assert.equal(hasComponent(testEntity, RigidBodyComponent), false)
+        assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
         // Run and Check the result
         const result = writeTransform(cursor, testEntity)
         assert.equal(result, null)
@@ -321,6 +321,7 @@ describe('TransformSerialization', () => {
         // Set the data as expected
         setComponent(testEntity, TransformComponent)
         const cursor: ViewCursor = createViewCursor()
+        writeTransform(cursor, testEntity) // Rotation on first run triggers a change
         // Sanity check before running
         assert.equal(hasComponent(testEntity, TransformComponent), true)
         assert.equal(hasComponent(testEntity, RigidBodyComponent), false)

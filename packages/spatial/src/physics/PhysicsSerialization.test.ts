@@ -569,7 +569,6 @@ describe('PhysicsSerialization', () => {
         // Sanity check before running
         assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
         // Run and Check the result
-        // Rigidbody rotations are set to identity on init, so first write is always a change
         writeRigidBody(cursor, testEntity)
         const result = writeRigidBody(cursor, testEntity)
         assert.equal(result, null)
