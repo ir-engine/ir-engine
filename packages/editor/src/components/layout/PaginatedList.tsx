@@ -60,9 +60,16 @@ export default function PaginatedList<T>({
   }
 
   const pageView = useHookstate(getPageIndices())
+  // useEffect(() => {
+  //   if (currentPage.value < 0) {
+  //     currentPage.set(0)
+  //     console.log('currentPage set to 0')
+  //   }
+  // },[])
+
   useEffect(() => {
     pageView.set(getPageIndices())
-  }, [currentPage])
+  }, [currentPage, list])
   return (
     <>
       <Well>
