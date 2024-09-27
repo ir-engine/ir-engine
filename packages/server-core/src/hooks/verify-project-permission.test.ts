@@ -167,7 +167,7 @@ describe('verify-project-permission', () => {
     })
 
     const project = await app.service(projectPath).create({
-      name: `testorg/project #${Math.random()}`
+      name: `testorg/project${Math.random()}`
     })
 
     await app.service(projectPermissionPath).create({
