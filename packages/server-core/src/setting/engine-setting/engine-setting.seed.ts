@@ -74,8 +74,31 @@ export async function seed(knex: Knex): Promise<void> {
       updatedAt: await getDateTimeSql()
     }))
   )
+  const zendeskSettingSeedData: EngineSettingType[] = await Promise.all(
+    [
+      {
+        key: EngineSettings.Zendesk.Name,
+        value: process.env.ZENDESK_KEY_NAME || ''
+      },
+      {
+        key: EngineSettings.Zendesk.Secret,
+        value: process.env.ZENDESK_SECRET || ''
+      },
+      {
+        key: EngineSettings.Zendesk.Kid,
+        value: process.env.ZENDESK_KID || ''
+      }
+    ].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      type: 'private' as EngineSettingType['type'],
+      category: 'zendesk' as EngineSettingType['category'],
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
 
-  const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData]
+  const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData, ...zendeskSettingSeedData]
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries

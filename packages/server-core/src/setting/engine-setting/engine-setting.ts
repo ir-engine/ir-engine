@@ -65,6 +65,8 @@ export default (app: Application): void => {
         appConfig.taskserver[setting.key] = setting.value
       } else if (setting.category === 'chargebee') {
         appConfig.chargebee[setting.key] = setting.value
+      } else if (setting.category === 'zendesk') {
+        appConfig.zendesk[setting.key] = setting.value
       }
     }
   }
