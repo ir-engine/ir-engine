@@ -188,6 +188,6 @@ describe('verify-project-permission', () => {
   it('should verify if isInternal', async () => {
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { isInternal: true })
-    await assert.doesNotThrow(() => verifyPermission(hookContext))
+    await assert.doesNotReject(() => verifyPermission(hookContext))
   })
 })

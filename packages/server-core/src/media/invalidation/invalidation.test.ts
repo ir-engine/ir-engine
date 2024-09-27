@@ -80,7 +80,7 @@ describe('invalidation.test', () => {
   })
 
   it('gets an invalidation', async () => {
-    await assert.doesNotThrow(async () => await app.service(invalidationPath).get(createdPath1.id))
+    await assert.doesNotReject(async () => await app.service(invalidationPath).get(createdPath1.id))
     const path1 = await app.service(invalidationPath).get(createdPath1.id)
     assert.notEqual(path1, null)
     assert.equal(path1.path, pathName1)
