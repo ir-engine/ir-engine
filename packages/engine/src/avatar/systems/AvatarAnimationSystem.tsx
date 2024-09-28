@@ -49,7 +49,6 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModul
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
@@ -348,9 +347,6 @@ const AnimationReactor = () => {
 
   useEffect(() => {
     if (!loadedAnimations.value) return
-    console.log(loadedAnimations.value[0][1])
-    const scene = getComponent(loadedAnimations.value[0][1] as Entity, GroupComponent)[0]
-    console.log(scene)
     let i = 0
     for (const loadedAnimationEntity of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
       for (const animation of loadedAnimationEntity[0]!) {
