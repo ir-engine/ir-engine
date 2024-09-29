@@ -23,6 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// This must always be imported first
+import './patchEngineNode'
+
+// ensure logger is loaded first - it loads the dotenv config
+import logger from './ServerLogger'
+
 import knex from 'knex'
 
 import {
@@ -50,7 +56,6 @@ import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/sr
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
-import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'

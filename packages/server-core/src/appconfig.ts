@@ -25,11 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import appRootPath from 'app-root-path'
 import chargebeeInst from 'chargebee'
-import dotenv from 'dotenv-flow'
 import fs from 'fs'
 import path from 'path'
 import traceUnhandled from 'trace-unhandled'
 import url from 'url'
+
+// ensure logger is loaded first - it loads the dotenv config
+import multiLogger from './ServerLogger'
 
 import { oembedPath } from '@ir-engine/common/src/schemas/media/oembed.schema'
 import { allowedDomainsPath } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
@@ -42,7 +44,6 @@ import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { createHash } from 'crypto'
-import multiLogger from './ServerLogger'
 import {
   APPLE_SCOPES,
   DISCORD_SCOPES,
@@ -88,13 +89,6 @@ if (!testEnabled) {
   process.on('unhandledRejection', (reason, p) => {
     logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
     process.exit(1)
-  })
-}
-
-if (!kubernetesEnabled) {
-  dotenv.config({
-    path: appRootPath.path,
-    node_env: 'local'
   })
 }
 

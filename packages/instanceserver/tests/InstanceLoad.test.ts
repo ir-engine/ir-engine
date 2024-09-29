@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import '@hookstate/core'
+
 import '../../server-core/src/patchEngineNode'
 
 import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
@@ -39,6 +39,7 @@ import {
   instancePath,
   locationPath,
   RoomCode,
+  staticResourcePath,
   UserID
 } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -47,12 +48,12 @@ import { NetworkState } from '@ir-engine/network'
 import { Application } from '@ir-engine/server-core/declarations'
 
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { StartTestFileServer } from '../../server-core/src/createFileServer'
 import { onConnection } from '../src/channels'
 import { InstanceServerState } from '../src/InstanceServerState'
 import { start } from '../src/start'
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 describe('InstanceLoad', () => {
   beforeAll(async () => {
@@ -122,6 +123,14 @@ describe('InstanceLoad', () => {
 
     await loadLocation(query)
 
+    const scene = await app.service(staticResourcePath).get(skyStationScene.data[0].sceneId)
+
+    const entity = UUIDComponent.getEntityByUUID(scene.id as EntityUUID)
+    assert(entity > 0)
+
+    assert.equal(getComponent(entity, GLTFComponent).progress, 100)
+
+    assert.equal(NetworkState.worldNetwork.ready, true)
     assert.equal(NetworkState.worldNetwork.ready, true)
     assert.equal(getState(InstanceServerState).ready, true)
   })
