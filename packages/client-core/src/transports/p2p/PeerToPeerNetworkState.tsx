@@ -171,7 +171,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
 }
 
 const sendMessage: SendMessageType = (instanceID: InstanceID, toPeerID: PeerID, message: MessageTypes) => {
-  console.log('sendMessage', instanceID, toPeerID, message)
+  // console.log('sendMessage', instanceID, toPeerID, message)
   API.instance.service(instanceSignalingPath).patch(null, {
     instanceID,
     targetPeerID: toPeerID,
@@ -254,14 +254,12 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       buffer
     }
 
-    // once connected, send all our cached actions to the peer
-    const selfCachedActions = Engine.instance.store.actions.cached.filter(
-      (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
-    )
-
-    console.log('selfCachedActions', selfCachedActions)
-
+    // @todo this is a hack to ensure the data channel is open before sending the actions
     setTimeout(() => {
+      // once connected, send all our cached actions to the peer
+      const selfCachedActions = Engine.instance.store.actions.cached.filter(
+        (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
+      )
       network.messageToPeer(props.peerID, selfCachedActions)
     }, 10)
 
@@ -388,15 +386,15 @@ const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
 
   const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
 
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[props.peerID]?.cam
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[props.peerID]?.cam?.value
 
   const clientSettingQuery = useFind(clientSettingPath)
   const clientSetting = clientSettingQuery.data[0]
 
-  const isPiP = peerMediaChannelState.videoQuality.value === 'largest'
+  const isPiP = peerMediaChannelState?.videoQuality === 'largest'
 
   useEffect(() => {
-    if (!webcamMediaStream) return
+    if (!webcamMediaStream || !peerMediaChannelState) return
 
     const isScreen = false
 
