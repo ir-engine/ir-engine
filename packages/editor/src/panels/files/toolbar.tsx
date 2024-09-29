@@ -116,7 +116,11 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-transparent p-0" data-testid="files-panel-view-options-button" />
+          <Button
+            startIcon={<IoSettingsSharp />}
+            className="h-7 w-7 rounded-lg bg-transparent p-0"
+            data-testid="files-panel-view-options-button"
+          />
         </Tooltip>
       }
     >
