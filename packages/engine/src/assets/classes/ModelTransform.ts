@@ -96,7 +96,6 @@ export type ResourceTransforms = {
 export type ModelFormat = 'glb' | 'gltf' | 'vrm'
 
 export type ModelTransformParameters = ExtractedImageTransformParameters & {
-  src: string
   dst: string
   resourceUri: string
   split: boolean
@@ -121,7 +120,6 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
 
   weld: {
     enabled: boolean
-    tolerance: number
   }
 
   meshoptCompression: {
@@ -142,7 +140,6 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
 }
 
 export const DefaultModelTransformParameters: ModelTransformParameters = {
-  src: '',
   dst: '',
   resourceUri: '',
   modelFormat: 'gltf',
@@ -169,8 +166,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   reorder: true,
   resample: true,
   weld: {
-    enabled: false,
-    tolerance: 0.001
+    enabled: false
   },
   meshoptCompression: {
     enabled: true
