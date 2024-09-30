@@ -50,7 +50,7 @@ import { FileLoader } from 'three'
 
 const transformHistory: string[] = []
 export default async function ModelTransformLoader() {
-  const io = new NodeIO(fetch, {}).setAllowHTTP(true)
+  const io = new NodeIO(fetch, {}).setAllowNetwork(true)
   io.registerExtensions([
     KHRLightsPunctual,
     KHRMaterialsSpecular,

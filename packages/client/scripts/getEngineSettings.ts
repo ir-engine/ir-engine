@@ -23,19 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import knex from 'knex'
 
-import {
-  CoilSettingData,
-  CoilSettingPatch,
-  CoilSettingQuery,
-  CoilSettingType
-} from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
+import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
 
-export interface CoilSettingParams extends KnexAdapterParams<CoilSettingQuery> {}
+export const getEngineSetting = async (category: EngineSettingType['category'], keys: string[]) => {
+  const knexClient = knex({
+    client: 'mysql',
+    connection: {
+      user: process.env.MYSQL_USER ?? 'server',
+      password: process.env.MYSQL_PASSWORD ?? 'password',
+      host: process.env.MYSQL_HOST ?? '127.0.0.1',
+      port: parseInt(process.env.MYSQL_PORT || '3306'),
+      database: process.env.MYSQL_DATABASE ?? 'ir-engine',
+      charset: 'utf8mb4'
+    }
+  })
 
-export class CoilSettingService<
-  T = CoilSettingType,
-  ServiceParams extends Params = CoilSettingParams
-> extends KnexService<CoilSettingType, CoilSettingData, CoilSettingParams, CoilSettingPatch> {}
+  const engineSetting = await knexClient
+    .select()
+    .from<EngineSettingType>(engineSettingPath)
+    .where('category', category)
+    .whereIn('key', keys)
+    .catch((e) => {
+      console.warn(`[vite.config]: Failed to read engineSetting`, category, keys)
+      console.warn(e)
+    })
+
+  await knexClient.destroy()
+
+  return engineSetting
+}
