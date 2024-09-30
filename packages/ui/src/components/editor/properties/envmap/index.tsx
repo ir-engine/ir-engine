@@ -130,7 +130,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               onChange={commitProperty(EnvmapComponent, 'envMapTextureType')}
             />
           </InputGroup>
-          <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')}>
+          <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')} labelClassName="mr-16">
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
               <FolderInput value={envmapComponent.envMapSourceURL.value} onRelease={onChangeCubemapURLSource} />
             )}

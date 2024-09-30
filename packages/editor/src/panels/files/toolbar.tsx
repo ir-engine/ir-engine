@@ -79,7 +79,7 @@ function BreadcrumbItems() {
   breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
   return (
-    <div className="flex h-[28px] w-96 items-center gap-1 rounded-lg border border-theme-input bg-[#141619] px-2 ">
+    <div className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2">
       <HiOutlineFolder className="text-sm text-[#A3A3A3]" />
       {breadcrumbDirectoryFiles.map((file, index, arr) => (
         <Fragment key={index}>
@@ -115,7 +115,7 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-[#2F3137] p-0" />
+          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-transparent p-0" />
         </Tooltip>
       }
     >
