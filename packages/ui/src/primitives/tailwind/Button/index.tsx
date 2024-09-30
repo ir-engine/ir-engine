@@ -27,80 +27,49 @@ import React, { ReactNode } from 'react'
 
 import { twMerge } from 'tailwind-merge'
 
-export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  startIcon?: ReactNode
-  endIcon?: ReactNode
-  children?: ReactNode
-  size?: 'xs' | 'sm' | 'l' | 'xl'
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'transparent' | 'sidebar'
-  disabled?: boolean
-  fullWidth?: boolean
-  rounded?: 'partial' | 'full' | 'none'
-  className?: string
-  iconContainerClassName?: string
-  textContainerClassName?: string
-}
-
-const roundedTypes = {
-  partial: 'rounded-md',
-  full: 'rounded-full',
-  none: 'rounded-none'
-}
-
 const sizes = {
   xs: 'h-6',
   sm: 'h-7',
   l: 'h-8',
   xl: 'h-10'
-}
+} as const
 
 const variants = {
-  primary: 'bg-[#375DAF] hover:bg-[#214AA6] focus:bg-blue-primary disabled:bg-[#5F7DBF]',
-  secondary: 'bg-[#162546] hover:bg-[#213869] focus:bg-[#213869] disabled:bg-[#375DAF]',
-  outline: 'border border-solid border-[#162546] bg-transparent text-theme-primary',
-  success: 'bg-[#0D9467] hover:bg-[#10B981] focus:bg-[#10B981] disabled:bg-[#0A6F4D]',
-  danger: 'bg-[#F43F5E] hover:bg-[#FB7185] focus:bg-[#F43F5E] disabled:bg-[#C3324B]',
-  transparent: 'bg-transparent dark:bg-transparent'
+  primary: 'bg-[#375DAF] hover:bg-[#214AA6] focus:bg-[#375DAF] disabled:bg-[#5F7DBF] disabled:text-[#AFBEDF]',
+  secondary: 'bg-[#162546] hover:bg-[#213869] focus:bg-[#213869] disabled:bg-[#375DAF] disabled:text-white',
+  tertiary: 'border border-[#162546]  disabled:text-white',
+  green: 'bg-[#0D9467] hover:bg-[#10B981] focus:bg-[#10B981] disabled:bg-[#0A6F4D]  disabled:text-white',
+  red: 'bg-[#F43F5E] hover:bg-[#FB7185] focus:bg-[#F43F5E] disabled:bg-[#C3324B]  disabled:text-white'
+} as const
+
+export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+  children?: ReactNode
+  size?: keyof typeof sizes
+  variant?: keyof typeof variants
+  fullWidth?: boolean
+  className?: string
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      startIcon: StartIcon,
-      children,
-      endIcon: EndIcon,
-      size = 'medium',
-      fullWidth,
-      rounded = 'partial',
-      variant = 'primary',
-      disabled = false,
-      ...props
-    },
-    ref
-  ) => {
-    const twClassName = twMerge(
-      'flex items-center justify-center',
-      'text-sm font-medium leading-4 text-white',
-      'px-4 py-1',
-      'transition ease-in-out',
-      'disabled:cursor-not-allowed',
-      (StartIcon || EndIcon) && 'justify-center',
-      sizes[size],
-      fullWidth ? 'w-full' : 'w-fit',
-      'min-w-[66px]',
-      roundedTypes[rounded],
-      disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#5F7DBF] dark:text-[#FFFFFF]' : '',
-      variants[variant]
-    )
+const Button = (
+  { children, size = 'l', fullWidth, variant = 'primary', ...props }: ButtonProps,
+  ref: React.ForwardedRef<HTMLButtonElement>
+) => {
+  const twClassName = twMerge(
+    'flex items-center justify-center gap-1 rounded-md',
+    'text-sm font-medium leading-4 text-white',
+    'px-4 py-1',
+    sizes[size],
+    fullWidth ? 'w-full' : 'w-fit',
+    'min-w-[66px]',
+    'disabled:cursor-not-allowed',
+    variants[variant]
+  )
 
-    return (
-      <button ref={ref} role="button" disabled={disabled} className={twClassName} {...props}>
-        {StartIcon && <span className="mr-1">{StartIcon}</span>}
-        {children && <span className={fullWidth ? 'w-full' : ''}>{children}</span>}
-        {EndIcon && <span className="ml-1">{EndIcon}</span>}
-      </button>
-    )
-  }
-)
+  return (
+    <button ref={ref} role="button" className={twClassName} {...props}>
+      {children}
+    </button>
+  )
+}
 
-export default Button
+export default React.forwardRef(Button)

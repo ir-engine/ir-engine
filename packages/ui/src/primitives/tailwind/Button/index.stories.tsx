@@ -32,13 +32,13 @@ import Button, { ButtonProps } from './index'
 const sizes: ButtonProps['size'][] = ['xs', 'sm', 'l', 'xl']
 
 const argTypes: ArgTypes = {
+  disabled: {
+    control: 'boolean'
+  },
   startIcon: {
     control: 'boolean'
   },
   endIcon: {
-    control: 'boolean'
-  },
-  disabled: {
     control: 'boolean'
   }
 }
@@ -61,18 +61,20 @@ export default {
 
 type Story = StoryObj<typeof Button>
 
-const ButtonRenderer = (args: ButtonProps) => {
-  if (args.startIcon) {
-    args.startIcon = <HiOutlineMail />
+const ButtonRenderer = (
+  args: ButtonProps & {
+    startIcon?: boolean
+    endIcon?: boolean
   }
-  if (args.endIcon) {
-    args.endIcon = <HiOutlineMail />
-  }
-
+) => {
   return (
     <div className="flex items-center gap-3">
       {sizes.map((size) => (
-        <Button key={size} size={size} {...args} />
+        <Button key={size} size={size} {...args}>
+          {args.startIcon && <HiOutlineMail />}
+          {args.children}
+          {args.endIcon && <HiOutlineMail />}
+        </Button>
       ))}
     </div>
   )
@@ -96,34 +98,26 @@ export const Secondary: Story = {
 }
 
 export const Tertiary: Story = {
-  name: 'Outline',
+  name: 'Tertiary',
   args: {
     children: 'Label',
-    variant: 'outline'
+    variant: 'tertiary'
   },
   render: ButtonRenderer
 }
 
-export const Success: Story = {
+export const Green: Story = {
   args: {
     children: 'Label',
-    variant: 'success'
+    variant: 'green'
   },
   render: ButtonRenderer
 }
 
-export const Danger: Story = {
+export const Red: Story = {
   args: {
     children: 'Label',
-    variant: 'danger'
-  },
-  render: ButtonRenderer
-}
-
-export const Transparent: Story = {
-  args: {
-    children: 'Label',
-    variant: 'transparent'
+    variant: 'red'
   },
   render: ButtonRenderer
 }
