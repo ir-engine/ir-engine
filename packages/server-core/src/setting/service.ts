@@ -25,9 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import Authentication from './authentication-setting/authentication-setting'
 import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
 import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
 import Email from './email-setting/email-setting'
 import EngineSetting from './engine-setting/engine-setting'
 import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
@@ -49,8 +47,6 @@ export default [
   FeatureFlagSetting,
   Authentication,
   Aws,
-  Chargebee,
-  Coil,
   RedisSetting,
   Helm,
   ZendeskSetting,

@@ -27,12 +27,10 @@ import React, { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { LoaderUtils } from 'three'
 
-import { API } from '@ir-engine/common'
 import {
   transformModel as clientSideTransformModel,
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
-import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
@@ -60,48 +58,38 @@ import { FileDataType } from '../../constants/AssetTypes'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const progressCaptions: Record<ModelTransformStatus, string> = {
-  [ModelTransformStatus.Initializing]: 'editor:properties.model.transform.status.initializing',
+  [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
   [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
-  [ModelTransformStatus.Finalizing]: 'editor:properties.model.transform.status.finalizing',
   [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
   [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
 }
 
-export const createLODVariants = async (
+const createLODVariants = async (
+  srcURL: string,
   lods: LODVariantDescriptor[],
-  clientside: boolean,
   heuristic: Heuristic,
   exportCombined = false,
   onProgress: (
     progress: number,
     status: ModelTransformStatus,
     numerator: number,
-    denominator: number,
-    currentLOD: number,
-    totalLODS: number
+    denominator: number
   ) => void = () => {}
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
     ...lod.params
   }))
 
-  const transformMetadata = [] as Record<string, any>[]
-  for (const [i, variant] of lodVariantParams.entries()) {
-    if (clientside) {
-      await clientSideTransformModel(
-        variant,
-        (key, data) => {
-          if (!transformMetadata[i]) transformMetadata[i] = {}
-          transformMetadata[i][key] = data
-        },
-        (progress, status, numerator, denominator) => {
-          onProgress((progress + i) / lods.length, status, numerator ?? 0, denominator ?? 0, i, lods.length)
-        }
-      )
-    } else {
-      await API.instance.service(modelTransformPath).create(variant)
-    }
-  }
+  const transformMetadata: Record<string, any>[] = []
+  await clientSideTransformModel(
+    srcURL,
+    lodVariantParams,
+    (i, key, data) => {
+      if (!transformMetadata[i]) transformMetadata[i] = {}
+      transformMetadata[i][key] = data
+    },
+    onProgress
+  )
 
   if (exportCombined) {
     const firstLODParams = lods[0].params
@@ -109,13 +97,11 @@ export const createLODVariants = async (
     const result = createSceneEntity('container')
     setComponent(result, ModelComponent)
     const variant = createSceneEntity('LOD Variant', result)
-    const modelSrcPath = `${LoaderUtils.extractUrlBase(firstLODParams.src)}${firstLODParams.dst}.${
-      firstLODParams.modelFormat
-    }`
+    const modelSrcPath = `${LoaderUtils.extractUrlBase(srcURL)}${firstLODParams.dst}.${firstLODParams.modelFormat}`
     setComponent(variant, ModelComponent, { src: modelSrcPath })
     setComponent(variant, VariantComponent, {
       levels: lods.map((lod, lodIndex) => ({
-        src: `${LoaderUtils.extractUrlBase(lod.params.src)}${lod.params.dst}.${lod.params.modelFormat}`,
+        src: `${LoaderUtils.extractUrlBase(srcURL)}${lod.params.dst}.${lod.params.modelFormat}`,
         metadata: {
           ...lod.variantMetadata,
           ...transformMetadata[lodIndex]
@@ -123,7 +109,7 @@ export const createLODVariants = async (
       })),
       heuristic
     })
-    const destinationPath = firstLODParams.src.replace(/\.[^.]*$/, `-integrated.gltf`)
+    const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
     iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
     await exportGLTF(result, destinationPath)
     removeEntityNodeRecursively(result)
@@ -178,13 +164,11 @@ export default function ModelCompressionPanel({
 
   const confirmPreset = () => {
     const lod = lods[selectedLODIndex.value].get(NO_PROXY)
-    const src = lod.params.src
     const dst = lod.params.dst
     const modelFormat = lod.params.modelFormat
     const uri = lod.params.resourceUri
 
     const presetParams = JSON.parse(JSON.stringify(selectedPreset.value)) as ModelTransformParameters
-    presetParams.src = src
     presetParams.dst = dst
     presetParams.modelFormat = modelFormat
     presetParams.resourceUri = uri
@@ -198,45 +182,34 @@ export default function ModelCompressionPanel({
   }
 
   const compressModel = async (file: FileDataType) => {
-    const clientside = true
     const exportCombined = true
 
     let fileLODs = lods.value as LODVariantDescriptor[]
 
+    const url = new URL(file.url)
+    const srcURL = pathJoin(url.origin, url.pathname)
+    const modelFormat = srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb'
+
     if (selectedFiles.length > 1) {
       fileLODs = fileLODs.map((lod) => {
-        const url = new URL(file.url)
-        const src = pathJoin(url.origin, url.pathname)
-        const fileName = src.split('/').pop()!.split('.').shift()!
+        const fileName = srcURL.split('/').pop()!.split('.').shift()!
         const dst = fileName + lod.suffix
         return {
           ...lod,
-          src,
           dst,
-          modelFormat: src.endsWith('.gltf') ? 'gltf' : src.endsWith('.vrm') ? 'vrm' : 'glb'
+          modelFormat
         }
       })
     }
 
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(
-      fileLODs,
-      clientside,
-      heuristic,
-      exportCombined,
-      (progress, status, numerator, denominator, currentLOD, totalLODs) => {
-        let caption = t(progressCaptions[status]!, {
-          numerator: numerator + 1,
-          denominator
-        })
-        caption = t('editor:properties.model.transform.progress', {
-          currentLOD: currentLOD + 1,
-          totalLODs,
-          caption
-        })
-        compressionProgress.set({ progress, caption })
-      }
-    )
+    await createLODVariants(srcURL, fileLODs, heuristic, exportCombined, (progress, status, numerator, denominator) => {
+      const caption = t(progressCaptions[status]!, {
+        numerator: numerator + 1,
+        denominator
+      })
+      compressionProgress.set({ progress, caption })
+    })
   }
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
@@ -264,7 +237,6 @@ export default function ModelCompressionPanel({
 
     const defaults = defaultLODs.map((defaultLOD) => {
       const lod = JSON.parse(JSON.stringify(defaultLOD)) as LODVariantDescriptor
-      lod.params.src = fullSrc
       lod.params.dst = fileName + lod.suffix
       lod.params.modelFormat = fullSrc.endsWith('.gltf') ? 'gltf' : fullSrc.endsWith('.vrm') ? 'vrm' : 'glb'
       lod.params.resourceUri = ''
@@ -289,7 +261,7 @@ export default function ModelCompressionPanel({
   }
 
   return (
-    <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#212226]">
       <div className="relative flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compress')}</Text>
         <Button
@@ -338,7 +310,7 @@ export default function ModelCompressionPanel({
             <Button
               key={index}
               variant="transparent"
-              className="text-nowrap rounded-full bg-[#2F3137] px-2 py-0.5"
+              className="text-nowrap rounded-full bg-[#212226] px-2 py-0.5"
               onClick={() => applyPreset(lodItem.params)}
               endIcon={
                 !LODList.find((l) => l.params.dst === lodItem.params.dst) && (
