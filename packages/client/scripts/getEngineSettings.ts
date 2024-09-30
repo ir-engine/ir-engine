@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import knex from 'knex'
 
-import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
 
 export const getEngineSetting = async (category: EngineSettingType['category'], keys: string[]) => {
   const knexClient = knex({
