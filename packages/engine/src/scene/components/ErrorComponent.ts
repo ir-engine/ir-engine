@@ -50,7 +50,7 @@ export const getEntityErrors = <C extends Component>(entity: Entity, component: 
   >
 }
 
-export const useEntityErrors = <C extends Component>(entity: Entity, component: C) => {
+export const useComponentErrors = <C extends Component>(entity: Entity, component: C) => {
   const errors = useOptionalComponent(entity, ErrorComponent)?.[component.name]
   return errors
 }
