@@ -164,7 +164,7 @@ export class FileBrowserService
       if (resource) {
         file.url = resource.url
         file.thumbnailURL = resource.thumbnailURL
-      }
+      } else file.url = storageProvider.getCachedURL(file.key, params.isInternal)
     }
 
     return {
