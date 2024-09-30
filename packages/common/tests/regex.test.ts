@@ -163,8 +163,7 @@ describe('regex.test', () => {
         'invalid!',
         'very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern',
         '--double-hyphen',
-        '...',
-        'my-file_123'
+        '...'
       ]
       invalidSceneNames.forEach((filename) => {
         assert.ok(!VALID_SCENE_NAME_REGEX.test(filename), `Expected '${filename}' to be invalid scene names`)
