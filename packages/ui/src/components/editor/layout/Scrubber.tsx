@@ -43,8 +43,8 @@ type ScrubberProps = {
   convertFrom?: any
   convertTo?: any
   value?: any
-  onChange: (value: any) => void
-  onRelease?: (value: any) => void
+  onChange: (value: number) => void
+  onRelease?: (value: number) => void
 }
 
 const Scrubber: React.FC<ScrubberProps> = ({
