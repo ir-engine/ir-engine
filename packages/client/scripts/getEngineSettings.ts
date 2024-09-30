@@ -45,18 +45,18 @@ export const getEngineSetting = async (category: EngineSettingType['category'], 
     .from<EngineSettingType>(engineSettingPath)
     .where('category', category)
     .whereIn('key', keys)
-    .then((coilEngineSettings) => {
-      if (coilEngineSettings && coilEngineSettings.length > 0) {
-        return coilEngineSettings.map((coilEngineSetting) => {
+    .then((engineSettings) => {
+      if (engineSettings && engineSettings.length > 0) {
+        return engineSettings.map((engineSetting) => {
           return {
-            [coilEngineSetting.key]: coilEngineSetting.value
+            [engineSetting.key]: engineSetting.value
           }
         })
       }
       return []
     })
     .catch((e) => {
-      console.warn('[vite.config]: Failed to read coilSetting')
+      console.warn(`[vite.config]: Failed to read engineSetting`, category, keys)
       console.warn(e)
     })
 
