@@ -127,7 +127,7 @@ const ViewModeSettings = () => {
       {filesViewMode.value === 'icons' ? (
         <InputGroup
           label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
-          data-testid="files-panel-view-options-icon-size-value"
+          dataTestId="files-panel-view-options-icon-size-value-input-group"
         >
           <Slider
             min={10}
@@ -136,15 +136,13 @@ const ViewModeSettings = () => {
             value={viewModeSettings.icons.iconSize.value}
             onChange={viewModeSettings.icons.iconSize.set}
             onRelease={viewModeSettings.icons.iconSize.set}
-            dataTestIdForValueInput="files-panel-view-options-icon-size-value-input"
-            dataTestIdForSlider="files-panel-view-options-icon-size-slider"
           />
         </InputGroup>
       ) : (
         <>
           <InputGroup
             label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-            dataTestId="files-panel-view-options-list-font-size-group"
+            dataTestId="files-panel-view-options-list-font-size-value-input-group"
           >
             <Slider
               min={10}

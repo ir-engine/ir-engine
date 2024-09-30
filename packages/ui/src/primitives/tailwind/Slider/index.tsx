@@ -42,18 +42,7 @@ export interface SliderProps {
 /**
  * @param props.width width of the slider in pixels
  */
-const Slider = ({
-  value,
-  min = 0,
-  max = 100,
-  step = 1,
-  width = 200,
-  onChange,
-  onRelease,
-  className,
-  dataTestIdForValueInput,
-  dataTestIdForSlider
-}: SliderProps) => {
+const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, onRelease, className }: SliderProps) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = parseFloat(event.target.value)
     if (isNaN(newValue)) {
@@ -84,7 +73,7 @@ const Slider = ({
         onChange={handleInputChange}
         onBlur={() => onRelease && onRelease(value)}
         className="h-8 w-14 rounded bg-neutral-900 text-center text-sm font-normal leading-[21px] text-neutral-400"
-        data-testid={dataTestIdForValueInput || ''}
+        data-testid="slider-text-value-input"
       />
       <input
         id="slider"
@@ -125,7 +114,7 @@ const Slider = ({
           [&::-webkit-slider-thumb]:ease-in-out`,
           className
         )}
-        data-testid={dataTestIdForSlider || ''}
+        data-testid="slider-draggable-value-input"
       />
     </div>
   )
