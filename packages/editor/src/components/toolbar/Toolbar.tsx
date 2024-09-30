@@ -254,21 +254,23 @@ export default function Toolbar() {
 }
 
 const ProfileContextMenu = ({ anchorEvent, user }) => {
+  const email = user.value.identityProviders.find((ip) => ip.type === 'email')?.accountIdentifier
   return (
     <ContextMenu anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>} onClose={() => anchorEvent.set(null)}>
-      <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+      <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 p-8 shadow-lg">
         <div className="flex items-center justify-center gap-2">
           <div className="h-14 w-14 overflow-hidden rounded-full">
-            <img src={''} />
+            <img src={user.value?.avatar?.thumbnailResource?.url} />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <span>First Name Last Name</span>
-            <span>Email</span>
+          <div className="flex flex-col gap-1">
+            <span className="text-xl font-medium text-[#F5F5F5]">{user.value.name}</span>
+            <span className="text-base text-[#B2B5BD]">{email}</span>
           </div>
         </div>
-
-        <hr />
+        <div className="pb-1 pt-4">
+          <hr className="border border-[#212226]" />
+        </div>
       </div>
     </ContextMenu>
   )
