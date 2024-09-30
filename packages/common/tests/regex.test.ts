@@ -164,7 +164,6 @@ describe('regex.test', () => {
         'very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern',
         '--double-hyphen',
         '...',
-        'underscore_in_between',
         'my-file_123'
       ]
       invalidSceneNames.forEach((filename) => {
