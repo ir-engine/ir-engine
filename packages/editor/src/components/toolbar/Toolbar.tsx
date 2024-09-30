@@ -144,7 +144,8 @@ const toolbarMenu = generateToolbarMenu()
 
 export default function Toolbar() {
   const { t } = useTranslation()
-  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
+  const toolbarAnchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
+  const profileAnchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
@@ -172,7 +173,7 @@ export default function Toolbar() {
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
-              anchorEvent.set(event)
+              toolbarAnchorEvent.set(event)
             }}
           />
         </div>
@@ -187,7 +188,12 @@ export default function Toolbar() {
           <span>{sceneName.value}</span>
         </div>
 
-        <div className="flex items-center justify-center gap-2">
+        <div
+          className="flex items-center justify-center gap-2"
+          onClick={(event) => {
+            profileAnchorEvent.set(event)
+          }}
+        >
           {/* profile pill */}
           <div className="flex h-8 items-center justify-center gap-1.5 rounded-full bg-[#191B1F]">
             <div className="ml-1 h-6 w-6 overflow-hidden rounded-full">
@@ -198,6 +204,8 @@ export default function Toolbar() {
               <MdOutlineKeyboardArrowDown size="1.2em" />
             </div>
           </div>
+
+          <ProfileContextMenu anchorEvent={profileAnchorEvent} user={user} />
 
           {sceneAssetID.value && (
             <div className="p-2">
@@ -218,8 +226,8 @@ export default function Toolbar() {
         </div>
       </div>
       <ContextMenu
-        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
-        onClose={() => anchorEvent.set(null)}
+        anchorEvent={toolbarAnchorEvent.value as React.MouseEvent<HTMLElement>}
+        onClose={() => toolbarAnchorEvent.set(null)}
       >
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
@@ -231,7 +239,7 @@ export default function Toolbar() {
                 fullWidth
                 onClick={() => {
                   action()
-                  anchorEvent.set(null)
+                  toolbarAnchorEvent.set(null)
                 }}
                 endIcon={hotkey}
               >
@@ -242,5 +250,26 @@ export default function Toolbar() {
         </div>
       </ContextMenu>
     </>
+  )
+}
+
+const ProfileContextMenu = ({ anchorEvent, user }) => {
+  return (
+    <ContextMenu anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>} onClose={() => anchorEvent.set(null)}>
+      <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+        <div className="flex items-center justify-center gap-2">
+          <div className="h-14 w-14 overflow-hidden rounded-full">
+            <img src={''} />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span>First Name Last Name</span>
+            <span>Email</span>
+          </div>
+        </div>
+
+        <hr />
+      </div>
+    </ContextMenu>
   )
 }
