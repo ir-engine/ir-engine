@@ -36,11 +36,12 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
 
 import appRootPath from 'app-root-path'
+import { EngineSettings } from '../common/src/constants/EngineSettings'
 import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
-import { getCoilSetting } from './scripts/getCoilSettings'
+import { getEngineSetting } from './scripts/getEngineSettings'
 
 const { isArray, mergeWith } = lodash
 
@@ -258,7 +259,7 @@ export default defineConfig(async () => {
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
-  const coilSetting = await getCoilSetting()
+  const coilSetting = await getEngineSetting('coil', [EngineSettings.Coil.PaymentPointer])
 
   resetSWFiles()
 
@@ -343,7 +344,7 @@ export default defineConfig(async () => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting?.paymentPointer || '',
+        paymentPointer: coilSetting?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || '',
         rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`
       }),
       viteCompression({
