@@ -28,10 +28,13 @@ import { ArgTypes } from 'storybook/internal/types'
 import Checkbox, { CheckboxProps } from './index'
 
 const argTypes: ArgTypes = {
-  value: {
+  checked: {
     control: 'boolean'
   },
   disabled: {
+    control: 'boolean'
+  },
+  indeterminate: {
     control: 'boolean'
   },
   label: {
