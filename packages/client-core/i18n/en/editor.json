@@ -1403,7 +1403,7 @@
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
+      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, underscores, dashes allowed)",
       "lbl-confirm": "Save Scene"
     },
     "saveModel": {

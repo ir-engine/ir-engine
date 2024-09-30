@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 // Add unit tests for new patterns in packages/common/tests/regex.test.ts
 
 // eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^(?!.*[\s_<>:"/\\|?*\u0000-\u001F].*)[^\s_<>:"/\\|?*\u0000-\u001F]{1,64}$/
+export const VALID_FILENAME_REGEX = /^(?!.*[\s<>:"/\\|?*\u0000-\u001F].*)[^\s<>:"/\\|?*\u0000-\u001F]{1,64}$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-_]{2,62}[a-zA-Z0-9]$/
