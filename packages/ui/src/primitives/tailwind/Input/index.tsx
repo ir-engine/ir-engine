@@ -70,7 +70,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       variant = 'outlined',
       labelClassname,
       errorBorder,
-      dataTestId,
       ...props
     },
     ref
@@ -125,7 +124,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={twClassname}
             value={value}
             onChange={onChange}
-            data-testid={dataTestId}
             {...props}
           />
 

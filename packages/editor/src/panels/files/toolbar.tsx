@@ -251,7 +251,7 @@ export default function FilesToolbar() {
           containerClassName="flex h-full w-auto rounded-lg overflow-hidden"
           className="h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
           startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
-          dataTestId="files-panel-search-input"
+          data-testid="files-panel-search-input"
         />
       </div>
 

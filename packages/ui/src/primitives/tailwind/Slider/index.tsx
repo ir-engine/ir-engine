@@ -35,8 +35,6 @@ export interface SliderProps {
   width?: number
   onChange: (value: number) => void
   onRelease: (value: number) => void
-  dataTestIdForValueInput?: string
-  dataTestIdForSlider?: string
 }
 
 /**
