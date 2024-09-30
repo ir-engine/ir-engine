@@ -31,5 +31,12 @@ export const EngineSettings = {
   Chargebee: {
     ApiKey: 'apiKey',
     Url: 'url'
+  },
+  MailChimp: {
+    Key: 'key',
+    Server: 'server',
+    AudienceId: 'audienceId',
+    DefaultTags: 'defaultTags',
+    GroupId: 'groupId'
   }
 }

@@ -74,8 +74,38 @@ export async function seed(knex: Knex): Promise<void> {
       updatedAt: await getDateTimeSql()
     }))
   )
-
-  const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData]
+  const mailchimpSeedData: EngineSettingType[] = await Promise.all(
+    [
+      {
+        key: EngineSettings.MailChimp.Key,
+        value: process.env.MAILCHIMP_KEY || ''
+      },
+      {
+        key: EngineSettings.MailChimp.Server,
+        value: process.env.MAILCHIMP_SERVER || ''
+      },
+      {
+        key: EngineSettings.MailChimp.AudienceId,
+        value: process.env.MAILCHIMP_AUDIENCE_ID || ''
+      },
+      {
+        key: EngineSettings.MailChimp.DefaultTags,
+        value: process.env.MAILCHIMP_DEFAULT_TAGS || ''
+      },
+      {
+        key: EngineSettings.MailChimp.GroupId,
+        value: process.env.MAILCHIMP_GROUP_ID || ''
+      }
+    ].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      type: 'private' as EngineSettingType['type'],
+      category: 'mailchimp' as EngineSettingType['category'],
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
+  const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData, ...mailchimpSeedData]
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries

@@ -28,7 +28,8 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { mailchimpSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
@@ -42,26 +43,35 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
     loading: false,
     errorMessage: ''
   })
-  const id = useHookstate<string | undefined>(undefined)
   const key = useHookstate<string>('')
   const server = useHookstate<string>('')
   const audienceId = useHookstate<string>('')
   const defaultTags = useHookstate<string>('')
   const groupId = useHookstate<string>('')
-  const mailchimpMutation = useMutation(mailchimpSettingPath)
+  const mailchimpMutation = useMutation(engineSettingPath)
 
-  const { data } = useFind(mailchimpSettingPath)
+  const mailchimpSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'mailchimp',
+      paginate: false
+    }
+  }).data
+
+  const secretValue = mailchimpSettings.find((el) => el.key === EngineSettings.MailChimp.Key)?.value || ''
+  const serverValue = mailchimpSettings.find((el) => el.key === EngineSettings.MailChimp.Server)?.value || ''
+  const audienceIdValue = mailchimpSettings.find((el) => el.key === EngineSettings.MailChimp.AudienceId)?.value || ''
+  const defaultTagsValue = mailchimpSettings.find((el) => el.key === EngineSettings.MailChimp.DefaultTags)?.value || ''
+  const groupIdValue = mailchimpSettings.find((el) => el.key === EngineSettings.MailChimp.GroupId)?.value || ''
 
   useEffect(() => {
-    if (data.length) {
-      id.set(data[0].id)
-      key.set(data[0].key)
-      server.set(data[0].server)
-      audienceId.set(data[0].audienceId)
-      defaultTags.set(data[0].defaultTags)
-      groupId.set(data[0].groupId)
+    if (mailchimpSettings.length) {
+      key.set(secretValue)
+      server.set(serverValue)
+      audienceId.set(audienceIdValue)
+      defaultTags.set(defaultTagsValue)
+      groupId.set(groupIdValue)
     }
-  }, [data])
+  }, [mailchimpSettings])
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -70,14 +80,32 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
 
     state.loading.set(true)
     const setting = {
-      key: key.value,
-      server: server.value,
-      audienceId: audienceId.value,
-      defaultTags: defaultTags.value,
-      groupId: groupId.value
+      Key: key.value,
+      Server: server.value,
+      AudienceId: audienceId.value,
+      DefaultTags: defaultTags.value,
+      GroupId: groupId.value
     }
-    const operation = !id.value ? mailchimpMutation.create(setting) : mailchimpMutation.patch(id.value, setting)
-    operation
+
+    const operation = Object.keys(EngineSettings.MailChimp).map((key) => {
+      const settingInDb = mailchimpSettings.find((el) => el.key === EngineSettings.MailChimp[key])
+      if (!settingInDb) {
+        return mailchimpMutation.create({
+          key: EngineSettings.MailChimp[key],
+          category: 'mailchimp',
+          value: setting[key],
+          type: 'private'
+        })
+      }
+      return mailchimpMutation.patch(settingInDb.id, {
+        key: EngineSettings.MailChimp[key],
+        category: 'mailchimp',
+        value: setting[key],
+        type: 'private'
+      })
+    })
+
+    Promise.all(operation)
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
@@ -87,13 +115,12 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
   }
 
   const handleCancel = () => {
-    if (data.length) {
-      id.set(data[0].id)
-      key.set(data[0].key)
-      server.set(data[0].server)
-      audienceId.set(data[0].audienceId)
-      defaultTags.set(data[0].defaultTags)
-      groupId.set(data[0].groupId)
+    if (mailchimpSettings.length > 0) {
+      key.set(secretValue)
+      server.set(serverValue)
+      audienceId.set(audienceIdValue)
+      defaultTags.set(defaultTagsValue)
+      groupId.set(groupIdValue)
     }
   }
 
