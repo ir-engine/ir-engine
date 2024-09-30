@@ -66,6 +66,8 @@ function findMimeType(file): FileType {
     fileType = FileType.AUDIO
   } else if (file.type.startsWith('video/')) {
     fileType = FileType.VIDEO
+  } else if (file.name.endsWith('.gltf') || file.name.endsWith('.glb')) {
+    fileType = FileType.THREE_D
   }
 
   return fileType

@@ -43,6 +43,7 @@ import { HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
+import { twMerge } from 'tailwind-merge'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
@@ -184,9 +185,6 @@ export default function FilesToolbar() {
   const UnsupportedFileModal = ({ message }) => {
     return (
       <Modal
-        onSubmit={() => {
-          return true
-        }}
         onClose={() => {
           PopoverState.hidePopupover()
         }}
@@ -242,7 +240,7 @@ export default function FilesToolbar() {
               key={mode}
               variant="transparent"
               startIcon={icon}
-              className={`p-0 ${filesViewMode.value !== mode ? 'opacity-50' : ''}`}
+              className={twMerge(`p-0`, filesViewMode.value !== mode && 'opacity-50')}
               onClick={() => filesViewMode.set(mode as 'icons' | 'list')}
             />
           ))}
@@ -288,7 +286,6 @@ export default function FilesToolbar() {
         </div>
 
         <Button
-          id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
           disabled={!showUploadButtons}
           rounded="none"
@@ -309,7 +306,6 @@ export default function FilesToolbar() {
           {t('editor:layout.filebrowser.uploadFiles')}
         </Button>
         <Button
-          id="uploadFiles"
           startIcon={<HiOutlinePlusCircle />}
           disabled={!showUploadButtons}
           rounded="none"
