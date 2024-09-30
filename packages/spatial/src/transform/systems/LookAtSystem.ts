@@ -32,13 +32,13 @@ import { TransformComponent } from '../components/TransformComponent'
 import { TransformDirtyUpdateSystem } from './TransformSystem'
 
 const facerQuery = defineQuery([LookAtComponent, TransformComponent])
-const srcPosition = new Vector3()
-const dstPosition = new Vector3()
-const direction = new Vector3()
-const zero = new Vector3()
-const up = new Vector3(0, 1, 0)
-const lookMatrix = new Matrix4()
-const lookRotation = new Quaternion()
+const _srcPosition = new Vector3()
+const _dstPosition = new Vector3()
+const _direction = new Vector3()
+const _zero = new Vector3()
+const _up = new Vector3(0, 1, 0)
+const _lookMatrix = new Matrix4()
+const _lookRotation = new Quaternion()
 
 export const LookAtSystem = defineSystem({
   uuid: 'ir.spatial.LookAtSystem',
@@ -51,19 +51,19 @@ export const LookAtSystem = defineSystem({
       const facer = getComponent(entity, LookAtComponent)
       const targetEntity: Entity | null = facer.target ? UUIDComponent.getEntityByUUID(facer.target) : viewerEntity
       if (!targetEntity) continue
-      TransformComponent.getWorldPosition(entity, srcPosition)
-      TransformComponent.getWorldPosition(targetEntity, dstPosition)
-      direction.subVectors(dstPosition, srcPosition).normalize()
+      TransformComponent.getWorldPosition(entity, _srcPosition)
+      TransformComponent.getWorldPosition(targetEntity, _dstPosition)
+      _direction.subVectors(_dstPosition, _srcPosition).normalize()
       // look at target about enabled axes
       if (!facer.xAxis) {
-        direction.y = 0
+        _direction.y = 0
       }
       if (!facer.yAxis) {
-        direction.x = 0
+        _direction.x = 0
       }
-      lookMatrix.lookAt(zero, direction, up)
-      lookRotation.setFromRotationMatrix(lookMatrix)
-      TransformComponent.setWorldRotation(entity, lookRotation)
+      _lookMatrix.lookAt(_zero, _direction, _up)
+      _lookRotation.setFromRotationMatrix(_lookMatrix)
+      TransformComponent.setWorldRotation(entity, _lookRotation)
       TransformComponent.updateFromWorldMatrix(entity)
     }
   }
