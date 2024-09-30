@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import knex from 'knex'
 
-import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 
-export const getCoilSetting = async (keys: string[]) => {
+export const getEngineSetting = async (category: EngineSettingType['category'], keys: string[]) => {
   const knexClient = knex({
     client: 'mysql',
     connection: {
@@ -40,10 +40,10 @@ export const getCoilSetting = async (keys: string[]) => {
     }
   })
 
-  const coilSetting = await knexClient
+  const engineSetting = await knexClient
     .select()
     .from<EngineSettingType>(engineSettingPath)
-    .where('category', 'coil')
+    .where('category', category)
     .whereIn('key', keys)
     .then((coilEngineSettings) => {
       if (coilEngineSettings && coilEngineSettings.length > 0) {
@@ -62,5 +62,5 @@ export const getCoilSetting = async (keys: string[]) => {
 
   await knexClient.destroy()
 
-  return coilSetting!
+  return engineSetting!
 }

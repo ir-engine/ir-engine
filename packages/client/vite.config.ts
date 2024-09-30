@@ -41,7 +41,7 @@ import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
-import { getCoilSetting } from './scripts/getCoilSettings'
+import { getEngineSetting } from './scripts/getEngineSettings'
 
 const { isArray, mergeWith } = lodash
 
@@ -259,7 +259,7 @@ export default defineConfig(async () => {
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
-  const coilSetting = await getCoilSetting([EngineSettings.Coil.PaymentPointer])
+  const coilSetting = await getEngineSetting('coil', [EngineSettings.Coil.PaymentPointer])
 
   resetSWFiles()
 
