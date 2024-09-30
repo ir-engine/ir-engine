@@ -27,6 +27,7 @@ import AddEditLocationModal from '@ir-engine/client-core/src/admin/components/lo
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
 import { useUserHasAccessHook } from '@ir-engine/client-core/src/user/userHasAccess'
 import { useFind } from '@ir-engine/common'
@@ -154,6 +155,8 @@ export default function Toolbar() {
   const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
   const currentLocation = locationQuery.data[0]
 
+  const user = getMutableState(AuthState).user
+
   return (
     <>
       <div className="flex h-10 items-center justify-between bg-theme-primary">
@@ -183,22 +186,36 @@ export default function Toolbar() {
           <span>/</span>
           <span>{sceneName.value}</span>
         </div>
-        {sceneAssetID.value && (
-          <div className="p-2">
-            <Button
-              rounded="full"
-              disabled={!hasPublishAccess}
-              onClick={() =>
-                PopoverState.showPopupover(
-                  <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
-                )
-              }
-              className="py-1 text-base"
-            >
-              {t('editor:toolbar.lbl-publish')}
-            </Button>
+
+        <div className="flex items-center justify-center gap-2">
+          {/* profile pill */}
+          <div className="flex h-8 items-center justify-center gap-1.5 rounded-full bg-[#191B1F]">
+            <div className="ml-1 h-6 w-6 overflow-hidden rounded-full">
+              <img src={user.value?.avatar?.thumbnailResource?.url} className="h-full w-full" />
+            </div>
+
+            <div className="cursor-pointer pr-2">
+              <MdOutlineKeyboardArrowDown size="1.2em" />
+            </div>
           </div>
-        )}
+
+          {sceneAssetID.value && (
+            <div className="p-2">
+              <Button
+                rounded="full"
+                disabled={!hasPublishAccess}
+                onClick={() =>
+                  PopoverState.showPopupover(
+                    <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+                  )
+                }
+                className="py-1 text-base"
+              >
+                {t('editor:toolbar.lbl-publish')}
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
       <ContextMenu
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
