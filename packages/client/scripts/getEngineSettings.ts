@@ -23,24 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import knex from 'knex'
 
-import {
-  coilSettingDataSchema,
-  coilSettingPatchSchema,
-  coilSettingQuerySchema,
-  coilSettingSchema
-} from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
+import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    coilSettingDataSchema,
-    coilSettingPatchSchema,
-    coilSettingQuerySchema,
-    coilSettingSchema
-  },
-  docs: {
-    description: 'Coil setting service description',
-    securities: ['all']
-  }
-})
+export const getEngineSetting = async (category: EngineSettingType['category'], keys: string[]) => {
+  const knexClient = knex({
+    client: 'mysql',
+    connection: {
+      user: process.env.MYSQL_USER ?? 'server',
+      password: process.env.MYSQL_PASSWORD ?? 'password',
+      host: process.env.MYSQL_HOST ?? '127.0.0.1',
+      port: parseInt(process.env.MYSQL_PORT || '3306'),
+      database: process.env.MYSQL_DATABASE ?? 'ir-engine',
+      charset: 'utf8mb4'
+    }
+  })
+
+  const engineSetting = await knexClient
+    .select()
+    .from<EngineSettingType>(engineSettingPath)
+    .where('category', category)
+    .whereIn('key', keys)
+    .catch((e) => {
+      console.warn(`[vite.config]: Failed to read engineSetting`, category, keys)
+      console.warn(e)
+    })
+
+  await knexClient.destroy()
+
+  return engineSetting
+}

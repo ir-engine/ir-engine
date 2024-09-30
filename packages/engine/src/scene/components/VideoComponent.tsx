@@ -266,8 +266,8 @@ function VideoReactor() {
     const uvOffset = new Vector2(0, 0)
     const uvScale = new Vector2(1, 1)
 
-    const containerWidth = video.size.width.value
-    const containerHeight = video.size.height.value
+    const size = video.size.value
+    const [containerWidth, containerHeight] = [size.x, size.y]
     const containerRatio = containerWidth / containerHeight
 
     videoMesh.scale.x = containerWidth
