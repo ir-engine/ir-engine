@@ -4,6 +4,8 @@
 
 import 'jsdom-global/register'
 
+import '@hookstate/core'
+
 import fetch, { Headers, Request, Response } from 'node-fetch'
 
 /**
