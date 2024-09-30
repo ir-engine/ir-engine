@@ -60,11 +60,16 @@ export default (app: Application): void => {
   service.hooks(hooks)
 
   const onUpdateAppConfig = (...args: EngineSettingType[]) => {
+    const categoryMap = {
+      'task-server': appConfig.taskserver,
+      coil: appConfig.coil,
+      chargebee: appConfig.chargebee
+    }
+
     for (const setting of args) {
-      if (setting.category === 'task-server') {
-        appConfig.taskserver[setting.key] = setting.value
-      } else if (setting.category === 'chargebee') {
-        appConfig.chargebee[setting.key] = setting.value
+      const categoryConfig = categoryMap[setting.category]
+      if (categoryConfig) {
+        categoryConfig[setting.key] = setting.value
       }
     }
   }
