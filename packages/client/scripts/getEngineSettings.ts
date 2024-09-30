@@ -45,16 +45,6 @@ export const getEngineSetting = async (category: EngineSettingType['category'], 
     .from<EngineSettingType>(engineSettingPath)
     .where('category', category)
     .whereIn('key', keys)
-    .then((engineSettings) => {
-      if (engineSettings && engineSettings.length > 0) {
-        return engineSettings.map((engineSetting) => {
-          return {
-            [engineSetting.key]: engineSetting.value
-          }
-        })
-      }
-      return []
-    })
     .catch((e) => {
       console.warn(`[vite.config]: Failed to read engineSetting`, category, keys)
       console.warn(e)
@@ -62,5 +52,5 @@ export const getEngineSetting = async (category: EngineSettingType['category'], 
 
   await knexClient.destroy()
 
-  return engineSetting!
+  return engineSetting
 }
