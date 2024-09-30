@@ -44,6 +44,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   labelClassname?: string
   errorBorder?: boolean
   maxLength?: number
+  dataTestId?: string
 }
 
 const variants = {
