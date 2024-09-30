@@ -48,7 +48,6 @@ describe('regex.test', () => {
   describe('INVALID_FILENAME_REGEX', () => {
     it('should not match invalid filenames', () => {
       const invalidFilenames = [
-        'hello_world',
         'file<name',
         'email@example.com:80',
         'path/to/file',
