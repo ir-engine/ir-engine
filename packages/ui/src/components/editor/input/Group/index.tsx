@@ -107,6 +107,7 @@ export interface InputGroupProps {
   labelClassName?: string
   infoClassName?: string
   className?: string
+  dataTestId?: string
 }
 
 /**
@@ -120,7 +121,8 @@ export function InputGroup({
   labelClassName,
   infoClassName,
   className,
-  disabled
+  disabled,
+  dataTestId
 }: InputGroupProps) {
   return (
     <div className={twMerge('my-1 flex flex-wrap items-center justify-end', containerClassName)}>
@@ -140,7 +142,9 @@ export function InputGroup({
           </Tooltip>
         )}
       </div>
-      <div className={twMerge('w-3/5', className)}>{children}</div>
+      <div className={twMerge('w-3/5', className)} data-testid={dataTestId || ''}>
+        {children}
+      </div>
     </div>
   )
 }
