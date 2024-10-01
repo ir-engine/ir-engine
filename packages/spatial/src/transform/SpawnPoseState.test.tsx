@@ -36,6 +36,7 @@ import {
 import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
+import { Vector3_One } from '../common/constants/MathConstants'
 import { assertVecApproxEq } from '../physics/classes/Physics.test'
 import { SpawnPoseState } from './SpawnPoseState'
 import { TransformComponent } from './components/TransformComponent'
@@ -56,7 +57,6 @@ describe('SpawnPoseState', () => {
     })
   }) //:: Fields
 
-  /** @todo How to trigger the inner EntityNetworkReactor ?? */
   describe('reactor', () => {
     describe('whenever [UUIDComponent.useEntityByUUID(props.uuid), SpawnPoseState.spawnPosition, SpawnPoseState.spawnRotation] change: for every entity UUID in SpawnPoseState.keys ...', () => {
       beforeEach(async () => {
@@ -95,12 +95,69 @@ describe('SpawnPoseState', () => {
         for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Initial, 3)
         // Run and Check the result
         const root = startReactor(SpawnPoseState.reactor)
-        root.run()
         for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Expected, 3)
       })
 
-      // it("... should update the entity with that UUID: TransformComponent.rotation should become SpawnPoseState.spawnRotation", () => {})
-      // it("... should not do anything if entity is falsy", () => {})
+      it('... should update the entity with that UUID: TransformComponent.rotation should become SpawnPoseState.spawnRotation', () => {
+        const Expected = new Quaternion(1, 2, 3, 4).normalize()
+        const Initial = new Quaternion(5, 6, 7, 8).normalize()
+        // Set the data as expected
+        const keys: EntityUUID[] = [
+          UUIDComponent.generateUUID(),
+          UUIDComponent.generateUUID(),
+          UUIDComponent.generateUUID()
+        ]
+        const entities: Entity[] = keys.map((uuid: EntityUUID) => {
+          const entity = createEntity()
+          setComponent(entity, UUIDComponent, uuid)
+          setComponent(entity, TransformComponent, { rotation: Initial })
+          return entity
+        })
+        getMutableState(SpawnPoseState).set(
+          keys.reduce((list, uuid) => {
+            list[uuid] = {
+              spawnPosition: Vector3_One.clone(),
+              spawnRotation: Expected
+            }
+            return list
+          }, {})
+        )
+        // Sanity check before running
+        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).rotation, Initial, 4)
+        // Run and Check the result
+        const root = startReactor(SpawnPoseState.reactor)
+        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).rotation, Expected, 4)
+      })
+
+      it('... should not do anything if entity is falsy', () => {
+        const Initial = new Vector3().setScalar(21)
+        // Set the data as expected
+        const keys: EntityUUID[] = [
+          UUIDComponent.generateUUID(),
+          UUIDComponent.generateUUID(),
+          UUIDComponent.generateUUID()
+        ]
+        const entities: Entity[] = keys.map((_uuid: EntityUUID) => {
+          const entity = createEntity()
+          // setComponent(entity, UUIDComponent, uuid)   // Do not set the UUID so the entity is falsy inside the reactor
+          setComponent(entity, TransformComponent, { position: Initial })
+          return entity
+        })
+        getMutableState(SpawnPoseState).set(
+          keys.reduce((list, uuid) => {
+            list[uuid] = {
+              spawnPosition: Vector3_One.clone(),
+              spawnRotation: new Quaternion(1, 2, 3, 4).normalize()
+            }
+            return list
+          }, {})
+        )
+        // Sanity check before running
+        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Initial, 3)
+        // Run and Check the result
+        const root = startReactor(SpawnPoseState.reactor)
+        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Initial, 3)
+      })
     })
   }) //:: reactor
-}) //:: TweenComponent
+}) //:: SpawnPoseState
