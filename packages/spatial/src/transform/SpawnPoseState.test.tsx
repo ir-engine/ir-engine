@@ -23,8 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import {
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  createEngine,
+  createEntity,
+  destroyEngine,
+  getComponent,
+  setComponent
+} from '@ir-engine/ecs'
+import { startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
+import { Vector3 } from 'three'
+import { assertVecApproxEq } from '../physics/classes/Physics.test'
 import { SpawnPoseState } from './SpawnPoseState'
+import { TransformComponent } from './components/TransformComponent'
 
 describe('SpawnPoseState', () => {
   describe('Fields', () => {
@@ -36,14 +50,48 @@ describe('SpawnPoseState', () => {
       assert.deepEqual(SpawnPoseState.initial, {})
     })
 
-    /** @todo */
-    it.skip('should initialize the *State.receptors field with the expected value', () => {
-      assert.deepEqual(SpawnPoseState.receptors, {})
+    it('should initialize the *State.receptors field with the expected value', () => {
+      assert.notEqual(SpawnPoseState.receptors, undefined)
+      assert.notEqual(SpawnPoseState.receptors.onSpawnObject, undefined)
     })
   }) //:: Fields
 
-  /** @todo */
-  describe('reactor', () => {
-    /** @note EntityNetworkReactor */
+  /** @todo How to trigger the inner EntityNetworkReactor ?? */
+  describe.skip('reactor', () => {
+    describe('whenever [UUIDComponent.useEntityByUUID(props.uuid), SpawnPoseState.spawnPosition, SpawnPoseState.spawnRotation] change: for every entity UUID in SpawnPoseState.keys ...', () => {
+      beforeEach(async () => {
+        createEngine()
+      })
+
+      afterEach(() => {
+        return destroyEngine()
+      })
+
+      it('... should update the entity with that UUID: TransformComponent.position should become SpawnPoseState.spawnPosition', () => {
+        const Expected = new Vector3().setScalar(42)
+        const Initial = new Vector3().setScalar(21)
+        // Set the data as expected
+        const keys: EntityUUID[] = [
+          UUIDComponent.generateUUID(),
+          UUIDComponent.generateUUID(),
+          UUIDComponent.generateUUID()
+        ]
+        const entities: Entity[] = keys.map((uuid: EntityUUID) => {
+          const entity = createEntity()
+          setComponent(entity, UUIDComponent, uuid)
+          setComponent(entity, TransformComponent, { position: Initial })
+          return entity
+        })
+        // Sanity check before running
+        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Initial, 3)
+        // Run and Check the result
+        const root = startReactor(SpawnPoseState.reactor)
+        root.run()
+        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Expected, 3)
+      })
+
+      // it("... should update the entity with that UUID: TransformComponent.rotation should become SpawnPoseState.spawnRotation", () => {})
+      // it("... should not do anything if entity is falsy", () => {})
+    })
   }) //:: reactor
 }) //:: TweenComponent
