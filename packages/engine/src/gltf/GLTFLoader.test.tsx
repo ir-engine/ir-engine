@@ -38,11 +38,21 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { applyIncomingActions, NO_PROXY, startReactor, useDidMount, useMutableState } from '@ir-engine/hyperflux'
+import {
+  applyIncomingActions,
+  getState,
+  NO_PROXY,
+  startReactor,
+  useDidMount,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import assert from 'assert'
 import React, { useEffect } from 'react'
+import Sinon from 'sinon'
+import { BufferGeometry } from 'three'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFNode, GLTFNodeState } from './GLTFDocumentState'
 import { getNodeUUID } from './GLTFState'
@@ -50,6 +60,7 @@ import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
 const CDN_URL = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0'
 const duck_gltf = CDN_URL + '/Duck/glTF/Duck.gltf'
+const draco_box = CDN_URL + '/Box/glTF-Draco/Box.gltf'
 
 describe('GLTF Loader', () => {
   beforeEach(async () => {
@@ -189,6 +200,79 @@ describe('GLTF Loader', () => {
           return uuid ? (
             <>
               <ParentReactor parentUUID={uuid} />
+            </>
+          ) : null
+        }, {})
+      )
+    })
+  })
+
+  it('can load a draco geometry', (done) => {
+    const entity = createEntity()
+
+    const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
+
+    const spy = Sinon.spy()
+    dracoLoader.preload = () => {
+      spy()
+      return dracoLoader
+    }
+
+    const root = startReactor(() => {
+      return React.createElement(
+        EntityContext.Provider,
+        { value: entity },
+        React.createElement(() => {
+          const entity = useEntityContext()
+          const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+          const instanceID = GLTFComponent.useInstanceID(entity)
+          const gltfDocumentState = useMutableState(GLTFDocumentState)
+          const nodeState = useMutableState(GLTFNodeState)
+          const gltf = gltfDocumentState[instanceID].get(NO_PROXY)
+          const nodes = nodeState[instanceID].get(NO_PROXY)
+
+          useEffect(() => {
+            setComponent(entity, UUIDComponent, generateEntityUUID())
+            setComponent(entity, GLTFComponent, { src: draco_box })
+          }, [])
+
+          useEffect(() => {
+            if (!gltfComponent || !gltfComponent.dependencies.value) return
+            applyIncomingActions()
+          }, [gltfComponent?.dependencies])
+
+          const MeshReactor = (props: { entity: Entity; nodeIndex: number }) => {
+            const { entity, nodeIndex } = props
+            const meshComponent = useOptionalComponent(entity, MeshComponent)
+
+            useDidMount(() => {
+              assert(spy.called)
+              assert(meshComponent)
+              assert(meshComponent.geometry instanceof BufferGeometry)
+              root.stop()
+              done()
+            }, [meshComponent])
+
+            return null
+          }
+
+          const NodeReactor = (props: { source: string; node: GLTFNode; gltf: GLTF.IGLTF }) => {
+            const { source, node, gltf } = props
+            const nodeIndex = node.nodeIndex
+            const documentNode = gltf.nodes![nodeIndex]
+            const nodeUUID = getNodeUUID(documentNode, source, nodeIndex)
+            const entity = UUIDComponent.useEntityByUUID(nodeUUID)
+
+            return entity && typeof documentNode.mesh === 'number' ? (
+              <MeshReactor entity={entity} nodeIndex={nodeIndex} />
+            ) : null
+          }
+
+          return nodes ? (
+            <>
+              {Object.entries(nodes).map(([source, node], index) => {
+                return <NodeReactor key={index} source={instanceID} node={node} gltf={gltf as GLTF.IGLTF} />
+              })}
             </>
           ) : null
         }, {})
