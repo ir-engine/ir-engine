@@ -23,35 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as k8s from '@kubernetes/client-node'
+import knex from 'knex'
 
-import { objectToArgs } from '@ir-engine/common/src/utils/objectToCommandLineArgs'
-import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
+import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
 
-import { Application } from '../../../declarations'
-import { getJobBody } from '../../k8s-job-helper'
+export const getEngineSetting = async (category: EngineSettingType['category'], keys: string[]) => {
+  const knexClient = knex({
+    client: 'mysql',
+    connection: {
+      user: process.env.MYSQL_USER ?? 'server',
+      password: process.env.MYSQL_PASSWORD ?? 'password',
+      host: process.env.MYSQL_HOST ?? '127.0.0.1',
+      port: parseInt(process.env.MYSQL_PORT || '3306'),
+      database: process.env.MYSQL_DATABASE ?? 'ir-engine',
+      charset: 'utf8mb4'
+    }
+  })
 
-export async function getModelTransformJobBody(
-  app: Application,
-  createParams: ModelTransformParameters
-): Promise<k8s.V1Job> {
-  const command = [
-    'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
-    'packages/server-core/src/assets/model-transform/model-transform.job.ts',
-    ...objectToArgs(createParams)
-  ]
+  const engineSetting = await knexClient
+    .select()
+    .from<EngineSettingType>(engineSettingPath)
+    .where('category', category)
+    .whereIn('key', keys)
+    .catch((e) => {
+      console.warn(`[vite.config]: Failed to read engineSetting`, category, keys)
+      console.warn(e)
+    })
 
-  const labels = {
-    'ir-engine/modelTransformer': 'true',
-    'ir-engine/transformSource': createParams.src,
-    'ir-engine/transformDestination': createParams.dst,
-    'ir-engine/release': process.env.RELEASE_NAME!
-  }
+  await knexClient.destroy()
 
-  const name = `${process.env.RELEASE_NAME}-${createParams.src}-${createParams.dst}-transform`
-
-  return getJobBody(app, command, name, labels)
+  return engineSetting
 }

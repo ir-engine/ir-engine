@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 export type * from './schemas/analytics/analytics.schema'
 export type * from './schemas/assets/asset-library.schema'
-export type * from './schemas/assets/model-transform.schema'
 export type * from './schemas/bot/bot-command.schema'
 export type * from './schemas/bot/bot.schema'
 export type * from './schemas/cluster/api-job.schema'
@@ -72,7 +71,6 @@ export type * from './schemas/scope/scope.schema'
 export type * from './schemas/setting/authentication-setting.schema'
 export type * from './schemas/setting/aws-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
-export type * from './schemas/setting/coil-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
@@ -188,8 +186,6 @@ export const locationSettingPath = 'location-setting'
 
 export const assetLibraryPath = 'asset-library'
 
-export const modelTransformPath = 'model-transform'
-
 export const recordingResourcePath = 'recording-resource'
 
 export const recordingPath = 'recording'
@@ -222,8 +218,6 @@ export const helmMainVersionPath = 'helm-main-version'
 export const helmBuilderVersionPath = 'helm-builder-version'
 
 export const projectSettingPath = 'project-setting'
-
-export const coilSettingPath = 'coil-setting'
 
 export const awsSettingPath = 'aws-setting'
 

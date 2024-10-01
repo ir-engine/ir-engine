@@ -55,7 +55,6 @@ import {
 import { State } from '@ir-engine/hyperflux'
 import { HiSparkles } from 'react-icons/hi'
 
-import PaginatedList from '@ir-engine/editor/src/components/layout/PaginatedList'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
@@ -67,8 +66,8 @@ import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
+import PaginatedList from '../../layout/PaginatedList'
 import NodeEditor from '../nodeEditor'
-import ParameterInput from '../parameter'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -200,17 +199,28 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           value={particleSystem.systemParameters.shape.type}
           onChange={onChangeShape()}
           options={[
-            { label: 'Point', value: 'point' },
-            { label: 'Sphere', value: 'sphere' },
-            { label: 'Cone', value: 'cone' },
-            { label: 'Donut', value: 'donut' },
-            { label: 'Mesh', value: 'mesh_surface' }
+            { label: t('editor:properties.particle-system.emitter-shape-type.point'), value: 'point' },
+            { label: t('editor:properties.particle-system.emitter-shape-type.sphere'), value: 'sphere' },
+            { label: t('editor:properties.particle-system.emitter-shape-type.cone'), value: 'cone' },
+            { label: t('editor:properties.particle-system.emitter-shape-type.donut'), value: 'donut' },
+            { label: t('editor:properties.particle-system.emitter-shape-type.mesh'), value: 'mesh_surface' }
           ]}
         />
       </InputGroup>
-
+      {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
+        <InputGroup
+          name="Shape Mesh"
+          label={t('editor:properties.particle-system.shape-mesh')}
+          info={t('editor:properties.particle-system.shape-mesh-info')}
+        >
+          <ModelInput
+            value={particleSystem.systemParameters.shape.mesh!}
+            onRelease={onSetState(particleSystemState.systemParameters.shape.mesh as any)}
+          />
+        </InputGroup>
+      )}
       <InputGroup name="Emission Bursts" label={t('editor:properties.particle-system.emission-bursts')}>
-        <Button onClick={onAddBurst}>Add Burst</Button>
+        <Button onClick={onAddBurst}>{t('editor:properties.particle-system.add-burst')}</Button>
       </InputGroup>
       <PaginatedList
         list={
@@ -241,23 +251,13 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
                 <NumericInput value={burst.probability.value} onChange={onSetState(burst.probability)} />
               </InputGroup>
 
-              <Button onClick={onRemoveBurst(burst as any)}>Remove Burst</Button>
+              <Button onClick={onRemoveBurst(burst as any)}>
+                {t('editor:properties.particle-system.remove-burst')}
+              </Button>
             </div>
           )
         }}
       />
-      {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
-        <InputGroup name="Shape Mesh" label={t('editor:properties.particle-system.shape-mesh')}>
-          <ModelInput value={particleSystem.systemParameters.shape.mesh!} onChange={onChangeShapeParm('mesh')} />
-        </InputGroup>
-      )}
-      {particleSystem.systemParameters.shape.type !== 'mesh_surface' && (
-        <ParameterInput
-          entity={`${entity}-shape`}
-          values={particleSystem.systemParameters.shape}
-          onChange={onChangeShapeParm}
-        />
-      )}
 
       <InputGroup name="Start Life" label={t('editor:properties.particle-system.start-life')}>
         <ValueGenerator
@@ -306,10 +306,13 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           value={particleSystem.systemParameters.renderMode}
           onChange={onSetSystemParm('renderMode')}
           options={[
-            { label: 'Billboard', value: RenderMode.BillBoard },
-            { label: 'Stretched Billboard', value: RenderMode.StretchedBillBoard },
-            { label: 'Mesh', value: RenderMode.Mesh },
-            { label: 'Trail', value: RenderMode.Trail }
+            { label: t('editor:properties.particle-system.render-mode-type.billboard'), value: RenderMode.BillBoard },
+            {
+              label: t('editor:properties.particle-system.render-mode-type.stretched-billboard'),
+              value: RenderMode.StretchedBillBoard
+            },
+            { label: t('editor:properties.particle-system.render-mode-type.mesh'), value: RenderMode.Mesh },
+            { label: t('editor:properties.particle-system.render-mode-type.trail'), value: RenderMode.Trail }
           ]}
         />
       </InputGroup>
@@ -390,12 +393,12 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           value={particleSystem.systemParameters.blending as Blending}
           onChange={onSetState(particleSystemState.systemParameters.blending)}
           options={[
-            { label: 'Normal', value: NormalBlending },
-            { label: 'Additive', value: AdditiveBlending },
-            { label: 'Subtractive', value: SubtractiveBlending },
-            { label: 'Multiply', value: MultiplyBlending },
-            { label: 'Custom', value: CustomBlending },
-            { label: 'No Blending', value: NoBlending }
+            { label: t('editor:properties.particle-system.blending-type.normal'), value: NormalBlending },
+            { label: t('editor:properties.particle-system.blending-type.additive'), value: AdditiveBlending },
+            { label: t('editor:properties.particle-system.blending-type.subtractive'), value: SubtractiveBlending },
+            { label: t('editor:properties.particle-system.blending-type.multiply'), value: MultiplyBlending },
+            { label: t('editor:properties.particle-system.blending-type.custom'), value: CustomBlending },
+            { label: t('editor:properties.particle-system.blending-type.no-blending'), value: NoBlending }
           ]}
         />
       </InputGroup>
@@ -417,7 +420,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           return (
             <>
               <BehaviorInput scope={behaviorState} value={behaviorState.value as BehaviorJSON} onChange={onSetState} />
-              <Button onClick={onRemoveBehavior(index)}>Remove</Button>
+              <Button onClick={onRemoveBehavior(index)}>{t('editor:properties.particle-system.remove')}</Button>
             </>
           )
         }}
