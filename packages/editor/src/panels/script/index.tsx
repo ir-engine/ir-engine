@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@hookstate/core'
 import { hasComponent, useOptionalComponent, useQuery } from '@ir-engine/ecs'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -33,7 +34,7 @@ import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/edi
 import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
 import { Editor } from '@monaco-editor/react'
 import { TabData } from 'rc-dock'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../../components/inputs/Button'
 
@@ -43,7 +44,7 @@ const ActiveScript = () => {
   const validEntity = typeof entity === 'number' && hasComponent(entity, ScriptComponent)
   const { t } = useTranslation()
   const scriptComponent = useOptionalComponent(entity, ScriptComponent)
-  const [code, setCode] = useState('')
+  const fileCode = useHookstate('')
 
   useEffect(() => {
     if (!scriptComponent?.src.value) return
@@ -51,16 +52,9 @@ const ActiveScript = () => {
     clearErrors(entity, ScriptComponent)
 
     fetchCode(scriptComponent!.src.value).then((code) => {
-      setCode(code)
+      fileCode.set(code)
     })
   }, [scriptComponent?.src])
-
-  useEffect(() => {
-    if (!scriptComponent?.src.value) return
-    if (!validateScriptUrl(entity, scriptComponent?.src.value)) return
-    clearErrors(entity, ScriptComponent)
-    updateScriptFile(getFileName(scriptComponent!.src.value), code)
-  }, [code])
 
   const addScript = () => EditorControlFunctions.addOrRemoveComponent([entity], ScriptComponent, true)
   useQuery([ScriptComponent])
@@ -81,11 +75,15 @@ const ActiveScript = () => {
       {validEntity && (
         <Editor
           height="100%"
-          language="javascript"
-          defaultLanguage="javascript"
-          value={code} // get the file contents
+          language="typescript"
+          defaultLanguage="typescript"
+          value={fileCode.value} // get the file contents
           onChange={(newCode) => {
-            setCode(newCode ?? code)
+            if (newCode === fileCode.value) return
+            if (!scriptComponent?.src.value) return
+            if (!validateScriptUrl(entity, scriptComponent?.src.value)) return
+            clearErrors(entity, ScriptComponent)
+            updateScriptFile(getFileName(scriptComponent!.src.value), newCode)
           }}
           theme="vs-dark"
         />
