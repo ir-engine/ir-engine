@@ -41,9 +41,11 @@ import {
 import { getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
-import { BoxGeometry, Mesh } from 'three'
+import sinon from 'sinon'
+import { Box3, BoxGeometry, Group, Mesh, Vector3 } from 'three'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../initializeEngine'
+import { assertVecApproxEq } from '../../physics/classes/Physics.test'
 import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -91,22 +93,24 @@ describe('TransformSystem', () => {
       return destroyEngine()
     })
 
-    /** @todo How to check for usage of computeTransformMatrix ?? */
-    it.skip('should call computeTransformMatrix for all sorted entities that are true in the TransformComponent.dirtyTransforms list', () => {
+    it('should call computeTransformMatrix for all sorted entities that are true in the TransformComponent.dirtyTransforms list', () => {
+      const spy = sinon.spy()
       // Set the data as expected
       const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
-      for (const entity of entities) setComponent(entity, TransformComponent)
-      // UpdateSystem.execute()
-      CleanupSystem.execute()
+      for (const entity of entities) {
+        setComponent(entity, TransformComponent)
+        setComponent(entity, ComputedTransformComponent, { computeFunction: spy })
+      }
+      UpdateSystem.execute()
+      // CleanupSystem.execute()
       // Sanity check before running
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], undefined)
+      // for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], undefined)
       // Run and Check the result
       System.execute()
-      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], true)
+      assert.equal(spy.callCount, entities.length)
     })
 
-    /** @todo Why is matrixWorldNeedsUpdate still true after System.execute() ?? */
-    it.skip('should call updateGroupChildren for all entities that have the components [GroupComponent, VisibleComponent] and are true in the TransformComponent.dirtyTransforms list', () => {
+    it('should call updateGroupChildren for all entities that have the components [GroupComponent, VisibleComponent] and are true in the TransformComponent.dirtyTransforms list', () => {
       const Initial = true
       const Expected = !Initial
       // Set the data as expected
@@ -117,63 +121,55 @@ describe('TransformSystem', () => {
       for (const entity of entities) {
         for (let id = 0; id < objCount; ++id) {
           const obj = new Mesh(new BoxGeometry())
-          addObjectToGroup(entity, obj)
           obj.matrixWorldNeedsUpdate = Initial
+          const group = new Group()
+          group.children = [obj]
+          addObjectToGroup(entity, group)
         }
       }
       // Sanity check before running
       for (const entity of entities) assert.equal(hasComponents(entity, [GroupComponent, VisibleComponent]), true)
       for (const entity of entities) {
-        for (const obj of getComponent(entity, GroupComponent)) assert.equal(obj.matrixWorldNeedsUpdate, Initial)
+        for (const group of getComponent(entity, GroupComponent))
+          for (const child of group.children) assert.equal(child.matrixWorldNeedsUpdate, Initial)
       }
       // Run and Check the result
       System.execute()
       for (const entity of entities) {
-        for (const obj of getComponent(entity, GroupComponent)) assert.equal(obj.matrixWorldNeedsUpdate, Expected)
+        for (const group of getComponent(entity, GroupComponent))
+          for (const child of group.children) assert.equal(child.matrixWorldNeedsUpdate, Expected)
       }
     })
 
-    function createEntityWithBoxAndParent(parent: Entity): Entity {
-      const result = createEntity()
-      setComponent(result, EntityTreeComponent, { parentEntity: parent })
-      const mesh = new Mesh(new BoxGeometry(result + 1, result + 2, result + 3))
-      mesh.geometry.computeBoundingBox()
-      const box = mesh.geometry.boundingBox!.clone()
-      mesh.geometry.boundingBox = null
-      setComponent(result, BoundingBoxComponent, { box: box })
-      setComponent(result, MeshComponent, mesh)
-      return result
-    }
-
     it('should call updateBoundingBox for all entities that have a BoundingBoxComponent and are true in the TransformComponent.dirtyTransforms list', () => {
-      const Initial = null
+      const Initial = new Box3()
+      const Expected = new Box3(new Vector3(-0.5, -0.5, -0.5), new Vector3(0.5, 0.5, 0.5))
       // Set the data as expected
       const parentEntity = createEntity()
       setComponent(parentEntity, TransformComponent)
       const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
       const objCount: number = 2
-      for (const entity of entities) setComponent(entity, VisibleComponent)
-      for (const entity of entities) setComponent(entity, TransformComponent)
       for (const entity of entities) {
         setComponent(entity, EntityTreeComponent, { parentEntity: parentEntity })
-        for (let id = 0; id < objCount; ++id) {
-          const obj = new Mesh(new BoxGeometry(entity + id + 1, entity + id + 2, entity + id + 3))
-          obj.geometry.boundingBox = Initial
-          addObjectToGroup(entity, obj)
-        }
+        setComponent(entity, VisibleComponent)
+        setComponent(entity, TransformComponent)
         setComponent(entity, BoundingBoxComponent)
+        const obj = new Mesh(new BoxGeometry(1, 1, 1))
+        setComponent(entity, MeshComponent, obj)
       }
       // Sanity check before running
-      for (const entity of entities) assert.equal(hasComponent(entity, BoundingBoxComponent), true)
       for (const entity of entities) {
-        for (const obj of getComponent(entity, GroupComponent))
-          assert.equal((obj as Mesh).geometry.boundingBox, Initial)
+        assert.equal(hasComponent(entity, BoundingBoxComponent), true)
+        const box = getComponent(entity, BoundingBoxComponent).box
+        assertVecApproxEq(box.max, Initial.max, 3)
+        assertVecApproxEq(box.min, Initial.min, 3)
       }
       // Run and Check the result
       System.execute()
       for (const entity of entities) {
-        for (const obj of getComponent(entity, GroupComponent))
-          assert.notEqual((obj as Mesh).geometry.boundingBox, Initial)
+        const box = getComponent(entity, BoundingBoxComponent).box
+        assertVecApproxEq(box.max, Expected.max, 3)
+        assertVecApproxEq(box.min, Expected.min, 3)
       }
     })
 
