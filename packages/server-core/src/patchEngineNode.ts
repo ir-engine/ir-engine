@@ -4,6 +4,7 @@
 
 import 'jsdom-global/register'
 
+/** Ensure hookstate is always imported first and overrides react */
 import '@hookstate/core'
 
 import fetch, { Headers, Request, Response } from 'node-fetch'

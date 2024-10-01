@@ -27,7 +27,7 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs, { readFileSync, writeFileSync } from 'fs'
-import lodash from 'lodash-es'
+import { isArray, mergeWith } from 'lodash-es'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
@@ -42,8 +42,6 @@ import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
 import { getEngineSetting } from './scripts/getEngineSettings'
-
-const { isArray, mergeWith } = lodash
 
 const parseModuleName = (moduleName: string) => {
   // // chunk medisoup-client
