@@ -71,6 +71,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         onChange={handleInputChange}
         onBlur={() => onRelease && onRelease(value)}
         className="h-8 w-14 rounded bg-neutral-900 text-center text-sm font-normal leading-[21px] text-neutral-400"
+        data-testid="slider-text-value-input"
       />
       <input
         id="slider"
@@ -111,6 +112,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
           [&::-webkit-slider-thumb]:ease-in-out`,
           className
         )}
+        data-testid="slider-draggable-value-input"
       />
     </div>
   )

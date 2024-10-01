@@ -48,7 +48,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     errorMessage: ''
   })
 
-  const showAssetOnlyProjects = useHookstate<boolean>(true)
+  const showAssetOnlyProjects = useHookstate<boolean>(false)
   const errorMessage = state.errorMessage.value.includes('project_setting_projectid_key_unique')
     ? t('admin:components.setting.project.duplicateKey')
     : state.errorMessage.value
