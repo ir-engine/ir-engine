@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,13 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-
-const { exec } = require('child_process')
-const util = require('util')
+import { exec } from 'child_process'
+import util from 'util'
 
 const promiseExec = util.promisify(exec)
 
 const args = process.argv.slice(2)
-args.map(async arg => {
-    await promiseExec(`scripts/open_browser.sh ${arg}`)
+args.map(async (arg) => {
+  await promiseExec(`scripts/open_browser.sh ${arg}`)
 })
