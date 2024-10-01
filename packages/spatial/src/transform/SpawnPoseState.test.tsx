@@ -33,9 +33,9 @@ import {
   getComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { startReactor } from '@ir-engine/hyperflux'
+import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { assertVecApproxEq } from '../physics/classes/Physics.test'
 import { SpawnPoseState } from './SpawnPoseState'
 import { TransformComponent } from './components/TransformComponent'
@@ -57,7 +57,7 @@ describe('SpawnPoseState', () => {
   }) //:: Fields
 
   /** @todo How to trigger the inner EntityNetworkReactor ?? */
-  describe.skip('reactor', () => {
+  describe('reactor', () => {
     describe('whenever [UUIDComponent.useEntityByUUID(props.uuid), SpawnPoseState.spawnPosition, SpawnPoseState.spawnRotation] change: for every entity UUID in SpawnPoseState.keys ...', () => {
       beforeEach(async () => {
         createEngine()
@@ -82,6 +82,15 @@ describe('SpawnPoseState', () => {
           setComponent(entity, TransformComponent, { position: Initial })
           return entity
         })
+        getMutableState(SpawnPoseState).set(
+          keys.reduce((list, uuid) => {
+            list[uuid] = {
+              spawnPosition: Expected,
+              spawnRotation: new Quaternion(1, 2, 3, 4).normalize()
+            }
+            return list
+          }, {})
+        )
         // Sanity check before running
         for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Initial, 3)
         // Run and Check the result
