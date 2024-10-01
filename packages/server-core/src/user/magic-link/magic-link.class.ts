@@ -41,7 +41,6 @@ import config from '../../appconfig'
 import logger from '../../ServerLogger'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
-const imagesPath = path.join(appRootPath.path, 'packages', 'client', 'public', 'static')
 
 export interface MagicLinkParams extends KnexAdapterParams {}
 
@@ -68,8 +67,8 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
 
     const compiledHTML = pug.compileFile(templatePath)({
-      headerLogo: 'cid:Email-Template-Header.png',
-      irWhiteLogo: 'cid:3d-IR-White-Logo.png',
+      headerLogo: `${config.client.url}/static/Email-Template-Header.png`,
+      irWhiteLogo: `${config.client.url}/static/3d-IR-White-Logo.png`,
       templateBg: `${config.client.url}/static/Email-Template-BG.png`,
       hashLink
     })
@@ -79,19 +78,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
       from: mailSender,
       to: toEmail,
       subject: config.email.subject.login,
-      html: compiledHTML,
-      attachments: [
-        {
-          filename: 'Email-Template-Header.png',
-          path: path.join(imagesPath, 'Email-Template-Header.png'),
-          cid: 'Email-Template-Header.png'
-        },
-        {
-          filename: '3d-IR-White-Logo.png',
-          path: path.join(imagesPath, '3d-IR-White-Logo.png'),
-          cid: '3d-IR-White-Logo.png'
-        }
-      ]
+      html: compiledHTML
     }
 
     email.html = email.html.replace(/&amp;/g, '&')
