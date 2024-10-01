@@ -23,31 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useId, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaCheck, FaMinus } from 'react-icons/fa6'
-
 import { twMerge } from 'tailwind-merge'
 
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+export interface CheckboxProps {
+  checked?: boolean
+  disabled?: boolean
+  defaultChecked?: boolean
   indeterminate?: boolean
-  label?: React.ReactNode
-  description?: React.ReactNode
+  label?: string
+  description?: string
   onChange: (checked: boolean) => void
 }
 
 const Checkbox = (
-  { label, checked, indeterminate, disabled, onChange, description, ...props }: CheckboxProps,
+  { checked, disabled, defaultChecked, indeterminate, label, description, onChange }: CheckboxProps,
   ref: React.ForwardedRef<HTMLDivElement>
 ) => {
-  const id = useId()
-
   const handleChange = () => {
     if (!disabled && onChange) {
       onChange(!checked)
     }
   }
 
-  const [isCheckedInternal, setIsCheckedInternal] = useState(checked)
+  const [isCheckedInternal, setIsCheckedInternal] = useState(defaultChecked !== undefined ? defaultChecked : checked)
   const [isIndeterminateInternal, setIsIndeterminateInternal] = useState(indeterminate)
 
   useEffect(() => {
@@ -95,8 +95,6 @@ const Checkbox = (
         }}
         tabIndex={0}
         ref={ref}
-        id={id}
-        {...props}
       >
         <FaCheck
           onClick={handleChange}
