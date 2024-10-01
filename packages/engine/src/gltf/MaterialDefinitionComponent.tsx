@@ -149,7 +149,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
     const entity = useEntityContext()
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'basic' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshBasicMaterial' })
     }, [])
 
     return null

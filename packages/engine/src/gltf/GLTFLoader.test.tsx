@@ -42,6 +42,7 @@ import {
   applyIncomingActions,
   getState,
   NO_PROXY,
+  ReactorRoot,
   startReactor,
   useDidMount,
   useMutableState
@@ -56,11 +57,12 @@ import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFNode, GLTFNodeState } from './GLTFDocumentState'
 import { getNodeUUID } from './GLTFState'
-import { MaterialDefinitionComponent } from './MaterialDefinitionComponent'
+import { KHRUnlitExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
 const CDN_URL = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0'
 const duck_gltf = CDN_URL + '/Duck/glTF/Duck.gltf'
 const draco_box = CDN_URL + '/Box/glTF-Draco/Box.gltf'
+const unlit_gltf = CDN_URL + '/UnlitTest/glTF/UnlitTest.gltf'
 
 describe('GLTF Loader', () => {
   beforeEach(async () => {
@@ -273,6 +275,82 @@ describe('GLTF Loader', () => {
               {Object.entries(nodes).map(([source, node], index) => {
                 return <NodeReactor key={index} source={instanceID} node={node} gltf={gltf as GLTF.IGLTF} />
               })}
+            </>
+          ) : null
+        }, {})
+      )
+    })
+  })
+
+  it.only('can load an unlit material', (done) => {
+    const entity = createEntity()
+
+    let loaded = 0
+
+    const unlitMaterialLoaded = (matDef: ComponentType<typeof MaterialDefinitionComponent>, root: ReactorRoot) => {
+      assert(matDef.name === 'Orange' || matDef.name === 'Blue')
+      loaded += 1
+      if (loaded === 2) {
+        root.stop()
+        done()
+      }
+    }
+
+    const root = startReactor(() => {
+      return React.createElement(
+        EntityContext.Provider,
+        { value: entity },
+        React.createElement(() => {
+          const entity = useEntityContext()
+          const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+          const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+
+          useEffect(() => {
+            setComponent(entity, UUIDComponent, generateEntityUUID())
+            setComponent(entity, GLTFComponent, { src: unlit_gltf })
+          }, [])
+
+          useEffect(() => {
+            if (!gltfComponent || !gltfComponent.dependencies.value) return
+            applyIncomingActions()
+          }, [gltfComponent?.dependencies])
+
+          const ChildReactor = (props: { entity: Entity; gltf: GLTF.IGLTF }) => {
+            const { entity, gltf } = props
+            const materialDef = useOptionalComponent(entity, MaterialDefinitionComponent)
+            const unlitComponent = useOptionalComponent(entity, KHRUnlitExtensionComponent)
+
+            useDidMount(() => {
+              if (!materialDef || !unlitComponent) return
+
+              if (materialDef.type.value === 'MeshBasicMaterial') {
+                unlitMaterialLoaded(getComponent(entity, MaterialDefinitionComponent), root)
+              }
+            }, [materialDef, unlitComponent])
+
+            return null
+          }
+
+          const ParentReactor = (props: { parentUUID: EntityUUID }) => {
+            const { parentUUID } = props
+            const parentEntity = UUIDComponent.useEntityByUUID(parentUUID)
+            const children = useOptionalComponent(parentEntity, EntityTreeComponent)?.children.value
+            const instanceID = GLTFComponent.useInstanceID(parentEntity)
+            const gltfDocumentState = useMutableState(GLTFDocumentState)
+            const gltf = gltfDocumentState[instanceID].get(NO_PROXY)
+
+            return children && children.length ? (
+              <>
+                {children.map((child) => {
+                  return <ChildReactor key={child} entity={child} gltf={gltf as GLTF.IGLTF} />
+                })}
+              </>
+            ) : null
+          }
+
+          return uuid ? (
+            <>
+              <ParentReactor parentUUID={uuid} />
             </>
           ) : null
         }, {})

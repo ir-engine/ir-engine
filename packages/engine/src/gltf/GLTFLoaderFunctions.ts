@@ -493,9 +493,6 @@ const useLoadMaterial = (
       : null
     const materialConstructor = materialPrototype ?? MeshStandardMaterial
     const material = new materialConstructor()
-
-    result.set(material)
-
     assignExtrasToUserData(material, materialDef)
 
     /** @todo */

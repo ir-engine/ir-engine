@@ -577,15 +577,11 @@ const MaterialStateExtensionReactor = (props: { keyName: string; value: any; ent
   useEffect(() => {
     const Component = ComponentJSONIDMap.get(props.keyName)
     if (!Component) return console.warn('No component found for extension', props.keyName)
+
+    setComponent(entity, Component, props.value)
     return () => {
       removeComponent(entity, Component)
     }
-  }, [])
-
-  useEffect(() => {
-    const Component = ComponentJSONIDMap.get(props.keyName)
-    if (!Component) return console.warn('No component found for extension', props.keyName)
-    setComponent(entity, Component, props.value)
   }, [props.keyName, props.value])
 
   return null
