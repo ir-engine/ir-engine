@@ -23,6 +23,9 @@ All portions of the code written by the InfiniteReality team are Copyright © 20
 InfiniteReality. All Rights Reserved.
 */
 
+// This must always be imported first
+import './patchEngineNode'
+
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'

@@ -23,9 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// This must always be imported first
-import './patchEngineNode'
-
 // ensure logger is loaded first - it loads the dotenv config
 import logger from './ServerLogger'
 

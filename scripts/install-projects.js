@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// This must always be imported first
+import './patchEngineNode'
+
 import { projectPath } from '@ir-engine/common/src/schema.type.module'
 import logger from '@ir-engine/server-core/src/ServerLogger'
 import { ServerMode } from '@ir-engine/server-core/src/ServerState'
