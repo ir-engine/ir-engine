@@ -27,6 +27,7 @@ import { Entity, UUIDComponent, defineQuery, defineSystem, getComponent } from '
 import { getState } from '@ir-engine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { EngineState } from '../../EngineState'
+import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '../components/TransformComponent'
 import { TransformDirtyUpdateSystem } from './TransformSystem'
@@ -35,8 +36,8 @@ const facerQuery = defineQuery([LookAtComponent, TransformComponent])
 const _srcPosition = new Vector3()
 const _dstPosition = new Vector3()
 const _direction = new Vector3()
-const _zero = new Vector3()
-const _up = new Vector3(0, 1, 0)
+const _zero = Vector3_Zero.clone()
+const _up = Vector3_Up.clone()
 const _lookMatrix = new Matrix4()
 const _lookRotation = new Quaternion()
 
