@@ -192,6 +192,7 @@
       "lbl-settings": "Settings",
       "lbl-username": "Username",
       "usernameError": "Invalid username",
+      "usernameLengthError": "Username must have less than {{maxCharacters}} characters",
       "update-msg": "Username updated",
       "inviteCode": "Invite Code",
       "createLoginLink": "Create Login Link",

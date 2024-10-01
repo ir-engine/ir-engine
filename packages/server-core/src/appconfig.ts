@@ -232,12 +232,12 @@ const email = {
   from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>`,
   subject: {
     // Subject of the Login Link email
-    'new-user': 'Signup',
-    location: 'Location invitation',
-    instance: 'Location invitation',
-    login: 'Login link',
-    friend: 'Friend request',
-    channel: 'Channel invitation'
+    'new-user': 'IR Engine Signup',
+    location: 'IR Engine Location invitation',
+    instance: 'IR Engine Location invitation',
+    login: 'IR Engine Login link',
+    friend: 'IR Engine Friend request',
+    channel: 'IR Engine Channel invitation'
   },
   smsNameCharacterLimit: 20
 }
