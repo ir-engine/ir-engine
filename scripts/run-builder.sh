@@ -12,13 +12,13 @@ mkdir -pv ~/.docker
 cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
 bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME $EKS_AWS_ROLE_ARN
-npx cross-env ts-node --swc scripts/check-db-exists.ts
+npx vite-node scripts/check-db-exists.ts
 npm run prepare-database
 npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
-npx ts-node --swc scripts/install-projects.js >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
+npx vite-node scripts/install-projects.js >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
 test -s project-install-build-error.txt && npm run record-build-error -- --service=project-install
-npx cross-env ts-node --swc scripts/create-root-package-json.ts
+npx vite-node scripts/create-root-package-json.ts
 mv package.json package.jsonmoved
 mv package-root-build.json package.json
 npm install
@@ -26,11 +26,11 @@ rm package.json
 mv package.jsonmoved package.json
 npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
-npx cross-env node --loader ts-node/esm packages/client/scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
+npx vite-node packages/client/scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
 then
-  npx cross-env node --loader ts-node/esm packages/client/scripts/populate-assetlinks.ts >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
+  npx vite-node packages/client/scripts/populate-assetlinks.ts >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
 test -s populate-assetlinks-build-error.txt && npm run record-build-error -- --service=populate-assetlinks
 fi
 bash ./scripts/cleanup_builder.sh
@@ -50,7 +50,7 @@ find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./pr
 
 if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ]
 then
-  npx cross-env ts-node --swc scripts/get-deletable-client-files.ts
+  npx vite-node scripts/get-deletable-client-files.ts
 
   bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
   bash ./scripts/build_and_publish_package.sh $RELEASE_NAME client client-serve-static $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >client-build-logs.txt 2>client-build-error.txt &
@@ -72,16 +72,16 @@ then
     if [ $PRIVATE_REPO == "true" ]
     then
       echo "PRUNING PRIVATE REPOS"
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region $AWS_REGION --service client --releaseName $RELEASE_NAME
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region $AWS_REGION --service client --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
     else
       echo "PRUNING PUBLIC REPOS"
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region us-east-1 --service client --releaseName $RELEASE_NAME --public
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region us-east-1 --service client --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
     fi
   fi
 elif [ "$SERVE_CLIENT_FROM_API" = "true" ]
@@ -104,14 +104,14 @@ then
     if [ $PRIVATE_REPO == "true" ]
     then
       echo "PRUNING PRIVATE REPOS"
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
     else
       echo "PRUNING PUBLIC REPOS"
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
     fi
   fi
 else
@@ -133,24 +133,24 @@ else
   then
     if [ $PRIVATE_REPO == "true" ]
     then
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region $AWS_REGION --service client --releaseName $RELEASE_NAME
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region $AWS_REGION --service api --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region $AWS_REGION --service client --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region $AWS_REGION --service instanceserver --releaseName $RELEASE_NAME
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region $AWS_REGION --service taskserver --releaseName $RELEASE_NAME
     else
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region us-east-1 --service client --releaseName $RELEASE_NAME --public
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
-      npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-api --region us-east-1 --service api --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-client --region us-east-1 --service client --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --region us-east-1 --service instancserver --releaseName $RELEASE_NAME --public
+      npx vite-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-taskserver --region us-east-1 --service taskserver --releaseName $RELEASE_NAME --public
     fi
   fi
 fi
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
-npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${DESTINATION_REPO_NAME_STEM} --tag=${TAG} --repoUrl=${DESTINATION_REPO_URL} --startTime=${START_TIME}
+npx vite-node scripts/update-cronjob-image.ts --repoName=${DESTINATION_REPO_NAME_STEM} --tag=${TAG} --repoUrl=${DESTINATION_REPO_URL} --startTime=${START_TIME}
 
-npx cross-env ts-node --swc scripts/clear-projects-rebuild.ts
+npx vite-node scripts/clear-projects-rebuild.ts
 npm run record-build-success
 DEPLOY_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 
@@ -160,7 +160,7 @@ END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Started build at $START_TIME, deployed image to K8s at $DEPLOY_TIME, ended at $END_TIME"
 sleep 3m
 if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then
-  npx cross-env ts-node --swc scripts/delete-old-s3-files.ts;
+  npx vite-node scripts/delete-old-s3-files.ts;
   echo "Deleted old client files from S3"
 fi
 

@@ -48,9 +48,7 @@ export async function getGithubRepoAccessRefreshJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
+    'vite-node',
     'scripts/refresh-gh-repo-access.ts',
     '--userId',
     userId,

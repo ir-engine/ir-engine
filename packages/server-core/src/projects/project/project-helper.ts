@@ -960,9 +960,7 @@ export async function getProjectUpdateJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
+    'vite-node',
     'scripts/update-project.ts',
     '--sourceURL',
     data.sourceURL,
@@ -1028,9 +1026,7 @@ export async function getProjectPushJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
+    'vite-node',
     'scripts/push-project.ts',
     `--userId`,
     user.id,
@@ -1104,9 +1100,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
                   imagePullPolicy: 'IfNotPresent',
                   command: [
                     'npx',
-                    'cross-env',
-                    'ts-node',
-                    '--swc',
+                    'vite-node',
                     'scripts/auto-update-project.ts',
                     '--projectName',
                     project.name
@@ -1132,9 +1126,7 @@ export async function getDirectoryArchiveJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
+    'vite-node',
     'scripts/archive-directory.ts',
     `--project`,
     projectName,

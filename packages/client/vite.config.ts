@@ -116,13 +116,6 @@ const merge = (src, dest) =>
     }
   })
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import('ts-node').then((tsnode) => {
-  tsnode.register({
-    project: './tsconfig.json'
-  })
-})
-
 const getProjectConfigExtensions = async (config: UserConfig) => {
   const projects = fs.existsSync(path.resolve(__dirname, '../projects/projects'))
     ? fs
