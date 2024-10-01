@@ -25,11 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer } from 'three'
 
-import { Entity, generateEntityUUID, removeEntity, UndefinedEntity } from '@ir-engine/ecs'
+import { Entity, removeEntity, UndefinedEntity } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
+import { v4 } from 'uuid'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFAssetState } from '../../gltf/GLTFState'
 
@@ -60,7 +61,7 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   useEffect(() => {
     if (animation.value) return
     if (!assetEntity) {
-      GLTFAssetState.loadScene(url, generateEntityUUID())
+      GLTFAssetState.loadScene(url, v4())
       return
     }
   }, [useOptionalComponent(assetEntity, GLTFComponent)?.progress])
