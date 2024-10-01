@@ -32,14 +32,23 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  getComponent,
   hasComponent,
+  hasComponents,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import { getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
+import { BoxGeometry, Mesh } from 'three'
+import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
+import { destroySpatialEngine } from '../../initializeEngine'
+import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformSerialization } from '../TransformSerialization'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { EntityTreeComponent } from '../components/EntityTree'
 import { TransformComponent } from '../components/TransformComponent'
@@ -47,6 +56,8 @@ import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem, TransformSyste
 
 describe('TransformSystem', () => {
   const System = SystemDefinitions.get(TransformSystem)!
+  const CleanupSystem = SystemDefinitions.get(TransformDirtyCleanupSystem)!
+  const UpdateSystem = SystemDefinitions.get(TransformDirtyUpdateSystem)!
 
   describe('Fields', () => {
     it('should initialize the *System.uuid field with the expected value', () => {
@@ -66,23 +77,125 @@ describe('TransformSystem', () => {
 
   /** @todo */
   describe('execute', () => {
-    // should call computeTransformMatrix for all sorted entities that are true in the TransformComponent.dirtyTransforms list
-    // should call updateGroupChildren for all entities that have the components [GroupComponent, VisibleComponent] and are true in the TransformComponent.dirtyTransforms list
-    // should call updateBoundingBox for all entities that have a BoundingBoxComponent and are true in the TransformComponent.dirtyTransforms list
-    // for all entities that have the components [TransformComponent, CameraComponent]
-    // .. should not do anything for the EngineState.viewerEntity
-    // .. should update the entity's CameraComponent.matrixWorldInverse based on its CameraComponent.matrixWorld
-    // .. should copy the entity's CameraComponent.matrixWorld into its CameraComponent.cameras[0].matrixWorld
-    // .. should copy the entity's CameraComponent.matrixWorldInverse into its CameraComponent.cameras[0].matrixWorldInverse
-    // .. should copy the entity's CameraComponent.projectionMatrix into its CameraComponent.cameras[0].projectionMatrix
-    // .. should copy the entity's CameraComponent.projectionMatrixInverse into its CameraComponent.cameras[0].projectionMatrixInverse
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      mockSpatialEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      destroySpatialEngine()
+      return destroyEngine()
+    })
+
+    /** @todo How to check for usage of computeTransformMatrix ?? */
+    it.skip('should call computeTransformMatrix for all sorted entities that are true in the TransformComponent.dirtyTransforms list', () => {
+      // Set the data as expected
+      const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
+      for (const entity of entities) setComponent(entity, TransformComponent)
+      // UpdateSystem.execute()
+      CleanupSystem.execute()
+      // Sanity check before running
+      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], undefined)
+      // Run and Check the result
+      System.execute()
+      for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], true)
+    })
+
+    /** @todo Why is matrixWorldNeedsUpdate still true after System.execute() ?? */
+    it.skip('should call updateGroupChildren for all entities that have the components [GroupComponent, VisibleComponent] and are true in the TransformComponent.dirtyTransforms list', () => {
+      const Initial = true
+      const Expected = !Initial
+      // Set the data as expected
+      const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
+      const objCount: number = 2
+      for (const entity of entities) setComponent(entity, VisibleComponent)
+      for (const entity of entities) setComponent(entity, TransformComponent)
+      for (const entity of entities) {
+        for (let id = 0; id < objCount; ++id) {
+          const obj = new Mesh(new BoxGeometry())
+          addObjectToGroup(entity, obj)
+          obj.matrixWorldNeedsUpdate = Initial
+        }
+      }
+      // Sanity check before running
+      for (const entity of entities) assert.equal(hasComponents(entity, [GroupComponent, VisibleComponent]), true)
+      for (const entity of entities) {
+        for (const obj of getComponent(entity, GroupComponent)) assert.equal(obj.matrixWorldNeedsUpdate, Initial)
+      }
+      // Run and Check the result
+      System.execute()
+      for (const entity of entities) {
+        for (const obj of getComponent(entity, GroupComponent)) assert.equal(obj.matrixWorldNeedsUpdate, Expected)
+      }
+    })
+
+    function createEntityWithBoxAndParent(parent: Entity): Entity {
+      const result = createEntity()
+      setComponent(result, EntityTreeComponent, { parentEntity: parent })
+      const mesh = new Mesh(new BoxGeometry(result + 1, result + 2, result + 3))
+      mesh.geometry.computeBoundingBox()
+      const box = mesh.geometry.boundingBox!.clone()
+      mesh.geometry.boundingBox = null
+      setComponent(result, BoundingBoxComponent, { box: box })
+      setComponent(result, MeshComponent, mesh)
+      return result
+    }
+
+    it('should call updateBoundingBox for all entities that have a BoundingBoxComponent and are true in the TransformComponent.dirtyTransforms list', () => {
+      const Initial = null
+      // Set the data as expected
+      const parentEntity = createEntity()
+      setComponent(parentEntity, TransformComponent)
+      const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
+      const objCount: number = 2
+      for (const entity of entities) setComponent(entity, VisibleComponent)
+      for (const entity of entities) setComponent(entity, TransformComponent)
+      for (const entity of entities) {
+        setComponent(entity, EntityTreeComponent, { parentEntity: parentEntity })
+        for (let id = 0; id < objCount; ++id) {
+          const obj = new Mesh(new BoxGeometry(entity + id + 1, entity + id + 2, entity + id + 3))
+          obj.geometry.boundingBox = Initial
+          addObjectToGroup(entity, obj)
+        }
+        setComponent(entity, BoundingBoxComponent)
+      }
+      // Sanity check before running
+      for (const entity of entities) assert.equal(hasComponent(entity, BoundingBoxComponent), true)
+      for (const entity of entities) {
+        for (const obj of getComponent(entity, GroupComponent))
+          assert.equal((obj as Mesh).geometry.boundingBox, Initial)
+      }
+      // Run and Check the result
+      System.execute()
+      for (const entity of entities) {
+        for (const obj of getComponent(entity, GroupComponent))
+          assert.notEqual((obj as Mesh).geometry.boundingBox, Initial)
+      }
+    })
+
+    describe('for all entities that have the components [TransformComponent, CameraComponent]', () => {
+      // it(".. should not do anything for the EngineState.viewerEntity", () => {})
+      // it(".. should update the entity's CameraComponent.matrixWorldInverse based on its CameraComponent.matrixWorld", () => {})
+      // it(".. should copy the entity's CameraComponent.matrixWorld into its CameraComponent.cameras[0].matrixWorld", () => {})
+      // it(".. should copy the entity's CameraComponent.matrixWorldInverse into its CameraComponent.cameras[0].matrixWorldInverse", () => {})
+      // it(".. should copy the entity's CameraComponent.projectionMatrix into its CameraComponent.cameras[0].projectionMatrix", () => {})
+      // it(".. should copy the entity's CameraComponent.projectionMatrixInverse into its CameraComponent.cameras[0].projectionMatrixInverse", () => {})
+    })
+
     // TODO: when EngineState.viewerEntity is falsy
     // when EngineState.viewerEntity is truthy
-    // for every entity that has the components [TransformComponent, DistanceFromCameraComponent]
-    // .. should set DistanceFromCameraComponent.squaredDistance[entity] to the output of getDistanceSquaredFromTarget(entity, EngineState.viewerEntity.TransformComponent.position )
-    // for every entity that has the components [TransformComponent, FrustumCullCameraComponent]
-    // .. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera
-    // .. should set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera
+    describe('for every entity that has the components [TransformComponent, DistanceFromCameraComponent]', () => {
+      // it(".. should set DistanceFromCameraComponent.squaredDistance[entity] to the output of getDistanceSquaredFromTarget(entity, EngineState.viewerEntity.TransformComponent.position )", () => {})
+    })
+
+    describe('for every entity that has the components [TransformComponent, FrustumCullCameraComponent]', () => {
+      // it(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {})
+      // it(".. should set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera", () => {})
+    })
   }) //:: execute
 
   describe('reactor', () => {
