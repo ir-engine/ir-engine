@@ -37,6 +37,7 @@ import { startReactor } from '@ir-engine/hyperflux'
 import { NameComponent } from '../../common/NameComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
+import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import {
   destroyEntityTree,
@@ -73,122 +74,232 @@ function assertEntityHierarchy(name: string, entity: Entity, parent: Entity = Un
   )
 }
 
+type EntityTreeComponentData = {
+  parentEntity: Entity
+  childIndex: number | null
+  children: Entity[]
+}
+
+const EntityTreeComponentDefaults: EntityTreeComponentData = {
+  parentEntity: UndefinedEntity,
+  childIndex: null,
+  children: [] as Entity[]
+}
+
+function assertEntityTreeComponentEq(A: EntityTreeComponentData, B: EntityTreeComponentData): void {
+  assert.equal(A.parentEntity, B.parentEntity)
+  assert.equal(A.childIndex, B.childIndex)
+  assertArrayEqual(A.children, B.children)
+}
+
 describe('EntityTreeComponent', () => {
-  beforeEach(() => {
-    createEngine()
-  })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
-
-  it('should add default values', () => {
-    const entity = createEntity()
-    setComponent(entity, EntityTreeComponent)
-    const node = getComponent(entity, EntityTreeComponent)
-    assert.equal(node.children.length, 0)
-    assert.equal(node.parentEntity, UndefinedEntity)
-  })
-
-  it('should set given values', () => {
-    const rootEntity = createEntity()
-
-    setComponent(rootEntity, EntityTreeComponent, {
-      parentEntity: UndefinedEntity
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(EntityTreeComponent.name, 'EntityTreeComponent')
     })
-    setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
+  }) //:: Fields
 
-    const entity = createEntity()
-    const testUUID = 'test-uuid' as EntityUUID
-    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(entity, UUIDComponent, testUUID)
+  describe('onInit', () => {
+    let testEntity = UndefinedEntity
 
-    const node = getComponent(entity, EntityTreeComponent)
-
-    assert.equal(node.children.length, 0)
-    assert.equal(node.parentEntity, rootEntity)
-
-    assert.equal(getComponent(entity, UUIDComponent), testUUID)
-    assert.equal(UUIDComponent.getEntityByUUID(testUUID), entity)
-
-    const parentNode = getComponent(node.parentEntity!, EntityTreeComponent)
-    assert.equal(parentNode.children.length, 1)
-    assert.equal(parentNode.children[0], entity)
-  })
-
-  it('should set child at a given index', () => {
-    const rootEntity = createEntity()
-
-    setComponent(rootEntity, EntityTreeComponent, {
-      parentEntity: UndefinedEntity
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent)
     })
-    setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
 
-    const child_0 = createEntity()
-    setComponent(child_0, EntityTreeComponent, {
-      parentEntity: rootEntity
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
     })
-    setComponent(child_0, UUIDComponent, 'child-0' as EntityUUID)
-    const child_1 = createEntity()
-    setComponent(child_1, EntityTreeComponent, {
-      parentEntity: rootEntity
+
+    /**
+    // @todo How to pass the data as component defaults, with the change to Component schemas ??
+    it('should initialize the component with the expected default values', () => {
+      const data = getComponent(testEntity, EntityTreeComponent)
+      assertEntityTreeComponentEq(data, EntityTreeComponentDefaults)
     })
-    setComponent(child_1, UUIDComponent, 'child-1' as EntityUUID)
-    const child_2 = createEntity()
-    setComponent(child_2, EntityTreeComponent, {
-      parentEntity: rootEntity
+    */
+  }) //:: onInit
+
+  describe('onSet', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent)
     })
-    setComponent(child_2, UUIDComponent, 'child-2' as EntityUUID)
-    const child_3 = createEntity()
-    setComponent(child_3, EntityTreeComponent, {
-      parentEntity: rootEntity
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
     })
-    setComponent(child_3, UUIDComponent, 'child-3' as EntityUUID)
-    const child_4 = createEntity()
-    setComponent(child_4, EntityTreeComponent, {
-      parentEntity: rootEntity
+
+    /**
+    // @todo
+    it('should change the values of an initialized EntityTreeComponent', () => {
+      const before = getComponent(testEntity, EntityTreeComponent)
+      assertEntityTreeComponentEq(before, EntityTreeComponentDefaults)
+      const Expected = {
+        inputSinks: ['SomeUUID'] as EntityUUID[],
+        activationDistance: 10_000,
+        highlight: false,
+        grow: true,
+        inputSources: [] as Entity[]
+      }
+      setComponent(testEntity, EntityTreeComponent, Expected)
+      const after = getComponent(testEntity, EntityTreeComponent)
+      assertEntityTreeComponentEq(after, Expected)
     })
-    setComponent(child_4, UUIDComponent, 'child-4' as EntityUUID)
+    */
+  }) //:: onSet
 
-    const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, {
-      parentEntity: rootEntity,
-      childIndex: 2
+  describe('toJSON', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent)
     })
-    setComponent(entity, UUIDComponent, 'test-uuid' as EntityUUID)
 
-    const sceneNode = getComponent(rootEntity, EntityTreeComponent)
-    assert.equal(sceneNode.children.length, 6)
-    assert.equal(sceneNode.children[0], UUIDComponent.getEntityByUUID('child-0' as EntityUUID))
-    assert.equal(sceneNode.children[1], UUIDComponent.getEntityByUUID('child-1' as EntityUUID))
-    assert.equal(sceneNode.children[2], entity)
-    assert.equal(sceneNode.children[3], UUIDComponent.getEntityByUUID('child-2' as EntityUUID))
-    assert.equal(sceneNode.children[4], UUIDComponent.getEntityByUUID('child-3' as EntityUUID))
-    assert.equal(sceneNode.children[5], UUIDComponent.getEntityByUUID('child-4' as EntityUUID))
-    assert.equal(sceneNode.parentEntity, UndefinedEntity)
-  })
-
-  it('should remove entity from maps', () => {
-    const rootEntity = createEntity()
-
-    setComponent(rootEntity, EntityTreeComponent, {
-      parentEntity: UndefinedEntity
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
     })
-    setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
 
-    const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(entity, UUIDComponent, 'test-uuid' as EntityUUID)
-    removeComponent(entity, EntityTreeComponent)
+    /**
+    // @todo
+    it("should serialize the component's default data as expected", () => {
+      const json = serializeComponent(testEntity, EntityTreeComponent)
+      assert.equal(json.parentEntity, UndefinedEntity)
+      assert.equal(json.childIndex, 0)
+      assert.ok(Array.isArray(json.children))
+    })
+    */
+  }) //:: toJSON
 
-    // UUIDComponent should remain
-    assert.equal(getComponent(entity, UUIDComponent), 'test-uuid')
-    assert.equal(UUIDComponent.getEntityByUUID('test-uuid' as EntityUUID), entity)
+  /** @todo */
+  describe('reactor', () => {}) //:: reactor
 
-    const parentNode = getComponent(rootEntity, EntityTreeComponent)
-    assert.equal(parentNode.children.length, 0)
-  })
-})
+  describe('General Purpose', () => {
+    beforeEach(() => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should add default values', () => {
+      const entity = createEntity()
+      setComponent(entity, EntityTreeComponent)
+      const node = getComponent(entity, EntityTreeComponent)
+      assert.equal(node.children.length, 0)
+      assert.equal(node.parentEntity, UndefinedEntity)
+    })
+
+    it('should set given values', () => {
+      const rootEntity = createEntity()
+
+      setComponent(rootEntity, EntityTreeComponent, {
+        parentEntity: UndefinedEntity
+      })
+      setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
+
+      const entity = createEntity()
+      const testUUID = 'test-uuid' as EntityUUID
+      setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
+      setComponent(entity, UUIDComponent, testUUID)
+
+      const node = getComponent(entity, EntityTreeComponent)
+
+      assert.equal(node.children.length, 0)
+      assert.equal(node.parentEntity, rootEntity)
+
+      assert.equal(getComponent(entity, UUIDComponent), testUUID)
+      assert.equal(UUIDComponent.getEntityByUUID(testUUID), entity)
+
+      const parentNode = getComponent(node.parentEntity!, EntityTreeComponent)
+      assert.equal(parentNode.children.length, 1)
+      assert.equal(parentNode.children[0], entity)
+    })
+
+    it('should set child at a given index', () => {
+      const rootEntity = createEntity()
+
+      setComponent(rootEntity, EntityTreeComponent, {
+        parentEntity: UndefinedEntity
+      })
+      setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
+
+      const child_0 = createEntity()
+      setComponent(child_0, EntityTreeComponent, {
+        parentEntity: rootEntity
+      })
+      setComponent(child_0, UUIDComponent, 'child-0' as EntityUUID)
+      const child_1 = createEntity()
+      setComponent(child_1, EntityTreeComponent, {
+        parentEntity: rootEntity
+      })
+      setComponent(child_1, UUIDComponent, 'child-1' as EntityUUID)
+      const child_2 = createEntity()
+      setComponent(child_2, EntityTreeComponent, {
+        parentEntity: rootEntity
+      })
+      setComponent(child_2, UUIDComponent, 'child-2' as EntityUUID)
+      const child_3 = createEntity()
+      setComponent(child_3, EntityTreeComponent, {
+        parentEntity: rootEntity
+      })
+      setComponent(child_3, UUIDComponent, 'child-3' as EntityUUID)
+      const child_4 = createEntity()
+      setComponent(child_4, EntityTreeComponent, {
+        parentEntity: rootEntity
+      })
+      setComponent(child_4, UUIDComponent, 'child-4' as EntityUUID)
+
+      const entity = createEntity()
+      setComponent(entity, EntityTreeComponent, {
+        parentEntity: rootEntity,
+        childIndex: 2
+      })
+      setComponent(entity, UUIDComponent, 'test-uuid' as EntityUUID)
+
+      const sceneNode = getComponent(rootEntity, EntityTreeComponent)
+      assert.equal(sceneNode.children.length, 6)
+      assert.equal(sceneNode.children[0], UUIDComponent.getEntityByUUID('child-0' as EntityUUID))
+      assert.equal(sceneNode.children[1], UUIDComponent.getEntityByUUID('child-1' as EntityUUID))
+      assert.equal(sceneNode.children[2], entity)
+      assert.equal(sceneNode.children[3], UUIDComponent.getEntityByUUID('child-2' as EntityUUID))
+      assert.equal(sceneNode.children[4], UUIDComponent.getEntityByUUID('child-3' as EntityUUID))
+      assert.equal(sceneNode.children[5], UUIDComponent.getEntityByUUID('child-4' as EntityUUID))
+      assert.equal(sceneNode.parentEntity, UndefinedEntity)
+    })
+
+    it('should remove entity from maps', () => {
+      const rootEntity = createEntity()
+
+      setComponent(rootEntity, EntityTreeComponent, {
+        parentEntity: UndefinedEntity
+      })
+      setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
+
+      const entity = createEntity()
+      setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
+      setComponent(entity, UUIDComponent, 'test-uuid' as EntityUUID)
+      removeComponent(entity, EntityTreeComponent)
+
+      // UUIDComponent should remain
+      assert.equal(getComponent(entity, UUIDComponent), 'test-uuid')
+      assert.equal(UUIDComponent.getEntityByUUID('test-uuid' as EntityUUID), entity)
+
+      const parentNode = getComponent(rootEntity, EntityTreeComponent)
+      assert.equal(parentNode.children.length, 0)
+    })
+  }) //:: General Purpose
+}) //:: EntityTreeComponent
 
 describe('EntityTreeFunctions', () => {
   let root: Entity
@@ -1321,3 +1432,26 @@ describe('getChildrenWithComponents', () => {
     destroyEntityTree(rootEntity)
   })
 })
+
+/** @todo */
+describe('destroyEntityTree', () => {}) //:: destroyEntityTree
+describe('removeFromEntityTree', () => {}) //:: removeFromEntityTree
+describe('removeEntityNodeRecursively', () => {}) //:: removeEntityNodeRecursively
+describe('traverseEntityNode', () => {}) //:: traverseEntityNode
+describe('traverseEntityNodeChildFirst', () => {}) //:: traverseEntityNodeChildFirst
+describe('iterateEntityNode', () => {}) //:: iterateEntityNode
+describe('traverseEntityNodeParent', () => {}) //:: traverseEntityNodeParent
+describe('getAncestorWithComponents', () => {}) //:: getAncestorWithComponents
+describe('findIndexOfEntityNode', () => {}) //:: findIndexOfEntityNode
+describe('isDeepChildOf', () => {}) //:: isDeepChildOf
+describe('getNestedChildren', () => {}) //:: getNestedChildren
+describe('useTreeQuery', () => {}) //:: useTreeQuery
+describe('useAncestorWithComponents', () => {}) //:: useAncestorWithComponents
+describe('useChildWithComponents', () => {}) //:: useChildWithComponents
+describe('useChildrenWithComponents', () => {}) //:: useChildrenWithComponents
+describe('getChildrenWithComponents', () => {}) //:: getChildrenWithComponents
+describe('haveCommonAncestor', () => {}) //:: haveCommonAncestor
+describe('findCommonAncestors', () => {}) //:: findCommonAncestors
+describe('isAncestor', () => {}) //:: isAncestor
+describe('traverseEarlyOut', () => {}) //:: traverseEarlyOut
+describe('filterParentEntities', () => {}) //:: filterParentEntities
