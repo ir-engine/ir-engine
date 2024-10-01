@@ -35,6 +35,7 @@ import {
 } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@ir-engine/hyperflux'
 import Button from '../../../../../primitives/tailwind/Button'
+import PaginatedList from '../../../layout/PaginatedList'
 import InputGroup from '../../Group'
 import NumericInput from '../../Numeric'
 import SelectInput from '../../Select'
@@ -54,7 +55,7 @@ export default function ValueGenerator({
       scope.set(JSON.parse(JSON.stringify(ValueGeneratorJSONDefaults[type])))
       thisOnChange(type)
     }
-  }, [])
+  }, [scope, onChange])
 
   const onAddBezier = useCallback(() => {
     const bezierScope = scope as State<PiecewiseBezierValueJSON>
@@ -75,17 +76,20 @@ export default function ValueGenerator({
       ]
       thisOnChange(nuFunctions)
     }
-  }, [])
+  }, [scope, onChange])
 
-  const onRemoveBezier = useCallback((element: State<BezierFunctionJSON>) => {
-    const bezierScope = scope as State<PiecewiseBezierValueJSON>
-    const bezier = bezierScope.value
-    const thisOnChange = onChange(bezierScope.functions)
-    return () => {
-      const nuFunctions = bezier.functions.filter((f) => f !== element.value)
-      thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
-    }
-  }, [])
+  const onRemoveBezier = useCallback(
+    (element: State<BezierFunctionJSON>) => {
+      const bezierScope = scope as State<PiecewiseBezierValueJSON>
+      const bezier = bezierScope.value
+      const thisOnChange = onChange(bezierScope.functions)
+      return () => {
+        const nuFunctions = bezier.functions.filter((f) => f !== element.value)
+        thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
+      }
+    },
+    [scope, onChange]
+  )
 
   const ConstantInput = useCallback(() => {
     const constantScope = scope as State<ConstantValueJSON>
@@ -97,7 +101,7 @@ export default function ValueGenerator({
         </InputGroup>
       </>
     )
-  }, [scope])
+  }, [scope, onChange])
 
   const IntervalInput = useCallback(() => {
     const intervalScope = scope as State<IntervalValueJSON>
@@ -112,66 +116,52 @@ export default function ValueGenerator({
         </InputGroup>
       </>
     )
-  }, [scope])
+  }, [scope, onChange])
 
   const BezierInput = useCallback(() => {
     const bezierScope = scope as State<PiecewiseBezierValueJSON>
     return (
       <div>
         <Button onClick={onAddBezier()}>Add Bezier</Button>
-
-        {/*<PaginatedList // we still need to make paginated list in tailwind
-          list={bezierScope.functions}
-          element={(element: State<BezierFunctionJSON>) => (
-            <div
-              style={{
-                margin: '2rem',
-                padding: '2rem',
-                border: '1px solid white',
-                borderRadius: '1rem'
-              }}
-            >
-              <NumericInputGroup
-                name="p0"
-                label="p0"
-                value={element.function.p0.value}
-                onChange={onChange(element.function.p0)}
-              />
-              <NumericInputGroup
-                name="p1"
-                label="p1"
-                value={element.function.p1.value}
-                onChange={onChange(element.function.p1)}
-              />
-              <NumericInputGroup
-                name="p2"
-                label="p2"
-                value={element.function.p2.value}
-                onChange={onChange(element.function.p2)}
-              />
-              <NumericInputGroup
-                name="p3"
-                label="p3"
-                value={element.function.p3.value}
-                onChange={onChange(element.function.p3)}
-              />
-              <br />
-              <hr />
-              <br />
-              <NumericInputGroup
-                name="start"
-                label={'Start'}
-                value={element.start.value}
-                onChange={onChange(element.start)}
-              />
-              <br />
-              <Button onClick={onRemoveBezier(element)}>Remove</Button>
-            </div>
-          )}
-        />*/}
+        {
+          <PaginatedList // we still need to make paginated list in tailwind
+            list={bezierScope.functions}
+            element={(element: State<BezierFunctionJSON>) => (
+              <div
+                style={{
+                  margin: '2rem',
+                  padding: '2rem',
+                  border: '1px solid white',
+                  borderRadius: '1rem'
+                }}
+              >
+                <InputGroup label={'p0'}>
+                  <NumericInput value={element.function.p0.value} onChange={onChange(element.function.p0)} />
+                </InputGroup>
+                <InputGroup label={'p1'}>
+                  <NumericInput value={element.function.p1.value} onChange={onChange(element.function.p1)} />
+                </InputGroup>
+                <InputGroup label={'p2'}>
+                  <NumericInput value={element.function.p2.value} onChange={onChange(element.function.p2)} />
+                </InputGroup>
+                <InputGroup label={'p3'}>
+                  <NumericInput value={element.function.p3.value} onChange={onChange(element.function.p3)} />
+                </InputGroup>
+                <br />
+                <hr />
+                <br />
+                <InputGroup label={'start'}>
+                  <NumericInput value={element.start.value} onChange={onChange(element.start)} />
+                </InputGroup>
+                <br />
+                <Button onClick={onRemoveBezier(element)}>Remove</Button>
+              </div>
+            )}
+          />
+        }
       </div>
     )
-  }, [scope])
+  }, [scope, onChange])
 
   const valueInputs = {
     ConstantValue: ConstantInput,

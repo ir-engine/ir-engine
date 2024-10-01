@@ -54,14 +54,14 @@ function Browser() {
   const FileItems = () => (
     <>
       {files.map((file) => (
-        <FileItem file={file} key={file.key} />
+        <FileItem file={file} key={file.key} data-testid="files-panel-file-item" />
       ))}
     </>
   )
 
   return (
     <div
-      className={twMerge('h-full', isFileDropOver ? 'border-2 border-gray-300' : '')}
+      className={twMerge('h-full overflow-y-scroll', isFileDropOver ? 'border-2 border-gray-300' : '')}
       ref={fileDropRef}
       onContextMenu={(event) => {
         event.preventDefault()

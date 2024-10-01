@@ -31,14 +31,9 @@ import {
 } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
 import { AwsSettingDatabaseType, awsSettingPath } from '@ir-engine/common/src/schemas/setting/aws-setting.schema'
 import {
-  chargebeeSettingPath,
-  ChargebeeSettingType
-} from '@ir-engine/common/src/schemas/setting/chargebee-setting.schema'
-import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import { coilSettingPath, CoilSettingType } from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
   instanceServerSettingPath,
@@ -52,6 +47,7 @@ import {
 
 import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
+import { createHash } from 'crypto'
 import appConfig from './appconfig'
 import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -100,15 +96,19 @@ export const updateAppConfig = async (): Promise<void> => {
         appConfig.authentication = {
           ...appConfig.authentication,
           ...(dbAuthenticationConfig as any),
-          secret: appConfig.authentication.secret.split(String.raw`\n`).join('\n'),
+          secret: dbAuthenticationConfig.secret.split(String.raw`\n`).join('\n'),
           authStrategies: authStrategies
         }
         if (dbAuthenticationConfig.oauth?.github?.privateKey)
           appConfig.authentication.oauth.github.privateKey = dbAuthenticationConfig.oauth.github.privateKey
             .split(String.raw`\n`)
             .join('\n')
-        if (dbAuthenticationConfig.jwtPublicKey)
-          appConfig.authentication.jwtPublicKey = dbAuthenticationConfig.jwtPublicKey.split(String.raw`\n`).join('\n')
+        if (dbAuthentication.jwtPublicKey && typeof dbAuthentication.jwtPublicKey === 'string') {
+          appConfig.authentication.jwtPublicKey = dbAuthentication.jwtPublicKey.split(String.raw`\n`).join('\n')
+          ;(appConfig.authentication.jwtOptions as any).keyid = createHash('sha3-256')
+            .update(appConfig.authentication.jwtPublicKey)
+            .digest('hex')
+        }
         appConfig.authentication.jwtOptions.algorithm = dbAuthentication.jwtAlgorithm || 'HS256'
       }
     })
@@ -133,38 +133,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read ${awsSettingPath}: ${e.message}`)
     })
   promises.push(awsSettingPromise)
-
-  const chargebeeSettingPromise = knexClient
-    .select()
-    .from<ChargebeeSettingType>(chargebeeSettingPath)
-    .then(([dbChargebee]) => {
-      if (dbChargebee) {
-        appConfig.chargebee = {
-          ...appConfig.chargebee,
-          ...dbChargebee
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
-    })
-  promises.push(chargebeeSettingPromise)
-
-  const coilSettingPromise = knexClient
-    .select()
-    .from<CoilSettingType>(coilSettingPath)
-    .then(([dbCoil]) => {
-      if (dbCoil) {
-        appConfig.coil = {
-          ...appConfig.coil,
-          ...dbCoil
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read coilSetting: ${e.message}`)
-    })
-  promises.push(coilSettingPromise)
 
   const clientSettingPromise = knexClient
     .select()

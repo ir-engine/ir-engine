@@ -124,10 +124,15 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
 
-  const userAvatarQuery = useFind(userAvatarPath, { query: { userId: Engine.instance.userID } })
   const userAvatarMutation = useMutation(userAvatarPath)
 
-  const userAvatar = useGet(avatarPath, userAvatarQuery.data[0]?.id)
+  const userAvatarQuery = useFind(userAvatarPath, {
+    query: {
+      userId: Engine.instance.store.userID
+    }
+  })
+
+  const userAvatar = useGet(avatarPath, userAvatarQuery.data?.[0]?.avatarId)
 
   useEffect(() => {
     if (!errorWithAvatar || !avatarsQuery.data.length) return

@@ -45,6 +45,7 @@ import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
+import { UIAddonsState } from '../../services/UIAddonsState'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog'
@@ -77,7 +78,8 @@ export const confirmSceneSaveIfModified = async () => {
 const onClickNewScene = async () => {
   if (!(await confirmSceneSaveIfModified())) return
 
-  const newSceneUIAddons = getState(EditorState).uiAddons.newScene
+  const newSceneUIAddons = getState(UIAddonsState).editor.newScene
+
   if (Object.keys(newSceneUIAddons).length > 0) {
     PopoverState.showPopupover(<CreateSceneDialog />)
   } else {
@@ -154,10 +156,10 @@ export default function Toolbar() {
 
   return (
     <>
-      <div className="flex items-center justify-between bg-theme-primary">
+      <div className="flex h-10 items-center justify-between bg-theme-primary">
         <div className="flex items-center">
           <div className="ml-3 mr-6 cursor-pointer" onClick={onCloseProject}>
-            <img src="favicon-32x32.png" alt="iR Engine Logo" className={`h-7 w-7 opacity-50`} />
+            <img src="ir-studio-icon.svg" alt="iR Engine Logo" className={`h-6 w-6`} />
           </div>
           <Button
             endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-[#A3A3A3]" />}
@@ -172,7 +174,7 @@ export default function Toolbar() {
           />
         </div>
         {/* TO BE ADDED */}
-        {/* <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
+        {/* <div className="flex items-center gap-2.5 rounded-full bg-[#212226] p-0.5">
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
@@ -182,17 +184,20 @@ export default function Toolbar() {
           <span>{sceneName.value}</span>
         </div>
         {sceneAssetID.value && (
-          <Button
-            rounded="none"
-            disabled={!hasPublishAccess}
-            onClick={() =>
-              PopoverState.showPopupover(
-                <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
-              )
-            }
-          >
-            {t('editor:toolbar.lbl-publish')}
-          </Button>
+          <div className="p-2">
+            <Button
+              rounded="full"
+              disabled={!hasPublishAccess}
+              onClick={() =>
+                PopoverState.showPopupover(
+                  <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+                )
+              }
+              className="py-1 text-base"
+            >
+              {t('editor:toolbar.lbl-publish')}
+            </Button>
+          </div>
         )}
       </div>
       <ContextMenu
