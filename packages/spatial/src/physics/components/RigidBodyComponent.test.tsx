@@ -82,6 +82,31 @@ const RigidBodyComponentDefaults = {
   targetKinematicLerpMultiplier: 0
 }
 
+/**
+ * @description Returns whether or not `@param val` is a primitive type or not.
+ * @note Replaces the deprecated function `util.isPrimitive`  */
+function isPrimitive<T>(val: T): boolean {
+  return (typeof val !== 'object' && typeof val !== 'function') || val === null
+}
+
+/**
+ * @description Returns whether or not A and B are deeply equal to each other
+ * @note Uses ES6 features  */
+function deepEqual(A: any, B: any): boolean {
+  if (A === B) return true // Same reference or value. No need to compare any further
+  if (isPrimitive(A) && isPrimitive(B)) return A === B // Compare primitives
+  if (Object.keys(A).length !== Object.keys(B).length) return false // Check for different amount of keys
+  for (let key in A) {
+    // Compare objects with same number of keys
+    if (!(key in B)) return false // B doesn't have this prop
+    if (!deepEqual(A[key], B[key])) return false // Recursive case
+  }
+  return true // Otherwise they are equal
+}
+
+/**
+ * @description
+ * Triggers an assert when all the members of `@param A` are not equal to `@param B`. */
 export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
   assert.equal(A.length, B.length, err + ': Their length is not the same')
   for (let id = 0; id < A.length && id < B.length; id++) {
@@ -89,9 +114,22 @@ export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are 
   }
 }
 
+/**
+ * @description
+ * Triggers an assert when all the members of `@param A` are equal to `@param B`. */
 export function assertArrayAllNotEq<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
   for (let id = 0; id < A.length && id < B.length; id++) {
     assert.notDeepEqual(A[id], B[id], err)
+  }
+}
+
+/**
+ * @description
+ * Triggers an assert when one or many of the members of `@param A` is not equal to `@param B`.
+ * Does not trigger an assert for members that are equal  */
+export function assertArrayAnyNotEq<T>(A: Array<T>, B: Array<T>, err = 'One of the elements of the Arrays are equal') {
+  for (let id = 0; id < A.length && id < B.length; id++) {
+    !deepEqual(A, B) && assert.notDeepEqual(A[id], B[id], err)
   }
 }
 

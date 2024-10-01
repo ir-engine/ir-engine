@@ -116,7 +116,7 @@ export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
 
 /**
  * @description
- * Triggers an assert when one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
+ * Triggers an assert when one or many of the members of `@param A` is not equal to `@param B`.
  * Does nothing for members that are equal
  * @note Used as helper by multiple .test.ts* files */
 export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
@@ -128,7 +128,7 @@ export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) 
 
 /**
  * @description
- * Triggers an assert when all the (x,y,z,w) members of `@param A` are equal to `@param B`.
+ * Triggers an assert when all the members of `@param A` are equal to `@param B`.
  * @note Used as helper by multiple .test.ts* files */
 export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
   assertFloatApproxNotEq(A.x, B.x, epsilon)
@@ -137,14 +137,20 @@ export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) 
   if (elems > 3) assertFloatApproxNotEq(A.w, B.w, epsilon)
 }
 
-/** @note Used as helper by multiple .test.ts* files */
+/**
+ * @description
+ * Triggers an assert when all the members of `@param A` are equal to `@param B`.
+ * @note Used as helper by multiple .test.ts* files */
 export function assertMatrixApproxEq(A, B, epsilon = Epsilon) {
   for (let id = 0; id < 16; ++id) {
     assertFloatApproxEq(A.elements[id], B.elements[id], epsilon)
   }
 }
 
-/** @note Used as helper by multiple .test.ts* files */
+/**
+ * @description
+ * Triggers an assert when all the members of `@param A` are equal to `@param B`.
+ * @note Used as helper by multiple .test.ts* files */
 export function assertMatrixAllApproxNotEq(A, B, epsilon = Epsilon) {
   for (let id = 0; id < 16; ++id) {
     assertFloatApproxNotEq(A.elements[id], B.elements[id], epsilon)
