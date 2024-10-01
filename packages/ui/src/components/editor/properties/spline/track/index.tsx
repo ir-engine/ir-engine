@@ -93,7 +93,7 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
             <Vector3Scrubber
               value={velocity.value}
               onChange={updateProperty(SplineTrackComponent, 'velocity')}
-              onPointerUp={commitProperty(SplineTrackComponent, 'velocity')}
+              onRelease={commitProperty(SplineTrackComponent, 'velocity')}
             />
           }
         />
