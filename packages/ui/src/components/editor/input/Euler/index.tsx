@@ -73,7 +73,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={euler.value.x * RAD2DEG}
             onChange={onSetEuler('x')}
             axis="x"
-            onPointerUp={() => props.onRelease?.(euler.value)}
+            onRelease={() => props.onRelease?.(euler.value)}
           />
         }
       />
@@ -87,7 +87,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={euler.value.y * RAD2DEG}
             onChange={onSetEuler('y')}
             axis="y"
-            onPointerUp={() => props.onRelease?.(euler.value)}
+            onRelease={() => props.onRelease?.(euler.value)}
           />
         }
       />
@@ -101,7 +101,7 @@ export const EulerInput = (props: EulerInputProps) => {
             value={euler.value.z * RAD2DEG}
             onChange={onSetEuler('z')}
             axis="z"
-            onPointerUp={() => props.onRelease?.(euler.value)}
+            onRelease={() => props.onRelease?.(euler.value)}
           />
         }
       />

@@ -79,14 +79,15 @@ const RenderModeTool = () => {
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 rounded bg-[#141619]">
       {renderModes.map((mode) => (
         <Tooltip key={mode.name} content={mode.name}>
           <Button
             startIcon={mode.icon}
             variant={rendererState.renderMode.value === mode.name ? 'outline' : 'transparent'}
             onClick={() => rendererState.renderMode.set(mode.name)}
-            className="p-2"
+            className="p-1"
+            size="small"
           />
         </Tooltip>
       ))}

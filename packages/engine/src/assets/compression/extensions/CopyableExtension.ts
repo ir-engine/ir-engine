@@ -23,24 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { Extension } from '@gltf-transform/core'
 
-import {
-  coilSettingDataSchema,
-  coilSettingPatchSchema,
-  coilSettingQuerySchema,
-  coilSettingSchema
-} from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    coilSettingDataSchema,
-    coilSettingPatchSchema,
-    coilSettingQuerySchema,
-    coilSettingSchema
-  },
-  docs: {
-    description: 'Coil setting service description',
-    securities: ['all']
-  }
-})
+export abstract class CopyableExtension extends Extension {
+  abstract copyTo(target: Extension | null): void
+}

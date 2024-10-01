@@ -23,19 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-import {
-  CoilSettingData,
-  CoilSettingPatch,
-  CoilSettingQuery,
-  CoilSettingType
-} from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
+const assetPath = 'asset'
 
-export interface CoilSettingParams extends KnexAdapterParams<CoilSettingQuery> {}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const nameColumnExists = await knex.schema.hasColumn(staticResourcePath, 'name')
+  if (!nameColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.string('name', 255).nullable().defaultTo(null)
+    })
+  }
+}
 
-export class CoilSettingService<
-  T = CoilSettingType,
-  ServiceParams extends Params = CoilSettingParams
-> extends KnexService<CoilSettingType, CoilSettingData, CoilSettingParams, CoilSettingPatch> {}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const nameColumnExists = await knex.schema.hasColumn(staticResourcePath, 'name')
+  if (nameColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('name')
+    })
+  }
+}
