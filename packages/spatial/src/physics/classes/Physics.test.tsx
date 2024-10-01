@@ -114,7 +114,7 @@ export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
 
 /**
  * @description
- * Triggers an assert when one or many of the (x,y,z,w) members of `@param A` is equal to `@param B`.
+ * Triggers an assert when one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
  * Does nothing for members that are equal
  * @note Used as helper by multiple .test.ts* files */
 export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
