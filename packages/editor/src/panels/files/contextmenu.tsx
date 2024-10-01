@@ -216,6 +216,7 @@ export function FileContextMenu({
                 }}
               />
             )
+            setAnchorEvent(undefined)
           }}
         >
           {t('editor:layout.assetGrid.deleteAsset')}

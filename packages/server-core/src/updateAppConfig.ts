@@ -31,14 +31,9 @@ import {
 } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
 import { AwsSettingDatabaseType, awsSettingPath } from '@ir-engine/common/src/schemas/setting/aws-setting.schema'
 import {
-  chargebeeSettingPath,
-  ChargebeeSettingType
-} from '@ir-engine/common/src/schemas/setting/chargebee-setting.schema'
-import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import { coilSettingPath, CoilSettingType } from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
   instanceServerSettingPath,
@@ -138,38 +133,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read ${awsSettingPath}: ${e.message}`)
     })
   promises.push(awsSettingPromise)
-
-  const chargebeeSettingPromise = knexClient
-    .select()
-    .from<ChargebeeSettingType>(chargebeeSettingPath)
-    .then(([dbChargebee]) => {
-      if (dbChargebee) {
-        appConfig.chargebee = {
-          ...appConfig.chargebee,
-          ...dbChargebee
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
-    })
-  promises.push(chargebeeSettingPromise)
-
-  const coilSettingPromise = knexClient
-    .select()
-    .from<CoilSettingType>(coilSettingPath)
-    .then(([dbCoil]) => {
-      if (dbCoil) {
-        appConfig.coil = {
-          ...appConfig.coil,
-          ...dbCoil
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read coilSetting: ${e.message}`)
-    })
-  promises.push(coilSettingPromise)
 
   const clientSettingPromise = knexClient
     .select()

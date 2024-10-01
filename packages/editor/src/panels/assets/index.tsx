@@ -23,35 +23,45 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as k8s from '@kubernetes/client-node'
+import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
+import { TabData } from 'rc-dock'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { FileUploadProgress } from '../files/loaders'
+import CategoriesList, { VerticalDivider } from './categories'
+import { AssetsQueryProvider } from './hooks'
+import Resources from './resources'
+import Topbar from './topbar'
 
-import { objectToArgs } from '@ir-engine/common/src/utils/objectToCommandLineArgs'
-import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
+const AssetsPanelTitle = () => {
+  const { t } = useTranslation()
 
-import { Application } from '../../../declarations'
-import { getJobBody } from '../../k8s-job-helper'
+  return (
+    <div>
+      <PanelDragContainer>
+        <PanelTitle>
+          <span>{t('editor:tabs.scene-assets')}</span>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
+}
 
-export async function getModelTransformJobBody(
-  app: Application,
-  createParams: ModelTransformParameters
-): Promise<k8s.V1Job> {
-  const command = [
-    'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
-    'packages/server-core/src/assets/model-transform/model-transform.job.ts',
-    ...objectToArgs(createParams)
-  ]
+export const AssetsPanelTab: TabData = {
+  id: 'assetsPanel',
+  closable: true,
+  title: <AssetsPanelTitle />,
+  content: <AssetsContainer />
+}
 
-  const labels = {
-    'ir-engine/modelTransformer': 'true',
-    'ir-engine/transformSource': createParams.src,
-    'ir-engine/transformDestination': createParams.dst,
-    'ir-engine/release': process.env.RELEASE_NAME!
-  }
-
-  const name = `${process.env.RELEASE_NAME}-${createParams.src}-${createParams.dst}-transform`
-
-  return getJobBody(app, command, name, labels)
+function AssetsContainer() {
+  return (
+    <div className="flex h-full flex-col">
+      <AssetsQueryProvider>
+        <Topbar />
+        <FileUploadProgress />
+        <VerticalDivider leftChildren={<CategoriesList />} rightChildren={<Resources />} />
+      </AssetsQueryProvider>
+    </div>
+  )
 }

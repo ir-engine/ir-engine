@@ -128,11 +128,18 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup
         name="Max Distance"
+        disabled={audioComponent.distanceModel.value !== DistanceModel.Linear}
         label={t('editor:properties.audio.lbl-maxDistance')}
-        info={t('editor:properties.audio.info-maxDistance')}
+        info={
+          audioComponent.distanceModel.value !== DistanceModel.Linear
+            ? t('editor:properties.audio.info-maxDistanceDisabled')
+            : t('editor:properties.audio.info-maxDistance')
+        }
       >
         <NumericInput
           min={0.00001}
+          disabled={audioComponent.distanceModel.value !== DistanceModel.Linear}
+          style={audioComponent.distanceModel.value !== DistanceModel.Linear ? { backgroundColor: '#FF0000' } : {}}
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}

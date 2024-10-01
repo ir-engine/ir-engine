@@ -23,19 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { BsStars } from 'react-icons/bs'
+import { FaRegCircle } from 'react-icons/fa6'
+import { FiSun } from 'react-icons/fi'
+import { LuWaves } from 'react-icons/lu'
+import { PiMountains } from 'react-icons/pi'
+import { RxCube } from 'react-icons/rx'
+import { TbMaximize, TbRoute } from 'react-icons/tb'
 
-import {
-  CoilSettingData,
-  CoilSettingPatch,
-  CoilSettingQuery,
-  CoilSettingType
-} from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
+import React from 'react'
 
-export interface CoilSettingParams extends KnexAdapterParams<CoilSettingQuery> {}
+const iconMap: { [key: string]: React.ReactElement } = {
+  Model: <RxCube />,
+  Material: <FaRegCircle />,
+  Texture: <LuWaves />,
+  Image: <PiMountains />,
+  Lighting: <FiSun />,
+  'Particle system': <BsStars />,
+  'Visual script': <TbRoute />
+}
 
-export class CoilSettingService<
-  T = CoilSettingType,
-  ServiceParams extends Params = CoilSettingParams
-> extends KnexService<CoilSettingType, CoilSettingData, CoilSettingParams, CoilSettingPatch> {}
+const defaultIcon = <TbMaximize />
+
+export const AssetIconMap = ({ name }): React.ReactElement => {
+  return <div className="flex h-4 w-4 items-center justify-center">{iconMap[name] ?? defaultIcon}</div>
+}

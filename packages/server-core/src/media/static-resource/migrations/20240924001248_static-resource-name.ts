@@ -23,24 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-import {
-  chargebeeSettingDataSchema,
-  chargebeeSettingPatchSchema,
-  chargebeeSettingQuerySchema,
-  chargebeeSettingSchema
-} from '@ir-engine/common/src/schemas/setting/chargebee-setting.schema'
+const assetPath = 'asset'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    chargebeeSettingDataSchema,
-    chargebeeSettingPatchSchema,
-    chargebeeSettingQuerySchema,
-    chargebeeSettingSchema
-  },
-  docs: {
-    description: 'Chargebee setting service description',
-    securities: ['all']
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const nameColumnExists = await knex.schema.hasColumn(staticResourcePath, 'name')
+  if (!nameColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.string('name', 255).nullable().defaultTo(null)
+    })
   }
-})
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const nameColumnExists = await knex.schema.hasColumn(staticResourcePath, 'name')
+  if (nameColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('name')
+    })
+  }
+}

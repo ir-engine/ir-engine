@@ -55,6 +55,7 @@ export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputEle
   className?: string
   inputClassName?: string
   unit?: string
+  disabled?: boolean
   prefix?: React.ReactNode
   displayPrecision?: number
   precision?: number
@@ -67,6 +68,7 @@ export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputEle
 
 const NumericInput = ({
   className,
+  disabled,
   inputClassName,
   unit,
   prefix,
@@ -170,9 +172,10 @@ const NumericInput = ({
       {prefix}
       <input
         className={twMerge(
-          'w-full bg-inherit text-xs font-normal leading-normal text-[#8B8B8D] focus:outline-none',
+          'w-full bg-inherit text-xs font-normal leading-normal text-[#8B8B8D] focus:outline-none disabled:text-[#6B6F78]',
           inputClassName
         )}
+        disabled={disabled ?? false}
         value={focused.value ? tempValue.value : toPrecisionString(value ?? 0, displayPrecision)}
         onKeyDown={handleKeyPress}
         onFocus={handleFocus}
@@ -182,7 +185,7 @@ const NumericInput = ({
         {...rest}
       />
       {unit && (
-        <Text fontSize="xs" className="text-right text-[#8B8B8D]">
+        <Text fontSize="xs" className={twMerge('text-right ', disabled ? 'text-[#6B6F78]' : 'text-[#8B8B8D]')}>
           {unit}
         </Text>
       )}
