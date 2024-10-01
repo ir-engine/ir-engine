@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 // This must always be imported first
-import './patchEngineNode'
+import '@ir-engine/server-core/src/patchEngineNode'
 
 import { Application } from '@feathersjs/feathers'
 import cli from 'cli'

@@ -24,7 +24,7 @@ InfiniteReality. All Rights Reserved.
 */
 
 // This must always be imported first
-import './patchEngineNode'
+import '@ir-engine/server-core/src/patchEngineNode'
 
 import appRootPath from 'app-root-path'
 import cli from 'cli'
