@@ -54,7 +54,7 @@ function Browser() {
   const FileItems = () => (
     <>
       {files.map((file) => (
-        <FileItem file={file} key={file.key} />
+        <FileItem file={file} key={file.key} data-testid="files-panel-file-item" />
       ))}
     </>
   )
