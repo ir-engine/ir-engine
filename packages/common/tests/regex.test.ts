@@ -74,7 +74,8 @@ describe('regex.test', () => {
 
     it('should match valid filenames', () => {
       const validFilenames = [
-        'helloworld',
+        'hello_world',
+        'hello-world',
         'filename',
         'emailexample.com',
         'pathtofile',
@@ -150,7 +151,7 @@ describe('regex.test', () => {
 
   describe('VALID_SCENE_NAME_REGEX', () => {
     it('should match valid scene names', () => {
-      const validSceneNames = ['A123', 'file-name', '12345', 'My-good-file']
+      const validSceneNames = ['A123', 'file-name', 'file_name', '12345', 'My-good-file']
       validSceneNames.forEach((filename) => {
         assert.ok(VALID_SCENE_NAME_REGEX.test(filename), `Expected '${filename}' to be valid scene names`)
       })
