@@ -42,7 +42,7 @@ import { EngineState } from '../EngineState'
 import { TransformComponent } from '../SpatialModule'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../physics/classes/Physics.test'
-import { assertArrayEqual, assertArrayNotEqual } from '../physics/components/RigidBodyComponent.test'
+import { assertArrayAllNotEq, assertArrayEqual } from '../physics/components/RigidBodyComponent.test'
 import { ReferenceSpace, XRState } from '../xr/XRState'
 import { EntityTreeComponent } from './components/EntityTree'
 import {
@@ -117,7 +117,7 @@ describe('updateWorldOriginFromScenePlacement', () => {
     getMutableComponent(localFloorEntity, TransformComponent).matrixWorld.set(Initial)
     // Sanity check before running
     const before = getComponent(localFloorEntity, TransformComponent)
-    assertArrayNotEqual(before.matrix.elements, before.matrixWorld.elements)
+    assertArrayAllNotEq(before.matrix.elements, before.matrixWorld.elements)
     // Run and Check the result
     updateWorldOriginFromScenePlacement()
     const result = getComponent(localFloorEntity, TransformComponent)

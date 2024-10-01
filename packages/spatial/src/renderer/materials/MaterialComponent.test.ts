@@ -39,7 +39,7 @@ import {
 } from '@ir-engine/ecs'
 import assert from 'assert'
 import { BoxGeometry, Material, Mesh, MeshBasicMaterial } from 'three'
-import { assertArrayEqual, assertArrayNotEqual } from '../../physics/components/RigidBodyComponent.test'
+import { assertArrayAllNotEq, assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialInstanceComponent,
@@ -294,7 +294,7 @@ function assertMaterialInstanceComponentEq(A: MaterialInstanceComponentData, B: 
 }
 
 function assertMaterialInstanceComponentNotEq(A: MaterialInstanceComponentData, B: MaterialInstanceComponentData) {
-  assertArrayNotEqual(A.uuid, B.uuid)
+  assertArrayAllNotEq(A.uuid, B.uuid)
 }
 
 describe('MaterialInstanceComponent', () => {
