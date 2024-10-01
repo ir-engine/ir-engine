@@ -30,7 +30,7 @@ import {
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
@@ -89,7 +89,7 @@ function isValidFileType(file): boolean {
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
-      file = cleanFileName(file)
+      file = cleanFileNameFile(file)
       const fileDirectory = file.webkitRelativePath || file.name
       return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
@@ -133,7 +133,7 @@ export const inputFileWithAddToScene = ({
         if (el.files?.length) {
           const newFiles: File[] = []
           for (let i = 0; i < el.files.length; i++) {
-            const newFile = cleanFileName(el.files[i])
+            const newFile = cleanFileNameFile(el.files[i])
             isValidFileType(newFile)
             newFiles.push(newFile)
           }
@@ -149,37 +149,6 @@ export const inputFileWithAddToScene = ({
 
     el.click()
   })
-
-/**
- * Returns a new File object with the same properties as the input file,
- * but with the extension in lowercase and filename truncated if it is too long.
- * @param file
- */
-export function cleanFileName(file: File): File {
-  const fileName = file.name
-
-  // Find the last period in the filename (the start of the extension)
-  const lastDotIndex = fileName.lastIndexOf('.')
-
-  // Split the name into the part before and after the dot
-  let nameWithoutExtension = fileName.substring(0, lastDotIndex)
-  const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
-
-  // Truncate the name if it is too long or too short
-  if (nameWithoutExtension.length > 64) {
-    nameWithoutExtension = nameWithoutExtension.slice(0, 64)
-  } else if (nameWithoutExtension.length < 4) {
-    nameWithoutExtension = nameWithoutExtension + '0000'
-  }
-
-  // Combine the name with the lowercase extension
-  const newFileName = lastDotIndex === -1 ? `${nameWithoutExtension}` : `${nameWithoutExtension}.${extension}`
-
-  return new File([file], newFileName, {
-    type: file.type,
-    lastModified: file.lastModified
-  })
-}
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
@@ -248,7 +217,7 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const name = processFileName(file.name)
+    const name = cleanFileNameString(file.name)
     const path = `assets${directory}/` + name
 
     promises.push(

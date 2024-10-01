@@ -33,35 +33,13 @@ import {
 } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 
 import { HookContext } from '@feathersjs/feathers'
+import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import verifyScope from '../../hooks/verify-scope'
 import { FileBrowserService } from './file-browser.class'
 
 const cleanFileName = () => {
   return async (context: HookContext<FileBrowserService>) => {
-    //extract the path and file name separately
-    const lastSlashIndex = context.data.path.lastIndexOf('/')
-    const filePath = context.data.path.substring(0, lastSlashIndex)
-    const fileName = context.data.path.substring(lastSlashIndex + 1)
-
-    // Find the last period in the filename (the start of the extension)
-    const lastDotIndex = fileName.lastIndexOf('.')
-
-    // Split the name into the part before and after the dot
-    let nameWithoutExtension = fileName.substring(0, lastDotIndex)
-    const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
-
-    // Truncate or concat the name if it is too long or too short
-    if (nameWithoutExtension.length > 64) {
-      nameWithoutExtension = nameWithoutExtension.slice(0, 64)
-    } else if (nameWithoutExtension.length < 4) {
-      nameWithoutExtension = nameWithoutExtension + '0000'
-    }
-
-    // Combine the name with the lowercase extension
-    const newFileName = lastDotIndex === -1 ? `${nameWithoutExtension}` : `${nameWithoutExtension}.${extension}`
-
-    context.data.path = filePath + '/' + newFileName
-
+    context.data.path = cleanFileNameString(context.data.path)
     return context
   }
 }
