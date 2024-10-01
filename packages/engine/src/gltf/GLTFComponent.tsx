@@ -144,7 +144,7 @@ export const GLTFComponent = defineComponent({
       return () => {
         getMutableState(GLTFSourceState)[sourceID].set(none)
       }
-    }, [])
+    }, [gltfComponent.src])
 
     return (
       <>
@@ -358,7 +358,6 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     loader.load(url, onSuccess, onProgress, onError, signal)
 
     return () => {
-      console.log('ITS OVER!!!!')
       console.log(getComponent(entity, GLTFComponent))
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return

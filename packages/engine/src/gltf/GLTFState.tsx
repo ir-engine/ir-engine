@@ -54,7 +54,6 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useComponent,
   useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -373,16 +372,16 @@ const ChildGLTFReactor = (props: { source: string }) => {
 
   const index = useMutableState(GLTFSnapshotState)[source].index
   const entity = useMutableState(GLTFSourceState)[source].value
-  const parentUUID = useComponent(entity, UUIDComponent).value
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     return () => {
       getMutableState(GLTFDocumentState)[source].set(none)
       getMutableState(GLTFNodeState)[source].set(none)
     }
   }, [])
+  const parentUUID = useOptionalComponent(entity, UUIDComponent)?.value
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     console.log('index updated from snapshot', source)
 
     const index = getState(GLTFSnapshotState)[source].index
@@ -401,8 +400,8 @@ const ChildGLTFReactor = (props: { source: string }) => {
   const nodeState = useHookstate(getMutableState(GLTFNodeState))[source]
   const documentState = useMutableState(GLTFDocumentState)[source]
   const physicsWorld = Physics.useWorld(entity)
-
-  if (!physicsWorld || !documentState.value || !nodeState.value) return null
+  console.log(parentUUID, entity)
+  if (!physicsWorld || !documentState.value || !nodeState.value || !parentUUID) return null
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
