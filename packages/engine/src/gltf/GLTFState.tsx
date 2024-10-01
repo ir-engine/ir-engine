@@ -369,19 +369,22 @@ export const EditorTopic = 'editor' as Topic
 
 const ChildGLTFReactor = (props: { source: string }) => {
   const source = props.source
+  console.log(source)
 
-  const index = useHookstate(getMutableState(GLTFSnapshotState)[source].index).value
-  const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
+  const index = useMutableState(GLTFSnapshotState)[source].index
+  const entity = useMutableState(GLTFSourceState)[source].value
   const parentUUID = useComponent(entity, UUIDComponent).value
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     return () => {
       getMutableState(GLTFDocumentState)[source].set(none)
       getMutableState(GLTFNodeState)[source].set(none)
     }
   }, [])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    console.log('index updated from snapshot', source)
+
     const index = getState(GLTFSnapshotState)[source].index
     // update the modified state
     if (index > 0) getMutableState(GLTFModifiedState)[source].set(true)
@@ -793,6 +796,7 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
           }
         }
       }
+      console.log('removing component', Component, 'from', getComponent(props.entity, NameComponent))
       removeComponent(props.entity, Component)
     }
   }, [])
@@ -818,16 +822,19 @@ const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Ent
   }, [])
 
   const isSinglePrimitive = mesh.primitives.length === 1
+  const gltfEntity = getAncestorWithComponents(props.entity, [GLTFComponent])
 
   return (
     <>
-      <PrimitiveReactor
-        isSinglePrimitive={isSinglePrimitive}
-        key={`${isSinglePrimitive}`}
-        nodeIndex={props.nodeIndex}
-        documentID={props.documentID}
-        entity={props.entity}
-      />
+      {GLTFComponent.getInstanceID(gltfEntity) === props.documentID && (
+        <PrimitiveReactor
+          isSinglePrimitive={isSinglePrimitive}
+          key={`${props.entity}-${props.documentID}-${props.nodeIndex}`}
+          nodeIndex={props.nodeIndex}
+          documentID={props.documentID}
+          entity={props.entity}
+        />
+      )}
     </>
   )
 }
@@ -954,7 +961,6 @@ const PrimitiveReactor = (props: {
   const meshDef = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
   const options = getParserOptions(props.entity)
-
   const finalGeometry = GLTFLoaderFunctions.useLoadPrimitives(options, props.nodeIndex!)
 
   useEffect(() => {
@@ -991,39 +997,38 @@ const PrimitiveReactor = (props: {
 
     mesh.name = node.name ?? 'Node-' + props.nodeIndex
     return () => {
-      removeComponent(props.entity, SkinnedMeshComponent)
-      removeComponent(props.entity, MeshComponent)
-      removeObjectFromGroup(props.entity, mesh)
+      // removeComponent(props.entity, SkinnedMeshComponent)
+      // removeComponent(props.entity, MeshComponent)
+      // removeObjectFromGroup(props.entity, mesh)
     }
   }, [node.skin, finalGeometry])
 
   return (
     <>
       {meshDef.primitives.map((primitive, index) => (
-        <>
-          <MaterialInstanceReactor
-            key={index}
-            nodeIndex={props.nodeIndex}
-            primitiveIndex={index}
-            documentID={props.documentID}
-            entity={props.entity}
-            isArray={meshDef.primitives.length > 1}
-          />
-          <PrimitiveExtensionReactor
-            nodeIndex={props.nodeIndex}
-            primitiveIndex={index}
-            documentID={props.documentID}
-            entity={props.entity}
-          />
-        </>
+        <MaterialInstanceReactor
+          key={`materials-${index}-${props.nodeIndex}`}
+          nodeIndex={props.nodeIndex}
+          primitiveIndex={index}
+          documentID={props.documentID}
+          entity={props.entity}
+          isArray={meshDef.primitives.length > 1}
+        />
       ))}
       {
         <MorphTargetReactor
-          key={'targets'}
+          key={`targets-${props.nodeIndex}-${props.entity}`}
           documentID={props.documentID}
           entity={props.entity}
           nodeIndex={props.nodeIndex}
         />
+        // <PrimitiveExtensionReactor
+        // key={`primitives-${index}-${props.nodeIndex}`}
+        // nodeIndex={props.nodeIndex}
+        //   primitiveIndex={index}
+        //   documentID={props.documentID}
+        //   entity={props.entity}
+        // />
       }
     </>
   )

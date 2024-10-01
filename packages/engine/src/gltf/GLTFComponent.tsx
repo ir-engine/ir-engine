@@ -340,7 +340,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
 
       const dependencies = buildComponentDependencies(json)
       state.dependencies.set(dependencies)
-
+      console.log('finished loading success!!!')
       dispatchAction(
         GLTFSnapshotAction.createSnapshot({
           source,
@@ -358,9 +358,12 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     loader.load(url, onSuccess, onProgress, onError, signal)
 
     return () => {
+      console.log('ITS OVER!!!!')
+      console.log(getComponent(entity, GLTFComponent))
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
       state.body.set(null)
+      state.progress.set(0)
     }
   }, [url])
 }

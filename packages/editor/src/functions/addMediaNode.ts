@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
+import { Intersection, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { UUIDComponent } from '@ir-engine/ecs'
@@ -33,6 +33,8 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
@@ -43,11 +45,10 @@ import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/Volu
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { assignMaterial, createMaterialEntity } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { v4 } from 'uuid'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -92,31 +93,33 @@ export async function addMediaNode(
       // const lineGeometry = new BufferGeometry().setFromPoints([lineStart, lineEnd])
       // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
       const gltfLoader = getState(AssetLoaderState).gltfLoader
-      gltfLoader.load(url, (gltf) => {
-        const material = iterateObject3D(
-          gltf.scene,
-          (mesh: Mesh) => mesh.material as Material,
-          (mesh: Mesh) => mesh?.isMesh
-        )[0]
-        if (!material) return
-        const materialEntity = createMaterialEntity(material)
-        let foundTarget = false
-        for (const intersection of intersections) {
-          iterateObject3D(intersection.object, (mesh: Mesh) => {
-            if (!mesh?.isMesh || !mesh.visible) return
-            assignMaterial(mesh.entity, materialEntity)
-            foundTarget = true
-          })
-          if (foundTarget) break
-        }
-      })
+      GLTFAssetState.loadScene(url, v4())
+      /**@todo material support */
+      // gltfLoader.load(url, (gltf) => {
+      //   const material = iterateObject3D(
+      //     gltf.scene,
+      //     (mesh: Mesh) => mesh.material as Material,
+      //     (mesh: Mesh) => mesh?.isMesh
+      //   )[0]
+      //   if (!material) return
+      //   const materialEntity = createMaterialEntity(material)
+      //   let foundTarget = false
+      //   for (const intersection of intersections) {
+      //     iterateObject3D(intersection.object, (mesh: Mesh) => {
+      //       if (!mesh?.isMesh || !mesh.visible) return
+      //       assignMaterial(mesh.entity, materialEntity)
+      //       foundTarget = true
+      //     })
+      //     if (foundTarget) break
+      //   }
+      // })
     } else if (contentType.startsWith('model/lookdev')) {
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
         const componentJson = gltf.scene.children[0].userData.componentJson
         EditorControlFunctions.overwriteLookdevObject(
           /**@ts-ignore @todo remove model component */
-          [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+          [{ name: GLTFComponent.jsonID, props: { src: url } }, ...extraComponentJson],
           componentJson,
           parent!,
           before
@@ -125,7 +128,7 @@ export async function addMediaNode(
     } else if (contentType.startsWith('model/prefab')) {
       const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
         /**@ts-ignore @todo remove model component */
-        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+        [{ name: GLTFComponent.jsonID, props: { src: url } }, ...extraComponentJson],
         parent!,
         before
       )
@@ -145,7 +148,7 @@ export async function addMediaNode(
       EditorControlFunctions.createObjectFromSceneElement(
         [
           /**@ts-ignore @todo remove model component */
-          { name: ModelComponent.jsonID, props: { src: url } },
+          { name: GLTFComponent.jsonID, props: { src: url } },
           { name: ShadowComponent.jsonID },
           { name: EnvmapComponent.jsonID },
           ...extraComponentJson
