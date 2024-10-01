@@ -82,7 +82,9 @@ const Epsilon = 0.001
  * @note Will also be true when both A and B are not finite.
  * @note Used as helper by multiple .test.ts* files */
 function floatApproxEq(A: number, B: number, epsilon = Epsilon): boolean {
-  return !(Number.isFinite(A) && Number.isFinite(B)) ? true : Math.abs(A - B) < epsilon
+  if (!Number.isFinite(A) || !Number.isFinite(B)) {
+    return !Number.isFinite(A) && !Number.isFinite(B) ? true : false
+  } else return Math.abs(A - B) < epsilon
 }
 
 /**
