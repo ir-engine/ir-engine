@@ -34,6 +34,58 @@ import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
+enum FileType {
+  THREE_D = '3D',
+  IMAGE = 'Image',
+  AUDIO = 'Audio',
+  VIDEO = 'Video',
+  UNKNOWN = 'Unknown'
+}
+
+const unsupportedFileMessage = {
+  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a GLTF or a GLB.',
+  [FileType.IMAGE]: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
+  [FileType.AUDIO]: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
+  [FileType.VIDEO]: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.',
+  [FileType.UNKNOWN]: 'Unsupported File Type! Please upload a valid 3D, Image, Audio, or Video file.'
+}
+
+const supportedFiles = {
+  [FileType.THREE_D]: new Set(['GLTF', 'GLB']),
+  [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
+  [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
+  [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
+}
+
+function findMimeType(file): FileType {
+  let fileType = FileType.UNKNOWN
+  if (file.type.startsWith('image/')) {
+    fileType = FileType.IMAGE
+  } else if (file.type.startsWith('audio/')) {
+    fileType = FileType.AUDIO
+  } else if (file.type.startsWith('video/')) {
+    fileType = FileType.VIDEO
+  } else if (file.name.endsWith('.gltf') || file.name.endsWith('.glb')) {
+    fileType = FileType.THREE_D
+  }
+
+  return fileType
+}
+
+function isValidFileType(file): boolean {
+  const mimeType: FileType = findMimeType(file)
+  const fileName = file.name
+  const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase()
+
+  for (const [type, extensions] of Object.entries(supportedFiles)) {
+    if (extensions.has(extension)) {
+      return true
+    }
+  }
+
+  throw new Error(unsupportedFileMessage[mimeType])
+}
+
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
@@ -81,7 +133,9 @@ export const inputFileWithAddToScene = ({
         if (el.files?.length) {
           const newFiles: File[] = []
           for (let i = 0; i < el.files.length; i++) {
-            newFiles.push(cleanFileName(el.files[i]))
+            const newFile = cleanFileName(el.files[i])
+            isValidFileType(newFile)
+            newFiles.push(newFile)
           }
           await handleUploadFiles(projectName, directoryPath, newFiles)
         }
