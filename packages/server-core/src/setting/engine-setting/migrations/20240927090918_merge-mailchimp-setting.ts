@@ -34,12 +34,12 @@ import { v4 as uuidv4 } from 'uuid'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const mergeChargebeeSettingPath = 'mailchimp-setting'
+  const mailchimpSettingPath = 'mailchimp-setting'
 
-  const tableExists = await knex.schema.hasTable(mergeChargebeeSettingPath)
+  const tableExists = await knex.schema.hasTable(mailchimpSettingPath)
 
   if (tableExists) {
-    const recordExists = await knex.table(mergeChargebeeSettingPath).first()
+    const recordExists = await knex.table(mailchimpSettingPath).first()
 
     if (recordExists) {
       const mailchimpSettings: EngineSettingType[] = await Promise.all(
@@ -77,7 +77,7 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
-  await knex.schema.dropTableIfExists(mergeChargebeeSettingPath)
+  await knex.schema.dropTableIfExists(mailchimpSettingPath)
 }
 
 /**
