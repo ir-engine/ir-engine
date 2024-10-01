@@ -139,11 +139,12 @@ function TableView({ file, onClick, onDoubleClick, drag, drop, isOver, onContext
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
+      data-testid="files-panel-file-item"
     >
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} style={{ fontSize: `${fontSize}px` }}>
+          <td key={idx} style={{ fontSize: `${fontSize}px` }} data-testid={`files-panel-file-item-${header}`}>
             {tableColumns[header]}
           </td>
         ))}
