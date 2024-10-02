@@ -83,6 +83,7 @@ function ScenesPanel() {
           rounded="none"
           className="ml-auto h-8 bg-theme-highlight px-2"
           size="small"
+          data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}
         >
           {t('editor:newScene')}
@@ -124,7 +125,7 @@ const ScenePanelTitle = () => {
 
   return (
     <div>
-      <PanelDragContainer dataTestId="scenes-panel-tab">
+      <PanelDragContainer dataTestId="scene-panel-tab">
         <PanelTitle>{t('editor:properties.scene.name')}</PanelTitle>
       </PanelDragContainer>
     </div>
