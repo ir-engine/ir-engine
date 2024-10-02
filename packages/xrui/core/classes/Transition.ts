@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { State } from '@ir-engine/hyperflux'
+import { NO_PROXY, State } from '@ir-engine/hyperflux'
 import { Easing } from '@tweenjs/tween.js'
 import { Quaternion, Vector3 } from 'three'
 import { BorderRadius } from '../components/HTMLComponent'
@@ -122,8 +122,9 @@ export const Transition = {
     })
   },
 
-  applyNewTarget<V>(value: V, timestamp: number, data: State<TransitionData<any>>) {
+  applyNewTarget<V>(data: State<TransitionData<any>>, target: any, timestamp: number) {
     // Add new sample
+    const value = data.get(NO_PROXY).interpolationFunction(target, target, 0) // make a copy
     data.buffer.merge([{ timestamp, value }])
 
     // Remove samples older than the duration
