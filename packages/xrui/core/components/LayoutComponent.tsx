@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   ECSState,
+  Entity,
   UndefinedEntity,
   defineComponent,
   getComponent,
@@ -35,7 +36,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
+import { State, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -66,28 +67,20 @@ export const LayoutComponent = defineComponent({
   schema: S.Object({
     position: S.Optional(S.Vec3()),
     positionTransition: Transition.defineVector3Transition(),
-    effectivePosition: S.Vec3(),
 
     positionOrigin: S.Optional(S.Vec3()),
     positionOriginTransition: Transition.defineVector3Transition(),
-    effectivePositionOrigin: S.Vec3(),
 
     alignmentOrigin: S.Optional(S.Vec3()),
     alignmentOriginTransition: Transition.defineVector3Transition(),
-    effectiveAlignmentOrigin: S.Vec3(),
 
     rotation: S.Optional(S.Quaternion()),
     rotationTransition: Transition.defineQuaternionTransition(),
-    effectiveRotation: S.Quaternion(),
 
     rotationOrigin: S.Optional(S.Vec3()),
     rotationOriginTransition: Transition.defineVector3Transition(),
-    effectiveRotationOrigin: S.Vec3(),
 
     size: S.Optional(S.Vec3()),
-    sizeTransition: Transition.defineVector3Transition(),
-    effectiveSize: S.Vec3(),
-
     sizeMode: S.Optional(
       S.Object({
         x: S.Enum(SizeMode),
@@ -95,12 +88,10 @@ export const LayoutComponent = defineComponent({
         z: S.Enum(SizeMode)
       })
     ),
+    sizeTransition: Transition.defineVector3Transition(),
 
-    effectiveSizeMode: S.Object({
-      x: S.Enum(SizeMode, SizeMode.literal),
-      y: S.Enum(SizeMode, SizeMode.literal),
-      z: S.Enum(SizeMode, SizeMode.literal)
-    }),
+    contentFit: S.Optional(S.Enum(ContentFit)),
+    contentFitTransition: Transition.defineVector3Transition(),
 
     defaults: S.Object({
       position: S.Vec3(),
@@ -117,18 +108,30 @@ export const LayoutComponent = defineComponent({
       contentFit: S.Enum(ContentFit, ContentFit.none)
     }),
 
-    contentFit: S.Optional(S.Enum(ContentFit)),
-    contentFitTransition: Transition.defineVector3Transition(),
-    effectiveContentFit: S.Enum(ContentFit, ContentFit.none),
-    effectiveContentFitScale: S.Vec3(Vector3_One),
-
-    anchorEntity: S.Entity(),
-    contentEntity: S.Entity()
+    anchorEntity: S.Entity()
   }),
+
+  useEffectiveState(entity: Entity) {
+    const layout = useComponent(entity, LayoutComponent)
+    return {
+      ...layout,
+      position: layout.position.ornull ?? layout.defaults.position,
+      positionOrigin: layout.positionOrigin.ornull ?? layout.defaults.positionOrigin,
+      alignmentOrigin: layout.alignmentOrigin.ornull ?? layout.defaults.alignmentOrigin,
+      rotation: layout.rotation.ornull ?? layout.defaults.rotation,
+      rotationOrigin: layout.rotationOrigin.ornull ?? layout.defaults.rotationOrigin,
+      size: layout.size.ornull ?? layout.defaults.size,
+      sizeMode: layout.sizeMode.ornull ?? layout.defaults.sizeMode,
+      contentFit: layout.contentFit.ornull ?? layout.defaults.contentFit
+    }
+  },
 
   reactor: () => {
     const entity = useEntityContext()
     const layout = useComponent(entity, LayoutComponent)
+    const effectiveLayout = LayoutComponent.useEffectiveState(entity)
+
+    const simulationTime = getState(ECSState).simulationTime
 
     // This layout might be anchored to another layout, or an object with a bounding box, or a camera.
     const anchorEntity = layout.anchorEntity.value
@@ -137,49 +140,17 @@ export const LayoutComponent = defineComponent({
     const anchorRenderer = useOptionalComponent(anchorEntity, RendererComponent)
     const anchorBounds = useOptionalComponent(anchorEntity, BoundingBoxComponent)
 
-    // Compute effective properties
-    useImmediateEffect(() => {
-      if (!layout) return
-      const defaults = layout.defaults.value
-      layout.effectivePosition.value.copy(new Vector3().copy(layout.position.value ?? defaults.position))
-      layout.effectivePositionOrigin.set(new Vector3().copy(layout.positionOrigin.value ?? defaults.positionOrigin))
-      layout.effectiveAlignmentOrigin.set(new Vector3().copy(layout.alignmentOrigin.value ?? defaults.alignmentOrigin))
-      layout.effectiveRotation.set(new Quaternion().copy(layout.rotation.value ?? defaults.rotation))
-      layout.effectiveRotationOrigin.set(new Vector3().copy(layout.rotationOrigin.value ?? defaults.rotationOrigin))
-      layout.effectiveSizeMode.set({ ...(layout.sizeMode.value ?? defaults.sizeMode) })
-      layout.effectiveSize.set(new Vector3().copy(layout.size.value ?? defaults.size))
-      layout.effectiveContentFit.set(layout.contentFit.value ?? defaults.contentFit)
-    }, [
-      layout.position,
-      layout.size,
-      layout.sizeMode,
-      layout.positionOrigin,
-      layout.alignmentOrigin,
-      layout.rotation,
-      layout.rotationOrigin,
-      layout.contentFit,
-      layout.defaults
-    ])
-
-    // apply new target to transitions when effective properties change
-    useImmediateEffect(() => {
-      if (!layout) return
-      const simulationTime = getState(ECSState).simulationTime
-      Transition.applyNewTarget(layout.effectivePosition.value, simulationTime, layout.positionTransition)
-      Transition.applyNewTarget(layout.effectivePositionOrigin.value, simulationTime, layout.positionOriginTransition)
-      Transition.applyNewTarget(layout.effectiveAlignmentOrigin.value, simulationTime, layout.alignmentOriginTransition)
-      Transition.applyNewTarget(layout.effectiveRotation.value, simulationTime, layout.rotationTransition)
-      Transition.applyNewTarget(layout.effectiveRotationOrigin.value, simulationTime, layout.rotationOriginTransition)
-      Transition.applyNewTarget(layout.effectiveSize, simulationTime, layout.sizeTransition)
-      Transition.applyNewTarget(layout.effectiveContentFitScale.value, simulationTime, layout.contentFitTransition)
-    }, [
+    const contentFitScale = Transition.useTransitionTarget(
       layout.positionTransition,
-      layout.positionOriginTransition,
-      layout.alignmentOriginTransition,
-      layout.rotationTransition,
-      layout.rotationOriginTransition,
-      layout.contentFitTransition
-    ])
+      effectiveLayout.position,
+      simulationTime
+    )
+    Transition.useTransitionTarget(layout.positionOriginTransition, effectiveLayout.positionOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.alignmentOriginTransition, effectiveLayout.alignmentOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.rotationTransition, effectiveLayout.rotation, simulationTime)
+    Transition.useTransitionTarget(layout.rotationOriginTransition, effectiveLayout.rotationOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.sizeTransition, effectiveLayout.size, simulationTime)
+    Transition.useTransitionTarget(layout.contentFitTransition, effectiveLayout.contentFit, simulationTime)
 
     // Reusable objects for calculations
     const finalPosition = new Vector3()
@@ -362,3 +333,17 @@ export const LayoutComponent = defineComponent({
     return null
   }
 })
+
+/**
+ * @param contentEntity
+ * @returns oriented content size from the bounding box component
+ */
+function useContentSize(entity: Entity): State<Vector3> {
+  const size = useHookstate(() => new Vector3())
+  const layout = LayoutComponent.useEffectiveState(entity)
+  const boundingBox = useOptionalComponent(entity, BoundingBoxComponent)
+  boundingBox?.objectSpaceBox.value.clone().applyMatrix4
+  return size
+}
+
+function useContentFitScale(effectiveContentFit: State<ContentFit>, contentSize: State<Vector3>) {}
