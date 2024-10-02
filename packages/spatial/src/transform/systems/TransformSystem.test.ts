@@ -33,22 +33,28 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
+  getMutableComponent,
   hasComponent,
   hasComponents,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { getState, startReactor } from '@ir-engine/hyperflux'
+import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
 import sinon from 'sinon'
-import { Box3, BoxGeometry, Group, Mesh, Vector3 } from 'three'
+import { Box3, BoxGeometry, Group, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { MockXRFrame } from '../../../tests/util/MockXR'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
+import { EngineState } from '../../EngineState'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { destroySpatialEngine } from '../../initializeEngine'
 import { assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { assertArrayAnyNotEq, assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -77,7 +83,6 @@ describe('TransformSystem', () => {
     })
   }) //:: Fields
 
-  /** @todo */
   describe('execute', () => {
     let testEntity = UndefinedEntity
 
@@ -102,9 +107,8 @@ describe('TransformSystem', () => {
         setComponent(entity, ComputedTransformComponent, { computeFunction: spy })
       }
       UpdateSystem.execute()
-      // CleanupSystem.execute()
       // Sanity check before running
-      // for (const entity of entities) assert.equal(TransformComponent.dirtyTransforms[entity], undefined)
+      assert.notEqual(spy.callCount, entities.length)
       // Run and Check the result
       System.execute()
       assert.equal(spy.callCount, entities.length)
@@ -116,9 +120,9 @@ describe('TransformSystem', () => {
       // Set the data as expected
       const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
       const objCount: number = 2
-      for (const entity of entities) setComponent(entity, VisibleComponent)
-      for (const entity of entities) setComponent(entity, TransformComponent)
       for (const entity of entities) {
+        setComponent(entity, VisibleComponent)
+        setComponent(entity, TransformComponent)
         for (let id = 0; id < objCount; ++id) {
           const obj = new Mesh(new BoxGeometry())
           obj.matrixWorldNeedsUpdate = Initial
@@ -128,8 +132,8 @@ describe('TransformSystem', () => {
         }
       }
       // Sanity check before running
-      for (const entity of entities) assert.equal(hasComponents(entity, [GroupComponent, VisibleComponent]), true)
       for (const entity of entities) {
+        assert.equal(hasComponents(entity, [GroupComponent, VisibleComponent]), true)
         for (const group of getComponent(entity, GroupComponent))
           for (const child of group.children) assert.equal(child.matrixWorldNeedsUpdate, Initial)
       }
@@ -148,7 +152,6 @@ describe('TransformSystem', () => {
       const parentEntity = createEntity()
       setComponent(parentEntity, TransformComponent)
       const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
-      const objCount: number = 2
       for (const entity of entities) {
         setComponent(entity, EntityTreeComponent, { parentEntity: parentEntity })
         setComponent(entity, VisibleComponent)
@@ -174,21 +177,179 @@ describe('TransformSystem', () => {
     })
 
     describe('for all entities that have the components [TransformComponent, CameraComponent]', () => {
-      // it(".. should not do anything for the EngineState.viewerEntity", () => {})
-      // it(".. should update the entity's CameraComponent.matrixWorldInverse based on its CameraComponent.matrixWorld", () => {})
-      // it(".. should copy the entity's CameraComponent.matrixWorld into its CameraComponent.cameras[0].matrixWorld", () => {})
-      // it(".. should copy the entity's CameraComponent.matrixWorldInverse into its CameraComponent.cameras[0].matrixWorldInverse", () => {})
-      // it(".. should copy the entity's CameraComponent.projectionMatrix into its CameraComponent.cameras[0].projectionMatrix", () => {})
-      // it(".. should copy the entity's CameraComponent.projectionMatrixInverse into its CameraComponent.cameras[0].projectionMatrixInverse", () => {})
+      it(".. should update the entity's CameraComponent.matrixWorldInverse based on its CameraComponent.matrixWorld", () => {
+        const position = new Vector3(1, 2, 3)
+        const rotation = new Quaternion(4, 5, 6, 7).normalize()
+        const scale = new Vector3(8, 9, 10)
+        const Initial = new Matrix4().compose(position, rotation, scale)
+        const Expected = Initial.clone().invert()
+        // Set the data as expected
+        const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
+        for (const entity of entities) {
+          setComponent(entity, TransformComponent)
+          setComponent(entity, CameraComponent)
+          getMutableComponent(entity, CameraComponent).matrixWorld.set(Initial)
+        }
+        // Sanity check before running
+        for (const entity of entities) {
+          assert.equal(hasComponent(entity, TransformComponent), true)
+          assert.equal(hasComponent(entity, CameraComponent), true)
+          const before = getComponent(entity, CameraComponent).matrixWorld.elements
+          assertArrayEqual(before, Initial.elements)
+        }
+        // Run and Check the results
+        System.execute()
+        for (const entity of entities) {
+          const result = getComponent(entity, CameraComponent).matrixWorldInverse.elements
+          assertArrayAnyNotEq(result, Expected.elements)
+        }
+      })
+
+      it(".. should copy the entity's CameraComponent.matrixWorld into its CameraComponent.cameras[0].matrixWorld", () => {
+        const position = new Vector3(1, 2, 3)
+        const rotation = new Quaternion(4, 5, 6, 7).normalize()
+        const scale = new Vector3(8, 9, 10)
+        const Expected = new Matrix4().compose(position, rotation, scale)
+        // Set the data as expected
+        const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
+        for (const entity of entities) {
+          setComponent(entity, TransformComponent)
+          setComponent(entity, CameraComponent)
+          getMutableComponent(entity, CameraComponent).matrixWorld.set(Expected)
+        }
+        // Sanity check before running
+        for (const entity of entities) {
+          assert.equal(hasComponent(entity, TransformComponent), true)
+          assert.equal(hasComponent(entity, CameraComponent), true)
+          const before = getComponent(entity, CameraComponent).cameras[0].matrixWorld.elements
+          assertArrayAnyNotEq(before, Expected.elements)
+        }
+        // Run and Check the results
+        System.execute()
+        for (const entity of entities) {
+          const result = getComponent(entity, CameraComponent).cameras[0].matrixWorld.elements
+          assertArrayEqual(result, Expected.elements)
+        }
+      })
+
+      it(".. should copy the entity's CameraComponent.matrixWorldInverse into its CameraComponent.cameras[0].matrixWorldInverse", () => {
+        const position = new Vector3(1, 2, 3)
+        const rotation = new Quaternion(4, 5, 6, 7).normalize()
+        const scale = new Vector3(8, 9, 10)
+        const Initial = new Matrix4().compose(position, rotation, scale)
+        const Expected = Initial.clone().invert()
+        // Set the data as expected
+        const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
+        for (const entity of entities) {
+          setComponent(entity, TransformComponent)
+          setComponent(entity, CameraComponent)
+          getMutableComponent(entity, CameraComponent).matrixWorld.set(Initial)
+        }
+        // Sanity check before running
+        for (const entity of entities) {
+          assert.equal(hasComponent(entity, TransformComponent), true)
+          assert.equal(hasComponent(entity, CameraComponent), true)
+          const before = getComponent(entity, CameraComponent).cameras[0].matrixWorldInverse.elements
+          assertArrayAnyNotEq(before, Initial.elements)
+        }
+        // Run and Check the results
+        System.execute()
+        for (const entity of entities) {
+          const result = getComponent(entity, CameraComponent).cameras[0].matrixWorldInverse.elements
+          assertArrayEqual(result, Expected.elements)
+          assertArrayEqual(result, getComponent(entity, CameraComponent).matrixWorldInverse.elements)
+        }
+      })
+
+      it(".. should copy the entity's CameraComponent.projectionMatrix into its CameraComponent.cameras[0].projectionMatrix", () => {
+        const position = new Vector3(1, 2, 3)
+        const rotation = new Quaternion(4, 5, 6, 7).normalize()
+        const scale = new Vector3(8, 9, 10)
+        const Expected = new Matrix4().compose(position, rotation, scale)
+        // Set the data as expected
+        const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
+        for (const entity of entities) {
+          setComponent(entity, TransformComponent)
+          setComponent(entity, CameraComponent)
+          getMutableComponent(entity, CameraComponent).projectionMatrix.set(Expected)
+        }
+        // Sanity check before running
+        for (const entity of entities) {
+          assert.equal(hasComponent(entity, TransformComponent), true)
+          assert.equal(hasComponent(entity, CameraComponent), true)
+          const before = getComponent(entity, CameraComponent).cameras[0].projectionMatrix.elements
+          assertArrayAnyNotEq(before, Expected.elements)
+        }
+        // Run and Check the results
+        System.execute()
+        for (const entity of entities) {
+          const result = getComponent(entity, CameraComponent).cameras[0].projectionMatrix.elements
+          assertArrayEqual(result, Expected.elements)
+          assertArrayEqual(result, getComponent(entity, CameraComponent).projectionMatrix.elements)
+        }
+      })
+
+      it(".. should copy the entity's CameraComponent.projectionMatrixInverse into its CameraComponent.cameras[0].projectionMatrixInverse", () => {
+        const position = new Vector3(1, 2, 3)
+        const rotation = new Quaternion(4, 5, 6, 7).normalize()
+        const scale = new Vector3(8, 9, 10)
+        const Expected = new Matrix4().compose(position, rotation, scale)
+        // Set the data as expected
+        const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
+        for (const entity of entities) {
+          setComponent(entity, TransformComponent)
+          setComponent(entity, CameraComponent)
+          getMutableComponent(entity, CameraComponent).projectionMatrixInverse.set(Expected)
+        }
+        // Sanity check before running
+        for (const entity of entities) {
+          assert.equal(hasComponent(entity, TransformComponent), true)
+          assert.equal(hasComponent(entity, CameraComponent), true)
+          const before = getComponent(entity, CameraComponent).cameras[0].projectionMatrixInverse.elements
+          assertArrayAnyNotEq(before, Expected.elements)
+        }
+        // Run and Check the results
+        System.execute()
+        for (const entity of entities) {
+          const result = getComponent(entity, CameraComponent).cameras[0].projectionMatrixInverse.elements
+          assertArrayEqual(result, Expected.elements)
+          assertArrayEqual(result, getComponent(entity, CameraComponent).projectionMatrixInverse.elements)
+        }
+      })
+
+      it('.. should not do anything for the EngineState.viewerEntity when both itself and XSState.xrFrame are truthy', () => {
+        const position = new Vector3(1, 2, 3)
+        const rotation = new Quaternion(4, 5, 6, 7).normalize()
+        const scale = new Vector3(8, 9, 10)
+        const Initial = new Matrix4().compose(position, rotation, scale)
+        const viewerEntity = getState(EngineState).viewerEntity
+        // Set the data as expected
+        // @ts-ignore Coerce the mocked XRFrame into XRState
+        getMutableState(XRState).xrFrame.set(new MockXRFrame())
+        getMutableComponent(viewerEntity, CameraComponent).matrixWorld.set(Initial)
+        // Sanity check before running
+        assert.equal(Boolean(viewerEntity), true)
+        assert.equal(Boolean(getState(XRState).xrFrame), true)
+        assert.equal(hasComponent(viewerEntity, TransformComponent), true)
+        assert.equal(hasComponent(viewerEntity, CameraComponent), true)
+        const before = getComponent(viewerEntity, CameraComponent).matrixWorld.elements
+        assertArrayEqual(before, Initial.elements)
+        // Run and Check the results
+        System.execute()
+        const result = getComponent(viewerEntity, CameraComponent).matrixWorldInverse.elements
+        assertArrayAnyNotEq(result, Initial.elements)
+      })
     })
 
     // TODO: when EngineState.viewerEntity is falsy
     // when EngineState.viewerEntity is truthy
     describe('for every entity that has the components [TransformComponent, DistanceFromCameraComponent]', () => {
+      /** @todo */
       // it(".. should set DistanceFromCameraComponent.squaredDistance[entity] to the output of getDistanceSquaredFromTarget(entity, EngineState.viewerEntity.TransformComponent.position )", () => {})
     })
 
     describe('for every entity that has the components [TransformComponent, FrustumCullCameraComponent]', () => {
+      /** @todo */
       // it(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {})
       // it(".. should set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera", () => {})
     })
