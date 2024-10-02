@@ -148,7 +148,6 @@
     "stylelint-config-standard-scss": "^7.0.1",
     "stylelint-scss": "^4.5.0",
     "supertest": "6.3.3",
-    "vite-node": "2.1.1",
     "vitest": "2.1.1"
   },
   "dependencies": {
@@ -168,6 +167,7 @@
     "property-graph": "^2.0.0",
     "react-ga4": "^2.1.0",
     "three": "0.158.0",
-    "typescript": "5.4.5"
+    "typescript": "5.4.5",
+    "vite-node": "2.1.1"
   }
 }
