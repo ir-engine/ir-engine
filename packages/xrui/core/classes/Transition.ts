@@ -64,7 +64,10 @@ export const Transition = {
     }
   ) {
     return S.Object({
-      buffer: S.Array(TimestampedValueSchema),
+      buffer: S.Array(S.Object({
+        timestamp: S.Number(),
+        value: S.Type<V>()
+      })),
       current: S.Type<V>(),
       maxBufferSize: S.Number(10),
       duration: S.Number(500),
@@ -81,10 +84,10 @@ export const Transition = {
     })
   },
 
-  defineVector3Transition: (config?: Partial<TransitionData<THREE.Vector3>>) => {
-    return Transition.defineTransition<THREE.Vector3>({
+  defineVector3Transition: (config?: Partial<TransitionData<Vector3>>) => {
+    return Transition.defineTransition<Vector3>({
       buffer: [{ timestamp: 0, value: new Vector3() }],
-      interpolationFunction: (a: THREE.Vector3, b: THREE.Vector3, t: number, out?: THREE.Vector3) => {
+      interpolationFunction: (a: Vector3, b: Vector3, t: number, out?: Vector3) => {
         out = out || new Vector3()
         out.x = a.x + (b.x - a.x) * t
         out.y = a.y + (b.y - a.y) * t
