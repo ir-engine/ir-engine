@@ -215,6 +215,26 @@ export const LoopAnimationComponent = defineComponent({
       animComponent.animations.set(animations)
     }, [gltf, animComponent, modelComponent?.asset])
 
+    useEffect(() => {
+      if (!animComponent?.animations) return
+      const animations = animComponent.animations.value
+      if (animations.length === 0) return
+      const callbackNames: string[] = []
+      for (let i = 0; i < animations.length; i++) {
+        const clip = animations[i] as AnimationClip
+        const callbackName = `Switch to Animation ${clip.name}`
+        setCallback(entity, callbackName, () => {
+          loopAnimationComponent.activeClipIndex.set(i)
+        })
+        callbackNames.push(callbackName)
+      }
+      return () => {
+        for (const name of callbackNames) {
+          removeCallback(entity, name)
+        }
+      }
+    }, [animComponent?.animations])
+
     return null
   }
 })
