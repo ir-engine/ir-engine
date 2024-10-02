@@ -39,7 +39,6 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -106,10 +105,12 @@ function ModelReactor() {
   const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
   useEffect(() => {
-    setCallback(entity, 'setSrc', (src: string) => {
-      setComponent(entity, ModelComponent, { src })
-    })
-  }, [])
+    if (modelComponent.src.value) return
+    addError(entity, ModelComponent, 'INVALID_SOURCE', 'No source provided')
+    return () => {
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    }
+  }, [modelComponent.src])
 
   useEffect(() => {
     const occlusion = modelComponent.cameraOcclusion.value
@@ -121,6 +122,9 @@ function ModelReactor() {
     if (!error) return
     console.error(error)
     addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
+    return () => {
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    }
   }, [error])
 
   useEffect(() => {

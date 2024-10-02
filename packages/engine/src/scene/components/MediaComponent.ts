@@ -272,14 +272,11 @@ export function MediaReactor() {
     [media.paused, mediaElement]
   )
 
-  useEffect(
-    function updateSeekTime() {
-      if (!mediaElement) return
-      setTime(mediaElement.element, media.seekTime.value)
-      if (!mediaElement.element.paused.value) mediaElement.element.value.play() // if not paused, start play again
-    },
-    [media.seekTime, mediaElement]
-  )
+  useEffect(() => {
+    if (mediaElement && !mediaElement.element.paused.value) {
+      mediaElement.element.value.play() // if not paused, start play again
+    }
+  }, [mediaElement])
 
   useEffect(
     function updateTrackMetadata() {

@@ -32,7 +32,7 @@ import FileBrowser from './filebrowser'
 const FilesPanelTitle = () => {
   const { t } = useTranslation()
   return (
-    <PanelDragContainer>
+    <PanelDragContainer dataTestId="files-panel-tab">
       <PanelTitle>{t('editor:layout.filebrowser.tab-name')}</PanelTitle>
     </PanelDragContainer>
   )
