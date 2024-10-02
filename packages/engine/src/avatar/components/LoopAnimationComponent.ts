@@ -43,7 +43,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
-import { StandardCallbacks, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
@@ -172,10 +172,17 @@ export const LoopAnimationComponent = defineComponent({
       const stop = () => {
         loopAnimationComponent.paused.set(true)
         loopAnimationComponent.time.set(0)
+        loopAnimationComponent._action.value?.stop()
       }
       setCallback(entity, StandardCallbacks.PLAY, play)
       setCallback(entity, StandardCallbacks.PAUSE, pause)
       setCallback(entity, StandardCallbacks.STOP, stop)
+
+      return () => {
+        removeCallback(entity, StandardCallbacks.PLAY)
+        removeCallback(entity, StandardCallbacks.PAUSE)
+        removeCallback(entity, StandardCallbacks.STOP)
+      }
     }, [])
 
     /**

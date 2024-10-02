@@ -41,7 +41,7 @@ import { QueryComponents, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions
 import { NO_PROXY, none } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { setCallback } from '../../common/CallbackComponent'
+import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
@@ -65,6 +65,11 @@ export const GroupComponent = defineComponent({
       setCallback(entity, 'setInvisible', () => {
         removeComponent(entity, VisibleComponent)
       })
+
+      return () => {
+        removeCallback(entity, 'setVisible')
+        removeCallback(entity, 'setInvisible')
+      }
     }, [])
 
     useLayoutEffect(() => {

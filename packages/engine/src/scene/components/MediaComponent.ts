@@ -49,6 +49,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -219,6 +220,22 @@ export function MediaReactor() {
     renderer.domElement.addEventListener('pointerup', handleAutoplay)
     renderer.domElement.addEventListener('touchend', handleAutoplay)
 
+    setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
+    setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
+    setCallback(entity, StandardCallbacks.RESET, () => {
+      media.paused.set(!media.autoplay.value)
+
+      //using to force the react to update the seek time if already set to 0
+      //due to media's seekTime is not being updated with the media elements current time
+      let seekTime = media.seekTime.value
+      if (seekTime == 0) {
+        seekTime = 0.000001
+      } else {
+        seekTime = 0
+      }
+      media.seekTime.set(seekTime)
+    })
+
     return () => {
       window.removeEventListener('pointerup', handleAutoplay)
       window.removeEventListener('keypress', handleAutoplay)
@@ -231,6 +248,10 @@ export function MediaReactor() {
       removeComponent(entity, BoundingBoxComponent)
       removeComponent(entity, InputComponent)
       removeComponent(entity, MediaElementComponent)
+
+      removeCallback(entity, StandardCallbacks.PLAY)
+      removeCallback(entity, StandardCallbacks.PAUSE)
+      removeCallback(entity, StandardCallbacks.RESET)
     }
   }, [])
 
