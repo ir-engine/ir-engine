@@ -115,8 +115,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Paused" label={t('editor:properties.loopAnimation.lbl-paused')}>
         <BooleanInput
           value={loopAnimationComponent.paused.value}
-          onChange={updateProperty(LoopAnimationComponent, 'paused')}
-          onRelease={commitProperty(LoopAnimationComponent, 'paused')}
+          onChange={commitProperty(LoopAnimationComponent, 'paused')}
         />
       </InputGroup>
       <InputGroup name="Loop" label={t('editor:properties.loopAnimation.lbl-loop')}>
