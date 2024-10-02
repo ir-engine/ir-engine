@@ -49,7 +49,7 @@ export const MeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
-    const [meshResource] = useResource(meshComponent.value, entity, meshComponent.uuid.value)
+    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
     const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
     const [materialResource] = useResource<Material | Material[]>(
       meshComponent.material.value as Material | Material[],
