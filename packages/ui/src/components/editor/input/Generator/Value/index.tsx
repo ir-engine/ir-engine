@@ -55,7 +55,7 @@ export default function ValueGenerator({
       scope.set(JSON.parse(JSON.stringify(ValueGeneratorJSONDefaults[type])))
       thisOnChange(type)
     }
-  }, [])
+  }, [scope, onChange])
 
   const onAddBezier = useCallback(() => {
     const bezierScope = scope as State<PiecewiseBezierValueJSON>
@@ -76,17 +76,20 @@ export default function ValueGenerator({
       ]
       thisOnChange(nuFunctions)
     }
-  }, [])
+  }, [scope, onChange])
 
-  const onRemoveBezier = useCallback((element: State<BezierFunctionJSON>) => {
-    const bezierScope = scope as State<PiecewiseBezierValueJSON>
-    const bezier = bezierScope.value
-    const thisOnChange = onChange(bezierScope.functions)
-    return () => {
-      const nuFunctions = bezier.functions.filter((f) => f !== element.value)
-      thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
-    }
-  }, [])
+  const onRemoveBezier = useCallback(
+    (element: State<BezierFunctionJSON>) => {
+      const bezierScope = scope as State<PiecewiseBezierValueJSON>
+      const bezier = bezierScope.value
+      const thisOnChange = onChange(bezierScope.functions)
+      return () => {
+        const nuFunctions = bezier.functions.filter((f) => f !== element.value)
+        thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
+      }
+    },
+    [scope, onChange]
+  )
 
   const ConstantInput = useCallback(() => {
     const constantScope = scope as State<ConstantValueJSON>
@@ -98,7 +101,7 @@ export default function ValueGenerator({
         </InputGroup>
       </>
     )
-  }, [scope])
+  }, [scope, onChange])
 
   const IntervalInput = useCallback(() => {
     const intervalScope = scope as State<IntervalValueJSON>
@@ -113,14 +116,13 @@ export default function ValueGenerator({
         </InputGroup>
       </>
     )
-  }, [scope])
+  }, [scope, onChange])
 
   const BezierInput = useCallback(() => {
     const bezierScope = scope as State<PiecewiseBezierValueJSON>
     return (
       <div>
         <Button onClick={onAddBezier()}>Add Bezier</Button>
-
         {
           <PaginatedList // we still need to make paginated list in tailwind
             list={bezierScope.functions}
@@ -159,7 +161,7 @@ export default function ValueGenerator({
         }
       </div>
     )
-  }, [scope])
+  }, [scope, onChange])
 
   const valueInputs = {
     ConstantValue: ConstantInput,
