@@ -35,7 +35,12 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const ErrorComponent = defineComponent({
   name: 'ErrorComponent',
-  schema: S.Record(S.String(), S.Record(S.String(), S.String()))
+  schema: S.Record(S.String(), S.Record(S.String(), S.String())),
+
+  useComponentErrors: <C extends Component>(entity: Entity, component: C) => {
+    const errors = useOptionalComponent(entity, ErrorComponent)?.[component.name]
+    return errors
+  }
 })
 
 export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {
@@ -43,9 +48,4 @@ export const getEntityErrors = <C extends Component>(entity: Entity, component: 
     ComponentErrorsType<C>,
     string
   >
-}
-
-export const useEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  const errors = useOptionalComponent(entity, ErrorComponent)?.[component.name]
-  return errors
 }
