@@ -70,7 +70,7 @@ export interface ServerPodInfoType extends Static<typeof serverPodInfoSchema> {}
 // Main data model schema
 export const podsSchema = Type.Object(
   {
-    id: Type.String(),
+    id: Type.String() || Type.Number() || Type.Any(),
     label: Type.String(),
     pods: Type.Array(Type.Ref(serverPodInfoSchema))
   },
