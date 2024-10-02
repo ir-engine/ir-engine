@@ -48,6 +48,14 @@ export const MeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
+    // Needs reworked since the material and geometry can already be a state value through the GLTF loader
+    // const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
+    // const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
+    // const [materialResource] = useResource<Material | Material[]>(
+    //   meshComponent.material.value as Material | Material[],
+    //   entity,
+    //   !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
+    // )
 
     useEffect(() => {
       const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null

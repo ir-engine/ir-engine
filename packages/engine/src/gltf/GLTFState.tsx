@@ -69,6 +69,7 @@ import {
   State,
   Topic,
   useHookstate,
+  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -622,7 +623,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
@@ -806,7 +807,6 @@ const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Ent
 
   const isSinglePrimitive = mesh.primitives.length === 1
   const gltfEntity = getAncestorWithComponents(props.entity, [GLTFComponent])
-
   return (
     <>
       {GLTFComponent.getInstanceID(gltfEntity) === props.documentID && (
@@ -949,7 +949,7 @@ const PrimitiveReactor = (props: {
     }
   }, [])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!finalGeometry) return
 
     //For debug visualization of material indices
