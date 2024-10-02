@@ -129,7 +129,7 @@ export function assertArrayAllNotEq<T>(A: Array<T>, B: Array<T>, err = 'Arrays a
  * Does not trigger an assert for members that are equal  */
 export function assertArrayAnyNotEq<T>(A: Array<T>, B: Array<T>, err = 'One of the elements of the Arrays are equal') {
   for (let id = 0; id < A.length && id < B.length; id++) {
-    !deepEqual(A, B) && assert.notDeepEqual(A[id], B[id], err)
+    !deepEqual(A[id], B[id]) && assert.notDeepEqual(A[id], B[id], err)
   }
 }
 
