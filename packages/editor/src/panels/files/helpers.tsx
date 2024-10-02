@@ -281,6 +281,7 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
     attribution: '',
     licensing: '',
     description: '',
+    name: '',
     // stats: '',
     thumbnailKey: '',
     thumbnailMode: '',
