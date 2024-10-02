@@ -68,6 +68,7 @@ function AssetCategory({ index }: { index: number }) {
         style={{
           marginLeft: category.depth > 0 ? category.depth * 16 : 0
         }}
+        data-testid={category.depth > 0 ? `assets-panel-subcategory-level-${category.depth}` : 'assets-panel-category'}
         onClick={handleClickCategory}
       >
         <Button
@@ -76,9 +77,12 @@ function AssetCategory({ index }: { index: number }) {
           title={category.collapsed ? 'expand' : 'collapse'}
           startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
           iconContainerClassName="ml-2"
+          data-testid={
+            category.collapsed ? 'assets-panel-category-expand-button' : 'assets-panel-category-collapse-button'
+          }
         />
         <AssetIconMap name={category.name} />
-        <div className="text-nowrap flex w-full items-center gap-1 pr-2">
+        <div className="text-nowrap flex w-full items-center gap-1 pr-2" data-testid="assets-panel-category-name">
           <span
             className={twMerge(
               "text-nowrap flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
@@ -126,7 +130,7 @@ export function VerticalDivider({
       }}
     >
       {leftChildren}
-      <div className="flex w-5 cursor-pointer items-center">
+      <div className="flex w-5 cursor-pointer items-center" data-testid="assets-panel-vertical-divider">
         <HiDotsVertical
           onMouseDown={(event) => {
             event?.preventDefault()
