@@ -94,7 +94,7 @@
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
     "create-build-status": "vite-node scripts/create-build-status.ts",
     "record-build-error": "vite-node scripts/record-build-error.ts",
-    "record-build-success": "vite-node scripts/record-build-success",
+    "record-build-success": "vite-node scripts/record-build-success.ts",
     "add-license-headers": "vite-node scripts/add-license-headers.ts",
     "storybook": "cd packages/ui && npm run storybook"
   },
