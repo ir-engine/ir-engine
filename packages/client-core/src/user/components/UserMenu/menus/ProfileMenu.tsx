@@ -58,6 +58,7 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
 import { API } from '@ir-engine/common'
+import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
@@ -74,7 +75,6 @@ import styles from '../index.module.scss'
 const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })
-
 interface Props {
   className?: string
   hideLogin?: boolean
@@ -222,12 +222,19 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const handleUsernameChange = (e) => {
     username.set(e.target.value)
     if (!e.target.value) errorUsername.set(t('user:usermenu.profile.usernameError'))
+    else if (e.target.value.length > USERNAME_MAX_LENGTH)
+      errorUsername.set(
+        t('user:usermenu.profile.usernameLengthError', {
+          maxCharacters: USERNAME_MAX_LENGTH
+        })
+      )
     else errorUsername.set('')
   }
 
   const handleUpdateUsername = () => {
     const name = username.value.trim() as UserName
     if (!name) return
+    if (errorUsername.value.length > 0) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
       AvatarService.updateUsername(userId, name).then(() =>
