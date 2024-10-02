@@ -76,6 +76,7 @@ describe('regex.test', () => {
       const validFilenames = [
         'hello_world',
         'hello-world',
+        '_',
         'filename',
         'emailexample.com',
         'pathtofile',
