@@ -358,7 +358,6 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     loader.load(url, onSuccess, onProgress, onError, signal)
 
     return () => {
-      console.log(getComponent(entity, GLTFComponent))
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
       state.body.set(null)

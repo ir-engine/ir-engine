@@ -516,7 +516,7 @@ const MaterialEntityReactor = (props: { index: number; parentUUID: EntityUUID; d
           const document = documents[documentID]
           if (!document?.materials) continue
           for (const material of document.materials) {
-            if (material.extensions?.[UUIDComponent.jsonID] !== uuid) return
+            if (material.extensions?.[UUIDComponent.jsonID] === uuid) return
           }
         }
       }
@@ -689,7 +689,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
           const document = documents[documentID]
           if (!document?.nodes) continue
           for (const node of document.nodes) {
-            if (node.extensions?.[UUIDComponent.jsonID] !== uuid) return
+            if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
           }
         }
       }
@@ -796,7 +796,6 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
           }
         }
       }
-      console.log('removing component', Component, 'from', getComponent(props.entity, NameComponent))
       removeComponent(props.entity, Component)
     }
   }, [])
