@@ -30,6 +30,42 @@ import * as npmAssert from 'assert'
  */
 
 /**
+ *
+ * @description Extension of `npm/assert`
+ *
+ * @function `assert(val, msg?)`:
+ * Triggers an assertion if `@param val` does not evaluate to a truthy value
+ *
+ * @module `assert`:
+ * Describes assertion utilities for use in unit tests.
+ *
+ * Extends `import assert from 'assert'`
+ * - `assert()` behaves the same as `npm/assert()`
+ * - The behavior of `assert.ok()` is changed, so that error messages are clearer.
+ *   _(note: Does not double-serve as null/undefined removal. Use `assert(val)` for that)_
+ * - Other `npm/assert` functions retain their normal behavior.
+ *
+ * Also Implements new math and array assertions.
+ * */
+function assert<T>(val: T, msg?: Message): void {
+  npmAssert.ok(val, msg)
+}
+
+/* @note
+ * Extends the assert function with a harcoded list of the most commonly used assertions in `npm/assert`
+ * Add any missing functions to the list below when necessary */
+assert.equal = npmAssert.equal
+assert.deepEqual = npmAssert.deepEqual
+assert.notDeepEqual = npmAssert.notDeepEqual
+assert.fail = npmAssert.fail
+assert.throws = npmAssert.throws
+assert.doesNotThrow = npmAssert.doesNotThrow
+assert.match = npmAssert.match
+assert.doesNotMatch = npmAssert.doesNotMatch
+assert.rejects = npmAssert.rejects
+assert.doesNotReject = npmAssert.doesNotReject
+
+/**
  * @description Default epsilon value used to evaluate if a float value approximately equals another */
 export const Epsilon = 0.001
 
@@ -83,33 +119,6 @@ export const is = {
 /**
  * @description Describes the valid shape of messages accepted by all assertion functions. */
 type Message = string | Error | undefined
-
-/**
- *
- * @description `assert(val, msg?)` Triggers an assertion if `@param val` does not evaluate to a truthy value
- *
- * @module
- * `assert`: Describes assertion utilities for use in unit tests.
- * Extends `import assert from 'assert'`
- * - `assert()` behaves the same as `npm/assert()`
- * - The behavior of `assert.ok()` is changed, so that error messages are clearer.
- *   _(note: Does not double-serve as null/undefined removal. Use `assert(val)` for that)_
- * - Other `npm/assert` functions retain their normal behavior.
- * - Implements new math and array assertions.
- * */
-function assert<T>(val: T, msg?: Message): void {
-  npmAssert.ok(val, msg)
-}
-assert.equal = npmAssert.equal
-assert.deepEqual = npmAssert.deepEqual
-assert.notDeepEqual = npmAssert.notDeepEqual
-assert.fail = npmAssert.fail
-assert.throws = npmAssert.throws
-assert.doesNotThrow = npmAssert.doesNotThrow
-assert.match = npmAssert.match
-assert.doesNotMatch = npmAssert.doesNotMatch
-assert.rejects = npmAssert.rejects
-assert.doesNotReject = npmAssert.doesNotReject
 
 /**
  * @description Triggers an assertion if `@param val` does not evaluate to a truthy value */
