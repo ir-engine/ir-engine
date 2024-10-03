@@ -139,11 +139,12 @@ function TableView({ file, onClick, onDoubleClick, drag, drop, isOver, onContext
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
+      data-testid="files-panel-file-item"
     >
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} style={{ fontSize: `${fontSize}px` }}>
+          <td key={idx} style={{ fontSize: `${fontSize}px` }} data-testid={`files-panel-file-item-${header}`}>
             {tableColumns[header]}
           </td>
         ))}
@@ -167,6 +168,7 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
           isSelected && 'rounded bg-[#212226]'
         )}
         onDoubleClick={file.isFolder ? onDoubleClick : undefined}
+        data-testid="files-panel-file-item"
         onClick={onClick}
       >
         <div
@@ -181,7 +183,12 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
         </div>
 
         <Tooltip content={file.fullName}>
-          <Text theme="secondary" fontSize="sm" className="mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap">
+          <Text
+            theme="secondary"
+            fontSize="sm"
+            className="mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap"
+            data-testid="files-panel-file-item-name"
+          >
             {file.fullName}
           </Text>
         </Tooltip>

@@ -51,12 +51,19 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-transparent p-0" />
+          <Button
+            startIcon={<IoSettingsSharp />}
+            className="h-7 w-7 rounded-lg bg-transparent p-0"
+            data-testid="assets-panel-view-options-button"
+          />
         </Tooltip>
       }
     >
       <div className="flex flex-col">
-        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+        <InputGroup
+          label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+          dataTestId="assets-panel-view-options-input-group"
+        >
           <Slider
             min={10}
             max={100}
@@ -93,7 +100,10 @@ export function AssetsBreadcrumbs() {
   }
 
   return (
-    <div className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2">
+    <div
+      className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2"
+      data-testid="assets-panel-breadcrumbs"
+    >
       <HiOutlineFolder
         onClick={() => handleSelectParentCategory(0)}
         className="cursor-pointer text-xs text-[#A3A3A3]"
@@ -102,6 +112,7 @@ export function AssetsBreadcrumbs() {
         <span
           key={category.name.value}
           className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+          data-testid={`assets-panel-breadcrumb-nested-level-${idx}`}
           onClick={() => handleSelectParentCategory(idx)}
         >
           <span className="hover:underline">{category.name.value}</span>
@@ -109,7 +120,10 @@ export function AssetsBreadcrumbs() {
         </span>
       ))}
       {currentCategory && (
-        <span className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]">
+        <span
+          className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+          data-testid="assets-panel-breadcrumb-current-category"
+        >
           {currentCategory.name.value}
         </span>
       )}
@@ -136,16 +150,28 @@ export default function Topbar() {
   useEffect(() => refetchResources(), [search.query])
 
   return (
-    <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1">
+    <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
       <div className="flex h-7 w-7 items-center rounded-lg">
         <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-          <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
+          <Button
+            variant="transparent"
+            startIcon={<IoArrowBack />}
+            className="p-0"
+            data-testid="assets-panel-back-button"
+            onClick={handleBack}
+          />
         </Tooltip>
       </div>
       <div className="flex h-7 w-7 items-center rounded-lg">
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
+          <Button
+            variant="transparent"
+            startIcon={<FiRefreshCcw />}
+            className="p-0"
+            data-testid="assets-panel-refresh-button"
+            onClick={handleRefresh}
+          />
         </Tooltip>
       </div>
       <ViewModeSettings />
@@ -168,6 +194,7 @@ export default function Topbar() {
         rounded="none"
         className="h-full whitespace-nowrap bg-theme-highlight px-2"
         size="small"
+        data-testid="assets-panel-upload-button"
         onClick={() => uploadFiles().then(handleRefresh)}
       >
         {t('editor:layout.filebrowser.uploadAssets')}
