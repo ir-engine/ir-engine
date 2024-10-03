@@ -382,7 +382,13 @@ export function MediaReactor() {
 
   useEffect(
     function updateMixbus() {
-      if (!mediaElement?.value) return
+      if (mediaElement == null) {
+        return
+      }
+      if (mediaElement.promised || mediaElement.value == null) {
+        return
+      }
+
       const element = mediaElement.element.get({ noproxy: true }) as HTMLMediaElement
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {

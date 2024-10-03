@@ -23,21 +23,4 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-import Text from '../../../primitives/tailwind/Text'
-
-export const PanelTitle = ({ children }: { children: ReactNode }) => {
-  return (
-    <Text fontSize="sm" className="bg-[#212226] leading-none">
-      {children}
-    </Text>
-  )
-}
-
-export const PanelDragContainer = ({ children, dataTestId }: { children: ReactNode; dataTestId?: string }) => {
-  return (
-    <div className="flex cursor-pointer rounded-t-md px-4 py-2" data-testid={dataTestId || ''}>
-      {children}
-    </div>
-  )
-}
+export const USERNAME_MAX_LENGTH = 60

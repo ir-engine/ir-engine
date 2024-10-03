@@ -83,6 +83,7 @@ const Slider = (
         onChange={handleInputChange}
         onBlur={() => onRelease(value)}
         className="h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover:bg-[#191B1F] group-hover:text-[#F5F5F5]"
+        data-testid="slider-text-value-input"
       />
       <input
         ref={ref}
@@ -127,6 +128,7 @@ const Slider = (
           [&::-webkit-slider-thumb]:ease-in-out
           group-hover:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
         "
+        data-testid="slider-draggable-value-input"
       />
     </div>
   )
