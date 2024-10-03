@@ -83,14 +83,19 @@ export const PositionalAudioComponent = defineComponent({
         const name = getOptionalComponent(entity, NameComponent)
         setComponent(entity, PositionalAudioHelperComponent, {
           audio: audioNodes,
-          name: name ? `${name}-positional-audio-helper` : undefined
+          name: name ? `${name}-positional-audio-helper` : undefined,
+          range: audio.maxDistance.value,
+          divisionsInnerAngle: 16,
+          divisionsOuterAngle: 2,
+          innerAngle: audio.coneInnerAngle.value,
+          outerAngle: audio.coneOuterAngle.value
         })
       }
 
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)
       }
-    }, [debugEnabled, mediaElement?.element])
+    }, [debugEnabled, mediaElement?.element, audio.maxDistance, audio.coneInnerAngle, audio.coneOuterAngle])
 
     useEffect(() => {
       if (!mediaElement?.element.value) return

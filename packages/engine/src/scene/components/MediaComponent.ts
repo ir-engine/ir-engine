@@ -41,7 +41,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
+import { State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
 import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -394,11 +394,11 @@ export function MediaReactor() {
     [mediaElement, media.isMusic]
   )
 
-  const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-  const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
+  const rendererState = useMutableState(RendererState)
+  const [audioHelperTexture] = useTexture(rendererState.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
-    if (debugEnabled.value && audioHelperTexture) {
+    if (rendererState.nodeHelperVisibility.value && audioHelperTexture) {
       const material = new MeshBasicMaterial({ transparent: true, side: DoubleSide })
       material.map = audioHelperTexture
       setComponent(entity, DebugMeshComponent, {
@@ -411,7 +411,7 @@ export function MediaReactor() {
     return () => {
       removeComponent(entity, DebugMeshComponent)
     }
-  }, [debugEnabled, audioHelperTexture])
+  }, [rendererState.nodeHelperVisibility, audioHelperTexture])
 
   return null
 }

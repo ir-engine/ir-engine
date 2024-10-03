@@ -40,6 +40,7 @@ import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugCompon
 import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { degreesToRadians } from '@ir-engine/visual-script'
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
@@ -51,6 +52,8 @@ export const PositionalAudioHelperComponent = defineComponent({
     range: S.Number(1),
     divisionsInnerAngle: S.Number(16),
     divisionsOuterAngle: S.Number(2),
+    innerAngle: S.Number(0),
+    outerAngle: S.Number(0),
     divisions: S.Number(0),
     entity: S.Entity()
   }),
@@ -128,8 +131,10 @@ export const PositionalAudioHelperComponent = defineComponent({
         positionAttribute.setXYZ(start, 0, 0, 0)
         count++
 
-        for (i = from; i < to; i += step) {
-          stride = start + count
+        // Iterate exactly 'divisions' times to ensure proper segments
+        for (let j = 0; j < divisions; j++) {
+          const i = from + j * step
+          const stride = start + count
 
           positionAttribute.setXYZ(stride, Math.sin(i) * range, 0, Math.cos(i) * range)
           positionAttribute.setXYZ(
@@ -149,14 +154,103 @@ export const PositionalAudioHelperComponent = defineComponent({
         count = 0
       }
 
-      generateSegment(-halfConeOuterAngle, -halfConeInnerAngle, divisionsOuterAngle, 0)
-      generateSegment(-halfConeInnerAngle, halfConeInnerAngle, divisionsInnerAngle, 1)
-      generateSegment(halfConeInnerAngle, halfConeOuterAngle, divisionsOuterAngle, 0)
+      function generateSphericalSector(angle, materialIndex, radialDivisions = 36, verticalDivisions = 18) {
+        const angleInRadians = degreesToRadians(angle) // Convert angle to radians
+        const stepAngle = angleInRadians / radialDivisions // Angle step based on the given cone angle
+        const verticalStep = Math.PI / verticalDivisions // Step size along the vertical angle (latitude)
+
+        let count = 0
+
+        // Loop through vertical divisions (latitude)
+        for (let v = 0; v < verticalDivisions; v++) {
+          const theta1 = v * verticalStep // Current latitude
+          const theta2 = (v + 1) * verticalStep // Next latitude
+
+          // Radius at the current and next latitude
+          const r1 = range * Math.sin(theta1)
+          const r2 = range * Math.sin(theta2)
+
+          // z positions at current and next latitude
+          const z1 = range * Math.cos(theta1)
+          const z2 = range * Math.cos(theta2)
+
+          // Loop through radial divisions (longitude)
+          for (let h = 0; h <= radialDivisions; h++) {
+            const phi1 = h * stepAngle - angleInRadians / 2 // Current angle offset by half the angle to center the cone
+
+            const phi2 = (h + 1) * stepAngle - angleInRadians / 2 // Next angle
+
+            // Vertices on the first circle (current latitude)
+            const x1 = r1 * Math.cos(phi1)
+            const y1 = r1 * Math.sin(phi1)
+
+            // Vertices on the second circle (next latitude)
+            const x2 = r2 * Math.cos(phi1)
+            const y2 = r2 * Math.sin(phi1)
+
+            // Next longitude vertices on the first circle
+            const x1Next = r1 * Math.cos(phi2)
+            const y1Next = r1 * Math.sin(phi2)
+
+            // Next longitude vertices on the second circle
+            const x2Next = r2 * Math.cos(phi2)
+            const y2Next = r2 * Math.sin(phi2)
+
+            // Draw vertical lines between consecutive latitudes
+            positionAttribute.setXYZ(start + count, x1, y1, z1)
+            positionAttribute.setXYZ(start + count + 1, x2, y2, z2)
+            count += 2
+
+            // Draw horizontal lines around the current latitude
+            if (h < radialDivisions) {
+              // Current latitude circle
+              positionAttribute.setXYZ(start + count, x1, y1, z1)
+              positionAttribute.setXYZ(start + count + 1, x1Next, y1Next, z1)
+              count += 2
+
+              // Next latitude circle
+              positionAttribute.setXYZ(start + count, x2, y2, z2)
+              positionAttribute.setXYZ(start + count + 1, x2Next, y2Next, z2)
+              count += 2
+            }
+
+            // If angle < 360, draw lines from boundary to sphere center
+            if (h === 0 || h === radialDivisions) {
+              // Line from boundary vertex on current latitude to center (origin)
+              positionAttribute.setXYZ(start + count, 0, 0, 0)
+              positionAttribute.setXYZ(start + count + 1, x1, y1, z1)
+              count += 2
+
+              // Line from boundary vertex on next latitude to center (origin)
+              positionAttribute.setXYZ(start + count, 0, 0, 0)
+              positionAttribute.setXYZ(start + count + 1, x2, y2, z2)
+              count += 2
+            }
+          }
+        }
+
+        geometry.addGroup(start, count, materialIndex)
+        start += count
+      }
+
+      // generateSegment(-halfConeOuterAngle, -halfConeInnerAngle, divisionsOuterAngle, 0)
+      // generateSegment(-halfConeInnerAngle, halfConeInnerAngle, divisionsInnerAngle, 1)
+      // generateSegment(halfConeInnerAngle, halfConeOuterAngle, divisionsOuterAngle, 0)
+
+      generateSphericalSector(coneInnerAngle, 1)
 
       positionAttribute.needsUpdate = true
 
       if (coneInnerAngle === coneOuterAngle) (materials[0] as Material).visible = false
-    }, [component.audio, component.range, component.divisions])
+    }, [
+      component.audio,
+      component.range,
+      component.divisionsInnerAngle,
+      component.divisionsOuterAngle,
+      component.innerAngle,
+      component.outerAngle,
+      component.divisions
+    ])
 
     return null
   }
