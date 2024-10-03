@@ -23,32 +23,85 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Text from './index'
+import { ArgTypes, StoryFn } from '@storybook/react'
 
-export default {
-  title: 'Primitives/Tailwind/Input',
-  component: Text,
-  parameters: {
-    componentSubtitle: 'Input',
-    jest: 'Input.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
+import React from 'react'
+import Input, { InputProps } from './index'
+
+const sizes: InputProps['variantSize'][] = ['xs', 'l', 'xl']
+
+const argTypes: ArgTypes<InputProps> = {
+  variantSize: {
+    control: {
+      type: 'select'
+    },
+    options: sizes
+  },
+  fullWidth: {
+    control: {
+      type: 'boolean'
+    }
+  },
+  state: {
+    control: {
+      type: 'select'
+    },
+    options: ['success', 'error']
+  },
+  helperText: {
+    control: {
+      type: 'text'
+    }
+  },
+  labelText: {
+    control: {
+      type: 'text'
+    }
+  },
+  labelPosition: {
+    control: {
+      type: 'select'
+    },
+    options: ['top', 'left']
+  },
+  infoText: {
+    control: {
+      type: 'text'
+    }
+  },
+  required: {
+    control: {
+      type: 'boolean'
     }
   }
 }
 
-export const Default = {
-  args: {
-    value: 'My Text Input',
-    label: 'Input Label'
-  }
+export default {
+  title: 'Primitives/Tailwind/Input',
+  component: Input,
+  parameters: {
+    componentSubtitle: 'Input',
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2105-17763'
+    }
+  },
+  argTypes: argTypes
 }
 
-export const WithDescription = {
-  args: {
-    value: 'Text Input',
-    label: 'Label',
-    description: 'A simple description for the Input'
-  }
+const Template: StoryFn<InputProps> = (args) => (
+  <div className="h-[50vh] w-full rounded border border-gray-300 p-4">
+    <Input {...args} spellCheck={false} />
+  </div>
+)
+
+export const Default = Template.bind({})
+Default.args = {
+  value: 'ir@infinityreality.com'
+}
+
+export const FullWidth = Template.bind({})
+FullWidth.args = {
+  value: 'ir@infinityreality.com',
+  fullWidth: true
 }

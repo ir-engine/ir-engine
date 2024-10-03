@@ -23,16 +23,35 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
 import React from 'react'
 
-import Input from './index'
-import { Default as story } from './index.stories'
+import { IoHelpCircleOutline } from 'react-icons/io5'
+import Tooltip from '../Tooltip'
 
-describe('Input', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<Input onChange={() => {}} {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+interface InputLabelProps {
+  htmlFor: string
+  required?: boolean
+  labelText: string
+  infoText?: string
+}
+
+const InputLabel = ({ htmlFor, required, labelText, infoText }: InputLabelProps) => {
+  return (
+    <label htmlFor={htmlFor} className="block text-xs font-medium">
+      <div className="flex flex-row items-center gap-x-1.5">
+        <div className="flex flex-row items-center gap-x-0.5">
+          {required && <span className="text-sm text-[#E11D48]">*</span>}
+          <span className="text-xs text-[#D3D5D9]">{labelText}</span>
+        </div>
+
+        {infoText && (
+          <Tooltip content={infoText}>
+            <IoHelpCircleOutline className="h-4 w-4 text-[#9CA0AA]" strokeWidth="1.5px" />
+          </Tooltip>
+        )}
+      </div>
+    </label>
+  )
+}
+
+export default InputLabel
