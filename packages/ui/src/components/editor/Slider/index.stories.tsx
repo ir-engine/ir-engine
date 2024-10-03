@@ -37,8 +37,9 @@ const argTypes: ArgTypes = {
   step: {
     control: 'number'
   },
-  value: {
-    control: 'number'
+  startingValue: {
+    control: 'number',
+    name: 'Starting Value'
   },
   label: {
     control: 'text'
@@ -57,7 +58,7 @@ export default {
   },
   argTypes,
   args: {
-    value: 40,
+    startingValue: 40,
     min: 0,
     max: 100,
     step: 0.1,
@@ -65,8 +66,8 @@ export default {
   }
 }
 
-const SliderRenderer = (args: SliderProps) => {
-  const [value, setValue] = useState(args.value)
+const SliderRenderer = (args: SliderProps & { startingValue: number }) => {
+  const [value, setValue] = useState(args.startingValue)
   return <Slider {...args} value={value} onChange={(v) => setValue(v)} onRelease={(v) => setValue(v)} />
 }
 
