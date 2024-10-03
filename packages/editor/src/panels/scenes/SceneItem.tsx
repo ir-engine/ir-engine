@@ -74,20 +74,33 @@ export default function SceneItem({
 
   return (
     <div
-      data-test-id={`${sceneName === 'New-Scene' ? 'default-scene' : sceneName}`}
+      data-testid={`scene-panel-${sceneName.toLowerCase()}-scene`}
       className="min-w-64 max-w-64 col-span-2 inline-flex h-64 w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
     >
-      <img className="shrink grow basis-0 self-stretch rounded" src={scene.thumbnailURL} onClick={handleOpenScene} />
+      <img
+        className="shrink grow basis-0 self-stretch rounded"
+        src={scene.thumbnailURL}
+        data-testid="scene-panel-scene-thumbnail"
+        onClick={handleOpenScene}
+      />
       <div className="inline-flex items-start justify-between self-stretch">
         <div className="inline-flex w-full flex-col items-start justify-start">
           <div className="space-between flex w-full flex-row">
             <Text component="h3" fontWeight="light" className="leading-6 text-neutral-100">
               <Tooltip content={sceneName}>
-                <div className="w-52 truncate">{sceneName}</div>
+                <div className="w-52 truncate" data-testid="scene-panel-scene-name">
+                  {sceneName}
+                </div>
               </Tooltip>
             </Text>
           </div>
-          <Text component="h3" fontSize="xs" fontWeight="light" className="h-3.5 w-40 leading-5 text-neutral-100">
+          <Text
+            component="h3"
+            fontSize="xs"
+            fontWeight="light"
+            className="h-3.5 w-40 leading-5 text-neutral-100"
+            data-testid="scene-panel-scene-updated-at"
+          >
             {t('editor:hierarchy.lbl-edited')} {t('common:timeAgo', { time: timeAgo(new Date(scene.updatedAt)) })}
           </Text>
         </div>
@@ -100,6 +113,7 @@ export default function SceneItem({
                 size="small"
                 className="px-2 py-1.5"
                 startIcon={<BsThreeDotsVertical className="text-neutral-100" />}
+                data-testid="scene-panel-scene-options-button"
                 onClick={() => isOptionsPopupOpen.set(true)}
               />
             }
@@ -111,6 +125,7 @@ export default function SceneItem({
                   size="medium"
                   className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                   startIcon={<MdOutlineEdit />}
+                  data-testid="scene-panel-scene-rename-button"
                   onClick={() => {
                     isOptionsPopupOpen.set(false)
                     PopoverState.showPopupover(
@@ -132,6 +147,7 @@ export default function SceneItem({
                   size="medium"
                   className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                   startIcon={<LuTrash />}
+                  data-testid="scene-panel-scene-delete-button"
                   onClick={() => {
                     isOptionsPopupOpen.set(false)
                     PopoverState.showPopupover(

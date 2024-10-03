@@ -44,7 +44,7 @@ enum FileType {
 }
 
 const unsupportedFileMessage = {
-  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a GLTF or a GLB.',
+  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a .gltf or a .glb.',
   [FileType.IMAGE]: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
   [FileType.AUDIO]: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
   [FileType.VIDEO]: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.',
@@ -52,7 +52,7 @@ const unsupportedFileMessage = {
 }
 
 const supportedFiles = {
-  [FileType.THREE_D]: new Set(['GLTF', 'GLB']),
+  [FileType.THREE_D]: new Set(['.gltf', '.glb']),
   [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
   [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
