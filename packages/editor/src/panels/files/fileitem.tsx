@@ -86,7 +86,7 @@ export function TableWrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-function TableView({ file, onClick, onDoubleClick, drag, drop, isOver, onContextMenu }: DisplayTypeProps) {
+function TableView({ file, onClick, onDoubleClick, isSelected, drag, drop, isOver, onContextMenu }: DisplayTypeProps) {
   const filesViewModeSettings = useMutableState(FilesViewModeSettings)
   const selectedTableColumns = filesViewModeSettings.list.selectedTableColumns.value
   const fontSize = filesViewModeSettings.list.fontSize.value
@@ -135,7 +135,11 @@ function TableView({ file, onClick, onDoubleClick, drag, drop, isOver, onContext
     <tr
       key={file.key}
       ref={(ref) => drag(drop(ref))}
-      className={twMerge('h-9 text-[#a3a3a3] hover:bg-[#212226]', isOver && 'border-2 border-gray-400')}
+      className={twMerge(
+        'h-9 rounded text-[#a3a3a3] hover:bg-[#212226]',
+        isOver && 'border-2 border-gray-400',
+        isSelected && 'rounded bg-[#212226]'
+      )}
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
@@ -168,6 +172,7 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
           isSelected && 'rounded bg-[#212226]'
         )}
         onDoubleClick={file.isFolder ? onDoubleClick : undefined}
+        data-testid="files-panel-file-item"
         onClick={onClick}
       >
         <div
@@ -182,7 +187,12 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
         </div>
 
         <Tooltip content={file.fullName}>
-          <Text theme="secondary" fontSize="sm" className="mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap">
+          <Text
+            theme="secondary"
+            fontSize="sm"
+            className="mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap"
+            data-testid="files-panel-file-item-name"
+          >
             {file.fullName}
           </Text>
         </Tooltip>
