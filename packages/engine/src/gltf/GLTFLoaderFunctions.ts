@@ -898,10 +898,15 @@ const useLoadImageSource = (
 
   const sourceURI = useHookstate('')
   const result = useHookstate<Texture | null>(null)
-  const [loadedTexture] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
+  const [loadedTexture, error] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
   let isObjectURL = false
 
   const bufferViewSourceURI = GLTFLoaderFunctions.useLoadBufferView(options, sourceDef?.bufferView)
+
+  useEffect(() => {
+    if (!error) return
+    console.error(`GLTFLoaderFunctions:useLoadImageSource Error loading texture for uri ${sourceURI.value}`, error)
+  }, [error])
 
   useEffect(() => {
     if (!sourceDef) return

@@ -67,15 +67,13 @@ const MaterialNormalTextureInfoSchema = S.Object({
   extras: S.Optional(S.Record(S.String(), S.Any()))
 })
 
-const MaterialMetallicRoughnessSchema = S.Partial(
-  S.Object({
-    baseColorFactor: S.Optional(S.Array(S.Number())),
-    baseColorTexture: S.Optional(TextureInfoSchema),
-    metallicFactor: S.Optional(S.Number()),
-    roughnessFactor: S.Optional(S.Number()),
-    metallicRoughnessTexture: S.Optional(TextureInfoSchema)
-  })
-)
+const MaterialMetallicRoughnessSchema = S.Object({
+  baseColorFactor: S.Optional(S.Array(S.Number())),
+  baseColorTexture: S.Optional(TextureInfoSchema),
+  metallicFactor: S.Optional(S.Number()),
+  roughnessFactor: S.Optional(S.Number()),
+  metallicRoughnessTexture: S.Optional(TextureInfoSchema)
+})
 
 const MaterialOcclusionTextureInfoSchema = S.Object({
   index: S.Number(),
