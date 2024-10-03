@@ -107,28 +107,28 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   useEffect(() => {
     // Pass in a type
     if (type === 'email') {
-      descr = t('user:auth.magiklink.descriptionEmail')
-      label = t('user:auth.magiklink.lbl-email')
+      descr = t('user:auth.magiclink.descriptionEmail')
+      label = t('user:auth.magiclink.lbl-email')
       return
     } else if (type === 'sms') {
-      descr = t('user:auth.magiklink.descriptionSMS')
-      label = t('user:auth.magiklink.lbl-phone')
+      descr = t('user:auth.magiclink.descriptionSMS')
+      label = t('user:auth.magiclink.lbl-phone')
       return
     } else if (!authSetting) {
-      descr = t('user:auth.magiklink.descriptionEmail')
-      label = t('user:auth.magiklink.lbl-email')
+      descr = t('user:auth.magiclink.descriptionEmail')
+      label = t('user:auth.magiclink.lbl-email')
       return
     }
     // Auth config is using Sms and Email, so handle both
     if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink && !type) {
-      descr = t('user:auth.magiklink.descriptionEmailSMS')
-      label = t('user:auth.magiklink.lbl-emailPhone')
+      descr = t('user:auth.magiclink.descriptionEmailSMS')
+      label = t('user:auth.magiclink.lbl-emailPhone')
     } else if (authState?.value?.smsMagicLink) {
-      descr = t('user:auth.magiklink.descriptionSMSUS')
-      label = t('user:auth.magiklink.lbl-phone')
+      descr = t('user:auth.magiclink.descriptionSMSUS')
+      label = t('user:auth.magiclink.lbl-phone')
     } else {
-      descr = t('user:auth.magiklink.descriptionEmail')
-      label = t('user:auth.magiklink.lbl-email')
+      descr = t('user:auth.magiclink.descriptionEmail')
+      label = t('user:auth.magiclink.lbl-email')
     }
 
     state.set({ ...state.value, label: label, descr: descr })
@@ -138,7 +138,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
     <Container component="main" maxWidth="xs">
       <div>
         <Typography component="h1" variant="h5">
-          {t('user:auth.magiklink.header')}
+          {t('user:auth.magiclink.header')}
         </Typography>
 
         <Typography variant="body2" color="textSecondary" align="center">
@@ -173,8 +173,8 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
                 }
                 label={
                   <div className={styles.termsLink}>
-                    {t('user:auth.magiklink.agree')}
-                    <Link to={termsOfService}>{t('user:auth.magiklink.terms')}</Link>
+                    {t('user:auth.magiclink.agree')}
+                    <Link to={termsOfService}>{t('user:auth.magiclink.terms')}</Link>
                   </div>
                 }
               />
@@ -188,7 +188,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
                 className={styles.submit}
                 disabled={!state.isAgreedTermsOfService.value}
               >
-                {t('user:auth.magiklink.lbl-submit')}
+                {t('user:auth.magiclink.lbl-submit')}
               </Button>
             </Grid>
           </Grid>
