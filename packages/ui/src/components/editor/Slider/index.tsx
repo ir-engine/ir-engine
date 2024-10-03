@@ -32,9 +32,8 @@ export interface SliderProps {
   max?: number
   /**the size by which the slider should increment each step */
   step?: number
-  /**width of the slider in pixels */
-  onChange: (value: number) => void
-  onRelease: (value: number) => void
+  onChange?: (value: number) => void
+  onRelease?: (value: number) => void
 }
 
 const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onRelease }: SliderProps) => {
@@ -49,12 +48,12 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
     } else {
       newValue = Math.min(Math.max(newValue, min), max)
     }
-    onChange(newValue)
+    onChange?.(newValue)
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(event.target.value)
-    onChange(newValue)
+    onChange?.(newValue)
   }
 
   const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
@@ -78,7 +77,7 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
         max={max}
         value={value}
         onChange={handleInputChange}
-        onBlur={() => onRelease(value)}
+        onBlur={() => onRelease?.(value)}
         className="h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover:bg-[#191B1F] group-hover:text-[#F5F5F5]"
         data-testid="slider-text-value-input"
       />
@@ -88,7 +87,7 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
         max={max}
         value={value}
         onChange={handleChange}
-        onPointerUp={() => onRelease(value)}
+        onPointerUp={() => onRelease?.(value)}
         step={step}
         type="range"
         style={{
