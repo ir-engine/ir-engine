@@ -81,11 +81,16 @@ export const Unit3Schema = S.Object({
   z: UnitSchema
 })
 
-export const Unit3StringSchema = S.Object({
-  x: S.String(),
-  y: S.String(),
-  z: S.String()
-})
+export const Unit3StringSchema = (init = { x: '0', y: '0', z: '0' }) =>
+  S.Object(
+    {
+      x: S.String(),
+      y: S.String(),
+      z: S.String()
+    },
+    init,
+    { id: 'Unit3String' }
+  )
 
 function defineUnit3Transition() {
   return Transition.defineTransition<Static<typeof Unit3Schema>>({
@@ -197,17 +202,11 @@ export const LayoutComponent = defineComponent({
     contentFitTransition: Transition.defineVector3Transition(),
 
     defaults: S.Object({
-      position: S.Vec3(),
-      positionOrigin: S.Vec3(),
-      alignmentOrigin: S.Vec3(),
+      position: Unit3StringSchema(),
+      origin: Unit3StringSchema(),
       rotation: S.Quaternion(),
-      rotationOrigin: S.Vec3(),
-      size: S.Vec3(),
-      sizeMode: S.Object({
-        x: S.Enum(SizeMode, SizeMode.literal),
-        y: S.Enum(SizeMode, SizeMode.literal),
-        z: S.Enum(SizeMode, SizeMode.literal)
-      }),
+      rotationOrigin: Unit3StringSchema({ x: '50%', y: '50%', z: '50%' }),
+      size: Unit3StringSchema({ x: '100%', y: '100%', z: '100%' }),
       contentFit: S.Enum(ContentFit, ContentFit.none)
     }),
 
