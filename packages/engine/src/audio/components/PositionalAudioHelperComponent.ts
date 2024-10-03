@@ -31,22 +31,22 @@ import {
   Group,
   InterleavedBufferAttribute,
   LatheGeometry,
-  Line,
-  LineBasicMaterial,
   Material,
   MathUtils,
   Mesh,
+  MeshBasicMaterial,
   Vector2
 } from 'three'
 
-import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, Entity, getMutableComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY, useDidMount } from '@ir-engine/hyperflux'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
-import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { degreesToRadians } from '@ir-engine/visual-script'
+import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
+import { mergeGeometries } from '../../scene/util/meshUtils'
 
 export const PositionalAudioHelperComponent = defineComponent({
   name: 'PositionalAudioHelperComponent',
@@ -81,21 +81,21 @@ export const PositionalAudioHelperComponent = defineComponent({
 
     const createGeometry = () => {
       const geometry = new BufferGeometry()
-      const positions = new Float32Array((component.divisions.value * 3 + 3) * 3)
-      geometry.setAttribute('position', new BufferAttribute(positions, 3))
+      // const positions = new Float32Array((component.divisions.value * 3 + 3) * 3)
+      // geometry.setAttribute('position', new BufferAttribute(positions, 3))
       return geometry
     }
 
     const [geometryState] = useResource<BufferGeometry>(createGeometry, entity)
-    const [materialInnerAngle] = useResource(() => new LineBasicMaterial({ color: 0x00ff00 }), entity)
-    const [materialOuterAngle] = useResource(() => new LineBasicMaterial({ color: 0xffff00 }), entity)
-    const [line] = useDisposable(
-      Line<BufferGeometry, LineBasicMaterial[]>,
-      entity,
-      geometryState.value as BufferGeometry,
-      [materialOuterAngle.value as LineBasicMaterial, materialInnerAngle.value as LineBasicMaterial]
-    )
-    useHelperEntity(entity, component, line)
+    const [materialInnerAngle] = useResource(() => new MeshBasicMaterial({ color: 0x00ff00, wireframe: true }), entity)
+    const [materialOuterAngle] = useResource(() => new MeshBasicMaterial({ color: 0xffff00, wireframe: true }), entity)
+    // const [line] = useDisposable(
+    //   Line<BufferGeometry, LineBasicMaterial[]>,
+    //   entity,
+    //   geometryState.value as BufferGeometry,
+    //   [materialOuterAngle.value as MeshBasicMaterial, materialInnerAngle.value as MeshBasicMaterial]
+    // )
+    useHelperEntity(entity, component) //, line)
 
     useDidMount(() => {
       component.divisions.set(component.divisionsInnerAngle.value + component.divisionsOuterAngle.value * 2)
@@ -103,7 +103,7 @@ export const PositionalAudioHelperComponent = defineComponent({
 
     useDidMount(() => {
       geometryState.set(createGeometry())
-      line.geometry = geometryState.get(NO_PROXY) as BufferGeometry
+      // line.geometry = geometryState.get(NO_PROXY) as BufferGeometry
     }, [component.divisions])
 
     useEffect(() => {
@@ -160,39 +160,39 @@ export const PositionalAudioHelperComponent = defineComponent({
       }
 
       function generateSphericalSector(angle, materialIndex) {
-        const angleInRadians = degreesToRadians(angle)
+        cleanGroup(entity)
 
-        const capSegments = Math.max(angle / 10, 3)
+        const sgmnts = Math.floor(audio.panner!.coneInnerAngle / 30)
+        const capSegments = Math.max(sgmnts, 3)
         const coneSegments = capSegments * 4
-        //36 if 360
-        //18 if 180
 
-        // Calculate the coneWidth based on the angle and coneHeight
-        // const coneWidth = Math.tan(angleInRadians) * coneHeight
-        // const angle = Math.atan(coneWidth / coneHeight);
-        const coneHyp = range // Math.sqrt(coneWidth ** 2 + coneHeight ** 2);      //c^ = a^ + b^
-        const coneWidth = coneHyp * Math.sin(angleInRadians)
-        const coneHeight = Math.sqrt(coneWidth ** 2 + coneHyp ** 2)
+        const coneHyp = range
+        const coneOpp = coneHyp * Math.sin(angle / 2)
+        const coneHeight = Math.sqrt(coneHyp ** 2 - coneOpp ** 2)
 
-        const group = new Group()
+        const coneGeometry = new ConeGeometry(coneOpp, coneHeight, coneSegments, 1, true)
 
-        // const wireframeMaterial = new MeshBasicMaterial({color: 0xffffff, wireframe: true});
+        if (angle <= Math.PI) coneGeometry.rotateX(Math.PI)
 
-        const coneGeometry = new ConeGeometry(coneWidth, coneHeight, coneSegments, 1, true)
-        const cone = new Mesh(coneGeometry, materials[materialIndex] as Material)
-        cone.position.set(0, -coneHeight / 2, 0)
-        group.add(cone)
+        coneGeometry.translate(0, (angle <= Math.PI ? 1 : -1) * (coneHeight / 2), 0)
 
         const capPoints = [] as Vector2[]
-        for (let i = 0; i <= 1; i += 1 / capSegments) {
-          const x = Math.sin(i * angle) * -coneHyp
-          const y = Math.cos(i * angle) * -coneHyp
+        for (let i = 0; i <= capSegments; i++) {
+          const x = Math.sin(((i / capSegments) * angle) / 2) * -coneHyp
+          const y = Math.cos(((i / capSegments) * angle) / 2) * -coneHyp
           capPoints.push(new Vector2(x, y))
         }
 
-        const capGeometry = new LatheGeometry(capPoints)
-        const cap = new Mesh(capGeometry, materials[materialIndex] as Material)
-        group.add(cap)
+        const capGeometry = new LatheGeometry(capPoints, coneSegments)
+        capGeometry.rotateX(Math.PI)
+        // capGeometry.translate(0, coneHeight, 0)
+
+        const mergedGeo = mergeGeometries([capGeometry, coneGeometry])
+        mergedGeo?.rotateX(Math.PI / 2)
+        geometryState.set(mergedGeo!)
+
+        const mergedMesh = new Mesh(mergedGeo!, materials[materialIndex] as Material)
+        addObjectToGroup(entity, mergedMesh)
       }
 
       // generateSegment(-halfConeOuterAngle, -halfConeInnerAngle, divisionsOuterAngle, 0)
@@ -201,9 +201,13 @@ export const PositionalAudioHelperComponent = defineComponent({
 
       generateSphericalSector(coneInnerAngle, 1)
 
-      positionAttribute.needsUpdate = true
+      // positionAttribute.needsUpdate = true
 
       if (coneInnerAngle === coneOuterAngle) (materials[0] as Material).visible = false
+
+      return () => {
+        cleanGroup(entity)
+      }
     }, [
       component.audio,
       component.range,
@@ -217,3 +221,17 @@ export const PositionalAudioHelperComponent = defineComponent({
     return null
   }
 })
+
+function cleanGroup(entity: Entity) {
+  const grp = getMutableComponent(entity, GroupComponent)
+  grp.forEach((groupChild) => {
+    if (groupChild instanceof Group) {
+      groupChild.children.value.forEach((nestedChild) => {
+        if (nestedChild instanceof Mesh) {
+          nestedChild.geometry.dispose()
+          nestedChild.material.dispose()
+        }
+      })
+    }
+  })
+}
