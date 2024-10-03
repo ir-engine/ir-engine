@@ -27,11 +27,11 @@ import { AnimationClip, KeyframeTrack, Quaternion, QuaternionKeyframeTrack, Vect
 
 import { Entity, getComponent } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
-import { recursiveNameLookup } from '@ir-engine/spatial/src/common/NameComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { mixamoVRMRigMap, recursiveHipsLookupECS } from '../AvatarBoneMatching'
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()
@@ -42,14 +42,27 @@ const _scale = new Vector3()
  * @todo refactor to use ecs
  */
 export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) => {
-  const hips = recursiveHipsLookupECS(gltfEntity)
+  const hips = iterateEntityNode(
+    gltfEntity,
+    (entity) => entity,
+    (entity) => hipsRegex.test(getComponent(entity, NameComponent)),
+    false,
+    true
+  )?.[0]
   const hipsPositionScale = TransformComponent.getWorldScale(hips, _scale).y
   getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
   for (let i = 0; i < clip.tracks.length; i++) {
     const track = clip.tracks[i]
     const trackSplitted = track.name.split('.')
     const rigNodeName = trackSplitted[0]
-    const rigNodeEntity = recursiveNameLookup(gltfEntity, rigNodeName) as Entity
+    const rigNodeEntity = iterateEntityNode(
+      gltfEntity,
+      (entity) => entity,
+      (entity) => getComponent(entity, NameComponent) === rigNodeName,
+      false,
+      true
+    )?.[0]
+    if (!rigNodeEntity) continue
     const rigNode = getComponent(rigNodeEntity, BoneComponent)
 
     // Store rotations of rest-pose

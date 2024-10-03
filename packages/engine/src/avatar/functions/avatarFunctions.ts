@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneList, VRMHumanoid } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBone, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
 
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
@@ -45,10 +45,8 @@ import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/E
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationState } from '../AnimationManager'
-import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { preloadedAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -71,34 +69,34 @@ declare module '@pixiv/three-vrm/types/VRM' {
 }
 /** Checks if the asset is a VRM. If not, attempt to use
  *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
-export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
-  const scene = model.scene ?? model // FBX assets do not have 'scene' property
-  if (!scene) return null!
-  let foundModel = model
-  //sometimes, for some exporters, the vrm object is stored in the userData
-  if (model.userData?.vrm instanceof VRM) {
-    if (model.userData.vrmMeta.metaVersion > 0) return model.userData.vrm
-    foundModel = model.userData.vrm
-  }
+// export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
+//   const scene = model.scene ?? model // FBX assets do not have 'scene' property
+//   if (!scene) return null!
+//   let foundModel = model
+//   //sometimes, for some exporters, the vrm object is stored in the userData
+//   if (model.userData?.vrm instanceof VRM) {
+//     if (model.userData.vrmMeta.metaVersion > 0) return model.userData.vrm
+//     foundModel = model.userData.vrm
+//   }
 
-  //vrm0 is an instance of the vrm object
-  if (foundModel instanceof VRM) {
-    const bones = foundModel.humanoid.rawHumanBones
-    foundModel.humanoid.normalizedHumanBonesRoot.removeFromParent()
-    bones.hips.node.rotateY(Math.PI)
-    const humanoid = new VRMHumanoid(bones)
-    const vrm = new VRM({
-      ...foundModel,
-      humanoid,
-      scene: foundModel.scene,
-      meta: { name: foundModel.scene.children[0].name } as VRM1Meta
-    })
-    if (!vrm.userData) vrm.userData = {}
-    return vrm
-  }
+//   //vrm0 is an instance of the vrm object
+//   if (foundModel instanceof VRM) {
+//     const bones = foundModel.humanoid.rawHumanBones
+//     foundModel.humanoid.normalizedHumanBonesRoot.removeFromParent()
+//     bones.hips.node.rotateY(Math.PI)
+//     const humanoid = new VRMHumanoid(bones)
+//     const vrm = new VRM({
+//       ...foundModel,
+//       humanoid,
+//       scene: foundModel.scene,
+//       meta: { name: foundModel.scene.children[0].name } as VRM1Meta
+//     })
+//     if (!vrm.userData) vrm.userData = {}
+//     return vrm
+//   }
 
-  return avatarBoneMatching(foundModel)
-}
+//   return avatarBoneMatching(foundModel)
+// }
 
 /**tries to load avatar model asset if an avatar is not already pending */
 export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {

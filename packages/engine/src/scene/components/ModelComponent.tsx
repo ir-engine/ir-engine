@@ -53,7 +53,6 @@ import { AnimationMixer, Group, Scene } from 'three'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
@@ -128,16 +127,16 @@ function ModelReactor() {
       return
     }
 
-    const boneMatchedAsset =
-      gltf instanceof VRM || modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
+    // const boneMatchedAsset =
+    //   gltf instanceof VRM || modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
 
     /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
-    if (boneMatchedAsset instanceof VRM)
-      setComponent(entity, AnimationComponent, {
-        mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
-      })
+    // if (boneMatchedAsset instanceof VRM)
+    //   setComponent(entity, AnimationComponent, {
+    //     mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
+    //   })
 
-    modelComponent.asset.set(boneMatchedAsset)
+    // modelComponent.asset.set(boneMatchedAsset)
   }, [gltf])
 
   useEffect(() => {

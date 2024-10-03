@@ -23,11 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM } from '@pixiv/three-vrm'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineViewInAr } from 'react-icons/md'
-import { Object3D, Scene } from 'three'
 
 import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
@@ -41,7 +39,6 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
-import { recursiveHipsLookup } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { getState, useState } from '@ir-engine/hyperflux'
@@ -126,11 +123,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     if (!modelComponent.asset.value) return
-    bonematchable.set(
-      modelComponent.asset.value &&
-        (modelComponent.asset.value instanceof VRM ||
-          recursiveHipsLookup(modelComponent.asset.value.scene as Object3D | Scene))
-    )
+    // bonematchable.set(
+    //   modelComponent.asset.value &&
+    //     (modelComponent.asset.value instanceof VRM ||
+    //       recursiveHipsLookup(modelComponent.asset.value.scene as Object3D | Scene))
+    // )
   }, [modelComponent.asset])
 
   return (
