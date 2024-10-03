@@ -64,7 +64,11 @@ export const projectSchema = Type.Object(
     commitSHA: Type.Optional(Type.String()),
     commitDate: Type.Optional(Type.String({ format: 'date-time' })),
     assetsOnly: Type.Boolean(),
+    isPublishedVersion: Type.Boolean(),
     visibility: StringEnum(['private', 'public']),
+    projectPublishId: Type.String({
+      format: 'uuid'
+    }),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     updatedBy: TypedString<UserID>({
       format: 'uuid'
@@ -109,6 +113,8 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
   'updateUserId',
   'hasWriteAccess',
   'visibility',
+  'projectPublishId',
+  'isPublishedVersion',
   'commitSHA',
   'commitDate'
 ])
