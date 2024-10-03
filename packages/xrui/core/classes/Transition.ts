@@ -22,32 +22,18 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { NO_PROXY, State } from '@ir-engine/hyperflux'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
 import { Easing } from '@tweenjs/tween.js'
 import { Quaternion, Vector3 } from 'three'
 import { BorderRadius } from '../components/HTMLComponent'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-
-export const TimestampedValueSchema = S.Object({
-  timestamp: S.Number(),
-  value: S.Any()
-})
 
 export type TimestampedValue<V> = {
   timestamp: number
   value: V
 }
 
-export const TransitionDataSchema = S.Object({
-  buffer: S.Array(TimestampedValueSchema),
-  current: S.Any(),
-  maxBufferSize: S.Number(),
-  duration: S.Number(),
-  easingFunction: S.Func([S.Number()], S.Number()),
-  interpolationFunction: S.Func([S.Any(), S.Any(), S.Number(), S.Optional(S.Any())], S.Any())
-})
-
-export type TransitionData<T> = {
+export interface TransitionData<T> {
   buffer: TimestampedValue<T>[]
   current: T
   maxBufferSize: number
@@ -64,15 +50,21 @@ export const Transition = {
     }
   ) {
     return S.Object({
-      buffer: S.Array(S.Object({
-        timestamp: S.Number(),
-        value: S.Type<V>()
-      })),
+      buffer: S.Array(
+        S.Object({
+          timestamp: S.Number(),
+          value: S.Type<V>()
+        })
+      ),
       current: S.Type<V>(),
       maxBufferSize: S.Number(10),
       duration: S.Number(500),
       easingFunction: S.Func([S.Number()], S.Number(), Easing.Elastic.InOut),
-      interpolationFunction: S.Func([S.Type<V>(), S.Type<V>(), S.Number(), S.Optional(S.Type<V>())], S.Type<V>(), config.interpolationFunction)
+      interpolationFunction: S.Func(
+        [S.Type<V>(), S.Type<V>(), S.Number(), S.Optional(S.Type<V>())],
+        S.Type<V>(),
+        config.interpolationFunction
+      )
     })
   },
 
@@ -125,19 +117,30 @@ export const Transition = {
     })
   },
 
-  applyNewTarget<V>(data: State<TransitionData<any>>, target: any, timestamp: number) {
+  applyNewTarget<T, V extends State<T, unknown>>(data: State<TransitionData<T>>, target: V, timestamp: number) {
+    const d = data as unknown as State<TransitionData<any>, object>
     // Add new sample
-    const value = data.get(NO_PROXY).interpolationFunction(target, target, 0) // make a copy
-    data.buffer.merge([{ timestamp, value }])
+    const value = d.get(NO_PROXY).interpolationFunction(target.value as T, target.value as T, 0) // make a copy
+    d.buffer.merge([{ timestamp, value }])
 
     // Remove samples older than the duration
-    const cutoffTime = timestamp - data.duration.value
-    data.buffer.set((b) => b.filter((sample) => sample.timestamp >= cutoffTime))
+    const cutoffTime = timestamp - d.duration.value
+    d.buffer.set((b) => b.filter((sample) => sample.timestamp >= cutoffTime))
 
     // If buffer exceeds max size, resample
-    if (data.buffer.length > data.maxBufferSize.value) {
-      Transition.resampleBuffer(data)
+    if (d.buffer.length > d.maxBufferSize.value) {
+      Transition.resampleBuffer(d)
     }
+  },
+
+  useTransitionTarget<T, V extends State<T, unknown>>(
+    transition: State<TransitionData<T>>,
+    target: V,
+    simulationTime: number
+  ) {
+    useImmediateEffect(() => {
+      Transition.applyNewTarget(transition, target, simulationTime)
+    }, [transition, target])
   },
 
   resampleBuffer(data: State<TransitionData<any>>) {

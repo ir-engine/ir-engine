@@ -26,24 +26,29 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   ECSState,
   Entity,
+  Static,
   UndefinedEntity,
   defineComponent,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   setComponent,
   useComponent,
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { State, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { State, getState, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { ArrayCamera, Matrix4, Quaternion, Vector3 } from 'three'
+import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import React from 'react'
+import { ArrayCamera, Box3, Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition, TransitionData } from '../classes/Transition'
 
 export enum SizeMode {
@@ -61,35 +66,133 @@ export enum ContentFit {
 
 const _size = new Vector3()
 
+export const UnitSchema = S.Object({
+  millimeters: S.Number(0),
+  pixels: S.Number(0),
+  percent: S.Number(0)
+})
+
+/**
+ * Similar to CSS positioning, positive values correspond to right, down, and forward.
+ */
+export const Unit3Schema = S.Object({
+  x: UnitSchema,
+  y: UnitSchema,
+  z: UnitSchema
+})
+
+export const Unit3StringSchema = S.Object({
+  x: S.String(),
+  y: S.String(),
+  z: S.String()
+})
+
+function defineUnit3Transition() {
+  return Transition.defineTransition<Static<typeof Unit3Schema>>({
+    buffer: [
+      {
+        timestamp: 0,
+        value: {
+          x: { millimeters: 0, pixels: 0, percent: 0 },
+          y: { millimeters: 0, pixels: 0, percent: 0 },
+          z: { millimeters: 0, pixels: 0, percent: 0 }
+        }
+      }
+    ],
+    interpolationFunction: (a, b, t) => ({
+      x: {
+        millimeters: a.x.millimeters + (b.x.millimeters - a.x.millimeters) * t,
+        pixels: a.x.pixels + (b.x.pixels - a.x.pixels) * t,
+        percent: a.x.percent + (b.x.percent - a.x.percent) * t
+      },
+      y: {
+        millimeters: a.y.millimeters + (b.y.millimeters - a.y.millimeters) * t,
+        pixels: a.y.pixels + (b.y.pixels - a.y.pixels) * t,
+        percent: a.y.percent + (b.y.percent - a.y.percent) * t
+      },
+      z: {
+        millimeters: a.z.millimeters + (b.z.millimeters - a.z.millimeters) * t,
+        pixels: a.z.pixels + (b.z.pixels - a.z.pixels) * t,
+        percent: a.z.percent + (b.z.percent - a.z.percent) * t
+      }
+    })
+  })
+}
+
 export const LayoutComponent = defineComponent({
   name: 'LayoutComponent',
 
   schema: S.Object({
-    position: S.Optional(S.Vec3()),
-    positionTransition: Transition.defineVector3Transition(),
+    /**
+     * Position the origin of this entity relative to the container entity.
+     *
+     * Similar to CSS positioning, positive values correspond to right, down, and forward.
+     *
+     * Default is { x: "0", y: "0", z: "0" } (top-left-back corner).
+     *
+     * Complex unit combinations can be used, e.g.:
+     *
+     * {x: "100% - 10px", y: "50mm", z: "0"}
+     */
+    position: S.Optional(Unit3Schema),
+    positionTransition: defineUnit3Transition(),
 
-    positionOrigin: S.Optional(S.Vec3()),
-    positionOriginTransition: Transition.defineVector3Transition(),
+    /**
+     * Position the origin of this entity relative to itself.
+     *
+     * Similar to CSS positioning, positive values correspond to right, down, and forward.
+     *
+     * Default is { x: "0", y: "0", z: "0" }  (top-lef-back corner)
+     *
+     * Complex unit combinations can be used, e.g.:
+     *
+     * {x: "0", y: "50% + 10mm", z: "0"}
+     */
+    origin: S.Optional(Unit3Schema),
+    originTransition: defineUnit3Transition(),
 
-    alignmentOrigin: S.Optional(S.Vec3()),
-    alignmentOriginTransition: Transition.defineVector3Transition(),
-
+    /**
+     * Rotation of the entity in quaternion form, about the rotation origin.
+     */
     rotation: S.Optional(S.Quaternion()),
     rotationTransition: Transition.defineQuaternionTransition(),
 
-    rotationOrigin: S.Optional(S.Vec3()),
-    rotationOriginTransition: Transition.defineVector3Transition(),
+    /**
+     * Position the rotation origin of this entity relative to itself.
+     *
+     * Similar to CSS positioning, positive values correspond to right, down, and forward.
+     *
+     * Default is { x: "50%", y: "50%", z: "50%" }  (center)
+     *
+     * Complex unit combinations can be used, e.g.:
+     *
+     * {x: "50%", y: "50% + 10mm", z: "50%"}
+     */
+    rotationOrigin: S.Optional(Unit3Schema),
+    rotationOriginTransition: defineUnit3Transition(),
 
-    size: S.Optional(S.Vec3()),
-    sizeMode: S.Optional(
-      S.Object({
-        x: S.Enum(SizeMode),
-        y: S.Enum(SizeMode),
-        z: S.Enum(SizeMode)
-      })
-    ),
-    sizeTransition: Transition.defineVector3Transition(),
+    /**
+     * Set the size of the entity.
+     *
+     * Default is { x: "100%", y: "100%", z: "100%" } (match container size).
+     *
+     * Complex unit combinations can be used, e.g.:
+     *
+     * {x: "100% + 10mm", y: "100%", z: "100%"}
+     */
+    size: S.Optional(Unit3Schema),
+    sizeTransition: defineUnit3Transition(),
 
+    /**
+     * Content fit mode for the entity. Options include:
+     * - contain: Scale the content to fit within the container container.
+     * - cover: Scale the content to cover the container container.
+     * - fill: Stretch the content to fill the container container.
+     * - none: Do not scale the content.
+     * - scaleDown: Scale the content down if necessary.
+     *
+     * Default is ContentFit.none.
+     */
     contentFit: S.Optional(S.Enum(ContentFit)),
     contentFitTransition: Transition.defineVector3Transition(),
 
@@ -108,22 +211,30 @@ export const LayoutComponent = defineComponent({
       contentFit: S.Enum(ContentFit, ContentFit.none)
     }),
 
-    anchorEntity: S.Entity()
+    containerEntity: S.Entity()
   }),
 
-  useEffectiveState(entity: Entity) {
-    const layout = useComponent(entity, LayoutComponent)
-    return {
-      ...layout,
-      position: layout.position.ornull ?? layout.defaults.position,
-      positionOrigin: layout.positionOrigin.ornull ?? layout.defaults.positionOrigin,
-      alignmentOrigin: layout.alignmentOrigin.ornull ?? layout.defaults.alignmentOrigin,
-      rotation: layout.rotation.ornull ?? layout.defaults.rotation,
-      rotationOrigin: layout.rotationOrigin.ornull ?? layout.defaults.rotationOrigin,
-      size: layout.size.ornull ?? layout.defaults.size,
-      sizeMode: layout.sizeMode.ornull ?? layout.defaults.sizeMode,
-      contentFit: layout.contentFit.ornull ?? layout.defaults.contentFit
+  useRootContainerEntity(entity: Entity) {
+    const containerEntities = [] as Entity[]
+    let layout = getOptionalComponent(entity, LayoutComponent)
+    while (layout?.containerEntity && !containerEntities.includes(layout.containerEntity)) {
+      containerEntities.push(layout.containerEntity)
+      layout = getOptionalComponent(layout.containerEntity, LayoutComponent)
     }
+
+    const forceUpdate = useForceUpdate()
+    React.useEffect(() => {
+      const root = startReactor(() => {
+        containerEntities.forEach((entity) => {
+          useOptionalComponent(entity, LayoutComponent)?.containerEntity.value
+        })
+        forceUpdate()
+        return null
+      })
+      return () => root.stop()
+    }, containerEntities)
+
+    return containerEntities[containerEntities.length - 1]
   },
 
   reactor: () => {
@@ -133,20 +244,20 @@ export const LayoutComponent = defineComponent({
 
     const simulationTime = getState(ECSState).simulationTime
 
-    // This layout might be anchored to another layout, or an object with a bounding box, or a camera.
-    const anchorEntity = layout.anchorEntity.value
-    const anchorLayout = useOptionalComponent(anchorEntity, LayoutComponent)
-    const anchorCamera = useOptionalComponent(anchorEntity, CameraComponent)
-    const anchorRenderer = useOptionalComponent(anchorEntity, RendererComponent)
-    const anchorBounds = useOptionalComponent(anchorEntity, BoundingBoxComponent)
+    // This layout might be containered to another layout, or an object, or a camera.
+    const containerEntity = layout.containerEntity.value
+    const containerLayout = useOptionalComponent(containerEntity, LayoutComponent)
+    const containerCamera = useOptionalComponent(containerEntity, CameraComponent)
+    const containerRenderer = useOptionalComponent(containerEntity, RendererComponent)
+    const containerBounds = useOptionalComponent(containerEntity, BoundingBoxComponent)
 
     const contentFitScale = Transition.useTransitionTarget(
       layout.positionTransition,
       effectiveLayout.position,
       simulationTime
     )
-    Transition.useTransitionTarget(layout.positionOriginTransition, effectiveLayout.positionOrigin, simulationTime)
-    Transition.useTransitionTarget(layout.alignmentOriginTransition, effectiveLayout.alignmentOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.originTransition, effectiveLayout.positionOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.alignmentTransition, effectiveLayout.alignmentOrigin, simulationTime)
     Transition.useTransitionTarget(layout.rotationTransition, effectiveLayout.rotation, simulationTime)
     Transition.useTransitionTarget(layout.rotationOriginTransition, effectiveLayout.rotationOrigin, simulationTime)
     Transition.useTransitionTarget(layout.sizeTransition, effectiveLayout.size, simulationTime)
@@ -162,23 +273,23 @@ export const LayoutComponent = defineComponent({
 
     useImmediateEffect(() => {
       setComponent(entity, ComputedTransformComponent, {
-        referenceEntities: [anchorEntity],
+        referenceEntities: [containerEntity],
 
         computeFunction: () => {
           const frameTime = getState(ECSState).frameTime
 
           // Update transitions
           Transition.computeCurrentValue(frameTime, layout.positionTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.positionOriginTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.alignmentOriginTransition.value as TransitionData<Vector3>)
+          Transition.computeCurrentValue(frameTime, layout.originTransition.value as TransitionData<Vector3>)
+          Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
           Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
           Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
           Transition.computeCurrentValue(frameTime, layout.contentFitTransition.value as TransitionData<Vector3>)
 
           // Get current values
           const position = layout.positionTransition.value.current
-          const positionOrigin = layout.positionOriginTransition.value.current
-          const alignmentOrigin = layout.alignmentOriginTransition.value.current
+          const positionOrigin = layout.originTransition.value.current
+          const alignmentOrigin = layout.alignmentTransition.value.current
           const rotation = layout.rotationTransition.value.current
           const rotationOrigin = layout.rotationOriginTransition.value.current
           const size = layout.effectiveSize.value
@@ -187,11 +298,11 @@ export const LayoutComponent = defineComponent({
 
           // Compute the final position
           const finalPosition = new Vector3()
-          let anchorSize = Vector3_Zero
+          let containerSize = Vector3_Zero
 
-          if (anchorCamera?.value && anchorRenderer?.canvas.value) {
-            // Handle camera anchor
-            const canvas = anchorRenderer.canvas.value
+          if (containerCamera?.value && containerRenderer?.canvas.value) {
+            // Handle camera container
+            const canvas = containerRenderer.canvas.value
             const rect = canvas.getBoundingClientRect()
 
             // Screen-space position in pixels
@@ -212,27 +323,28 @@ export const LayoutComponent = defineComponent({
             // Assuming you want to place the entity at a specific distance from the camera
             // For example, at depth = -0.5 in NDC space corresponds to halfway between near and far planes
             const depth = position.z !== 0 ? position.z : -0.001 // Default depth
-            ndc.z = -1 + 2 * ((depth - anchorCamera.value.near) / (anchorCamera.value.far - anchorCamera.value.near))
+            ndc.z =
+              -1 + 2 * ((depth - containerCamera.value.near) / (containerCamera.value.far - containerCamera.value.near))
 
             // Unproject NDC to world space
-            ndc.unproject(anchorCamera.value as ArrayCamera)
+            ndc.unproject(containerCamera.value as ArrayCamera)
 
             finalPosition.copy(ndc)
-          } else if (anchorLayout?.ornull?.effectiveSize.value) {
-            // Handle anchor layout
-            anchorSize = anchorLayout.effectiveSize.value
+          } else if (containerLayout?.ornull?.effectiveSize.value) {
+            // Handle container layout
+            containerSize = containerLayout.effectiveSize.value
             finalPosition.set(
-              position.x + positionOrigin.x * anchorSize.x - alignmentOrigin.x * size.x,
-              position.y + positionOrigin.y * anchorSize.y - alignmentOrigin.y * size.y,
-              position.z + positionOrigin.z * anchorSize.z - alignmentOrigin.z * size.z
+              position.x + positionOrigin.x * containerSize.x - alignmentOrigin.x * size.x,
+              position.y + positionOrigin.y * containerSize.y - alignmentOrigin.y * size.y,
+              position.z + positionOrigin.z * containerSize.z - alignmentOrigin.z * size.z
             )
-          } else if (anchorBounds?.worldSpaceBox) {
-            // Handle bounding box anchor
-            anchorSize = anchorBounds.worldSpaceBox.value.getSize(_size)
+          } else if (containerBounds?.worldSpaceBox) {
+            // Handle bounding box container
+            containerSize = containerBounds.worldSpaceBox.value.getSize(_size)
             finalPosition.set(
-              position.x + positionOrigin.x * anchorSize.x - alignmentOrigin.x * size.x,
-              position.y + positionOrigin.y * anchorSize.y - alignmentOrigin.y * size.y,
-              position.z + positionOrigin.z * anchorSize.z - alignmentOrigin.z * size.z
+              position.x + positionOrigin.x * containerSize.x - alignmentOrigin.x * size.x,
+              position.y + positionOrigin.y * containerSize.y - alignmentOrigin.y * size.y,
+              position.z + positionOrigin.z * containerSize.z - alignmentOrigin.z * size.z
             )
           } else {
             // Default case
@@ -328,11 +440,22 @@ export const LayoutComponent = defineComponent({
           return false
         }
       })
-    }, [anchorEntity, layout.contentEntity, layout.contentFit])
+    }, [containerEntity, layout.contentEntity, layout.contentFit])
 
     return null
   }
 })
+
+function useLayoutBounds(entity: Entity): State<Vector3> {
+  const bounds = useHookstate(() => new Box3())
+  const layout = LayoutComponent.useEffectiveState(entity)
+  const rotation = layout.rotation.value
+  const meshes = useChildrenWithComponents(entity, [MeshComponent, TransformComponent])
+
+  useImmediateEffect(() => {}, meshes)
+
+  return bounds
+}
 
 /**
  * @param contentEntity
@@ -341,9 +464,28 @@ export const LayoutComponent = defineComponent({
 function useContentSize(entity: Entity): State<Vector3> {
   const size = useHookstate(() => new Vector3())
   const layout = LayoutComponent.useEffectiveState(entity)
+  const rotation = layout.rotation.value
   const boundingBox = useOptionalComponent(entity, BoundingBoxComponent)
-  boundingBox?.objectSpaceBox.value.clone().applyMatrix4
+  boundingBox?.objectSpaceBox.value
+    .clone()
+    .applyMatrix4(new Matrix4().makeRotationFromQuaternion(rotation))
+    .getSize(size)
   return size
 }
 
 function useContentFitScale(effectiveContentFit: State<ContentFit>, contentSize: State<Vector3>) {}
+
+function useEffectiveLayout(entity: Entity) {
+  const layout = useComponent(entity, LayoutComponent)
+  return {
+    ...layout,
+    position: layout.position.ornull ?? layout.defaults.position,
+    positionOrigin: layout.origin.ornull ?? layout.defaults.positionOrigin,
+    alignmentOrigin: layout.alignment.ornull ?? layout.defaults.alignmentOrigin,
+    rotation: layout.rotation.ornull ?? layout.defaults.rotation,
+    rotationOrigin: layout.rotationOrigin.ornull ?? layout.defaults.rotationOrigin,
+    size: layout.size.ornull ?? layout.defaults.size,
+    sizeMode: layout.sizeMode.ornull ?? layout.defaults.sizeMode,
+    contentFit: layout.contentFit.ornull ?? layout.defaults.contentFit
+  }
+}
