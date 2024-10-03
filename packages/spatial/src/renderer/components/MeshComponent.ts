@@ -61,7 +61,7 @@ export const MeshComponent = defineComponent({
       const box = geometryResource.boundingBox.get(NO_PROXY) as Box3 | null
       if (!box) return
 
-      setComponent(entity, BoundingBoxComponent, { worldSpaceBox: box })
+      setComponent(entity, BoundingBoxComponent, { box: box })
       return () => {
         removeComponent(entity, BoundingBoxComponent)
       }

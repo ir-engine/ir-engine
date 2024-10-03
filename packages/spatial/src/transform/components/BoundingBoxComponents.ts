@@ -38,8 +38,6 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { Matrix4 } from 'three'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
@@ -54,15 +52,13 @@ export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
 
   schema: S.Object({
-    worldSpaceBox: S.Class(() => new Box3()),
-    objectSpaceBox: S.Class(() => new Box3()),
+    box: S.Class(() => new Box3()),
     helper: S.Entity()
   }),
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (json.worldSpaceBox?.isBox3) component.worldSpaceBox.value.copy(json.worldSpaceBox)
-    if (json.objectSpaceBox?.isBox3) component.objectSpaceBox.value.copy(json.objectSpaceBox)
+    if (json.box?.isBox3) component.box.value.copy(json.box)
   },
 
   reactor: function () {
@@ -77,7 +73,7 @@ export const BoundingBoxComponent = defineComponent({
 
       const helperEntity = createEntity()
 
-      const helper = new Box3Helper(boundingBox.worldSpaceBox.value)
+      const helper = new Box3Helper(boundingBox.box.value)
       helper.name = `bounding-box-helper-${entity}`
 
       setComponent(helperEntity, NameComponent, helper.name)
@@ -108,14 +104,12 @@ export const updateBoundingBox = (entity: Entity) => {
     return
   }
 
-  const worldBox = boxComponent.worldSpaceBox
-  const objectBox = boxComponent.objectSpaceBox
-  worldBox.makeEmpty()
-  objectBox.makeEmpty()
+  const box = boxComponent.box
+  box.makeEmpty()
 
   const callback = (child: Entity) => {
     const obj = getOptionalComponent(child, MeshComponent)
-    if (obj) expandBoxByObject(obj, entity, worldBox, objectBox)
+    if (obj) expandBoxByObject(obj, box)
   }
 
   iterateEntityNode(entity, callback)
@@ -126,15 +120,12 @@ export const updateBoundingBox = (entity: Entity) => {
   if (!helperEntity) return
 
   const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
-  helperObject.box = worldBox
   helperObject.updateMatrixWorld(true)
 }
 
 const _box = new Box3()
-const _worldBox = new Box3()
-const _localBox = new Box3()
 
-const expandBoxByObject = (object: Mesh<BufferGeometry>, parentEntity: Entity, worldBox: Box3, objectBox: Box3) => {
+const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   const geometry = object.geometry
 
   if (geometry) {
@@ -143,15 +134,7 @@ const expandBoxByObject = (object: Mesh<BufferGeometry>, parentEntity: Entity, w
     }
 
     _box.copy(geometry.boundingBox!)
-    
-    // Update world space box
-    _worldBox.copy(_box).applyMatrix4(object.matrixWorld)
-    worldBox.union(_worldBox)
-
-    // Update object space box (local to the parent entity)
-    const parentWorldMatrix = getComponent(parentEntity, TransformComponent).matrix
-    const parentWorldMatrixInverse = new Matrix4().copy(parentWorldMatrix).invert()
-    _localBox.copy(_worldBox).applyMatrix4(parentWorldMatrixInverse)
-    objectBox.union(_localBox)
+    _box.applyMatrix4(object.matrixWorld)
+    box.union(_box)
   }
 }

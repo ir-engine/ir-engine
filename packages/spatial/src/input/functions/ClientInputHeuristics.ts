@@ -213,7 +213,7 @@ export function findBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hi
   for (const entity of inputState.inputBoundingBoxes) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
     if (!boundingBox) continue
-    const hit = ray.intersectBox(boundingBox.worldSpaceBox, hitTarget)
+    const hit = ray.intersectBox(boundingBox.box, hitTarget)
     if (hit) {
       intersectionData.add({ entity, distance: ray.origin.distanceTo(hitTarget) })
     }

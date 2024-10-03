@@ -122,8 +122,8 @@ export const updateInteractableUI = (entity: Entity) => {
   if (hasVisibleComponent && boundingBox) {
     updateBoundingBox(entity)
 
-    const center = boundingBox.worldSpaceBox.getCenter(_center)
-    const size = boundingBox.worldSpaceBox.getSize(_size)
+    const center = boundingBox.box.getCenter(_center)
+    const size = boundingBox.box.getSize(_size)
     if (!size.y) size.y = 1
     const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
     xruiTransform.position.x = center.x
@@ -209,7 +209,7 @@ const addInteractableUI = (entity: Entity) => {
   const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
   if (boundingBox) {
     updateBoundingBox(entity)
-    boundingBox.worldSpaceBox.getCenter(uiTransform.position)
+    boundingBox.box.getCenter(uiTransform.position)
   }
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
   setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
