@@ -675,7 +675,7 @@ describe('hookstate reactivity', () => {
   })
 
   describe('nested mutable state reactivity with merge', () => {
-    it('should re-render a useEffect if nested value mutable state is merged to without value changing and proxy is used, even with .value called', async () => {
+    it('should re-render a useEffect if nested value mutable state is merged to without value changing and proxy is used, without .value called', async () => {
       const TestState = defineState({
         name: 'test.state.' + testID++,
         initial: () => ({
