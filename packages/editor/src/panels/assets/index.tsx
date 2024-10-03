@@ -38,7 +38,7 @@ const AssetsPanelTitle = () => {
 
   return (
     <div>
-      <PanelDragContainer>
+      <PanelDragContainer dataTestId="assets-panel-tab">
         <PanelTitle>
           <span>{t('editor:tabs.scene-assets')}</span>
         </PanelTitle>
