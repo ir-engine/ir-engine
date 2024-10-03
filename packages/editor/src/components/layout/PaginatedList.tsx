@@ -65,51 +65,55 @@ export default function PaginatedList<T>({
   }, [currentPage])
   return (
     <>
-      <Well>
-        <Grid container>
-          <Grid item xs={1}>
-            <Button
-              onClick={() => currentPage.set(Math.min(list.length / countPerPage, Math.max(0, currentPage.value - 1)))}
-              style={buttonStyle}
-            >
-              <ArrowLeftIcon />
-            </Button>
-          </Grid>
-          {[-2, -1, 0, 1, 2].map((idx) => {
-            const btnKey = `paginatedButton-${idx}`
-            if (!(currentPage.value + idx < 0 || currentPage.value + idx >= list.length / countPerPage))
-              return (
-                <Grid item xs={2} key={btnKey}>
-                  <Button
-                    disabled={idx === 0}
-                    onClick={() => currentPage.set(currentPage.value + idx)}
-                    style={buttonStyle}
-                  >
-                    {currentPage.value + idx}
-                  </Button>
-                </Grid>
-              )
-            else
-              return (
-                <Grid item xs={2} key={btnKey}>
-                  <div style={buttonStyle}></div>
-                </Grid>
-              )
-          })}
-          <Grid item xs={1}>
-            <Button
-              onClick={() =>
-                currentPage.set(
-                  Math.min(Math.floor((list.length - 1) / countPerPage), Math.max(0, currentPage.value + 1))
+      {list.length !== 0 && (
+        <Well>
+          <Grid container>
+            <Grid item xs={1}>
+              <Button
+                onClick={() =>
+                  currentPage.set(Math.min(list.length / countPerPage, Math.max(0, currentPage.value - 1)))
+                }
+                style={buttonStyle}
+              >
+                <ArrowLeftIcon />
+              </Button>
+            </Grid>
+            {[-2, -1, 0, 1, 2].map((idx) => {
+              const btnKey = `paginatedButton-${idx}`
+              if (!(currentPage.value + idx < 0 || currentPage.value + idx >= list.length / countPerPage))
+                return (
+                  <Grid item xs={2} key={btnKey}>
+                    <Button
+                      disabled={idx === 0}
+                      onClick={() => currentPage.set(currentPage.value + idx)}
+                      style={buttonStyle}
+                    >
+                      {currentPage.value + idx}
+                    </Button>
+                  </Grid>
                 )
-              }
-              style={buttonStyle}
-            >
-              <ArrowRightIcon />
-            </Button>
+              else
+                return (
+                  <Grid item xs={2} key={btnKey}>
+                    <div style={buttonStyle}></div>
+                  </Grid>
+                )
+            })}
+            <Grid item xs={1}>
+              <Button
+                onClick={() =>
+                  currentPage.set(
+                    Math.min(Math.floor((list.length - 1) / countPerPage), Math.max(0, currentPage.value + 1))
+                  )
+                }
+                style={buttonStyle}
+              >
+                <ArrowRightIcon />
+              </Button>
+            </Grid>
           </Grid>
-        </Grid>
-      </Well>
+        </Well>
+      )}
       {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((val, index) => {
         return <div key={`${index}`}>{element(val, index)}</div>
       })}

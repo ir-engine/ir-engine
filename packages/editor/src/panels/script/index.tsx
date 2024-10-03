@@ -38,6 +38,22 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../../components/inputs/Button'
 
+const loadTypeDefinitions = async (monaco) => {
+  // Assuming you have @types/react and @types/three installed in node_modules
+  const reactDTS = await fetch('/node_modules/@types/react/index.d.ts').then((res) => res.text())
+  const threeDTS = await fetch('/node_modules/@types/three/index.d.ts').then((res) => res.text())
+
+  // Add type definitions to Monaco
+  monaco.languages.typescript.javascriptDefaults.addExtraLib(reactDTS, 'file:///node_modules/@types/react/index.d.ts')
+  monaco.languages.typescript.javascriptDefaults.addExtraLib(threeDTS, 'file:///node_modules/@types/three/index.d.ts')
+
+  // Configure language defaults
+  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+    target: monaco.languages.typescript.ScriptTarget.ESNext,
+    allowNonTsExtensions: true
+  })
+}
+
 const ActiveScript = () => {
   const entities = SelectionState.useSelectedEntities()
   const entity = entities[entities.length - 1]
@@ -78,6 +94,9 @@ const ActiveScript = () => {
           language="typescript"
           defaultLanguage="typescript"
           value={fileCode.value} // get the file contents
+          onMount={(editor, monaco) => {
+            loadTypeDefinitions(monaco)
+          }}
           onChange={(newCode) => {
             if (newCode === fileCode.value) return
             if (!scriptComponent?.src.value) return
