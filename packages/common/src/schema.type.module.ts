@@ -60,6 +60,7 @@ export type * from './schemas/projects/project-github-push.schema'
 export type * from './schemas/projects/project-invalidate.schema'
 export type * from './schemas/projects/project-permission-type.schema'
 export type * from './schemas/projects/project-permission.schema'
+export type * from './schemas/projects/project-publish.schema'
 export type * from './schemas/projects/project.schema'
 export type * from './schemas/projects/projects.schema'
 export type * from './schemas/recording/recording-resource-upload.schema'
@@ -260,6 +261,8 @@ export const projectInvalidatePath = 'project-invalidate'
 export const projectPath = 'project'
 
 export const projectsPath = 'projects'
+
+export const projectPublishPath = 'project-publish'
 
 export const builderInfoPath = 'builder-info'
 
