@@ -236,6 +236,7 @@ const resourceCallbacks = {
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
+      if (!asset.image) return
       // asset.wrapS = RepeatWrapping
       // asset.wrapT = RepeatWrapping
       asset.onUpdate = () => {

@@ -28,11 +28,8 @@ import { firefoxVersion, iOS, isFirefox, isSafari } from '@ir-engine/spatial/src
 import { ImageBitmapLoader, ImageLoader, LoadingManager, Texture } from 'three'
 import { Loader } from '../base/Loader'
 
-export const TextureLoaderOptions = {
-  useImageLoader: typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98),
-  iOSMaxResolution: 1024,
-  loadOnClient: isClient
-}
+const useImageLoader = typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)
+const iOSMaxResolution = 1024
 
 /** @todo make this accessible for performance scaling */
 const getScaledTextureURI = async (src: string, maxResolution: number): Promise<[string, HTMLCanvasElement]> => {
@@ -81,7 +78,7 @@ class TextureLoader extends Loader<Texture> {
   constructor(manager?: LoadingManager, maxResolution?: number) {
     super(manager)
     if (maxResolution) this.maxResolution = maxResolution
-    else if (iOS) this.maxResolution = TextureLoaderOptions.iOSMaxResolution
+    else if (iOS) this.maxResolution = iOSMaxResolution
   }
 
   override async load(
@@ -96,7 +93,7 @@ class TextureLoader extends Loader<Texture> {
       ;[url, canvas] = await getScaledTextureURI(url, this.maxResolution)
     }
 
-    if (!TextureLoaderOptions.loadOnClient) {
+    if (!isClient) {
       onLoad(new Texture())
       return
     }
@@ -104,8 +101,7 @@ class TextureLoader extends Loader<Texture> {
     // Use an ImageBitmapLoader if imageBitmaps are supported. Moves much of the
     // expensive work of uploading a texture to the GPU off the main thread.
     let loader: ImageLoader | ImageBitmapLoader
-    if (TextureLoaderOptions.useImageLoader)
-      loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
+    if (useImageLoader) loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
     else loader = new ImageBitmapLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
     loader.load(
       url,

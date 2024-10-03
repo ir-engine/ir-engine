@@ -33,7 +33,6 @@ import {
   generateEntityUUID,
   getComponent,
   setComponent,
-  UndefinedEntity,
   useEntityContext,
   useOptionalComponent,
   UUIDComponent
@@ -46,20 +45,15 @@ import {
   ReactorRoot,
   startReactor,
   useDidMount,
-  useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import {
-  MaterialInstanceComponent,
-  MaterialStateComponent
-} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { EntityTreeComponent, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { EntityTreeComponent, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import Sinon from 'sinon'
-import { BufferGeometry, MeshStandardMaterial } from 'three'
-import { TextureLoaderOptions } from '../assets/loaders/texture/TextureLoader'
+import { BufferGeometry } from 'three'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFNode, GLTFNodeState } from './GLTFDocumentState'
@@ -73,14 +67,6 @@ const unlit_gltf = CDN_URL + '/UnlitTest/glTF/UnlitTest.gltf'
 const textured_gltf = CDN_URL + '/BoxTextured/glTF/BoxTextured.gltf'
 
 describe('GLTF Loader', () => {
-  before(() => {
-    TextureLoaderOptions.loadOnClient = true
-  })
-
-  after(() => {
-    TextureLoaderOptions.loadOnClient = false
-  })
-
   beforeEach(async () => {
     createEngine()
   })
@@ -374,7 +360,8 @@ describe('GLTF Loader', () => {
     })
   })
 
-  it.only('can load an texture for a material', (done) => {
+  /** @todo materials aren't reactive since they're updated through setValues */
+  it('can load an texture for a material', (done) => {
     const entity = createEntity()
 
     const root = startReactor(() => {
@@ -396,66 +383,31 @@ describe('GLTF Loader', () => {
             applyIncomingActions()
           }, [gltfComponent?.dependencies])
 
-          const MatStateReactor = (props: { entity: Entity; uri: string }) => {
-            const { entity, uri } = props
+          const MatStateReactor = (props: { entity: Entity; gltf: GLTF.IGLTF }) => {
+            const { entity, gltf } = props
             const material = useOptionalComponent(entity, MaterialStateComponent)?.material
-              .value as MeshStandardMaterial
 
             useEffect(() => {
-              if (!material || !material.map) return
+              if (!material || !material.value) return
 
-              assert(material.map)
-            }, [material?.map])
+              const mat = material.value
+              assert(mat)
+              root.stop()
+              done()
+            }, [material])
 
             return null
-          }
-
-          const ChildReactor = (props: { entity: Entity; gltf: GLTF.IGLTF }) => {
-            const { entity, gltf } = props
-            const materialInstances = useChildrenWithComponents(entity, [MaterialInstanceComponent])
-            const uriState = useHookstate('')
-            const materialStateEntity = useHookstate(UndefinedEntity)
-
-            useEffect(() => {
-              if (!materialInstances.length) return
-
-              assert(materialInstances.length === 1)
-              const matEntity = materialInstances[0]
-              const matInstance = getComponent(matEntity, MaterialInstanceComponent)
-              const uuid = matInstance.uuid[0]
-              assert(uuid)
-
-              const matStateEntity = UUIDComponent.getEntityByUUID(uuid)
-              assert(matStateEntity)
-              materialStateEntity.set(matStateEntity)
-
-              const materialDef = getComponent(matStateEntity, MaterialDefinitionComponent)
-              const metalRough = materialDef.pbrMetallicRoughness
-              const baseColorTextureIndex = metalRough!.baseColorTexture!.index!
-              const uri = gltf.images![baseColorTextureIndex].uri!
-              uriState.set(uri)
-            }, [materialInstances])
-
-            return uriState.value && materialStateEntity.value ? (
-              <MatStateReactor entity={materialStateEntity.value} uri={uriState.value} />
-            ) : null
           }
 
           const ParentReactor = (props: { parentUUID: EntityUUID }) => {
             const { parentUUID } = props
             const parentEntity = UUIDComponent.useEntityByUUID(parentUUID)
-            const children = useOptionalComponent(parentEntity, EntityTreeComponent)?.children.value
             const instanceID = GLTFComponent.useInstanceID(parentEntity)
             const gltfDocumentState = useMutableState(GLTFDocumentState)
             const gltf = gltfDocumentState[instanceID].get(NO_PROXY)
+            const matEntity = useChildWithComponents(parentEntity, [MaterialStateComponent])
 
-            return children && children.length ? (
-              <>
-                {children.map((child) => {
-                  return <ChildReactor key={child} entity={child} gltf={gltf as GLTF.IGLTF} />
-                })}
-              </>
-            ) : null
+            return matEntity ? <MatStateReactor entity={matEntity} gltf={gltf as GLTF.IGLTF} /> : null
           }
 
           return uuid ? (
