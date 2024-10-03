@@ -45,10 +45,10 @@ export const cleanFileNameString = (fullFileName: string): string => {
     // Truncate or concat the name if it is too long or too short
     if (nameWithoutExtension.length > 64) {
       nameWithoutExtension = nameWithoutExtension.slice(0, 64)
+    } else if (nameWithoutExtension.length < 4) {
+      //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
+      nameWithoutExtension = nameWithoutExtension + '0000'
     }
-    // else if (nameWithoutExtension.length < 4) { //need to check why this was needed
-    //   nameWithoutExtension = nameWithoutExtension + '0000'
-    // }
 
     // Combine the name with the lowercase extension
     const newFileName = lastDotIndex === -1 ? `${nameWithoutExtension}` : `${nameWithoutExtension}.${extension}`
