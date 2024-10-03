@@ -64,7 +64,7 @@ import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { AnimationState } from '../AnimationManager'
-import { mixamoVRMRigMap, recursiveHipsLookupECS } from '../AvatarBoneMatching'
+import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { preloadedAnimations } from '../animation/Util'
 import {
   setAvatarAnimations,
@@ -250,7 +250,13 @@ export default function createVRM(rootEntity: Entity) {
 }
 
 const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
-  const hipsEntity = recursiveHipsLookupECS(rootEntity)!
+  const hipsEntity = iterateEntityNode(
+    rootEntity,
+    (entity) => entity,
+    (entity) => hipsRegex.test(getComponent(entity, NameComponent)),
+    false,
+    true
+  )?.[0]
 
   const hipsName = getComponent(hipsEntity, NameComponent)
 

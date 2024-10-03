@@ -24,11 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 
 const entitiesByName = {} as Record<string, Entity[]>
 
@@ -64,20 +63,3 @@ export const NameComponent = defineComponent({
 
   entitiesByName: entitiesByName as Readonly<typeof entitiesByName>
 })
-
-export const recursiveNameLookup = (entity: Entity, targetName: string) => {
-  const lookup = (entity: Entity) => {
-    const name = getComponent(entity, NameComponent)
-    if (name === targetName) {
-      return entity
-    }
-    const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-    if (entityTreeComponent.children.length > 0) {
-      for (const child of entityTreeComponent.children) {
-        const results = lookup(child)
-        if (results) return results
-      }
-    }
-  }
-  return lookup(entity)
-}
