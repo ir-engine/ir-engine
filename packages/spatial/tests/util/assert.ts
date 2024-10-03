@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import * as npmAssert from 'assert'
+import { Color, ColorRepresentation } from 'three'
 
 /**
  * @fileoverview Assertion utilities for unit tests
@@ -110,7 +111,7 @@ export const is = {
     if (A === B) return true // Same reference or value. No need to compare any further
     if (is.primitive(A) && is.primitive(B)) return A === B // Compare primitives
     if (Object.keys(A).length !== Object.keys(B).length) return false // Check for different amount of keys
-    for (let key in A) {
+    for (const key in A) {
       // Compare objects with same number of keys
       if (!(key in B)) return false // B doesn't have this prop
       if (!is.deepEqual(A[key], B[key])) return false // Recursive case
@@ -272,5 +273,27 @@ assert.array = {
     assert.truthy(!is.arrayWithDuplicates(arr), msg)
   }
 } //:: assert.array
+
+function getColorHex(c: ColorRepresentation) {
+  return new Color(c).getHex()
+}
+
+/**
+ * @description Describes `threejs/Color` assertion utilities for use in unit tests. */
+assert.color = {
+  /**
+   * @description
+   * Triggers an assertion when the colors represented by `@param A` and `@param B` are not equal */
+  eq(A: ColorRepresentation, B: ColorRepresentation) {
+    assert.equal(getColorHex(A), getColorHex(B))
+  },
+
+  /**
+   * @description
+   * Triggers an assertion when the colors represented by `@param A` and `@param B` are equal */
+  notEq(A: ColorRepresentation, B: ColorRepresentation) {
+    assert.notEqual(getColorHex(A), getColorHex(B))
+  }
+}
 
 export default assert
