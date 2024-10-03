@@ -33,7 +33,6 @@ import { emailPath } from '@ir-engine/common/src/schemas/user/email.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { smsPath } from '@ir-engine/common/src/schemas/user/sms.schema'
-import { UserName } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { BadRequest } from '@feathersjs/errors'
 import { EMAIL_REGEX } from '@ir-engine/common/src/regex'
@@ -64,16 +63,16 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    */
   async sendEmail(toEmail: string, token: string, redirectUrl?: string): Promise<void> {
     const hashLink = `${config.server.url}/login/${token}${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`
-    let username = '' as UserName
 
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
 
     const compiledHTML = pug.compileFile(templatePath)({
-      logo: config.client.logo,
-      title: config.client.title,
-      hashLink,
-      username: username
+      headerLogo: `${config.client.url}/static/Email-Template-Header.png`,
+      irWhiteLogo: `${config.client.url}/static/3d-IR-White-Logo.png`,
+      templateBg: `${config.client.url}/static/Email-Template-BG.png`,
+      hashLink
     })
+
     const mailSender = config.email.from
     const email = {
       from: mailSender,
