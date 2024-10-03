@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { API } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   blurAndScaleImageData,
   convertImageDataToKTX2Blob,
@@ -73,6 +76,10 @@ export const SceneThumbnailState = defineState({
       thumbnail: null,
       uploadingThumbnail: false
     })
+    const sceneId = editorState.sceneAssetID!
+    const _thumbnailKey = savedThumbnailURL.replace(config.client.fileServer + '/', '')
+    const response = await API.instance.service(staticResourcePath).patch(sceneId, { thumbnailKey: _thumbnailKey })
+    console.log(response.thumbnailURL)
   },
   createLoadingScreen: async () => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
