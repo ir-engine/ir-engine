@@ -28,6 +28,7 @@ import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunct
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
@@ -86,6 +87,7 @@ export default function GizmoTool({
   const handleClickSelectionBox = () => {
     setIsClickedSelectionBox(!isClickedSelectionBox)
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
+    getMutableState(InputState).capturingCameraOrbitEnbaled.set(isClickedSelectionBox)
   }
   const handleMouseUp = () => {
     setIsDragging(false)
