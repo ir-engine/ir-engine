@@ -29,6 +29,8 @@ import * as npmAssert from 'assert'
  * @fileoverview Assertion utilities for unit tests
  */
 
+type AssertFn = (val: unknown, msg?: Message) => asserts val
+
 /**
  *
  * @description Extension of `npm/assert`
@@ -40,21 +42,22 @@ import * as npmAssert from 'assert'
  * Describes assertion utilities for use in unit tests.
  *
  * Extends `import assert from 'assert'`
- * - `assert()` behaves the same as `npm/assert()`
- * - The behavior of `assert.ok()` is changed, so that error messages are clearer.
- *   _(note: Does not double-serve as null/undefined removal. Use `assert(val)` for that)_
- * - Other `npm/assert` functions retain their normal behavior.
+ * - `assert()` becomes `npm/assert.equal(Boolean(val), true)`, so that error messages are clearer.
+ *   _(note: Does not double-serve as null/undefined removal. Use `assertOk(val)` for that)_
+ * - Other `npm/assert` functions preserve their normal behavior.
  *
  * Also Implements new math and array assertions.
  * */
 function assert<T>(val: T, msg?: Message): void {
-  npmAssert.ok(val, msg)
+  assert.equal(is.truthy(val), true, msg)
 }
+export const assertOk: AssertFn = npmAssert.ok
 
 /* @note
  * Extends the assert function with a harcoded list of the most commonly used assertions in `npm/assert`
  * Add any missing functions to the list below when necessary */
 assert.equal = npmAssert.equal
+assert.notEqual = npmAssert.notEqual
 assert.deepEqual = npmAssert.deepEqual
 assert.notDeepEqual = npmAssert.notDeepEqual
 assert.fail = npmAssert.fail
@@ -113,6 +116,11 @@ export const is = {
       if (!is.deepEqual(A[key], B[key])) return false // Recursive case
     }
     return true // Otherwise they are equal
+  },
+
+  /** @description Returns whether or not the given `@param arr` is an array that has duplicate values. */
+  arrayWithDuplicates<T>(arr: T): boolean {
+    return Array.isArray(arr) && new Set(arr).size !== arr.length
   }
 } //:: is
 
@@ -136,7 +144,7 @@ assert.falsy = (val: any, msg?: Message): void => {
  * @description Triggers an assertion if `@param val` does not evaluate to a truthy value
  * @note
  * Overrides the default `assert.ok` function, so that error messages are clearer.
- * Use `assert(val)` to access the old behavior */
+ * Use `assertOk(val)` to access the old behavior */
 assert.ok = (val: any, msg?: Message): void => {
   assert.equal(is.truthy(val), true, msg)
 }
@@ -148,14 +156,14 @@ assert.float = {
    * @description
    * Triggers an assertion when `@param A` and `@param B` are not approximately equal, using `@param epsilon` as the margin of error. */
   approxEq(A: number, B: number, epsilon = Epsilon) {
-    assert.ok(is.floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
+    assert.truthy(is.floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
   },
 
   /**
    * @description
    * Triggers an assertion when `@param A` and `@param B` are approximately equal, using `@param epsilon` as the margin of error. */
   approxNotEq(A: number, B: number, epsilon = Epsilon) {
-    assert.ok(!is.floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
+    assert.truthy(!is.floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
   }
 } //:: assert.float
 
@@ -248,6 +256,20 @@ assert.array = {
     for (let id = 0; id < A.length && id < B.length; id++) {
       !is.deepEqual(A[id], B[id]) && assert.notDeepEqual(A[id], B[id], err)
     }
+  },
+
+  /**
+   * @description
+   * Triggers an assert when `@param arr` has no duplicate members */
+  hasDuplicates<T>(arr: Array<T>, msg?: Message) {
+    assert.truthy(is.arrayWithDuplicates(arr), msg)
+  },
+
+  /**
+   * @description
+   * Triggers an assert when `@param arr` has duplicate members */
+  hasNoDuplicates<T>(arr: Array<T>, msg?: Message) {
+    assert.truthy(!is.arrayWithDuplicates(arr), msg)
   }
 } //:: assert.array
 
