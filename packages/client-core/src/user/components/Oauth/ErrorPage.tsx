@@ -28,11 +28,11 @@ import React, { useEffect, useState } from 'react'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
-import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
-import { MdErrorOutline } from 'react-icons/md'
+import { BsFillExclamationTriangleFill } from 'react-icons/bs'
 import { useLocation } from 'react-router-dom'
 import { AuthService, AuthState } from '../../services/AuthService'
 
@@ -73,45 +73,34 @@ export default function ErrorPage({ name }: ErrorPageProps) {
   }
 
   return (
-    <div className="pointer-events-auto flex h-full w-full items-center justify-center bg-gray-900 p-2">
+    <div className="pointer-events-auto flex h-full w-full items-center justify-center bg-[#080808] p-2">
       {state.error ? (
-        <div className="grid w-full gap-y-3 rounded-md border border-gray-700 bg-gray-800 p-3 sm:w-2/3 md:w-1/2 lg:w-1/3 xl:w-1/4">
-          <MdErrorOutline size="4rem" className="w-full text-center text-red-400" />
-
-          <Text fontWeight="bold" fontSize="2xl" className="mt-1 text-center text-white" component="h2">
-            {t('user:oauth.error')}
-          </Text>
-
-          <Text className="p text-center text-gray-400">{t('user:oauth.authFailed', { name })}</Text>
-
-          <button
-            className="flex items-center justify-center rounded border-gray-600 bg-gray-700 p-2 text-gray-200 hover:bg-gray-600 hover:text-gray-100"
-            onClick={() => {
-              showError.set((v) => !v)
-            }}
-          >
-            <span>
-              {t('user:oauth.showError')}
-              {showError.value ? (
-                <IoIosArrowUp className="inline-block" size="1.25rem" />
-              ) : (
-                <IoIosArrowDown className="inline-block" size="1.25rem" />
-              )}
-            </span>
-          </button>
-
-          {showError.value && (
-            <div className="w-full overflow-x-auto rounded border bg-white p-5 font-mono text-black">
-              <code>{JSON.stringify({ error: state.error })}</code>
+        <div className="grid w-full gap-y-3 rounded-xl bg-[#0E0F11] p-3 sm:w-2/3 md:w-1/2 lg:w-1/3 xl:w-1/4">
+          <div className="flex flex-col items-center py-6 text-white">
+            <div className="mb-8 h-14 w-14 rounded-full bg-[#191B1F]">
+              <BsFillExclamationTriangleFill className="mx-auto my-3 h-6 w-6 text-white" />
             </div>
-          )}
 
-          <button onClick={redirectToRoot} className="rounded bg-blue-500 p-2 text-white">
-            {t('user:oauth.redirectToRoot')}
-          </button>
+            <Text fontWeight="medium" fontSize="xl">
+              {t('user:oauth.error', { name })}
+            </Text>
+
+            <Text className="py-2 opacity-50" fontWeight="medium" fontSize="sm">
+              {state.error}
+            </Text>
+
+            <Button className="mt-8 bg-[#375DAF]" onClick={redirectToRoot}>
+              {t('user:oauth.redirectToRoot')}
+            </Button>
+          </div>
         </div>
       ) : (
-        <LoadingView className="h-20 w-20" />
+        <LoadingView
+          fullScreen
+          title={t('common:loader.authenticating')}
+          titleClassname="text-white"
+          className="block h-12 w-12"
+        />
       )}
     </div>
   )

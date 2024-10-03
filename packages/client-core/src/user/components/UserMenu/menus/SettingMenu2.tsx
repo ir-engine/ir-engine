@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
 import { defaultThemeModes, defaultThemeSettings } from '@ir-engine/common/src/constants/DefaultThemeSettings'
+import multiLogger from '@ir-engine/common/src/logger'
 import { UserSettingPatch, clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
@@ -48,10 +49,13 @@ import { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Menu from '../../../../common/components/Menu'
+import { clientContextParams } from '../../../../util/ClientContextState'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
+
+const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
 
 export const ShadowMapResolutionOptions: SelectOptionsType[] = [
   {
@@ -117,7 +121,12 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
     if (!userSettings) return
 
     const settings: UserSettingPatch = { themeModes: { ...themeModes, [mode]: event } }
-    AuthService.updateUserSettings(userSettings.id, settings)
+    AuthService.updateUserSettings(userSettings.id, settings).then(() =>
+      logger.info({
+        event_name: `change_${name}_theme`,
+        event_value: event
+      })
+    )
   }
 
   useLayoutEffect(() => {
@@ -170,21 +179,28 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
 
   const handleQualityLevelChange = (value) => {
     rendererState.qualityLevel.set(value)
+    logger.info({ event_name: `set_quality_preset`, event_value: value })
     rendererState.automatic.set(false)
+    logger.info({ event_name: `automatic_qp`, event_value: false })
   }
 
   const handlePostProcessingCheckbox = () => {
     rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
+    logger.info({ event_name: `post_processing`, event_value: rendererState.usePostProcessing.value })
     rendererState.automatic.set(false)
+    logger.info({ event_name: `automatic_qp`, event_value: false })
   }
 
   const handleShadowCheckbox = () => {
     rendererState.useShadows.set(!rendererState.useShadows.value)
+    logger.info({ event_name: `shadows`, event_value: rendererState.useShadows.value })
     rendererState.automatic.set(false)
+    logger.info({ event_name: `automatic_qp`, event_value: false })
   }
 
   const handleAutomaticCheckbox = () => {
     rendererState.automatic.set(!rendererState.automatic.value)
+    logger.info({ event_name: `automatic_qp`, event_value: rendererState.automatic.value })
   }
 
   return (
@@ -342,6 +358,7 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               value={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
                 getMutableState(AudioState).positionalMedia.set(value)
+                logger.info({ event_name: `spatial_user_av`, event_value: value })
               }}
             />
           </InputGroup>
@@ -353,6 +370,7 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               value={audioState.masterVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).masterVolume.set(value)
+                logger.info({ event_name: `set_total_volume`, event_value: value })
               }}
               onRelease={() => {}}
             />
@@ -365,6 +383,7 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               value={audioState.microphoneGain.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).microphoneGain.set(value)
+                logger.info({ event_name: `set_microphone_volume`, event_value: value })
               }}
               onRelease={() => {}}
             />
@@ -377,6 +396,7 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               value={audioState.mediaStreamVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).mediaStreamVolume.set(value)
+                logger.info({ event_name: `set_user_volume`, event_value: value })
               }}
               onRelease={() => {}}
             />
@@ -389,6 +409,7 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               value={audioState.notificationVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).notificationVolume.set(value)
+                logger.info({ event_name: `set_notification_volume`, event_value: value })
               }}
               onRelease={() => {}}
             />
@@ -401,6 +422,7 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               value={audioState.soundEffectsVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).soundEffectsVolume.set(value)
+                logger.info({ event_name: `set_scene_volume`, event_value: value })
               }}
               onRelease={() => {}}
             />
@@ -417,6 +439,7 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               value={audioState.backgroundMusicVolume.value}
               onChange={(value: number) => {
                 getMutableState(AudioState).backgroundMusicVolume.set(value)
+                logger.info({ event_name: `set_music_volume`, event_value: value })
               }}
               onRelease={() => {}}
             />
@@ -463,7 +486,13 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
               value={rendererState.shadowMapResolution.value}
               options={ShadowMapResolutionOptions}
-              onChange={(event) => rendererState.shadowMapResolution.set(ShadowMapResolutionOptions[event])}
+              onChange={(event) => {
+                rendererState.shadowMapResolution.set(Number(event))
+                logger.info({
+                  event_name: `change_shadow_map_resolution`,
+                  event_value: `${event}px`
+                })
+              }}
             />
           )}
         </>

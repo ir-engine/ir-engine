@@ -29,6 +29,7 @@ export type ResourceType = {
   dependencies?: string[] // other keys
   licensing?: string
   description?: string
+  name?: string
   attribution?: string
   thumbnailKey?: string
   thumbnailMode?: string // 'automatic' | 'manual'

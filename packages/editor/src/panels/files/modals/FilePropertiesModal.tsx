@@ -23,13 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { API, useFind } from '@ir-engine/common'
-import { StaticResourceType, UserType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import config from '@ir-engine/common/src/config'
+import {
+  StaticResourceType,
+  UserType,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
@@ -100,6 +107,7 @@ export default function FilePropertiesModal() {
         await API.instance.service(staticResourcePath).patch(resource.id, {
           key: resource.key,
           tags: newTags,
+          name: resourceDigest.name.value,
           licensing: resourceDigest.licensing.value,
           attribution: resourceDigest.attribution.value,
           description: resourceDigest.description.value,
@@ -160,6 +168,38 @@ export default function FilePropertiesModal() {
     resourceDigest.tags.set(resourceDigest.tags.value!.filter((_, i) => i !== index))
   }
 
+  const handleUploadThumbnail = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      for (const resource of resources.data) {
+        const src = await uploadToFeathersService(fileBrowserUploadPath, [file], {
+          args: [
+            {
+              fileName: file.name,
+              project: projectName,
+              path: 'public/thumbnails/' + file.name,
+              contentType: file.type,
+              type: 'thumbnail'
+            }
+          ]
+        }).promise
+        const thumbnailURL = new URL(src)
+        thumbnailURL.search = ''
+        thumbnailURL.hash = ''
+        const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
+        API.instance.service(staticResourcePath).patch(resource.id, {
+          thumbnailKey: _thumbnailKey,
+          thumbnailMode: 'custom'
+        })
+      }
+    }
+  }
+
+  const uploadThumbnailRef = useRef<HTMLInputElement>(null)
+  const onClickUploadThumbnail = () => {
+    uploadThumbnailRef.current?.click()
+  }
+
   return (
     <Modal
       title={title}
@@ -184,11 +224,59 @@ export default function FilePropertiesModal() {
         >
           {t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
         </Button>
+        <label className="mt-2 text-xs">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleUploadThumbnail}
+            className="hidden"
+            ref={uploadThumbnailRef}
+          />
+          <Button
+            title={t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
+            className="mt-2 text-xs"
+            onClick={onClickUploadThumbnail}
+          >
+            {t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
+          </Button>
+        </label>
       </div>
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
-          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
+          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.fileName')}</Text>
           <Text className="text-theme-input">{filename}</Text>
+        </div>
+        <div className="grid grid-cols-2 items-center gap-2">
+          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
+          <span className="flex items-center">
+            {editedField.value === 'name' ? (
+              <>
+                <Input value={resourceDigest.name.value ?? ''} onChange={onChange('name', resourceDigest.name)} />
+                <Button
+                  title={t('common:components.save')}
+                  variant="transparent"
+                  size="small"
+                  startIcon={<RiSave2Line />}
+                  onClick={() => editedField.set(null)}
+                />
+              </>
+            ) : (
+              <>
+                <Text className="text-theme-input">
+                  {files.length > 1 && !sharedFields.value.includes('name')
+                    ? t('editor:layout.filebrowser.fileProperties.mixedValues')
+                    : resourceDigest.name.value || <em>{t('common:components.none')}</em>}
+                </Text>
+                <Button
+                  title={t('common:components.edit')}
+                  variant="transparent"
+                  size="small"
+                  startIcon={<HiPencil />}
+                  onClick={() => editedField.set('name')}
+                />
+              </>
+            )}
+          </span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
@@ -334,7 +422,7 @@ export default function FilePropertiesModal() {
               </div>
               <div className="flex h-24 flex-wrap gap-2 overflow-y-auto bg-theme-surfaceInput p-2">
                 {resourceDigest.tags.value!.map((tag, idx) => (
-                  <span key={idx} className="flex h-fit w-fit items-center rounded bg-[#2F3137] px-2 py-0.5">
+                  <span key={idx} className="flex h-fit w-fit items-center rounded bg-[#2C2E33] px-2 py-0.5">
                     {tag} <HiXMark className="ml-1 cursor-pointer" onClick={() => handleRemoveTag(idx)} />
                   </span>
                 ))}
