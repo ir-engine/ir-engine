@@ -42,7 +42,7 @@ import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComp
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import InputGroup from '../../../input/Group'
-import NumericInput from '../../../input/Numeric'
+import NumericScrubber from '../../../input/Numeric/Scrubber'
 import SelectInput from '../../../input/Select'
 import NodeEditor from '../../nodeEditor'
 
@@ -87,7 +87,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           label={t('editor:properties.audio.lbl-rolloffFactor')}
           info={t('editor:properties.audio.info-rolloffFactor')}
         >
-          <NumericInput
+          <NumericScrubber
             min={0}
             max={1}
             smallStep={0.001}
@@ -104,7 +104,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           label={t('editor:properties.audio.lbl-rolloffFactor')}
           info={t('editor:properties.audio.info-rfInfinity')}
         >
-          <NumericInput
+          <NumericScrubber
             min={0}
             smallStep={0.1}
             mediumStep={1}
@@ -120,7 +120,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.audio.lbl-refDistance')}
         info={t('editor:properties.audio.info-refDistance')}
       >
-        <NumericInput
+        <NumericScrubber
           min={0}
           smallStep={0.1}
           mediumStep={1}
@@ -141,10 +141,9 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
             : t('editor:properties.audio.info-maxDistance')
         }
       >
-        <NumericInput
+        <NumericScrubber
           min={0.00001}
           disabled={audioComponent.distanceModel.value !== DistanceModel.Linear}
-          style={audioComponent.distanceModel.value !== DistanceModel.Linear ? { backgroundColor: '#FF0000' } : {}}
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
@@ -159,7 +158,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.audio.lbl-coneInnerAngle')}
         info={t('editor:properties.audio.info-coneInnerAngle')}
       >
-        <NumericInput
+        <NumericScrubber
           min={0}
           max={360}
           smallStep={0.1}
@@ -186,7 +185,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.audio.lbl-coneOuterAngle')}
         info={t('editor:properties.audio.info-coneOuterAngle')}
       >
-        <NumericInput
+        <NumericScrubber
           min={0}
           max={360}
           smallStep={0.1}
