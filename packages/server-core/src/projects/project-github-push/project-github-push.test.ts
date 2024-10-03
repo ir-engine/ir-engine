@@ -60,10 +60,10 @@ describe('project-github-push.test', () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
-    const name = ('test-project-destination-check-user-name-' + uuidv4()) as UserName
+    const name = ('test-project-destination-check-user-name-' + Math.random().toString().slice(2, 12)) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-destination-check-avatar-name-' + uuidv4()
+      name: 'test-project-destination-check-avatar-name-' + Math.random().toString().slice(2, 12)
     })
 
     const testUser = await app.service(userPath).create({
@@ -88,7 +88,7 @@ describe('project-github-push.test', () => {
       getParams()
     )
 
-    const projectName = `test-project-github-push-${uuidv4()}`
+    const projectName = `test-project-github-push-${Math.random().toString().slice(2, 12)}`
     const fullName = `@ir-engine/${projectName}`
     testProject = await app
       .service(projectPath)

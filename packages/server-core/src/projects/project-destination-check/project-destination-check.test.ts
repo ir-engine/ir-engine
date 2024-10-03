@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import '../../patchEngineNode'
 
 import nock from 'nock'
-import { v4 as uuidv4 } from 'uuid'
 import { afterAll, afterEach, assert, beforeAll, describe, it } from 'vitest'
 
 import {
@@ -66,10 +65,10 @@ describe('project-destination-check.test', () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
-    const name = ('test-project-destination-check-user-name-' + uuidv4()) as UserName
+    const name = ('test-project-destination-check-user-name-' + Math.random().toString().slice(2, 12)) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-destination-check-avatar-name-' + uuidv4()
+      name: 'test-project-destination-check-avatar-name-' + Math.random().toString().slice(2, 12)
     })
 
     const testUser = await app.service(userPath).create({

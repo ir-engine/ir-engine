@@ -27,7 +27,6 @@ import '../../patchEngineNode'
 
 import assert from 'assert'
 import nock from 'nock'
-import { v4 as uuidv4 } from 'uuid'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { projectCheckSourceDestinationMatchPath } from '@ir-engine/common/src/schemas/projects/project-check-source-destination-match.schema'
@@ -69,10 +68,10 @@ describe('project-check-source-destination-match.test', () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
-    const name = ('test-project-check-source-destination-match-user-name-' + uuidv4()) as UserName
+    const name = ('test-project-user-name-' + Math.random().toString().slice(2, 12)) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-check-source-destination-match-avatar-name-' + uuidv4()
+      name: 'test-project-avatar-name-' + Math.random().toString().slice(2, 12)
     })
 
     const testUser = await app.service(userPath).create({

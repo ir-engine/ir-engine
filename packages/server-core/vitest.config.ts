@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitest/config'
 
+process.env.TEST = 'true'
+
 export default defineConfig({
   test: {
     environment: 'node',

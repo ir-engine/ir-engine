@@ -27,7 +27,6 @@ import '../../patchEngineNode'
 
 import assert from 'assert'
 import nock from 'nock'
-import { v4 as uuidv4 } from 'uuid'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { projectBuilderTagsPath } from '@ir-engine/common/src/schemas/projects/project-builder-tags.schema'
@@ -57,10 +56,10 @@ describe('project-builder-tags.test', () => {
     app = await createFeathersKoaApp()
     await app.setup()
 
-    const name = ('test-project-builder-tags-user-name-' + uuidv4()) as UserName
+    const name = ('test-project-builder-tags-user-name-' + Math.random().toString().slice(2, 12)) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-builder-tags-avatar-name-' + uuidv4()
+      name: 'test-project-builder-tags-avatar-name-' + Math.random().toString().slice(2, 12)
     })
 
     const testUser = await app.service(userPath).create({
