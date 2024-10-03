@@ -23,51 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as npmAssert from 'assert'
-import { Color, ColorRepresentation } from 'three'
-
 /**
  * @fileoverview Assertion utilities for unit tests
  */
 
-type AssertFn = (val: unknown, msg?: Message) => asserts val
+import * as npmAssert from 'assert'
 
-/**
- *
- * @description Extension of `npm/assert`
- *
- * @function `assert(val, msg?)`:
- * Triggers an assertion if `@param val` does not evaluate to a truthy value
- *
- * @module `assert`:
- * Describes assertion utilities for use in unit tests.
- *
- * Extends `import assert from 'assert'`
- * - `assert()` becomes `npm/assert.equal(Boolean(val), true)`, so that error messages are clearer.
- *   _(note: Does not double-serve as null/undefined removal. Use `assertOk(val)` for that)_
- * - Other `npm/assert` functions preserve their normal behavior.
- *
- * Also Implements new math and array assertions.
- * */
-function assert<T>(val: T, msg?: Message): void {
-  assert.equal(is.truthy(val), true, msg)
+import { Color, ColorRepresentation } from 'three'
+function getColorHex(c: ColorRepresentation) {
+  return new Color(c).getHex()
 }
-export const assertOk: AssertFn = npmAssert.ok
-
-/* @note
- * Extends the assert function with a harcoded list of the most commonly used assertions in `npm/assert`
- * Add any missing functions to the list below when necessary */
-assert.equal = npmAssert.equal
-assert.notEqual = npmAssert.notEqual
-assert.deepEqual = npmAssert.deepEqual
-assert.notDeepEqual = npmAssert.notDeepEqual
-assert.fail = npmAssert.fail
-assert.throws = npmAssert.throws
-assert.doesNotThrow = npmAssert.doesNotThrow
-assert.match = npmAssert.match
-assert.doesNotMatch = npmAssert.doesNotMatch
-assert.rejects = npmAssert.rejects
-assert.doesNotReject = npmAssert.doesNotReject
 
 /**
  * @description Default epsilon value used to evaluate if a float value approximately equals another */
@@ -127,58 +92,59 @@ export const is = {
 
 /**
  * @description Describes the valid shape of messages accepted by all assertion functions. */
-type Message = string | Error | undefined
+type Message = string | undefined
+// type Message = string | Error | undefined
 
 /**
  * @description Triggers an assertion if `@param val` does not evaluate to a truthy value */
-assert.truthy = (val: any, msg?: Message): void => {
-  assert.equal(is.truthy(val), true, msg)
+export function assertTruthy(val: any, msg?: Message): asserts val {
+  npmAssert.equal(is.truthy(val), true, msg)
 }
 
 /**
  * @description Triggers an assertion if `@param val` does not evaluate to a falsy value */
-assert.falsy = (val: any, msg?: Message): void => {
-  assert.equal(is.falsy(val), true, msg)
+export function assertFalsy(val: any, msg?: Message): asserts val {
+  npmAssert.equal(is.falsy(val), true, msg)
 }
 
 /**
  * @description Triggers an assertion if `@param val` does not evaluate to a truthy value
  * @note
- * Overrides the default `assert.ok` function, so that error messages are clearer.
+ * Overrides the default `npmAssert.ok` function, so that error messages are clearer.
  * Use `assertOk(val)` to access the old behavior */
-assert.ok = (val: any, msg?: Message): void => {
-  assert.equal(is.truthy(val), true, msg)
+export function assertOk(val: any, msg?: Message): asserts val {
+  npmAssert.equal(is.truthy(val), true, msg)
 }
 
 /**
  * @description Describes floating point `number` assertion utilities for use in unit tests. */
-assert.float = {
+export const assertFloat = {
   /**
    * @description
    * Triggers an assertion when `@param A` and `@param B` are not approximately equal, using `@param epsilon` as the margin of error. */
   approxEq(A: number, B: number, epsilon = Epsilon) {
-    assert.truthy(is.floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
+    assertTruthy(is.floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
   },
 
   /**
    * @description
    * Triggers an assertion when `@param A` and `@param B` are approximately equal, using `@param epsilon` as the margin of error. */
   approxNotEq(A: number, B: number, epsilon = Epsilon) {
-    assert.truthy(!is.floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
+    assertTruthy(!is.floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
   }
-} //:: assert.float
+} //:: assertFloat
 
 /**
  * @description Describes `Vector{N}` assertion utilities for use in unit tests. */
-assert.vec = {
+export const assertVec = {
   /**
    * @description
    * Triggers an assertion when one or many of the members of `@param A` is not equal to `@param B`. */
   approxEq(A, B, elems: number, epsilon = Epsilon) {
-    assert.float.approxEq(A.x, B.x, epsilon)
-    assert.float.approxEq(A.y, B.y, epsilon)
-    assert.float.approxEq(A.z, B.z, epsilon)
-    if (elems > 3) assert.float.approxEq(A.w, B.w, epsilon)
+    assertFloat.approxEq(A.x, B.x, epsilon)
+    assertFloat.approxEq(A.y, B.y, epsilon)
+    assertFloat.approxEq(A.z, B.z, epsilon)
+    if (elems > 3) assertFloat.approxEq(A.w, B.w, epsilon)
   },
 
   /**
@@ -187,10 +153,10 @@ assert.vec = {
    * Does nothing for members that are equal */
   anyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
     // @note Also used by PhysicsSystem.test.ts
-    !is.floatApproxEq(A.x, B.x, epsilon) && assert.float.approxNotEq(A.x, B.x, epsilon)
-    !is.floatApproxEq(A.y, B.y, epsilon) && assert.float.approxNotEq(A.y, B.y, epsilon)
-    !is.floatApproxEq(A.z, B.z, epsilon) && assert.float.approxNotEq(A.z, B.z, epsilon)
-    if (elems > 3) !is.floatApproxEq(A.w, B.w, epsilon) && assert.float.approxNotEq(A.w, B.w, epsilon)
+    !is.floatApproxEq(A.x, B.x, epsilon) && assertFloat.approxNotEq(A.x, B.x, epsilon)
+    !is.floatApproxEq(A.y, B.y, epsilon) && assertFloat.approxNotEq(A.y, B.y, epsilon)
+    !is.floatApproxEq(A.z, B.z, epsilon) && assertFloat.approxNotEq(A.z, B.z, epsilon)
+    if (elems > 3) !is.floatApproxEq(A.w, B.w, epsilon) && assertFloat.approxNotEq(A.w, B.w, epsilon)
   },
 
   /**
@@ -198,22 +164,22 @@ assert.vec = {
    * Triggers an assert when all the members of `@param A` are equal to `@param B`. */
   allApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
     // @note Also used by RigidBodyComponent.test.ts
-    assert.float.approxNotEq(A.x, B.x, epsilon)
-    assert.float.approxNotEq(A.y, B.y, epsilon)
-    assert.float.approxNotEq(A.z, B.z, epsilon)
-    if (elems > 3) assert.float.approxNotEq(A.w, B.w, epsilon)
+    assertFloat.approxNotEq(A.x, B.x, epsilon)
+    assertFloat.approxNotEq(A.y, B.y, epsilon)
+    assertFloat.approxNotEq(A.z, B.z, epsilon)
+    if (elems > 3) assertFloat.approxNotEq(A.w, B.w, epsilon)
   }
-} //:: assert.vec
+} //:: assertVec
 
 /**
  * @description Describes `Matrix{N}` assertion utilities for use in unit tests. */
-assert.matrix = {
+export const assertMatrix = {
   /**
    * @description
    * Triggers an assert when one of the members of `@param A` is not equal to `@param B`. */
   approxEq(A, B, epsilon = Epsilon) {
     for (let id = 0; id < 16; ++id) {
-      assert.float.approxEq(A.elements[id], B.elements[id], epsilon)
+      assertFloat.approxEq(A.elements[id], B.elements[id], epsilon)
     }
   },
 
@@ -222,21 +188,21 @@ assert.matrix = {
    * Triggers an assert when one of the members of `@param A` is equal to `@param B`. */
   allApproxNotEq(A, B, epsilon = Epsilon) {
     for (let id = 0; id < 16; ++id) {
-      assert.float.approxNotEq(A.elements[id], B.elements[id], epsilon)
+      assertFloat.approxNotEq(A.elements[id], B.elements[id], epsilon)
     }
   }
-} //:: assert.matrix
+} //:: assertMatrix
 
 /**
  * @description Describes `Array` assertion utilities for use in unit tests. */
-assert.array = {
+export const assertArray = {
   /**
    * @description
    * Triggers an assert when any of the members of `@param A` are not equal to `@param B`. */
   eq<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
-    assert.equal(A.length, B.length, err + ': Their length is not the same')
+    npmAssert.equal(A.length, B.length, err + ': Their length is not the same')
     for (let id = 0; id < A.length && id < B.length; id++) {
-      assert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same : ${A[id]} : ${B[id]}`)
+      npmAssert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same : ${A[id]} : ${B[id]}`)
     }
   },
 
@@ -245,7 +211,7 @@ assert.array = {
    * Triggers an assert when all the members of `@param A` are equal to `@param B`. */
   allNotEq<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
     for (let id = 0; id < A.length && id < B.length; id++) {
-      assert.notDeepEqual(A[id], B[id], err)
+      npmAssert.notDeepEqual(A[id], B[id], err)
     }
   },
 
@@ -255,7 +221,7 @@ assert.array = {
    * Does not trigger an assert for members that are equal  */
   anyNotEq<T>(A: Array<T>, B: Array<T>, err = 'One of the elements of the Arrays are equal') {
     for (let id = 0; id < A.length && id < B.length; id++) {
-      !is.deepEqual(A[id], B[id]) && assert.notDeepEqual(A[id], B[id], err)
+      !is.deepEqual(A[id], B[id]) && npmAssert.notDeepEqual(A[id], B[id], err)
     }
   },
 
@@ -263,37 +229,31 @@ assert.array = {
    * @description
    * Triggers an assert when `@param arr` has no duplicate members */
   hasDuplicates<T>(arr: Array<T>, msg?: Message) {
-    assert.truthy(is.arrayWithDuplicates(arr), msg)
+    assertTruthy(is.arrayWithDuplicates(arr), msg)
   },
 
   /**
    * @description
    * Triggers an assert when `@param arr` has duplicate members */
   hasNoDuplicates<T>(arr: Array<T>, msg?: Message) {
-    assert.truthy(!is.arrayWithDuplicates(arr), msg)
+    assertTruthy(!is.arrayWithDuplicates(arr), msg)
   }
-} //:: assert.array
-
-function getColorHex(c: ColorRepresentation) {
-  return new Color(c).getHex()
-}
+} //:: assertArray
 
 /**
  * @description Describes `threejs/Color` assertion utilities for use in unit tests. */
-assert.color = {
+export const assertColor = {
   /**
    * @description
    * Triggers an assertion when the colors represented by `@param A` and `@param B` are not equal */
   eq(A: ColorRepresentation, B: ColorRepresentation) {
-    assert.equal(getColorHex(A), getColorHex(B))
+    npmAssert.equal(getColorHex(A), getColorHex(B))
   },
 
   /**
    * @description
    * Triggers an assertion when the colors represented by `@param A` and `@param B` are equal */
   notEq(A: ColorRepresentation, B: ColorRepresentation) {
-    assert.notEqual(getColorHex(A), getColorHex(B))
+    npmAssert.notEqual(getColorHex(A), getColorHex(B))
   }
 }
-
-export default assert
