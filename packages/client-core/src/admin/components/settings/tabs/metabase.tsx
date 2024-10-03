@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { metabaseSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
@@ -41,26 +42,36 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
     loading: false,
     errorMessage: ''
   })
-  const id = useHookstate<string | undefined>(undefined)
   const siteUrl = useHookstate('')
   const secretKey = useHookstate('')
   const environment = useHookstate('')
   const expiration = useHookstate(10)
   const crashDashboardId = useHookstate('')
-  const metabaseSettingMutation = useMutation(metabaseSettingPath)
+  const metabaseSettingMutation = useMutation(engineSettingPath)
 
-  const { data } = useFind(metabaseSettingPath)
+  const metaBaseSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'metabase',
+      paginate: false
+    }
+  }).data
+
+  const secretValue = metaBaseSettings.find((el) => el.key === EngineSettings.Metabase.SecretKey)?.value || ''
+  const siteUrlValue = metaBaseSettings.find((el) => el.key === EngineSettings.Metabase.SiteUrl)?.value || ''
+  const environmentValue = metaBaseSettings.find((el) => el.key === EngineSettings.Metabase.Environment)?.value || ''
+  const expirationValue = metaBaseSettings.find((el) => el.key === EngineSettings.Metabase.Expiration)?.value || 10
+  const crashDashboardIdValue =
+    metaBaseSettings.find((el) => el.key === EngineSettings.Metabase.CrashDashboardId)?.value || ''
 
   useEffect(() => {
-    if (data.length) {
-      id.set(data[0].id)
-      siteUrl.set(data[0].siteUrl)
-      secretKey.set(data[0].secretKey)
-      environment.set(data[0].environment)
-      expiration.set(data[0].expiration)
-      crashDashboardId.set(data[0].crashDashboardId || '')
+    if (metaBaseSettings.length) {
+      siteUrl.set(siteUrlValue)
+      secretKey.set(secretValue)
+      environment.set(environmentValue)
+      expiration.set(Number(expirationValue))
+      crashDashboardId.set(crashDashboardIdValue)
     }
-  }, [data])
+  }, [metaBaseSettings])
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -76,26 +87,25 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       crashDashboardId: crashDashboardId.value
     }
 
-    const operation = !id.value
-      ? metabaseSettingMutation.create(setting)
-      : metabaseSettingMutation.patch(id.value, setting)
-    operation
-      .then(() => {
-        state.set({ loading: false, errorMessage: '' })
-      })
-      .catch((e) => {
-        state.set({ loading: false, errorMessage: e.message })
-      })
+    // const operation = !id.value
+    //   ? metabaseSettingMutation.create(setting)
+    //   : metabaseSettingMutation.patch(id.value, setting)
+    // operation
+    //   .then(() => {
+    //     state.set({ loading: false, errorMessage: '' })
+    //   })
+    //   .catch((e) => {
+    //     state.set({ loading: false, errorMessage: e.message })
+    //   })
   }
 
   const handleCancel = () => {
-    if (data.length) {
-      id.set(data[0].id)
-      siteUrl.set(data[0].siteUrl)
-      secretKey.set(data[0].secretKey)
-      environment.set(data[0].environment)
-      expiration.set(data[0].expiration)
-      crashDashboardId.set(data[0].crashDashboardId || '')
+    if (metaBaseSettings.length) {
+      siteUrl.set(siteUrlValue)
+      secretKey.set(secretValue)
+      environment.set(environmentValue)
+      expiration.set(Number(expirationValue))
+      crashDashboardId.set(crashDashboardIdValue)
     }
   }
 

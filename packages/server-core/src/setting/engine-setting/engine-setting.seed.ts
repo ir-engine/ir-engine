@@ -63,7 +63,46 @@ export async function seed(knex: Knex): Promise<void> {
     'coil'
   )
 
-  const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData, ...coilSeedData]
+  const metabaseSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Metabase.SiteUrl,
+        value: process.env.METABASE_SITE_URL || ''
+      },
+      {
+        key: EngineSettings.Metabase.SecretKey,
+        value: process.env.METABASE_SECRET_KEY || ''
+      },
+      {
+        key: EngineSettings.Metabase.Expiration,
+        value: process.env.METABASE_EXPIRATION || ''
+      },
+      {
+        key: EngineSettings.Metabase.CrashDashboardId,
+        value: process.env.METABASE_CRASH_DASHBOARD_ID || ''
+      },
+      {
+        key: EngineSettings.Metabase.ProjectDashboardId,
+        value: process.env.METABASE_PROJECT_DASHBOARD_ID || ''
+      },
+      {
+        key: EngineSettings.Metabase.AccountDashboardId,
+        value: process.env.METABASE_ACCOUNT_DASHBOARD_ID || ''
+      },
+      {
+        key: EngineSettings.Metabase.Environment,
+        value: process.env.METABASE_ENVIRONMENT || ''
+      }
+    ],
+    'metabase'
+  )
+
+  const seedData: EngineSettingType[] = [
+    ...taskServerSeedData,
+    ...chargebeeSettingSeedData,
+    ...coilSeedData,
+    ...metabaseSeedData
+  ]
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries

@@ -30,7 +30,6 @@ import {
 import { Application } from '@ir-engine/server-core/declarations'
 import { MetabaseUrlService } from './metabase-url.class'
 import metabaseUrlDocs from './metabase-url.docs'
-import hooks from './metabase-url.hooks'
 
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
@@ -48,5 +47,4 @@ export default (app: Application): void => {
   })
 
   const service = app.service(metabaseUrlPath)
-  service.hooks(hooks)
 }
