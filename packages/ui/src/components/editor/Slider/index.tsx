@@ -37,10 +37,7 @@ export interface SliderProps {
   onRelease: (value: number) => void
 }
 
-const Slider = (
-  { value, label, min = 0, max = 100, step = 1, onChange, onRelease }: SliderProps,
-  ref: React.ForwardedRef<HTMLInputElement>
-) => {
+const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onRelease }: SliderProps) => {
   const id = useId()
   const parentRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
@@ -86,7 +83,6 @@ const Slider = (
         data-testid="slider-text-value-input"
       />
       <input
-        ref={ref}
         id={'slider' + id}
         min={min}
         max={max}
@@ -134,4 +130,4 @@ const Slider = (
   )
 }
 
-export default React.forwardRef(Slider)
+export default Slider
