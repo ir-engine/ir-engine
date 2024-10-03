@@ -86,9 +86,7 @@ export const PositionalAudioComponent = defineComponent({
           name: name ? `${name}-positional-audio-helper` : undefined,
           range: audio.maxDistance.value,
           divisionsInnerAngle: 16,
-          divisionsOuterAngle: 2,
-          innerAngle: audio.coneInnerAngle.value,
-          outerAngle: audio.coneOuterAngle.value
+          divisionsOuterAngle: 2
         })
       }
 
