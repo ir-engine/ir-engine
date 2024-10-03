@@ -23,36 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import verifyScope from '../../hooks/verify-scope'
+import knex from 'knex'
 
-export default {
-  before: {
-    all: [],
-    find: [],
-    get: [],
-    create: [verifyScope('editor', 'write')],
-    update: [verifyScope('editor', 'write')],
-    patch: [verifyScope('editor', 'write')],
-    remove: [verifyScope('editor', 'write')]
-  },
+import { engineSettingPath, EngineSettingType } from '../../common/src/schema.type.module'
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
+export const getEngineSetting = async (category: EngineSettingType['category'], keys: string[]) => {
+  const knexClient = knex({
+    client: 'mysql',
+    connection: {
+      user: process.env.MYSQL_USER ?? 'server',
+      password: process.env.MYSQL_PASSWORD ?? 'password',
+      host: process.env.MYSQL_HOST ?? '127.0.0.1',
+      port: parseInt(process.env.MYSQL_PORT || '3306'),
+      database: process.env.MYSQL_DATABASE ?? 'ir-engine',
+      charset: 'utf8mb4'
+    }
+  })
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+  const engineSetting = await knexClient
+    .select()
+    .from<EngineSettingType>(engineSettingPath)
+    .where('category', category)
+    .whereIn('key', keys)
+    .catch((e) => {
+      console.warn(`[vite.config]: Failed to read engineSetting`, category, keys)
+      console.warn(e)
+    })
+
+  await knexClient.destroy()
+
+  return engineSetting
+}

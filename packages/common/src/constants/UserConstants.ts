@@ -23,19 +23,4 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
-
-import {
-  CoilSettingData,
-  CoilSettingPatch,
-  CoilSettingQuery,
-  CoilSettingType
-} from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
-
-export interface CoilSettingParams extends KnexAdapterParams<CoilSettingQuery> {}
-
-export class CoilSettingService<
-  T = CoilSettingType,
-  ServiceParams extends Params = CoilSettingParams
-> extends KnexService<CoilSettingType, CoilSettingData, CoilSettingParams, CoilSettingPatch> {}
+export const USERNAME_MAX_LENGTH = 60

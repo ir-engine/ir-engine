@@ -60,7 +60,7 @@ export default function PaginatedList<T>({
   const pageView = useHookstate(getPageIndices())
   useEffect(() => {
     pageView.set(getPageIndices())
-  }, [currentPage])
+  }, [currentPage, list.length])
   return (
     <>
       <div className="m-2 flex flex-col overflow-hidden rounded-md p-1">

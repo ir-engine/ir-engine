@@ -85,7 +85,7 @@ function ResourceFileContextMenu({
   const { refetchResources } = useAssetsQuery()
 
   const splitResourceKey = resource.key.split('/')
-  const name = splitResourceKey.at(-1)!
+  const name = resource.name || splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
   const assetType = AssetLoader.getAssetType(resource.key)
 
@@ -146,7 +146,7 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   const anchorEvent = useHookstate<React.MouseEvent | undefined>(undefined)
 
   const assetType = AssetLoader.getAssetType(resource.key)
-  const name = resource.key.split('/').at(-1)!
+  const name = resource.name || resource.key.split('/').at(-1)!
 
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
@@ -173,18 +173,25 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
         anchorEvent.set(event)
       }}
       className={'mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center' + 'resource-file'}
+      data-testid="assets-panel-resource-file"
     >
       <div
         className={twMerge(
           'mx-auto mt-2 flex h-full w-28 items-center justify-center',
           'max-h-40 min-h-20 min-w-20 max-w-40'
         )}
+        data-testid="assets-panel-resource-file-icon"
       >
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </div>
 
       <Tooltip content={name}>
-        <span className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]">{name}</span>
+        <span
+          className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]"
+          data-testid="assets-panel-resource-file-name"
+        >
+          {name}
+        </span>
       </Tooltip>
 
       <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
@@ -205,7 +212,11 @@ function ResourceItems() {
       )}
       {resources.length > 0 && (
         <>
-          <div id="asset-items" className="relative mt-auto flex h-full w-full flex-wrap gap-2">
+          <div
+            id="asset-items"
+            className="relative mt-auto flex h-full w-full flex-wrap gap-2"
+            data-testid="assets-panel-resource-items"
+          >
             {resources.map((resource) => (
               <ResourceFile key={resource.id} resource={resource as StaticResourceType} />
             ))}
@@ -228,7 +239,7 @@ export default function Resources() {
           refetchResources()
         }}
       >
-        <div className="mt-auto flex h-full w-full flex-wrap gap-2">
+        <div className="mt-auto flex h-full w-full flex-wrap gap-2" data-testid="assets-panel-resource-items-container">
           <ResourceItems />
         </div>
         {resourcesLoading && <LoadingView spinnerOnly className="h-6 w-6" />}
