@@ -27,11 +27,16 @@ import { useEffect } from 'react'
 import {
   BufferAttribute,
   BufferGeometry,
+  ConeGeometry,
+  Group,
   InterleavedBufferAttribute,
+  LatheGeometry,
   Line,
   LineBasicMaterial,
   Material,
-  MathUtils
+  MathUtils,
+  Mesh,
+  Vector2
 } from 'three'
 
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
@@ -154,83 +159,40 @@ export const PositionalAudioHelperComponent = defineComponent({
         count = 0
       }
 
-      function generateSphericalSector(angle, materialIndex, radialDivisions = 36, verticalDivisions = 18) {
-        const angleInRadians = degreesToRadians(angle) // Convert angle to radians
-        const stepAngle = angleInRadians / radialDivisions // Angle step based on the given cone angle
-        const verticalStep = Math.PI / verticalDivisions // Step size along the vertical angle (latitude)
+      function generateSphericalSector(angle, materialIndex) {
+        const angleInRadians = degreesToRadians(angle)
 
-        let count = 0
+        const capSegments = Math.max(angle / 10, 3)
+        const coneSegments = capSegments * 4
+        //36 if 360
+        //18 if 180
 
-        // Loop through vertical divisions (latitude)
-        for (let v = 0; v < verticalDivisions; v++) {
-          const theta1 = v * verticalStep // Current latitude
-          const theta2 = (v + 1) * verticalStep // Next latitude
+        // Calculate the coneWidth based on the angle and coneHeight
+        // const coneWidth = Math.tan(angleInRadians) * coneHeight
+        // const angle = Math.atan(coneWidth / coneHeight);
+        const coneHyp = range // Math.sqrt(coneWidth ** 2 + coneHeight ** 2);      //c^ = a^ + b^
+        const coneWidth = coneHyp * Math.sin(angleInRadians)
+        const coneHeight = Math.sqrt(coneWidth ** 2 + coneHyp ** 2)
 
-          // Radius at the current and next latitude
-          const r1 = range * Math.sin(theta1)
-          const r2 = range * Math.sin(theta2)
+        const group = new Group()
 
-          // z positions at current and next latitude
-          const z1 = range * Math.cos(theta1)
-          const z2 = range * Math.cos(theta2)
+        // const wireframeMaterial = new MeshBasicMaterial({color: 0xffffff, wireframe: true});
 
-          // Loop through radial divisions (longitude)
-          for (let h = 0; h <= radialDivisions; h++) {
-            const phi1 = h * stepAngle - angleInRadians / 2 // Current angle offset by half the angle to center the cone
+        const coneGeometry = new ConeGeometry(coneWidth, coneHeight, coneSegments, 1, true)
+        const cone = new Mesh(coneGeometry, materials[materialIndex] as Material)
+        cone.position.set(0, -coneHeight / 2, 0)
+        group.add(cone)
 
-            const phi2 = (h + 1) * stepAngle - angleInRadians / 2 // Next angle
-
-            // Vertices on the first circle (current latitude)
-            const x1 = r1 * Math.cos(phi1)
-            const y1 = r1 * Math.sin(phi1)
-
-            // Vertices on the second circle (next latitude)
-            const x2 = r2 * Math.cos(phi1)
-            const y2 = r2 * Math.sin(phi1)
-
-            // Next longitude vertices on the first circle
-            const x1Next = r1 * Math.cos(phi2)
-            const y1Next = r1 * Math.sin(phi2)
-
-            // Next longitude vertices on the second circle
-            const x2Next = r2 * Math.cos(phi2)
-            const y2Next = r2 * Math.sin(phi2)
-
-            // Draw vertical lines between consecutive latitudes
-            positionAttribute.setXYZ(start + count, x1, y1, z1)
-            positionAttribute.setXYZ(start + count + 1, x2, y2, z2)
-            count += 2
-
-            // Draw horizontal lines around the current latitude
-            if (h < radialDivisions) {
-              // Current latitude circle
-              positionAttribute.setXYZ(start + count, x1, y1, z1)
-              positionAttribute.setXYZ(start + count + 1, x1Next, y1Next, z1)
-              count += 2
-
-              // Next latitude circle
-              positionAttribute.setXYZ(start + count, x2, y2, z2)
-              positionAttribute.setXYZ(start + count + 1, x2Next, y2Next, z2)
-              count += 2
-            }
-
-            // If angle < 360, draw lines from boundary to sphere center
-            if (h === 0 || h === radialDivisions) {
-              // Line from boundary vertex on current latitude to center (origin)
-              positionAttribute.setXYZ(start + count, 0, 0, 0)
-              positionAttribute.setXYZ(start + count + 1, x1, y1, z1)
-              count += 2
-
-              // Line from boundary vertex on next latitude to center (origin)
-              positionAttribute.setXYZ(start + count, 0, 0, 0)
-              positionAttribute.setXYZ(start + count + 1, x2, y2, z2)
-              count += 2
-            }
-          }
+        const capPoints = [] as Vector2[]
+        for (let i = 0; i <= 1; i += 1 / capSegments) {
+          const x = Math.sin(i * angle) * -coneHyp
+          const y = Math.cos(i * angle) * -coneHyp
+          capPoints.push(new Vector2(x, y))
         }
 
-        geometry.addGroup(start, count, materialIndex)
-        start += count
+        const capGeometry = new LatheGeometry(capPoints)
+        const cap = new Mesh(capGeometry, materials[materialIndex] as Material)
+        group.add(cap)
       }
 
       // generateSegment(-halfConeOuterAngle, -halfConeInnerAngle, divisionsOuterAngle, 0)
