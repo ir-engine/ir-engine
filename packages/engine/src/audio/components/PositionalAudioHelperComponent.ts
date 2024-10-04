@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 import {
   BufferGeometry,
   ConeGeometry,
+  DoubleSide,
   LatheGeometry,
   Material,
   MathUtils,
@@ -66,10 +67,13 @@ export const PositionalAudioHelperComponent = defineComponent({
     const audioComponent = useComponent(entity, PositionalAudioComponent)
 
     const [materialInnerAngle] = useResource(
-      () => new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 }),
+      () => new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4, side: DoubleSide }),
       entity
     )
-    const [materialOuterAngle] = useResource(() => new MeshBasicMaterial({ color: 0x000080, wireframe: true }), entity)
+    const [materialOuterAngle] = useResource(
+      () => new MeshBasicMaterial({ color: 0x000080, wireframe: true, side: DoubleSide }),
+      entity
+    )
 
     const [innerCone] = useResource(() => {
       return createCone(
