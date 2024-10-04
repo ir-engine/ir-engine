@@ -145,8 +145,7 @@ const toolbarMenu = generateToolbarMenu()
 
 export default function Toolbar() {
   const { t } = useTranslation()
-  const toolbarAnchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
-  const profileAnchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
+  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
@@ -156,8 +155,6 @@ export default function Toolbar() {
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
   const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
   const currentLocation = locationQuery.data[0]
-
-  const user = getMutableState(AuthState).user
 
   return (
     <>
@@ -174,7 +171,7 @@ export default function Toolbar() {
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
-              toolbarAnchorEvent.set(event)
+              anchorEvent.set(event)
             }}
           />
         </div>
@@ -189,13 +186,8 @@ export default function Toolbar() {
           <span>{sceneName.value}</span>
         </div>
 
-        <div
-          className="flex items-center justify-center gap-2"
-          onClick={(event) => {
-            profileAnchorEvent.set(event)
-          }}
-        >
-          <ProfilePill user={user} />
+        <div className="flex items-center justify-center gap-2">
+          <ProfilePill />
 
           {sceneAssetID.value && (
             <div className="p-2">
@@ -216,8 +208,8 @@ export default function Toolbar() {
         </div>
       </div>
       <ContextMenu
-        anchorEvent={toolbarAnchorEvent.value as React.MouseEvent<HTMLElement>}
-        onClose={() => toolbarAnchorEvent.set(null)}
+        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
+        onClose={() => anchorEvent.set(null)}
       >
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
@@ -229,7 +221,7 @@ export default function Toolbar() {
                 fullWidth
                 onClick={() => {
                   action()
-                  toolbarAnchorEvent.set(null)
+                  anchorEvent.set(null)
                 }}
                 endIcon={hotkey}
               >
@@ -243,12 +235,13 @@ export default function Toolbar() {
   )
 }
 
-const ProfilePill = ({ user }) => {
+const ProfilePill = () => {
+  const user = getMutableState(AuthState).user
   const email = user.value.identityProviders.find((ip) => ip.type === 'email')?.accountIdentifier
   return (
     <Popup
       trigger={
-        <div className="flex h-8 items-center justify-center gap-1.5 rounded-full bg-[#191B1F]">
+        <button className="flex h-8 items-center justify-center gap-1.5 rounded-full bg-[#191B1F] focus:ring-1 focus:ring-blue-primary">
           <div className="ml-1 h-6 w-6 overflow-hidden rounded-full">
             <img src={user.value?.avatar?.thumbnailResource?.url} className="h-full w-full" />
           </div>
@@ -256,7 +249,7 @@ const ProfilePill = ({ user }) => {
           <div className="cursor-pointer pr-2">
             <MdOutlineKeyboardArrowDown size="1.2em" />
           </div>
-        </div>
+        </button>
       }
     >
       <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 p-8 shadow-lg">
