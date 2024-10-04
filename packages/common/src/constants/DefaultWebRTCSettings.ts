@@ -27,7 +27,7 @@ export const CREDENTIAL_OFFSET = 60 * 10
 //coturn requires the password be hashed via SHA1, tried SHA256 and it didn't work
 export const HASH_ALGORITHM = 'sha1'
 
-interface IceServer {
+export interface IceServer {
   urls: string | string[]
   useFixedCredentials?: boolean
   useTimeLimitedCredentials?: boolean
@@ -36,7 +36,7 @@ interface IceServer {
   webRTCStaticAuthSecretKey?: string
 }
 
-interface WebRTCSettings {
+export interface WebRTCSettings {
   iceServers: IceServer[]
   useCustomICEServers: boolean
   usePrivateInstanceserverIP: boolean

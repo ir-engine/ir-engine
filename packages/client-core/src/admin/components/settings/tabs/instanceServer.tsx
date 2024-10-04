@@ -28,9 +28,14 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall, HiTrash } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { defaultIceServer, defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import {
+  IceServer,
+  WebRTCSettings,
+  defaultIceServer,
+  defaultWebRTCSettings
+} from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
-import { IceServerType, engineSettingPath, webRTCSettingsType } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { State, useHookstate } from '@ir-engine/hyperflux'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
@@ -69,7 +74,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const portState = useHookstate('')
   const modeState = useHookstate('')
   const locationNameState = useHookstate('')
-  const webRTCSettingsState = useHookstate<webRTCSettingsType>(defaultWebRTCSettings)
+  const webRTCSettingsState = useHookstate<WebRTCSettings>(defaultWebRTCSettings)
 
   const getSettingValue = (settingName: string) => {
     return engineSettings.find((setting) => setting.key === settingName)?.value || ''
@@ -166,7 +171,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   if (engineSettings.length == 0)
     return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loading')} />
 
-  const webRTCSettings = webRTCSettingsState as State<webRTCSettingsType>
+  const webRTCSettings = webRTCSettingsState as State<WebRTCSettings>
 
   return (
     <Accordion
@@ -276,16 +281,16 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                       size="small"
                       className="ml-2"
                       onClick={() => {
-                        const iceServers = [] as IceServerType[]
+                        const iceServers = [] as IceServer[]
                         for (const [iceServerIndex, iceServer] of Object.entries(webRTCSettings.iceServers.value)) {
                           if (parseInt(iceServerIndex) !== index)
                             iceServers.push({
-                              urls: [...new Set((iceServer as IceServerType).urls as string)],
-                              useFixedCredentials: (iceServer as IceServerType).useFixedCredentials,
-                              useTimeLimitedCredentials: (iceServer as IceServerType).useTimeLimitedCredentials,
-                              username: (iceServer as IceServerType).username,
-                              credential: (iceServer as IceServerType).credential,
-                              webRTCStaticAuthSecretKey: (iceServer as IceServerType).webRTCStaticAuthSecretKey
+                              urls: [...new Set((iceServer as IceServer).urls as string)],
+                              useFixedCredentials: (iceServer as IceServer).useFixedCredentials,
+                              useTimeLimitedCredentials: (iceServer as IceServer).useTimeLimitedCredentials,
+                              username: (iceServer as IceServer).username,
+                              credential: (iceServer as IceServer).credential,
+                              webRTCStaticAuthSecretKey: (iceServer as IceServer).webRTCStaticAuthSecretKey
                             })
                         }
                         webRTCSettings.iceServers.set(iceServers)
@@ -416,8 +421,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             size="small"
             className="mb-4 mt-1"
             onClick={() => {
-              const iceServers = [] as IceServerType[]
-              for (const iceServer of webRTCSettings.iceServers.value as IceServerType[])
+              const iceServers = [] as IceServer[]
+              for (const iceServer of webRTCSettings.iceServers.value as IceServer[])
                 iceServers.push({
                   urls: [...new Set(iceServer.urls)],
                   useFixedCredentials: iceServer.useFixedCredentials,
