@@ -65,7 +65,7 @@ export const PositionalAudioComponent = defineComponent({
     refDistance: S.Number(1),
     maxDistance: S.Number(40),
     coneInnerAngle: S.Number(360),
-    coneOuterAngle: S.Number(0),
+    coneOuterAngle: S.Number(360),
     coneOuterGain: S.Number(0)
   }),
 

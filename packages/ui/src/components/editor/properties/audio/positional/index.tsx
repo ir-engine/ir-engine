@@ -28,7 +28,12 @@ import { useTranslation } from 'react-i18next'
 import { PiSpeakerLowLight } from 'react-icons/pi'
 
 import { hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import {
+  EditorComponentType,
+  commitProperties,
+  commitProperty,
+  updateProperty
+} from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
@@ -161,8 +166,18 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           mediumStep={1}
           largeStep={10}
           value={audioComponent.coneInnerAngle.value}
-          onChange={updateProperty(PositionalAudioComponent, 'coneInnerAngle')}
-          onRelease={commitProperty(PositionalAudioComponent, 'coneInnerAngle')}
+          onChange={(value) =>
+            updateConeAngle(
+              value,
+              true,
+              false,
+              audioComponent.coneInnerAngle.value,
+              audioComponent.coneOuterAngle.value
+            )
+          }
+          onRelease={(value) =>
+            updateConeAngle(value, true, true, audioComponent.coneInnerAngle.value, audioComponent.coneOuterAngle.value)
+          }
           unit="°"
         />
       </InputGroup>
@@ -178,8 +193,24 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           mediumStep={1}
           largeStep={10}
           value={audioComponent.coneOuterAngle.value}
-          onChange={updateProperty(PositionalAudioComponent, 'coneOuterAngle')}
-          onRelease={commitProperty(PositionalAudioComponent, 'coneOuterAngle')}
+          onChange={(value) =>
+            updateConeAngle(
+              value,
+              false,
+              false,
+              audioComponent.coneInnerAngle.value,
+              audioComponent.coneOuterAngle.value
+            )
+          }
+          onRelease={(value) =>
+            updateConeAngle(
+              value,
+              false,
+              true,
+              audioComponent.coneInnerAngle.value,
+              audioComponent.coneOuterAngle.value
+            )
+          }
           unit="°"
         />
       </InputGroup>
@@ -200,6 +231,35 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
     </NodeEditor>
   )
+}
+
+function updateConeAngle(value: number, isInner: boolean, commit: boolean, innerValue: number, outerValue: number) {
+  if (isInner) {
+    if (commit) {
+      commitProperties(PositionalAudioComponent, {
+        coneInnerAngle: value,
+        coneOuterAngle: value > outerValue ? value : undefined
+      } as any)
+    } else {
+      updateProperty(PositionalAudioComponent, 'coneInnerAngle')(value)
+      if (value > outerValue) {
+        updateProperty(PositionalAudioComponent, 'coneOuterAngle')(value)
+      }
+    }
+  } else {
+    //outer
+    if (commit) {
+      commitProperty(PositionalAudioComponent, 'coneOuterAngle')(value)
+      if (value < innerValue) {
+        commitProperty(PositionalAudioComponent, 'coneInnerAngle')(value)
+      }
+    } else {
+      commitProperties(PositionalAudioComponent, {
+        coneOuterAngle: value,
+        coneInnerAngle: value < outerValue ? value : undefined
+      } as any)
+    }
+  }
 }
 
 PositionalAudioNodeEditor.iconComponent = PiSpeakerLowLight

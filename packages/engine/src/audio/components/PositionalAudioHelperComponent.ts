@@ -74,8 +74,11 @@ export const PositionalAudioHelperComponent = defineComponent({
     const audioComponent = useComponent(entity, PositionalAudioComponent)
     const helperComponent = useComponent(entity, PositionalAudioHelperComponent)
 
-    const [materialInnerAngle] = useResource(() => new MeshBasicMaterial({ color: 0x00ff00, wireframe: true }), entity)
-    const [materialOuterAngle] = useResource(() => new MeshBasicMaterial({ color: 0xffff00, wireframe: true }), entity)
+    const [materialInnerAngle] = useResource(
+      () => new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 }),
+      entity
+    )
+    const [materialOuterAngle] = useResource(() => new MeshBasicMaterial({ color: 0x000080, wireframe: true }), entity)
 
     const [innerCone] = useResource(() => {
       return createCone(
