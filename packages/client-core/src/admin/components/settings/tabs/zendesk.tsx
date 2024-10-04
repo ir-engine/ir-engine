@@ -74,22 +74,22 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
     state.loading.set(true)
     const setting = {
-      Name: name.value,
-      Secret: secret.value,
-      Kid: kid.value
+      name: name.value,
+      secret: secret.value,
+      kid: kid.value
     }
-    const operation = Object.keys(EngineSettings.Zendesk).map((key) => {
-      const settingInDb = zendeskSettings.find((el) => el.key === EngineSettings.Zendesk[key])
+    const operation = Object.values(EngineSettings.Zendesk).map((key) => {
+      const settingInDb = zendeskSettings.find((el) => el.key === key)
       if (!settingInDb) {
         return zendeskMutation.create({
-          key: EngineSettings.Zendesk[key],
+          key,
           category: 'zendesk',
           value: setting[key],
           type: 'private'
         })
       }
       return zendeskMutation.patch(settingInDb.id, {
-        key: EngineSettings.Zendesk[key],
+        key,
         category: 'zendesk',
         value: setting[key],
         type: 'private'
