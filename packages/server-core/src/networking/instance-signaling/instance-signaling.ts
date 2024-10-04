@@ -151,6 +151,8 @@ export default (app: Application): void => {
           }
         }
       )
+
+      console.log('heartbeat', peerID, instanceId)
     },
     /** Send requests to other peers */
     patch: async (id: null, data: SignalData, params) => {
@@ -176,9 +178,10 @@ export default (app: Application): void => {
         })
       ])
 
-      if (!instanceAttendance.data.length) throw new BadRequest('Peer not in instance')
-      if (!instance.currentUsers) throw new BadRequest('Instance not active')
-      if (!targetInstanceAttendance.data.length) throw new BadRequest('Target peer not in instance')
+      if (!instanceAttendance.data.length) throw new BadRequest(`Peer ${peerID} not in instance ${instanceId}`)
+      if (!instance.currentUsers) throw new BadRequest(`Instance not active ${instanceId}`, instance.currentUsers)
+      if (!targetInstanceAttendance.data.length)
+        throw new BadRequest(`Target peer ${targetPeerID} not in instance ${instanceId}`)
 
       // from here, we can leverage feathers-sync to send the message to the target peer
       data.fromPeerID = peerID

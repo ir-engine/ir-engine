@@ -384,31 +384,6 @@ const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
     }
   }, [webcamMediaStream, webcamEnabled])
 
-  const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
-
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[props.peerID]?.cam?.value
-
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
-
-  const isPiP = peerMediaChannelState?.videoQuality === 'largest'
-
-  useEffect(() => {
-    if (!webcamMediaStream || !peerMediaChannelState) return
-
-    const isScreen = false
-
-    const mediaTrack = webcamMediaStream.getVideoTracks()[0]
-
-    const { maxResolution } = clientSetting.mediaSettings.video
-    const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
-
-    // @todo this isn't correct
-    const scale = isPiP || immersiveMedia ? 1 : !isScreen && resolution.height.ideal > MAX_RES_TO_USE_TOP_LAYER ? 2 : 4
-
-    WebRTCTransportFunctions.setVideoQuality(props.instanceID, props.peerID, mediaTrack, scale)
-  }, [webcamMediaStream, immersiveMedia, isPiP])
-
   return null
 }
 
@@ -430,7 +405,7 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
   const peerMediaStream = type ? peerMediaChannelState?.[type] : null
 
   useEffect(() => {
-    if (!mediaTag || !stream || !peerMediaStream) return
+    if (!mediaTag || !stream || !peerMediaStream?.value) return
 
     if (isAudio) {
       const track = stream.getAudioTracks()[0]
@@ -451,13 +426,42 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
         peerMediaStream.videoMediaStream.set(null)
       }
     }
-  }, [mediaTag, stream, peerMediaStream])
+  }, [mediaTag, stream, !!peerMediaStream?.value])
 
   useEffect(() => {
     if (!mediaTag || !stream || !peerMediaStream || !type) return
     const paused = isAudio ? peerMediaStream.audioStreamPaused.value : peerMediaStream.videoStreamPaused.value
     WebRTCTransportFunctions.pauseMediaChannel(sendMessage, props.instanceID, props.peerID, stream, paused)
   }, [isAudio ? peerMediaStream?.audioStreamPaused?.value : peerMediaStream?.videoStreamPaused?.value])
+
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
+
+  const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
+
+  const isPiP = peerMediaStream?.value?.videoQuality === 'largest'
+
+  useEffect(() => {
+    if (!peerMediaStream?.value?.videoMediaStream) return
+
+    const isScreen = false
+
+    const mediaTrack = peerMediaStream?.value.videoMediaStream.getVideoTracks()[0]
+
+    const { maxResolution } = clientSetting.mediaSettings.video
+    const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
+
+    // @todo this isn't correct
+    const scale = isPiP || immersiveMedia ? 1 : !isScreen && resolution.height.ideal > MAX_RES_TO_USE_TOP_LAYER ? 2 : 4
+
+    WebRTCTransportFunctions.requestVideoQuality(
+      sendMessage,
+      props.instanceID,
+      props.peerID,
+      peerMediaStream?.value.videoMediaStream,
+      scale
+    )
+  }, [peerMediaStream?.value?.videoMediaStream, immersiveMedia, isPiP])
 
   return null
 }
