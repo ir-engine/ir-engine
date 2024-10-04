@@ -145,8 +145,7 @@ const toolbarMenu = generateToolbarMenu()
 
 export default function Toolbar() {
   const { t } = useTranslation()
-  const toolbarAnchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
-  const profileAnchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
+  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
@@ -174,7 +173,7 @@ export default function Toolbar() {
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
-              toolbarAnchorEvent.set(event)
+              anchorEvent.set(event)
             }}
           />
         </div>
@@ -189,12 +188,7 @@ export default function Toolbar() {
           <span>{sceneName.value}</span>
         </div>
 
-        <div
-          className="flex items-center justify-center gap-2"
-          onClick={(event) => {
-            profileAnchorEvent.set(event)
-          }}
-        >
+        <div className="flex items-center justify-center gap-2">
           <ProfilePill user={user} />
 
           {sceneAssetID.value && (
@@ -216,8 +210,8 @@ export default function Toolbar() {
         </div>
       </div>
       <ContextMenu
-        anchorEvent={toolbarAnchorEvent.value as React.MouseEvent<HTMLElement>}
-        onClose={() => toolbarAnchorEvent.set(null)}
+        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
+        onClose={() => anchorEvent.set(null)}
       >
         <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
@@ -229,7 +223,7 @@ export default function Toolbar() {
                 fullWidth
                 onClick={() => {
                   action()
-                  toolbarAnchorEvent.set(null)
+                  anchorEvent.set(null)
                 }}
                 endIcon={hotkey}
               >

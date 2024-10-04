@@ -88,12 +88,10 @@ const ShowContextMenu = ({
 export const ContextMenu = ({
   anchorEvent,
   children,
-  anchorPosition,
   ...props
 }: {
   onClose: () => void
   anchorEvent?: React.MouseEvent
-  anchorPosition?: Record<string, number>
 } & Omit<PopupProps, 'trigger' | 'onClose'>) => {
   return anchorEvent ? <ShowContextMenu anchorEvent={anchorEvent} children={children} {...props} /> : null
 }
