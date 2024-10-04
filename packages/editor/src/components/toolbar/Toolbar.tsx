@@ -235,7 +235,7 @@ export default function Toolbar() {
   )
 }
 
-const ProfilePill = ({}) => {
+const ProfilePill = () => {
   const user = getMutableState(AuthState).user
   const email = user.value.identityProviders.find((ip) => ip.type === 'email')?.accountIdentifier
   return (
