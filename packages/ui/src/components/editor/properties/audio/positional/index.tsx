@@ -115,22 +115,26 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           />
         </InputGroup>
       )}
-      <InputGroup
-        name="Ref Distance"
-        label={t('editor:properties.audio.lbl-refDistance')}
-        info={t('editor:properties.audio.info-refDistance')}
-      >
-        <NumericScrubber
-          min={0}
-          smallStep={0.1}
-          mediumStep={1}
-          largeStep={10}
-          value={audioComponent.refDistance.value}
-          onChange={updateProperty(PositionalAudioComponent, 'refDistance')}
-          onRelease={commitProperty(PositionalAudioComponent, 'refDistance')}
-          unit="m"
-        />
-      </InputGroup>
+
+      {/*Ref Distance should always be 1 for our scale of 1m to keep the rest of the units/behavior correct
+      , exposing this to the user is just likely to cause confusion/issues*/}
+
+      {/*<InputGroup*/}
+      {/*  name="Ref Distance"*/}
+      {/*  label={t('editor:properties.audio.lbl-refDistance')}*/}
+      {/*  info={t('editor:properties.audio.info-refDistance')}*/}
+      {/*>*/}
+      {/*  <NumericScrubber*/}
+      {/*    min={0}*/}
+      {/*    smallStep={0.1}*/}
+      {/*    mediumStep={1}*/}
+      {/*    largeStep={10}*/}
+      {/*    value={audioComponent.refDistance.value}*/}
+      {/*    onChange={updateProperty(PositionalAudioComponent, 'refDistance')}*/}
+      {/*    onRelease={commitProperty(PositionalAudioComponent, 'refDistance')}*/}
+      {/*    unit="m"*/}
+      {/*  />*/}
+      {/*</InputGroup>*/}
       <InputGroup
         name="Max Distance"
         disabled={audioComponent.distanceModel.value !== DistanceModel.Linear}
