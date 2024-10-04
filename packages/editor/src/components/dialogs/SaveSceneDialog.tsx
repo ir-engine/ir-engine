@@ -29,18 +29,22 @@ import { getComponent } from '@ir-engine/ecs'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
-import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import ImagePreviewInput from '@ir-engine/ui/src/components/editor/input/Image/Preview'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { saveSceneGLTF } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
+import { SceneThumbnailState } from '../../services/SceneThumbnailState'
 
 export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => void; onCancel?: () => void }) => {
   const { t } = useTranslation()
   const modalProcessing = useHookstate(false)
+  const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
 
   const handleSubmit = async () => {
     modalProcessing.set(true)
@@ -83,15 +87,39 @@ export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => 
   }
 
   return (
-    <ConfirmDialog
+    <Modal
       title={props.isExiting ? t('editor:dialog.saveScene.unsavedChanges.title') : t('editor:dialog.saveScene.title')}
       onSubmit={handleSubmit}
       onClose={() => {
         PopoverState.hidePopupover()
         if (props.onCancel) props.onCancel()
       }}
-      text={props.isExiting ? t('editor:dialog.saveScene.info-question') : t('editor:dialog.saveScene.info-confirm')}
-    />
+      className="w-[50vw] max-w-2xl"
+      submitLoading={modalProcessing.value}
+    >
+      <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
+      <div className="flex flex-row gap-2">
+        <ImagePreviewInput value={sceneThumbnailState.thumbnailURL.value ?? ''} previewOnly={true} />
+        <div className="flex flex-col gap-2 ">
+          <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
+            {t('editor:properties.sceneSettings.generate')}
+          </Button>
+          <Button
+            onClick={SceneThumbnailState.uploadThumbnail}
+            disabled={!sceneThumbnailState.thumbnail.value}
+            className="w-full"
+          >
+            {t('editor:properties.sceneSettings.save')}
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center gap-2">
+        <Text>
+          {props.isExiting ? t('editor:dialog.saveScene.info-question') : t('editor:dialog.saveScene.info-confirm')}
+        </Text>
+      </div>
+    </Modal>
   )
 }
 
