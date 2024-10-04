@@ -77,16 +77,11 @@ export const PositionalAudioComponent = defineComponent({
 
     useEffect(() => {
       if (debugEnabled.value) {
-        if (!mediaElement || !mediaElement.element.value) return
-        const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
-        if (!audioNodes) return
         const name = getOptionalComponent(entity, NameComponent)
         setComponent(entity, PositionalAudioHelperComponent, {
-          audio: audioNodes,
           name: name ? `${name}-positional-audio-helper` : undefined
         })
       }
-
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)
       }

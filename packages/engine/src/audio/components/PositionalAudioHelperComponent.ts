@@ -42,7 +42,6 @@ import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 import { PositionalAudioComponent } from './PositionalAudioComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
@@ -50,15 +49,11 @@ export const PositionalAudioHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('positional-audio-helper'),
-    audio: S.Type<AudioNodeGroup>(),
     entity: S.Entity()
   }),
 
   onSet: (entity, component, json) => {
     if (!json) return
-
-    if (!json.audio) throw new Error('PositionalAudioHelperComponent: Valid AudioNodeGroup required')
-    component.audio.set(json.audio)
     if (typeof json.name === 'string') component.name.set(json.name)
   },
 
