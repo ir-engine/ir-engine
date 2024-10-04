@@ -67,6 +67,7 @@ function PasteFileButton({
       variant="outline"
       size="small"
       fullWidth
+      data-testid="files-panel-context-menu-paste-asset-button"
       disabled={!file}
       onClick={() => {
         if (!file || isFilesLoading) return
@@ -103,8 +104,17 @@ export function FileContextMenu({
 
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
-      <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
-        <Button variant="outline" size="small" fullWidth onClick={createNewFolder}>
+      <div
+        className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg"
+        data-testid="files-panel-file-item-context-menu"
+      >
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={createNewFolder}
+          data-testid="files-panel-file-item-context-menu-add-new-folder-button"
+        >
           {t('editor:layout.filebrowser.addNewFolder')}
         </Button>
         {!file.isFolder && (
@@ -112,6 +122,7 @@ export function FileContextMenu({
             variant="outline"
             size="small"
             fullWidth
+            data-testid="files-panel-file-item-context-menu-place-object-button"
             onClick={() => {
               const vec3 = new Vector3()
               getSpawnPositionAtCenter(vec3)
@@ -129,6 +140,7 @@ export function FileContextMenu({
             variant="outline"
             size="small"
             fullWidth
+            data-testid="files-panel-file-item-context-menu-place-object-at-origin-button"
             onClick={() => {
               addMediaNode(file.url)
               setAnchorEvent(undefined)
@@ -142,6 +154,7 @@ export function FileContextMenu({
             variant="outline"
             size="small"
             fullWidth
+            data-testid="files-panel-file-item-context-menu-open-in-new-tab-button"
             onClick={() => {
               window.open(file.url)
               setAnchorEvent(undefined)
@@ -154,6 +167,7 @@ export function FileContextMenu({
           variant="outline"
           size="small"
           fullWidth
+          data-testid="files-panel-file-item-context-menu-copy-url-button"
           onClick={() => {
             if (navigator.clipboard) {
               navigator.clipboard.writeText(file.url)
@@ -167,6 +181,7 @@ export function FileContextMenu({
           variant="outline"
           size="small"
           fullWidth
+          data-testid="files-panel-file-item-context-menu-cut-asset-button"
           onClick={() => {
             filesState.clipboardFile.set({
               file
@@ -180,6 +195,7 @@ export function FileContextMenu({
           variant="outline"
           size="small"
           fullWidth
+          data-testid="files-panel-file-item-context-menu-copy-asset-button"
           onClick={() => {
             filesState.clipboardFile.set({
               file,
@@ -194,6 +210,7 @@ export function FileContextMenu({
         <Button
           variant="outline"
           size="small"
+          data-testid="files-panel-file-item-context-menu-rename-asset-button"
           fullWidth
           onClick={() => {
             PopoverState.showPopupover(<RenameFileModal projectName={filesState.projectName.value} file={file} />)
@@ -206,6 +223,7 @@ export function FileContextMenu({
           variant="outline"
           size="small"
           fullWidth
+          data-testid="files-panel-file-item-context-menu-delete-asset-button"
           onClick={() => {
             PopoverState.showPopupover(
               <DeleteFileModal
@@ -224,6 +242,7 @@ export function FileContextMenu({
         <Button
           variant="outline"
           size="small"
+          data-testid="files-panel-file-item-context-menu-view-asset-properties-button"
           fullWidth
           onClick={() => {
             if (!selectedFiles.get(NO_PROXY).some((selectedFile) => selectedFile.key === file.key)) {
@@ -316,7 +335,13 @@ export function BrowserContextMenu({
 
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
-      <Button variant="outline" size="small" fullWidth onClick={createNewFolder}>
+      <Button
+        variant="outline"
+        size="small"
+        fullWidth
+        onClick={createNewFolder}
+        data-testid="files-panel-file-browser-context-menu-add-new-folder-button"
+      >
         {t('editor:layout.filebrowser.addNewFolder')}
       </Button>
       <PasteFileButton setAnchorEvent={setAnchorEvent} />
