@@ -63,7 +63,8 @@ export default (app: Application): void => {
     const categoryMap = {
       'task-server': appConfig.taskserver,
       coil: appConfig.coil,
-      chargebee: appConfig.chargebee
+      chargebee: appConfig.chargebee,
+      zendesk: appConfig.zendesk
     }
 
     for (const setting of args) {
