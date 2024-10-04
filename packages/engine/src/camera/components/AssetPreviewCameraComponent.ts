@@ -31,7 +31,6 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 export const AssetPreviewCameraComponent = defineComponent({
   name: 'AssetPreviewCameraComponent',
@@ -43,15 +42,13 @@ export const AssetPreviewCameraComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const previewCameraComponent = useComponent(entity, AssetPreviewCameraComponent)
-    const gltfComponent = useComponent(previewCameraComponent.targetModelEntity.value, GLTFComponent)
     const childMeshes = useChildrenWithComponents(previewCameraComponent.targetModelEntity.value, [MeshComponent])
     const cameraOrbitComponent = useComponent(entity, CameraOrbitComponent)
 
     useEffect(() => {
-      if (gltfComponent.progress.value !== 100) return
       cameraOrbitComponent.focusedEntities.set([previewCameraComponent.targetModelEntity.value])
       cameraOrbitComponent.refocus.set(true)
-    }, [gltfComponent.progress, childMeshes.length, cameraOrbitComponent])
+    }, [childMeshes, cameraOrbitComponent])
 
     return null
   }
