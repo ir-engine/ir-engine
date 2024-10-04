@@ -35,7 +35,6 @@ import MailchimpSetting from './mailchimp-setting/mailchimp-setting'
 import ProjectSetting from './project-setting/project-setting'
 import RedisSetting from './redis-setting/redis-setting'
 import ServerSetting from './server-setting/server-setting'
-import ZendeskSetting from './zendesk-setting/zendesk-setting'
 
 export default [
   ProjectSetting,
@@ -49,6 +48,5 @@ export default [
   Aws,
   RedisSetting,
   Helm,
-  ZendeskSetting,
   MailchimpSetting
 ]
