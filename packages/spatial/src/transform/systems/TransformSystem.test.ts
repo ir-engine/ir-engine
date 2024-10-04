@@ -112,7 +112,7 @@ describe('TransformSystem', () => {
       assert.notEqual(spy.callCount, entities.length)
       // Run and Check the result
       System.execute()
-      assert.equal(spy.callCount, entities.length)
+      assert.equal(spy.callCount, entities.length * 2)
     })
 
     it('should call updateGroupChildren for all entities that have the components [GroupComponent, VisibleComponent] and are true in the TransformComponent.dirtyTransforms list', () => {

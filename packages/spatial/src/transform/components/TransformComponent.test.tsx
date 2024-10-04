@@ -683,7 +683,7 @@ describe('TransformComponent', () => {
       assertFloatApproxNotEq(before[14], Expected.z)
       // Run and Check the result
       TransformComponent.setWorldPosition(testEntity, Expected)
-      const result = getComponent(testEntity, TransformComponent).matrixWorld
+      const result = getComponent(testEntity, TransformComponent).matrixWorld.elements
       assertFloatApproxEq(result[12], Expected.x)
       assertFloatApproxEq(result[13], Expected.y)
       assertFloatApproxEq(result[14], Expected.z)
