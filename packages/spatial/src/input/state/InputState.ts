@@ -38,7 +38,7 @@ export const InputState = defineState({
     capturingEntity: UndefinedEntity,
     inputMeshes: new Set([] as Entity[]),
     inputBoundingBoxes: new Set([] as Entity[]),
-    capturingCameraOrbitEnbaled: true
+    capturingCameraOrbitEnabled: true
   }),
   extension: syncStateWithLocalStorage(['preferredHand']),
   setCapturingEntity: (entity: Entity, force = false) => {

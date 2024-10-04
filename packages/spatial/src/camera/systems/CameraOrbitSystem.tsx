@@ -78,7 +78,7 @@ const execute = () => {
    * assign active orbit camera based on which input source registers input
    */
   for (const cameraEid of orbitCameraQuery()) {
-    if (getState(InputState).capturingCameraOrbitEnbaled) {
+    if (getState(InputState).capturingCameraOrbitEnabled) {
       const inputPointerEntity = InputPointerComponent.getPointersForCamera(cameraEid)[0]
 
       const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)

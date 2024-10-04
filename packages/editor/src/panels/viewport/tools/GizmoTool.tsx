@@ -87,7 +87,7 @@ export default function GizmoTool({
   const handleClickSelectionBox = () => {
     setIsClickedSelectionBox(!isClickedSelectionBox)
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
-    getMutableState(InputState).capturingCameraOrbitEnbaled.set(isClickedSelectionBox)
+    getMutableState(InputState).capturingCameraOrbitEnabled.set(isClickedSelectionBox)
   }
   const handleMouseUp = () => {
     setIsDragging(false)
