@@ -23,30 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import ClientSetting from './client-setting/client-setting'
-import Email from './email-setting/email-setting'
-import EngineSetting from './engine-setting/engine-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import Helm from './helm-setting/helm-setting'
-import MailchimpSetting from './mailchimp-setting/mailchimp-setting'
-import ProjectSetting from './project-setting/project-setting'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import ZendeskSetting from './zendesk-setting/zendesk-setting'
+import { engineSettingPath } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { Knex } from 'knex'
 
-export default [
-  ProjectSetting,
-  EngineSetting,
-  ServerSetting,
-  ClientSetting,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  RedisSetting,
-  Helm,
-  ZendeskSetting,
-  MailchimpSetting
-]
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.alterTable(engineSettingPath, (table) => {
+    table.string('value', 4095).alter()
+  })
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.alterTable(engineSettingPath, (table) => {
+    table.string('value', 225).alter()
+  })
+}

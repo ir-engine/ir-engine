@@ -35,10 +35,6 @@ import {
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
-import {
-  instanceServerSettingPath,
-  InstanceServerSettingType
-} from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
 import { redisSettingPath, RedisSettingType } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
@@ -167,22 +163,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read emailSetting: ${e.message}`)
     })
   promises.push(emailSettingPromise)
-
-  const instanceServerSettingPromise = knexClient
-    .select()
-    .from<InstanceServerSettingType>(instanceServerSettingPath)
-    .then(([dbInstanceServer]) => {
-      if (dbInstanceServer) {
-        appConfig.instanceserver = {
-          ...appConfig.instanceserver,
-          ...dbInstanceServer
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read instanceServerSetting: ${e.message}`)
-    })
-  promises.push(instanceServerSettingPromise)
 
   const redisSettingPromise = knexClient
     .select()

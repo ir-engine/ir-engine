@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
+import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
@@ -62,8 +63,70 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'coil'
   )
+  const instanceServerSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.InstanceServer.ClientHost,
+        value: process.env.APP_HOST || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcStartPort,
+        value: process.env.RTC_START_PORT || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcEndPort,
+        value: process.env.RTC_END_PORT || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcPortBlockSize,
+        value: process.env.RTC_PORT_BLOCK_SIZE || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.IdentifierDigits,
+        value: '5'
+      },
+      {
+        key: EngineSettings.InstanceServer.Local,
+        value: `${process.env.LOCAL === 'true'}`
+      },
+      {
+        key: EngineSettings.InstanceServer.Domain,
+        value: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com'
+      },
+      {
+        key: EngineSettings.InstanceServer.ReleaseName,
+        value: process.env.RELEASE_NAME || 'local'
+      },
+      {
+        key: EngineSettings.InstanceServer.Port,
+        value: process.env.INSTANCESERVER_PORT || '3031'
+      },
+      {
+        key: EngineSettings.InstanceServer.Mode,
+        value: process.env.INSTANCESERVER_MODE || 'dev'
+      },
+      {
+        key: EngineSettings.InstanceServer.LocationName,
+        value: process.env.PRELOAD_LOCATION_NAME || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.WebRTCSettings,
+        value: JSON.stringify(defaultWebRTCSettings)
+      },
+      {
+        key: EngineSettings.InstanceServer.ShutdownDelayMs,
+        value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
+      }
+    ],
+    'instance-server'
+  )
 
-  const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData, ...coilSeedData]
+  const seedData: EngineSettingType[] = [
+    ...taskServerSeedData,
+    ...chargebeeSettingSeedData,
+    ...coilSeedData,
+    ...instanceServerSeedData
+  ]
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
