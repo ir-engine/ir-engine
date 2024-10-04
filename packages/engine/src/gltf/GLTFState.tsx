@@ -369,7 +369,6 @@ export const EditorTopic = 'editor' as Topic
 
 const ChildGLTFReactor = (props: { source: string }) => {
   const source = props.source
-  console.log(source)
 
   const index = useMutableState(GLTFSnapshotState)[source].index
   const entity = useMutableState(GLTFSourceState)[source].value
@@ -383,8 +382,6 @@ const ChildGLTFReactor = (props: { source: string }) => {
   const parentUUID = useOptionalComponent(entity, UUIDComponent)?.value
 
   useLayoutEffect(() => {
-    console.log('index updated from snapshot', source)
-
     const index = getState(GLTFSnapshotState)[source].index
     // update the modified state
     if (index > 0) getMutableState(GLTFModifiedState)[source].set(true)
@@ -681,7 +678,8 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
           }
         }
       }
-      removeEntity(entity)
+      /**@todo temp fix for avatars freaking out when child entities are removed after the parent is removed */
+      if (getAncestorWithComponents(entity, [GLTFComponent])) removeEntity(entity)
     }
   }, [])
 
@@ -948,7 +946,7 @@ const PrimitiveReactor = (props: {
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!finalGeometry) return
 
     //For debug visualization of material indices

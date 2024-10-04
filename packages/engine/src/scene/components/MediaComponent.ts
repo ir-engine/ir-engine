@@ -251,14 +251,11 @@ export function MediaReactor() {
     [media.paused, mediaElement]
   )
 
-  useEffect(
-    function updateSeekTime() {
-      if (!mediaElement) return
-      setTime(mediaElement.element, media.seekTime.value)
-      if (!mediaElement.element.paused.value) mediaElement.element.value.play() // if not paused, start play again
-    },
-    [media.seekTime, mediaElement]
-  )
+  useEffect(() => {
+    if (mediaElement && !mediaElement.element.paused.value) {
+      mediaElement.element.value.play() // if not paused, start play again
+    }
+  }, [mediaElement])
 
   useEffect(
     function updateTrackMetadata() {
@@ -385,7 +382,13 @@ export function MediaReactor() {
 
   useEffect(
     function updateMixbus() {
-      if (!mediaElement?.value) return
+      if (mediaElement == null) {
+        return
+      }
+      if (mediaElement.promised || mediaElement.value == null) {
+        return
+      }
+
       const element = mediaElement.element.get({ noproxy: true }) as HTMLMediaElement
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {

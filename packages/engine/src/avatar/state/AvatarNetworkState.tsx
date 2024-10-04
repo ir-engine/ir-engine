@@ -92,7 +92,7 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
       if (!entityExists(entity)) return
       setComponent(entity, AvatarRigComponent, { avatarURL: '' })
     }
-  }, [avatarURL, entity])
+  }, [avatarURL.value, entity])
 
   useEffect(() => {
     if (!entity) return

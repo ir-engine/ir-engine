@@ -29,7 +29,7 @@
   "loadingAssets": "Loading Assets",
   "loadingScenes": "Loading Scenes",
   "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
-  "help": "Help",
+  "help": "Customer Service Live Chat",
   "menubar": {
     "newScene": "New Scene",
     "newEmptyScene": "New Empty Scene",
@@ -362,6 +362,7 @@
       "info-refDistance": "A double value representing the reference distance for reducing volume as the audio source moves further from the listener.",
       "lbl-maxDistance": "Max Distance",
       "info-maxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
+      "info-maxDistanceDisabled": "Only supported with the Linear Distance Model.",
       "lbl-coneInnerAngle": "Cone Inner Angle",
       "info-coneInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
       "lbl-coneOuterAngle": "Cone Outer Angle",
@@ -536,9 +537,8 @@
         "useMeshoptimizer": "Use Meshoptimizer",
         "maxCodebooks": "Max Codebooks",
         "status": {
-          "initializing": "Initializing transform...",
+          "transformingmodels": "Transforming models...",
           "processingtexture": "Processing texture {{numerator}} of {{denominator}}...",
-          "finalizing": "Finalizing transform...",
           "writingfiles": "Writing files...",
           "complete": "Complete."
         },
@@ -616,8 +616,18 @@
       "duration": "Duration",
       "prewarm": "Prewarm",
       "emitter-shape": "Emitter Shape",
+      "emitter-shape-type": {
+        "point": "Point",
+        "sphere": "Sphere",
+        "cone": "Cone",
+        "donut": "Donut",
+        "mesh": "Mesh"
+      },
       "emission-bursts": "Emission Bursts",
+      "add-burst": "Add Burst",
+      "remove-burst": "Remove Burst",
       "shape-mesh": "Emitter Shape Mesh",
+      "shape-mesh-info": "Drag Gltf or Glb file here (or paste it's file asset url) to set the mesh to use as the emitter shape",
       "start-life": "Start Life",
       "start-size": "Start Size",
       "start-speed": "Start Speed",
@@ -625,6 +635,12 @@
       "start-color": "Start Color",
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
+      "render-mode-type": {
+        "billboard": "Billboard",
+        "stretched-billboard": "Stretched Billboard",
+        "mesh": "Mesh",
+        "trail": "Trail"
+      },
       "texture": "Particle Texture",
       "u-tiles": "U Tiles",
       "v-tiles": "V Tiles",
@@ -633,6 +649,14 @@
       "blending": "Blending",
       "transparent": "Transparent",
       "world-space": "Use World Space",
+      "blending-type": {
+        "normal": "Normal",
+        "additive": "Additive",
+        "subtractive": "Subtractive",
+        "multiply": "Multiply",
+        "custom": "Custom",
+        "no-blending": "No Blending"
+      },
       "burst": {
         "time": "Burst Time",
         "count": "Burst Count",
@@ -640,7 +664,8 @@
         "interval": "Burst Interval",
         "probability": "Burst Probability"
       },
-      "addBehavior": "Add Behavior"
+      "addBehavior": "Add Behavior",
+      "remove": "Remove"
     },
     "clouds": {
       "name": "Cloud",
@@ -1256,6 +1281,7 @@
         "header-plural": "Info for {{itemCount}} Items",
         "regenerateThumbnail": "Regenerate Thumbnail",
         "name": "Name",
+        "fileName": "File Name",
         "type": "Type",
         "size": "Size",
         "url": "URL",
@@ -1404,6 +1430,15 @@
       "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
       "lbl-confirm": "Save Scene"
     },
+    "saveModel": {
+      "title": "Save Changes",
+      "text": "Are you sure you want to save changes to this file?"
+    },
+    "revertModel": {
+      "lbl-name": "Revert",
+      "title": "Revert Changes",
+      "text": "Are you sure you want to revert changes to this file?"
+    },
     "support": {
       "title": "Support",
       "header": "Need to report a problem?",
@@ -1506,6 +1541,10 @@
     "description": "Please use Google Chrome for the best experience with the iR Studio.",
     "downloadChrome": "Download Chrome",
     "continue": "Continue Anyway"
+  },
+  "unsupportedFile": {
+    "title": "Unsupported File Type!",
+    "okay": "Okay"
   },
   "unsupportedDevice": {
     "title": "Unsupported Device Type!",

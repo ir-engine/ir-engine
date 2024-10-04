@@ -130,8 +130,8 @@ const execute = () => {
   /** Use a priority queue with videos to ensure only a few are updated each frame */
   for (const entity of VideoComponent.uniqueVideoEntities) {
     const videoMeshEntity = getComponent(entity, VideoComponent).videoMeshEntity
-    const videoTexture = (getComponent(videoMeshEntity, MeshComponent).material as MeshBasicMaterial)
-      .map as VideoTexture
+    const videoTexture = (getComponent(videoMeshEntity, MeshComponent)?.material as MeshBasicMaterial)
+      ?.map as VideoTexture
     if (videoTexture?.isVideoTexture) {
       const video = videoTexture.image
       const hasVideoFrameCallback = 'requestVideoFrameCallback' in video
@@ -145,8 +145,8 @@ const execute = () => {
   for (const entity of videoPriorityQueue.priorityEntities) {
     if (!hasComponent(entity, VideoComponent)) continue
     const videoMeshEntity = getComponent(entity, VideoComponent).videoMeshEntity
-    const videoTexture = (getComponent(videoMeshEntity, MeshComponent).material as MeshBasicMaterial)
-      .map as VideoTexture
+    const videoTexture = (getComponent(videoMeshEntity, MeshComponent)?.material as MeshBasicMaterial)
+      ?.map as VideoTexture
     if (!videoTexture?.isVideoTexture) continue
     videoTexture.needsUpdate = true
   }

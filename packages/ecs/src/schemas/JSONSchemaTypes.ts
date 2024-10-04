@@ -48,41 +48,47 @@ type Kinds =
   | 'Class'
   | 'Any'
 
-export interface Options {
-  id?: string
-  default?: any
-  [prop: string]: any
-}
-
 export interface Schema {
   [Kind]: Kinds
   static: unknown
   properties?: unknown
-  options?: Options
-  serializer?: (value: unknown) => unknown
+  options?: Options<any>
 }
 
 export type Static<T extends Schema> = T['static']
 
+export interface Options<V = unknown> {
+  id?: string
+  default?: any
+  serialize?: (value: V) => unknown
+  deserialize?: (curr: V, value: V) => V
+  /** @todo */
+  validate?: (value: V) => boolean
+  [prop: string]: any
+}
+
 export interface TNullSchema extends Schema {
   [Kind]: 'Null'
   static: null
+  options?: Options<this['static']>
 }
 
 export interface TUndefinedSchema extends Schema {
   [Kind]: 'Undefined'
   static: undefined
+  options?: Options<this['static']>
 }
 
 export interface TVoidSchema extends Schema {
   [Kind]: 'Void'
   static: void
+  options?: Options<this['static']>
 }
 
 export interface TNumberSchema extends Schema {
   [Kind]: 'Number'
   static: number
-  options?: Options & {
+  options?: Options<this['static']> & {
     maximum?: number
     minimum?: number
   }
@@ -91,17 +97,20 @@ export interface TNumberSchema extends Schema {
 export interface TBoolSchema extends Schema {
   [Kind]: 'Bool'
   static: boolean
+  options?: Options<this['static']>
 }
 
 export interface TStringSchema extends Schema {
   [Kind]: 'String'
   static: string
+  options?: Options<this['static']>
 }
 
 export interface TEnumSchema<T extends Record<string, string | number>> extends Schema {
   [Kind]: 'Enum'
   static: T[keyof T]
   properties: T
+  options?: Options<this['static']>
 }
 
 export type TLiteralValue = boolean | number | string
@@ -109,6 +118,7 @@ export interface TLiteralSchema<T extends TLiteralValue> extends Schema {
   [Kind]: 'Literal'
   static: T
   properties: T
+  options?: Options<this['static']>
 }
 
 export type TPropertyKeySchema = TStringSchema | TNumberSchema
@@ -130,6 +140,7 @@ export interface TObjectSchema<T extends TProperties> extends Schema {
   [Kind]: 'Object'
   static: ObjectStatic<T>
   properties: T
+  options?: Options<this['static']>
 }
 
 type Key<K> = K extends PropertyKey ? K : never
@@ -141,19 +152,21 @@ export interface TRecordSchema<K extends Schema, V extends Schema> extends Schem
   [Kind]: 'Record'
   static: RecordStatic<K, V>
   properties: { key: K; value: V }
+  options?: Options<this['static']>
 }
 
 export interface TPartialSchema<T extends Schema> extends Schema {
   [Kind]: 'Partial'
   static: Partial<Static<T>>
   properties: T
+  options?: Options<this['static']>
 }
 
 type ArrayStatic<T extends Schema> = Static<T>[]
 export interface TArraySchema<T extends Schema> extends Schema {
   [Kind]: 'Array'
   static: ArrayStatic<T>
-  options?: Options & {
+  options?: Options<this['static']> & {
     minItem?: number
     maxItem?: number
   }
@@ -165,6 +178,7 @@ export interface TTupleSchema<T extends Schema[]> extends Schema {
   [Kind]: 'Tuple'
   static: TupleStatic<T>
   properties: T
+  options?: Options<this['static']>
 }
 
 type UnionStatic<T extends Schema[]> = {
@@ -174,6 +188,7 @@ export interface TUnionSchema<T extends Schema[]> extends Schema {
   [Kind]: 'Union'
   static: UnionStatic<T>
   properties: T
+  options?: Options<this['static']>
 }
 
 type ParamsStatic<T extends Schema[], Arr extends unknown[] = []> = T extends [
@@ -186,6 +201,7 @@ export interface TFuncSchema<Params extends Schema[], Return extends Schema> ext
   [Kind]: 'Func'
   static: (...params: ParamsStatic<Params>) => Static<Return>
   properties: { params: Params; return: Return }
+  options?: Options<this['static']>
 }
 
 export interface TRequired {
@@ -195,6 +211,8 @@ export interface TRequiredSchema<T extends Schema> extends Schema {
   [Kind]: 'Required'
   static: Static<T>
   properties: T
+  options?: Options<this['static']>
+  validator?: (value: Options<this['static']>) => boolean
 }
 
 export interface TNonSerializable {
@@ -204,18 +222,20 @@ export interface TNonSerializedSchema<T extends Schema> extends Schema {
   [Kind]: 'NonSerialized'
   static: Static<T>
   properties: T
+  options?: Options<this['static']>
 }
 
 export interface TClassSchema<T extends TProperties, Class> extends Schema {
   [Kind]: 'Class'
   static: Class
   properties: T
-  serializer?: (value: Class) => any
+  options?: Options<this['static']>
 }
 
 export interface TTypedSchema<T> extends Schema {
   [Kind]: 'Any'
   static: T
+  options?: Options<this['static']>
 }
 
 export type SerializedType<T> = T extends object

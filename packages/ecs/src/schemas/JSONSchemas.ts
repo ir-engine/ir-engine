@@ -69,21 +69,21 @@ const isColorObj = (color?: ColorRepresentation): color is Color => {
 
 export const S = {
   /** Schema that infers as a null */
-  Null: (options?: Options) =>
+  Null: (options?: TNullSchema['options']) =>
     ({
       [Kind]: 'Null',
       options: options
     }) as TNullSchema,
 
   /** Schema that infers as a undefined */
-  Undefined: (options?: Options) =>
+  Undefined: (options?: TUndefinedSchema['options']) =>
     ({
       [Kind]: 'Undefined',
       options: options
     }) as TUndefinedSchema,
 
   /** Schema that infers as a void for use with S.Func as a return schema */
-  Void: (options?: Options) =>
+  Void: (options?: TVoidSchema['options']) =>
     ({
       [Kind]: 'Void',
       options: options
@@ -97,14 +97,14 @@ export const S = {
     }) as TNumberSchema,
 
   /** Schema that infers as a boolean, defaults to false */
-  Bool: (init?: boolean, options?: Options) =>
+  Bool: (init?: boolean, options?: TBoolSchema['options']) =>
     ({
       [Kind]: 'Bool',
       options: buildOptions(init ?? false, options)
     }) as TBoolSchema,
 
   /** Schema that infers as a string, defaults to '' */
-  String: (init?: string, options?: Options) =>
+  String: (init?: string, options?: TStringSchema['options']) =>
     ({
       [Kind]: 'String',
       options: buildOptions(init ?? '', options)
@@ -113,7 +113,11 @@ export const S = {
   /**
    * Schema that infers as a enum, requires that the enum to infer as be passed in
    */
-  Enum: <T extends Record<string, string | number>>(item: T, init?: string | number, options?: Options) =>
+  Enum: <T extends Record<string, string | number>>(
+    item: T,
+    init?: string | number,
+    options?: TEnumSchema<T>['options']
+  ) =>
     ({
       [Kind]: 'Enum',
       options: buildOptions(init, options),
@@ -124,7 +128,7 @@ export const S = {
    * Schema that infers as a literal value
    * S.Literal('test') -> 'test'
    */
-  Literal: <T extends TLiteralValue>(item: T, init?: T, options?: Options) =>
+  Literal: <T extends TLiteralValue>(item: T, init?: T, options?: TLiteralSchema<T>['options']) =>
     ({
       [Kind]: 'Literal',
       options: buildOptions(init, options),
@@ -135,7 +139,7 @@ export const S = {
    * Schema that infers as an object type of the properties provided
    * S.Object({ test: S.Number() }) -> { test: number }
    */
-  Object: <T extends TProperties, Initial>(properties: T, init?: Initial, options?: Options) =>
+  Object: <T extends TProperties, Initial>(properties: T, init?: Initial, options?: TObjectSchema<T>['options']) =>
     ({
       [Kind]: 'Object',
       options: buildOptions(init, options),
@@ -146,7 +150,12 @@ export const S = {
    * Schema that infers as a record type of key and value schemas passed in
    * S.Record(S.String(), S.Number()) -> Record<string, number>
    */
-  Record: <K extends Schema, V extends Schema, Initial>(key: K, value: V, init?: Initial, options?: Options) =>
+  Record: <K extends Schema, V extends Schema, Initial>(
+    key: K,
+    value: V,
+    init?: Initial,
+    options?: TRecordSchema<K, V>['options']
+  ) =>
     ({
       [Kind]: 'Record',
       options: buildOptions(init, options),
@@ -157,7 +166,7 @@ export const S = {
    * Schema that infers as a Partial type of the schema passed in
    * S.Partial(S.Vec3()) -> Partial<Vector3>
    */
-  Partial: <T extends Schema, Initial>(item: T, init?: Initial, options?: Options) =>
+  Partial: <T extends Schema, Initial>(item: T, init?: Initial, options?: TPartialSchema<T>['options']) =>
     ({
       [Kind]: 'Partial',
       options: buildOptions(init, options),
@@ -179,7 +188,11 @@ export const S = {
    * Schema that infers as an tuple type of the schema passed in
    * S.Tuple([S.Number(), S.Number()]) -> [number, number]
    */
-  Tuple: <T extends Schema[], Initial extends any[]>(items: [...T], init?: Initial, options?: Options) =>
+  Tuple: <T extends Schema[], Initial extends any[]>(
+    items: [...T],
+    init?: Initial,
+    options?: TTupleSchema<T>['options']
+  ) =>
     ({
       [Kind]: 'Tuple',
       options: buildOptions(init ?? [], options),
@@ -190,7 +203,7 @@ export const S = {
    * Schema that infers as a union type of the schemas provided
    * It will serialize as the first schema in the array that matches the value's shape
    * */
-  Union: <T extends Schema[], Initial>(schemas: [...T], init?: Initial, options?: Options) =>
+  Union: <T extends Schema[], Initial>(schemas: [...T], init?: Initial, options?: TUnionSchema<T>['options']) =>
     ({
       [Kind]: 'Union',
       options: buildOptions(init, options),
@@ -198,13 +211,16 @@ export const S = {
     }) as TUnionSchema<T>,
 
   /** Schema that infers as a literal union (ie. 'key' | 'value') */
-  LiteralUnion: <T extends TLiteralValue>(items: T[], init?: T, options?: Options) =>
-    S.Union([...items.map((lit) => S.Literal(lit))], init, options),
+  LiteralUnion: <T extends TLiteralValue>(
+    items: T[],
+    init?: T,
+    options?: TUnionSchema<TLiteralSchema<T>[]>['options']
+  ) => S.Union([...items.map((lit) => S.Literal(lit))], init, options),
 
   /**
    * Schema that infers as the return type of the function passed in, not serialized
    */
-  Class: <T extends TProperties, Class>(init: () => Class) =>
+  Class: <T extends TProperties, Class>(init: () => Class, options?: TClassSchema<T, Class>['options']) =>
     ({
       [Kind]: 'Class',
       options: {
@@ -221,8 +237,7 @@ export const S = {
   SerializedClass: <T extends TProperties, Class>(
     init: () => Class,
     items: T,
-    options: Options,
-    serializer?: (value: Class) => any
+    options?: TClassSchema<T, Class>['options']
   ) =>
     ({
       [Kind]: 'Class',
@@ -230,8 +245,7 @@ export const S = {
         ...options,
         default: init
       },
-      properties: items,
-      serializer: serializer
+      properties: items
     }) as TClassSchema<T, Class>,
 
   /**
@@ -248,7 +262,7 @@ export const S = {
     parameters: [...Params],
     returns: Return,
     init?: Initial,
-    options?: Options
+    options?: TFuncSchema<Params, Return>['options']
   ) =>
     ({
       [Kind]: 'Func',
@@ -256,20 +270,28 @@ export const S = {
       properties: { params: parameters, return: returns }
     }) as TFuncSchema<Params, Return>,
 
-  Call: <Initial extends (...params: any[]) => any>(init?: Initial, options?: Options) =>
-    S.Func([], S.Void(), init, options),
+  Call: <Initial extends (...params: any[]) => any>(
+    init?: Initial,
+    options?: TFuncSchema<Schema[], TVoidSchema>['options']
+  ) => S.Func([], S.Void(), init, options),
 
   /**
    * Schemas wrapped in this schema may be null, will default to null if not default value is provided
    */
-  Nullable: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
-    S.Union([S.Null(), schema], init, options),
+  Nullable: <T extends Schema, Initial>(
+    schema: T,
+    init?: Initial,
+    options?: TUnionSchema<[T, TNullSchema]>['options']
+  ) => S.Union([S.Null(), schema], init ?? null, options),
 
   /**
    * Schemas wrapped in this schema are optional values that can be undefined, will default to undefined if not default value is provided
    */
-  Optional: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
-    S.Union([S.Undefined(), schema], init, options),
+  Optional: <T extends Schema, Initial>(
+    schema: T,
+    init?: Initial,
+    options?: TUnionSchema<[T, TUndefinedSchema]>['options']
+  ) => S.Union([S.Undefined(), schema], init ?? null, options),
 
   /**
    *
@@ -284,7 +306,7 @@ export const S = {
    * setComponent(entity, Component, {test: 0})
    *
    */
-  Required: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
+  Required: <T extends Schema, Initial>(schema: T, init?: Initial, options?: TRequiredSchema<T>['options']) =>
     ({
       [Kind]: 'Required',
       options: buildOptions(init, options),
@@ -300,7 +322,7 @@ export const S = {
    * S.NonSerialized(S.Object({ test: S.Number(0) })) serializes to null
    *
    */
-  NonSerialized: <T extends Schema, Initial>(schema: T, init?: Initial, options?: Options) =>
+  NonSerialized: <T extends Schema, Initial>(schema: T, init?: Initial, options?: TNonSerializedSchema<T>['options']) =>
     ({
       [Kind]: 'NonSerialized',
       options: buildOptions(init, options),
@@ -311,13 +333,15 @@ export const S = {
   Entity: (def?: Entity) => S.Number(def ?? UndefinedEntity, { $id: 'Entity' }) as unknown as TTypedSchema<Entity>,
 
   /** EntityUUID type schema helper, defaults to '' */
-  EntityUUID: () => S.String('', { id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
+  EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>
+    S.String('', { id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
 
   /** UserID type schema helper, defaults to '' */
-  UserID: () => S.String('', { id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
+  UserID: (options?: TTypedSchema<UserID>['options']) =>
+    S.String('', { id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
 
   /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
-  Vec3: (init = { x: 0, y: 0, z: 0 }, options?: Options) =>
+  Vec3: (init = { x: 0, y: 0, z: 0 }, options?: Options<Vector3>) =>
     S.SerializedClass(
       () => new Vector3(init.x, init.y, init.z),
       {
@@ -326,13 +350,14 @@ export const S = {
         z: S.Number()
       },
       {
+        deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Vec3'
       }
     ),
 
   /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
-  Vec2: (init = { x: 0, y: 0 }, options?: Options) =>
+  Vec2: (init = { x: 0, y: 0 }, options?: Options<Vector2>) =>
     S.SerializedClass(
       () => new Vector2(init.x, init.y),
       {
@@ -340,13 +365,14 @@ export const S = {
         y: S.Number()
       },
       {
+        deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Vec2'
       }
     ),
 
   /** Quaternion type schema helper, defaults to { x: 0, y: 0, z: 0, w: 1 } */
-  Quaternion: (init = { x: 0, y: 0, z: 0, w: 1 }, options?: Options) =>
+  Quaternion: (init = { x: 0, y: 0, z: 0, w: 1 }, options?: Options<Quaternion>) =>
     S.SerializedClass(
       () => new Quaternion(init.x, init.y, init.z, init.w),
       {
@@ -356,13 +382,14 @@ export const S = {
         w: S.Number()
       },
       {
+        deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Quaternion'
       }
     ),
 
   /** Matrix4 type schema helper, defaults to idenity matrix */
-  Mat4: (init = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], options?: Options) =>
+  Mat4: (init = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], options?: Options<Matrix4>) =>
     S.SerializedClass(
       () => new Matrix4().fromArray(init),
       {
@@ -372,6 +399,7 @@ export const S = {
         })
       },
       {
+        deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Mat4'
       }
@@ -386,7 +414,7 @@ export const S = {
    * @param options schema options
    * @returns
    */
-  Color: (init?: ColorRepresentation, options?: Options) =>
+  Color: (init?: ColorRepresentation, options?: Options<ColorRepresentation>) =>
     S.SerializedClass<TProperties, ColorRepresentation>(
       () => (isColorObj(init) ? new Color(init.r, init.g, init.b) : new Color(init)),
       {
@@ -395,10 +423,11 @@ export const S = {
         b: S.Number()
       },
       {
+        deserialize: (curr, value) => (curr instanceof Color ? curr.set(value) : new Color(value)),
+        serialize: (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex()),
         ...options,
         id: 'Color'
-      },
-      (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex())
+      }
     ),
 
   /**
@@ -411,7 +440,7 @@ export const S = {
    * @param options schema options
    * @returns
    */
-  Type: <T>(init?: T, props?: TProperties, options?: Options) =>
+  Type: <T>(init?: T, props?: TProperties, options?: TTypedSchema<T>['options']) =>
     S.SerializedClass(init as () => any, props ?? {}, options ?? {}) as unknown as TTypedSchema<T>,
 
   /**

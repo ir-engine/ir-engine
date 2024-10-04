@@ -53,6 +53,86 @@ const CreateObject = (props?: TProperties) => {
   return obj
 }
 
+export const HasDeserializers = <T extends Schema>(schema: T): boolean => {
+  if (schema.options?.deserialize) return true
+  switch (schema[Kind]) {
+    case 'Object':
+    case 'Class': {
+      const props = schema.properties as TProperties
+      const propKeys = Object.keys(props)
+
+      for (const key of propKeys) {
+        if (HasDeserializers(props[key])) return true
+      }
+
+      return false
+    }
+
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties']
+      return HasDeserializers(props)
+    }
+
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return HasDeserializers(props)
+    }
+
+    case 'Required': {
+      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      return HasDeserializers(props)
+    }
+
+    default:
+      return false
+  }
+}
+
+const validValue = (value) => {
+  return value !== undefined && value !== null
+}
+
+export const DeserializeValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val => {
+  if (validValue(value) && schema.options?.deserialize) return schema.options?.deserialize(curr, value) as Val
+  switch (schema[Kind]) {
+    case 'Object':
+    case 'Class': {
+      if (!validValue(value)) return value
+
+      if (schema.options?.deserialize) return schema.options?.deserialize(curr, value) as Val
+
+      const props = schema.properties as TProperties
+      const propKeys = Object.keys(props)
+
+      for (const key of propKeys) {
+        if (validValue(value[key])) value[key] = DeserializeValue(props[key], curr[key], value[key])
+      }
+
+      break
+    }
+
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties']
+      return DeserializeValue(props, curr, value)
+    }
+
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return DeserializeValue(props, curr, value)
+    }
+
+    case 'Required': {
+      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      return DeserializeValue(props, curr, value)
+    }
+
+    default:
+      break
+  }
+
+  return value
+}
+
 export const HasRequiredSchema = <T extends Schema>(schema: T): boolean => {
   switch (schema[Kind]) {
     case 'Object':
@@ -381,6 +461,7 @@ export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) =
 }
 
 const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
+  if (schema.options?.serialize) return schema.options?.serialize(value)
   switch (schema[Kind]) {
     case 'Null':
     case 'Undefined':
@@ -395,7 +476,6 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
 
     case 'Object':
     case 'Class': {
-      if (schema.serializer) return schema.serializer(value)
       const props = schema.properties as TProperties
       const propKeys = Object.keys(props)
       if (propKeys.length && value && typeof value === 'object') {

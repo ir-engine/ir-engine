@@ -48,20 +48,21 @@ const GridTool = () => {
   }, [])
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center rounded bg-[#0E0F11]">
       <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')}>
         <Button
           startIcon={<MdBorderClear className="text-theme-input" />}
           onClick={onToggleGridVisible}
           variant={rendererState.gridVisibility.value ? 'outline' : 'transparent'}
           className="px-0"
+          size="small"
         />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.grid.info-gridHeight')}>
         <NumericInput
           value={rendererState.gridHeight.value}
           onChange={(value) => rendererState.gridHeight.set(value)}
-          className="h-6 w-16 rounded-sm border-theme-input bg-transparent px-2 py-1"
+          className="h-5 w-16 rounded-sm border-theme-input bg-transparent px-2 py-1"
           inputClassName="text-theme-gray3"
           precision={0.01}
           smallStep={0.5}

@@ -26,9 +26,21 @@ Infinite Reality Engine. All Rights Reserved.
 import { AnimationClip, AnimationMixer } from 'three'
 
 import { Entity, removeEntity, UndefinedEntity } from '@ir-engine/ecs'
-import { defineComponent, getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { v4 } from 'uuid'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -49,7 +61,7 @@ export const useLoadAnimationFromBatchGLTF = (urls: string[], keepEntities = fal
   useEffect(() => {
     if (loadedAnimations.value || animations.some((animation) => !animation[0].value)) return
     loadedAnimations.set(animations.map((animation) => [animation[0].get(NO_PROXY)!, animation[1]]))
-  })
+  }, [animations])
   return loadedAnimations as State<[AnimationClip[] | null, Entity][]>
 }
 
@@ -57,6 +69,7 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   const assetEntity = useMutableState(GLTFAssetState)[url].value
   const animation = useHookstate(null as AnimationClip[] | null)
   const animationComponent = useOptionalComponent(assetEntity, AnimationComponent)
+  const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
 
   useEffect(() => {
     if (animation.value) return
@@ -64,11 +77,17 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
       GLTFAssetState.loadScene(url, v4())
       return
     }
-  }, [useOptionalComponent(assetEntity, GLTFComponent)?.progress])
+  }, [progress])
 
   useEffect(() => {
     if (!animationComponent?.animations || !animationComponent.animations.length) return
     animation.set(getComponent(assetEntity, AnimationComponent).animations)
+    iterateEntityNode(assetEntity, (entity) => {
+      removeComponent(entity, MeshComponent)
+      removeComponent(entity, SkinnedMeshComponent)
+      removeComponent(entity, MaterialStateComponent)
+      removeComponent(entity, MaterialInstanceComponent)
+    })
     if (!keepEntity) removeEntity(assetEntity)
   }, [animationComponent?.animations])
   return [animation, keepEntity ? assetEntity : UndefinedEntity] as [State<AnimationClip[] | null>, Entity]
