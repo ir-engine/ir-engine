@@ -28,7 +28,14 @@ import assert from 'assert'
 import React, { useEffect } from 'react'
 
 import { EntityUUID, hasComponents, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  serializeComponent,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
@@ -76,13 +83,13 @@ function assertEntityHierarchy(name: string, entity: Entity, parent: Entity = Un
 
 type EntityTreeComponentData = {
   parentEntity: Entity
-  childIndex: number | null
+  childIndex: number | undefined
   children: Entity[]
 }
 
 const EntityTreeComponentDefaults: EntityTreeComponentData = {
   parentEntity: UndefinedEntity,
-  childIndex: null,
+  childIndex: undefined,
   children: [] as Entity[]
 }
 
@@ -113,13 +120,10 @@ describe('EntityTreeComponent', () => {
       return destroyEngine()
     })
 
-    /**
-    // @todo How to pass the data as component defaults, with the change to Component schemas ??
     it('should initialize the component with the expected default values', () => {
       const data = getComponent(testEntity, EntityTreeComponent)
       assertEntityTreeComponentEq(data, EntityTreeComponentDefaults)
     })
-    */
   }) //:: onInit
 
   describe('onSet', () => {
@@ -136,23 +140,28 @@ describe('EntityTreeComponent', () => {
       return destroyEngine()
     })
 
-    /**
-    // @todo
     it('should change the values of an initialized EntityTreeComponent', () => {
+      // Set the data as expected
+      const parentEntity = createEntity()
+      const children = [createEntity(), createEntity()] as Entity[]
+      for (let id = 0; id < children.length; ++id) {
+        const entity = children[id]
+        const first = id === 0
+        setComponent(entity, EntityTreeComponent, { parentEntity: first ? parentEntity : children[id - 1] })
+      }
+      const Expected = {
+        parentEntity: parentEntity,
+        childIndex: 3,
+        children: [] as Entity[] // Dummy Array, won't be used by onSet. Meant to be internal/"readonly"
+      }
+      // Sanity check before running
       const before = getComponent(testEntity, EntityTreeComponent)
       assertEntityTreeComponentEq(before, EntityTreeComponentDefaults)
-      const Expected = {
-        inputSinks: ['SomeUUID'] as EntityUUID[],
-        activationDistance: 10_000,
-        highlight: false,
-        grow: true,
-        inputSources: [] as Entity[]
-      }
+      // Run and Check the result
       setComponent(testEntity, EntityTreeComponent, Expected)
       const after = getComponent(testEntity, EntityTreeComponent)
       assertEntityTreeComponentEq(after, Expected)
     })
-    */
   }) //:: onSet
 
   describe('toJSON', () => {
@@ -169,19 +178,101 @@ describe('EntityTreeComponent', () => {
       return destroyEngine()
     })
 
-    /**
-    // @todo
     it("should serialize the component's default data as expected", () => {
       const json = serializeComponent(testEntity, EntityTreeComponent)
       assert.equal(json.parentEntity, UndefinedEntity)
-      assert.equal(json.childIndex, 0)
-      assert.ok(Array.isArray(json.children))
     })
-    */
   }) //:: toJSON
 
-  /** @todo */
-  describe('reactor', () => {}) //:: reactor
+  describe('reactor', () => {
+    describe('whenever entityContext.EntityTreeComponent.{parentEntity, childIndex} change', () => {
+      describe('when entity.EntityTreeComponent.parentEntity is truthy, exists, and has an EntitytTreeComponent', () => {
+        let testEntity = UndefinedEntity
+        let parentEntity = UndefinedEntity
+        let childEntity = UndefinedEntity
+
+        beforeEach(async () => {
+          createEngine()
+          parentEntity = createEntity()
+          childEntity = createEntity()
+          testEntity = createEntity()
+        })
+
+        afterEach(() => {
+          removeEntity(testEntity)
+          removeEntity(childEntity)
+          removeEntity(parentEntity)
+          return destroyEngine()
+        })
+
+        it("should add an EntityTreeComponent to the parentEntity if it doesn't have one", () => {
+          const Expected = true
+          const Initial = !Expected
+          // Sanity check before running
+          const before = hasComponent(parentEntity, EntityTreeComponent)
+          assert.equal(before, Initial)
+          // Run and Check the result
+          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+          const result = hasComponent(parentEntity, EntityTreeComponent)
+          assert.equal(result, Expected)
+        })
+
+        it(`should move the position of the entityContext's id on the parentEntity.EntityTreeComponent.children list
+            when entityContext.EntityTreeComponent.childIndex is specified
+            and the entity is already stored in the list at a different index`, () => {
+          const Expected = 0
+          const Initial = 1
+          // Set the data as expected
+          setComponent(parentEntity, EntityTreeComponent)
+          setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
+          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+          // Sanity check before running
+          assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
+          assert.equal(getComponent(testEntity, EntityTreeComponent).childIndex, undefined)
+          const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+          assert.equal(before, Initial)
+          // Run and Check the result
+          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity, childIndex: Expected })
+          const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+          assert.equal(result, Expected)
+        })
+
+        /** @todo Why is the entity not added at the expected parentEntity.children[id] ?? */
+        it.skip(`should add the entityContext's id to the parentEntity.EntityTreeComponent.children list
+            at entityContext.EntityTreeComponent.childIndex
+            when childIndex is specified
+            and the entity is not already stored at that index`, () => {
+          const Expected = 1
+          const Initial = -1
+          // Set the data as expected
+          setComponent(parentEntity, EntityTreeComponent)
+          setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
+          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+          const p1 = getComponent(parentEntity, EntityTreeComponent).children
+          getMutableComponent(parentEntity, EntityTreeComponent).children.set(
+            getComponent(parentEntity, EntityTreeComponent).children.filter((ent) => ent !== testEntity)
+          )
+          const p2 = getComponent(parentEntity, EntityTreeComponent).children
+          // Sanity check before running
+          assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
+          assert.equal(getComponent(testEntity, EntityTreeComponent).childIndex, undefined)
+          assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(childEntity), -1)
+          const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+          assert.equal(before, Initial)
+
+          // Run and Check the result
+          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity, childIndex: Expected })
+          assert.notEqual(getComponent(testEntity, EntityTreeComponent).childIndex, undefined)
+          const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+          assert.equal(result, Expected)
+        })
+
+        /** @todo */
+        // it("should add the entityContext's id to the parentEntity.EntityTreeComponent.children list at the end of the list when entityContext.EntityTreeComponent.childIndex is not specified and the entity is not already stored at that index", () => {})
+        // it("should remove the entity, when its EntityTreeComponent unmounts, from its EntityTreeComponent.parentEntity.EntityTreeComponent.children list", () => {})
+      })
+    })
+  }) //:: reactor
 
   describe('General Purpose', () => {
     beforeEach(() => {
