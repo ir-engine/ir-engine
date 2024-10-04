@@ -156,8 +156,6 @@ export default function Toolbar() {
   const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
   const currentLocation = locationQuery.data[0]
 
-  const user = getMutableState(AuthState).user
-
   return (
     <>
       <div className="flex h-10 items-center justify-between bg-theme-primary">
@@ -189,7 +187,7 @@ export default function Toolbar() {
         </div>
 
         <div className="flex items-center justify-center gap-2">
-          <ProfilePill user={user} />
+          <ProfilePill />
 
           {sceneAssetID.value && (
             <div className="p-2">
@@ -237,12 +235,13 @@ export default function Toolbar() {
   )
 }
 
-const ProfilePill = ({ user }) => {
+const ProfilePill = ({}) => {
+  const user = getMutableState(AuthState).user
   const email = user.value.identityProviders.find((ip) => ip.type === 'email')?.accountIdentifier
   return (
     <Popup
       trigger={
-        <div className="flex h-8 items-center justify-center gap-1.5 rounded-full bg-[#191B1F]">
+        <button className="flex h-8 items-center justify-center gap-1.5 rounded-full bg-[#191B1F] focus:ring-1 focus:ring-blue-primary">
           <div className="ml-1 h-6 w-6 overflow-hidden rounded-full">
             <img src={user.value?.avatar?.thumbnailResource?.url} className="h-full w-full" />
           </div>
@@ -250,7 +249,7 @@ const ProfilePill = ({ user }) => {
           <div className="cursor-pointer pr-2">
             <MdOutlineKeyboardArrowDown size="1.2em" />
           </div>
-        </div>
+        </button>
       }
     >
       <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 p-8 shadow-lg">
