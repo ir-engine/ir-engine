@@ -33,7 +33,7 @@ import {
   getOptionalComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { NO_PROXY, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, getState, isClient, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
@@ -940,9 +940,13 @@ const useLoadImageSource = (
     if (!loadedTexture) return
 
     let resultTexture
-    if (loadedTexture instanceof ImageBitmap) {
-      resultTexture = new Texture(loadedTexture as ImageBitmap)
-      resultTexture.needsUpdate = true
+    if (isClient) {
+      if (loadedTexture instanceof ImageBitmap) {
+        resultTexture = new Texture(loadedTexture as ImageBitmap)
+        resultTexture.needsUpdate = true
+      } else {
+        resultTexture = loadedTexture
+      }
     } else {
       resultTexture = loadedTexture
     }

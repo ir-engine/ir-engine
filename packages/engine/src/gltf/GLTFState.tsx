@@ -1062,8 +1062,22 @@ const MaterialInstanceReactor = (props: {
 
     setComponent(props.entity, MaterialInstanceComponent)
     const materialInstance = getMutableComponent(props.entity, MaterialInstanceComponent)
-    if (props.isArray) materialInstance.uuid[primitive.material].set(materialUUID)
+    if (props.isArray)
+      materialInstance.uuid.set((prev) => {
+        prev.push(materialUUID)
+        return prev
+      })
     else materialInstance.uuid.set([materialUUID])
+
+    return () => {
+      if (entityExists(props.entity)) {
+        materialInstance.uuid.set((prev) => {
+          const index = prev.indexOf(materialUUID)
+          if (index > -1) prev.splice(index, 1)
+          return prev
+        })
+      }
+    }
   }, [materialEntity, primitive.material])
 
   return null
@@ -1089,9 +1103,7 @@ export const MorphTargetReactor = (props: { documentID: string; entity: Entity; 
     if (loadedMorphTargets.NORMAL) mesh.geometry.morphAttributes.normal.set(loadedMorphTargets.NORMAL)
     if (loadedMorphTargets.COLOR_0) mesh.geometry.morphAttributes.color.set(loadedMorphTargets.COLOR_0)
 
-    console.log(mesh.geometry.morphAttributes)
     mesh.geometry.morphTargetsRelative.set(true)
-
     mesh.get(NO_PROXY).updateMorphTargets()
 
     if (meshDef.weights) {
