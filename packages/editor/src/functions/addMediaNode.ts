@@ -136,6 +136,7 @@ export async function addMediaNode(
 
         useImmediateEffect(() => {
           if (!modelComponent) return
+
           modelComponent.dereference.set(true)
           reactor.stop()
         }, [modelComponent])

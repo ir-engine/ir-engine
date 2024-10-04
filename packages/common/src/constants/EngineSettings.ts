@@ -27,5 +27,19 @@ export const EngineSettings = {
   TaskServer: {
     Port: 'port',
     ProcessInterval: 'processInterval'
+  },
+  Coil: {
+    PaymentPointer: 'paymentPointer',
+    ClientId: 'clientId',
+    ClientSecret: 'clientSecret'
+  },
+  Chargebee: {
+    ApiKey: 'apiKey',
+    Url: 'url'
+  },
+  Zendesk: {
+    Name: 'name',
+    Secret: 'secret',
+    Kid: 'kid'
   }
 }

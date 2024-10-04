@@ -200,7 +200,12 @@ export class GLTFLoader extends Loader {
 
             json = JSON.parse(extensions[EXTENSIONS.KHR_BINARY_GLTF].content)
           } else {
-            json = JSON.parse(textDecoder.decode(data))
+            try {
+              json = JSON.parse(textDecoder.decode(data))
+            } catch (error) {
+              if (onError) onError(error)
+              return
+            }
           }
         } else {
           json = data

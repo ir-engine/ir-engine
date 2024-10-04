@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@ir-engine/hyperflux'
+import { ImmutableObject, useHookstate } from '@ir-engine/hyperflux'
 import React from 'react'
 import { Vector2 } from 'three'
 
@@ -36,7 +36,7 @@ interface Vector2InputProp {
   smallStep?: number
   mediumStep?: number
   largeStep?: number
-  value: Vector2
+  value: ImmutableObject<Vector2>
   hideLabels?: boolean
   onChange: (v: Vector2) => void
   onRelease?: (v: Vector2) => void
@@ -59,9 +59,9 @@ export const Vector2Input = ({
 }: Vector2InputProp) => {
   const uniformEnabled = useHookstate(uniformScaling)
 
-  const processChange = (field: string, fieldValue: number) => {
+  const toVec2 = (field: string, fieldValue: number): Vector2 => {
     if (uniformEnabled.value) {
-      value.set(fieldValue, fieldValue)
+      return new Vector2(fieldValue, fieldValue)
     } else {
       let clampedValue = fieldValue
       if (min !== undefined) {
@@ -70,28 +70,19 @@ export const Vector2Input = ({
       if (max !== undefined) {
         clampedValue = Math.min(max, clampedValue)
       }
-      value[field] = clampedValue
+      const vec = new Vector2()
+      vec.copy(value)
+      vec[field] = clampedValue
+      return vec
     }
   }
 
-  const onChangeX = (x: number) => {
-    processChange('x', x)
-    onChange(value)
+  const onChangeAxis = (axis: string) => (n: number) => {
+    onChange(toVec2(axis, n))
   }
 
-  const onChangeY = (y: number) => {
-    processChange('y', y)
-    onChange(value)
-  }
-
-  const onReleaseX = (x: number) => {
-    processChange('x', x)
-    onRelease?.(value)
-  }
-
-  const onReleaseY = (y: number) => {
-    processChange('y', y)
-    onRelease?.(value)
+  const onReleaseAxis = (axis: string) => (n: number) => {
+    onRelease?.(toVec2(axis, n))
   }
 
   const vx = value.x
@@ -102,22 +93,34 @@ export const Vector2Input = ({
       <NumericInput
         {...rest}
         value={vx}
-        onChange={onChangeX}
-        onRelease={onReleaseX}
+        onChange={onChangeAxis('x')}
+        onRelease={onReleaseAxis('x')}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
+            <Vector3Scrubber
+              {...rest}
+              value={vx}
+              onChange={onChangeAxis('x')}
+              onRelease={onReleaseAxis('x')}
+              axis="x"
+            />
           )
         }
       />
       <NumericInput
         {...rest}
         value={vy}
-        onChange={onChangeY}
-        onRelease={onReleaseY}
+        onChange={onChangeAxis('y')}
+        onRelease={onReleaseAxis('y')}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
+            <Vector3Scrubber
+              {...rest}
+              value={vy}
+              onChange={onChangeAxis('y')}
+              onRelease={onReleaseAxis('y')}
+              axis="y"
+            />
           )
         }
       />

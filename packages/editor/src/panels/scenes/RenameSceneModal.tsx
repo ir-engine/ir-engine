@@ -80,6 +80,7 @@ export default function RenameSceneModal({ sceneName, onRenameScene, scene, refe
         }}
         description={t('editor:dialog.saveNewScene.info-name')}
         error={inputError.value}
+        data-testid="scene-panel-scene-rename-input"
       />
     </Modal>
   )

@@ -31,7 +31,6 @@ import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadReq
 import { getMutableState, getState, NO_PROXY, useState } from '@ir-engine/hyperflux'
 
 import { uploadProjectFiles } from '../functions/assetFunctions'
-import { EditorState } from '../services/EditorServices'
 import { ImportSettingsState } from '../services/ImportSettingsState'
 
 export const UploadRequestSystem = defineSystem({
@@ -44,11 +43,11 @@ export const UploadRequestSystem = defineSystem({
       if (uploadRequests.length === 0) return
 
       const importSettings = getState(ImportSettingsState)
-      const projectName = getState(EditorState).projectName
       const uploadPromises = uploadRequests.map((uploadRequest) => {
+        const projectName = uploadRequest.projectName
         return Promise.all(
           uploadProjectFiles(
-            uploadRequest.projectName,
+            projectName,
             [uploadRequest.file],
             [`projects/${projectName}${importSettings.importFolder}`]
           ).promises

@@ -58,6 +58,7 @@ import {
   BINARY_EXTENSION_HEADER_LENGTH,
   BINARY_EXTENSION_HEADER_MAGIC
 } from '../assets/loaders/gltf/GLTFExtensions'
+import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
@@ -216,14 +217,9 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   const { gltfComponentEntity, entity, component } = props
   const dependencies = loadDependencies[component.jsonID!]
   const comp = useComponent(entity, component)
+  const errors = ErrorComponent.useComponentErrors(entity, component)
 
-  useEffect(() => {
-    const compValue = comp.value
-    for (const key of dependencies) {
-      if (!compValue[key]) return
-    }
-
-    // All dependencies loaded, remove from dependency array
+  const removeGLTFDependency = () => {
     const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
     const uuid = getComponent(entity, UUIDComponent)
     gltfComponent.dependencies.set((prev) => {
@@ -235,7 +231,23 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
       }
       return prev
     })
+  }
+
+  useEffect(() => {
+    const compValue = comp.value
+    for (const key of dependencies) {
+      if (!compValue[key]) return
+    }
+
+    // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
+    removeGLTFDependency()
   }, [...dependencies.map((key) => comp[key])])
+
+  useEffect(() => {
+    if (!errors) return
+    console.error(`GLTFComponent:ComponentReactor Component ${component.name} errored during loading`)
+    removeGLTFDependency()
+  }, [errors])
 
   return null
 }

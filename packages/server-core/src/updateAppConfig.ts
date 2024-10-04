@@ -31,14 +31,9 @@ import {
 } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
 import { AwsSettingDatabaseType, awsSettingPath } from '@ir-engine/common/src/schemas/setting/aws-setting.schema'
 import {
-  chargebeeSettingPath,
-  ChargebeeSettingType
-} from '@ir-engine/common/src/schemas/setting/chargebee-setting.schema'
-import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import { coilSettingPath, CoilSettingType } from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
   instanceServerSettingPath,
@@ -51,7 +46,6 @@ import {
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
 import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
-import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
 import logger from './ServerLogger'
@@ -138,38 +132,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read ${awsSettingPath}: ${e.message}`)
     })
   promises.push(awsSettingPromise)
-
-  const chargebeeSettingPromise = knexClient
-    .select()
-    .from<ChargebeeSettingType>(chargebeeSettingPath)
-    .then(([dbChargebee]) => {
-      if (dbChargebee) {
-        appConfig.chargebee = {
-          ...appConfig.chargebee,
-          ...dbChargebee
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
-    })
-  promises.push(chargebeeSettingPromise)
-
-  const coilSettingPromise = knexClient
-    .select()
-    .from<CoilSettingType>(coilSettingPath)
-    .then(([dbCoil]) => {
-      if (dbCoil) {
-        appConfig.coil = {
-          ...appConfig.coil,
-          ...dbCoil
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read coilSetting: ${e.message}`)
-    })
-  promises.push(coilSettingPromise)
 
   const clientSettingPromise = knexClient
     .select()
@@ -273,22 +235,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
-
-  const zendeskSettingPromise = knexClient
-    .select()
-    .from<ZendeskSettingType>(zendeskSettingPath)
-    .then(([dbZendesk]) => {
-      if (dbZendesk) {
-        appConfig.zendesk = {
-          ...appConfig.zendesk,
-          ...dbZendesk
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read zendesk setting: ${e.message}`)
-    })
-  promises.push(zendeskSettingPromise)
 
   const mailchimpSettingPromise = knexClient
     .select()
