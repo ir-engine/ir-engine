@@ -1237,7 +1237,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
 }
 
 export const copyDefaultProject = () => {
-  deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
+  deleteFolderRecursive(path.join(projectsRootFolder, `ir-engine/default-project`))
   copyFolderRecursiveSync(
     path.join(appRootPath.path, 'packages/projects/default-project'),
     path.join(projectsRootFolder, 'ir-engine')
