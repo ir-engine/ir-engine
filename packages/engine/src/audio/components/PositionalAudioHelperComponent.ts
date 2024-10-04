@@ -50,10 +50,6 @@ export const PositionalAudioHelperComponent = defineComponent({
   schema: S.Object({
     name: S.String('positional-audio-helper'),
     audio: S.Type<AudioNodeGroup>(),
-    range: S.Number(1),
-    divisionsInnerAngle: S.Number(16),
-    divisionsOuterAngle: S.Number(2),
-    divisions: S.Number(0),
     entity: S.Entity()
   }),
 
@@ -63,16 +59,11 @@ export const PositionalAudioHelperComponent = defineComponent({
     if (!json.audio) throw new Error('PositionalAudioHelperComponent: Valid AudioNodeGroup required')
     component.audio.set(json.audio)
     if (typeof json.name === 'string') component.name.set(json.name)
-    if (typeof json.range === 'number') component.range.set(json.range)
-    if (typeof json.divisionsInnerAngle === 'number') component.divisionsInnerAngle.set(json.divisionsInnerAngle)
-    if (typeof json.divisionsOuterAngle === 'number') component.divisionsOuterAngle.set(json.divisionsOuterAngle)
-    component.divisions.set(component.divisionsInnerAngle.value + component.divisionsOuterAngle.value * 2)
   },
 
   reactor: function () {
     const entity = useEntityContext()
     const audioComponent = useComponent(entity, PositionalAudioComponent)
-    const helperComponent = useComponent(entity, PositionalAudioHelperComponent)
 
     const [materialInnerAngle] = useResource(
       () => new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 }),
@@ -83,7 +74,7 @@ export const PositionalAudioHelperComponent = defineComponent({
     const [innerCone] = useResource(() => {
       return createCone(
         audioComponent.coneInnerAngle.value,
-        helperComponent.range.value,
+        audioComponent.maxDistance.value,
         materialInnerAngle.value as Material
       )
     })
@@ -91,7 +82,7 @@ export const PositionalAudioHelperComponent = defineComponent({
     const [innerCap] = useResource(() => {
       return createCap(
         audioComponent.coneInnerAngle.value,
-        helperComponent.range.value,
+        audioComponent.maxDistance.value,
         materialInnerAngle.value as Material
       )
     })
@@ -99,7 +90,7 @@ export const PositionalAudioHelperComponent = defineComponent({
     const [outerCone] = useResource(() => {
       return createCone(
         audioComponent.coneOuterAngle.value,
-        helperComponent.range.value,
+        audioComponent.maxDistance.value,
         materialOuterAngle.value as Material
       )
     })
@@ -107,7 +98,7 @@ export const PositionalAudioHelperComponent = defineComponent({
     const [outerCap] = useResource(() => {
       return createCap(
         audioComponent.coneOuterAngle.value,
-        helperComponent.range.value,
+        audioComponent.maxDistance.value,
         materialOuterAngle.value as Material
       )
     })
@@ -150,47 +141,40 @@ export const PositionalAudioHelperComponent = defineComponent({
     }
 
     useEffect(() => {
-      const audio = helperComponent.audio.value
-      if (!audio.panner) return
+      if (!audioComponent) return
 
       innerCone.set(
         createCone(
           audioComponent.coneInnerAngle.value,
-          helperComponent.range.value,
+          audioComponent.maxDistance.value,
           materialInnerAngle.value as Material
         )
       )
       innerCap.set(
         createCap(
           audioComponent.coneInnerAngle.value,
-          helperComponent.range.value,
+          audioComponent.maxDistance.value,
           materialInnerAngle.value as Material
         )
       )
       outerCone.set(
         createCone(
           audioComponent.coneOuterAngle.value,
-          helperComponent.range.value,
+          audioComponent.maxDistance.value,
           materialOuterAngle.value as Material
         )
       )
       outerCap.set(
         createCap(
           audioComponent.coneOuterAngle.value,
-          helperComponent.range.value,
+          audioComponent.maxDistance.value,
           materialOuterAngle.value as Material
         )
       )
-    }, [
-      helperComponent.audio.panner,
-      helperComponent.range,
-      audioComponent.coneInnerAngle,
-      audioComponent.coneOuterAngle
-    ])
+    }, [audioComponent.maxDistance.value, audioComponent.coneInnerAngle, audioComponent.coneOuterAngle])
 
     useEffect(() => {
-      const audio = helperComponent.audio.value
-      if (!audio.panner) return
+      if (!audioComponent) return
 
       addObjectToGroup(entity, innerCone.value! as unknown as Object3D)
       addObjectToGroup(entity, innerCap.value! as unknown as Object3D)
