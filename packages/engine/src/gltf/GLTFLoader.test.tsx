@@ -33,6 +33,7 @@ import {
   createEntity,
   generateEntityUUID,
   getComponent,
+  hasComponent,
   setComponent,
   useEntityContext,
   useOptionalComponent
@@ -48,6 +49,7 @@ import {
   useDidMount,
   useMutableState
 } from '@ir-engine/hyperflux'
+import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -68,7 +70,7 @@ import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFNode, GLTFNodeState } from './GLTFDocumentState'
 import { getNodeUUID } from './GLTFState'
 import { KHRUnlitExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
-import { KHRLightsPunctualComponent } from './MeshExtensionComponents'
+import { KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 
 const CDN_URL = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0'
 const duck_gltf = CDN_URL + '/Duck/glTF/Duck.gltf'
@@ -588,7 +590,7 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
-  it('can load KHR lights', async () => {
+  it.only('can load KHR lights', async () => {
     const entity = createEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
@@ -603,11 +605,40 @@ describe('GLTF Loader', () => {
     const gltfDocumentState = getMutableState(GLTFDocumentState)
     const gltf = gltfDocumentState[instanceID].get(NO_PROXY) as GLTF.IGLTF
 
-    const lights = (gltf.extensions![KHRLightsPunctualComponent.jsonID] as any).lights as any[]
+    const lights = (gltf.extensions![KHRLightsPunctualComponent.jsonID] as any).lights as KHRPunctualLight[]
     assert(lights)
 
     const khrLightEntities = getChildrenWithComponents(entity, [KHRLightsPunctualComponent])
     assert(lights.length === khrLightEntities.length)
+
+    for (const khrLightEntity of khrLightEntities) {
+      const khrLightComponent = getComponent(khrLightEntity, KHRLightsPunctualComponent)
+      const light = lights[khrLightComponent.light!]
+      assert(light)
+      switch (light.type) {
+        case 'directional':
+          {
+            assert(hasComponent(khrLightEntity, DirectionalLightComponent))
+            const directionalLight = getComponent(khrLightEntity, DirectionalLightComponent)
+          }
+          break
+        case 'point':
+          {
+            assert(hasComponent(khrLightEntity, PointLightComponent))
+            const pointLightComponent = getComponent(khrLightEntity, PointLightComponent)
+          }
+          break
+        case 'spot':
+          {
+            assert(hasComponent(khrLightEntity, SpotLightComponent))
+            const spotLightComponent = getComponent(khrLightEntity, SpotLightComponent)
+          }
+          break
+
+        default:
+          break
+      }
+    }
 
     unmount()
   })

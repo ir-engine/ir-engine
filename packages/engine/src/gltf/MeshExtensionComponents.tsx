@@ -81,7 +81,7 @@ export const KHRLightsPunctualComponent = defineComponent({
       lights?: KHRPunctualLight[]
     } = (json.extensions && json.extensions[KHRLightsPunctualComponent.jsonID]) || {}
     const lightDefs = extensions.lights
-    const lightDef = lightDefs && component.light.value ? lightDefs[component.light.value] : undefined
+    const lightDef = lightDefs && component.light.value !== undefined ? lightDefs[component.light.value] : undefined
 
     useEffect(() => {
       return () => {
