@@ -248,15 +248,15 @@ function updateConeAngle(value: number, isInner: boolean, commit: boolean, inner
   } else {
     //outer
     if (commit) {
-      commitProperty(PositionalAudioComponent, 'coneOuterAngle')(value)
-      if (value < innerValue) {
-        commitProperty(PositionalAudioComponent, 'coneInnerAngle')(value)
-      }
-    } else {
       commitProperties(PositionalAudioComponent, {
         coneOuterAngle: value,
-        coneInnerAngle: value < outerValue ? value : undefined
+        coneInnerAngle: value < innerValue ? value : undefined
       } as any)
+    } else {
+      updateProperty(PositionalAudioComponent, 'coneOuterAngle')(value)
+      if (value < innerValue) {
+        updateProperty(PositionalAudioComponent, 'coneInnerAngle')(value)
+      }
     }
   }
 }
