@@ -217,6 +217,9 @@ export const setAvatarAnimations = (entity: Entity) => {
   })
 }
 
+const runClipName = 'Run_RootMotion',
+  walkClipName = 'Walk_RootMotion'
+
 /**
  * @todo: stop using global state for avatar speed
  * in future this will be derrived from the actual root motion of a
@@ -228,8 +231,9 @@ export const setAvatarSpeedFromRootMotion = () => {
     manager.loadedAnimations[preloadedAnimations.locomotion],
     AnimationComponent
   ).animations
-  const run = AnimationClip.findByName(animations, 'Run_RootMotion')
-  const walk = AnimationClip.findByName(animations, 'Walk_RootMotion')
+  /**@todo handle avatar animation clips generically */
+  const run = AnimationClip.findByName(animations, runClipName)
+  const walk = AnimationClip.findByName(animations, walkClipName)
   const movement = getMutableState(AvatarMovementSettingsState)
   if (run) movement.runSpeed.set(getRootSpeed(run))
   if (walk) movement.walkSpeed.set(getRootSpeed(walk))
