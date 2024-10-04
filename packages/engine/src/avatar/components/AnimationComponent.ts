@@ -69,6 +69,7 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   const assetEntity = useMutableState(GLTFAssetState)[url].value
   const animation = useHookstate(null as AnimationClip[] | null)
   const animationComponent = useOptionalComponent(assetEntity, AnimationComponent)
+  const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
 
   useEffect(() => {
     if (animation.value) return
@@ -76,7 +77,7 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
       GLTFAssetState.loadScene(url, v4())
       return
     }
-  }, [useOptionalComponent(assetEntity, GLTFComponent)?.progress])
+  }, [progress])
 
   useEffect(() => {
     if (!animationComponent?.animations || !animationComponent.animations.length) return
