@@ -87,6 +87,7 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
     <Button
       fullWidth
       className="w-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
+      data-testid="prefabs-category-item"
       onClick={() => {
         const url = item.url
         if (!url.length) {
@@ -99,8 +100,14 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
       startIcon={<IoMdAddCircle className="h-4 w-4 text-[#B2B5BD]" />}
     >
       <div className="ml-4 w-full">
-        <Text className="mb-1 block text-left text-sm text-[#B2B5BD]">{item.name}</Text>
-        <Text component="p" className="block text-left text-xs text-theme-secondary">
+        <Text className="mb-1 block text-left text-sm text-[#B2B5BD]" data-testid="prefabs-category-item-name">
+          {item.name}
+        </Text>
+        <Text
+          component="p"
+          className="block text-left text-xs text-theme-secondary"
+          data-testid="prefabs-category-item-detail"
+        >
           {item.detail}
         </Text>
       </div>
@@ -123,11 +130,17 @@ const SceneElementListItem = ({
         'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
         selected ? 'border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
       )}
+      data-testid="prefabs-category"
       onClick={onClick}
     >
       <div className="flex flex-col items-center justify-center">
         <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
-        <div className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{categoryTitle}</div>
+        <div
+          className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+          data-testid="prefabs-category-title"
+        >
+          {categoryTitle}
+        </div>
       </div>
     </button>
   )
@@ -246,6 +259,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
           value={search.local.value}
           onChange={(val) => onSearch(val)}
           inputRef={inputReference}
+          data-testid="prefabs-search-input"
         />
       </div>
 
@@ -263,7 +277,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
       )}
 
       {(isInSearchMode.value || selectedCategories.value.length > 0) && (
-        <ul className="flex w-full flex-col space-y-1 pt-3">
+        <ul className="flex w-full flex-col space-y-1 pt-3" data-testid="prefabs-category-item-list">
           {shelves.flatMap(([_, items], index) =>
             selectedCategories.value.includes(index)
               ? items.map((item: Component | PrefabShelfItem) =>
