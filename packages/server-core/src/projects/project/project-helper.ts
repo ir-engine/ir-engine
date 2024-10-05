@@ -61,13 +61,13 @@ import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects
 import { helmSettingPath } from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
+import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import {
   copyFolderRecursiveSync,
   deleteFolderRecursive,
   getFilesRecursive
 } from '@ir-engine/common/src/utils/fsHelperFunctions'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
@@ -1702,7 +1702,7 @@ export const uploadLocalProjectToProvider = async (
   for (const file of filteredFilesInProjectFolder) {
     try {
       const fileResult = fs.readFileSync(file)
-      const filePathRelative = processFileName(file.slice(projectRootPath.length + 1))
+      const filePathRelative = cleanFileNameString(file.slice(projectRootPath.length + 1))
       const key = `projects/${projectName}/${filePathRelative}`
 
       const contentType = getContentType(key)
