@@ -45,5 +45,10 @@ export const EngineSettings = {
     ProjectDashboardId: 'projectDashboardId',
     AccountDashboardId: 'accountDashboardId',
     Environment: 'environment'
+  },
+  Zendesk: {
+    Name: 'name',
+    Secret: 'secret',
+    Kid: 'kid'
   }
 }
