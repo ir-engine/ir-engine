@@ -52,10 +52,12 @@ type EntityTreeSetType = {
 }
 
 /**
- * EntityTreeComponent describes parent-child relationship between entities.
+ * @description
+ * Describes parent-child relationship between entities.
  * A root entity has it's parentEntity set to null.
- * @param {Entity} parentEntity
- * @param {Readonly<Entity[]>} children
+ * @param parentEntity _(Optional)_ The entity where this entity connects to the EntityTree
+ * @param childIndex _(Optional)_ The position that this entity should be found at in the `@param parentEntity`.EntityTreeComponent.children list
+ * @param children _(Internal)_ The list of entities that are connected to this entity in the EntityTree
  */
 export const EntityTreeComponent = defineComponent({
   name: 'EntityTreeComponent',
@@ -139,37 +141,31 @@ export const EntityTreeComponent = defineComponent({
 })
 
 /**
- * Recursively destroys all the children entities of the passed entity
- */
-export function destroyEntityTree(entity: Entity): void {
-  const children = getComponent(entity, EntityTreeComponent).children.slice()
-  for (const child of children) {
-    destroyEntityTree(child)
-  }
-  removeEntity(entity)
-}
-
-/**
- * Recursively removes all the children from the entity tree
+ * @description
+ * Recursively call {@link removeComponent} with {@link EntityTreeComponent} on `@param entity` and all its children entities
+ * Children entities will be traversed first
+ * @param entity The parent entity where traversal will start.
  */
 export function removeFromEntityTree(entity: Entity): void {
-  const children = getComponent(entity, EntityTreeComponent).children.slice()
-  for (const child of children) {
-    removeFromEntityTree(child)
-  }
-  removeComponent(entity, EntityTreeComponent)
+  traverseEntityNodeChildFirst(entity, (nodeEntity) => {
+    removeComponent(nodeEntity, EntityTreeComponent)
+  })
 }
 
 /**
- * Removes an entity node from it's parent, and remove it's entity and all it's children nodes and entities
- * @param node
- * @param tree
+ * @description
+ * Recursively call {@link removeEntity} on `@param entity` and all its children entities
+ * Children entities will be traversed first
+ * @param entity The parent entity where traversal will start.
  */
 export function removeEntityNodeRecursively(entity: Entity) {
-  traverseEntityNodeChildFirst(entity, (childEntity) => {
-    removeEntity(childEntity)
+  traverseEntityNodeChildFirst(entity, (nodeEntity) => {
+    removeEntity(nodeEntity)
   })
 }
+/**
+ * @deprecated Use {@link removeEntityNodeRecursively} instead */
+export const destroyEntityTree = removeEntityNodeRecursively
 
 /**
  * @description
