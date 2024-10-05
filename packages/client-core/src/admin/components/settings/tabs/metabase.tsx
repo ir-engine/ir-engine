@@ -87,16 +87,30 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       crashDashboardId: crashDashboardId.value
     }
 
-    // const operation = !id.value
-    //   ? metabaseSettingMutation.create(setting)
-    //   : metabaseSettingMutation.patch(id.value, setting)
-    // operation
-    //   .then(() => {
-    //     state.set({ loading: false, errorMessage: '' })
-    //   })
-    //   .catch((e) => {
-    //     state.set({ loading: false, errorMessage: e.message })
-    //   })
+    const operation = Object.values(EngineSettings.Metabase).map((key) => {
+      const settingInDb = metaBaseSettings.find((el) => el.key === key)
+      if (!settingInDb) {
+        return metabaseSettingMutation.create({
+          key,
+          category: 'metabase',
+          value: setting[key],
+          type: 'private'
+        })
+      }
+      return metabaseSettingMutation.patch(settingInDb.id, {
+        key,
+        category: 'metabase',
+        value: setting[key],
+        type: 'private'
+      })
+    })
+    Promise.all(operation)
+      .then(() => {
+        state.set({ loading: false, errorMessage: '' })
+      })
+      .catch((e) => {
+        state.set({ loading: false, errorMessage: e.message })
+      })
   }
 
   const handleCancel = () => {
