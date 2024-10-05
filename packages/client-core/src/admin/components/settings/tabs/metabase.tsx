@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
-import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
@@ -87,24 +87,33 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       crashDashboardId: crashDashboardId.value
     }
 
-    const operation = Object.values(EngineSettings.Metabase).map((key) => {
+    const createOperations: Promise<EngineSettingType>[] = []
+    const updateOperations: Promise<EngineSettingType>[] = []
+
+    Object.values(EngineSettings.Metabase).forEach((key) => {
       const settingInDb = metaBaseSettings.find((el) => el.key === key)
       if (!settingInDb) {
-        return metabaseSettingMutation.create({
-          key,
-          category: 'metabase',
-          value: setting[key],
-          type: 'private'
-        })
+        createOperations.push(
+          metabaseSettingMutation.create({
+            key,
+            category: 'metabase',
+            value: setting[key],
+            type: 'private'
+          })
+        )
+      } else {
+        updateOperations.push(
+          metabaseSettingMutation.patch(settingInDb.id, {
+            key,
+            category: 'metabase',
+            value: setting[key],
+            type: 'private'
+          })
+        )
       }
-      return metabaseSettingMutation.patch(settingInDb.id, {
-        key,
-        category: 'metabase',
-        value: setting[key],
-        type: 'private'
-      })
     })
-    Promise.all(operation)
+
+    Promise.all([...createOperations, ...updateOperations])
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
