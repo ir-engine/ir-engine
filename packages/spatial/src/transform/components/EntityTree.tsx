@@ -169,30 +169,39 @@ export const destroyEntityTree = removeEntityNodeRecursively
 
 /**
  * @description
- * Recursively call the `@param cb` function on `@param entity` and all of its children.
- * The `@param cb` function will also be called for `@param entity`
- * The tree will be traversed using the respective {@link EntityTreeComponent} of each entity found in the tree.
+ * Recursively call `@param cb` function on `@param entity` and all its children.
+ * The tree will be traversed using the {@link EntityTreeComponent} of each entity found in the tree.
  * @note
  * Does not support removing the current `@param entity` node during traversal
+ * The `@param cb` function will be called for `@param entity` first
  * @param entity Entity Node where traversal will start
  * @param cb Callback function called for every entity of the tree
  * @param index Index of the current node (relative to its parent)
  */
 export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: number) => void, index = 0): void {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
-
   if (!entityTreeNode) return
 
   cb(entity, index)
 
   if (!entityTreeNode.children.length) return
-
   for (let i = 0; i < entityTreeNode.children.length; i++) {
     const child = entityTreeNode.children[i]
     traverseEntityNode(child, cb, i)
   }
 }
 
+/**
+ * @description
+ * Recursively call `@param cb` function on `@param entity` and all its children.
+ * The tree will be traversed using the {@link EntityTreeComponent} of each entity found in the tree.
+ * @note
+ * Supports removing the current `@param entity` node during traversal
+ * The `@param cb` function will be called for `@param entity` at the end
+ * @param entity Entity Node where traversal will start
+ * @param cb Callback function called for every entity of the tree
+ * @param index Index of the current node (relative to its parent)
+ */
 export function traverseEntityNodeChildFirst(
   entity: Entity,
   cb: (entity: Entity, index: number) => void,
@@ -212,11 +221,13 @@ export function traverseEntityNodeChildFirst(
 }
 
 /**
- * Iteratively traverse parent nodes for given Entity Tree Node
- * @param node Node for which traversal will occur
- * @param cb Callback function which will be called for every traverse
+ * @description
+ * Iteratively traverse the parent nodes of `@param entity`'s Entity Tree Node
+ * @param entity Entity Node where traversal will start
+ * @param cb Callback function called for every entity found in the tree
  * @param pred Predicate function which will not process a node or its children if return false
  * @param snubChildren If true, will not traverse children of a node if pred returns false
+ * @param breakOnFind
  */
 export function iterateEntityNode<R>(
   entity: Entity,
@@ -255,28 +266,30 @@ export function iterateEntityNode<R>(
 }
 
 /**
- * Traverse parent nodes for given Entity Tree Node
- * @param node Node for which traversal will occur
- * @param cb Callback function which will be called for every traverse; return true to stop traversal
- * @param tree Entity Tree
+ * @description
+ * Recursively calls `@param cb` on every parent entity in the `@param entity`'s {@link EntityTreeComponent}
+ * @param entity Entity Node where traversal will start
+ * @param cb
+ * Callback function that will be called for every traverse
+ * Returning true from the cb will early stop traversal _(no matter if the currentEntity.EntityTreeComponent.parentEntity has any parents or not)_
  */
 export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) => true | void): void {
   const entityTreeNode = getOptionalComponent(entity, EntityTreeComponent)
   if (entityTreeNode?.parentEntity) {
-    const parent = entityTreeNode.parentEntity
-    const earlyReturn = cb(parent)
+    const earlyReturn = cb(entityTreeNode.parentEntity)
     if (earlyReturn === true) return
-    traverseEntityNodeParent(parent, cb)
+    traverseEntityNodeParent(entityTreeNode.parentEntity, cb)
   }
 }
 
 /**
- * Returns the closest ancestor of an entity that has the given components by walking up the entity tree
- * @param entity Entity to start from
+ * @description
+ * Finds the closest ancestor of `@param entity` that has all the `@param components` by walking up the entity's {@link EntityTreeComponent}
+ * @param entity Entity Node from which traversal will start
  * @param components Components to search for
- * @param closest (default true) - whether to return the closest ancestor or the furthest ancestor
- * @param includeSelf (default true) - whether to include the entity itself in the search
- * @returns
+ * @param closest _(@default true)_ - Whether to return the closest ancestor or the furthest ancestor
+ * @param includeSelf _(@default true)_ - Whether it should include the `@param entity` in the search or not
+ * @returns The parent entity _(or itself when relevant)_
  */
 export function getAncestorWithComponents(
   entity: Entity,
@@ -299,20 +312,28 @@ export function getAncestorWithComponents(
 }
 
 /**
- * Finds the index of an entity tree node using entity.
- * This function is useful for node which is not contained in array but can have same entity as one of array elements
- * @param arr Nodes array
- * @param node Node to find index of
- * @returns index of the node if found -1 oterhwise.
+ * @description
+ * Returns the array index of `@param entity` inside the `@param list` of {@link Entity} IDs
+ * Useful for nodes that are not contained in the array but can have the same entity as one of the array elements
+ * @param list The list of {@link Entity} IDs where the `@param entity` will be searched for
+ * @param entity The {@link Entity} ID to search for
+ * @returns
+ * The index of `@param entity` inside `@param list` when the entity was found
+ * `-1` when the `@param entity` wasn't found
  */
-export function findIndexOfEntityNode(arr: Entity[], obj: Entity): number {
-  for (let i = 0; i < arr.length; i++) {
-    const elt = arr[i]
-    if (obj === elt) return i
+export function findIndexOfEntityNode(list: Entity[], entity: Entity): number {
+  for (let id = 0; id < list.length; ++id) {
+    if (entity === list[id]) return id
   }
   return -1
 }
 
+/**
+ * @description
+ * Returns whether or not the `@param child` is part of the `@param parent`'s {@link EntityTreeComponent} hierarchy
+ * @param child The Entity Node to search for
+ * @param parent The Entity Node where the search will start
+ */
 export function isDeepChildOf(child: Entity, parent: Entity): boolean {
   const childTreeNode = getOptionalComponent(child, EntityTreeComponent)
   if (!childTreeNode) return false
