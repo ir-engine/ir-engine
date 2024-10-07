@@ -63,14 +63,14 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import Sinon from 'sinon'
-import { BufferGeometry, MathUtils, MeshStandardMaterial } from 'three'
+import { BufferGeometry, InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFNode, GLTFNodeState } from './GLTFDocumentState'
 import { getNodeUUID } from './GLTFState'
 import { KHRUnlitExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
-import { KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
+import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 
 const CDN_URL = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0'
 const duck_gltf = CDN_URL + '/Duck/glTF/Duck.gltf'
@@ -82,6 +82,7 @@ const morph_gltf = CDN_URL + '/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf'
 const skinned_gltf = CDN_URL + '/Fox/glTF/Fox.gltf'
 const camera_gltf = CDN_URL + '/Cameras/glTF/Cameras.gltf'
 const khr_light_gltf = CDN_URL + '/LightsPunctualLamp/glTF/LightsPunctualLamp.gltf'
+const instanced_gltf = CDN_URL + '/SimpleInstancing/glTF/SimpleInstancing.gltf'
 
 const gltfCompletedIO = async (entity: Entity) => {
   return new Promise((resolve) => {
@@ -590,7 +591,7 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
-  it.only('can load KHR lights', async () => {
+  it('can load KHR lights', async () => {
     const entity = createEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
@@ -638,6 +639,59 @@ describe('GLTF Loader', () => {
         default:
           break
       }
+    }
+
+    unmount()
+  })
+
+  it('can load instanced primitives with EXT_mesh_gpu_instancing', async () => {
+    const entity = createEntity()
+
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: instanced_gltf })
+
+    const { rerender, unmount } = render(<></>)
+    await gltfCompletedIO(entity)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
+
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getMutableState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID].get(NO_PROXY) as GLTF.IGLTF
+
+    await componentsLoaded(entity, [MeshComponent], 1)
+    await act(() => rerender(<></>))
+
+    const instancingUsed = gltf.extensionsUsed!.includes(EXTMeshGPUInstancingComponent.jsonID)
+    assert(instancingUsed)
+
+    const extNodes = gltf.nodes!.reduce((accum, node) => {
+      if (node.extensions?.[EXTMeshGPUInstancingComponent.jsonID]) accum.push(node)
+      return accum
+    }, [] as GLTF.INode[])
+
+    const extMeshGPUEntities = getChildrenWithComponents(entity, [EXTMeshGPUInstancingComponent])
+    assert(extMeshGPUEntities.length === extNodes.length)
+
+    const findNode = (attr: Record<string, number>) => {
+      const nodeIndex = extNodes.findIndex((node) => {
+        const ext = (node.extensions![EXTMeshGPUInstancingComponent.jsonID] as any).attributes as Record<string, number>
+        for (const attrName in ext) {
+          if (attr[attrName] !== ext[attrName]) return false
+        }
+        return true
+      })
+
+      if (nodeIndex === -1) return undefined
+      return extNodes.splice(nodeIndex, 1)[0]
+    }
+
+    for (const extMeshEntity of extMeshGPUEntities) {
+      const extMesh = getComponent(extMeshEntity, EXTMeshGPUInstancingComponent)
+      const node = findNode(extMesh.attributes)
+      assert(node)
+      const mesh = getComponent(extMeshEntity, MeshComponent)
+      assert(mesh instanceof InstancedMesh)
     }
 
     unmount()
