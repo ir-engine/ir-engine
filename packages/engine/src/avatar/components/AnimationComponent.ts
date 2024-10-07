@@ -90,5 +90,5 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
     })
     if (!keepEntity) removeEntity(assetEntity)
   }, [animationComponent?.animations])
-  return [animation, keepEntity ? assetEntity : UndefinedEntity] as [State<AnimationClip[] | null>, Entity]
+  return [animation, keepEntity ? assetEntity : UndefinedEntity] as [State<AnimationClip[]>, Entity]
 }

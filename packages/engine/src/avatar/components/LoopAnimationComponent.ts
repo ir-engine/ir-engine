@@ -45,10 +45,9 @@ import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
-import { AnimationComponent } from './AnimationComponent'
+import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
 import { VRMComponent } from './VRMComponent'
 
 const AnimationBlendMode = S.LiteralUnion(
@@ -166,13 +165,14 @@ export const LoopAnimationComponent = defineComponent({
       setCallback(entity, StandardCallbacks.PAUSE, pause)
     }, [])
 
-    const [gltf] = useGLTF(loopAnimationComponent.animationPack.value, entity)
+    const animationPackGLTF = useLoadAnimationFromGLTF(loopAnimationComponent.animationPack.value, true)
 
     useEffect(() => {
       if (
-        !gltf ||
+        !animationPackGLTF[0].value ||
         !animComponent ||
-        gltfComponent?.progress.value !== 100 ||
+        //gltfComponent?.progress.value !== 100 ||
+
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value
       )
@@ -180,11 +180,11 @@ export const LoopAnimationComponent = defineComponent({
 
       animComponent.mixer.time.set(0)
       animComponent.mixer.value.stopAllAction()
-      const animations = gltf.animations
-      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], entity)
+      const animations = animationPackGLTF[0].get(NO_PROXY) as AnimationClip[]
+      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], animationPackGLTF[1])
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
-    }, [gltf, animComponent, gltfComponent?.progress])
+    }, [animationPackGLTF, animComponent, gltfComponent?.progress])
 
     return null
   }

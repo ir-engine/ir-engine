@@ -38,7 +38,8 @@ import { useState } from '@ir-engine/hyperflux'
 import { getCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { FaStreetView } from 'react-icons/fa'
 
-import { VRM } from '@pixiv/three-vrm'
+import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
@@ -55,7 +56,8 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const animationOptions = useState([] as { label: string; value: number }[])
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
 
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
+  const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+  const avatarRigComponent = useOptionalComponent(entity, AvatarRigComponent)
   const animationComponent = useOptionalComponent(entity, AnimationComponent)
 
   const errors = getEntityErrors(props.entity, ModelComponent)
@@ -67,7 +69,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       { label: 'None', value: -1 },
       ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
     ])
-  }, [modelComponent?.asset, modelComponent?.convertToVRM, animationComponent?.animations])
+  }, [gltfComponent?.progress, avatarRigComponent?.vrm, animationComponent?.animations])
 
   const onChangePlayingAnimation = (index) => {
     commitProperties(LoopAnimationComponent, {
@@ -92,7 +94,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {modelComponent?.asset.value instanceof VRM && (
+      {avatarRigComponent != null && (
         <InputGroup name="Animation Pack" label={t('editor:properties.loopAnimation.lbl-animationPack')}>
           <ModelInput
             value={loopAnimationComponent.animationPack.value}
