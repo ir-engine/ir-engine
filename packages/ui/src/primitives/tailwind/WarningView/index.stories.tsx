@@ -22,26 +22,27 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
 
-/**
- * This method perform different actions on filename to ensure it meets all requirements.
- * @param fileName File name to be processed
- */
-export const processFileName = (fileName: string): string => {
-  let name = fileName
+import ErrorView from './index'
 
-  try {
-    // Change file extension to lowercase
-    const nameSplit = name.split('.')
-    if (nameSplit.length === 1) return name
-    const extension = nameSplit.pop()
-    if (extension) {
-      nameSplit.push(extension.toLowerCase())
-      name = nameSplit.join('.')
+const argTypes: ArgTypes = {}
+
+export default {
+  title: 'Primitives/Tailwind/ErrorView',
+  component: ErrorView,
+  parameters: {
+    componentSubtitle: 'ErrorView',
+    design: {
+      type: 'figma',
+      url: ''
     }
-  } catch (e) {
-    return name
-  }
+  },
+  argTypes
+}
 
-  return name
+export const Default = {
+  args: {
+    className: ''
+  }
 }

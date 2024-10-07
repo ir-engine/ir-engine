@@ -219,6 +219,7 @@ export default function FilePropertiesModal() {
         )}
         <Button
           title={t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
+          data-testid="files-panel-file-item-properties-regenerate-thumbnail-button"
           onClick={handleRegenerateThumbnail}
           className="mt-2 text-xs"
         >
@@ -235,6 +236,7 @@ export default function FilePropertiesModal() {
           <Button
             title={t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
             className="mt-2 text-xs"
+            data-testid="files-panel-file-item-properties-upload-thumbnail-button"
             onClick={onClickUploadThumbnail}
           >
             {t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
@@ -244,7 +246,9 @@ export default function FilePropertiesModal() {
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.fileName')}</Text>
-          <Text className="text-theme-input">{filename}</Text>
+          <Text className="text-theme-input" data-testid="files-panel-file-item-properties-file-name">
+            {filename}
+          </Text>
         </div>
         <div className="grid grid-cols-2 items-center gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
@@ -280,11 +284,13 @@ export default function FilePropertiesModal() {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
-          <Text className="text-theme-input">{fileDigest.type.toUpperCase()}</Text>
+          <Text className="text-theme-input" data-testid="files-panel-file-item-properties-file-type">
+            {fileDigest.type.toUpperCase()}
+          </Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
-          <Text className="text-theme-input">
+          <Text className="text-theme-input" data-testid="files-panel-file-item-properties-file-size">
             {files.map((file) => file.size).reduce((total, value) => total + parseInt(value ?? '0'), 0)}
           </Text>
         </div>

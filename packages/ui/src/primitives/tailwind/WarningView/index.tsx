@@ -23,26 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
-// import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { GizmoSystem } from './systems/GizmoSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { PiWarning } from 'react-icons/pi'
 
-export {
-  ClickPlacementSystem,
-  EditorControlSystem,
-  // EditorInstanceNetworkingSystem,
-  GizmoSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  RenderInfoSystem,
-  RenderMonitorSystem,
-  UploadRequestSystem
+import Text from '../Text'
+
+interface WarningViewProps {
+  title: string
+  description?: string
+  retryButtonText?: string
+  onRetry?: () => void
+}
+
+export default function WarningView({ title, description }: WarningViewProps) {
+  const { t } = useTranslation()
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center space-y-1 bg-yellow-600">
+      <PiWarning className="h-8 w-8 text-white" />
+      <Text>{title}</Text>
+      {description && (
+        <Text fontSize="sm" theme="secondary">
+          {description}
+        </Text>
+      )}
+    </div>
+  )
 }
