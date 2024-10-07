@@ -1,5 +1,4 @@
 import fetch from 'node-fetch'
-import semver from 'semver'
 
 import {
   helmBuilderVersionPath,
@@ -79,12 +78,9 @@ export default (app: Application): void => {
       const chart = Buffer.from(await response.arrayBuffer()).toString()
 
       const matches = chart.matchAll(MAIN_CHART_REGEX)
-      for (const match of matches) {
-        if (match) {
-          //Need 5.1.3 or greater for API servers to have required cluster roles to run helm upgrade
-          if (versions.indexOf(match[1]) < 0 && semver.gte(match[1], '5.1.3')) versions.push(match[1])
-        }
-      }
+
+      for (const match of matches) if (match && versions.indexOf(match[1]) < 0) versions.push(match[1])
+
       return versions
     }
   })
@@ -97,11 +93,8 @@ export default (app: Application): void => {
 
       const matches = chart.matchAll(BUILDER_CHART_REGEX)
 
-      for (const match of matches) {
-        if (match && versions.indexOf(match[1]) < 0) {
-          versions.push(match[1])
-        }
-      }
+      for (const match of matches) if (match && versions.indexOf(match[1]) < 0) versions.push(match[1])
+
       return versions
     }
   })
