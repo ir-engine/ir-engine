@@ -33,10 +33,8 @@ import {
   channelPath,
   ChannelType,
   channelUserPath,
-  ChannelUserType,
   identityProviderPath,
   IdentityProviderType,
-  InstanceAttendanceData,
   instanceAttendancePath,
   InstanceID,
   instancePath,
@@ -200,26 +198,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   addNetwork(network)
 
-  const hostInstanceAttendance: InstanceAttendanceData = {
-    instanceId: instanceServerState.instance.id,
-    isChannel: instanceServerState.isMediaInstance,
-    userId: hostId,
-    peerId: Engine.instance.store.peerID
-  }
-  if (!instanceServerState.isMediaInstance) {
-    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
-    hostInstanceAttendance.sceneId = location.sceneId
-  }
-
-  // create a new instance attendance record for the server
-  const instanceAttendance = await app.service(instanceAttendancePath).create(hostInstanceAttendance)
-
-  NetworkPeerFunctions.createPeer(
-    network,
-    Engine.instance.store.peerID,
-    instanceAttendance.peerIndex, // should always be 0
-    hostId
-  )
+  NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, hostId)
 
   await loadEngineInjection()
 
@@ -262,55 +241,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   networkState.ready.set(true)
 
   getMutableState(InstanceServerState).ready.set(true)
-}
-
-/**
- * Update instance attendance with the new user for analytics purposes
- * @param app
- * @param userId
- * @param headers
- */
-
-const handleUserAttendance = async (app: Application, userId: UserID, peerID: PeerID, headers: object) => {
-  const instanceServerState = getState(InstanceServerState)
-
-  const channel = (await app.service(channelPath).find({
-    query: {
-      instanceId: instanceServerState.instance.id,
-      $limit: 1
-    },
-    headers
-  })) as Paginated<ChannelType>
-
-  /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
-  if (channel.data.length > 0) {
-    const existingChannelUser = (await app.service(channelUserPath).find({
-      query: {
-        channelId: channel.data[0].id,
-        userId: userId
-      },
-      headers
-    })) as Paginated<ChannelUserType>
-
-    if (!existingChannelUser.total) {
-      await app.service(channelUserPath).create({
-        channelId: channel.data[0].id,
-        userId: userId
-      })
-    }
-  }
-
-  const newInstanceAttendance: InstanceAttendanceData = {
-    instanceId: instanceServerState.instance.id,
-    isChannel: instanceServerState.isMediaInstance,
-    userId: userId,
-    peerId: peerID
-  }
-  if (!instanceServerState.isMediaInstance) {
-    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
-    newInstanceAttendance.sceneId = location.sceneId
-  }
-  await app.service(instanceAttendancePath).create(newInstanceAttendance)
 }
 
 let instanceStarted = false
@@ -531,6 +461,8 @@ export const onConnection = (app: Application) => async (connection: RealTimeCon
 
   const userId = identityProvider.userId
   const peerID = connection.socketQuery.peerID
+  if (!peerID) return new NotAuthenticated('PeerID required')
+
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId!
   let roomCode = connection.socketQuery.roomCode!
@@ -638,8 +570,6 @@ export const onConnection = (app: Application) => async (connection: RealTimeCon
       connection.instanceId = instanceServerState.instance.id
       app.channel(`instanceIds/${instanceServerState.instance.id}`).join(connection)
     }
-
-    await handleUserAttendance(app, userId, peerID, connection.headers)
   }
 }
 

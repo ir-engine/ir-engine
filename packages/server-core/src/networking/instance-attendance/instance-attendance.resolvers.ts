@@ -52,7 +52,8 @@ export const instanceAttendanceDataResolver = resolve<InstanceAttendanceType, Ho
         instanceId: instanceAttendance.instanceId
       }
     })
-    return peersInInstance.total
+    // start at 1 because the first peer is the host
+    return peersInInstance.total + 1
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

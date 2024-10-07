@@ -411,7 +411,7 @@ export const connectToNetwork = async (
   const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
 
   network.primus.on('data', (message) => {
-    if (!message) return
+    if (!message || !Array.isArray(message)) return console.warn('Invalid message', message)
     network.onMessage(network.hostPeerID!, message)
   })
 

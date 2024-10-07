@@ -29,11 +29,14 @@ import { Spark } from 'primus'
 import { API } from '@ir-engine/common'
 import {
   identityProviderPath,
+  InstanceAttendanceData,
+  instanceAttendancePath,
   instanceAuthorizedUserPath,
   instancePath,
   InstanceType,
   InviteCode,
   inviteCodeLookupPath,
+  locationPath,
   messagePath,
   UserID,
   userKickPath,
@@ -59,7 +62,6 @@ import checkPositionIsValid from '@ir-engine/spatial/src/common/functions/checkP
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { instanceAttendancePath } from '@ir-engine/common/src/schemas/networking/instance-attendance.schema'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -210,16 +212,24 @@ export const handleConnectingPeer = async (
   const userId = user.id
 
   const app = API.instance as Application
-  const instanceAttendance = await app.service(instanceAttendancePath).find({
-    query: {
-      instanceId: network.id,
-      peerId: peerID,
-      $limit: 1
-    }
-  })
-  const peerIndex = instanceAttendance.data[0].peerIndex
 
-  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId)
+  const instanceServerState = getState(InstanceServerState)
+
+  const headers = spark.headers
+
+  const newInstanceAttendance: InstanceAttendanceData = {
+    instanceId: instanceServerState.instance.id,
+    isChannel: instanceServerState.isMediaInstance,
+    userId: userId,
+    peerId: peerID
+  }
+  if (!instanceServerState.isMediaInstance) {
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
+    newInstanceAttendance.sceneId = location.sceneId
+  }
+  const instanceAttendance = await app.service(instanceAttendancePath).create(newInstanceAttendance)
+
+  NetworkPeerFunctions.createPeer(network, peerID, instanceAttendance.peerIndex, userId)
 
   const onMessage = (message: any) => {
     network.onMessage(peerID, message)
@@ -256,12 +266,11 @@ export const handleConnectingPeer = async (
       return _.cloneDeep(action)
     })
 
-  const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 
   return {
     routerRtpCapabilities: network.routers[0].rtpCapabilities,
-    peerIndex: network.peerIDToPeerIndex[peerID]!,
+    peerIndex: instanceAttendance.peerIndex,
     cachedActions,
     hostPeerID: network.hostPeerID
   } as Omit<AuthTask, 'status'>

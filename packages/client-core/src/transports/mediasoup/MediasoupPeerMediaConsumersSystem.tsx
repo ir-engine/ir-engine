@@ -106,6 +106,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   }, [consumer])
 
   useEffect(() => {
+    if (!consumer) return
     const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
     if (!peerMediaChannelState) return
     const paused =
@@ -220,6 +221,9 @@ export const PeerMediaChannels = () => {
     mediaPeers.set(mediaChannelPeers)
   }, [mediaNetwork?.peers?.keys?.length])
 
+  /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
+  if (!mediaNetwork?.hostPeerID?.value) return null
+
   return (
     <>
       {mediaPeers.value.map((peerID) => (
@@ -230,18 +234,15 @@ export const PeerMediaChannels = () => {
 }
 
 export const reactor = () => {
-  const mediaNetworkState = useMediaNetwork()
   const networkIDs = useMutableState(MediasoupMediaProducerConsumerState)
   const networks = useHookstate(getMutableState(NetworkState).networks)
-
-  /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
-  if (!mediaNetworkState?.hostPeerID?.value) return null
 
   return (
     <>
       <PeerMediaChannels />
       {networkIDs.keys
         .filter((id) => !!networks[id])
+        .filter((networkID: InstanceID) => getState(NetworkState).networks[networkID].hostPeerID)
         .map((id: InstanceID) => (
           <NetworkConsumers key={id} networkID={id} />
         ))}

@@ -32,7 +32,12 @@ import {
   instanceAttendanceQueryValidator
 } from '@ir-engine/common/src/schemas/networking/instance-attendance.schema'
 
+import { BadRequest } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
+import { ChannelType, ChannelUserType, channelPath, channelUserPath } from '@ir-engine/common/src/schema.type.module'
+import { HookContext } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
+import { InstanceAttendanceService } from './instance-attendance.class'
 import {
   instanceAttendanceDataResolver,
   instanceAttendanceExternalResolver,
@@ -40,6 +45,50 @@ import {
   instanceAttendanceQueryResolver,
   instanceAttendanceResolver
 } from './instance-attendance.resolvers'
+
+const createChannelUser = async (context: HookContext<InstanceAttendanceService>) => {
+  if (!context.result || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const { app, headers } = context
+
+  const data = Array.isArray(context.result)
+    ? context.result
+    : 'data' in context.result
+    ? context.result!.data
+    : [context.result]
+
+  for (const instanceAttendance of data) {
+    if (instanceAttendance.isChannel) continue
+
+    const channel = (await app.service(channelPath).find({
+      query: {
+        instanceId: instanceAttendance.instanceId,
+        $limit: 1
+      },
+      headers
+    })) as Paginated<ChannelType>
+
+    /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
+    if (channel.data.length > 0) {
+      const existingChannelUser = (await app.service(channelUserPath).find({
+        query: {
+          channelId: channel.data[0].id,
+          userId: instanceAttendance.userId
+        },
+        headers
+      })) as Paginated<ChannelUserType>
+
+      if (!existingChannelUser.total) {
+        await app.service(channelUserPath).create({
+          channelId: channel.data[0].id,
+          userId: instanceAttendance.userId
+        })
+      }
+    }
+  }
+}
 
 export default {
   around: {
@@ -78,7 +127,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [createChannelUser],
     update: [],
     patch: [],
     remove: []

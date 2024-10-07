@@ -59,7 +59,9 @@ export const instanceResolver = resolve<InstanceType, HookContext>({
       paginate: false
     })
     const users = _.uniq(peers.map((peer) => peer.userId))
-    return users.length
+    const p2p = !!instance.ipAddress
+    // If not p2p, add one for the host
+    return p2p ? users.length : users.length + 1
   }),
   assignedAt: virtual(async (instance) => (instance.assignedAt ? fromDateTimeSql(instance.assignedAt) : '')),
   createdAt: virtual(async (instance) => fromDateTimeSql(instance.createdAt)),
