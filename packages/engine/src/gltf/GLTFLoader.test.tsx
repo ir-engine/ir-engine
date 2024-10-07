@@ -696,4 +696,44 @@ describe('GLTF Loader', () => {
 
     unmount()
   })
+
+  it.only('can load multiple of the same GLTF file', async () => {
+    const entity = createEntity()
+    const entity2 = createEntity()
+
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+
+    setComponent(entity2, UUIDComponent, generateEntityUUID())
+    setComponent(entity2, GLTFComponent, { src: duck_gltf })
+
+    const { rerender, unmount } = render(<></>)
+    await gltfCompletedIO(entity)
+    await gltfCompletedIO(entity2)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
+
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const instanceID2 = GLTFComponent.getInstanceID(entity2)
+
+    assert(instanceID !== instanceID2)
+
+    const gltfDocumentState = getMutableState(GLTFDocumentState)
+
+    const gltf = gltfDocumentState[instanceID].get(NO_PROXY) as GLTF.IGLTF
+    const gltf2 = gltfDocumentState[instanceID2].get(NO_PROXY) as GLTF.IGLTF
+
+    assert.deepEqual(gltf, gltf2)
+
+    await componentsLoaded(entity, [MeshComponent], 1)
+    await componentsLoaded(entity2, [MeshComponent], 1)
+    await act(() => rerender(<></>))
+
+    const meshEntities = getChildrenWithComponents(entity, [MeshComponent])
+    const meshEntities2 = getChildrenWithComponents(entity2, [MeshComponent])
+
+    assert(meshEntities.length === meshEntities2.length)
+
+    unmount()
+  })
 })
