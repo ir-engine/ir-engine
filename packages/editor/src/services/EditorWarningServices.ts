@@ -23,26 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
-// import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { GizmoSystem } from './systems/GizmoSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
+import { defineState } from '@ir-engine/hyperflux'
 
-export {
-  ClickPlacementSystem,
-  EditorControlSystem,
-  // EditorInstanceNetworkingSystem,
-  GizmoSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  RenderInfoSystem,
-  RenderMonitorSystem,
-  UploadRequestSystem
-}
+export const EditorWarningState = defineState({
+  name: 'EditorWarningState',
+  initial: { warning: null as string | null }
+})
