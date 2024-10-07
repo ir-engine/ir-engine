@@ -128,6 +128,7 @@ const hipsPos = new Vector3(),
 // box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
+  setComponent(entity, AvatarComponent)
   iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
   // box.expandByObject(vrm.scene).getSize(size)
