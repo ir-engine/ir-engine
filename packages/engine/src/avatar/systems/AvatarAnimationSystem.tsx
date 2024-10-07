@@ -34,7 +34,8 @@ import {
   Entity,
   getComponent,
   getOptionalComponent,
-  hasComponent
+  hasComponent,
+  useQuery
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
@@ -50,6 +51,7 @@ import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/sr
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
@@ -365,7 +367,7 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
-    if (!isClient) return null
+    if (!isClient || !useQuery([RendererComponent]).length) return null
     return (
       <>
         <Reactor />

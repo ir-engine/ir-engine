@@ -352,7 +352,6 @@ const useGLTFDocument = (url: string, entity: Entity) => {
 
       const dependencies = buildComponentDependencies(json)
       state.dependencies.set(dependencies)
-      console.log('finished loading success!!!')
       dispatchAction(
         GLTFSnapshotAction.createSnapshot({
           source,
