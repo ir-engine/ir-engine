@@ -23,24 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { PiWarning } from 'react-icons/pi'
 
-import {
-  zendeskSettingDataSchema,
-  zendeskSettingPatchSchema,
-  zendeskSettingQuerySchema,
-  zendeskSettingSchema
-} from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
+import Text from '../Text'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    zendeskSettingDataSchema,
-    zendeskSettingPatchSchema,
-    zendeskSettingQuerySchema,
-    zendeskSettingSchema
-  },
-  docs: {
-    description: 'Zendesk setting service description',
-    securities: ['all']
-  }
-})
+interface WarningViewProps {
+  title: string
+  description?: string
+  retryButtonText?: string
+  onRetry?: () => void
+}
+
+export default function WarningView({ title, description }: WarningViewProps) {
+  const { t } = useTranslation()
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center space-y-1 bg-yellow-600">
+      <PiWarning className="h-8 w-8 text-white" />
+      <Text>{title}</Text>
+      {description && (
+        <Text fontSize="sm" theme="secondary">
+          {description}
+        </Text>
+      )}
+    </div>
+  )
+}

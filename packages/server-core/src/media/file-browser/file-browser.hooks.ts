@@ -32,7 +32,17 @@ import {
   fileBrowserUpdateValidator
 } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 
+import { HookContext } from '@feathersjs/feathers'
+import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import verifyScope from '../../hooks/verify-scope'
+import { FileBrowserService } from './file-browser.class'
+
+const cleanFileName = () => {
+  return async (context: HookContext<FileBrowserService>) => {
+    context.data.path = cleanFileNameString(context.data.path)
+    return context
+  }
+}
 
 export default {
   before: {
@@ -51,7 +61,8 @@ export default {
         context[SYNC] = false
         return context
       },
-      schemaHooks.validateData(fileBrowserPatchValidator)
+      schemaHooks.validateData(fileBrowserPatchValidator),
+      cleanFileName()
     ],
     remove: []
   },
