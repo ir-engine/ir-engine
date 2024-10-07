@@ -22,27 +22,31 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import React from 'react'
+import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
+import WarningView from '../../../primitives/tailwind/WarningView'
 
-import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
-// import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { GizmoSystem } from './systems/GizmoSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
-
-export {
-  ClickPlacementSystem,
-  EditorControlSystem,
-  // EditorInstanceNetworkingSystem,
-  GizmoSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  RenderInfoSystem,
-  RenderMonitorSystem,
-  UploadRequestSystem
+interface WarningDialogProps {
+  title: string
+  description?: string
+  modalProps?: ModalProps
 }
+
+const WarningDialog = ({ title, description, modalProps }: WarningDialogProps) => {
+  return (
+    <Modal
+      onClose={PopoverState.hidePopupover}
+      showCloseButton={false}
+      submitButtonDisabled={true}
+      onSubmit={() => PopoverState.hidePopupover()}
+      className="w-[50vw] max-w-2xl bg-yellow-600"
+      hideFooter={true}
+      {...modalProps}
+    >
+      <WarningView title={title} description={description} />
+    </Modal>
+  )
+}
+
+export default WarningDialog
