@@ -25,31 +25,33 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { getComponent, setComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
-import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { Tween } from '@tweenjs/tween.js'
-import { DoubleSide, Euler, Mesh, MeshBasicMaterial, RingGeometry, SphereGeometry } from 'three'
+import { CircleGeometry, DoubleSide, Euler, Mesh, MeshBasicMaterial, RingGeometry, Vector3 } from 'three'
+import { addMesh } from './addMesh'
 import { createSceneEntity } from './createSceneEntity'
-import { proxifyParentChildRelationships } from './loadGLTFModel'
 
 export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
-  const spinnerEntity = createSceneEntity(name, parentEntity)
-  const loadingRing = new RingGeometry(0.75, 0.5, 32, 1, 0, (Math.PI * 4) / 3)
-  const loadingSphere = new SphereGeometry(0.25, 25, 32, 32)
-  const loadingGeo = mergeBufferGeometries([loadingRing, loadingSphere])!
-  const mesh = new Mesh(loadingGeo, new MeshBasicMaterial({ side: DoubleSide, depthTest: false }))
-  setComponent(spinnerEntity, MeshComponent, mesh)
-  addObjectToGroup(spinnerEntity, mesh)
-  proxifyParentChildRelationships(mesh)
-  setObjectLayers(mesh, ObjectLayers.Scene)
-  const loadingTransform = getComponent(spinnerEntity, TransformComponent)
+  const rootEntity = createSceneEntity(name, parentEntity)
+  const childEntity = createSceneEntity('loading spinner child', rootEntity)
+  const spinnerEntity = createSceneEntity('spinner', childEntity)
+  const sphereEntity = createSceneEntity('sphere', childEntity)
+  setComponent(spinnerEntity, TransformComponent, { position: new Vector3(0, 0, 0.1) })
+  const loadingRing = new RingGeometry(0.55, 0.8, 32, 1, 0, (Math.PI * 4) / 3)
+  const loadingSphere = new CircleGeometry(0.8, 64)
+  const sphereMesh = new Mesh(
+    loadingSphere,
+    new MeshBasicMaterial({ side: DoubleSide, depthTest: false, color: 0xb2b5bd })
+  )
+  const spinnerMesh = new Mesh(loadingRing, new MeshBasicMaterial({ side: DoubleSide, depthTest: false }))
+
+  addMesh(spinnerEntity, spinnerMesh)
+  addMesh(sphereEntity, sphereMesh)
+  const loadingTransform = getComponent(childEntity, TransformComponent)
   const rotator = { rotation: 0 }
   setComponent(
-    spinnerEntity,
+    childEntity,
     TweenComponent,
     new Tween<any>(rotator)
       .to({ rotation: Math.PI * 2 }, 1000)
@@ -59,5 +61,7 @@ export function createLoadingSpinner(name = 'loading spinner', parentEntity = Un
       .start()
       .repeat(Infinity)
   )
-  return spinnerEntity
+
+  setComponent(rootEntity, LookAtComponent)
+  return rootEntity
 }
