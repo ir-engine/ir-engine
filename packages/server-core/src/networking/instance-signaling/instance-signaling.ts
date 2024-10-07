@@ -152,7 +152,7 @@ export default (app: Application): void => {
         }
       )
 
-      console.log('heartbeat', peerID, instanceId)
+      // console.log('heartbeat', peerID, instanceId)
     },
     /** Send requests to other peers */
     patch: async (id: null, data: SignalData, params) => {
