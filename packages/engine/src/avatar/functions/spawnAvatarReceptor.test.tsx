@@ -77,7 +77,7 @@ describe('spawnAvatarReceptor', () => {
 
   it('check the create avatar function', async () => {
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
