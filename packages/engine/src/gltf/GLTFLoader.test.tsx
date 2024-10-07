@@ -51,8 +51,10 @@ import {
 } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { RapierWorldState } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
@@ -107,6 +109,21 @@ const componentsLoaded = async (entity: Entity, components: ComponentType<any>[]
   })
 }
 
+const setupEntity = () => {
+  const parent = createEntity()
+  setComponent(parent, SceneComponent)
+  setComponent(parent, EntityTreeComponent)
+  const uuid = setComponent(parent, UUIDComponent, generateEntityUUID())
+
+  getMutableState(RapierWorldState).merge({
+    [uuid]: true as any
+  })
+
+  const entity = createEntity()
+  setComponent(entity, EntityTreeComponent, { parentEntity: parent })
+  return entity
+}
+
 describe('GLTF Loader', () => {
   beforeEach(async () => {
     createEngine()
@@ -117,7 +134,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load a mesh', (done) => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     const root = startReactor(() => {
       return React.createElement(
@@ -188,7 +205,7 @@ describe('GLTF Loader', () => {
   }
 
   it('can load a material', (done) => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     const root = startReactor(() => {
       return React.createElement(
@@ -253,7 +270,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load a draco geometry', (done) => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
 
@@ -326,7 +343,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load an unlit material', (done) => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     let loaded = 0
 
@@ -402,7 +419,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load an texture for a material', async () => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: textured_gltf })
@@ -436,7 +453,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load a meshes with multiple primitives/materials', async () => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: multiple_mesh_primitives_gltf })
@@ -495,7 +512,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load morph targets', async () => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: morph_gltf })
@@ -520,7 +537,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load skinned meshes with bones and animations', async () => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: skinned_gltf })
@@ -559,7 +576,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load cameras', async () => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: camera_gltf })
@@ -592,7 +609,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load KHR lights', async () => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: khr_light_gltf })
@@ -645,7 +662,7 @@ describe('GLTF Loader', () => {
   })
 
   it('can load instanced primitives with EXT_mesh_gpu_instancing', async () => {
-    const entity = createEntity()
+    const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: instanced_gltf })
@@ -698,8 +715,8 @@ describe('GLTF Loader', () => {
   })
 
   it('can load multiple of the same GLTF file', async () => {
-    const entity = createEntity()
-    const entity2 = createEntity()
+    const entity = setupEntity()
+    const entity2 = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: duck_gltf })
