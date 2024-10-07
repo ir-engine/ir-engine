@@ -34,7 +34,6 @@ import * as helmSeed from './helm-setting/helm-setting.seed'
 import * as instanceServerSeed from './instance-server-setting/instance-server-setting.seed'
 import * as redisSeed from './redis-setting/redis-setting.seed'
 import * as serverSeed from './server-setting/server-setting.seed'
-import * as zendeskSeed from './zendesk-setting/zendesk-setting.seed'
 
 export const settingSeeds: Array<KnexSeed> = [
   authenticationSeed,
@@ -45,6 +44,5 @@ export const settingSeeds: Array<KnexSeed> = [
   redisSeed,
   awsSeed,
   helmSeed,
-  zendeskSeed,
   engineSeed
 ]

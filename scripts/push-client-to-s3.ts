@@ -30,13 +30,13 @@ import cli from 'cli'
 import fs from 'fs'
 import path from 'path'
 
+import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { getFilesRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import logger from '@ir-engine/server-core/src/ServerLogger'
 import {
   createDefaultStorageProvider,
   getStorageProvider
 } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
-import logger from '@ir-engine/server-core/src/ServerLogger'
 import { getContentType } from '@ir-engine/server-core/src/util/fileUtils'
 
 cli.enable('status')
@@ -54,7 +54,7 @@ cli.main(async () => {
         return new Promise(async (resolve) => {
           try {
             const fileResult = fs.readFileSync(file)
-            let filePathRelative = processFileName(file.slice(clientPath.length))
+            let filePathRelative = cleanFileNameString(file.slice(clientPath.length))
             let contentType = getContentType(file)
             const putData: any = {
               Body: fileResult,

@@ -43,5 +43,10 @@ export const EngineSettings = {
     AudienceId: 'audienceId',
     DefaultTags: 'defaultTags',
     GroupId: 'groupId'
+  },
+  Zendesk: {
+    Name: 'name',
+    Secret: 'secret',
+    Kid: 'kid'
   }
 }

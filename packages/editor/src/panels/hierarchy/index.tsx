@@ -41,7 +41,7 @@ const HierarchyPanelTitle = () => {
 
   return (
     <div>
-      <PanelDragContainer>
+      <PanelDragContainer dataTestId="hierarchy-panel-tab">
         <PanelTitle>{t('editor:hierarchy.lbl')}</PanelTitle>
       </PanelDragContainer>
     </div>

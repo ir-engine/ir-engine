@@ -36,19 +36,18 @@ import {
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
-  instanceServerSettingPath,
-  InstanceServerSettingType
+  InstanceServerSettingType,
+  instanceServerSettingPath
 } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
-import { redisSettingPath, RedisSettingType } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
+import { RedisSettingType, redisSettingPath } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
-import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { createHash } from 'crypto'
-import appConfig from './appconfig'
 import logger from './ServerLogger'
+import appConfig from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
@@ -235,22 +234,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
-
-  const zendeskSettingPromise = knexClient
-    .select()
-    .from<ZendeskSettingType>(zendeskSettingPath)
-    .then(([dbZendesk]) => {
-      if (dbZendesk) {
-        appConfig.zendesk = {
-          ...appConfig.zendesk,
-          ...dbZendesk
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read zendesk setting: ${e.message}`)
-    })
-  promises.push(zendeskSettingPromise)
 
   await Promise.all(promises)
 }

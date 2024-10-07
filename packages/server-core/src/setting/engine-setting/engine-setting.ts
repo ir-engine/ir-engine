@@ -64,6 +64,7 @@ export default (app: Application): void => {
       'task-server': appConfig.taskserver,
       coil: appConfig.coil,
       chargebee: appConfig.chargebee,
+      zendesk: appConfig.zendesk,
       mailchimp: appConfig.mailchimp
     }
 
