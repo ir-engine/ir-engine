@@ -99,7 +99,7 @@ export type Matrices = { local: Matrix4; world: Matrix4 }
 
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
-
+  jsonID: 'IR_avatarRig',
   schema: S.Object({
     /** rig bones with quaternions relative to the raw bones in their bind pose */
     normalizedRig: S.Type<VRMHumanBones>(),
@@ -119,6 +119,12 @@ export const AvatarRigComponent = defineComponent({
     avatarURL: S.Nullable(S.String())
   }),
 
+  toJSON: (component) => {
+    return {
+      avatarURL: component.avatarURL
+    }
+  },
+
   reactor: function () {
     const entity = useEntityContext()
     const rigComponent = useComponent(entity, AvatarRigComponent)
@@ -126,7 +132,6 @@ export const AvatarRigComponent = defineComponent({
     const locomotionAnimationState = useHookstate(
       getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
     )
-
     /** @todo move asset loading to a new VRMComponent */
     useEffect(() => {
       if (!rigComponent?.avatarURL?.value) return

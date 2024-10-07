@@ -68,12 +68,16 @@ export default function HierarchyTreeContextMenu() {
 
   return (
     <ContextMenu anchorEvent={anchorEvent} open={!!entity} onClose={() => setMenu()}>
-      <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+      <div
+        className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg"
+        data-testid="hierarchy-panel-scene-item-context-menu"
+      >
         <Button
           fullWidth
           size="small"
           variant="transparent"
           className="text-left text-xs"
+          data-testid="hierarchy-panel-scene-item-context-menu-rename-button"
           onClick={() => {
             setMenu()
             renamingNode.set(entity)
@@ -87,6 +91,7 @@ export default function HierarchyTreeContextMenu() {
           size="small"
           variant="transparent"
           className="text-left text-xs"
+          data-testid="hierarchy-panel-scene-item-context-menu-duplicate-button"
           onClick={onDuplicateNode}
           endIcon={cmdOrCtrlString + ' + d'}
         >
@@ -97,6 +102,7 @@ export default function HierarchyTreeContextMenu() {
           size="small"
           variant="transparent"
           className="text-left text-xs"
+          data-testid="hierarchy-panel-scene-item-context-menu-group-button"
           onClick={onGroupNodes}
           endIcon={cmdOrCtrlString + ' + g'}
         >
@@ -107,6 +113,7 @@ export default function HierarchyTreeContextMenu() {
           size="small"
           variant="transparent"
           className="text-left text-xs"
+          data-testid="hierarchy-panel-scene-item-context-menu-copy-button"
           onClick={onCopyNode}
           endIcon={cmdOrCtrlString + ' + c'}
         >
@@ -117,12 +124,20 @@ export default function HierarchyTreeContextMenu() {
           size="small"
           variant="transparent"
           className="text-left text-xs"
+          data-testid="hierarchy-panel-scene-item-context-menu-paste-button"
           onClick={onPasteNode}
           endIcon={cmdOrCtrlString + ' + v'}
         >
           {t('editor:hierarchy.lbl-paste')}
         </Button>
-        <Button fullWidth size="small" variant="transparent" className="text-left text-xs" onClick={onDeleteNode}>
+        <Button
+          fullWidth
+          size="small"
+          variant="transparent"
+          className="text-left text-xs"
+          data-testid="hierarchy-panel-scene-item-context-menu-delete-button"
+          onClick={onDeleteNode}
+        >
           {t('editor:hierarchy.lbl-delete')}
         </Button>
         {!node?.isLeaf && (

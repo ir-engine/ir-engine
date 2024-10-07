@@ -33,6 +33,8 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
@@ -68,6 +70,7 @@ export async function addMediaNode(
 ) {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
+  console.log(contentType)
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
@@ -143,10 +146,22 @@ export async function addMediaNode(
 
         return null
       })
+    } else if (contentType.startsWith('model/vrm')) {
+      EditorControlFunctions.createObjectFromSceneElement(
+        [
+          { name: AvatarComponent.jsonID },
+          { name: AvatarRigComponent.jsonID, props: { avatarURL: url } },
+          { name: ShadowComponent.jsonID },
+          { name: EnvmapComponent.jsonID },
+          ...extraComponentJson
+        ],
+        parent!,
+        before
+      )
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [
-          { name: GLTFComponent.jsonID, props: { src: url } },
+          { name: GLTFComponent.jsonID, props: { src: url, progress: 0, body: null } },
           { name: ShadowComponent.jsonID },
           { name: EnvmapComponent.jsonID },
           ...extraComponentJson

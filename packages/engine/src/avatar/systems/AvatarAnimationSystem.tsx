@@ -64,7 +64,6 @@ import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { VRMComponent } from '../components/VRMComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -89,7 +88,7 @@ export const AvatarAnimationState = defineState({
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const avatarComponentQuery = defineQuery([AvatarComponent, RigidBodyComponent, AvatarAnimationComponent])
-const vrmQuery = defineQuery([VRMComponent])
+const avatarRigQuery = defineQuery([AvatarRigComponent])
 
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
@@ -315,7 +314,7 @@ const execute = () => {
     }
   }
 
-  for (const entity of vrmQuery()) updateVRMRetargeting(getComponent(entity, VRMComponent), entity)
+  for (const entity of avatarRigQuery()) updateVRMRetargeting(getComponent(entity, AvatarRigComponent).vrm, entity)
 }
 
 const Reactor = () => {

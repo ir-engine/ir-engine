@@ -99,7 +99,6 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     const animationComponent = getOptionalComponent(sceneEntity, AnimationComponent)
     if (!animationComponent) return
     const animation = AnimationClip.findByName(animationComponent.animations, 'Idle')
-    console.log(animation)
 
     if (!animation) return
     animationComponent.mixer.clipAction(animation).play()
