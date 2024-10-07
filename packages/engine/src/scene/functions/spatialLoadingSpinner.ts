@@ -34,9 +34,9 @@ import { createSceneEntity } from './createSceneEntity'
 
 export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
   const rootEntity = createSceneEntity(name, parentEntity)
-  const childEntity = createSceneEntity('loading spinner child', rootEntity)
-  const spinnerEntity = createSceneEntity('spinner', childEntity)
-  const sphereEntity = createSceneEntity('sphere', childEntity)
+  const childEntity = createSceneEntity(`${name}: loading spinner child`, rootEntity)
+  const spinnerEntity = createSceneEntity(`${name}: spinner`, childEntity)
+  const sphereEntity = createSceneEntity(`${name}: background`, childEntity)
   setComponent(spinnerEntity, TransformComponent, { position: new Vector3(0, 0, 0.1) })
   const loadingRing = new RingGeometry(0.55, 0.8, 32, 1, 0, (Math.PI * 4) / 3)
   const loadingSphere = new CircleGeometry(0.8, 64)
