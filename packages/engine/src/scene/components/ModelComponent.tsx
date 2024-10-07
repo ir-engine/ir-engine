@@ -140,6 +140,7 @@ function ModelReactor() {
 
   useEffect(() => {
     if (!error) return
+    removeLoadingGeo()
     console.error(error)
     addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
     return () => {
