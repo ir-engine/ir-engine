@@ -410,6 +410,43 @@ const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID
     }
   }, [webcamMediaStream, webcamEnabled])
 
+  useEffect(() => {
+    if (!screenshareEnabled || !screenshareMediaStream) return
+
+    const videoTrack = screenshareMediaStream.getVideoTracks()[0].clone()
+    const videoStream = WebRTCTransportFunctions.createMediaChannel(
+      sendMessage,
+      props.instanceID,
+      props.peerID,
+      videoTrack,
+      screenshareVideoDataChannelType
+    )
+
+    let audioStream: MediaStream | undefined
+
+    const audioTracks = screenshareMediaStream.getAudioTracks()
+    if (audioTracks.length) {
+      const audioTrack = audioTracks[0].clone()
+
+      audioStream = WebRTCTransportFunctions.createMediaChannel(
+        sendMessage,
+        props.instanceID,
+        props.peerID,
+        audioTrack,
+        screenshareAudioDataChannelType
+      )!
+    }
+
+    return () => {
+      if (videoStream) {
+        WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, videoTrack, videoStream)
+      }
+      if (audioStream) {
+        WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, videoTrack, audioStream)
+      }
+    }
+  }, [screenshareMediaStream, screenshareEnabled])
+
   return null
 }
 
@@ -434,20 +471,14 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
     if (!mediaTag || !stream || !peerMediaStream?.value) return
 
     if (isAudio) {
-      // const track = stream.getAudioTracks()[0]
-      // const newMediaStream = new MediaStream([track.clone()])
       peerMediaStream.audioMediaStream.set(stream)
       return () => {
-        // newMediaStream.getTracks().forEach((track) => track.stop())
         if (type && !getState(PeerMediaChannelState)[props.peerID]?.[type]) return
         peerMediaStream.audioMediaStream.set(null)
       }
     } else {
-      // const track = stream.getVideoTracks()[0]
-      // const newMediaStream = new MediaStream([track.clone()])
       peerMediaStream.videoMediaStream.set(stream)
       return () => {
-        // newMediaStream.getTracks().forEach((track) => track.stop())
         if (type && !getState(PeerMediaChannelState)[props.peerID]?.[type]) return
         peerMediaStream.videoMediaStream.set(null)
       }
@@ -468,23 +499,16 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
   const isPiP = peerMediaStream?.value?.videoQuality === 'largest'
 
   useEffect(() => {
-    if (!peerMediaStream?.value?.videoMediaStream) return
-
-    const isScreen = false
+    if (!stream) return
 
     const { maxResolution } = clientSetting.mediaSettings.video
 
+    const isScreen = type === 'screen'
+
     const { scale, maxBitrate } = getVideoQuality({ isScreen, maxResolution, isPiP, immersiveMedia })
 
-    WebRTCTransportFunctions.requestVideoQuality(
-      sendMessage,
-      props.instanceID,
-      props.peerID,
-      peerMediaStream?.value.videoMediaStream,
-      scale,
-      maxBitrate
-    )
-  }, [peerMediaStream?.value?.videoMediaStream, immersiveMedia, isPiP])
+    WebRTCTransportFunctions.requestVideoQuality(sendMessage, props.instanceID, props.peerID, stream, scale, maxBitrate)
+  }, [stream, immersiveMedia, isPiP])
 
   return null
 }
