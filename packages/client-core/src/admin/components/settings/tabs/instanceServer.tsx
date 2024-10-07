@@ -35,7 +35,7 @@ import {
   defaultWebRTCSettings
 } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
-import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { State, useHookstate } from '@ir-engine/hyperflux'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
@@ -113,37 +113,46 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     state.loading.set(true)
     event.preventDefault()
     const setting = {
-      ClientHost: clientHostState.value,
-      RtcStartPort: parseInt(rtcStartPortState.value),
-      RtcEndPort: parseInt(rtcEndPortState.value),
-      RtcPortBlockSize: parseInt(rtcPortBlockSizeState.value),
-      IdentifierDigits: parseInt(identifierDigitsState.value),
-      Domain: domainState.value,
-      ReleaseName: releaseNameState.value,
-      Port: parseInt(portState.value),
-      Mode: parseInt(modeState.value),
-      LocationName: parseInt(locationNameState.value),
+      clientHost: clientHostState.value,
+      rtcStartPort: parseInt(rtcStartPortState.value),
+      rtcEndPort: parseInt(rtcEndPortState.value),
+      rtcPortBlockSize: parseInt(rtcPortBlockSizeState.value),
+      identifierDigits: parseInt(identifierDigitsState.value),
+      domain: domainState.value,
+      releaseName: releaseNameState.value,
+      port: parseInt(portState.value),
+      mode: parseInt(modeState.value),
+      locationName: parseInt(locationNameState.value),
       WebRTCSettings: JSON.stringify(webRTCSettingsState.value),
-      Local: Boolean(getSettingValue(EngineSettings.InstanceServer.Local))
+      local: Boolean(getSettingValue(EngineSettings.InstanceServer.Local))
     }
-    const operations = Object.keys(EngineSettings.InstanceServer).map((key) => {
-      const settingInDb = engineSettings.find((el) => el.key === EngineSettings.InstanceServer[key])
+    const createOperations: Promise<EngineSettingType>[] = []
+    const updateOperations: Promise<EngineSettingType>[] = []
+
+    Object.values(EngineSettings.InstanceServer).forEach((key) => {
+      const settingInDb = engineSettings.find((el) => el.key === key)
       if (!settingInDb) {
-        return engineSettingMutation.create({
-          key: EngineSettings.InstanceServer[key],
-          category: 'instance-server',
-          value: setting[key],
-          type: 'private'
-        })
+        createOperations.push(
+          engineSettingMutation.create({
+            key,
+            category: 'instance-server',
+            value: setting[key],
+            type: 'private'
+          })
+        )
+      } else {
+        updateOperations.push(
+          engineSettingMutation.patch(settingInDb.id, {
+            key,
+            category: 'instance-server',
+            value: setting[key],
+            type: 'private'
+          })
+        )
       }
-      return engineSettingMutation.patch(settingInDb.id, {
-        key: EngineSettings.InstanceServer[key],
-        category: 'instance-server',
-        value: setting[key],
-        type: 'private'
-      })
     })
-    Promise.all(operations)
+
+    Promise.all([...createOperations, ...updateOperations])
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
