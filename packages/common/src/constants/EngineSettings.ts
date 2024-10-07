@@ -51,5 +51,10 @@ export const EngineSettings = {
     LocationName: 'locationName',
     WebRTCSettings: 'webRTCSettings',
     ShutdownDelayMs: 'shutdownDelayMs'
+  },
+  Zendesk: {
+    Name: 'name',
+    Secret: 'secret',
+    Kid: 'kid'
   }
 }
