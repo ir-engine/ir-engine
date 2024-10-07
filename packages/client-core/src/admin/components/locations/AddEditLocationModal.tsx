@@ -32,9 +32,11 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
+import { useQuery } from '@ir-engine/ecs'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
+import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import ImagePreviewInput from '@ir-engine/ui/src/components/editor/input/Image/Preview'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -90,6 +92,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
   const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
+  const sceneSettingsEntities = useQuery([SceneSettingsComponent])
 
   useEffect(() => {
     if (location) {
@@ -290,14 +293,26 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               disabled={isLoading}
             />
             <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
-            <div className="flex flex-row gap-2">
-              <ImagePreviewInput value={sceneThumbnailState.thumbnailURL.value ?? ''} previewOnly={true} />
-              <div className="flex flex-col gap-2 ">
+            <div className="flex flex-col gap-2">
+              <ImagePreviewInput
+                label="Current Thumbnail"
+                value={sceneThumbnailState.thumbnailURL.value ?? ''}
+                previewOnly={true}
+              />
+              <ImagePreviewInput
+                label="Previous Thumbnail"
+                value={sceneThumbnailState.oldThumbnailURL.value ?? ''}
+                previewOnly={true}
+              />
+
+              <div className="flex flex-row gap-2 ">
                 <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
                   {t('editor:properties.sceneSettings.generate')}
                 </Button>
                 <Button
-                  onClick={SceneThumbnailState.uploadThumbnail}
+                  onClick={() => {
+                    SceneThumbnailState.uploadThumbnail(sceneSettingsEntities)
+                  }}
                   disabled={!sceneThumbnailState.thumbnail.value}
                   className="w-full"
                 >
@@ -306,14 +321,26 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               </div>
             </div>
             <div>{t('editor:properties.sceneSettings.lbl-loading')}</div>
-            <div className="flex flex-row gap-2">
-              <ImagePreviewInput value={sceneThumbnailState.loadingScreenURL.value ?? ''} previewOnly={true} />
-              <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
+              <ImagePreviewInput
+                label="Current Loading Screen"
+                value={sceneThumbnailState.loadingScreenURL.value ?? ''}
+                previewOnly={true}
+              />
+              <ImagePreviewInput
+                label="Previous Loading Screen"
+                value={sceneThumbnailState.oldLoadingScreenURL.value ?? ''}
+                previewOnly={true}
+              />
+
+              <div className="flex flex-row gap-2">
                 <Button onClick={SceneThumbnailState.createLoadingScreen} className="w-full">
                   {t('editor:properties.sceneSettings.generate')}
                 </Button>
                 <Button
-                  onClick={SceneThumbnailState.uploadLoadingScreen}
+                  onClick={() => {
+                    SceneThumbnailState.uploadLoadingScreen(sceneSettingsEntities)
+                  }}
                   disabled={!sceneThumbnailState.loadingScreenImageData.value}
                   className="w-full"
                 >

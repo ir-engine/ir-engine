@@ -135,7 +135,9 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
             <LoadingView spinnerOnly />
           ) : (
             <Button
-              onClick={SceneThumbnailState.uploadThumbnail}
+              onClick={() => {
+                SceneThumbnailState.uploadThumbnail(props.entity)
+              }}
               disabled={!sceneThumbnailState.thumbnail.value}
               className="mt-2 w-full"
             >
@@ -161,7 +163,9 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
             <LoadingView spinnerOnly />
           ) : (
             <Button
-              onClick={SceneThumbnailState.uploadLoadingScreen}
+              onClick={() => {
+                SceneThumbnailState.uploadLoadingScreen(props.entity)
+              }}
               disabled={!sceneThumbnailState.loadingScreenImageData.value}
               className="mt-2 w-full"
             >

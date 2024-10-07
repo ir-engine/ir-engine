@@ -39,9 +39,11 @@ import { EditorState } from './EditorServices'
 export const SceneThumbnailState = defineState({
   name: 'ee.editor.SceneThumbnailState',
   initial: () => ({
+    oldThumbnailURL: null as string | null,
     thumbnailURL: null as string | null,
     thumbnail: null as File | null,
     uploadingThumbnail: false,
+    oldLoadingScreenURL: null as string | null,
     loadingScreenURL: null as string | null,
     loadingScreenImageData: null as ImageData | null,
     uploadingLoadingScreen: false,
@@ -50,15 +52,16 @@ export const SceneThumbnailState = defineState({
   createThumbnail: async () => {
     const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
     if (!thumbnailBlob) return
-    const thumbnailURL = URL.createObjectURL(thumbnailBlob)
     const sceneName = getState(EditorState).sceneName!.split('.').slice(0, -1).join('.')
     const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
-    getMutableState(SceneThumbnailState).merge({
-      thumbnailURL,
+    const sceneThumbnail = getMutableState(SceneThumbnailState)
+    sceneThumbnail.merge({
+      oldThumbnailURL: sceneThumbnail.thumbnailURL.value,
+      thumbnailURL: URL.createObjectURL(thumbnailBlob),
       thumbnail: file
     })
   },
-  uploadThumbnail: async () => {
+  uploadThumbnail: async (entity) => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     if (!sceneThumbnailState.thumbnail.value) return
     sceneThumbnailState.uploadingThumbnail.set(true)
@@ -67,7 +70,7 @@ export const SceneThumbnailState = defineState({
     const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
     const { promises } = uploadProjectFiles(projectName, [sceneThumbnailState.thumbnail.value], [currentSceneDirectory])
     const [[savedThumbnailURL]] = await Promise.all(promises)
-    commitProperty(SceneSettingsComponent, 'thumbnailURL')(savedThumbnailURL)
+    commitProperty(SceneSettingsComponent, 'thumbnailURL', [entity])(savedThumbnailURL)
     sceneThumbnailState.merge({
       thumbnailURL: null,
       thumbnail: null,
@@ -78,12 +81,14 @@ export const SceneThumbnailState = defineState({
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     const envmapImageData = generateEnvmapBake(sceneThumbnailState.resolution.value)
     const blob = await imageDataToBlob(envmapImageData)
-    sceneThumbnailState.merge({
+    const sceneThumbnail = getMutableState(SceneThumbnailState)
+    sceneThumbnail.merge({
+      oldLoadingScreenURL: sceneThumbnail.loadingScreenURL.value,
       loadingScreenURL: URL.createObjectURL(blob!),
       loadingScreenImageData: envmapImageData
     })
   },
-  uploadLoadingScreen: async () => {
+  uploadLoadingScreen: async (entity) => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     const envmapImageData = sceneThumbnailState.loadingScreenImageData.value
     if (!envmapImageData) return
@@ -116,7 +121,8 @@ export const SceneThumbnailState = defineState({
     const cleanURL = new URL(loadingScreenURL)
     cleanURL.hash = ''
     cleanURL.search = ''
-    commitProperty(SceneSettingsComponent, 'loadingScreenURL')(cleanURL.href)
+    commitProperty(SceneSettingsComponent, 'loadingScreenURL', [entity])(cleanURL.href)
+
     sceneThumbnailState.merge({
       loadingScreenURL: null,
       loadingScreenImageData: null,
