@@ -38,16 +38,11 @@ import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import {
-  ObjectLayerMaskComponent,
-  setObjectLayers
-} from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   EntityTreeComponent,
@@ -55,22 +50,10 @@ import {
   removeEntityNodeRecursively,
   useAncestorWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { VRM } from '@pixiv/three-vrm'
-import { Tween } from '@tweenjs/tween.js'
 import { Not } from 'bitecs'
 import React, { FC, useEffect } from 'react'
-import {
-  AnimationMixer,
-  DoubleSide,
-  Euler,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  RingGeometry,
-  Scene,
-  SphereGeometry
-} from 'three'
+import { AnimationMixer, Group, Scene } from 'three'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
@@ -79,9 +62,9 @@ import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentSt
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { createSceneEntity } from '../functions/createSceneEntity'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
+import { createLoadingSpinner } from '../functions/spatialLoadingSpinner'
 import { SourceComponent } from './SourceComponent'
 
 /**
@@ -128,30 +111,8 @@ function ModelReactor() {
   const createLoadingGeo = () => {
     if (loadedSrc.value === modelComponent.src.value) return
     if (loadingEntity.value) return
-    const childEntity = createSceneEntity(`loading ${modelComponent.src.value}`, entity)
-    loadingEntity.set(childEntity)
-    const loadingRing = new RingGeometry(0.75, 0.5, 32, 1, 0, (Math.PI * 4) / 3)
-    const loadingSphere = new SphereGeometry(0.25, 25, 32, 32)
-    const loadingGeo = mergeBufferGeometries([loadingRing, loadingSphere])!
-    //setComponent(loadingEntity.value, MeshComponent, new Mesh(loadingGeo))
-    const mesh = new Mesh(loadingGeo, new MeshBasicMaterial({ side: DoubleSide, depthTest: false }))
-    setComponent(loadingEntity.value, MeshComponent, mesh)
-    addObjectToGroup(loadingEntity.value, mesh)
-    proxifyParentChildRelationships(mesh)
-    setObjectLayers(mesh, ObjectLayers.Scene)
-    const loadingTransform = getComponent(loadingEntity.value, TransformComponent)
-    const rotator = { rotation: 0 }
-    setComponent(
-      loadingEntity.value,
-      TweenComponent,
-      new Tween<any>(rotator)
-        .to({ rotation: Math.PI * 2 }, 1000)
-        .onUpdate(() => {
-          loadingTransform.rotation.setFromEuler(new Euler(0, 0, rotator.rotation))
-        })
-        .start()
-        .repeat(Infinity)
-    )
+    const spinnerEntity = createLoadingSpinner(`loading ${modelComponent.src.value}`, entity)
+    loadingEntity.set(spinnerEntity)
   }
 
   const removeLoadingGeo = () => {
