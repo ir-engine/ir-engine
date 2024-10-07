@@ -697,7 +697,7 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
-  it.only('can load multiple of the same GLTF file', async () => {
+  it('can load multiple of the same GLTF file', async () => {
     const entity = createEntity()
     const entity2 = createEntity()
 
