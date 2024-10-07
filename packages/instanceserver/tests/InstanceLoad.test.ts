@@ -52,6 +52,7 @@ import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { AuthTask } from '@ir-engine/common/src/world/receiveJoinWorld'
 import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import config from '@ir-engine/server-core/src/appconfig'
 import { Spark } from 'primus'
 import { StartTestFileServer } from '../../server-core/src/createFileServer'
 import { onConnection } from '../src/channels'
@@ -59,8 +60,12 @@ import { InstanceServerState } from '../src/InstanceServerState'
 import { setupSocketFunctions } from '../src/SocketFunctions'
 import { start } from '../src/start'
 
+const p2pEnabled = config.instanceserver.p2pEnabled
+
 describe('InstanceLoad', () => {
   before(async () => {
+    config.instanceserver.p2pEnabled = false
+
     const child: ChildProcess = require('child_process').spawn('npm', ['run', 'dev-agones'], {
       cwd: appRootPath.path,
       stdio: 'inherit',
@@ -74,6 +79,11 @@ describe('InstanceLoad', () => {
     const app = await start()
     await app.setup()
     StartTestFileServer()
+  })
+
+  after(() => {
+    config.instanceserver.p2pEnabled = p2pEnabled
+    return destroyEngine()
   })
 
   it('should load location', async () => {
@@ -201,9 +211,5 @@ describe('InstanceLoad', () => {
     })
 
     assert.equal(channelUser.total, 1)
-  })
-
-  after(() => {
-    return destroyEngine()
   })
 })
