@@ -61,6 +61,7 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@ir-engine/network'
+import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@ir-engine/network/src/constants/VideoConstants'
 import {
   MessageTypes,
   RTCPeerConnectionState,
@@ -433,20 +434,20 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
     if (!mediaTag || !stream || !peerMediaStream?.value) return
 
     if (isAudio) {
-      const track = stream.getAudioTracks()[0]
-      const newMediaStream = new MediaStream([track.clone()])
-      peerMediaStream.audioMediaStream.set(newMediaStream)
+      // const track = stream.getAudioTracks()[0]
+      // const newMediaStream = new MediaStream([track.clone()])
+      peerMediaStream.audioMediaStream.set(stream)
       return () => {
-        newMediaStream.getTracks().forEach((track) => track.stop())
+        // newMediaStream.getTracks().forEach((track) => track.stop())
         if (type && !getState(PeerMediaChannelState)[props.peerID]?.[type]) return
         peerMediaStream.audioMediaStream.set(null)
       }
     } else {
-      const track = stream.getVideoTracks()[0]
-      const newMediaStream = new MediaStream([track.clone()])
-      peerMediaStream.videoMediaStream.set(newMediaStream)
+      // const track = stream.getVideoTracks()[0]
+      // const newMediaStream = new MediaStream([track.clone()])
+      peerMediaStream.videoMediaStream.set(stream)
       return () => {
-        newMediaStream.getTracks().forEach((track) => track.stop())
+        // newMediaStream.getTracks().forEach((track) => track.stop())
         if (type && !getState(PeerMediaChannelState)[props.peerID]?.[type]) return
         peerMediaStream.videoMediaStream.set(null)
       }
@@ -471,22 +472,53 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
 
     const isScreen = false
 
-    const mediaTrack = peerMediaStream?.value.videoMediaStream.getVideoTracks()[0]
-
     const { maxResolution } = clientSetting.mediaSettings.video
-    const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
 
-    // @todo this isn't correct
-    const scale = isPiP || immersiveMedia ? 1 : !isScreen && resolution.height.ideal > MAX_RES_TO_USE_TOP_LAYER ? 2 : 4
+    const { scale, maxBitrate } = getVideoQuality({ isScreen, maxResolution, isPiP, immersiveMedia })
 
     WebRTCTransportFunctions.requestVideoQuality(
       sendMessage,
       props.instanceID,
       props.peerID,
       peerMediaStream?.value.videoMediaStream,
-      scale
+      scale,
+      maxBitrate
     )
   }, [peerMediaStream?.value?.videoMediaStream, immersiveMedia, isPiP])
 
   return null
+}
+
+/**
+ * Get the video quality based on the client settings
+ * - If the video is in PiP or immersive media mode, use the highest quality
+ * - If the resolution is less than 540p, use the second layer
+ * - If the video is a screen share, do not scale the resolution
+ * @param args
+ * @returns
+ */
+const getVideoQuality = (args: {
+  isScreen: boolean
+  maxResolution: string
+  isPiP: boolean
+  immersiveMedia: boolean
+}) => {
+  const { isScreen, maxResolution, isPiP, immersiveMedia } = args
+
+  const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
+
+  const layer =
+    isPiP || immersiveMedia
+      ? resolution.height.ideal > MAX_RES_TO_USE_TOP_LAYER
+        ? CAM_VIDEO_SIMULCAST_ENCODINGS.length - 1
+        : CAM_VIDEO_SIMULCAST_ENCODINGS.length - 2
+      : 0
+  const config = CAM_VIDEO_SIMULCAST_ENCODINGS[layer]
+  const scale = isScreen ? 1 : config.scaleResolutionDownBy
+  const maxBitrate = config.maxBitrate
+
+  return {
+    scale,
+    maxBitrate
+  }
 }

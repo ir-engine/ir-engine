@@ -99,7 +99,7 @@ export type VideoQualityMessage = {
   type: 'video-quality'
   id: string
   scale: number
-  // bitrate: number
+  bitrate: number
 }
 
 export type MessageTypes =
@@ -477,8 +477,8 @@ const requestVideoQuality = (
   networkID: NetworkID,
   peerID: PeerID,
   stream: MediaStream,
-  scale: number
-  // bitrate: number
+  scale: number,
+  bitrate: number
 ) => {
   if (scale < 1) return logger.error('Invalid ratio')
   const track = stream.getTracks()[0]
@@ -489,7 +489,7 @@ const requestVideoQuality = (
     return logger.error('Peer connection does not exist')
   }
 
-  sendMessage(networkID, peerID, { type: 'video-quality', id: stream.id, scale })
+  sendMessage(networkID, peerID, { type: 'video-quality', id: stream.id, scale, bitrate })
 }
 
 const handleVideoQuality = async (networkID: NetworkID, peerID: PeerID, message: VideoQualityMessage) => {
@@ -499,7 +499,12 @@ const handleVideoQuality = async (networkID: NetworkID, peerID: PeerID, message:
   }
 
   const mediaTracks = getMutableState(RTCPeerConnectionState)[networkID][peerID].outgoingMediaTracks
-  if (!mediaTracks.value[message.id]) return logger.error('Media track not found')
+  if (!mediaTracks.value[message.id])
+    return logger.error(
+      'Media track not found',
+      message,
+      getState(RTCPeerConnectionState)[networkID][peerID].outgoingMediaTracks
+    )
   const stream = mediaTracks[message.id].stream.value!
 
   const senders = pc.getSenders()
@@ -508,10 +513,10 @@ const handleVideoQuality = async (networkID: NetworkID, peerID: PeerID, message:
 
   const parameters = sender.getParameters()
   parameters.encodings[0].scaleResolutionDownBy = message.scale
-  // parameters.encodings[0].maxBitrate = message.bitrate
+  parameters.encodings[0].maxBitrate = message.bitrate
   await sender.setParameters(parameters)
 
-  console.log('setParameters', parameters)
+  // console.log('setParameters', parameters)
 }
 
 export const WebRTCTransportFunctions = {
