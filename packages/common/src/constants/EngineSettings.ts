@@ -42,5 +42,10 @@ export const EngineSettings = {
     Password: 'password',
     Port: 'port',
     Enabled: 'enabled'
+  },
+  Zendesk: {
+    Name: 'name',
+    Secret: 'secret',
+    Kid: 'kid'
   }
 }

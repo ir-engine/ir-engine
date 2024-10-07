@@ -34,7 +34,6 @@ import InstanceServer from './instance-server-setting/instance-server-setting'
 import MailchimpSetting from './mailchimp-setting/mailchimp-setting'
 import ProjectSetting from './project-setting/project-setting'
 import ServerSetting from './server-setting/server-setting'
-import ZendeskSetting from './zendesk-setting/zendesk-setting'
 
 export default [
   ProjectSetting,
@@ -47,6 +46,5 @@ export default [
   Authentication,
   Aws,
   Helm,
-  ZendeskSetting,
   MailchimpSetting
 ]

@@ -102,7 +102,7 @@ cli.main(async () => {
         }
       }
 
-      const builderChartMatches = stdout.matchAll(MAIN_CHART_REGEX)
+      const builderChartMatches = stdout.matchAll(BUILDER_CHART_REGEX)
       for (const match of builderChartMatches) {
         const builderChartVersion = match[1]
         if (builderChartVersion) {
