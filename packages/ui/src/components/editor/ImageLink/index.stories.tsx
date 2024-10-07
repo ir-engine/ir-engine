@@ -42,10 +42,10 @@ export default {
   title: 'Components/Editor/ImageLink',
   component: ImageLink,
   parameters: {
-    componentSubtitle: 'Seeker',
+    componentSubtitle: 'ImageLink',
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2283-24252&node-type=frame&t=XAGvEGVnphLHTwP3-0'
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2370-20234&node-type=frame&t=dEsGEixZxXD7JCWh-0'
     }
   },
   argTypes,
