@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Component } from '@ir-engine/ecs'
-import { ScriptComponent, VisualScriptComponent } from '@ir-engine/engine'
+import { VisualScriptComponent } from '@ir-engine/engine'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
@@ -139,7 +139,7 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [visualScriptPanelEnabled])
-    useEffect(() => {
+    /*useEffect(() => {
       if (scriptPanelEnabled) {
         cShelfState.Scripting.merge([ScriptComponent])
         return () => {
@@ -148,6 +148,6 @@ export const ComponentShelfCategoriesState = defineState({
           })
         }
       }
-    }, [scriptPanelEnabled])
+    }, [scriptPanelEnabled])*/
   }
 })
