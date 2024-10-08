@@ -1995,15 +1995,12 @@ describe('Physics : Rapier->ECS API', () => {
       it('should set the position relative to the parent entity', () => {
         const Expected = new Vector3(1, 2, 3)
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        console.log(JSON.stringify(result))
-        console.log(JSON.stringify(result.translation))
         assertVecApproxEq(result.translation, Vector3_Zero, 3)
       })
 
       it('should set the rotation relative to the parent entity', () => {
         const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        console.log(JSON.stringify(result.rotation))
         assertVecApproxEq(result.rotation, Rotation_Zero, 4)
       })
     })
