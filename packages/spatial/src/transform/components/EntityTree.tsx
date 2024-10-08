@@ -675,9 +675,8 @@ export const filterParentEntities = (
 }
 
 
-
-function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omit<TransformComponentType, 'matrixWorld'>> {
-  const result = useHookstate({} as Omit<TransformComponentType, 'matrixWorld'>)
+export function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<null|Omit<TransformComponentType, 'matrixWorld'>> {
+  const result = useHookstate(null as null|Omit<TransformComponentType, 'matrixWorld'>)
   const entityTransform = useComponent(entity, TransformComponent)
   const relativeEntityTransform = useComponent(relativeEntity, TransformComponent)
 
@@ -687,20 +686,22 @@ function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omi
 
   useEffect(() => {
     if (!entityTransform || !relativeEntityTransform || !commonAncestor || !entityMatrix || !relativeEntityMatrix) {
-      return
+      result.set(null)
+      return 
     }
 
-    const relativeMatrix = entityMatrix.clone().invert().multiply(relativeEntityMatrix)
+    const matrix = entityMatrix.clone().invert().multiply(relativeEntityMatrix)
     const position = new Vector3()
     const rotation = new Quaternion()
     const scale = new Vector3()
 
-    relativeMatrix.decompose(position, rotation, scale)
+    matrix.decompose(position, rotation, scale)
 
     result.set({
       position,
       rotation,
-      scale
+      scale,
+      matrix
     })
   }, [entityTransform, relativeEntityTransform, commonAncestor, entityMatrix, relativeEntityMatrix])
 
