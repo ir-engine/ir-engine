@@ -74,11 +74,13 @@ const getScaledTextureURI = async (src: string, maxResolution: number): Promise<
 
 class TextureLoader extends Loader<Texture> {
   maxResolution: number | undefined
+  autoDetectBitmap: boolean | undefined
 
-  constructor(manager?: LoadingManager, maxResolution?: number) {
+  constructor(manager?: LoadingManager, autoDetectBitmap?: boolean, maxResolution?: number) {
     super(manager)
     if (maxResolution) this.maxResolution = maxResolution
     else if (iOS) this.maxResolution = iOSMaxResolution
+    this.autoDetectBitmap = autoDetectBitmap
   }
 
   override async load(
@@ -101,7 +103,8 @@ class TextureLoader extends Loader<Texture> {
     // Use an ImageBitmapLoader if imageBitmaps are supported. Moves much of the
     // expensive work of uploading a texture to the GPU off the main thread.
     let loader: ImageLoader | ImageBitmapLoader
-    if (useImageLoader) loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
+    if (useImageLoader || !this.autoDetectBitmap)
+      loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
     else loader = new ImageBitmapLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
     loader.load(
       url,

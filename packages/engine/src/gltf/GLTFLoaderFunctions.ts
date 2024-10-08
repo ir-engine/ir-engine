@@ -792,7 +792,7 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
   return result.get(NO_PROXY) as Texture | null
 }
 
-const textureLoader = new TextureLoader()
+const textureLoader = new TextureLoader(undefined, true)
 
 type KHRTextureBasisu = {
   source: number
