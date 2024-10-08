@@ -548,20 +548,31 @@ export function useChildrenWithComponents(rootEntity: Entity, components: Compon
   return children.value as Entity[]
 }
 
-export function getChildrenWithComponents(rootEntity: Entity, components: ComponentType<any>[]): Entity[] {
-  const children = [] as Entity[]
-
+/**
+ * @description
+ * Returns an {@link Entity} array that will contain all child entities of `@param rootEntity` that have all of the `@param components`
+ * @param rootEntity The entity where traversal will start
+ * @param components List of components that a child entity must have to be added to the result
+ * @param result
+ * _(optional)_
+ * Array where the resulting entities will be added by `Array.push()`.
+ * It will **not** be erased before traversal.
+ * @returns An {@link Entity} array that contains the children that matched the condition
+ * */
+export function getChildrenWithComponents(
+  rootEntity: Entity,
+  components: ComponentType<any>[],
+  result = [] as Entity[]
+): Entity[] {
   const tree = getOptionalComponent(rootEntity, EntityTreeComponent)
-  if (!tree?.children) return [] as Entity[]
+  if (!tree?.children) return result
 
-  const results = tree.children.filter((childEntity) => hasComponents(childEntity, components))
-  children.push(...results)
+  // Add the current entity's children to the result
+  result.push(...tree.children.filter((childEntity) => hasComponents(childEntity, components)))
+  // Recurse search
+  for (const childEntity of tree.children) getChildrenWithComponents(childEntity, components, result)
 
-  for (const childEntity of tree.children) {
-    children.push(...getChildrenWithComponents(childEntity, components))
-  }
-
-  return children
+  return result
 }
 
 /** @todo make a query component for useTreeQuery */
