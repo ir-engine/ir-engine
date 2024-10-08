@@ -90,7 +90,6 @@ export const LoopAnimationComponent = defineComponent({
     const vrmComponent = useOptionalComponent(entity, VRMComponent)
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
-    const animationAction = loopAnimationComponent._action.value as AnimationAction
 
     const lastAnimationPack = useHookstate('')
     useEffect(() => {
@@ -112,6 +111,8 @@ export const LoopAnimationComponent = defineComponent({
       }
     }, [loopAnimationComponent.activeClipIndex, vrmComponent, animComponent?.animations])
 
+    const animationAction = loopAnimationComponent._action.value as AnimationAction
+
     useEffect(() => {
       if (animationAction?.isRunning()) {
         animationAction.paused = loopAnimationComponent.paused.value
@@ -130,18 +131,21 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!animationAction) return
       animationAction.time = loopAnimationComponent.time.value
-      animationAction.setLoop(loopAnimationComponent.loop.value, loopAnimationComponent.repetitions.value)
+      animationAction.setLoop(loopAnimationComponent.loop.value, loopAnimationComponent.repetitions.value ?? Infinity)
       animationAction.clampWhenFinished = loopAnimationComponent.clampWhenFinished.value
       animationAction.zeroSlopeAtStart = loopAnimationComponent.zeroSlopeAtStart.value
       animationAction.zeroSlopeAtEnd = loopAnimationComponent.zeroSlopeAtEnd.value
       animationAction.blendMode = loopAnimationComponent.blendMode.value
+      animationAction.loop = loopAnimationComponent.loop.value
     }, [
       loopAnimationComponent._action,
+      loopAnimationComponent.repetitions,
       loopAnimationComponent.blendMode,
       loopAnimationComponent.loop,
       loopAnimationComponent.clampWhenFinished,
       loopAnimationComponent.zeroSlopeAtStart,
-      loopAnimationComponent.zeroSlopeAtEnd
+      loopAnimationComponent.zeroSlopeAtEnd,
+      loopAnimationComponent.activeClipIndex
     ])
 
     useEffect(() => {
