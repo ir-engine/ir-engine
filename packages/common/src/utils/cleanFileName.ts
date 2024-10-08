@@ -27,8 +27,9 @@ Infinite Reality Engine. All Rights Reserved.
  * This method takes a filename (with or without included path) and returns a cleaned version of it.
  * ensures toLower file extension, truncates a file name if too long
  * @param fullFileName
+ * @param useStorageProviderLengthRestrictions
  */
-export const cleanFileNameString = (fullFileName: string): string => {
+export const cleanFileNameString = (fullFileName: string, useStorageProviderLengthRestrictions = false): string => {
   try {
     //extract the path and file name separately
     const lastSlashIndex = fullFileName.lastIndexOf('/')
@@ -42,12 +43,17 @@ export const cleanFileNameString = (fullFileName: string): string => {
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
 
-    // Truncate or concat the name if it is too long or too short
-    if (nameWithoutExtension.length > 64) {
-      nameWithoutExtension = nameWithoutExtension.slice(0, 64)
-    } else if (nameWithoutExtension.length < 4) {
-      //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
-      nameWithoutExtension = nameWithoutExtension + '0000'
+    //Used by backend uploads to storage provider, which has different length restrictions than other uses
+    if (useStorageProviderLengthRestrictions) {
+      if (nameWithoutExtension.length > 1024) nameWithoutExtension = nameWithoutExtension.slice(0, 1024)
+    } else {
+      // Truncate or concat the name if it is too long or too short
+      if (nameWithoutExtension.length > 1024) {
+        nameWithoutExtension = nameWithoutExtension.slice(0, 64)
+      } else if (nameWithoutExtension.length < 4) {
+        //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
+        nameWithoutExtension = nameWithoutExtension + '0000'
+      }
     }
 
     // Combine the name with the lowercase extension

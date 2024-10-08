@@ -54,7 +54,7 @@ cli.main(async () => {
         return new Promise(async (resolve) => {
           try {
             const fileResult = fs.readFileSync(file)
-            let filePathRelative = cleanFileNameString(file.slice(clientPath.length))
+            let filePathRelative = cleanFileNameString(file.slice(clientPath.length), true)
             let contentType = getContentType(file)
             const putData: any = {
               Body: fileResult,
