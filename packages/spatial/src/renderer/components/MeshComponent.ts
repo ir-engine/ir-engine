@@ -71,7 +71,7 @@ export const MeshComponent = defineComponent({
       const mesh = meshComponent.value
 
       if (Array.isArray(mesh.material)) {
-        for (const material of mesh.material) material.needsUpdate = true
+        mesh.material.forEach((material) => (material.needsUpdate = true))
       } else {
         ;(mesh.material as Material).needsUpdate = true
       }
