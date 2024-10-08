@@ -65,7 +65,8 @@ export default (app: Application): void => {
       coil: appConfig.coil,
       chargebee: appConfig.chargebee,
       zendesk: appConfig.zendesk,
-      metabase: appConfig.metabase
+      metabase: appConfig.metabase,
+      redis: appConfig.redis
     }
 
     for (const setting of args) {

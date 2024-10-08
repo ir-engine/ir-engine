@@ -23,40 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { redisSettingMethods, redisSettingPath } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
+import { defineState } from '@ir-engine/hyperflux'
 
-import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
-import { RedisSettingService } from './redis-setting.class'
-import redisSettingDocs from './redis-setting.docs'
-import hooks from './redis-setting.hooks'
-
-declare module '@ir-engine/common/declarations' {
-  interface ServiceTypes {
-    [redisSettingPath]: RedisSettingService
-  }
-}
-
-export default (app: Application): void => {
-  const options = {
-    name: redisSettingPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(redisSettingPath, new RedisSettingService(options), {
-    // A list of all methods this service exposes externally
-    methods: redisSettingMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: redisSettingDocs
-  })
-
-  const service = app.service(redisSettingPath)
-  service.hooks(hooks)
-
-  service.on('patched', () => {
-    updateAppConfig()
-  })
-}
+export const EditorWarningState = defineState({
+  name: 'EditorWarningState',
+  initial: { warning: null as string | null }
+})

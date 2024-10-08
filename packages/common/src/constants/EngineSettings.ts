@@ -46,6 +46,12 @@ export const EngineSettings = {
     AccountDashboardId: 'accountDashboardId',
     Environment: 'environment'
   },
+  Redis: {
+    Address: 'address',
+    Password: 'password',
+    Port: 'port',
+    Enabled: 'enabled'
+  },
   Zendesk: {
     Name: 'name',
     Secret: 'secret',
