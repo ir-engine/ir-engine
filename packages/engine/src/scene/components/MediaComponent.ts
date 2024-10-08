@@ -27,7 +27,7 @@ import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { ComponentType, Engine } from '@ir-engine/ecs'
+import { ComponentType, Engine, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -400,11 +400,13 @@ export function MediaReactor() {
     [mediaElement, media.isMusic]
   )
 
-  const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-  const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
+  const rendererState = useHookstate(getMutableState(RendererState))
+  const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+  const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
+  const [audioHelperTexture] = useTexture(areNodeHelpersVisible.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
-    if (debugEnabled.value && audioHelperTexture) {
+    if ((areNodeHelpersVisible || isEntityHelperVisible) && audioHelperTexture) {
       const material = new MeshBasicMaterial({ transparent: true, side: DoubleSide })
       material.map = audioHelperTexture
       setComponent(entity, DebugMeshComponent, {
@@ -417,7 +419,7 @@ export function MediaReactor() {
     return () => {
       removeComponent(entity, DebugMeshComponent)
     }
-  }, [debugEnabled, audioHelperTexture])
+  }, [areNodeHelpersVisible, audioHelperTexture])
 
   return null
 }

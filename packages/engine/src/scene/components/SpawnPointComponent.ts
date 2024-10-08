@@ -25,7 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  hasComponent,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -36,6 +42,7 @@ import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 
@@ -52,14 +59,16 @@ export const SpawnPointComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const spawnPoint = useComponent(entity, SpawnPointComponent)
 
-    const [gltf] = useGLTF(debugEnabled.value ? GLTF_PATH : '', entity)
+    const [gltf] = useGLTF(areNodeHelpersVisible.value ? GLTF_PATH : '', entity)
 
     useLayoutEffect(() => {
       const scene = gltf?.scene
-      if (!scene || !debugEnabled.value) return
+      if (!scene || !(areNodeHelpersVisible || isEntityHelperVisible)) return
 
       const helperEntity = createEntity()
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
@@ -78,7 +87,7 @@ export const SpawnPointComponent = defineComponent({
         if (!hasComponent(entity, SpawnPointComponent)) return
         spawnPoint.helperEntity.set(none)
       }
-    }, [gltf, debugEnabled])
+    }, [gltf, areNodeHelpersVisible])
 
     return null
   }

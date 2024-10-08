@@ -33,8 +33,7 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent,
-  useComponent
+  setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
@@ -153,8 +152,9 @@ export const MountPointComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const mountPoint = useComponent(entity, MountPointComponent)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const mountedEntities = useMutableState(MountPointState)
 
     useEffect(() => {
@@ -178,13 +178,13 @@ export const MountPointComponent = defineComponent({
     }, [mountedEntities])
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, ArrowHelperComponent, { name: 'mount-point-helper' })
       }
       return () => {
         removeComponent(entity, ArrowHelperComponent)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     return null
   }

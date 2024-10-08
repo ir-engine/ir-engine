@@ -44,6 +44,7 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
@@ -103,7 +104,9 @@ export const AvatarRigComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
@@ -113,7 +116,12 @@ export const AvatarRigComponent = defineComponent({
     )
 
     useEffect(() => {
-      if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
+      if (
+        !visible?.value ||
+        !(areNodeHelpersVisible || isEntityHelperVisible) ||
+        pending?.value ||
+        !rigComponent.value.normalizedRig?.hips?.node
+      )
         return
 
       const helper = new SkeletonHelper(rigComponent.value.vrm.scene as Group)
@@ -137,7 +145,7 @@ export const AvatarRigComponent = defineComponent({
       return () => {
         removeEntity(helperEntity)
       }
-    }, [visible, debugEnabled, pending, rigComponent.normalizedRig])
+    }, [visible, areNodeHelpersVisible, pending, rigComponent.normalizedRig])
 
     useEffect(() => {
       if (!modelComponent?.asset?.value) return

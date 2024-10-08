@@ -27,11 +27,13 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
+  getComponent,
   getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
@@ -71,12 +73,14 @@ export const PositionalAudioComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         if (!mediaElement || !mediaElement.element.value) return
         const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
         if (!audioNodes) return
@@ -90,7 +94,7 @@ export const PositionalAudioComponent = defineComponent({
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)
       }
-    }, [debugEnabled, mediaElement?.element])
+    }, [areNodeHelpersVisible, mediaElement?.element])
 
     useEffect(() => {
       if (!mediaElement?.element.value) return

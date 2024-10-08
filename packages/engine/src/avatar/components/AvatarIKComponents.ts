@@ -64,10 +64,12 @@ export const AvatarIKTargetComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, AxesHelperComponent, {
           name: 'avatar-ik-helper',
           size: 0.5,
@@ -78,7 +80,7 @@ export const AvatarIKTargetComponent = defineComponent({
       return () => {
         removeComponent(entity, AxesHelperComponent)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     return null
   },

@@ -26,12 +26,19 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { CatmullRomCurve3, Quaternion, Vector3 } from 'three'
 
-import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
@@ -78,7 +85,9 @@ export const SplineComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, SplineComponent)
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const elements = component.elements
 
     useEffect(() => {
@@ -100,14 +109,14 @@ export const SplineComponent = defineComponent({
     ])
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, SplineHelperComponent)
       }
 
       return () => {
         removeComponent(entity, SplineHelperComponent)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     return null
   }

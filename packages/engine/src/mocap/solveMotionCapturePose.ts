@@ -136,8 +136,8 @@ const drawMocapDebug = (label: string) => {
   const colAttr = new BufferAttribute(new Float32Array(PoseLandmarker.POSE_CONNECTIONS.length * 2 * 4).fill(1), 4)
   positionLineSegment.geometry.setAttribute('color', colAttr)
 
-  return (landmarks?: NormalizedLandmark[], debugEnabled?: boolean) => {
-    if (!debugEnabled) {
+  return (landmarks?: NormalizedLandmark[], areNodeHelpersVisible?: boolean) => {
+    if (!areNodeHelpersVisible) {
       for (const [key, entity] of Object.entries(debugEntities)) {
         delete debugEntities[key]
         removeEntity(entity)

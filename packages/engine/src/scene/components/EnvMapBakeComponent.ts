@@ -26,12 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 import { MeshPhysicalMaterial, SphereGeometry } from 'three'
 
-import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
@@ -56,10 +57,12 @@ export const EnvMapBakeComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
 
     useLayoutEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, DebugMeshComponent, {
           name: 'envmap-bake-helper',
           geometry: sphereGeometry,
@@ -70,7 +73,7 @@ export const EnvMapBakeComponent = defineComponent({
       return () => {
         removeComponent(entity, DebugMeshComponent)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     return null
   }

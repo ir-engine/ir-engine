@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 import { PerspectiveCamera } from 'three'
 
-import { useExecute } from '@ir-engine/ecs'
+import { UUIDComponent, useExecute } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -54,7 +54,9 @@ export const ScenePreviewCameraComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useComponent(Engine.instance.cameraEntity, TransformComponent)
@@ -86,7 +88,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     }, [previewCameraTransform])
 
     useLayoutEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, CameraHelperComponent, {
           name: 'scene-preview-helper',
           camera: previewCamera.camera.value as PerspectiveCamera
@@ -95,7 +97,7 @@ export const ScenePreviewCameraComponent = defineComponent({
       return () => {
         removeComponent(entity, CameraHelperComponent)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     return null
   }

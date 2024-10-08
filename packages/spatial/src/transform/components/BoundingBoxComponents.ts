@@ -39,6 +39,7 @@ import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
@@ -63,13 +64,15 @@ export const BoundingBoxComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
       updateBoundingBox(entity)
 
-      if (!debugEnabled.value) return
+      if (!(areNodeHelpersVisible || isEntityHelperVisible)) return
 
       const helperEntity = createEntity()
 
@@ -90,7 +93,7 @@ export const BoundingBoxComponent = defineComponent({
         if (!hasComponent(entity, BoundingBoxComponent)) return
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     return null
   }

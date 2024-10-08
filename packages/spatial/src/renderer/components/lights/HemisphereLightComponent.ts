@@ -28,6 +28,7 @@ import { HemisphereLight } from 'three'
 
 import {
   defineComponent,
+  getComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -36,6 +37,7 @@ import {
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useMutableState } from '@ir-engine/hyperflux'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
@@ -56,8 +58,9 @@ export const HemisphereLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
-    const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
+    const rendererState = useMutableState(RendererState)
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const [light] = useDisposable(HemisphereLight, entity)
     const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
@@ -83,13 +86,13 @@ export const HemisphereLightComponent = defineComponent({
     }, [hemisphereLightComponent.intensity])
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, LightHelperComponent, { name: 'hemisphere-light-helper', light: light })
       }
       return () => {
         removeComponent(entity, LightHelperComponent)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     return null
   }

@@ -251,7 +251,7 @@ describe('HemisphereLightComponent', () => {
       assert.equal(result, Expected)
     })
 
-    it('should react when debugEnabled changes', () => {
+    it('should react when areNodeHelpersVisible changes', () => {
       const Initial = false
       const Expected = !Initial
 

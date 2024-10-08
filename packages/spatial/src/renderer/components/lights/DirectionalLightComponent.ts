@@ -28,6 +28,7 @@ import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 
 import {
   defineComponent,
+  getComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -36,6 +37,7 @@ import {
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
@@ -117,8 +119,9 @@ export const DirectionalLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
+    const rendererState = useMutableState(RendererState)
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const [light] = useDisposable(DirectionalLight, entity)
     const lightHelper = useOptionalComponent(entity, LineSegmentComponent)
@@ -156,17 +159,17 @@ export const DirectionalLightComponent = defineComponent({
     }, [directionalLightComponent.shadowRadius])
 
     useEffect(() => {
-      if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
-        light.shadow.mapSize.setScalar(renderState.shadowMapResolution.value)
+      if (light.shadow.mapSize.x !== rendererState.shadowMapResolution.value) {
+        light.shadow.mapSize.setScalar(rendererState.shadowMapResolution.value)
         light.shadow.map?.dispose()
         light.shadow.map = null as any
         light.shadow.camera.updateProjectionMatrix()
         light.shadow.needsUpdate = true
       }
-    }, [renderState.shadowMapResolution])
+    }, [rendererState.shadowMapResolution])
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, LineSegmentComponent, {
           name: 'directional-light-helper',
           // Clone geometry because LineSegmentComponent disposes it when removed
@@ -178,7 +181,7 @@ export const DirectionalLightComponent = defineComponent({
           removeComponent(entity, LineSegmentComponent)
         }
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     useUpdateLight(light)
 

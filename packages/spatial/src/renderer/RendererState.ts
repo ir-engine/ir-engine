@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 
 import { isIPhone } from '../common/functions/isMobile'
@@ -44,6 +44,7 @@ export const RendererState = defineState({
     avatarDebug: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
+    selectedEntityUUIDs: new Set<EntityUUID>(),
     gridVisibility: false,
     gridHeight: 0,
     forceBasicMaterials: false,
@@ -61,6 +62,7 @@ export const RendererState = defineState({
     'avatarDebug',
     'renderMode',
     'nodeHelperVisibility',
+    'selectedEntityUUIDs',
     'gridVisibility',
     'gridHeight'
   ])

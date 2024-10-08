@@ -26,10 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BackSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { EntityUUID } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   ComponentType,
   defineComponent,
+  getComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -97,7 +98,9 @@ export const PortalComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const rendererState = useHookstate(getMutableState(RendererState))
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const portalComponent = useComponent(entity, PortalComponent)
 
     useEffect(() => {
@@ -129,7 +132,7 @@ export const PortalComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, ArrowHelperComponent, {
           name: 'portal-helper',
           length: 1,
@@ -140,7 +143,7 @@ export const PortalComponent = defineComponent({
       return () => {
         removeComponent(entity, ArrowHelperComponent)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     useEffect(() => {
       if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return

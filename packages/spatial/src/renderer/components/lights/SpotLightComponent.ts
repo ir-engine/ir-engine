@@ -28,6 +28,7 @@ import { SpotLight } from 'three'
 
 import {
   defineComponent,
+  getComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -36,6 +37,7 @@ import {
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useMutableState } from '@ir-engine/hyperflux'
 
+import { UUIDComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
@@ -70,8 +72,9 @@ export const SpotLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
+    const rendererState = useMutableState(RendererState)
+    const areNodeHelpersVisible = rendererState.nodeHelperVisibility
+    const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const [light] = useDisposable(SpotLight, entity)
     const lightHelper = useOptionalComponent(entity, LightHelperComponent)
@@ -125,23 +128,23 @@ export const SpotLightComponent = defineComponent({
     }, [spotLightComponent.castShadow])
 
     useEffect(() => {
-      if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
-        light.shadow.mapSize.set(renderState.shadowMapResolution.value, renderState.shadowMapResolution.value)
+      if (light.shadow.mapSize.x !== rendererState.shadowMapResolution.value) {
+        light.shadow.mapSize.set(rendererState.shadowMapResolution.value, rendererState.shadowMapResolution.value)
         light.shadow.map?.dispose()
         light.shadow.map = null as any
         light.shadow.camera.updateProjectionMatrix()
         light.shadow.needsUpdate = true
       }
-    }, [renderState.shadowMapResolution])
+    }, [rendererState.shadowMapResolution])
 
     useEffect(() => {
-      if (debugEnabled.value) {
+      if (areNodeHelpersVisible || isEntityHelperVisible) {
         setComponent(entity, LightHelperComponent, { name: 'spot-light-helper', light: light })
       }
       return () => {
         removeComponent(entity, LightHelperComponent)
       }
-    }, [debugEnabled])
+    }, [areNodeHelpersVisible])
 
     useUpdateLight(light)
 
