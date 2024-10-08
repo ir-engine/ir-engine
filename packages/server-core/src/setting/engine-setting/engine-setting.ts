@@ -64,7 +64,8 @@ export default (app: Application): void => {
       'task-server': appConfig.taskserver,
       coil: appConfig.coil,
       chargebee: appConfig.chargebee,
-      zendesk: appConfig.zendesk
+      zendesk: appConfig.zendesk,
+      redis: appConfig.redis
     }
 
     for (const setting of args) {
