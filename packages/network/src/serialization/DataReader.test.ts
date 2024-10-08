@@ -812,6 +812,7 @@ describe('DataReader', () => {
     const peerIndex = 0
     network.peerIDToPeerIndex[peerID] = peerIndex
     network.peerIndexToPeerID[peerIndex] = peerID
+    network.peers[peerID] = { userId, peerIndex, peerID }
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -853,6 +854,9 @@ describe('DataReader', () => {
     for (let i = 0; i < count; i++) {
       // read networkId
       strictEqual(readUint32(readView), entities[i])
+
+      // read peerIndex
+      strictEqual(readUint32(readView), peerIndex)
 
       // read writeEntity changeMask (only reading TransformComponent)
       strictEqual(readUint8(readView), 0b01)
