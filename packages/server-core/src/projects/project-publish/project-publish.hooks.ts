@@ -123,9 +123,9 @@ const copyPublishedFiles = async (context: HookContext<ProjectPublishService>) =
 
   await context.app.service(fileBrowserPath).update(null, {
     oldProject: oldProject,
-    newProject: `${oldProject}-${context.data.publishTimestamp}`,
+    newProject: `${oldProject}-${context.data.updatedAt}`,
     oldName: `${oldProject}/`,
-    newName: `${oldProject}-${context.data.publishTimestamp}/`,
+    newName: `${oldProject}-${context.data.updatedAt}/`,
     oldPath,
     newPath: oldPath,
     isCopy: true
@@ -148,7 +148,7 @@ const updateProjectFiles = async (context: HookContext<ProjectPublishService>) =
 
   const scenesToInvalidate = [] as string[]
 
-  const publishProjectName = `${context.project.name}-${context.data.publishTimestamp}`
+  const publishProjectName = `${context.project.name}-${context.data.updatedAt}`
 
   const scenes = (await context.app.service(staticResourcePath).find({
     query: {
@@ -222,7 +222,7 @@ const createProjectCopy = async (context: HookContext<ProjectPublishService>) =>
   const copyProjectData: ProjectData = {
     ...context.project,
     updatedBy: context.params?.user?.id || null,
-    name: `${context.project.name}-${result.publishTimestamp}`,
+    name: `${context.project.name}-${result.updatedAt}`,
     projectPublishId: result.id,
     isPublishedVersion: true,
     createdAt: await getDateTimeSql(),

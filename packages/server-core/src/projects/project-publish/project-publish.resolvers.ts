@@ -32,7 +32,6 @@ import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/dat
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
 export const projectPublishResolver = resolve<ProjectPublishType, HookContext>({
-  publishTimestamp: virtual(async (projectPublish) => fromDateTimeSql(projectPublish.publishTimestamp)),
   createdAt: virtual(async (projectPublish) => fromDateTimeSql(projectPublish.createdAt)),
   updatedAt: virtual(async (projectPublish) => fromDateTimeSql(projectPublish.updatedAt))
 })
@@ -43,7 +42,7 @@ export const projectPublishDataResolver = resolve<ProjectPublishType, HookContex
   id: async () => {
     return uuidv4()
   },
-  publishUserId: virtual(async (projectPublish, context) => {
+  updatedBy: virtual(async (projectPublish, context) => {
     return context.params?.user?.id || null
   }),
   createdAt: getDateTimeSql,

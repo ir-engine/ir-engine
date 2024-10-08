@@ -66,9 +66,11 @@ export const projectSchema = Type.Object(
     assetsOnly: Type.Boolean(),
     isPublishedVersion: Type.Boolean(),
     visibility: StringEnum(['private', 'public']),
-    projectPublishId: Type.String({
-      format: 'uuid'
-    }),
+    projectPublishId: Type.Optional(
+      Type.String({
+        format: 'uuid'
+      })
+    ),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     updatedBy: TypedString<UserID>({
       format: 'uuid'

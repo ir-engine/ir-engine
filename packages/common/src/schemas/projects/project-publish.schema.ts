@@ -44,10 +44,9 @@ export const projectPublishSchema = Type.Object(
     projectId: Type.String({
       format: 'uuid'
     }),
-    publishUserId: TypedString<UserID>({
+    updatedBy: TypedString<UserID>({
       format: 'uuid'
     }),
-    publishTimestamp: Type.String({ format: 'date-time' }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -56,7 +55,7 @@ export const projectPublishSchema = Type.Object(
 export interface ProjectPublishType extends Static<typeof projectPublishSchema> {}
 
 // Schema for creating new entries
-export const projectPublishDataSchema = Type.Pick(projectPublishSchema, ['projectId', 'publishTimestamp'], {
+export const projectPublishDataSchema = Type.Pick(projectPublishSchema, ['projectId', 'updatedAt'], {
   $id: 'ProjectPublishData'
 })
 export interface ProjectPublishData extends Static<typeof projectPublishDataSchema> {}
@@ -71,8 +70,8 @@ export interface ProjectPublishPatch extends Static<typeof projectPublishPatchSc
 export const projectPublishQueryProperties = Type.Pick(projectPublishSchema, [
   'id',
   'projectId',
-  'publishUserId',
-  'publishTimestamp'
+  'updatedBy',
+  'updatedAt'
 ])
 export const projectPublishQuerySchema = Type.Intersect(
   [querySyntax(projectPublishQueryProperties, {})],
