@@ -725,21 +725,33 @@ function useCommonAncestor(entity1: Entity, entity2: Entity): Entity | null {
 }
 
 function useAncestors(entity: Entity): Entity[] {
-  const [ancestors, setAncestors] = useState<Entity[]>([])
-
-  useEffect(() => {
-    const newAncestors: Entity[] = [entity]
+  const forceUpdate = useForceUpdate()
+  const ancestors = useMemo(() => {
+    const result: Entity[] = [entity]
     let current = entity
 
     while (true) {
-      const parentEntity = useComponent(current, EntityTreeComponent).parentEntity
+      const parentEntity = getComponent(current, EntityTreeComponent).parentEntity
       if (!parentEntity) break
-      newAncestors.unshift(parentEntity)
+      result.unshift(parentEntity)
       current = parentEntity
     }
 
-    setAncestors(newAncestors)
+    return result
   }, [entity])
+
+  useEffect(() => {
+    const root = startReactor(() => {
+      ancestors.forEach((ancestor) => {
+        useComponent(ancestor, EntityTreeComponent)
+      })
+      return null
+    })
+
+    return () => {
+      root.stop()
+    }
+  }, [ancestors])
 
   return ancestors
 }
