@@ -32,7 +32,6 @@ import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
 import Helm from './helm-setting/helm-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting'
 import ProjectSetting from './project-setting/project-setting'
-import RedisSetting from './redis-setting/redis-setting'
 import ServerSetting from './server-setting/server-setting'
 
 export default [
@@ -45,6 +44,5 @@ export default [
   FeatureFlagSetting,
   Authentication,
   Aws,
-  RedisSetting,
   Helm
 ]

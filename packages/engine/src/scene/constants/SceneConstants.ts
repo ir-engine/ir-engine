@@ -22,25 +22,23 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+export const SceneComplexityWeights = {
+  verticesWeight: 0.5,
+  trianglesWeight: 1.0,
+  texturesMBWeight: 1.0,
+  lightsWeight: 1.2,
+  drawCallsWeight: 1.5,
+  shaderComplexityWeight: 1.0
+}
 
-import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
+// these are thresholds for the scene complexity
+export const SceneComplexity = {
+  VeryLight: { label: 'Very Light', value: 50000 } as const,
+  Light: { label: 'Light', value: 100000 } as const,
+  Medium: { label: 'Medium', value: 150000 } as const,
+  Heavy: { label: 'Heavy', value: 200000 } as const,
+  VeryHeavy: { label: 'Very Heavy', value: 300000 } as const
+}
 
-import * as authenticationSeed from './authentication-setting/authentication-setting.seed'
-import * as awsSeed from './aws-setting/aws-setting.seed'
-import * as clientSeed from './client-setting/client-setting.seed'
-import * as emailSeed from './email-setting/email-setting.seed'
-import * as engineSeed from './engine-setting/engine-setting.seed'
-import * as helmSeed from './helm-setting/helm-setting.seed'
-import * as instanceServerSeed from './instance-server-setting/instance-server-setting.seed'
-import * as serverSeed from './server-setting/server-setting.seed'
-
-export const settingSeeds: Array<KnexSeed> = [
-  authenticationSeed,
-  clientSeed,
-  serverSeed,
-  instanceServerSeed,
-  emailSeed,
-  awsSeed,
-  helmSeed,
-  engineSeed
-]
+export type SceneComplexityCategoryType = (typeof SceneComplexity)[keyof typeof SceneComplexity]['label']
+export type SceneComplexityValueType = (typeof SceneComplexity)[keyof typeof SceneComplexity]['value']

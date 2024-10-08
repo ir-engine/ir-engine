@@ -77,7 +77,6 @@ export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
-export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
@@ -226,8 +225,6 @@ export const featureFlagSettingPath = 'feature-flag-setting'
 export const instanceServerSettingPath = 'instance-server-setting'
 
 export const clientSettingPath = 'client-setting'
-
-export const redisSettingPath = 'redis-setting'
 
 export const matchUserPath = 'match-user'
 

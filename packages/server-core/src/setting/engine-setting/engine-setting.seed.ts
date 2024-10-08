@@ -111,11 +111,33 @@ export async function seed(knex: Knex): Promise<void> {
     'mailchimp'
   )
 
+  const redisSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Redis.Address,
+        value: process.env.REDIS_ADDRESS || 'localhost'
+      },
+      {
+        key: EngineSettings.Redis.Password,
+        value: process.env.REDIS_PASSWORD || ''
+      },
+      {
+        key: EngineSettings.Redis.Port,
+        value: process.env.REDIS_PORT || '6379'
+      },
+      {
+        key: EngineSettings.Redis.Enabled,
+        value: process.env.REDIS_ENABLED || ''
+      }
+    ],
+    'redis'
+  )
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
     ...coilSeedData,
     ...mailchimpSeedData,
+    ...redisSeedData,
     ...zendeskSettingSeedData
   ]
 

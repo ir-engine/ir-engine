@@ -22,25 +22,31 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import React from 'react'
+import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
+import WarningView from '../../../primitives/tailwind/WarningView'
 
-import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
+interface WarningDialogProps {
+  title: string
+  description?: string
+  modalProps?: ModalProps
+}
 
-import * as authenticationSeed from './authentication-setting/authentication-setting.seed'
-import * as awsSeed from './aws-setting/aws-setting.seed'
-import * as clientSeed from './client-setting/client-setting.seed'
-import * as emailSeed from './email-setting/email-setting.seed'
-import * as engineSeed from './engine-setting/engine-setting.seed'
-import * as helmSeed from './helm-setting/helm-setting.seed'
-import * as instanceServerSeed from './instance-server-setting/instance-server-setting.seed'
-import * as serverSeed from './server-setting/server-setting.seed'
+const WarningDialog = ({ title, description, modalProps }: WarningDialogProps) => {
+  return (
+    <Modal
+      onClose={PopoverState.hidePopupover}
+      showCloseButton={false}
+      submitButtonDisabled={true}
+      onSubmit={() => PopoverState.hidePopupover()}
+      className="w-[50vw] max-w-2xl bg-yellow-600"
+      hideFooter={true}
+      {...modalProps}
+    >
+      <WarningView title={title} description={description} />
+    </Modal>
+  )
+}
 
-export const settingSeeds: Array<KnexSeed> = [
-  authenticationSeed,
-  clientSeed,
-  serverSeed,
-  instanceServerSeed,
-  emailSeed,
-  awsSeed,
-  helmSeed,
-  engineSeed
-]
+export default WarningDialog

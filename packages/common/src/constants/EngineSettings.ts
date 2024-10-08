@@ -44,6 +44,12 @@ export const EngineSettings = {
     DefaultTags: 'defaultTags',
     GroupId: 'groupId'
   },
+  Redis: {
+    Address: 'address',
+    Password: 'password',
+    Port: 'port',
+    Enabled: 'enabled'
+  },
   Zendesk: {
     Name: 'name',
     Secret: 'secret',
