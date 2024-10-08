@@ -94,7 +94,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     event.preventDefault()
     const setting = {
       webRTCSettings: JSON.stringify(webRTCSettingsState.value),
-      local: Boolean(getSettingValue(EngineSettings.InstanceServer.Local))
+      local: getSettingValue(EngineSettings.InstanceServer.Local)
     }
     const createOperations: Promise<EngineSettingType>[] = []
     const updateOperations: Promise<EngineSettingType>[] = []
