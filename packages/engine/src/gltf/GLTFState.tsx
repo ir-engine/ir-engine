@@ -1062,26 +1062,9 @@ const MaterialInstanceReactor = (props: {
 
     setComponent(props.entity, MaterialInstanceComponent)
     const materialInstance = getMutableComponent(props.entity, MaterialInstanceComponent)
-    /** @todo This creates a sparse array, this should be changed to be flat when the startReactors are removed in GLTFLoaderFunctions*/
+    /** @todo This creates a sparse array, which leads to the mesh materials array being a sparse array*/
     if (props.isArray) materialInstance.uuid[primitive.material].set(materialUUID)
     else materialInstance.uuid.set([materialUUID])
-
-    // if (props.isArray)
-    //   materialInstance.uuid.set((prev) => {
-    //     prev.push(materialUUID)
-    //     return prev
-    //   })
-    // else materialInstance.uuid.set([materialUUID])
-
-    // return () => {
-    //   if (entityExists(props.entity)) {
-    //     materialInstance.uuid.set((prev) => {
-    //       const index = prev.indexOf(materialUUID)
-    //       if (index > -1) prev.splice(index, 1)
-    //       return prev
-    //     })
-    //   }
-    // }
   }, [materialEntity, primitive.material])
 
   return null

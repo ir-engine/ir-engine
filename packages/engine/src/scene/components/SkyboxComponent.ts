@@ -94,6 +94,8 @@ export const SkyboxComponent = defineComponent({
       if (texture) {
         texture.colorSpace = SRGBColorSpace
         texture.mapping = EquirectangularReflectionMapping
+        texture.flipY = false
+        texture.needsUpdate = true
         setComponent(entity, BackgroundComponent, texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       } else if (error) {

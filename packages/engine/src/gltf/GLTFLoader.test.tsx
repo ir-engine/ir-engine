@@ -503,7 +503,7 @@ describe('GLTF Loader', () => {
       for (const uuid of matInstance.uuid) uuids.add(uuid)
       return uuids
     }, new Set<string>())
-    const matUUIDs = [...uniqueMatUUIDs]
+    const matUUIDs = [...uniqueMatUUIDs].filter(Boolean)
 
     assert(materials.length === matUUIDs.length)
     assert(matUUIDs.length > meshEntities.length)

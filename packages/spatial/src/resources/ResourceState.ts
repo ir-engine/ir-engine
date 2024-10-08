@@ -23,7 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { BufferAttribute, Cache, CompressedTexture, Material, Mesh, Object3D, SkinnedMesh, Texture } from 'three'
+import {
+  BufferAttribute,
+  Cache,
+  CompressedTexture,
+  Material,
+  Mesh,
+  Object3D,
+  RepeatWrapping,
+  SkinnedMesh,
+  Texture
+} from 'three'
 
 import { Engine, Entity, getOptionalComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State } from '@ir-engine/hyperflux'
@@ -237,8 +247,8 @@ const resourceCallbacks = {
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
       if (!asset.image) return
-      // asset.wrapS = RepeatWrapping
-      // asset.wrapT = RepeatWrapping
+      asset.wrapS = RepeatWrapping
+      asset.wrapT = RepeatWrapping
       asset.onUpdate = () => {
         if (resource && resource.value) resource.metadata.merge({ onGPU: true })
         //@ts-ignore
