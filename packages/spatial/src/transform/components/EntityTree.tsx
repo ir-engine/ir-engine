@@ -681,19 +681,14 @@ function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omi
   const entityTransform = useComponent(entity, TransformComponent)
   const relativeEntityTransform = useComponent(relativeEntity, TransformComponent)
 
-  const entityTree = useComponent(entity, EntityTreeComponent)
-  const relativeEntityTree = useComponent(relativeEntity, EntityTreeComponent)
+  const commonAncestor = useCommonAncestor(entity, relativeEntity)
+  const entityMatrix = useRelativeMatrix(entity, commonAncestor)
+  const relativeEntityMatrix = useRelativeMatrix(relativeEntity, commonAncestor)
 
   useEffect(() => {
-    if (!entityTransform || !relativeEntityTransform || !entityTree || !relativeEntityTree) {
+    if (!entityTransform || !relativeEntityTransform || !commonAncestor || !entityMatrix || !relativeEntityMatrix) {
       return
     }
-
-    const commonAncestor = findCommonAncestor(entity, relativeEntity)
-    if (!commonAncestor) return
-
-    const entityMatrix = computeWorldMatrix(entity, commonAncestor)
-    const relativeEntityMatrix = computeWorldMatrix(relativeEntity, commonAncestor)
 
     const relativeMatrix = entityMatrix.clone().invert().multiply(relativeEntityMatrix)
     const position = new Vector3()
@@ -707,22 +702,29 @@ function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omi
       rotation,
       scale
     })
-  }, [entity, relativeEntity, entityTransform, relativeEntityTransform, entityTree, relativeEntityTree])
+  }, [entityTransform, relativeEntityTransform, commonAncestor, entityMatrix, relativeEntityMatrix])
 
   return result
 }
 
-function findCommonAncestor(entity1: Entity, entity2: Entity): Entity | null {
-  const ancestors1 = getAncestors(entity1)
-  const ancestors2 = getAncestors(entity2)
+function useCommonAncestor(entity1: Entity, entity2: Entity): Entity | null {
+  const [commonAncestor, setCommonAncestor] = useState<Entity | null>(null)
 
-  for (const ancestor of ancestors1) {
-    if (ancestors2.includes(ancestor)) {
-      return ancestor
+  useEffect(() => {
+    const ancestors1 = getAncestors(entity1)
+    const ancestors2 = getAncestors(entity2)
+
+    for (const ancestor of ancestors1) {
+      if (ancestors2.includes(ancestor)) {
+        setCommonAncestor(ancestor)
+        return
+      }
     }
-  }
 
-  return null
+    setCommonAncestor(null)
+  }, [entity1, entity2])
+
+  return commonAncestor
 }
 
 function getAncestors(entity: Entity): Entity[] {
@@ -739,22 +741,30 @@ function getAncestors(entity: Entity): Entity[] {
   return ancestors
 }
 
-function computeWorldMatrix(entity: Entity, stopAt: Entity): THREE.Matrix4 {
-  const matrices: THREE.Matrix4[] = []
-  let current = entity
+function useRelativeMatrix(entity: Entity, stopAt: Entity | null): THREE.Matrix4 | null {
+  const [worldMatrix, setWorldMatrix] = useState<THREE.Matrix4 | null>(null)
 
-  while (current !== stopAt) {
-    const transform = useComponent(current, TransformComponent)
-    matrices.unshift(transform.matrix)
-    const parentEntity = useComponent(current, EntityTreeComponent).parentEntity
-    if (!parentEntity) break
-    current = parentEntity
-  }
+  useEffect(() => {
+    if (!stopAt) return
 
-  const worldMatrix = new THREE.Matrix4()
-  for (const matrix of matrices) {
-    worldMatrix.multiply(matrix)
-  }
+    const matrices: THREE.Matrix4[] = []
+    let current = entity
+
+    while (current !== stopAt) {
+      const transform = useComponent(current, TransformComponent)
+      matrices.unshift(transform.matrix)
+      const parentEntity = useComponent(current, EntityTreeComponent).parentEntity
+      if (!parentEntity) break
+      current = parentEntity
+    }
+
+    const newWorldMatrix = new THREE.Matrix4()
+    for (const matrix of matrices) {
+      newWorldMatrix.multiply(matrix)
+    }
+
+    setWorldMatrix(newWorldMatrix)
+  }, [entity, stopAt])
 
   return worldMatrix
 }
