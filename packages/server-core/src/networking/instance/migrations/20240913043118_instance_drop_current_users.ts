@@ -36,7 +36,7 @@ export async function up(knex: Knex): Promise<void> {
 
   const projectColumnExists = await knex.schema.hasColumn(instanceTableName, 'currentUsers')
 
-  if (projectColumnExists === false) {
+  if (projectColumnExists === true) {
     await knex.schema.alterTable(instanceTableName, async (table) => {
       table.dropColumn('currentUsers')
     })
@@ -54,7 +54,7 @@ export async function down(knex: Knex): Promise<void> {
 
   const projectColumnExists = await knex.schema.hasColumn(instanceTableName, 'currentUsers')
 
-  if (projectColumnExists === true) {
+  if (projectColumnExists === false) {
     await knex.schema.alterTable(instanceTableName, async (table) => {
       table.integer('currentUsers', 11).defaultTo(0)
     })
