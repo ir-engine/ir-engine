@@ -37,7 +37,7 @@ import {
   updateComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -193,9 +193,13 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
+    const materialEntity = UUIDComponent.getEntityByUUID(materialId)
+    const sceneID = getComponent(materialEntity, SourceComponent)
+    getMutableState(GLTFModifiedState)[sceneID].set(true)
     material.needsUpdate = true
   }
 }
+
 const overwriteLookdevObject = (
   beforeComponentJson: ComponentJsonType[] = [],
   componentJson: ComponentJsonType[] = [],
