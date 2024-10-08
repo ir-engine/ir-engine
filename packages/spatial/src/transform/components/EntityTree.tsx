@@ -40,11 +40,11 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { State, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useEffect, useLayoutEffect } from 'react'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { TransformComponent } from './TransformComponent'
+import { TransformComponent, TransformComponentType } from './TransformComponent'
 
 type EntityTreeSetType = {
   parentEntity: Entity
@@ -483,6 +483,7 @@ export function useChildWithComponents(rootEntity: Entity, components: Component
 export function useChildrenWithComponents(rootEntity: Entity, components: ComponentType<any>[]): Entity[] {
   const children = useHookstate([] as Entity[])
   const componentsString = components.map((component) => component.name).join()
+
   useLayoutEffect(() => {
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
@@ -669,4 +670,15 @@ export const filterParentEntities = (
   traverseParentOnly(rootEntity)
 
   return parentEntityList
+}
+
+
+
+function useRelativeTransform(entity: Entity, relativeEntity: Entity) : State<Omit<TransformComponentType, 'matrixWorld'>> {
+  // compute relative transform by finding a common ancestor and computing the relative transform
+  const result = useHookstate({} as Omit<TransformComponentType, 'matrixWorld'>)
+  const forceUpdate = useForceUpdate()
+  
+  
+  return result
 }
