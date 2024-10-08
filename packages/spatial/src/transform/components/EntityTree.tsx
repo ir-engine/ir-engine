@@ -678,45 +678,27 @@ export const filterParentEntities = (
 
 function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omit<TransformComponentType, 'matrixWorld'>> {
   const result = useHookstate({} as Omit<TransformComponentType, 'matrixWorld'>)
-  const forceUpdate = useForceUpdate()
+  const entityTransform = useComponent(entity, TransformComponent)
+  const relativeEntityTransform = useComponent(relativeEntity, TransformComponent)
 
   useEffect(() => {
-    const updateRelativeTransform = () => {
-      const entityTransform = getComponent(entity, TransformComponent)
-      const relativeEntityTransform = getComponent(relativeEntity, TransformComponent)
-
-      if (!entityTransform || !relativeEntityTransform) {
-        return
-      }
-
-      const relativeMatrix = entityTransform.matrixWorld.clone().invert().multiply(relativeEntityTransform.matrixWorld)
-      const position = new Vector3()
-      const rotation = new Quaternion()
-      const scale = new Vector3()
-
-      relativeMatrix.decompose(position, rotation, scale)
-
-      result.set({
-        position,
-        rotation,
-        scale
-      })
-
-      forceUpdate()
+    if (!entityTransform || !relativeEntityTransform) {
+      return
     }
 
-    // Initial update
-    updateRelativeTransform()
+    const relativeMatrix = entityTransform.matrixWorld.clone().invert().multiply(relativeEntityTransform.matrixWorld)
+    const position = new Vector3()
+    const rotation = new Quaternion()
+    const scale = new Vector3()
 
-    // Subscribe to changes in both entities' transforms
-    const unsubscribeEntity = subscribeToComponent(entity, TransformComponent, updateRelativeTransform)
-    const unsubscribeRelativeEntity = subscribeToComponent(relativeEntity, TransformComponent, updateRelativeTransform)
+    relativeMatrix.decompose(position, rotation, scale)
 
-    return () => {
-      unsubscribeEntity()
-      unsubscribeRelativeEntity()
-    }
-  }, [entity, relativeEntity])
+    result.set({
+      position,
+      rotation,
+      scale
+    })
+  }, [entityTransform, relativeEntityTransform])
 
   return result
 }
