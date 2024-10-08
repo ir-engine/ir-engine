@@ -681,8 +681,11 @@ function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omi
   const entityTransform = useComponent(entity, TransformComponent)
   const relativeEntityTransform = useComponent(relativeEntity, TransformComponent)
 
+  const entityTree = useComponent(entity, EntityTreeComponent)
+  const relativeEntityTree = useComponent(relativeEntity, EntityTreeComponent)
+
   useEffect(() => {
-    if (!entityTransform || !relativeEntityTransform) {
+    if (!entityTransform || !relativeEntityTransform || !entityTree || !relativeEntityTree) {
       return
     }
 
@@ -704,7 +707,7 @@ function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omi
       rotation,
       scale
     })
-  }, [entity, relativeEntity, entityTransform, relativeEntityTransform])
+  }, [entity, relativeEntity, entityTransform, relativeEntityTransform, entityTree, relativeEntityTree])
 
   return result
 }
@@ -727,10 +730,10 @@ function getAncestors(entity: Entity): Entity[] {
   let current = entity
 
   while (true) {
-    const parent = getComponent(current, EntityTreeComponent).parentEntity
-    if (!parent) break
-    ancestors.unshift(parent)
-    current = parent
+    const parentEntity = useComponent(current, EntityTreeComponent).parentEntity
+    if (!parentEntity) break
+    ancestors.unshift(parentEntity)
+    current = parentEntity
   }
 
   return ancestors
@@ -741,10 +744,11 @@ function computeWorldMatrix(entity: Entity, stopAt: Entity): THREE.Matrix4 {
   let current = entity
 
   while (current !== stopAt) {
-    const transform = getComponent(current, TransformComponent)
+    const transform = useComponent(current, TransformComponent)
     matrices.unshift(transform.matrix)
-    current = getComponent(current, EntityTreeComponent).parentEntity
-    if (!current) break
+    const parentEntity = useComponent(current, EntityTreeComponent).parentEntity
+    if (!parentEntity) break
+    current = parentEntity
   }
 
   const worldMatrix = new THREE.Matrix4()
