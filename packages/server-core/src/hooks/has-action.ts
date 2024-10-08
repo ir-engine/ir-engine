@@ -23,24 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { HookContext } from '../../declarations'
 
-import {
-  redisSettingDataSchema,
-  redisSettingPatchSchema,
-  redisSettingQuerySchema,
-  redisSettingSchema
-} from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    redisSettingDataSchema,
-    redisSettingPatchSchema,
-    redisSettingQuerySchema,
-    redisSettingSchema
-  },
-  docs: {
-    description: 'Redis setting service description',
-    securities: ['all']
-  }
-})
+export default (hook: HookContext): boolean => {
+  return !!hook.params.query.action || !!hook.params.actualQuery.action
+}
