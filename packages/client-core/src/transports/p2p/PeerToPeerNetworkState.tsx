@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { API, useFind, useGet } from '@ir-engine/common'
 import {
+  IceServerType,
   InstanceAttendanceType,
   InstanceID,
   InstanceType,
@@ -66,6 +67,7 @@ import {
   MessageTypes,
   RTCPeerConnectionState,
   SendMessageType,
+  StunServerState,
   WebRTCTransportFunctions
 } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
 import { decode, encode } from 'msgpackr'
@@ -121,7 +123,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     }
   })
 
-  const joinResponse = useHookstate<null | { index: number }>(null)
+  const joinResponse = useHookstate<null | { index: number; iceServers: IceServerType[] }>(null)
 
   useEffect(() => {
     const abortController = new AbortController()
@@ -131,6 +133,10 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
       .create({ instanceID })
       .then((response) => {
         if (abortController.signal.aborted) return
+
+        /** @todo it's probably fine that we override this every time we connect to a new server, but we should maybe handle this smarter */
+        getMutableState(StunServerState).set(response.iceServers)
+
         joinResponse.set(response)
       })
 

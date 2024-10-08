@@ -23,13 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState, isDev, NetworkID, none, PeerID } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, HyperFlux, isDev, NetworkID, none, PeerID } from '@ir-engine/hyperflux'
 import { DataChannelType } from '../DataChannelRegistry'
 import { MediaTagType } from '../NetworkState'
 
 const loggingEnabled = isDev
 const logger = loggingEnabled ? console : { log: () => {}, warn: () => {}, error: () => {} }
 
+/**
+ * See https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation for more information
+ */
+
+export const StunServerState = defineState({
+  name: 'ir.network.webrtc.stunServers',
+  initial: [] as RTCIceServer[]
+})
+
+/**
+ * RTCPeerConnectionState is a state that manages the RTCPeerConnection instances
+ */
 export const RTCPeerConnectionState = defineState({
   name: 'ir.network.webrtc.RTCPeerConnection',
   initial: {} as Record<
@@ -37,6 +49,8 @@ export const RTCPeerConnectionState = defineState({
     Record<
       PeerID,
       {
+        makingOffer: boolean
+        ignoreOffer: boolean
         peerConnection: RTCPeerConnection
         dataChannels: Record<DataChannelType, RTCDataChannel>
         incomingMediaTracks: Record<string, { mediaTag: MediaTagType | null; stream: MediaStream | null }>
@@ -51,31 +65,14 @@ export type PollMessage = {
   type: 'poll'
 }
 
-export type OfferMessage = {
-  type: 'offer'
-  sdp: string
-}
-
-export type AnswerMessage = {
-  type: 'answer'
-  sdp: string
+export type DescriptionMessage = {
+  type: 'description'
+  description: RTCSessionDescriptionInit
 }
 
 export type CandidateMessage = {
   type: 'candidate'
-  candidate: string | null
-  sdpMid?: string | null
-  sdpMLineIndex?: number | null
-}
-
-export type VideoOfferMessage = {
-  type: 'video-offer'
-  sdp: RTCSessionDescriptionInit | null
-}
-
-export type VideoAnswerMessage = {
-  type: 'video-answer'
-  sdp: RTCSessionDescription | null
+  candidate: RTCIceCandidate | null
 }
 
 export type StartTrackMessage = {
@@ -104,11 +101,8 @@ export type VideoQualityMessage = {
 
 export type MessageTypes =
   | PollMessage
-  | OfferMessage
-  | AnswerMessage
+  | DescriptionMessage
   | CandidateMessage
-  | VideoOfferMessage
-  | VideoAnswerMessage
   | StartTrackMessage
   | StopTrackMessage
   | PauseTrackMessage
@@ -121,16 +115,10 @@ const onMessage = (sendMessage: SendMessageType, networkID: NetworkID, fromPeerI
   switch (message.type) {
     case 'poll':
       return WebRTCTransportFunctions.makeCall(sendMessage, networkID, fromPeerID)
-    case 'offer':
-      return WebRTCTransportFunctions.handleOffer(sendMessage, networkID, fromPeerID, message)
-    case 'answer':
-      return WebRTCTransportFunctions.handleAnswer(networkID, fromPeerID, message)
+    case 'description':
+      return WebRTCTransportFunctions.handleDescription(sendMessage, networkID, fromPeerID, message)
     case 'candidate':
       return WebRTCTransportFunctions.handleCandidate(networkID, fromPeerID, message)
-    case 'video-offer':
-      return WebRTCTransportFunctions.handleVideoOffer(sendMessage, networkID, fromPeerID, message)
-    case 'video-answer':
-      return WebRTCTransportFunctions.handleVideoAnswer(networkID, fromPeerID, message)
     case 'start-track':
       return WebRTCTransportFunctions.handleStartTrack(networkID, fromPeerID, message)
     case 'stop-track':
@@ -145,32 +133,16 @@ const onMessage = (sendMessage: SendMessageType, networkID: NetworkID, fromPeerI
   }
 }
 
-export const PUBLIC_STUN_SERVERS = [
-  {
-    urls: 'stun:stun.l.google.com:19302'
-  },
-  {
-    urls: 'stun:stun1.l.google.com:19302'
-  },
-  {
-    urls: 'stun:stun.services.mozilla.com:3478'
-  },
-  {
-    urls: 'stun:stun.ucsb.edu:3478'
-  }
-]
-
+/**
+ * Assumes that the STUN server configuration is already set
+ */
 const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID, targetPeerID: PeerID) => {
-  const pc = new RTCPeerConnection({
-    iceServers: PUBLIC_STUN_SERVERS
-  })
+  const pc = new RTCPeerConnection({ iceServers: getState(StunServerState) as RTCIceServer[] })
+
   pc.onicecandidate = (e) => {
-    if (!e.candidate) return
     sendMessage(networkID, targetPeerID, {
       type: 'candidate',
-      candidate: e.candidate.candidate,
-      sdpMid: e.candidate.sdpMid,
-      sdpMLineIndex: e.candidate.sdpMLineIndex
+      candidate: e.candidate
     })
   }
 
@@ -186,7 +158,7 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
   }
 
   pc.onsignalingstatechange = () => {
-    // logger.log('onsignalingstatechange', pc.signalingState)
+    logger.log('onsignalingstatechange', networkID, targetPeerID, pc.signalingState)
   }
 
   pc.ondatachannel = (e) => {
@@ -208,28 +180,32 @@ const createPeerConnection = (sendMessage: SendMessageType, networkID: NetworkID
     }
   }
 
-  pc.onnegotiationneeded = (e) => {
-    if (pc.connectionState !== 'connected') {
-      console.warn('onnegotiationneeded called when not connected. state:', pc.connectionState)
-      // return // todo?
-    }
-    // if (!getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]?.ready) return // todo?
+  pc.onnegotiationneeded = async (e) => {
     logger.log('[WebRTCTransportFunctions] onnegotiationneeded', networkID, e)
-    pc.createOffer()
-      .then((offer) => pc.setLocalDescription(offer))
-      .then(() => {
-        console.log('sending offer', pc.localDescription)
-        sendMessage(networkID, targetPeerID, { type: 'video-offer', sdp: pc.localDescription! })
-      })
-      .catch((err) => {
-        console.error('Failed to create offer', err)
-      })
+    const makingOffer = getMutableState(RTCPeerConnectionState)[networkID]?.[targetPeerID]?.makingOffer
+    try {
+      makingOffer.set(true)
+      await pc.setLocalDescription()
+      sendMessage(networkID, targetPeerID, { type: 'description', description: pc.localDescription! })
+    } catch (err) {
+      logger.error('Failed to create offer', err)
+    } finally {
+      makingOffer.set(false)
+    }
+  }
+
+  pc.oniceconnectionstatechange = () => {
+    if (pc.iceConnectionState === 'failed') {
+      pc.restartIce()
+    }
   }
 
   if (!getState(RTCPeerConnectionState)[networkID]) {
     getMutableState(RTCPeerConnectionState)[networkID].set({})
   }
   getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].set({
+    makingOffer: false,
+    ignoreOffer: false,
     peerConnection: pc,
     dataChannels: {},
     incomingMediaTracks: {},
@@ -249,6 +225,19 @@ const makeCall = async (sendMessage: SendMessageType, networkID: NetworkID, targ
   if (getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]) return // already polled
 
   const pc = WebRTCTransportFunctions.createPeerConnection(sendMessage, networkID, targetPeerID)
+
+  /**
+   * If we are not the peer that initiative polling, then poll the other peer to let them know we are ready.
+   */
+  if (HyperFlux.store.peerID < targetPeerID) {
+    sendMessage(networkID, targetPeerID, { type: 'poll' })
+    return
+  }
+
+  /**
+   * If we are the peer that initiated polling, once we know the other peer is ready,
+   * we can create a data channel which will complete the negotiation and allow us to send actions.
+   */
   const dc = pc.createDataChannel('actions')
   // timeout require to delay the reactor until the next update
   setTimeout(() => {
@@ -257,83 +246,58 @@ const makeCall = async (sendMessage: SendMessageType, networkID: NetworkID, targ
       getMutableState(RTCPeerConnectionState)[networkID][targetPeerID].dataChannels[dc.label].set(dc)
     }
   }, 1)
-  const offer = await pc.createOffer()
-  sendMessage(networkID, targetPeerID, { type: 'offer', sdp: offer.sdp! })
-  await pc.setLocalDescription(offer)
 }
 
-const handleOffer = async (
+const handleDescription = async (
   sendMessage: SendMessageType,
   networkID: NetworkID,
   targetPeerID: PeerID,
-  offer: OfferMessage
+  message: DescriptionMessage
 ) => {
-  logger.log('[WebRTCTransportFunctions] handleOffer', networkID, targetPeerID)
-  if (getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]) {
-    return logger.error('Peer connection already exists')
+  const description = message.description
+  const peer = getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]
+  if (!peer) {
+    return logger.error('Peer connection does not exist', targetPeerID)
   }
-  const pc = WebRTCTransportFunctions.createPeerConnection(sendMessage, networkID, targetPeerID)
 
-  await pc.setRemoteDescription(offer)
+  const {
+    peerConnection: pc,
+    ignoreOffer,
+    makingOffer
+  } = getMutableState(RTCPeerConnectionState)[networkID][targetPeerID]
 
-  const answer = await pc.createAnswer()
-  await pc.setLocalDescription(answer)
-  sendMessage(networkID, targetPeerID, { type: 'answer', sdp: answer.sdp! })
-}
+  const offerCollision = description.type === 'offer' && (makingOffer.value || pc.value.signalingState !== 'stable')
 
-const handleAnswer = async (networkID: NetworkID, targetPeerID: PeerID, answer: AnswerMessage) => {
-  logger.log('[WebRTCTransportFunctions] handleAnswer', networkID, targetPeerID)
-  const pc = getState(RTCPeerConnectionState)[networkID][targetPeerID]?.peerConnection
-  if (!pc) {
-    return logger.error('Peer connection does not exist')
+  const polite = HyperFlux.store.peerID > targetPeerID
+  ignoreOffer.set(!polite && offerCollision)
+  if (ignoreOffer.value) {
+    return
   }
-  await pc.setRemoteDescription({
-    type: 'answer',
-    sdp: answer.sdp
-  })
+
+  await pc.value.setRemoteDescription(description)
+  if (description.type === 'offer') {
+    await pc.value.setLocalDescription()
+    sendMessage(networkID, targetPeerID, { type: 'description', description: pc.value.localDescription! })
+  }
 }
 
 const handleCandidate = async (networkID: NetworkID, targetPeerID: PeerID, candidate: CandidateMessage) => {
   const pc = getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]?.peerConnection
   if (!pc) {
-    return logger.error('Peer connection does not exist')
+    return logger.error('Peer connection does not exist', targetPeerID)
   }
-  if (!candidate.candidate) {
+  if (!candidate.candidate?.candidate) {
     return
   } else {
-    await pc.addIceCandidate({
-      candidate: candidate.candidate,
-      sdpMid: candidate.sdpMid,
-      sdpMLineIndex: candidate.sdpMLineIndex
-    })
+    try {
+      await pc.addIceCandidate(candidate.candidate)
+    } catch (err) {
+      const ignoreOffer = getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]?.ignoreOffer
+      if (!ignoreOffer) {
+        throw err
+      }
+    }
   }
-}
-
-const handleVideoOffer = (
-  sendMessage: SendMessageType,
-  networkID: NetworkID,
-  targetPeerID: PeerID,
-  offer: VideoOfferMessage
-) => {
-  logger.log('[WebRTCTransportFunctions] handleVideoOffer', networkID, targetPeerID, offer.sdp)
-
-  const pc = getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]?.peerConnection
-  const desc = new RTCSessionDescription(offer.sdp!)
-  pc.setRemoteDescription(desc)
-    .then(() => pc.createAnswer())
-    .then((answer) => pc.setLocalDescription(answer))
-    .then(() => {
-      sendMessage(networkID, targetPeerID, {
-        type: 'video-answer',
-        sdp: pc.localDescription!
-      })
-    })
-}
-
-const handleVideoAnswer = (networkID: NetworkID, targetPeerID: PeerID, answer: VideoAnswerMessage) => {
-  const pc = getState(RTCPeerConnectionState)[networkID]?.[targetPeerID]?.peerConnection
-  const desc = new RTCSessionDescription(answer.sdp!)
-  pc.setRemoteDescription(desc).catch(reportError)
 }
 
 const close = (networkID: NetworkID, peerID: PeerID) => {
@@ -516,7 +480,7 @@ const handleVideoQuality = async (networkID: NetworkID, peerID: PeerID, message:
   parameters.encodings[0].maxBitrate = message.bitrate
   await sender.setParameters(parameters)
 
-  // console.log('setParameters', parameters)
+  logger.log('setParameters', parameters)
 }
 
 export const WebRTCTransportFunctions = {
@@ -524,11 +488,8 @@ export const WebRTCTransportFunctions = {
   createPeerConnection,
   poll,
   makeCall,
-  handleOffer,
-  handleAnswer,
+  handleDescription,
   handleCandidate,
-  handleVideoOffer,
-  handleVideoAnswer,
   close,
   createDataChannel,
   closeDataChannel,

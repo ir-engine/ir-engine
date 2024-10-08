@@ -25,22 +25,28 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
+import { CREDENTIAL_OFFSET, HASH_ALGORITHM } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { PUBLIC_STUN_SERVERS } from '@ir-engine/common/src/constants/STUNServers'
 import multiLogger from '@ir-engine/common/src/logger'
 import {
+  IceServerType,
   InstanceAttendanceData,
   InstanceID,
   channelPath,
   channelUserPath,
   instanceAttendancePath,
   instancePath,
+  instanceServerSettingPath,
   instanceSignalingPath,
   locationPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { PeerID, getState } from '@ir-engine/hyperflux'
 import { MessageTypes } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
+import crypto from 'crypto'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
+import config from '../../appconfig'
 
 const logger = multiLogger.child({ component: 'instance-signaling' })
 
@@ -58,12 +64,7 @@ type SignalData = {
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
     [instanceSignalingPath]: {
-      create: (
-        data: InstanceSignalingDataType,
-        params?: Params
-      ) => Promise<{
-        index: number
-      }>
+      create: (data: InstanceSignalingDataType, params?: Params) => ReturnType<typeof peerJoin>
       get: (data: InstanceSignalingDataType, params?: Params) => Promise<void>
       patch: (id: null, data: Omit<SignalData, 'fromPeerID'>, params?: Params) => Promise<InstanceSignalingDataType>
     }
@@ -123,7 +124,39 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
 
   const newInstanceAttendanceResult = await app.service(instanceAttendancePath).create(newInstanceAttendance)
 
+  /** Get ice servers to use */
+  const instanceServerSettingsResponse = await app.service(instanceServerSettingPath).find()
+  const webRTCSettings = instanceServerSettingsResponse.data[0].webRTCSettings
+  const iceServers: IceServerType[] = webRTCSettings.useCustomICEServers
+    ? webRTCSettings.iceServers
+    : config.kubernetes.enabled
+    ? PUBLIC_STUN_SERVERS
+    : []
+
+  /** Duplicated from WebRTCFunctions.ts */
+  if (webRTCSettings.useCustomICEServers) {
+    iceServers.forEach((iceServer) => {
+      if (iceServer.useTimeLimitedCredentials) {
+        const timestamp = Math.floor(Date.now() / 1000) + CREDENTIAL_OFFSET
+        const username = [timestamp, peerID.replaceAll('-', '')].join(':')
+        const secret = iceServer.webRTCStaticAuthSecretKey || ''
+
+        const hmac = crypto.createHmac(HASH_ALGORITHM, secret)
+        hmac.setEncoding('base64')
+        hmac.write(username)
+        hmac.end()
+
+        iceServer.username = username
+        iceServer.credential = hmac.read()
+      }
+      delete iceServer.useTimeLimitedCredentials
+      delete iceServer.useFixedCredentials
+      delete iceServer.webRTCStaticAuthSecretKey
+    })
+  }
+
   return {
+    iceServers: iceServers as RTCIceServer[],
     index: newInstanceAttendanceResult.peerIndex
   }
 }
