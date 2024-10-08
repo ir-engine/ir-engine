@@ -52,6 +52,12 @@ export const EngineSettings = {
     WebRTCSettings: 'webRTCSettings',
     ShutdownDelayMs: 'shutdownDelayMs'
   },
+  Redis: {
+    Address: 'address',
+    Password: 'password',
+    Port: 'port',
+    Enabled: 'enabled'
+  },
   Zendesk: {
     Name: 'name',
     Secret: 'secret',
