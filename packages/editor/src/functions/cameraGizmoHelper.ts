@@ -49,7 +49,7 @@ import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoV
 import { cameraGizmo, GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 
 const _raycaster = new Raycaster()
-_raycaster.layers.set(ObjectLayers.TransformGizmo) // this needs to be gizmo layer, but it doesnt work when its set to gizmo layer, investugate why
+_raycaster.layers.set(ObjectLayers.Gizmos)
 
 export function gizmoUpdate(gizmoEntity) {
   const cameraGizmo = getComponent(gizmoEntity, CameraGizmoComponent)

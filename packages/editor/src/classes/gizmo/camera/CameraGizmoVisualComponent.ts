@@ -104,7 +104,9 @@ export const CameraGizmoVisualComponent = defineComponent({
       setComponent(picker, EntityTreeComponent, {
         parentEntity: visualComponent.sceneEntity.value ?? getState(EngineState).originEntity
       })
-      enableObjectLayer(pickerObject, ObjectLayers.TransformGizmo, true)
+      /**todo can't seem to get the new method of setting layers to work on either pciker or gizmo entity)*/
+      // setComponent(picker, ObjectLayerMaskComponent, ObjectLayers.Gizmos)
+      enableObjectLayer(pickerObject, ObjectLayers.Gizmos, true)
 
       visualComponent.picker.set(picker)
 
