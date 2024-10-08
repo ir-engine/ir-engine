@@ -42,6 +42,8 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { State, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useEffect, useLayoutEffect } from 'react'
+import { Vector3, Quaternion } from 'three'
+import { subscribeToComponent } from '@ir-engine/ecs'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent, TransformComponentType } from './TransformComponent'
@@ -674,11 +676,47 @@ export const filterParentEntities = (
 
 
 
-function useRelativeTransform(entity: Entity, relativeEntity: Entity) : State<Omit<TransformComponentType, 'matrixWorld'>> {
-  // compute relative transform by finding a common ancestor and computing the relative transform
+function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omit<TransformComponentType, 'matrixWorld'>> {
   const result = useHookstate({} as Omit<TransformComponentType, 'matrixWorld'>)
   const forceUpdate = useForceUpdate()
-  
-  
+
+  useEffect(() => {
+    const updateRelativeTransform = () => {
+      const entityTransform = getComponent(entity, TransformComponent)
+      const relativeEntityTransform = getComponent(relativeEntity, TransformComponent)
+
+      if (!entityTransform || !relativeEntityTransform) {
+        return
+      }
+
+      const relativeMatrix = entityTransform.matrixWorld.clone().invert().multiply(relativeEntityTransform.matrixWorld)
+      const position = new Vector3()
+      const rotation = new Quaternion()
+      const scale = new Vector3()
+
+      relativeMatrix.decompose(position, rotation, scale)
+
+      result.set({
+        position,
+        rotation,
+        scale
+      })
+
+      forceUpdate()
+    }
+
+    // Initial update
+    updateRelativeTransform()
+
+    // Subscribe to changes in both entities' transforms
+    const unsubscribeEntity = subscribeToComponent(entity, TransformComponent, updateRelativeTransform)
+    const unsubscribeRelativeEntity = subscribeToComponent(relativeEntity, TransformComponent, updateRelativeTransform)
+
+    return () => {
+      unsubscribeEntity()
+      unsubscribeRelativeEntity()
+    }
+  }, [entity, relativeEntity])
+
   return result
 }
