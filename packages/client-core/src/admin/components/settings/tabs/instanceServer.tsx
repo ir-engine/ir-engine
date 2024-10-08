@@ -98,7 +98,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     }
     const createOperations: Promise<EngineSettingType>[] = []
     const updateOperations: Promise<EngineSettingType>[] = []
-    const updateSettingKeys = [EngineSettings.InstanceServer.Local, EngineSettings.InstanceServer.WebRTCSettings]
+    const updateSettingKeys = [EngineSettings.InstanceServer.WebRTCSettings]
 
     Object.values(EngineSettings.InstanceServer)
       .filter((setting) => updateSettingKeys.includes(setting))
