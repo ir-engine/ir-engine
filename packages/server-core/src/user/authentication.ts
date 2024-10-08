@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AuthenticationService } from '@feathersjs/authentication'
-import { oauth } from '@feathersjs/authentication-oauth'
+import { oauth } from '@ir-engine/authentication-oauth'
 
 import { Application } from '../../declarations'
 import AppleStrategy from './strategies/apple'

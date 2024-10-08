@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { OAuthStrategy } from '@feathersjs/authentication-oauth'
+import { OAuthStrategy } from '@ir-engine/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
 
 import multiLogger from '@ir-engine/common/src/logger'
