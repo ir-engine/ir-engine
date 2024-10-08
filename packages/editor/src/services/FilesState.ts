@@ -59,7 +59,8 @@ export const FilesState = defineState({
     selectedDirectory: '',
     projectName: '',
     clipboardFile: null as { isCopy?: boolean; file: FileDataType } | null,
-    searchText: ''
+    searchText: '',
+    refresh: 0
   })
 })
 

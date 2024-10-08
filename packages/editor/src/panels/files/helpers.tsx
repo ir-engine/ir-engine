@@ -208,6 +208,7 @@ export function useFileBrowserDrop() {
       if (filesToUpload.length) {
         try {
           await handleUploadFiles(filesState.projectName.value, path, filesToUpload)
+          filesState.refresh.set(filesState.refresh.value + 1) //trigger a brwoser refresh
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }
