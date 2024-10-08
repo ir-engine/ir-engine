@@ -42,7 +42,7 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { State, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { Vector3, Quaternion } from 'three'
+import { Vector3, Quaternion, Matrix4 } from 'three'
 import { subscribeToComponent } from '@ir-engine/ecs'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -686,7 +686,13 @@ function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omi
       return
     }
 
-    const relativeMatrix = entityTransform.matrixWorld.clone().invert().multiply(relativeEntityTransform.matrixWorld)
+    const commonAncestor = findCommonAncestor(entity, relativeEntity)
+    if (!commonAncestor) return
+
+    const entityMatrix = computeWorldMatrix(entity, commonAncestor)
+    const relativeEntityMatrix = computeWorldMatrix(relativeEntity, commonAncestor)
+
+    const relativeMatrix = entityMatrix.clone().invert().multiply(relativeEntityMatrix)
     const position = new Vector3()
     const rotation = new Quaternion()
     const scale = new Vector3()
@@ -698,7 +704,53 @@ function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<Omi
       rotation,
       scale
     })
-  }, [entityTransform, relativeEntityTransform])
+  }, [entity, relativeEntity, entityTransform, relativeEntityTransform])
 
   return result
+}
+
+function findCommonAncestor(entity1: Entity, entity2: Entity): Entity | null {
+  const ancestors1 = getAncestors(entity1)
+  const ancestors2 = getAncestors(entity2)
+
+  for (const ancestor of ancestors1) {
+    if (ancestors2.includes(ancestor)) {
+      return ancestor
+    }
+  }
+
+  return null
+}
+
+function getAncestors(entity: Entity): Entity[] {
+  const ancestors: Entity[] = [entity]
+  let current = entity
+
+  while (true) {
+    const parent = getComponent(current, EntityTreeComponent).parentEntity
+    if (!parent) break
+    ancestors.unshift(parent)
+    current = parent
+  }
+
+  return ancestors
+}
+
+function computeWorldMatrix(entity: Entity, stopAt: Entity): THREE.Matrix4 {
+  const matrices: THREE.Matrix4[] = []
+  let current = entity
+
+  while (current !== stopAt) {
+    const transform = getComponent(current, TransformComponent)
+    matrices.unshift(transform.matrix)
+    current = getComponent(current, EntityTreeComponent).parentEntity
+    if (!current) break
+  }
+
+  const worldMatrix = new THREE.Matrix4()
+  for (const matrix of matrices) {
+    worldMatrix.multiply(matrix)
+  }
+
+  return worldMatrix
 }
