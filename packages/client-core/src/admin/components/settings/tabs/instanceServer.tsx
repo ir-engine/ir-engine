@@ -93,39 +93,28 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     state.loading.set(true)
     event.preventDefault()
     const setting = {
-      webRTCSettings: JSON.stringify(webRTCSettingsState.value),
-      local: getSettingValue(EngineSettings.InstanceServer.Local)
+      webRTCSettings: JSON.stringify(webRTCSettingsState.value)
     }
-    const createOperations: Promise<EngineSettingType>[] = []
-    const updateOperations: Promise<EngineSettingType>[] = []
-    const updateSettingKeys = [EngineSettings.InstanceServer.WebRTCSettings]
 
-    Object.values(EngineSettings.InstanceServer)
-      .filter((setting) => updateSettingKeys.includes(setting))
-      .forEach((key) => {
-        const settingInDb = engineSettings.find((el) => el.key === key)
-        if (!settingInDb) {
-          createOperations.push(
-            engineSettingMutation.create({
-              key,
-              category: 'instance-server',
-              value: setting[key],
-              type: 'private'
-            })
-          )
-        } else {
-          updateOperations.push(
-            engineSettingMutation.patch(settingInDb.id, {
-              key,
-              category: 'instance-server',
-              value: setting[key],
-              type: 'private'
-            })
-          )
-        }
+    let operation: Promise<EngineSettingType>
+    const settingInDb = engineSettings.find((el) => el.key === EngineSettings.InstanceServer.WebRTCSettings)
+    if (!settingInDb) {
+      operation = engineSettingMutation.create({
+        key: EngineSettings.InstanceServer.WebRTCSettings,
+        category: 'instance-server',
+        value: setting[EngineSettings.InstanceServer.WebRTCSettings],
+        type: 'private'
       })
+    } else {
+      operation = engineSettingMutation.patch(settingInDb.id, {
+        key: EngineSettings.InstanceServer.WebRTCSettings,
+        category: 'instance-server',
+        value: setting[EngineSettings.InstanceServer.WebRTCSettings],
+        type: 'private'
+      })
+    }
 
-    Promise.all([...createOperations, ...updateOperations])
+    operation
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
