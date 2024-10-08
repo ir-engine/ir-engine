@@ -382,7 +382,7 @@ const duplicateObject = (entities: Entity[]) => {
         const parentEntity = getComponent(rootEntity, EntityTreeComponent).parentEntity
         if (!parentEntity) throw new Error('Root entity must have a parent')
         const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
-        const parentNode = getParentNodeByUUID(gltf.data, parentEntityUUID)
+        const parentNode = getGLTFNodeByUUID(gltf.data, parentEntityUUID)
         if (!parentNode) throw new Error('Parent node not found')
         if (!parentNode.children) parentNode.children = []
         parentNode.children.push(newIndex)
