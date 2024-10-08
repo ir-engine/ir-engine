@@ -64,16 +64,20 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   }).data
 
   const localState = useHookstate(true)
-  const domainState = useHookstate('')
-  const clientHostState = useHookstate('')
-  const rtcStartPortState = useHookstate('')
-  const rtcEndPortState = useHookstate('')
-  const rtcPortBlockSizeState = useHookstate('')
-  const identifierDigitsState = useHookstate('')
-  const releaseNameState = useHookstate('')
-  const portState = useHookstate('')
-  const modeState = useHookstate('')
-  const locationNameState = useHookstate('')
+  const settings = useHookstate({
+    clientHost: '',
+    rtcStartPort: '',
+    rtcEndPort: '',
+    rtcPortBlockSize: '',
+    identifierDigits: '',
+    local: '',
+    releaseName: '',
+    domain: '',
+    port: '',
+    mode: '',
+    locationName: '',
+    shutdownDelayMs: ''
+  })
   const webRTCSettingsState = useHookstate<WebRTCSettings>(defaultWebRTCSettings)
 
   const getSettingValue = (settingName: string) => {
@@ -94,16 +98,16 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
   useEffect(() => {
     if (engineSettings.length > 0) {
-      domainState.set(domainValue)
-      clientHostState.set(clientHostValue)
-      rtcStartPortState.set(rtcStartPortValue)
-      rtcEndPortState.set(rtcEndPortValue)
-      rtcPortBlockSizeState.set(rtcPortBlockSizeValue)
-      identifierDigitsState.set(identifierDigitsValue)
-      releaseNameState.set(releaseNameValue)
-      portState.set(portValue)
-      modeState.set(modeValue)
-      locationNameState.set(locationNameValue)
+      settings.domain.set(domainValue)
+      settings.clientHost.set(clientHostValue)
+      settings.rtcEndPort.set(rtcStartPortValue)
+      settings.rtcEndPort.set(rtcEndPortValue)
+      settings.rtcPortBlockSize.set(rtcPortBlockSizeValue)
+      settings.identifierDigits.set(identifierDigitsValue)
+      settings.releaseName.set(releaseNameValue)
+      settings.port.set(portValue)
+      settings.mode.set(modeValue)
+      settings.locationName.set(locationNameValue)
       webRTCSettingsState.set(JSON.parse(webRTCSettingsValue))
       state.set({ loading: false, errorMessage: '' })
     }
@@ -113,16 +117,16 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     state.loading.set(true)
     event.preventDefault()
     const setting = {
-      clientHost: clientHostState.value,
-      rtcStartPort: parseInt(rtcStartPortState.value),
-      rtcEndPort: parseInt(rtcEndPortState.value),
-      rtcPortBlockSize: parseInt(rtcPortBlockSizeState.value),
-      identifierDigits: parseInt(identifierDigitsState.value),
-      domain: domainState.value,
-      releaseName: releaseNameState.value,
-      port: parseInt(portState.value),
-      mode: parseInt(modeState.value),
-      locationName: parseInt(locationNameState.value),
+      clientHost: settings.clientHost.value,
+      rtcStartPort: parseInt(settings.rtcStartPort.value),
+      rtcEndPort: parseInt(settings.rtcEndPort.value),
+      rtcPortBlockSize: parseInt(settings.rtcPortBlockSize.value),
+      identifierDigits: parseInt(settings.identifierDigits.value),
+      domain: settings.domain.value,
+      releaseName: settings.releaseName.value,
+      port: parseInt(settings.port.value),
+      mode: parseInt(settings.mode.value),
+      locationName: parseInt(settings.locationName.value),
       WebRTCSettings: JSON.stringify(webRTCSettingsState.value),
       local: Boolean(getSettingValue(EngineSettings.InstanceServer.Local))
     }
@@ -163,16 +167,16 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
   const handleCancel = () => {
     if (engineSettings.length > 0) {
-      domainState.set(domainValue)
-      clientHostState.set(clientHostValue)
-      rtcStartPortState.set(rtcStartPortValue)
-      rtcEndPortState.set(rtcEndPortValue)
-      rtcPortBlockSizeState.set(rtcPortBlockSizeValue)
-      identifierDigitsState.set(identifierDigitsValue)
-      releaseNameState.set(releaseNameValue)
-      portState.set(portValue)
-      modeState.set(modeValue)
-      locationNameState.set(locationNameValue)
+      settings.domain.set(domainValue)
+      settings.clientHost.set(clientHostValue)
+      settings.rtcEndPort.set(rtcStartPortValue)
+      settings.rtcEndPort.set(rtcEndPortValue)
+      settings.rtcPortBlockSize.set(rtcPortBlockSizeValue)
+      settings.identifierDigits.set(identifierDigitsValue)
+      settings.releaseName.set(releaseNameValue)
+      settings.port.set(portValue)
+      settings.mode.set(modeValue)
+      settings.locationName.set(locationNameValue)
       webRTCSettingsState.set(JSON.parse(webRTCSettingsValue))
     }
   }
@@ -195,7 +199,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         <Input
           className="col-span-1"
           label={t('admin:components.setting.clientHost')}
-          value={clientHostValue || ''}
+          value={settings.clientHost.value || ''}
           disabled
         />
 
@@ -204,46 +208,56 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         <Input
           className="col-span-1"
           label={t('admin:components.setting.rtcStartPort')}
-          value={rtcStartPortValue || ''}
+          value={settings.rtcStartPort.value || ''}
           disabled
         />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.releaseName')}
-          value={releaseNameValue || ''}
+          value={settings.releaseName.value || ''}
           disabled
         />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.rtcEndPort')}
-          value={rtcEndPortValue || ''}
+          value={settings.rtcEndPort.value || ''}
           disabled
         />
 
-        <Input className="col-span-1" label={t('admin:components.setting.port')} value={portValue || ''} disabled />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.port')}
+          value={settings.port.value || ''}
+          disabled
+        />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.rtcPortBlockSize')}
-          value={rtcPortBlockSizeValue || ''}
+          value={settings.rtcPortBlockSize.value || ''}
           disabled
         />
 
-        <Input className="col-span-1" label={t('admin:components.setting.mode')} value={modeValue || ''} disabled />
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.mode')}
+          value={settings.mode.value || ''}
+          disabled
+        />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.identifierDigits')}
-          value={identifierDigitsValue || ''}
+          value={settings.identifierDigits.value || ''}
           disabled
         />
 
         <Input
           className="col-span-1"
           label={t('admin:components.setting.locationName')}
-          value={locationNameValue || ''}
+          value={settings.locationName.value || ''}
           disabled
         />
 
