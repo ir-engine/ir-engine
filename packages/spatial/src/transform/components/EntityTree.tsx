@@ -222,17 +222,19 @@ export function traverseEntityNodeChildFirst(
 
 /**
  * @description
- * Iteratively traverse the parent nodes of `@param entity`'s Entity Tree Node
+ * Traverse the children nodes of `@param entity` iteratively, and call `@param cb` on them when the requested conditions are matched.
+ * Will return the array of all `@type R` returned by `@param cb` on each iteration.
  * @param entity Entity Node where traversal will start
- * @param cb Callback function called for every entity found in the tree
- * @param pred Predicate function which will not process a node or its children if return false
- * @param snubChildren If true, will not traverse children of a node if pred returns false
- * @param breakOnFind
+ * @param cb Callback function called on every entity found in the tree
+ * @param pred Predicate function. An entity (and its children) won't be processed when the predicate returns false for that entity
+ * @param snubChildren When true: Do not traverse the children of a node when `@param pred` returns false
+ * @param breakOnFind Whe true: Traversal will stop as soon as `@param pred` returns true for the first time. No children will be included in the result
+ * @returns The list of `@type R` for all entities that matched the conditions.
  */
 export function iterateEntityNode<R>(
   entity: Entity,
   cb: (entity: Entity, index: number) => R,
-  pred: (entity: Entity) => boolean = (x) => true,
+  pred: (entity: Entity) => boolean = (_e) => true,
   snubChildren = false,
   breakOnFind = false
 ): R[] {
