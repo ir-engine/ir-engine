@@ -41,7 +41,7 @@ import {
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { State, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect, useState, useMemo } from 'react'
 import { Vector3, Quaternion, Matrix4 } from 'three'
 import { subscribeToComponent } from '@ir-engine/ecs'
 
@@ -709,35 +709,37 @@ export function useRelativeTransform(entity: Entity, relativeEntity: Entity): St
 }
 
 function useCommonAncestor(entity1: Entity, entity2: Entity): Entity | null {
-  const [commonAncestor, setCommonAncestor] = useState<Entity | null>(null)
+  const ancestors1 = useAncestors(entity1)
+  const ancestors2 = useAncestors(entity2)
 
-  useEffect(() => {
-    const ancestors1 = getAncestors(entity1)
-    const ancestors2 = getAncestors(entity2)
-
+  const commonAncestor = useMemo(() => {
     for (const ancestor of ancestors1) {
       if (ancestors2.includes(ancestor)) {
-        setCommonAncestor(ancestor)
-        return
+        return ancestor
       }
     }
-
-    setCommonAncestor(null)
-  }, [entity1, entity2])
+    return null
+  }, [ancestors1, ancestors2])
 
   return commonAncestor
 }
 
-function getAncestors(entity: Entity): Entity[] {
-  const ancestors: Entity[] = [entity]
-  let current = entity
+function useAncestors(entity: Entity): Entity[] {
+  const [ancestors, setAncestors] = useState<Entity[]>([])
 
-  while (true) {
-    const parentEntity = useComponent(current, EntityTreeComponent).parentEntity
-    if (!parentEntity) break
-    ancestors.unshift(parentEntity)
-    current = parentEntity
-  }
+  useEffect(() => {
+    const newAncestors: Entity[] = [entity]
+    let current = entity
+
+    while (true) {
+      const parentEntity = useComponent(current, EntityTreeComponent).parentEntity
+      if (!parentEntity) break
+      newAncestors.unshift(parentEntity)
+      current = parentEntity
+    }
+
+    setAncestors(newAncestors)
+  }, [entity])
 
   return ancestors
 }
