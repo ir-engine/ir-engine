@@ -194,7 +194,9 @@ export async function takeScreenshot(
   }
 
   const prevAspect = scenePreviewCamera.aspect
+  const prevLayers = scenePreviewCamera.layers
   const prevLayersMask = scenePreviewCamera.layers.mask
+
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
@@ -244,6 +246,7 @@ export async function takeScreenshot(
 
   // restore
   const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+  camera.layers = prevLayers
   camera.layers.mask = prevLayersMask
   effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
@@ -264,24 +267,28 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent), false).then(
-    (blob) => {
-      if (!blob) return
+  takeScreenshot(
+    1920 * 4,
+    1080 * 4,
+    'png',
+    getComponent(getState(EngineState).viewerEntity, CameraComponent),
+    false
+  ).then((blob) => {
+    if (!blob) return
 
-      const blobUrl = URL.createObjectURL(blob)
+    const blobUrl = URL.createObjectURL(blob)
 
-      const link = document.createElement('a')
+    const link = document.createElement('a')
 
-      const editorState = getState(EditorState)
+    const editorState = getState(EditorState)
 
-      link.href = blobUrl
-      link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
+    link.href = blobUrl
+    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
 
-      document.body.appendChild(link)
+    document.body.appendChild(link)
 
-      link.click()
+    link.click()
 
-      document.body.removeChild(link)
-    }
-  )
+    document.body.removeChild(link)
+  })
 }
