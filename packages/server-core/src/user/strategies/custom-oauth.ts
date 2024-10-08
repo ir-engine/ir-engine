@@ -45,6 +45,7 @@ export class CustomOAuthStrategy extends OAuthStrategy {
   app: Application
 
   async getEntityQuery(profile: any, _params: Params): Promise<any> {
+    console.log('profile', profile)
     return {
       token: profile.sub ? `${this.name}:::${profile.sub as string}` : `${this.name}:::${profile.id as string}`
     }
