@@ -22,27 +22,27 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
 
-import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
-// import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { GizmoSystem } from './systems/GizmoSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
+import ErrorView from './index'
 
-export {
-  ClickPlacementSystem,
-  EditorControlSystem,
-  // EditorInstanceNetworkingSystem,
-  GizmoSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  RenderInfoSystem,
-  RenderMonitorSystem,
-  UploadRequestSystem
+const argTypes: ArgTypes = {}
+
+export default {
+  title: 'Primitives/Tailwind/ErrorView',
+  component: ErrorView,
+  parameters: {
+    componentSubtitle: 'ErrorView',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
+
+export const Default = {
+  args: {
+    className: ''
+  }
 }
