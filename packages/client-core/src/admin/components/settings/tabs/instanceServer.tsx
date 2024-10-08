@@ -61,13 +61,18 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       category: 'instance-server',
       paginate: false
     }
-  }).data
+  })
 
   const localState = useHookstate(true)
   const webRTCSettingsState = useHookstate<WebRTCSettings>(defaultWebRTCSettings)
 
   const getSettingValue = (settingName: string) => {
-    return engineSettings.find((setting) => setting.key === settingName)?.value || ''
+    return (
+      (engineSettings.status === 'success' &&
+        engineSettings.data.length > 0 &&
+        engineSettings.data.find((setting) => setting.key === settingName)?.value) ||
+      ''
+    )
   }
 
   const domainValue = getSettingValue(EngineSettings.InstanceServer.Domain)
@@ -83,11 +88,11 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const webRTCSettingsValue = getSettingValue(EngineSettings.InstanceServer.WebRTCSettings) || '{}'
 
   useEffect(() => {
-    if (engineSettings.length > 0) {
+    if (engineSettings.status === 'success') {
       webRTCSettingsState.set(JSON.parse(webRTCSettingsValue))
       state.set({ loading: false, errorMessage: '' })
     }
-  }, [engineSettings])
+  }, [engineSettings.status])
 
   const handleSubmit = (event) => {
     state.loading.set(true)
@@ -97,7 +102,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     }
 
     let operation: Promise<EngineSettingType>
-    const settingInDb = engineSettings.find((el) => el.key === EngineSettings.InstanceServer.WebRTCSettings)
+    const settingInDb = engineSettings?.data?.find((el) => el.key === EngineSettings.InstanceServer.WebRTCSettings)
     if (!settingInDb) {
       operation = engineSettingMutation.create({
         key: EngineSettings.InstanceServer.WebRTCSettings,
@@ -124,12 +129,12 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   }
 
   const handleCancel = () => {
-    if (engineSettings.length > 0) {
+    if (engineSettings.status === 'success') {
       webRTCSettingsState.set(JSON.parse(webRTCSettingsValue))
     }
   }
 
-  if (engineSettings.length == 0)
+  if (engineSettings.status === 'pending')
     return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loading')} />
 
   const webRTCSettings = webRTCSettingsState as State<WebRTCSettings>
