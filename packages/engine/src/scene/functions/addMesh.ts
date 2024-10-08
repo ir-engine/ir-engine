@@ -23,26 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
-// import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { GizmoSystem } from './systems/GizmoSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
+import { Entity, setComponent } from '@ir-engine/ecs'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { Mesh } from 'three'
+import { proxifyParentChildRelationships } from './loadGLTFModel'
 
-export {
-  ClickPlacementSystem,
-  EditorControlSystem,
-  // EditorInstanceNetworkingSystem,
-  GizmoSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  RenderInfoSystem,
-  RenderMonitorSystem,
-  UploadRequestSystem
+/**
+ * Helper function for attaching a mesh to a scene entity
+ * @param entity Entity to attach the mesh to
+ * @param mesh Mesh to attach to the entity
+ * @param objectLayers Object layers to assign to the mesh. Default is [ObjectLayers.Scene]
+ */
+export function addMesh(entity: Entity, mesh: Mesh, objectLayers: number[] = [ObjectLayers.Scene]) {
+  setComponent(entity, MeshComponent, mesh)
+  addObjectToGroup(entity, mesh)
+  proxifyParentChildRelationships(mesh)
+  setObjectLayers(mesh, ...objectLayers)
 }

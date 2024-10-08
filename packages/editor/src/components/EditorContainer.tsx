@@ -41,6 +41,7 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
 import { API } from '@ir-engine/common'
@@ -63,6 +64,7 @@ import { ScenePanelTab } from '../panels/scenes'
 import { ScriptPanelTab } from '../panels/script'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
+import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
 
@@ -76,6 +78,18 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
       {children}
     </div>
   )
+}
+
+const onEditorWarning = (warning) => {
+  console.warn(warning)
+  NotificationService.dispatchNotify(warning, {
+    variant: 'warning'
+  })
+
+  // popover design doesnt match the figma designs, we use notification for now
+  /*PopoverState.showPopupover(
+    <WarningDialog title={t('editor:warning')} description={warning || t('editor:warningMsg')} />
+  )*/
 }
 
 const onEditorError = (error) => {
@@ -187,6 +201,7 @@ const EditorContainer = () => {
   }, [originEntity, currentLoadedSceneURL.value])
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
+  const warningState = useHookstate(getMutableState(EditorWarningState).warning)
 
   const dockPanelRef = useRef<DockLayout>(null)
 
@@ -214,6 +229,12 @@ const EditorContainer = () => {
       onEditorError(errorState.value)
     }
   }, [errorState])
+
+  useEffect(() => {
+    if (warningState.value) {
+      onEditorWarning(warningState.value)
+    }
+  }, [warningState])
 
   useEffect(() => {
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {

@@ -23,40 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { redisSettingMethods, redisSettingPath } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { PiWarning } from 'react-icons/pi'
 
-import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
-import { RedisSettingService } from './redis-setting.class'
-import redisSettingDocs from './redis-setting.docs'
-import hooks from './redis-setting.hooks'
+import Text from '../Text'
 
-declare module '@ir-engine/common/declarations' {
-  interface ServiceTypes {
-    [redisSettingPath]: RedisSettingService
-  }
+interface WarningViewProps {
+  title: string
+  description?: string
+  retryButtonText?: string
+  onRetry?: () => void
 }
 
-export default (app: Application): void => {
-  const options = {
-    name: redisSettingPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(redisSettingPath, new RedisSettingService(options), {
-    // A list of all methods this service exposes externally
-    methods: redisSettingMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: redisSettingDocs
-  })
-
-  const service = app.service(redisSettingPath)
-  service.hooks(hooks)
-
-  service.on('patched', () => {
-    updateAppConfig()
-  })
+export default function WarningView({ title, description }: WarningViewProps) {
+  const { t } = useTranslation()
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center space-y-1 bg-yellow-600">
+      <PiWarning className="h-8 w-8 text-white" />
+      <Text>{title}</Text>
+      {description && (
+        <Text fontSize="sm" theme="secondary">
+          {description}
+        </Text>
+      )}
+    </div>
+  )
 }
