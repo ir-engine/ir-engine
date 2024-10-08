@@ -93,34 +93,37 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     state.loading.set(true)
     event.preventDefault()
     const setting = {
-      WebRTCSettings: JSON.stringify(webRTCSettingsState.value),
+      webRTCSettings: JSON.stringify(webRTCSettingsState.value),
       local: Boolean(getSettingValue(EngineSettings.InstanceServer.Local))
     }
     const createOperations: Promise<EngineSettingType>[] = []
     const updateOperations: Promise<EngineSettingType>[] = []
+    const updateSettingKeys = [EngineSettings.InstanceServer.Local, EngineSettings.InstanceServer.WebRTCSettings]
 
-    Object.values(EngineSettings.InstanceServer).forEach((key) => {
-      const settingInDb = engineSettings.find((el) => el.key === key)
-      if (!settingInDb) {
-        createOperations.push(
-          engineSettingMutation.create({
-            key,
-            category: 'instance-server',
-            value: setting[key],
-            type: 'private'
-          })
-        )
-      } else {
-        updateOperations.push(
-          engineSettingMutation.patch(settingInDb.id, {
-            key,
-            category: 'instance-server',
-            value: setting[key],
-            type: 'private'
-          })
-        )
-      }
-    })
+    Object.values(EngineSettings.InstanceServer)
+      .filter((setting) => updateSettingKeys.includes(setting))
+      .forEach((key) => {
+        const settingInDb = engineSettings.find((el) => el.key === key)
+        if (!settingInDb) {
+          createOperations.push(
+            engineSettingMutation.create({
+              key,
+              category: 'instance-server',
+              value: setting[key],
+              type: 'private'
+            })
+          )
+        } else {
+          updateOperations.push(
+            engineSettingMutation.patch(settingInDb.id, {
+              key,
+              category: 'instance-server',
+              value: setting[key],
+              type: 'private'
+            })
+          )
+        }
+      })
 
     Promise.all([...createOperations, ...updateOperations])
       .then(() => {
