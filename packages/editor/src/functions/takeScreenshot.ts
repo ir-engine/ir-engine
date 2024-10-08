@@ -52,6 +52,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { EditorState } from '../services/EditorServices'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -182,7 +183,7 @@ export async function takeScreenshot(
       const entity = createEntity()
       setComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
-      const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      const { position, rotation } = getComponent(getState(EngineState).viewerEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
@@ -200,8 +201,9 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const rendererComponent = getComponent(getState(EngineState).viewerEntity, RendererComponent)
   const renderer = rendererComponent.renderer!
+
   const renderContext = rendererComponent.renderContext!
   const effectComposer = rendererComponent.effectComposer!
 
@@ -233,16 +235,15 @@ export async function takeScreenshot(
 
     // set up effect composer
     effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    effectComposer.setSize(width, height, false)
     renderer.setPixelRatio(1)
+    effectComposer.setSize(width, height, false)
   })
 
   effectComposer.render()
-
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 
   // restore
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
   camera.layers.mask = prevLayersMask
   effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
