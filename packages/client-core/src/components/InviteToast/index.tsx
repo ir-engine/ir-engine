@@ -27,58 +27,54 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserName } from '@ir-engine/common/src/schema.type.module'
-import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
-import { Button } from '@ir-engine/editor/src/components/inputs/Button'
+
 import { useMutableState } from '@ir-engine/hyperflux'
 
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { first } from 'lodash'
+import { HiMiniXMark } from 'react-icons/hi2'
 import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
-import styles from './index.module.scss'
 
 const InviteToast = () => {
+  const { t } = useTranslation()
   const inviteState = useMutableState(InviteState)
   const authState = useMutableState(AuthState)
-  const newestInvite =
-    inviteState.receivedInvites.total.value > 0 ? inviteState.receivedInvites.invites[0].value : ({} as any)
-  const { t } = useTranslation()
+  const newestInvite: any = first(inviteState.receivedInvites.invites)?.value
 
   useEffect(() => {
     if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
       InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
   }, [inviteState.receivedUpdateNeeded.value, authState.isLoggedIn.value])
 
-  const acceptInvite = (invite) => {
-    InviteService.acceptInvite(invite)
+  const acceptInvite = () => {
+    InviteService.acceptInvite(newestInvite)
   }
 
-  const declineInvite = (invite) => {
-    InviteService.declineInvite(invite)
+  const declineInvite = () => {
+    InviteService.declineInvite(newestInvite)
   }
+
+  if (!newestInvite?.inviteType) {
+    return null
+  }
+
   return (
-    <div
-      className={`${styles.inviteToast} ${
-        inviteState.receivedInvites.total.value > 0 ? styles.animateLeft : styles.fadeOutLeft
-      }`}
-    >
-      <div className={`${styles.toastContainer} `}>
-        {newestInvite?.inviteType && (
-          <span>
-            {capitalizeFirstLetter(newestInvite?.inviteType).replace('-', ' ')} invite from{' '}
-            {newestInvite.user?.name as UserName}
-          </span>
-        )}
-        <div className={`${styles.btnContainer}`}>
-          <Button style={{ color: 'primary' }} className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
-            {t('social:invite.accept')}
-          </Button>
-          <Button
-            style={{ color: 'primary' }}
-            className={styles.declineBtn}
-            onClick={() => declineInvite(newestInvite)}
-          >
-            {t('social:invite.decline')}
-          </Button>
-        </div>
+    <div className="fixed right-[25px] top-[100px] flex w-80 flex-col rounded-lg bg-[#191B1F] p-5 shadow-xl shadow-black">
+      <div className="flex">
+        <span className="flex-1 text-neutral-100 first-letter:uppercase">
+          {t('social:invite.inviteMessage', {
+            inviteType: newestInvite?.inviteType.replace('-', ' '),
+            userName: newestInvite.user?.name as UserName
+          })}
+        </span>
+
+        <HiMiniXMark className="cursor-pointer text-xl" onClick={declineInvite} />
+      </div>
+      <div className="ml-auto mt-6">
+        <Button onClick={acceptInvite} className="cursor-pointer">
+          {t('social:invite.accept')}
+        </Button>
       </div>
     </div>
   )
