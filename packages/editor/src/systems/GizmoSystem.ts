@@ -31,6 +31,9 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 
+import { UUIDComponent } from '@ir-engine/ecs'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/gizmoHelper'
@@ -55,6 +58,14 @@ const execute = () => {
 
 const reactor = () => {
   const selectedEntities = SelectionState.useSelectedEntities()
+  const rendererState = useMutableState(RendererState)
+
+  useEffect(() => {
+    if (!selectedEntities) return
+    rendererState.selectedEntityUUIDs.set(
+      new Set(selectedEntities.map((entity) => getComponent(entity, UUIDComponent)))
+    )
+  }, [selectedEntities])
 
   for (const entity of sourceQuery()) removeComponent(entity, TransformGizmoControlledComponent)
 
