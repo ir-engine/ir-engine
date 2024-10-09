@@ -44,6 +44,9 @@ export default class EEECSImporterExtension extends ImporterExtension implements
     const json: GLTF.IGLTF = parser.json
     const useVisible = !!json.extensionsUsed?.includes(this.name) || !!json.extensionsUsed?.includes('EE_visible')
     const nodeCount = json.nodes?.length || 0
+
+    const remappedUUIDs: Record<string, string> = {}
+
     for (let nodeIndex = 0; nodeIndex < nodeCount; nodeIndex++) {
       const nodeDef = json.nodes![nodeIndex]
 
@@ -66,7 +69,9 @@ export default class EEECSImporterExtension extends ImporterExtension implements
           //check if uuid already exists
           if (UUIDComponent.entitiesByUUIDState[uuid]?.value) {
             //regenerate uuid if it already exists
-            ecsExtensions[jsonID] = generateEntityUUID()
+            const newUUID = generateEntityUUID()
+            ecsExtensions[jsonID] = newUUID
+            remappedUUIDs[uuid] = newUUID
           }
         }
         const compData = ecsExtensions[jsonID]
@@ -90,6 +95,27 @@ export default class EEECSImporterExtension extends ImporterExtension implements
       nodeDef.extras.ecsData = extensionDef.data
       // - //
     }
+
+    // apply UUID remaps to any references to UUIDs in component json
+    for (let nodeIndex = 0; nodeIndex < nodeCount; nodeIndex++) {
+      const nodeDef = json.nodes![nodeIndex]
+      const ecsData = nodeDef.extras?.ecsData as any
+      const componentJson = nodeDef.extras?.componentJson as any
+      if (!ecsData && !componentJson) continue
+      const frontier: object[] = [componentJson, ecsData]
+      while (frontier.length > 0) {
+        const data = frontier.pop()
+        for (const key in data) {
+          const value = data[key]
+          if (typeof value === 'object') {
+            frontier.push(value)
+          } else if (typeof value === 'string' && remappedUUIDs[value]) {
+            data[key] = remappedUUIDs[value]
+          }
+        }
+      }
+    }
+
     return null
   }
 }
