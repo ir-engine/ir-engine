@@ -34,7 +34,8 @@
     "predeploy": "npm run build:storybook",
     "deploy": "gh-pages -d build/",
     "storybook": "./scripts/start-storybook.sh",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "copy-icona": "./scripts/copy-icona-json.sh"
   },
   "dependencies": {
     "@emotion/react": "11.10.6",
@@ -74,6 +75,9 @@
     "@storybook/react-docgen-typescript-plugin": "^1.0.1",
     "@storybook/react-vite": "^8.0.5",
     "@storybook/test": "^8.0.5",
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "@svgr/plugin-svgo": "^8.1.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@types/enzyme": "^3.10.12",
     "@types/enzyme-adapter-react-16": "^1.0.6",
