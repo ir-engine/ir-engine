@@ -41,12 +41,27 @@ import { twMerge } from 'tailwind-merge'
 import { ScriptService, ScriptState } from '../../services/ScriptService'
 import './ScriptTab.css'
 
+const loadTypeDefinitions = async (monaco) => {
+  // Assuming you have @types/react and @types/three installed in node_modules
+  const reactDTS = await fetch('/node_modules/@types/react/index.d.ts').then((res) => res.text())
+  const threeDTS = await fetch('/node_modules/@types/three/index.d.ts').then((res) => res.text())
+
+  // Add type definitions to Monaco
+  monaco.languages.typescript.javascriptDefaults.addExtraLib(reactDTS, 'file:///node_modules/@types/react/index.d.ts')
+  monaco.languages.typescript.javascriptDefaults.addExtraLib(threeDTS, 'file:///node_modules/@types/three/index.d.ts')
+
+  // Configure language defaults
+  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+    target: monaco.languages.typescript.ScriptTarget.ESNext,
+    allowNonTsExtensions: true
+  })
+}
+
 const ActiveScript = ({ scriptURL }) => {
   const scriptState = useHookstate(getMutableState(ScriptState))
-
+  const { t } = useTranslation()
   const [code, setCode] = useState('')
   const [codeChanged, setCodeChanged] = useState(false)
-  const { t } = useTranslation()
 
   useEffect(() => {
     fetchCode(scriptURL).then((code) => {
