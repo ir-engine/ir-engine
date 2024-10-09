@@ -112,17 +112,6 @@ const NetworkReactor = (props: { id: InstanceID }) => {
 
 const ConnectionReactor = (props: { instance: InstanceType }) => {
   const instanceID = props.instance.id
-  const instanceAttendanceQuery = useFind(instanceAttendancePath, {
-    query: {
-      instanceId: instanceID,
-      ended: false,
-      updatedAt: {
-        // Only consider instances that have been updated in the last 10 seconds
-        $gt: toDateTimeSql(new Date(new Date().getTime() - 10000))
-      }
-    }
-  })
-
   const joinResponse = useHookstate<null | { index: number; iceServers: IceServerType[] }>(null)
 
   useEffect(() => {
@@ -177,6 +166,23 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     }
   }, [joinResponse])
 
+  if (!joinResponse.value) return null
+
+  return <PeersReactor instance={props.instance} />
+}
+
+const PeersReactor = (props: { instance: InstanceType }) => {
+  const instanceAttendanceQuery = useFind(instanceAttendancePath, {
+    query: {
+      instanceId: props.instance.id,
+      ended: false,
+      updatedAt: {
+        // Only consider instances that have been updated in the last 10 seconds
+        $gt: toDateTimeSql(new Date(new Date().getTime() - 10000))
+      }
+    }
+  })
+
   const otherPeers = useHookstate<InstanceAttendanceType[]>([])
 
   useEffect(() => {
@@ -184,8 +190,6 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
       otherPeers.set(instanceAttendanceQuery.data.filter((peer) => peer.peerId !== Engine.instance.store.peerID))
     }
   }, [instanceAttendanceQuery.status])
-
-  if (!joinResponse.value) return null
 
   return (
     <>
@@ -195,7 +199,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
           peerID={peer.peerId}
           peerIndex={peer.peerIndex}
           userID={peer.userId}
-          instanceID={instanceID}
+          instanceID={props.instance.id}
         />
       ))}
     </>

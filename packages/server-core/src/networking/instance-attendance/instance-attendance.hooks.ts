@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
   instanceAttendanceDataValidator,
@@ -34,7 +34,13 @@ import {
 
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
-import { ChannelType, ChannelUserType, channelPath, channelUserPath } from '@ir-engine/common/src/schema.type.module'
+import {
+  ChannelType,
+  ChannelUserType,
+  channelPath,
+  channelUserPath,
+  instanceAttendancePath
+} from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import { InstanceAttendanceService } from './instance-attendance.class'
@@ -90,6 +96,36 @@ const createChannelUser = async (context: HookContext<InstanceAttendanceService>
   }
 }
 
+/**
+ * A user should only be able to read attendance for an instance they are in and that has not ended
+ */
+const canReadInstanceAttendance = async (context: HookContext<InstanceAttendanceService>) => {
+  const { params } = context
+  if (!params.query) return false
+  const loggedInUserId = params.user?.id
+  if (!loggedInUserId) throw new BadRequest('Must be logged in to read instance attendance')
+
+  const validQuery =
+    typeof params.query.instanceId === 'string' &&
+    params.query.instanceId !== '' &&
+    typeof params.query.updatedAt === 'object' &&
+    typeof params.query.updatedAt?.$gt === 'string' &&
+    params.query.updatedAt?.$gt !== '' &&
+    params.query.ended === false
+
+  if (!validQuery) return false
+
+  const instanceAttendanceService = await context.app.service(instanceAttendancePath).find({
+    query: {
+      instanceId: params.query.instanceId,
+      userId: loggedInUserId,
+      ended: false
+    }
+  })
+
+  return instanceAttendanceService.total > 0
+}
+
 export default {
   around: {
     all: [
@@ -103,20 +139,16 @@ export default {
       schemaHooks.validateQuery(instanceAttendanceQueryValidator),
       schemaHooks.resolveQuery(instanceAttendanceQueryResolver)
     ],
-    find: [
-      // iff(isProvider('external'), verifyScope('instance', 'read'))
-    ],
-    get: [
-      // iff(isProvider('external'), verifyScope('instance', 'read'))
-    ],
+    find: [iff(isProvider('external'), iffElse(canReadInstanceAttendance, [], [verifyScope('instance', 'read')]))],
+    get: [iff(isProvider('external'), verifyScope('instance', 'read'))],
     create: [
-      // iff(isProvider('external'), verifyScope('instance', 'write')),
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       schemaHooks.validateData(instanceAttendanceDataValidator),
       schemaHooks.resolveData(instanceAttendanceDataResolver)
     ],
     update: [disallow()],
     patch: [
-      // iff(isProvider('external'), verifyScope('instance', 'write')),
+      iff(isProvider('external'), verifyScope('instance', 'write')),
       schemaHooks.validateData(instanceAttendancePatchValidator),
       schemaHooks.resolveData(instanceAttendancePatchResolver)
     ],
