@@ -27,8 +27,9 @@ Infinite Reality Engine. All Rights Reserved.
  * This method takes a filename (with or without included path) and returns a cleaned version of it.
  * ensures toLower file extension, truncates a file name if too long
  * @param fullFileName
+ * @param useStorageProviderLengthRestrictions
  */
-export const cleanFileNameString = (fullFileName: string): string => {
+export const cleanFileNameString = (fullFileName: string, useStorageProviderLengthRestrictions = false): string => {
   try {
     //extract the path and file name separately
     const lastSlashIndex = fullFileName.lastIndexOf('/')
@@ -36,24 +37,31 @@ export const cleanFileNameString = (fullFileName: string): string => {
     const fileName = fullFileName.substring(lastSlashIndex + 1)
 
     // Find the last period in the filename (the start of the extension)
-    const lastDotIndex = fileName.lastIndexOf('.')
+    const _lastDotIndex = fileName.lastIndexOf('.')
+    const hasExtension = _lastDotIndex !== -1
+    const lastDotIndex = hasExtension ? _lastDotIndex : fileName.length
 
     // Split the name into the part before and after the dot
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
 
-    // Truncate or concat the name if it is too long or too short
-    if (nameWithoutExtension.length > 64) {
-      nameWithoutExtension = nameWithoutExtension.slice(0, 64)
-    } else if (nameWithoutExtension.length < 4) {
-      //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
-      nameWithoutExtension = nameWithoutExtension + '0000'
+    //Used by backend uploads to storage provider, which has different length restrictions than other uses
+    if (useStorageProviderLengthRestrictions) {
+      if (nameWithoutExtension.length > 1024) nameWithoutExtension = nameWithoutExtension.slice(0, 1024)
+    } else {
+      // Truncate or concat the name if it is too long or too short
+      if (nameWithoutExtension.length > 64) {
+        nameWithoutExtension = nameWithoutExtension.slice(0, 64)
+      } else if (nameWithoutExtension.length < 4) {
+        //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
+        nameWithoutExtension = nameWithoutExtension + '0000'
+      }
     }
 
     // Combine the name with the lowercase extension
-    const newFileName = lastDotIndex === -1 ? `${nameWithoutExtension}` : `${nameWithoutExtension}.${extension}`
+    const newFileName = hasExtension ? `${nameWithoutExtension}.${extension}` : `${nameWithoutExtension}`
 
-    return filePath + '/' + newFileName
+    return filePath ? filePath + '/' + newFileName : newFileName
   } catch (e) {
     return fullFileName
   }
