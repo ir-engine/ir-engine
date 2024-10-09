@@ -37,7 +37,7 @@ import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/compo
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ScriptComponent } from '@ir-engine/engine'
-import { getEntityErrors, useEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { uniqueId } from 'lodash'
 import InputGroup from '../../input/Group'
@@ -68,7 +68,6 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const scriptComponent = useComponent(props.entity, ScriptComponent)
-  useEntityErrors(props.entity, ScriptComponent)
 
   const errors = getEntityErrors(props.entity, ScriptComponent)
 

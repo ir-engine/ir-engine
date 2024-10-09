@@ -23,24 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hasComponent, useOptionalComponent, useQuery } from '@ir-engine/ecs'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { useOptionalComponent, useQuery } from '@ir-engine/ecs'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { ScriptComponent, validateScriptUrl } from '@ir-engine/engine'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { clearErrors } from '@ir-engine/engine/src/scene/functions/ErrorFunctions'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
 import { Editor } from '@monaco-editor/react'
-import { TabData } from 'rc-dock'
+import { uniqueId } from 'lodash'
+import DockLayout, { DockMode, LayoutData, TabData } from 'rc-dock'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '../../components/inputs/Button'
+import { ScriptState } from '../../services/ScriptService'
 
 const ActiveScript = () => {
   const entities = SelectionState.useSelectedEntities()
   const entity = entities[entities.length - 1]
-  const validEntity = typeof entity === 'number' && hasComponent(entity, ScriptComponent)
   const { t } = useTranslation()
   const scriptComponent = useOptionalComponent(entity, ScriptComponent)
   const [code, setCode] = useState('')
@@ -62,51 +62,67 @@ const ActiveScript = () => {
     updateScriptFile(getFileName(scriptComponent!.src.value), code)
   }, [code])
 
-  const addScript = () => EditorControlFunctions.addOrRemoveComponent([entity], ScriptComponent, true)
   useQuery([ScriptComponent])
   return (
     <div className="flex h-full w-full items-center justify-center">
-      {entities.length && !validEntity ? (
-        <Button
-          variant="outline"
-          onClick={() => {
-            addScript()
-          }}
-        >
-          {t('editor:script.panel.addScript')}
-        </Button>
-      ) : (
-        <></>
-      )}
-      {validEntity && (
-        <Editor
-          height="100%"
-          language="javascript"
-          defaultLanguage="javascript"
-          value={code} // get the file contents
-          onChange={(newCode) => {
-            setCode(newCode ?? code)
-          }}
-          theme="vs-dark"
-        />
-      )}
+      <Editor
+        height="100%"
+        language="javascript"
+        defaultLanguage="javascript"
+        value={code} // get the file contents
+        onChange={(newCode) => {
+          setCode(newCode ?? code)
+        }}
+        theme="vs-dark"
+      />
     </div>
   )
 }
 
+const createNewScriptTab = (scriptName) => {
+  return {
+    id: uniqueId('scriptTab'),
+    closable: true,
+    cached: true,
+    title: <ScriptTabTitle scriptName={scriptName} />,
+    content: <ActiveScript />
+  } as TabData
+}
+
 const ScriptContainer = () => {
+  const scriptState = getMutableState(ScriptState)
+
+  const tabLayout = (): LayoutData => {
+    return {
+      dockbox: {
+        mode: 'horizontal' as DockMode,
+        children: [{ tabs: [] }]
+      }
+    }
+  }
+  const { t } = useTranslation()
+
   return (
-    <>
-      <div className="flex h-full w-full flex-col">
-        <ActiveScript />
-      </div>
-    </>
+    <div className="h-full w-full">
+      <DockLayout defaultLayout={tabLayout()} style={{ position: 'absolute' }} />
+    </div>
+  )
+}
+
+const ScriptTabTitle = ({ scriptName }) => {
+  const { t } = useTranslation()
+
+  return (
+    <div>
+      <PanelDragContainer dataTestId="script-tab">
+        <PanelTitle>{scriptName}</PanelTitle>
+      </PanelDragContainer>
+    </div>
   )
 }
 
 export const ScriptPanelTitle = () => {
   const { t } = useTranslation()
-
   return (
     <div>
       <PanelDragContainer>
