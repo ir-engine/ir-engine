@@ -317,7 +317,7 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
  * @param store
  */
 export const dispatchAction = <A extends Action>(_action: A) => {
-  const action = structuredClone(_action)
+  const action = JSON.parse(JSON.stringify(_action))
 
   const agentId = HyperFlux.store.peerID
 
