@@ -25,11 +25,18 @@ Infinite Reality Engine. All Rights Reserved.
 
 // Add unit tests for new patterns in packages/common/tests/regex.test.ts
 
+/*
+A filename is valid if:
+  - it has 4 to 64 characters
+  - its first and last character are alphanumeric
+  - any other characters are either alphanumeric, '_', '-', or '.'
+*/
+
 // eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^(?!.*[\s<>:"/\\|?*\u0000-\u001F].*)[^\s<>:"/\\|?*\u0000-\u001F]{1,64}$/
+export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-\.]{2,62})([^_\W])$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
-export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-_]{2,62}[a-zA-Z0-9]$/
+export const VALID_SCENE_NAME_REGEX = VALID_FILENAME_REGEX
 export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
 
 // =====================================================================
