@@ -72,7 +72,6 @@ import {
   setupAvatarForUser,
   setupAvatarProportions
 } from '../functions/avatarFunctions'
-import { VRMComponent } from './VRMComponent'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
@@ -132,7 +131,7 @@ export const AvatarRigComponent = defineComponent({
     const locomotionAnimationState = useHookstate(
       getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
     )
-    /** @todo move asset loading to a new VRMComponent */
+
     useEffect(() => {
       if (!rigComponent?.avatarURL?.value) return
       setComponent(entity, GLTFComponent, { src: rigComponent.avatarURL.value })
@@ -148,15 +147,6 @@ export const AvatarRigComponent = defineComponent({
       setupAvatarProportions(entity, vrm)
       rigComponent.vrm.set(vrm)
     }, [gltfComponent?.progress?.value])
-
-    useEffect(() => {
-      if (!rigComponent?.vrm?.value) return
-      const rig = getComponent(entity, AvatarRigComponent)
-      setComponent(entity, VRMComponent, rig.vrm)
-      return () => {
-        removeComponent(entity, VRMComponent)
-      }
-    }, [rigComponent?.vrm?.value])
 
     useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return

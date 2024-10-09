@@ -48,7 +48,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
-import { VRMComponent } from './VRMComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const AnimationBlendMode = S.LiteralUnion(
   [NormalAnimationBlendMode, AdditiveAnimationBlendMode],
@@ -87,13 +87,13 @@ export const LoopAnimationComponent = defineComponent({
     const entity = useEntityContext()
 
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
-    const vrmComponent = useOptionalComponent(entity, VRMComponent)
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
+    const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
 
     const lastAnimationPack = useHookstate('')
     useEffect(() => {
-      if (!animComponent?.animations?.value) return
+      if (!animComponent?.animations?.value || !rigComponent?.vrm) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
       if (!clip) {
         loopAnimationComponent._action.set(null)
@@ -101,7 +101,9 @@ export const LoopAnimationComponent = defineComponent({
       }
       animComponent.mixer.time.set(0)
       try {
-        const action = animComponent.mixer.value.clipAction(vrmComponent ? bindAnimationClipFromMixamo(clip) : clip)
+        const action = animComponent.mixer.value.clipAction(
+          rigComponent?.vrm ? bindAnimationClipFromMixamo(clip) : clip
+        )
         loopAnimationComponent._action.set(action)
         return () => {
           action.stop()
@@ -109,7 +111,7 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [loopAnimationComponent.activeClipIndex, vrmComponent, animComponent?.animations])
+    }, [loopAnimationComponent.activeClipIndex, rigComponent?.vrm, animComponent?.animations])
 
     const animationAction = loopAnimationComponent._action.value as AnimationAction
 
@@ -176,7 +178,6 @@ export const LoopAnimationComponent = defineComponent({
         !animationPackGLTF[0].value ||
         !animComponent ||
         //gltfComponent?.progress.value !== 100 ||
-
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value
       )

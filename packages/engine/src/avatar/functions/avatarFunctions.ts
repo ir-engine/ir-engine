@@ -55,7 +55,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { VRMComponent } from '../components/VRMComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { LocalAvatarState } from '../state/AvatarState'
 
@@ -204,7 +203,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 }
 
 export const setAvatarAnimations = (entity: Entity) => {
-  const vrm = getComponent(entity, VRMComponent)
+  const vrm = getComponent(entity, AvatarRigComponent).vrm
   const manager = getState(AnimationState)
   for (const boneName of VRMHumanBoneList) {
     const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
