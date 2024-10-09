@@ -47,10 +47,12 @@ import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.te
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
+  filterParentEntities,
   findIndexOfEntityNode,
   getAncestorWithComponents,
   getChildrenWithComponents,
   haveCommonAncestor,
+  isAncestor,
   isDeepChildOf,
   iterateEntityNode,
   removeEntityNodeRecursively,
@@ -1216,15 +1218,15 @@ describe('useAncestorWithComponents', () => {
     // Initialize with dummy data for the test
     let result = UndefinedEntity
 
-    let rootEntity = createEntity()
+    const rootEntity = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, NameComponent, 'rootEntity')
 
-    let child_1 = createEntity()
+    const child_1 = createEntity()
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_1, NameComponent, 'child_1')
 
-    let child_2 = createEntity()
+    const child_2 = createEntity()
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     setComponent(child_2, NameComponent, 'child_2')
 
@@ -1253,15 +1255,15 @@ describe('useAncestorWithComponents', () => {
   it('should return the closest ancestor of `@param entity`, excluding self, when `@param includeSelf` is set to false', async () => {
     let result = UndefinedEntity
 
-    let rootEntity = createEntity()
+    const rootEntity = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, NameComponent, 'rootEntity')
 
-    let child_1 = createEntity()
+    const child_1 = createEntity()
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_1, NameComponent, 'child_1')
 
-    let child_2 = createEntity()
+    const child_2 = createEntity()
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     setComponent(child_2, NameComponent, 'child_2')
 
@@ -1294,7 +1296,6 @@ describe('useAncestorWithComponents', () => {
   })
 }) //:: useAncestorWithComponents
 
-/** @todo Confirm coverage, test-review all cases and rewrite JSDoc comments */
 describe('useChildWithComponents', () => {
   // Run before every test case
   beforeEach(() => {
@@ -1632,30 +1633,223 @@ describe('getChildrenWithComponents', () => {
   })
 }) //:: getChildrenWithComponents
 
-/** @todo */
-describe.skip('haveCommonAncestor', () => {
-  it("should return true if one of the entities of `@param entity1`'s EntityTree is also part of `@param entity2`'s EntityTree", () => {
-    const Expected = true
+describe('haveCommonAncestor', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it("should return false if none of the entities of `@param entity1`'s EntityTree is also part of `@param entity2`'s EntityTree", () => {
+    const Expected = false
     // Set the data as expected
     const entity1 = createEntity()
+    const entity11 = createEntity()
+    const entity12 = createEntity()
+    const entity13 = createEntity()
     const entity2 = createEntity()
+    const entity21 = createEntity()
+    const entity22 = createEntity()
+    const entity23 = createEntity()
+    setComponent(entity1, EntityTreeComponent)
+    setComponent(entity11, EntityTreeComponent, { parentEntity: entity1 })
+    setComponent(entity12, EntityTreeComponent, { parentEntity: entity11 })
+    setComponent(entity13, EntityTreeComponent, { parentEntity: entity12 })
+    setComponent(entity2, EntityTreeComponent)
+    setComponent(entity21, EntityTreeComponent, { parentEntity: entity2 })
+    setComponent(entity22, EntityTreeComponent, { parentEntity: entity21 })
+    setComponent(entity23, EntityTreeComponent, { parentEntity: entity22 })
     // Sanity check before running
     assert.equal(hasComponent(entity1, EntityTreeComponent), true)
     assert.equal(hasComponent(entity2, EntityTreeComponent), true)
     // Run and Check the result
-    const result = haveCommonAncestor(entity1, entity2)
+    const result = haveCommonAncestor(entity13, entity23)
     assert.equal(result, Expected)
   })
 
-  // it("should return false if none of the entities of `@param entity1`'s EntityTree is also part of `@param entity2`'s EntityTree", () => {})
+  it("should return true if one of the entities of `@param entity1`'s EntityTree is also part of `@param entity2`'s EntityTree", () => {
+    const Expected = true
+    // Set the data as expected
+    const entity1 = createEntity()
+    const entity11 = createEntity()
+    const entity2 = createEntity()
+    const entity21 = createEntity()
+    const common = createEntity()
+    setComponent(entity1, EntityTreeComponent, { parentEntity: common })
+    setComponent(entity11, EntityTreeComponent, { parentEntity: entity1 })
+    setComponent(entity2, EntityTreeComponent, { parentEntity: common })
+    setComponent(entity21, EntityTreeComponent, { parentEntity: entity2 })
+    // Sanity check before running
+    assert.equal(hasComponent(entity1, EntityTreeComponent), true)
+    assert.equal(hasComponent(entity2, EntityTreeComponent), true)
+    // Run and Check the result
+    const result = haveCommonAncestor(entity11, entity21)
+    assert.equal(result, Expected)
+  })
 }) //:: haveCommonAncestor
 
+describe('isAncestor', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('should return false when `@param potentialChild` is falsy', () => {
+    const Expected = false
+    // Set the data as expected
+    const parent = createEntity()
+    const child = UndefinedEntity
+    setComponent(parent, EntityTreeComponent)
+    // Sanity check before running
+    assert.equal(Boolean(parent), true)
+    assert.equal(Boolean(child), false)
+    assert.equal(hasComponent(parent, EntityTreeComponent), true)
+    assert.equal(hasComponent(child, EntityTreeComponent), false)
+    // Run and Check the result
+    const result = isAncestor(parent, child)
+    assert.equal(result, Expected)
+  })
+
+  it('should return false when `@param parent` is falsy', () => {
+    const Expected = false
+    // Set the data as expected
+    const parent = UndefinedEntity
+    const child = createEntity()
+    setComponent(child, EntityTreeComponent)
+    // Sanity check before running
+    assert.equal(Boolean(parent), false)
+    assert.equal(Boolean(child), true)
+    assert.equal(hasComponent(parent, EntityTreeComponent), false)
+    assert.equal(hasComponent(child, EntityTreeComponent), true)
+    // Run and Check the result
+    const result = isAncestor(parent, child)
+    assert.equal(result, Expected)
+  })
+
+  it('should return false when `@param includeSelf` is false and `@param parent` is the same entity as `@param potentialChild`', () => {
+    const Expected = false
+    // Set the data as expected
+    const includeSelf = false
+    const parent = createEntity()
+    const child = parent
+    setComponent(parent, EntityTreeComponent)
+    // Sanity check before running
+    assert.equal(Boolean(parent), true)
+    assert.equal(Boolean(child), true)
+    assert.equal(parent, child)
+    assert.equal(hasComponent(parent, EntityTreeComponent), true)
+    assert.equal(hasComponent(child, EntityTreeComponent), true)
+    // Run and Check the result
+    const result = isAncestor(parent, child, includeSelf)
+    assert.equal(result, Expected)
+  })
+
+  it('should return true when `@param includeSelf` is true and `@param parent` is the same entity as `@param potentialChild`', () => {
+    const Expected = true
+    // Set the data as expected
+    const includeSelf = true
+    const parent = createEntity()
+    const child = parent
+    setComponent(parent, EntityTreeComponent)
+    // Sanity check before running
+    assert.equal(Boolean(parent), true)
+    assert.equal(Boolean(child), true)
+    assert.equal(parent, child)
+    assert.equal(hasComponent(parent, EntityTreeComponent), true)
+    assert.equal(hasComponent(child, EntityTreeComponent), true)
+    // Run and Check the result
+    const result = isAncestor(parent, child, includeSelf)
+    assert.equal(result, Expected)
+  })
+
+  it("should traverse the `@param parent`'s EntityTree and return true if `@param potentialChild` is found during traversal", () => {
+    const Expected = true
+    // Set the data as expected
+    const includeSelf = false
+    const parent = createEntity()
+    const child = createEntity()
+    setComponent(parent, EntityTreeComponent)
+    setComponent(child, EntityTreeComponent, { parentEntity: parent })
+    // Sanity check before running
+    assert.equal(Boolean(parent), true)
+    assert.equal(Boolean(child), true)
+    assert.notEqual(parent, child)
+    assert.equal(hasComponent(parent, EntityTreeComponent), true)
+    assert.equal(hasComponent(child, EntityTreeComponent), true)
+    // Run and Check the result
+    const result = isAncestor(parent, child, includeSelf)
+    assert.equal(result, Expected)
+  })
+
+  it("should traverse the `@param parent`'s EntityTree and return false if `@param potentialChild` is not found during traversal", () => {
+    const Expected = false
+    // Set the data as expected
+    const parent = createEntity()
+    const child = createEntity()
+    setComponent(parent, EntityTreeComponent)
+    setComponent(child, EntityTreeComponent)
+    // Sanity check before running
+    assert.equal(Boolean(parent), true)
+    assert.equal(Boolean(child), true)
+    assert.notEqual(parent, child)
+    assert.equal(hasComponent(parent, EntityTreeComponent), true)
+    assert.equal(hasComponent(child, EntityTreeComponent), true)
+    // Run and Check the result
+    const result = isAncestor(parent, child)
+    assert.equal(result, Expected)
+  })
+}) //:: isAncestor
+
+describe('filterParentEntities', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  /** @todo How to setup this test ?? */
+  it.skip('should remove the child entities from the list', () => {
+    const Expected: Entity[] = []
+    // Set the data as expected
+    const parent03 = createEntity()
+    const parent02 = createEntity()
+    const parent01 = createEntity()
+    const rootEntity = createEntity()
+    const child01 = createEntity()
+    const child02 = createEntity()
+    const child03 = createEntity()
+    const child11 = createEntity()
+    const entityList = [parent03, parent02, parent01, rootEntity, child01, child02, child03, child11]
+    const clone = Object.assign([], entityList)
+    setComponent(parent03, EntityTreeComponent)
+    setComponent(parent02, EntityTreeComponent, { parentEntity: parent03 })
+    setComponent(parent01, EntityTreeComponent, { parentEntity: parent02 })
+    setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent01 })
+    setComponent(child01, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child02, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child03, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child11, EntityTreeComponent, { parentEntity: child01 })
+    // Sanity check before running
+    // Run and Check the result
+    const result = filterParentEntities(rootEntity, entityList, clone)
+    console.log(result)
+    console.log(clone)
+    assertArrayEqual(result, Expected)
+  })
+}) //:: filterParentEntities
+
 /** @todo */
-describe('findCommonAncestors', () => {}) //:: findCommonAncestors
-describe('isAncestor', () => {}) //:: isAncestor
-describe('traverseEarlyOut', () => {}) //:: traverseEarlyOut
-describe('filterParentEntities', () => {}) //:: filterParentEntities
 describe('getNestedChildren', () => {}) //:: getNestedChildren
+describe('traverseEarlyOut', () => {}) //:: traverseEarlyOut
+/** @todo Improve doc-comment */
+describe('findCommonAncestors', () => {}) //:: findCommonAncestors
 
 describe('iterateEntityNode', () => {
   let parentEntity: Entity
