@@ -31,7 +31,7 @@ import { createNewScriptFile, fetchCode, updateScriptFile } from '@ir-engine/ui/
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { Editor } from '@monaco-editor/react'
-import DockLayout, { DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+import DockLayout, { DockMode, LayoutData, TabData } from 'rc-dock'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaLink, FaLinkSlash } from 'react-icons/fa6'
@@ -164,46 +164,22 @@ const ScriptContainer = () => {
       }
     }
   }
-  const [activeTabLayout, setActiveTabLayout] = useState<LayoutData>(tabLayout())
-
-  const setActiveTab = (tabId) => {
-    setActiveTabLayout((prevLayout) => {
-      return {
-        ...prevLayout,
-        dockbox: {
-          ...prevLayout.dockbox,
-          children: prevLayout.dockbox.children.map((child) => {
-            if ((child as PanelData).tabs) {
-              return {
-                ...child,
-                activeId: tabId // Update the active tab ID
-              }
-            }
-            return child
-          })
-        }
-      }
-    })
-  }
 
   useEffect(() => {
-    setActiveTabLayout(tabLayout())
+    dockPanelRef.current?.loadLayout(tabLayout())
   }, [scriptState.scripts])
 
   const { t } = useTranslation()
 
-  console.log('DEBUG scriptState', scriptState.scripts.value)
   return (
     <div id="script-container" className="flex h-full w-full items-center justify-center">
       {scriptState.scripts.keys.length !== 0 ? (
         <DockLayout
           onLayoutChange={(newLayout, currentTabId, direction) => {
             if (direction === 'remove') ScriptService.removeScript(currentTabId)
-            if (direction === 'active') setActiveTab(currentTabId)
           }}
           ref={dockPanelRef}
-          defaultLayout={activeTabLayout}
-          layout={activeTabLayout}
+          defaultLayout={tabLayout()}
           style={{
             position: 'absolute',
             left: 0,
