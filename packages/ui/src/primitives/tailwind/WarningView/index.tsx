@@ -23,25 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-/**
- * This method perform different actions on filename to ensure it meets all requirements.
- * @param fileName File name to be processed
- */
-export const processFileName = (fileName: string): string => {
-  let name = fileName
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { PiWarning } from 'react-icons/pi'
 
-  try {
-    // Change file extension to lowercase
-    const nameSplit = name.split('.')
-    if (nameSplit.length === 1) return name
-    const extension = nameSplit.pop()
-    if (extension) {
-      nameSplit.push(extension.toLowerCase())
-      name = nameSplit.join('.')
-    }
-  } catch (e) {
-    return name
-  }
+import Text from '../Text'
 
-  return name
+interface WarningViewProps {
+  title: string
+  description?: string
+  retryButtonText?: string
+  onRetry?: () => void
+}
+
+export default function WarningView({ title, description }: WarningViewProps) {
+  const { t } = useTranslation()
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center space-y-1 bg-yellow-600">
+      <PiWarning className="h-8 w-8 text-white" />
+      <Text>{title}</Text>
+      {description && (
+        <Text fontSize="sm" theme="secondary">
+          {description}
+        </Text>
+      )}
+    </div>
+  )
 }

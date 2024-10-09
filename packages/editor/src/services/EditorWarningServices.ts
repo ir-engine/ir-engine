@@ -23,24 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { defineState } from '@ir-engine/hyperflux'
 
-import {
-  zendeskSettingDataSchema,
-  zendeskSettingPatchSchema,
-  zendeskSettingQuerySchema,
-  zendeskSettingSchema
-} from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    zendeskSettingDataSchema,
-    zendeskSettingPatchSchema,
-    zendeskSettingQuerySchema,
-    zendeskSettingSchema
-  },
-  docs: {
-    description: 'Zendesk setting service description',
-    securities: ['all']
-  }
+export const EditorWarningState = defineState({
+  name: 'EditorWarningState',
+  initial: { warning: null as string | null }
 })

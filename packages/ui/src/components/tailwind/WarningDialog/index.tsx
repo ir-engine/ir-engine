@@ -22,20 +22,31 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import React from 'react'
+import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
+import WarningView from '../../../primitives/tailwind/WarningView'
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+interface WarningDialogProps {
+  title: string
+  description?: string
+  modalProps?: ModalProps
+}
 
-import {
-  RedisSettingData,
-  RedisSettingPatch,
-  RedisSettingQuery,
-  RedisSettingType
-} from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
+const WarningDialog = ({ title, description, modalProps }: WarningDialogProps) => {
+  return (
+    <Modal
+      onClose={PopoverState.hidePopupover}
+      showCloseButton={false}
+      submitButtonDisabled={true}
+      onSubmit={() => PopoverState.hidePopupover()}
+      className="w-[50vw] max-w-2xl bg-yellow-600"
+      hideFooter={true}
+      {...modalProps}
+    >
+      <WarningView title={title} description={description} />
+    </Modal>
+  )
+}
 
-export interface RedisSettingParams extends KnexAdapterParams<RedisSettingQuery> {}
-
-export class RedisSettingService<
-  T = RedisSettingType,
-  ServiceParams extends Params = RedisSettingParams
-> extends KnexService<RedisSettingType, RedisSettingData, RedisSettingParams, RedisSettingPatch> {}
+export default WarningDialog

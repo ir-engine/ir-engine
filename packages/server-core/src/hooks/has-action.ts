@@ -22,27 +22,9 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { ArgTypes } from '@storybook/react'
 
-import ErrorView from './index'
+import { HookContext } from '../../declarations'
 
-const argTypes: ArgTypes = {}
-
-export default {
-  title: 'Primitives/Tailwind/ErrorView',
-  component: ErrorView,
-  parameters: {
-    componentSubtitle: 'ErrorView',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
-}
-
-export const Default = {
-  args: {
-    className: ''
-  }
+export default (hook: HookContext): boolean => {
+  return !!hook.params.query.action || !!hook.params.actualQuery.action
 }
