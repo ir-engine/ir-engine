@@ -177,9 +177,10 @@ const ScriptContainer = () => {
 
   const { t } = useTranslation()
 
+  console.log('DEBUG scriptState', scriptState.scripts.value)
   return (
-    <div id="script-container" className="h-full w-full">
-      {scriptState.scripts.value.length === 0 ? (
+    <div id="script-container" className="flex h-full w-full items-center justify-center">
+      {scriptState.scripts.keys.length !== 0 ? (
         <DockLayout
           onLayoutChange={(newLayout, currentTabId, direction) => {
             if (direction === 'remove') ScriptService.removeScript(currentTabId)
@@ -199,11 +200,12 @@ const ScriptContainer = () => {
       ) : (
         <Button
           variant="outline"
-          onClick={() => {
-            createNewScriptFile()
+          onClick={async () => {
+            const scriptURL = await createNewScriptFile()
+            ScriptService.addScript(scriptURL)
           }}
         >
-          {t('editor:visualScript.panel.addVisualScript')}
+          {t('editor:script.panel.addScript')}
         </Button>
       )}
     </div>

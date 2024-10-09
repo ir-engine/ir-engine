@@ -38,7 +38,7 @@ import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ScriptComponent } from '@ir-engine/engine'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { uniqueId } from 'lodash'
 import InputGroup from '../../input/Group'
 import ScriptInput from '../../input/Script'
@@ -67,7 +67,8 @@ export const updateScriptFile = async (fileName, script = 'console.log("hello wo
 export const createNewScriptFile = async () => {
   const fileName = `${uniqueId('RealityScript')}.js`
   await updateScriptFile(fileName)
-  return fileName
+  const relativePath = `projects/${getState(EditorState).projectName}/assets/scripts`
+  return `${config.client.fileServer}/${relativePath}/${fileName}`
 }
 
 export const ScriptNodeEditor: EditorComponentType = (props) => {
@@ -77,14 +78,11 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
 
   const errors = getEntityErrors(props.entity, ScriptComponent)
 
-  const editorState = useHookstate(getMutableState(EditorState))
-
   useEffect(() => {
     if (scriptComponent.src.value.length > 0) return // only set if there is no value already set
     ;(async () => {
-      const fileName = await createNewScriptFile()
-      const relativePath = `projects/${editorState.projectName.value}/assets/scripts`
-      scriptComponent.src.set(`${config.client.fileServer}/${relativePath}/${fileName}`)
+      const fileURL = await createNewScriptFile()
+      scriptComponent.src.set(fileURL)
       commitProperty(ScriptComponent, 'src')(scriptComponent.src.value)
     })()
   }, [])

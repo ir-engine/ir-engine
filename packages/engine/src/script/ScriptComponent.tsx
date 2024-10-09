@@ -24,8 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { useEffect } from 'react'
 import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { addError, clearErrors, removeError } from '../scene/functions/ErrorFunctions'
@@ -37,7 +35,7 @@ export function validateScriptUrl(entity, url: string): boolean {
       addError(entity, ScriptComponent, 'INVALID_URL_SCHEME', 'Invalid URL scheme')
       return false
     }
-    if (!url.endsWith('.js')) {
+    if (!parsedUrl.pathname.endsWith('.js')) {
       // replace with itemTypes later
       addError(entity, ScriptComponent, 'INVALID_SCRIPT_TYPE', 'URL does not point to a JavaScript file')
       return false
@@ -67,6 +65,7 @@ export const ScriptComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
+
     if (typeof json.src === 'string') component.src.set(json.src)
   },
 
@@ -76,7 +75,7 @@ export const ScriptComponent = defineComponent({
     const scriptComponent = useComponent(entity, ScriptComponent)
 
     useEffect(() => {
-      if (getState(EngineState).isEditing) return
+      //if(getState(EngineState).isEditing) return
       const script = document.createElement('script')
       if (!scriptComponent.src.value) return // return for empty src
       if (!validateScriptUrl(entity, scriptComponent.src.value)) return // validation step
