@@ -41,14 +41,15 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
   const parentRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let newValue = parseFloat(event.target.value)
+  const handleInputChange = (value: string) => {
+    const fractionLength = step.toString().split('.')[1]?.length || 0
+    let newValue = parseFloat(value)
     if (isNaN(newValue)) {
       newValue = min
     } else {
       newValue = Math.min(Math.max(newValue, min), max)
     }
-    onChange?.(newValue)
+    onChange?.(+newValue.toFixed(fractionLength))
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,9 +77,16 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
         min={min}
         max={max}
         value={value}
-        onChange={handleInputChange}
+        onChange={(event) => handleInputChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowUp') {
+            handleInputChange(value + step + '')
+          } else if (event.key === 'ArrowDown') {
+            handleInputChange(value - step + '')
+          }
+        }}
         onBlur={() => onRelease?.(value)}
-        className="h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover:bg-[#191B1F] group-hover:text-[#F5F5F5]"
+        className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover:bg-[#191B1F] group-hover:text-[#F5F5F5]"
         data-testid="slider-text-value-input"
       />
       <input
