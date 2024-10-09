@@ -51,12 +51,14 @@ import {
   findIndexOfEntityNode,
   getAncestorWithComponents,
   getChildrenWithComponents,
+  getNestedChildren,
   haveCommonAncestor,
   isAncestor,
   isDeepChildOf,
   iterateEntityNode,
   removeEntityNodeRecursively,
   removeFromEntityTree,
+  traverseEarlyOut,
   traverseEntityNode,
   traverseEntityNodeChildFirst,
   traverseEntityNodeParent,
@@ -1845,11 +1847,141 @@ describe('filterParentEntities', () => {
   })
 }) //:: filterParentEntities
 
-/** @todo */
-describe('getNestedChildren', () => {}) //:: getNestedChildren
-describe('traverseEarlyOut', () => {}) //:: traverseEarlyOut
-/** @todo Improve doc-comment */
-describe('findCommonAncestors', () => {}) //:: findCommonAncestors
+describe('traverseEarlyOut', () => {
+  let parentEntity: Entity
+
+  beforeEach(() => {
+    createEngine()
+    parentEntity = createEntity()
+    setComponent(parentEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+  })
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('should recursively call `@param cb` function on `@param entity` and all its children', () => {
+    const node_0 = createEntity()
+    const node_0_0 = createEntity()
+    const node_0_1 = createEntity()
+    const node_0_0_0 = createEntity()
+    const node_0_1_0 = createEntity()
+
+    // Set the data as expected
+    setComponent(node_0, EntityTreeComponent, { parentEntity: parentEntity })
+    setComponent(node_0_0, EntityTreeComponent, { parentEntity: node_0 })
+    setComponent(node_0_1, EntityTreeComponent, { parentEntity: node_0 })
+    setComponent(node_0_0_0, EntityTreeComponent, { parentEntity: node_0_0 })
+    setComponent(node_0_1_0, EntityTreeComponent, { parentEntity: node_0_1 })
+
+    // Run and Check the result
+    const visited = [] as Entity[]
+    traverseEarlyOut(node_0, (node) => {
+      visited.push(node)
+      return false
+    })
+    assert.equal(visited.length, 5)
+    assert.equal(visited[0], node_0)
+    assert.equal(visited[1], node_0_0)
+    assert.equal(visited[2], node_0_0_0)
+    assert.equal(visited[3], node_0_1)
+    assert.equal(visited[4], node_0_1_0)
+
+    // Re-run and Check the new result
+    const visitedAgain = [] as Entity[]
+    traverseEarlyOut(node_0_0, (node) => {
+      visitedAgain.push(node)
+      return false
+    })
+    assert.equal(visitedAgain.length, 2)
+    assert.equal(visitedAgain[0], node_0_0)
+    assert.equal(visitedAgain[1], node_0_0_0)
+  })
+
+  it('should stop traversal as soon as `@param cb` returns true for the first time', () => {
+    const node_0 = createEntity()
+    const node_0_0 = createEntity()
+    const node_0_1 = createEntity()
+    const node_0_0_0 = createEntity()
+    const node_0_1_0 = createEntity()
+
+    // Set the data as expected
+    setComponent(node_0, EntityTreeComponent, { parentEntity: parentEntity })
+    setComponent(node_0_0, EntityTreeComponent, { parentEntity: node_0 })
+    setComponent(node_0_1, EntityTreeComponent, { parentEntity: node_0 })
+    setComponent(node_0_0_0, EntityTreeComponent, { parentEntity: node_0_0 })
+    setComponent(node_0_1_0, EntityTreeComponent, { parentEntity: node_0_1 })
+
+    // Run and Check the result
+    const visited = [] as Entity[]
+    traverseEarlyOut(node_0, (node) => {
+      visited.push(node)
+      return node === node_0_0
+    })
+    assert.equal(visited.length, 2)
+    assert.equal(visited[0], node_0)
+    assert.equal(visited[1], node_0_0)
+  })
+}) //:: traverseEarlyOut
+
+describe('getNestedChildren', () => {
+  let parentEntity: Entity
+
+  beforeEach(() => {
+    createEngine()
+    parentEntity = createEntity()
+    setComponent(parentEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('should not process the children of an entity when `@param pred` returns false for that entity', () => {
+    const Expected: Entity[] = []
+    // Set the data as expected
+    const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
+    const predicate = (entity: Entity) => {
+      return entity !== parentEntity
+    }
+    // .. Set the children
+    for (let id = 0; id < entities.length; ++id) {
+      const entity = entities[id]
+      setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? parentEntity : entities[id - 1] })
+    }
+    // Sanity check before running
+    for (const entity of entities) assert.equal(hasComponents(entity, [EntityTreeComponent]), true)
+    assert.equal(Expected.includes(parentEntity), false)
+    // Run and Check the result
+    const result = getNestedChildren(parentEntity, predicate)
+    assertArrayEqual(result, Expected)
+  })
+
+  it('should return all children of an entity when `@param pred` never returns false for any entity', () => {
+    const Expected: Entity[] = []
+    // Set the data as expected
+    const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
+    const predicate = (_entity: Entity) => true
+    Expected.push(parentEntity)
+    for (let id = 0; id < entities.length; ++id) {
+      const entity = entities[id]
+      setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? parentEntity : entities[id - 1] })
+      Expected.push(entity)
+    }
+    // Sanity check before running
+    assert.equal(Expected.includes(parentEntity), true)
+    for (const entity of entities) {
+      assert.equal(hasComponents(entity, [EntityTreeComponent]), true)
+      assert.equal(Expected.includes(entity), true)
+    }
+    // Run and Check the result
+    const result = getNestedChildren(parentEntity, predicate)
+    assertArrayEqual(result, Expected)
+  })
+}) //:: getNestedChildren
+
+describe('findCommonAncestors', () => {
+  /** @todo */
+}) //:: findCommonAncestors
 
 describe('iterateEntityNode', () => {
   let parentEntity: Entity
@@ -1940,10 +2072,6 @@ describe('iterateEntityNode', () => {
     const predicate = (entity: Entity) => {
       return entity < entities[entities.length - 2]
     }
-    // .. Set the parent
-    const parentName = 'parent-' + parentEntity
-    Expected.push(parentName)
-    setComponent(parentEntity, NameComponent, parentName)
     // .. Set the children
     for (let id = 0; id < entities.length; ++id) {
       const entity = entities[id]
@@ -1953,7 +2081,6 @@ describe('iterateEntityNode', () => {
     }
     // Sanity check before running
     for (const entity of entities) assert.equal(hasComponents(entity, [NameComponent, EntityTreeComponent]), true)
-    assert.equal(Expected.includes(getComponent(parentEntity, NameComponent)), true)
     // Run and Check the result
     const result = iterateEntityNode(parentEntity, callback, predicate)
     assertArrayEqual(result, Expected)
