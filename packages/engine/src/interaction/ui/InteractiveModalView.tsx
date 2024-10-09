@@ -74,7 +74,7 @@ function createBackground(parentEntity: Entity, width: number, height: number): 
   setComponent(backgroundEid, EntityTreeComponent, { parentEntity: parentEntity })
   setComponent(backgroundEid, MeshComponent, mesh)
   setComponent(backgroundEid, VisibleComponent)
-  const backgroundTransform = setComponent(backgroundEid, TransformComponent, { position: new Vector3(0, 0, -0.001) })
+  const backgroundTransform = setComponent(backgroundEid, TransformComponent, { position: new Vector3(0, 0, -0.0025) })
   addObjectToGroup(backgroundEid, mesh) // TODO: this should be managed by the MeshComponent
   return backgroundEid
 }
@@ -117,7 +117,7 @@ export const InteractiveModalView: React.FC = (entity: Entity) => {
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 60px;
+          font-size: 50px;
           color: #e7e7e7;
           font-family: sans-serif;
           font-weight: 400;

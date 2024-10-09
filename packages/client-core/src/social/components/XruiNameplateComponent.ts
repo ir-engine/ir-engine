@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useGet } from '@ir-engine/common'
+import { userPath } from '@ir-engine/common/src/schema.type.module'
 import {
-  createEntity,
   defineComponent,
   Entity,
   getComponent,
@@ -36,8 +37,8 @@ import {
   S,
   setComponent,
   UndefinedEntity,
-  useEntityContext,
-  useOptionalComponent
+  useComponent,
+  useEntityContext
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { inFrustum } from '@ir-engine/engine/src/camera/functions/cameraFunctions'
@@ -83,14 +84,15 @@ export const XruiNameplateComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-    const networkObject = useOptionalComponent(entity, NetworkObjectComponent)
+    const networkObject = useComponent(entity, NetworkObjectComponent)
+    const user = useGet(userPath, networkObject.ownerId.value)
 
     useEffect(() => {
       if (selfAvatarEntity === entity) return //don't add nameplate to self
 
-      const xruiEntity = createEntity()
-      setComponent(xruiEntity, EntityTreeComponent, { parentEntity: entity })
-      setComponent(xruiEntity, TransformComponent)
+      // const xruiEntity = createEntity()
+      // setComponent(xruiEntity, EntityTreeComponent, { parentEntity: entity })
+      // setComponent(xruiEntity, TransformComponent)
 
       //const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])//, Not(NetworkObjectOwnedTag)])
       // for (const userEntity of userQuery())
@@ -99,21 +101,19 @@ export const XruiNameplateComponent = defineComponent({
       /** todo set up username here, can use networkobject */
       // const username = user.data?.name ?? 'A User'
 
-      if (networkObject?.value) {
-        const username = networkObject.ownerId.value ?? 'A User'
-        addNameplateUI(entity, username)
+      const userName = user.data?.name ?? 'A User'
+      addNameplateUI(entity, userName)
+
+      const xruiEntity = getComponent(entity, XruiNameplateComponent).uiEntity
+      return () => {
+        // removeNameplateUI(xruiEntity)
+        removeEntity(xruiEntity)
       }
 
       // const user = useGet(userPath, userID)
       // const username = getUsername() as UserName
       // const nameLabel = component.nameLabel.get(NO_PROXY)
-      return () => {
-        if (xruiEntity !== UndefinedEntity) {
-          // removeNameplateUI(entity)
-          removeEntity(xruiEntity)
-        }
-      }
-    }, [networkObject])
+    }, [user?.data?.name])
 
     return null
   }
@@ -126,8 +126,9 @@ const addNameplateUI = (entity: Entity, username: string) => {
   const avatar = getOptionalComponent(entity, AvatarComponent)
 
   uiTransform.position.set(0, avatar?.avatarHeight ?? 1.5, 0)
-  const nameplayComponent = getMutableComponent(entity, XruiNameplateComponent)
-  nameplayComponent.uiEntity.set(uiEntity)
+  const nameplateComponent = getMutableComponent(entity, XruiNameplateComponent)
+
+  nameplateComponent.uiEntity.set(uiEntity)
 
   setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
@@ -145,18 +146,18 @@ const removeNameplateUI = (entity: Entity) => {
   if (xruiNameplateComponent.uiEntity == UndefinedEntity) return //null or empty label = no ui
 
   removeEntity(xruiNameplateComponent.uiEntity)
-  getMutableComponent(entity, XruiNameplateComponent).uiEntity.set(UndefinedEntity)
 }
 
 export const updateNameplateUI = (entity: Entity) => {
   // const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   const xruiNameplateComponent = getOptionalComponent(entity, XruiNameplateComponent)
-
+  const avatarTransform = getOptionalComponent(entity, TransformComponent)
   if (/*!selfAvatarEntity ||*/ !xruiNameplateComponent || xruiNameplateComponent.uiEntity == UndefinedEntity) return
 
   const avatarComponent = getOptionalComponent(entity, AvatarComponent)
   const xrui = getOptionalComponent(xruiNameplateComponent.uiEntity, XRUIComponent)
-  const xruiTransform = getOptionalComponent(xruiNameplateComponent.uiEntity, TransformComponent)
+
+  const xruiTransform = getOptionalComponent(xruiNameplateComponent.uiEntity, TransformComponent) //xrui!.entity!, TransformComponent)//
   if (!xrui || !xruiTransform) return
 
   // const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
@@ -172,9 +173,12 @@ export const updateNameplateUI = (entity: Entity) => {
     // const size = boundingBox.box.getSize(_size)
     // if (!size.y) size.y = 1
     // const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
-    // xruiTransform.position.x = center.x
-    // xruiTransform.position.z = center.z
-    xruiTransform.position.y = avatarComponent.avatarHeight * 1.1 // MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
+
+    xruiTransform.position.set(
+      avatarTransform?.matrix.elements[12] ?? 0,
+      avatarComponent.avatarHeight * 1.1,
+      avatarTransform?.matrix.elements[14] ?? 0
+    )
 
     const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
     xruiTransform.rotation.copy(cameraTransform.rotation)
