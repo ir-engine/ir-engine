@@ -108,8 +108,8 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEn
   const bottomLeftPanelTabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
   const topLeftPanelTabs = [ViewportPanelTab]
 
-  flags.visualScriptPanelEnabled ?? bottomLeftPanelTabs.push(VisualScriptPanelTab)
-  flags.scriptPanelEnabled ?? topLeftPanelTabs.push(ScriptPanelTab)
+  if (flags.visualScriptPanelEnabled) bottomLeftPanelTabs.push(VisualScriptPanelTab)
+  if (flags.scriptPanelEnabled) topLeftPanelTabs.push(ScriptPanelTab)
 
   return {
     dockbox: {
