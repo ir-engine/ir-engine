@@ -116,7 +116,7 @@ export const SplineComponent = defineComponent({
       return () => {
         removeComponent(entity, SplineHelperComponent)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     return null
   }

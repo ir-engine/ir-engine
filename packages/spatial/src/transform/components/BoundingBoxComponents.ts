@@ -93,7 +93,7 @@ export const BoundingBoxComponent = defineComponent({
         if (!hasComponent(entity, BoundingBoxComponent)) return
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     return null
   }

@@ -148,15 +148,15 @@ const execute = () => {
         distance = 10
       } else {
         box.makeEmpty()
-        for (const object of cameraOrbit.focusedEntities.value) {
+        for (const object of cameraOrbit.focusedEntities.value ?? []) {
           const group = getOptionalComponent(object, GroupComponent)
           if (group)
             for (const obj of group) {
               box.expandByObject(obj)
             }
         }
-        if (box.isEmpty()) {
-          const entity = cameraOrbit.focusedEntities[0].value
+        if (box.isEmpty() && cameraOrbit.focusedEntities[0] != null) {
+          const entity = cameraOrbit.focusedEntities[0]!.value
           const position = getComponent(entity, TransformComponent).position
           editorCameraCenter.copy(position)
         } else {

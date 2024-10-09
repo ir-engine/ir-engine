@@ -94,7 +94,7 @@ export const PositionalAudioComponent = defineComponent({
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)
       }
-    }, [areNodeHelpersVisible, mediaElement?.element])
+    }, [isEntityHelperVisible, areNodeHelpersVisible, mediaElement?.element])
 
     useEffect(() => {
       if (!mediaElement?.element.value) return

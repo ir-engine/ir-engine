@@ -80,7 +80,7 @@ export const AvatarIKTargetComponent = defineComponent({
       return () => {
         removeComponent(entity, AxesHelperComponent)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     return null
   },

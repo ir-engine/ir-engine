@@ -264,7 +264,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
   // useEffect(() => {
   //   if (!rendererComponent) return
-  //   if (!rendererComponent.csm.value || !rendererState.nodeHelperVisibility.value) return
+  //   if (!rendererComponent.csm.value || !(rendererState.nodeHelperVisibility.value || rendererState.selectedEntityUUIDs.size.value > 0)) return
 
   //   const helper = new CSMHelper()
   //   rendererComponent.csmHelper.set(helper)
@@ -272,7 +272,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
   //     helper.remove()
   //     rendererComponent.csmHelper.set(null)
   //   }
-  // }, [rendererComponent, renderSettingsComponent.csm, rendererState.nodeHelperVisibility])
+  // }, [rendererComponent, renderSettingsComponent.csm, rendererState.nodeHelperVisibility, rendererState.selectedEntityUUIDs])
 
   useEffect(() => {
     if (rendererEntity === Engine.instance.viewerEntity && xrLightProbeEntity.value) {

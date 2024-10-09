@@ -469,9 +469,10 @@ const cameraReactor = () => {
   }, [engineRendererSettings.gridVisibility])
 
   useEffect(() => {
-    if (engineRendererSettings.nodeHelperVisibility.value) camera.layers.enable(ObjectLayers.NodeHelper)
+    if (engineRendererSettings.nodeHelperVisibility.value || engineRendererSettings.selectedEntityUUIDs.size.value > 0)
+      camera.layers.enable(ObjectLayers.NodeHelper)
     else camera.layers.disable(ObjectLayers.NodeHelper)
-  }, [engineRendererSettings.nodeHelperVisibility])
+  }, [engineRendererSettings.nodeHelperVisibility, engineRendererSettings.selectedEntityUUIDs])
 
   return null
 }

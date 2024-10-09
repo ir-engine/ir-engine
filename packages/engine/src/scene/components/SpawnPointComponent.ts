@@ -64,7 +64,7 @@ export const SpawnPointComponent = defineComponent({
     const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
     const spawnPoint = useComponent(entity, SpawnPointComponent)
 
-    const [gltf] = useGLTF(areNodeHelpersVisible.value ? GLTF_PATH : '', entity)
+    const [gltf] = useGLTF(areNodeHelpersVisible.value || isEntityHelperVisible ? GLTF_PATH : '', entity)
 
     useLayoutEffect(() => {
       const scene = gltf?.scene
@@ -87,7 +87,7 @@ export const SpawnPointComponent = defineComponent({
         if (!hasComponent(entity, SpawnPointComponent)) return
         spawnPoint.helperEntity.set(none)
       }
-    }, [gltf, areNodeHelpersVisible])
+    }, [gltf, isEntityHelperVisible, areNodeHelpersVisible])
 
     return null
   }

@@ -184,7 +184,7 @@ export const MountPointComponent = defineComponent({
       return () => {
         removeComponent(entity, ArrowHelperComponent)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     return null
   }

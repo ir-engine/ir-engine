@@ -403,7 +403,10 @@ export function MediaReactor() {
   const rendererState = useHookstate(getMutableState(RendererState))
   const areNodeHelpersVisible = rendererState.nodeHelperVisibility
   const isEntityHelperVisible = rendererState.selectedEntityUUIDs.value.has(getComponent(entity, UUIDComponent))
-  const [audioHelperTexture] = useTexture(areNodeHelpersVisible.value ? AUDIO_TEXTURE_PATH : '', entity)
+  const [audioHelperTexture] = useTexture(
+    areNodeHelpersVisible.value || isEntityHelperVisible ? AUDIO_TEXTURE_PATH : '',
+    entity
+  )
 
   useEffect(() => {
     if ((areNodeHelpersVisible || isEntityHelperVisible) && audioHelperTexture) {
@@ -419,7 +422,7 @@ export function MediaReactor() {
     return () => {
       removeComponent(entity, DebugMeshComponent)
     }
-  }, [areNodeHelpersVisible, audioHelperTexture])
+  }, [isEntityHelperVisible, areNodeHelpersVisible, audioHelperTexture])
 
   return null
 }

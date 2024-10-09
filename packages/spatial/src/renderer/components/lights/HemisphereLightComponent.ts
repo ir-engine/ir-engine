@@ -92,7 +92,7 @@ export const HemisphereLightComponent = defineComponent({
       return () => {
         removeComponent(entity, LightHelperComponent)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     return null
   }

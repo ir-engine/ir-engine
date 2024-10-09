@@ -181,7 +181,7 @@ export const DirectionalLightComponent = defineComponent({
           removeComponent(entity, LineSegmentComponent)
         }
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     useUpdateLight(light)
 

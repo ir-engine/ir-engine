@@ -97,7 +97,7 @@ export const ScenePreviewCameraComponent = defineComponent({
       return () => {
         removeComponent(entity, CameraHelperComponent)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     return null
   }

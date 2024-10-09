@@ -143,7 +143,7 @@ export const PortalComponent = defineComponent({
       return () => {
         removeComponent(entity, ArrowHelperComponent)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     useEffect(() => {
       if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return

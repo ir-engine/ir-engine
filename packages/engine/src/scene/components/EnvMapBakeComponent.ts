@@ -73,7 +73,7 @@ export const EnvMapBakeComponent = defineComponent({
       return () => {
         removeComponent(entity, DebugMeshComponent)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     return null
   }

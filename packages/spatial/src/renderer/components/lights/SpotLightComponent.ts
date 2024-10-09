@@ -144,7 +144,7 @@ export const SpotLightComponent = defineComponent({
       return () => {
         removeComponent(entity, LightHelperComponent)
       }
-    }, [areNodeHelpersVisible])
+    }, [isEntityHelperVisible, areNodeHelpersVisible])
 
     useUpdateLight(light)
 

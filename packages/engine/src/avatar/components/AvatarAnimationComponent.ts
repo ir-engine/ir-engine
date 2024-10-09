@@ -145,7 +145,7 @@ export const AvatarRigComponent = defineComponent({
       return () => {
         removeEntity(helperEntity)
       }
-    }, [visible, areNodeHelpersVisible, pending, rigComponent.normalizedRig])
+    }, [visible, isEntityHelperVisible, areNodeHelpersVisible, pending, rigComponent.normalizedRig])
 
     useEffect(() => {
       if (!modelComponent?.asset?.value) return
