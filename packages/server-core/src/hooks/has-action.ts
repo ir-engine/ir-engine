@@ -23,19 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { HookContext } from '../../declarations'
 
-import {
-  RedisSettingData,
-  RedisSettingPatch,
-  RedisSettingQuery,
-  RedisSettingType
-} from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
-
-export interface RedisSettingParams extends KnexAdapterParams<RedisSettingQuery> {}
-
-export class RedisSettingService<
-  T = RedisSettingType,
-  ServiceParams extends Params = RedisSettingParams
-> extends KnexService<RedisSettingType, RedisSettingData, RedisSettingParams, RedisSettingPatch> {}
+export default (hook: HookContext): boolean => {
+  return !!hook.params.query.action || !!hook.params.actualQuery.action
+}

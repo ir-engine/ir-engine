@@ -42,7 +42,6 @@ import {
   instanceServerSettingPath,
   InstanceServerSettingType
 } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
-import { redisSettingPath, RedisSettingType } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
   serverSettingPath
@@ -184,42 +183,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read instanceServerSetting: ${e.message}`)
     })
   promises.push(instanceServerSettingPromise)
-
-  const redisSettingPromise = knexClient
-    .select()
-    .from<RedisSettingType>(redisSettingPath)
-    .then(async ([dbRedis]) => {
-      const { address, port, password } = dbRedis
-      if (
-        address !== process.env.REDIS_ADDRESS ||
-        port !== process.env.REDIS_PORT ||
-        password !== process.env.REDIS_PASSWORD
-      ) {
-        await knexClient(redisSettingPath).update({
-          address: process.env.REDIS_ADDRESS,
-          port: process.env.REDIS_PORT,
-          password: process.env.REDIS_PASSWORD
-        })
-        ;[dbRedis] = await knexClient.select().from<RedisSettingType>(redisSettingPath)
-      }
-
-      const dbRedisConfig = dbRedis && {
-        enabled: dbRedis.enabled,
-        address: dbRedis.address,
-        port: dbRedis.port,
-        password: dbRedis.password
-      }
-      if (dbRedisConfig) {
-        appConfig.redis = {
-          ...appConfig.redis,
-          ...dbRedisConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read redisSetting: ${e.message}`)
-    })
-  promises.push(redisSettingPromise)
 
   const serverSettingPromise = knexClient
     .select()

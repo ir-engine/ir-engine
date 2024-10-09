@@ -22,25 +22,27 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import ErrorView from './index'
 
-import {
-  redisSettingDataSchema,
-  redisSettingPatchSchema,
-  redisSettingQuerySchema,
-  redisSettingSchema
-} from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
+const argTypes: ArgTypes = {}
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    redisSettingDataSchema,
-    redisSettingPatchSchema,
-    redisSettingQuerySchema,
-    redisSettingSchema
+export default {
+  title: 'Primitives/Tailwind/ErrorView',
+  component: ErrorView,
+  parameters: {
+    componentSubtitle: 'ErrorView',
+    design: {
+      type: 'figma',
+      url: ''
+    }
   },
-  docs: {
-    description: 'Redis setting service description',
-    securities: ['all']
+  argTypes
+}
+
+export const Default = {
+  args: {
+    className: ''
   }
-})
+}
