@@ -74,7 +74,7 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
   },
   "warnings" : {
     "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
@@ -1432,7 +1432,7 @@
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
+      "info-name": "Name must be between 4 and 64 characters (with only letters, numbers, underscores, dashes and periods allowed)",
       "lbl-confirm": "Save Scene"
     },
     "saveModel": {
