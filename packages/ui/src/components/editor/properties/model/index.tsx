@@ -79,7 +79,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   })
 
   const [dereferenceFeatureFlag] = useFeatureFlags([FeatureFlags.Studio.Model.Dereference])
-  const { refreshDirectory } = useCurrentFiles()
 
   const getRelativePath = useCallback(() => {
     const relativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3]
