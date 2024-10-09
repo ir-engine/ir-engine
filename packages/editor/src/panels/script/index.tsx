@@ -26,11 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useQuery } from '@ir-engine/ecs'
 import { ScriptComponent } from '@ir-engine/engine'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { getMutableState, useForceUpdate, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
 import { Editor } from '@monaco-editor/react'
-import DockLayout, { DockMode, LayoutData, TabData } from 'rc-dock'
+import DockLayout, { DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScriptService, ScriptState } from '../../services/ScriptService'
@@ -82,7 +82,6 @@ const ScriptContainer = () => {
   const scriptState = useHookstate(getMutableState(ScriptState))
 
   const dockPanelRef = useRef<DockLayout>(null)
-  const forceUpdate = useForceUpdate()
 
   const tabLayout = (): LayoutData => {
     return {
@@ -92,8 +91,27 @@ const ScriptContainer = () => {
       }
     }
   }
-
   const [activeTabLayout, setActiveTabLayout] = useState<LayoutData>(tabLayout())
+
+  const setActiveTab = (tabId) => {
+    setActiveTabLayout((prevLayout) => {
+      return {
+        ...prevLayout,
+        dockbox: {
+          ...prevLayout.dockbox,
+          children: prevLayout.dockbox.children.map((child) => {
+            if ((child as PanelData).tabs) {
+              return {
+                ...child,
+                activeId: tabId // Update the active tab ID
+              }
+            }
+            return child
+          })
+        }
+      }
+    })
+  }
 
   useEffect(() => {
     setActiveTabLayout(tabLayout())
@@ -106,6 +124,7 @@ const ScriptContainer = () => {
       <DockLayout
         onLayoutChange={(newLayout, currentTabId, direction) => {
           if (direction === 'remove') ScriptService.removeScript(currentTabId)
+          if (direction === 'active') setActiveTab(currentTabId)
         }}
         ref={dockPanelRef}
         defaultLayout={activeTabLayout}
