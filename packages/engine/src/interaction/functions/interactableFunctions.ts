@@ -23,12 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Frustum, Matrix4, Vector3 } from 'three'
+import { Frustum, Matrix4 } from 'three'
 
 import { getComponent, getOptionalComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import {
@@ -37,9 +36,9 @@ import {
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { inFrustum } from '../../camera/functions/cameraFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 
-const worldPosVec3 = new Vector3()
 const mat4 = new Matrix4()
 const frustum = new Frustum()
 
@@ -70,11 +69,6 @@ export const InteractableState = defineState({
     }
   }
 })
-
-export const inFrustum = (entity: Entity): boolean => {
-  TransformComponent.getWorldPosition(entity, worldPosVec3)
-  return frustum.containsPoint(worldPosVec3)
-}
 
 /**
  * Checks if entity can interact with any of entities listed in 'interactable' array, checking distance, guards and raycast

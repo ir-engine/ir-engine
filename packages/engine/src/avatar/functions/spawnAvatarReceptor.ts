@@ -51,6 +51,7 @@ import {
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { XruiNameplateComponent } from '@ir-engine/client-core/src/social/components/XruiNameplateComponent'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
@@ -106,6 +107,8 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
+  } else {
+    setComponent(entity, XruiNameplateComponent)
   }
 
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)

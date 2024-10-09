@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
@@ -40,7 +39,7 @@ import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsSta
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { applyVideoToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent, NetworkObjectOwnedTag, NetworkState } from '@ir-engine/network'
+import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { easeOutElastic } from '@ir-engine/spatial/src/common/functions/MathFunctions'
@@ -94,7 +93,7 @@ export const renderAvatarContextMenu = (userId: UserID, contextMenuEntity: Entit
   contextMenuXRUI.quaternion.copy(cameraTransform.rotation)
 }
 
-const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)])
+const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent]) //, Not(NetworkObjectOwnedTag)])
 
 const _vector3 = new Vector3()
 
@@ -279,10 +278,10 @@ const execute = () => {
     AvatarUITransitions.delete(userEntity)
   }
 
-  // const state = getState(AvatarUIContextMenuState)
-  // if (state.id !== '') {
-  //   renderAvatarContextMenu(state.id as UserID, state.ui.entity)
-  // }
+  const state = getState(AvatarUIContextMenuState)
+  if (state.id !== '') {
+    renderAvatarContextMenu(state.id as UserID, state.ui.entity)
+  }
 }
 
 const reactor = () => {
