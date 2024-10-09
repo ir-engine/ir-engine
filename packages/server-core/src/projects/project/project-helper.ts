@@ -1726,7 +1726,7 @@ export const uploadLocalProjectToProvider = async (
   for (const file of filteredFilesInProjectFolder) {
     try {
       const fileResult = fs.readFileSync(file)
-      const filePathRelative = cleanFileNameString(file.slice(projectRootPath.length + 1))
+      const filePathRelative = cleanFileNameString(file.slice(projectRootPath.length + 1), true)
       const key = `projects/${projectName}/${filePathRelative}`
 
       const contentType = getContentType(key)

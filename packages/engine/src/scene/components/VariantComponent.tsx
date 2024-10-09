@@ -43,6 +43,7 @@ import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/co
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, useImmediateEffect } from '@ir-engine/hyperflux'
+import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { setInstancedMeshVariant, updateModelVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'
 import { ModelComponent } from './ModelComponent'
@@ -141,6 +142,15 @@ function VariantReactor(): ReactElement {
 const VariantLevelReactor = React.memo(({ entity, level }: { level: number; entity: Entity }) => {
   const variantComponent = useComponent(entity, VariantComponent)
   const variantLevel = variantComponent.levels[level]
+
+  useEffect(() => {
+    setCallback(entity, `variantLevel${level}`, () => {
+      variantComponent.currentLevel.set(level)
+    })
+    return () => {
+      removeCallback(entity, `variantLevel${level}`)
+    }
+  }, [])
 
   useEffect(() => {
     //if the variant heuristic is set to Distance, add the DistanceFromCameraComponent
