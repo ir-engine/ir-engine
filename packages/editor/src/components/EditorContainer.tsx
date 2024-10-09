@@ -106,7 +106,7 @@ const onEditorError = (error) => {
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEnabled: boolean }): LayoutData => {
   const bottomLeftPanelTabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
-  const topLeftPanelTabs = [ViewportPanelTab, ScriptPanelTab]
+  const topLeftPanelTabs = [ViewportPanelTab]
 
   flags.visualScriptPanelEnabled ?? bottomLeftPanelTabs.push(VisualScriptPanelTab)
   flags.scriptPanelEnabled ?? topLeftPanelTabs.push(ScriptPanelTab)
