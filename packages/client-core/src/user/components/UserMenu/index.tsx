@@ -62,6 +62,7 @@ export const UserMenu = () => {
                     title={hotbarItem.tooltip}
                     icon={hotbarItem.icon}
                     sizePx={50}
+                    disabled={hotbarItem.disabled}
                     onClick={() => {
                       if (getState(AppState).showBottomShelf) PopupMenuServices.showPopupMenu(id)
                     }}
