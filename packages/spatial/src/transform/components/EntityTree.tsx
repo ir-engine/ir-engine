@@ -232,7 +232,7 @@ export function traverseEntityNodeChildFirst(
  *
  * @param entity Entity Node where traversal will start
  * @param cb Callback function called on every entity found in the tree
- * @param pred Predicate function. An entity (and its children) won't be processed when the predicate returns false for that entity
+ * @param pred An entity (and its children) won't be processed when the predicate function returns false for that entity
  * @param snubChildren When true: Do not traverse the children of a node when `@param pred` returns false
  * @param breakOnFind Whe true: Traversal will stop as soon as `@param pred` returns true for the first time. No children will be included in the result
  * @returns The list of `@type R` for all entities that matched the conditions.
@@ -300,7 +300,7 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
  * @param closest _(@default true)_ - Whether to return the closest ancestor or the furthest ancestor
  * @param includeSelf _(@default true)_ - Whether to include the `@param entity` in the search or not
  * @returns The parent entity _(or itself when relevant)_
- */
+ * */
 export function getAncestorWithComponents(
   entity: Entity,
   components: Component[],
@@ -331,7 +331,7 @@ export function getAncestorWithComponents(
  * @returns
  * The index of `@param entity` inside `@param list` when the entity was found
  * `-1` when the `@param entity` wasn't found
- */
+ * */
 export function findIndexOfEntityNode(list: Entity[], entity: Entity): number {
   for (let id = 0; id < list.length; ++id) {
     if (entity === list[id]) return id
@@ -345,7 +345,7 @@ export function findIndexOfEntityNode(list: Entity[], entity: Entity): number {
  *
  * @param child The Entity Node to search for
  * @param parent The Entity Node where the search will start
- */
+ * */
 export function isDeepChildOf(child: Entity, parent: Entity): boolean {
   const childTreeNode = getOptionalComponent(child, EntityTreeComponent)
   if (!childTreeNode) return false
@@ -353,17 +353,26 @@ export function isDeepChildOf(child: Entity, parent: Entity): boolean {
   return isDeepChildOf(childTreeNode.parentEntity, parent)
 }
 
-export function getNestedChildren(entity: Entity, predicate?: (e: Entity) => boolean): Entity[] {
-  const children: Entity[] = []
+/**
+ * @description
+ * Returns an {@link Entity} list that contains all children of `@param entity` and all children of those children recursively.
+ * Traversal will stop early when `@param pred` returns true for an entity. The entire tree will be traversed otherwise.
+ *
+ * @param entity Entity Node where traversal will start
+ * @param pred An entity (and its children) won't be processed when the predicate function returns false for that entity
+ * @returns The resulting {@link Entity} list of children entities that matched the conditions.
+ * */
+export function getNestedChildren(entity: Entity, pred?: (e: Entity) => boolean): Entity[] {
+  const result: Entity[] = []
   iterateEntityNode(
     entity,
     (child) => {
-      children.push(child)
+      result.push(child)
     },
-    predicate,
+    pred,
     true
   )
-  return children
+  return result
 }
 
 /**
@@ -423,7 +432,7 @@ export function useTreeQuery(entity: Entity) {
  * @param closest _(default: true)_ - Returns the closest entity when true. Returns the furthest entity otherwise.
  * @param includeSelf _(@default true)_ - Whether to include the `@param entity` in the search or not
  * @returns The ancestor {@link Entity} of `@param entity` that matched the conditions
- */
+ * */
 export function useAncestorWithComponents(
   entity: Entity,
   components: ComponentType<any>[],
@@ -638,8 +647,8 @@ export function findCommonAncestors(entities: Entity[], result: Entity[] = []): 
   // Initially all entities are candidates
   for (let i = 0; i < entities.length; i++) result.push(entities[i])
 
-  // For each object check if it is an ancestor of any of the other objects.
-  // If so reject that object and remove it from the candidate array.
+  // Check if each entity is an ancestor of any of the other entities.
+  // If so reject that entity and remove it from the candidates array.
   for (let i = 0; i < entities.length; ++i) {
     const entity = entities[i]
     let validCandidate = true
