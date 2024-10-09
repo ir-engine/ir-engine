@@ -64,6 +64,12 @@ export const updateScriptFile = async (fileName, script = 'console.log("hello wo
   return
 }
 
+export const createNewScriptFile = async () => {
+  const fileName = `${uniqueId('RealityScript')}.js`
+  await updateScriptFile(fileName)
+  return fileName
+}
+
 export const ScriptNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
@@ -75,12 +81,9 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     if (scriptComponent.src.value.length > 0) return // only set if there is no value already set
-
-    const relativePath = `projects/${editorState.projectName.value}/assets/scripts`
-    const fileName = `${uniqueId('RealityScript')}.js`
     ;(async () => {
-      // create empty or defualt script file
-      await updateScriptFile(fileName)
+      const fileName = await createNewScriptFile()
+      const relativePath = `projects/${editorState.projectName.value}/assets/scripts`
       scriptComponent.src.set(`${config.client.fileServer}/${relativePath}/${fileName}`)
       commitProperty(ScriptComponent, 'src')(scriptComponent.src.value)
     })()

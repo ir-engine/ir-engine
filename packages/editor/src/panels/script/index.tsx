@@ -27,7 +27,7 @@ import { UndefinedEntity } from '@ir-engine/ecs'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
+import { createNewScriptFile, fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { Editor } from '@monaco-editor/react'
@@ -179,22 +179,33 @@ const ScriptContainer = () => {
 
   return (
     <div id="script-container" className="h-full w-full">
-      <DockLayout
-        onLayoutChange={(newLayout, currentTabId, direction) => {
-          if (direction === 'remove') ScriptService.removeScript(currentTabId)
-          if (direction === 'active') setActiveTab(currentTabId)
-        }}
-        ref={dockPanelRef}
-        defaultLayout={activeTabLayout}
-        layout={activeTabLayout}
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          right: 0,
-          bottom: 0
-        }}
-      />
+      {scriptState.scripts.value.length === 0 ? (
+        <DockLayout
+          onLayoutChange={(newLayout, currentTabId, direction) => {
+            if (direction === 'remove') ScriptService.removeScript(currentTabId)
+            if (direction === 'active') setActiveTab(currentTabId)
+          }}
+          ref={dockPanelRef}
+          defaultLayout={activeTabLayout}
+          layout={activeTabLayout}
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0
+          }}
+        />
+      ) : (
+        <Button
+          variant="outline"
+          onClick={() => {
+            createNewScriptFile()
+          }}
+        >
+          {t('editor:visualScript.panel.addVisualScript')}
+        </Button>
+      )}
     </div>
   )
 }
