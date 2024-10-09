@@ -23,19 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { Editor } from '@monaco-editor/react'
 import DockLayout, { DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaLink, FaLinkSlash } from 'react-icons/fa6'
+import { RiSaveLine } from 'react-icons/ri'
+import { VscDiscard } from 'react-icons/vsc'
+import { twMerge } from 'tailwind-merge'
 import { ScriptService, ScriptState } from '../../services/ScriptService'
 import './ScriptTab.css'
 
 const ActiveScript = ({ scriptURL }) => {
+  const scriptState = useHookstate(getMutableState(ScriptState))
+
   const [code, setCode] = useState('')
+  const [codeChanged, setCodeChanged] = useState(false)
+  const { t } = useTranslation()
 
   useEffect(() => {
     fetchCode(scriptURL).then((code) => {
@@ -43,13 +54,8 @@ const ActiveScript = ({ scriptURL }) => {
     })
   }, [scriptURL])
 
-  useEffect(() => {
-    if (!scriptURL) return
-    updateScriptFile(getFileName(scriptURL), code)
-  }, [code])
-
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex h-full w-full flex-row items-center justify-center">
       <Editor
         height="100%"
         language="javascript"
@@ -57,9 +63,65 @@ const ActiveScript = ({ scriptURL }) => {
         value={code} // get the file contents
         onChange={(newCode) => {
           setCode(newCode ?? code)
+          setCodeChanged(true)
         }}
         theme="vs-dark"
       />
+      <div className="flex h-full w-[5%] min-w-10 flex-col items-center justify-end gap-2 py-2">
+        <Tooltip
+          content={
+            scriptState.scripts.value[scriptURL] === UndefinedEntity
+              ? t('editor:script.panel.unLink')
+              : t('editor:script.panel.link')
+          }
+        >
+          <Button
+            variant="transparent"
+            startIcon={
+              scriptState.scripts.value[scriptURL] === UndefinedEntity ? (
+                <FaLinkSlash className="hover:text-amber-300" />
+              ) : (
+                <FaLink className="text-green-500 hover:text-red-500" />
+              )
+            }
+            className={`p-1`}
+            data-testid="script-panel-link-button"
+            onClick={() => {
+              scriptState.scripts.value[scriptURL] === UndefinedEntity
+                ? ScriptService.activateScript(scriptURL)
+                : ScriptService.deactivateScript(scriptURL)
+            }}
+          />
+        </Tooltip>
+        <Tooltip content={t('editor:script.panel.save')}>
+          <Button
+            variant="transparent"
+            startIcon={
+              <RiSaveLine className={twMerge(codeChanged ? 'text-amber-300' : 'text-white', 'hover:text-green-500')} />
+            }
+            className={`p-1`}
+            data-testid="script-panel-save-button"
+            onClick={() => {
+              updateScriptFile(getFileName(scriptURL), code)
+              setCodeChanged(false)
+            }}
+          />
+        </Tooltip>
+        <Tooltip content={t('editor:script.panel.discard')}>
+          <Button
+            variant="transparent"
+            startIcon={<VscDiscard className="hover:text-amber-300" />}
+            className={`p-1`}
+            data-testid="script-panel-discard-button"
+            onClick={() => {
+              fetchCode(scriptURL).then((code) => {
+                setCode(code)
+                setCodeChanged(false)
+              })
+            }}
+          />
+        </Tooltip>
+      </div>
     </div>
   )
 }

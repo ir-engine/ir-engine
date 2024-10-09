@@ -1227,7 +1227,12 @@
   "script":{
     "panel": {
       "title": "Script",
-      "addScript": "Add Script"
+      "addScript": "Add Script",
+
+      "link": "Script is linked to scene, Press to unlink",
+      "unLink": "Script is not linked to scene, Press to link",
+      "save": "Save  Changes",
+      "discard" : "Discard Changes"
     }
   },
   "layout": {
