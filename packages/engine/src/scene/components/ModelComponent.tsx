@@ -73,18 +73,10 @@ export const ModelComponent = defineComponent({
     cameraOcclusion: S.Bool(true),
     /** optional, only for bone matchable avatars */
     convertToVRM: S.Bool(false),
-    scene: S.Nullable(S.Type<Group>()),
-    asset: S.Nullable(S.Type<VRM | GLTF>()),
-    dereference: S.Bool(false)
+    scene: S.NonSerialized(S.Nullable(S.Type<Group>())),
+    asset: S.NonSerialized(S.Nullable(S.Type<VRM | GLTF>())),
+    dereference: S.NonSerialized(S.Bool(false))
   }),
-
-  toJSON: (component) => {
-    return {
-      src: component.src,
-      cameraOcclusion: component.cameraOcclusion,
-      convertToVRM: component.convertToVRM
-    }
-  },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
@@ -147,7 +139,7 @@ function ModelReactor() {
     //     mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
     //   })
 
-    // modelComponent.asset.set(boneMatchedAsset)
+    modelComponent.asset.set(gltf)
   }, [gltf])
 
   useEffect(() => {

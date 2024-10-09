@@ -100,10 +100,10 @@ export const GLTFComponent = defineComponent({
     cameraOcclusion: S.Bool(false),
 
     // internals
-    body: S.Nullable(S.Type<ArrayBuffer>()),
-    progress: S.Number(0),
-    extensions: S.Record(S.String(), S.Any(), {}),
-    dependencies: S.Optional(S.Type<ComponentDependencies>())
+    body: S.NonSerialized(S.Nullable(S.Type<ArrayBuffer>())),
+    progress: S.NonSerialized(S.Number(0)),
+    extensions: S.NonSerialized(S.Record(S.String(), S.Any(), {})),
+    dependencies: S.NonSerialized(S.Optional(S.Type<ComponentDependencies>()))
   }),
 
   useDependenciesLoaded(entity: Entity) {
@@ -161,13 +161,13 @@ export const GLTFComponent = defineComponent({
     )
   },
 
-  getInstanceID: (entity) => {
+  getInstanceID: (entity: Entity) => {
     return `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
   },
 
-  useInstanceID: (entity) => {
-    const uuid = useComponent(entity, UUIDComponent)?.value
-    const src = useComponent(entity, GLTFComponent)?.src.value
+  useInstanceID: (entity: Entity) => {
+    const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+    const src = useOptionalComponent(entity, GLTFComponent)?.src.value
     if (!uuid || !src) return ''
     return `${uuid}-${src}`
   }

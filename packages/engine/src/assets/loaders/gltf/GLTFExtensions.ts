@@ -35,6 +35,7 @@ import {
   InstancedBufferAttribute,
   InstancedMesh,
   LinearSRGBColorSpace,
+  Loader,
   Matrix4,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
@@ -43,7 +44,6 @@ import {
   Quaternion,
   SpotLight,
   SRGBColorSpace,
-  TextureLoader,
   Vector2,
   Vector3
 } from 'three'
@@ -847,10 +847,10 @@ export class GLTFTextureWebPExtension {
     // @ts-ignore -- TODO type extensions
     const source = json.images[extension.source]
 
-    let loader = parser.textureLoader
+    let loader = parser.textureLoader as Loader
     if (source.uri) {
       const handler = parser.options.manager.getHandler(source.uri)
-      if (handler !== null) loader = handler as TextureLoader
+      if (handler !== null) loader = handler
     }
 
     return this.detectSupport().then(function (isSupported) {
@@ -914,10 +914,10 @@ export class GLTFTextureAVIFExtension {
     // @ts-ignore -- TODO type extensions
     const source = json.images[extension.source]
 
-    let loader = parser.textureLoader
+    let loader = parser.textureLoader as Loader
     if (source.uri) {
       const handler = parser.options.manager.getHandler(source.uri)
-      if (handler !== null) loader = handler as TextureLoader
+      if (handler !== null) loader = handler
     }
 
     return this.detectSupport().then(function (isSupported) {

@@ -41,6 +41,7 @@ import {
   getOptionalComponent,
   hasComponent,
   removeEntity,
+  S,
   setComponent,
   useComponent,
   useEntityContext,
@@ -52,22 +53,16 @@ import { NameComponent } from '../../common/NameComponent'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { RendererState } from '../RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { RendererState } from '../RendererState'
 import { BoneComponent } from './BoneComponent'
 import { addObjectToGroup } from './GroupComponent'
 import { setObjectLayers } from './ObjectLayerComponent'
-import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from './VisibleComponent'
 
 export const SkinnedMeshComponent = defineComponent({
   name: 'SkinnedMeshComponent',
-
-  onInit: (entity) => null! as SkinnedMesh,
-
-  onSet: (entity, component, mesh: SkinnedMesh) => {
-    if (!mesh || !mesh.isSkinnedMesh) throw new Error('SkinnedMeshComponent: Invalid skinned mesh')
-    component.set(mesh)
-  },
+  schema: S.Required(S.Type<SkinnedMesh>()),
 
   reactor: function () {
     const entity = useEntityContext()

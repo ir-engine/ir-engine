@@ -23,7 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { BufferAttribute, Cache, CompressedTexture, Material, Mesh, Object3D, SkinnedMesh, Texture } from 'three'
+import {
+  BufferAttribute,
+  Cache,
+  CompressedTexture,
+  Material,
+  Mesh,
+  Object3D,
+  RepeatWrapping,
+  SkinnedMesh,
+  Texture
+} from 'three'
 
 import { Engine, Entity, getOptionalComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State } from '@ir-engine/hyperflux'
@@ -236,33 +246,34 @@ const resourceCallbacks = {
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
-      // asset.wrapS = RepeatWrapping
-      // asset.wrapT = RepeatWrapping
-      // asset.onUpdate = () => {
-      //   if (resource && resource.value) resource.metadata.merge({ onGPU: true })
-      //   //@ts-ignore
-      //   asset.onUpdate = null
-      // }
-      // //Compressed texture size
-      // if (asset.mipmaps[0]) {
-      //   let size = 0
-      //   for (const mip of asset.mipmaps) {
-      //     size += mip.data.byteLength
-      //   }
-      //   resource.metadata.size.set(size)
-      //   // Non compressed texture size
-      // } else {
-      //   const height = asset.image.height
-      //   const width = asset.image.width
-      //   const size = width * height * 4
-      //   resource.metadata.size.set(size)
-      // }
-      // if ((asset as CompressedTexture).isCompressedTexture) {
-      //   const id = resource.id.value
-      //   if (id.endsWith('ktx2')) asset.source.data.src = id
-      // }
-      // resource.metadata.merge({ textureWidth: asset.image.width })
-      // resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
+      if (!asset.image) return
+      asset.wrapS = RepeatWrapping
+      asset.wrapT = RepeatWrapping
+      asset.onUpdate = () => {
+        if (resource && resource.value) resource.metadata.merge({ onGPU: true })
+        //@ts-ignore
+        asset.onUpdate = null
+      }
+      //Compressed texture size
+      if (asset.mipmaps[0]) {
+        let size = 0
+        for (const mip of asset.mipmaps) {
+          size += mip.data.byteLength
+        }
+        resource.metadata.size.set(size)
+        // Non compressed texture size
+      } else {
+        const height = asset.image.height
+        const width = asset.image.width
+        const size = width * height * 4
+        resource.metadata.size.set(size)
+      }
+      if ((asset as CompressedTexture).isCompressedTexture) {
+        const id = resource.id.value
+        if (id.endsWith('ktx2')) asset.source.data.src = id
+      }
+      resource.metadata.merge({ textureWidth: asset.image.width })
+      resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},

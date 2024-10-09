@@ -33,7 +33,7 @@ import {
   getOptionalComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { NO_PROXY, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, getState, isClient, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
@@ -493,9 +493,6 @@ const useLoadMaterial = (
       : null
     const materialConstructor = materialPrototype ?? MeshStandardMaterial
     const material = new materialConstructor()
-
-    result.set(material)
-
     assignExtrasToUserData(material, materialDef)
 
     /** @todo */
@@ -795,24 +792,7 @@ const useAssignTexture = (options: GLTFParserOptions, mapDef?: GLTF.ITextureInfo
   return result.get(NO_PROXY) as Texture | null
 }
 
-let isSafari = false
-let isFirefox = false
-let firefoxVersion = -1 as any // ???
-
-if (typeof navigator !== 'undefined') {
-  isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
-  isFirefox = navigator.userAgent.indexOf('Firefox') > -1
-  firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
-}
-
-let textureLoader: TextureLoader | ImageBitmapLoader
-
-/** @todo use resource loader hooks */
-if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
-  textureLoader = new TextureLoader()
-} else {
-  textureLoader = new ImageBitmapLoader()
-}
+const textureLoader = new TextureLoader(undefined, true)
 
 type KHRTextureBasisu = {
   source: number
@@ -834,7 +814,7 @@ const useLoadTexture = (options: GLTFParserOptions, textureIndex?: number) => {
   /** @todo properly support texture extensions, this is a hack */
   const sourceIndex =
     (extensions && Object.values(extensions).find((ext) => typeof ext.source === 'number')?.source) ??
-    textureDef?.source!
+    textureDef?.source
   const sourceDef = typeof sourceIndex === 'number' ? json.images![sourceIndex] : null
 
   const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)
@@ -918,10 +898,15 @@ const useLoadImageSource = (
 
   const sourceURI = useHookstate('')
   const result = useHookstate<Texture | null>(null)
-  const [loadedTexture] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
+  const [loadedTexture, error] = useTexture(sourceURI.value, UndefinedEntity, () => {}, loader)
   let isObjectURL = false
 
   const bufferViewSourceURI = GLTFLoaderFunctions.useLoadBufferView(options, sourceDef?.bufferView)
+
+  useEffect(() => {
+    if (!error) return
+    console.error(`GLTFLoaderFunctions:useLoadImageSource Error loading texture for uri ${sourceURI.value}`, error)
+  }, [error])
 
   useEffect(() => {
     if (!sourceDef) return
@@ -955,10 +940,13 @@ const useLoadImageSource = (
     if (!loadedTexture) return
 
     let resultTexture
-    console.log(loadedTexture)
-    if (loadedTexture instanceof ImageBitmap) {
-      resultTexture = new Texture(loadedTexture as ImageBitmap)
-      resultTexture.needsUpdate = true
+    if (isClient) {
+      if (loadedTexture instanceof ImageBitmap) {
+        resultTexture = new Texture(loadedTexture as ImageBitmap)
+        resultTexture.needsUpdate = true
+      } else {
+        resultTexture = loadedTexture
+      }
     } else {
       resultTexture = loadedTexture
     }
@@ -976,7 +964,7 @@ const useLoadImageSource = (
     if (isObjectURL === true) {
       URL.revokeObjectURL(sourceURI.value!)
     } else {
-      texture.userData.src = sourceURI
+      texture.userData.src = sourceURI.value
     }
 
     texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
