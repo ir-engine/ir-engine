@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useQuery } from '@ir-engine/ecs'
-import { ScriptComponent } from '@ir-engine/engine'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
@@ -47,11 +45,9 @@ const ActiveScript = ({ scriptURL }) => {
 
   useEffect(() => {
     if (!scriptURL) return
-    console.log('DEBUG upload script')
     updateScriptFile(getFileName(scriptURL), code)
   }, [code])
 
-  useQuery([ScriptComponent])
   return (
     <div className="flex h-full w-full items-center justify-center">
       <Editor

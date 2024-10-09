@@ -32,12 +32,6 @@ export const ScriptState = defineState({
   initial: () => {
     // filter out the js files from the file browser
     const scripts: Record<string, any> = {}
-    scripts['https://localhost:8642/projects/ir-engine/default-project/assets/scripts/dayNightCycleScript.js'] =
-      UndefinedEntity
-    scripts['https://localhost:8642/projects/ir-engine/default-project/assets/scripts/proceduralGenerationScript.js'] =
-      UndefinedEntity
-    scripts['https://localhost:8642/projects/ir-engine/default-project/assets/scripts/defaultObjectRotateScript.js'] =
-      UndefinedEntity
     return { scripts: scripts }
   }
 })

@@ -105,9 +105,11 @@ const onEditorError = (error) => {
 }
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
-  flags.visualScriptPanelEnabled ?? tabs.push(VisualScriptPanelTab)
-  flags.scriptPanelEnabled ?? tabs.push(ScriptPanelTab)
+  const bottomLeftPanelTabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  const topLeftPanelTabs = [ViewportPanelTab, ScriptPanelTab]
+
+  flags.visualScriptPanelEnabled ?? bottomLeftPanelTabs.push(VisualScriptPanelTab)
+  flags.scriptPanelEnabled ?? topLeftPanelTabs.push(ScriptPanelTab)
 
   return {
     dockbox: {
@@ -118,10 +120,10 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEn
           size: 8,
           children: [
             {
-              tabs: [ViewportPanelTab]
+              tabs: topLeftPanelTabs
             },
             {
-              tabs: tabs
+              tabs: bottomLeftPanelTabs
             }
           ]
         },
