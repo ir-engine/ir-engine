@@ -159,13 +159,7 @@ export const AvatarRigComponent = defineComponent({
     }, [rigComponent?.vrm?.value])
 
     useEffect(() => {
-      if (
-        !rigComponent.value ||
-        !rigComponent.value.vrm ||
-        !rigComponent.value.avatarURL ||
-        !locomotionAnimationState?.value
-      )
-        return
+      if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)
