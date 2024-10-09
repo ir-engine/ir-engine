@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { useEffect } from 'react'
 import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { addError, clearErrors, removeError } from '../scene/functions/ErrorFunctions'
@@ -75,7 +77,7 @@ export const ScriptComponent = defineComponent({
     const scriptComponent = useComponent(entity, ScriptComponent)
 
     useEffect(() => {
-      //if(getState(EngineState).isEditing) return
+      if (getState(EngineState).isEditing) return
       const script = document.createElement('script')
       if (!scriptComponent.src.value) return // return for empty src
       if (!validateScriptUrl(entity, scriptComponent.src.value)) return // validation step
