@@ -74,6 +74,7 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { KHRUnlitExtensionComponent } from '../../gltf/MaterialDefinitionComponent'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
@@ -228,27 +229,47 @@ const ModelEntityReactor = () => {
   )
 }
 
+const useIsUnlit = (entity: Entity) => {
+  let isUnlit = !!useOptionalComponent(entity, KHRUnlitExtensionComponent)
+  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
+
+  if (materialInstanceUUIDs) {
+    for (const uuid of materialInstanceUUIDs) {
+      const matEntity = UUIDComponent.getEntityByUUID(uuid)
+      if (matEntity && hasComponent(matEntity, KHRUnlitExtensionComponent)) {
+        isUnlit = true
+        break
+      }
+    }
+  }
+
+  return isUnlit
+}
+
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
   const isVisible = useOptionalComponent(props.entity, VisibleComponent)
+  const isUnlit = useIsUnlit(props.entity)
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
     if (!isMesh || !isVisible) return
-    if (shadowComponent) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
+    if (shadowComponent && !isUnlit)
+      setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
-  }, [isVisible, isMesh, shadowComponent?.cast, shadowComponent?.receive])
+  }, [isVisible, isMesh, isUnlit, shadowComponent?.cast, shadowComponent?.receive])
 
   const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
   useEffect(() => {
     if (!isMesh || !isVisible) return
-    if (envmapComponent)
+    if (envmapComponent && !isUnlit)
       setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
     else removeComponent(props.entity, EnvmapComponent)
   }, [
     isVisible,
     isMesh,
+    isUnlit,
     envmapComponent,
     envmapComponent?.envMapIntensity,
     envmapComponent?.envmap,

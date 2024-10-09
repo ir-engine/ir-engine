@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
 import {
   ComponentType,
   S,
@@ -53,35 +52,61 @@ import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { getParserOptions } from './GLTFState'
 
-const ITextureInfoSchema = S.Object({
+const TextureInfoSchema = S.Object({
   index: S.Number(),
   texCoord: S.Optional(S.Number()),
   extensions: S.Optional(S.Record(S.String(), S.Any())),
   extras: S.Optional(S.Record(S.String(), S.Any()))
 })
 
+const MaterialNormalTextureInfoSchema = S.Object({
+  index: S.Number(),
+  scale: S.Optional(S.Number()),
+  texCoord: S.Optional(S.Number()),
+  extensions: S.Optional(S.Record(S.String(), S.Any())),
+  extras: S.Optional(S.Record(S.String(), S.Any()))
+})
+
+const MaterialMetallicRoughnessSchema = S.Object({
+  baseColorFactor: S.Optional(S.Array(S.Number())),
+  baseColorTexture: S.Optional(TextureInfoSchema),
+  metallicFactor: S.Optional(S.Number()),
+  roughnessFactor: S.Optional(S.Number()),
+  metallicRoughnessTexture: S.Optional(TextureInfoSchema)
+})
+
+const MaterialOcclusionTextureInfoSchema = S.Object({
+  index: S.Number(),
+  strength: S.Optional(S.Number()),
+  texCoord: S.Optional(S.Number()),
+  extensions: S.Optional(S.Record(S.String(), S.Any())),
+  extras: S.Optional(S.Record(S.String(), S.Any()))
+})
+
+const MaterialAlphaModeSchema = S.LiteralUnion(['OPAQUE', 'MASK', 'BLEND'])
+
+const MaterialDefinitionSchema = S.Object({
+  type: S.Union(
+    [S.Literal('MeshStandardMaterial'), S.Literal('MeshPhysicalMaterial'), S.Literal('MeshBasicMaterial'), S.String()],
+    'MeshStandardMaterial'
+  ),
+
+  name: S.Optional(S.String()),
+  pbrMetallicRoughness: S.Optional(MaterialMetallicRoughnessSchema),
+  normalTexture: S.Optional(MaterialNormalTextureInfoSchema),
+  occlusionTexture: S.Optional(MaterialOcclusionTextureInfoSchema),
+  emissiveTexture: S.Optional(TextureInfoSchema),
+  emissiveFactor: S.Optional(S.Array(S.Number())),
+  alphaMode: S.Optional(MaterialAlphaModeSchema),
+  alphaCutoff: S.Optional(S.Number()),
+  doubleSided: S.Optional(S.Bool()),
+  extensions: S.Optional(S.Record(S.String(), S.Any())),
+  extras: S.Optional(S.Record(S.String(), S.Any()))
+})
+
 export const MaterialDefinitionComponent = defineComponent({
   name: 'MaterialDefinitionComponent',
-  onInit: (entity) => {
-    return {
-      type: 'MeshStandardMaterial'
-    } as GLTF.IMaterial & {
-      type: 'MeshStandardMaterial' | 'MeshPhysicalMaterial' | 'MeshBasicMaterial' | string
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.type === 'string') component.type.set(json.type)
-    if (typeof json.pbrMetallicRoughness === 'object') component.pbrMetallicRoughness.set(json.pbrMetallicRoughness)
-    if (typeof json.normalTexture === 'object') component.normalTexture.set(json.normalTexture)
-    if (typeof json.occlusionTexture === 'object') component.occlusionTexture.set(json.occlusionTexture)
-    if (typeof json.emissiveTexture === 'object') component.emissiveTexture.set(json.emissiveTexture)
-    if (typeof json.emissiveFactor === 'object') component.emissiveFactor.set(json.emissiveFactor)
-    if (typeof json.alphaMode === 'string') component.alphaMode.set(json.alphaMode)
-    if (typeof json.alphaCutoff === 'number') component.alphaCutoff.set(json.alphaCutoff)
-    if (typeof json.doubleSided === 'boolean') component.doubleSided.set(json.doubleSided)
-  },
+  schema: MaterialDefinitionSchema,
 
   reactor: () => {
     const entity = useEntityContext()
@@ -122,7 +147,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
     const entity = useEntityContext()
 
     useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'basic' })
+      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshBasicMaterial' })
     }, [])
 
     return null
@@ -164,10 +189,10 @@ export const KHRClearcoatExtensionComponent = defineComponent({
   jsonID: EXTENSIONS.KHR_MATERIALS_CLEARCOAT,
   schema: S.Object({
     clearcoatFactor: S.Optional(S.Number()),
-    clearcoatTexture: S.Optional(ITextureInfoSchema),
+    clearcoatTexture: S.Optional(TextureInfoSchema),
     clearcoatRoughnessFactor: S.Optional(S.Number()),
-    clearcoatRoughnessTexture: S.Optional(ITextureInfoSchema),
-    clearcoatNormalTexture: S.Optional(S.Type<GLTF.IMaterialNormalTextureInfo>())
+    clearcoatRoughnessTexture: S.Optional(TextureInfoSchema),
+    clearcoatNormalTexture: S.Optional(MaterialNormalTextureInfoSchema)
   }),
 
   reactor: () => {
@@ -244,11 +269,11 @@ export const KHRIridescenceExtensionComponent = defineComponent({
   jsonID: EXTENSIONS.KHR_MATERIALS_IRIDESCENCE,
   schema: S.Object({
     iridescenceFactor: S.Optional(S.Number()),
-    iridescenceTexture: S.Optional(ITextureInfoSchema),
+    iridescenceTexture: S.Optional(TextureInfoSchema),
     iridescenceIor: S.Optional(S.Number()),
     iridescenceThicknessMinimum: S.Optional(S.Number()),
     iridescenceThicknessMaximum: S.Optional(S.Number()),
-    iridescenceThicknessTexture: S.Optional(ITextureInfoSchema)
+    iridescenceThicknessTexture: S.Optional(TextureInfoSchema)
   }),
 
   reactor: () => {
@@ -324,8 +349,8 @@ export const KHRSheenExtensionComponent = defineComponent({
   schema: S.Object({
     sheenColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
     sheenRoughnessFactor: S.Optional(S.Number()),
-    sheenColorTexture: S.Optional(ITextureInfoSchema),
-    sheenRoughnessTexture: S.Optional(ITextureInfoSchema)
+    sheenColorTexture: S.Optional(TextureInfoSchema),
+    sheenRoughnessTexture: S.Optional(TextureInfoSchema)
   }),
 
   reactor: () => {
@@ -396,7 +421,7 @@ export const KHRTransmissionExtensionComponent = defineComponent({
   jsonID: EXTENSIONS.KHR_MATERIALS_TRANSMISSION,
   schema: S.Object({
     transmissionFactor: S.Optional(S.Number()),
-    transmissionTexture: S.Optional(ITextureInfoSchema)
+    transmissionTexture: S.Optional(TextureInfoSchema)
   }),
 
   reactor: () => {
@@ -438,7 +463,7 @@ export const KHRVolumeExtensionComponent = defineComponent({
   jsonID: EXTENSIONS.KHR_MATERIALS_VOLUME,
   schema: S.Object({
     thicknessFactor: S.Optional(S.Number()),
-    thicknessTexture: S.Optional(ITextureInfoSchema),
+    thicknessTexture: S.Optional(TextureInfoSchema),
     attenuationDistance: S.Optional(S.Number()),
     attenuationColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()]))
   }),
@@ -532,9 +557,9 @@ export const KHRSpecularExtensionComponent = defineComponent({
   jsonID: EXTENSIONS.KHR_MATERIALS_SPECULAR,
   schema: S.Object({
     specularFactor: S.Optional(S.Number()),
-    specularTexture: S.Optional(ITextureInfoSchema),
+    specularTexture: S.Optional(TextureInfoSchema),
     specularColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
-    specularColorTexture: S.Optional(ITextureInfoSchema)
+    specularColorTexture: S.Optional(TextureInfoSchema)
   }),
 
   reactor: () => {
@@ -597,7 +622,7 @@ export const EXTBumpExtensionComponent = defineComponent({
   jsonID: EXTENSIONS.EXT_MATERIALS_BUMP,
   schema: S.Object({
     bumpFactor: S.Optional(S.Number()),
-    bumpTexture: S.Optional(ITextureInfoSchema)
+    bumpTexture: S.Optional(TextureInfoSchema)
   }),
 
   reactor: () => {
@@ -639,7 +664,7 @@ export const KHRAnisotropyExtensionComponent = defineComponent({
   schema: S.Object({
     anisotropyStrength: S.Optional(S.Number()),
     anisotropyRotation: S.Optional(S.Number()),
-    anisotropyTexture: S.Optional(ITextureInfoSchema)
+    anisotropyTexture: S.Optional(TextureInfoSchema)
   }),
 
   reactor: () => {
@@ -818,10 +843,10 @@ export const KHRMaterialsPBRSpecularGlossinessComponent = defineComponent({
   jsonID: 'KHR_materials_pbrSpecularGlossiness',
   schema: S.Object({
     diffuseFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number(), S.Number()])),
-    diffuseTexture: S.Optional(ITextureInfoSchema),
+    diffuseTexture: S.Optional(TextureInfoSchema),
     specularFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
     glossinessFactor: S.Optional(S.Number()),
-    specularGlossinessTexture: S.Optional(ITextureInfoSchema)
+    specularGlossinessTexture: S.Optional(TextureInfoSchema)
   }),
 
   reactor: () => {

@@ -43,19 +43,15 @@ export const GLTFDocumentState = defineState({
   initial: {} as Record<string, GLTF.IGLTF>
 })
 
+export type GLTFNode = {
+  nodeIndex: number
+  childIndex: number
+  parentUUID: EntityUUID | null // store parent, if no parent, then it is a root node
+}
+
 export const GLTFNodeState = defineState({
   name: 'ee.engine.gltf.GLTFNodeState',
-  initial: {} as Record<
-    string,
-    Record<
-      string,
-      {
-        nodeIndex: number
-        childIndex: number
-        parentUUID: EntityUUID | null // store parent, if no parent, then it is a root node
-      }
-    >
-  >,
+  initial: {} as Record<string, Record<string, GLTFNode>>,
 
   getMutableNode(entity: Entity): State<GLTF.INode> {
     const source = getComponent(entity, SourceComponent)

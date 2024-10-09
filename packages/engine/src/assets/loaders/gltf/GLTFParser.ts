@@ -64,7 +64,6 @@ import {
   SkinnedMesh,
   SRGBColorSpace,
   Texture,
-  TextureLoader,
   TriangleFanDrawMode,
   TriangleStripDrawMode,
   Vector2,
@@ -74,6 +73,7 @@ import {
 import { toTrianglesDrawMode } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 
 import { FileLoader } from '../base/FileLoader'
+import { TextureLoader } from '../texture/TextureLoader'
 import {
   ALPHA_MODES,
   INTERPOLATION,
@@ -188,25 +188,7 @@ export class GLTFParser {
     // Track node names, to ensure no duplicates
     this.nodeNamesUsed = {}
 
-    // Use an ImageBitmapLoader if imageBitmaps are supported. Moves much of the
-    // expensive work of uploading a texture to the GPU off the main thread.
-
-    let isSafari = false
-    let isFirefox = false
-    let firefoxVersion = -1 as any // ???
-
-    if (typeof navigator !== 'undefined') {
-      isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
-      isFirefox = navigator.userAgent.indexOf('Firefox') > -1
-      firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
-    }
-
-    if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
-      this.textureLoader = new TextureLoader(this.options.manager)
-    } else {
-      this.textureLoader = new ImageBitmapLoader(this.options.manager)
-    }
-
+    this.textureLoader = new TextureLoader(this.options.manager)
     this.textureLoader.setRequestHeader(this.options.requestHeader)
 
     this.fileLoader = new FileLoader(this.options.manager)
@@ -777,16 +759,16 @@ export class GLTFParser {
     const promise = Promise.resolve(sourceURI)
       .then(function (sourceURI) {
         return new Promise<any>(function (resolve, reject) {
-          let onLoad = resolve
+          const onLoad = resolve
 
-          if (loader.isImageBitmapLoader === true) {
-            onLoad = function (imageBitmap) {
-              const texture = new Texture(imageBitmap)
-              texture.needsUpdate = true
-
-              resolve(texture)
-            }
-          }
+          // Off loaded to TextureLoader
+          // if (loader.isImageBitmapLoader === true) {
+          //   onLoad = function (imageBitmap) {
+          //     const texture = new Texture(imageBitmap)
+          //     texture.needsUpdate = true
+          //     resolve(texture)
+          //   }
+          // }
 
           loader.load(LoaderUtils.resolveURL(sourceURI, options.path), onLoad, undefined, reject)
         })

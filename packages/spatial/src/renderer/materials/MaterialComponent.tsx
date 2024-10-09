@@ -31,7 +31,6 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
@@ -181,17 +180,18 @@ const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; e
   const { uuid, entity, index } = props
   const materialStateEntity = UUIDComponent.useEntityByUUID(uuid)
   const materialStateComponent = useOptionalComponent(materialStateEntity, MaterialStateComponent)
-  const meshComponent = useComponent(entity, MeshComponent)
+  const meshComponent = useOptionalComponent(entity, MeshComponent)
 
   useEffect(() => {
+    if (!meshComponent || !materialStateComponent) return
     const material = getComponent(materialStateEntity, MaterialStateComponent).material
     if (props.array) {
       if (!Array.isArray(meshComponent.material.value)) meshComponent.material.set([])
-      getMutableComponent(entity, MeshComponent).material[index].set(material)
+      meshComponent.material[index].set(material)
     } else {
-      getMutableComponent(entity, MeshComponent).material.set(material)
+      meshComponent.material.set(material)
     }
-  }, [materialStateComponent?.material])
+  }, [materialStateComponent?.material, !!meshComponent])
 
   return null
 }

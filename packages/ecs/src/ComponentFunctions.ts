@@ -51,7 +51,7 @@ import {
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { Kind, SerializedType, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
+import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   HasDeserializers,
