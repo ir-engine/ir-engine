@@ -39,7 +39,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     // Find the last period in the filename (the start of the extension)
     const _lastDotIndex = fileName.lastIndexOf('.')
     const hasExtension = _lastDotIndex !== -1
-    const lastDotIndex = hasExtension ? fileName.length : _lastDotIndex
+    const lastDotIndex = hasExtension ? _lastDotIndex : fileName.length
 
     // Split the name into the part before and after the dot
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
@@ -59,7 +59,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     }
 
     // Combine the name with the lowercase extension
-    const newFileName = hasExtension ? `${nameWithoutExtension}` : `${nameWithoutExtension}.${extension}`
+    const newFileName = hasExtension ? `${nameWithoutExtension}.${extension}` : `${nameWithoutExtension}`
 
     return filePath ? filePath + '/' + newFileName : newFileName
   } catch (e) {
