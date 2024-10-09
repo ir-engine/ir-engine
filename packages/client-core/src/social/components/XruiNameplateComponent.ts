@@ -54,25 +54,6 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { useEffect } from 'react'
 
-// const mediaNetwork = NetworkState.mediaNetwork
-
-// const peers = mediaNetwork.peers ? Object.values(mediaNetwork.peers) : []
-// const peer = peers.find((peer) => {
-//   // return peer.userId === ownerId
-// })
-//
-// const userID = mediaNetwork.peers[peerID]?.userId
-// const user = useGet(userPath, userID)
-
-/**
- * todo switch the positioning to use avatar pos and height, make sure we have all the necessary cached vectors etc
- * use InteractableComponent as xrui example, use avataruisystem and createAvatarDetailView for the rest
- *
- * */
-
-//from videocall.tsx, probably don't need anything other than user.data.name for username but check for any
-//useful tricks or optimizations
-
 export const XruiNameplateComponent = defineComponent({
   name: 'XruiNameplateComponent',
   schema: S.Object({
@@ -106,13 +87,8 @@ export const XruiNameplateComponent = defineComponent({
 
       const xruiEntity = getComponent(entity, XruiNameplateComponent).uiEntity
       return () => {
-        // removeNameplateUI(xruiEntity)
         removeEntity(xruiEntity)
       }
-
-      // const user = useGet(userPath, userID)
-      // const username = getUsername() as UserName
-      // const nameLabel = component.nameLabel.get(NO_PROXY)
     }, [user?.data?.name])
 
     return null
@@ -141,18 +117,10 @@ const addNameplateUI = (entity: Entity, username: string) => {
   // nameplayComponent.transition.set(transition)
 }
 
-const removeNameplateUI = (entity: Entity) => {
-  const xruiNameplateComponent = getComponent(entity, XruiNameplateComponent)
-  if (xruiNameplateComponent.uiEntity == UndefinedEntity) return //null or empty label = no ui
-
-  removeEntity(xruiNameplateComponent.uiEntity)
-}
-
 export const updateNameplateUI = (entity: Entity) => {
-  // const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   const xruiNameplateComponent = getOptionalComponent(entity, XruiNameplateComponent)
   const avatarTransform = getOptionalComponent(entity, TransformComponent)
-  if (/*!selfAvatarEntity ||*/ !xruiNameplateComponent || xruiNameplateComponent.uiEntity == UndefinedEntity) return
+  if (!xruiNameplateComponent || xruiNameplateComponent.uiEntity == UndefinedEntity) return
 
   const avatarComponent = getOptionalComponent(entity, AvatarComponent)
   const xrui = getOptionalComponent(xruiNameplateComponent.uiEntity, XRUIComponent)
@@ -160,18 +128,10 @@ export const updateNameplateUI = (entity: Entity) => {
   const xruiTransform = getOptionalComponent(xruiNameplateComponent.uiEntity, TransformComponent) //xrui!.entity!, TransformComponent)//
   if (!xrui || !xruiTransform) return
 
-  // const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
-
   // updateXrDistVec3(selfAvatarEntity)
 
   const hasVisibleComponent = hasComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
   if (hasVisibleComponent && avatarComponent) {
-    // && boundingBox) {
-    // updateBoundingBox(entity)
-
-    // const center = boundingBox.box.getCenter(_center)
-    // const size = boundingBox.box.getSize(_size)
-    // if (!size.y) size.y = 1
     // const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
 
     xruiTransform.position.set(
