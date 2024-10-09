@@ -23,30 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useFind } from '@ir-engine/common'
-import { instancePath, locationPath } from '@ir-engine/common/src/schema.type.module'
+import { Entity, setComponent } from '@ir-engine/ecs'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { Mesh } from 'three'
+import { proxifyParentChildRelationships } from './loadGLTFModel'
 
-/** @todo reimplement realtime connections with instances in studio */
-export const useEditorActiveInstances = (sceneID: string) => {
-  const locationQuery = useFind(locationPath, { query: { action: 'studio', sceneId: sceneID, paginate: false } })
-
-  const instanceQuery = useFind(instancePath, {
-    query: {
-      ended: false,
-      locationId: {
-        $in: locationQuery.data.map((location) => location.id)
-      },
-      paginate: false
-    }
-  })
-
-  return instanceQuery.data
-    .filter((a) => !!a)
-    .map((instance) => {
-      return {
-        id: instance.id,
-        locationId: instance.locationId,
-        currentUsers: instance.currentUsers
-      }
-    })
+/**
+ * Helper function for attaching a mesh to a scene entity
+ * @param entity Entity to attach the mesh to
+ * @param mesh Mesh to attach to the entity
+ * @param objectLayers Object layers to assign to the mesh. Default is [ObjectLayers.Scene]
+ */
+export function addMesh(entity: Entity, mesh: Mesh, objectLayers: number[] = [ObjectLayers.Scene]) {
+  setComponent(entity, MeshComponent, mesh)
+  addObjectToGroup(entity, mesh)
+  proxifyParentChildRelationships(mesh)
+  setObjectLayers(mesh, ...objectLayers)
 }

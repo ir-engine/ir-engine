@@ -54,12 +54,12 @@ cli.main(async () => {
         return new Promise(async (resolve) => {
           try {
             const fileResult = fs.readFileSync(file)
-            let filePathRelative = cleanFileNameString(file.slice(clientPath.length))
+            let filePathRelative = cleanFileNameString(file.slice(clientPath.length), true)
             let contentType = getContentType(file)
             const putData: any = {
               Body: fileResult,
               ContentType: contentType,
-              Key: `client${filePathRelative}`,
+              Key: path.join('client', filePathRelative),
               Metadata: {
                 'Cache-Control': 'no-cache'
               }
@@ -68,13 +68,13 @@ cli.main(async () => {
               filePathRelative = filePathRelative.replace(/.br$/, '')
               putData.ContentType = getContentType(filePathRelative)
               putData.ContentEncoding = 'br'
-              putData.Key = `client${filePathRelative}`
+              putData.Key = path.join('client', filePathRelative)
               putData.Metadata = {
                 'Cache-Control': 'no-cache'
               }
             }
             await storageProvider.putObject(putData, { isDirectory: false })
-            filesToPush.push(`client${filePathRelative}`)
+            filesToPush.push(path.join('client', filePathRelative))
             resolve(null)
           } catch (e) {
             logger.error(e)
