@@ -39,6 +39,7 @@ import { FileDataType } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { FilesState, SelectedFilesState } from '../../services/FilesState'
+import { ScriptService } from '../../services/ScriptService'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { fileConsistsOfContentType, useCurrentFiles } from './helpers'
 import DeleteFileModal from './modals/DeleteFileModal'
@@ -108,6 +109,23 @@ export function FileContextMenu({
         className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg"
         data-testid="files-panel-file-item-context-menu"
       >
+        {fileConsistsOfContentType(selectedFiles.value, 'application/') && (
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            disabled={!fileConsistsOfContentType(selectedFiles.value, 'application/')}
+            onClick={() => {
+              if (fileConsistsOfContentType(selectedFiles.value, 'application/')) {
+                selectedFiles.value.forEach((selectedFile) => {
+                  ScriptService.addScript(selectedFile.url)
+                })
+              }
+            }}
+          >
+            {t('editor:layout.filebrowser.open')}
+          </Button>
+        )}
         <Button
           variant="outline"
           size="small"

@@ -1,0 +1,5 @@
+#script-container .dock-tab-close-btn{
+  display: unset !important;
+  padding-inline-end: 8px;
+}
+

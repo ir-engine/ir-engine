@@ -26,15 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import { useQuery } from '@ir-engine/ecs'
 import { ScriptComponent } from '@ir-engine/engine'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, useForceUpdate, useHookstate } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
 import { Editor } from '@monaco-editor/react'
-import { uniqueId } from 'lodash'
 import DockLayout, { DockMode, LayoutData, TabData } from 'rc-dock'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScriptState } from '../../services/ScriptService'
+import { ScriptService, ScriptState } from '../../services/ScriptService'
+import './ScriptTab.css'
 
 const ActiveScript = ({ scriptURL }) => {
   const [code, setCode] = useState('')
@@ -47,6 +47,7 @@ const ActiveScript = ({ scriptURL }) => {
 
   useEffect(() => {
     if (!scriptURL) return
+    console.log('DEBUG upload script')
     updateScriptFile(getFileName(scriptURL), code)
   }, [code])
 
@@ -69,7 +70,7 @@ const ActiveScript = ({ scriptURL }) => {
 
 const createNewScriptTab = (scriptURL) => {
   return {
-    id: uniqueId('scriptTab'),
+    id: scriptURL,
     closable: true,
     cached: true,
     title: <ScriptTabTitle scriptName={getFileName(scriptURL)} />,
@@ -78,23 +79,45 @@ const createNewScriptTab = (scriptURL) => {
 }
 
 const ScriptContainer = () => {
-  const scriptState = getMutableState(ScriptState)
-  const tabs = scriptState.scripts.keys.map(createNewScriptTab)
+  const scriptState = useHookstate(getMutableState(ScriptState))
 
-  console.log('tabs', tabs) // eslint-disable-line no-console
+  const dockPanelRef = useRef<DockLayout>(null)
+  const forceUpdate = useForceUpdate()
+
   const tabLayout = (): LayoutData => {
     return {
       dockbox: {
         mode: 'horizontal' as DockMode,
-        children: [{ tabs: tabs }]
+        children: [{ tabs: scriptState.scripts.keys.map(createNewScriptTab) }]
       }
     }
   }
+
+  const [activeTabLayout, setActiveTabLayout] = useState<LayoutData>(tabLayout())
+
+  useEffect(() => {
+    setActiveTabLayout(tabLayout())
+  }, [scriptState.scripts])
+
   const { t } = useTranslation()
 
   return (
-    <div className="h-full w-full">
-      <DockLayout defaultLayout={tabLayout()} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+    <div id="script-container" className="h-full w-full">
+      <DockLayout
+        onLayoutChange={(newLayout, currentTabId, direction) => {
+          if (direction === 'remove') ScriptService.removeScript(currentTabId)
+        }}
+        ref={dockPanelRef}
+        defaultLayout={activeTabLayout}
+        layout={activeTabLayout}
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 0
+        }}
+      />
     </div>
   )
 }
