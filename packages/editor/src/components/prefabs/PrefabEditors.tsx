@@ -69,6 +69,12 @@ export const PrefabShelfState = defineState({
         detail: 'Blank 3D model ready for your own assets'
       },
       {
+        name: '3D Model (Variants)',
+        url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/3d-model.prefab.gltf`,
+        category: 'Geo',
+        detail: 'A 3D model with multiple variants'
+      },
+      {
         name: 'Primitive Geometry',
         url: `${config.client.fileServer}/projects/ir-engine/default-project/assets/prefabs/geo.prefab.gltf`,
         category: 'Geo'

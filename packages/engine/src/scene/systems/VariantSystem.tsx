@@ -24,32 +24,24 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
-import { useEffect } from 'react'
 
-import { PresentationSystemGroup } from '@ir-engine/ecs'
+import { getComponent, getMutableComponent, PresentationSystemGroup } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { PerformanceState } from '@ir-engine/spatial/src/renderer/PerformanceState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { InstancingComponent } from '../components/InstancingComponent'
-import { ModelComponent } from '../components/ModelComponent'
-import { VariantComponent } from '../components/VariantComponent'
-import {
-  setInstancedMeshVariant,
-  setMeshVariant,
-  setModelVariant,
-  setModelVariantLOD
-} from '../functions/loaders/VariantFunctions'
+import { Heuristic, VariantComponent } from '../components/VariantComponent'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
 
-export const modelVariantQuery = defineQuery([VariantComponent, ModelComponent, TransformComponent])
+export const variantQuery = defineQuery([VariantComponent, TransformComponent])
 export const meshVariantQuery = defineQuery([
   VariantComponent,
   MeshComponent,
@@ -72,34 +64,25 @@ function execute() {
   if (ecsState.elapsedSeconds - lastUpdate < updateFrequency) return
   lastUpdate = ecsState.elapsedSeconds
 
-  for (const entity of modelVariantQuery()) {
-    setModelVariant(entity)
-  }
-  for (const entity of meshVariantQuery()) {
-    setMeshVariant(entity)
-  }
-  for (const entity of instancedMeshVariantQuery()) {
-    setInstancedMeshVariant(entity)
-  }
-}
-
-function reactor() {
-  const performanceOffset = useMutableState(PerformanceState).gpuPerformanceOffset
-
-  useEffect(() => {
-    if (getState(EngineState).isEditing) return
-    const offset = performanceOffset.value
-    for (const entity of modelVariantQuery()) {
-      setModelVariantLOD(entity, offset)
+  for (const entity of variantQuery()) {
+    const variantComponent = getComponent(entity, VariantComponent)
+    if (variantComponent.heuristic !== Heuristic.DISTANCE) return
+    const distance = DistanceFromCameraComponent.squaredDistance[entity]
+    for (let i = 0; i < variantComponent.levels.length; i++) {
+      const level = variantComponent.levels[i]
+      if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
+      const minDistance = Math.pow(level.metadata['minDistance'], 2)
+      const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
+      if (minDistance <= distance && distance <= maxDistance) {
+        getMutableComponent(entity, VariantComponent).currentLevel.set(i)
+        break
+      }
     }
-  }, [performanceOffset])
-
-  return null
+  }
 }
 
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
   insert: { after: PresentationSystemGroup },
-  execute,
-  reactor
+  execute
 })
