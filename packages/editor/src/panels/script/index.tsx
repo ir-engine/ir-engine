@@ -23,20 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-import { hasComponent, useOptionalComponent, useQuery } from '@ir-engine/ecs'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { ScriptComponent, validateScriptUrl } from '@ir-engine/engine'
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { clearErrors } from '@ir-engine/engine/src/scene/functions/ErrorFunctions'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
+import { createNewScriptFile, fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { Editor } from '@monaco-editor/react'
-import { TabData } from 'rc-dock'
-import React, { useEffect } from 'react'
+import DockLayout, { DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '../../components/inputs/Button'
+import { FaLink, FaLinkSlash } from 'react-icons/fa6'
+import { RiSaveLine } from 'react-icons/ri'
+import { VscDiscard } from 'react-icons/vsc'
+import { twMerge } from 'tailwind-merge'
+import { ScriptService, ScriptState } from '../../services/ScriptService'
+import './ScriptTab.css'
 
 const loadTypeDefinitions = async (monaco) => {
   // Assuming you have @types/react and @types/three installed in node_modules
@@ -54,76 +57,190 @@ const loadTypeDefinitions = async (monaco) => {
   })
 }
 
-const ActiveScript = () => {
-  const entities = SelectionState.useSelectedEntities()
-  const entity = entities[entities.length - 1]
-  const validEntity = typeof entity === 'number' && hasComponent(entity, ScriptComponent)
+const ActiveScript = ({ scriptURL }) => {
+  const scriptState = useHookstate(getMutableState(ScriptState))
   const { t } = useTranslation()
-  const scriptComponent = useOptionalComponent(entity, ScriptComponent)
-  const fileCode = useHookstate('')
+  const [code, setCode] = useState('')
+  const [codeChanged, setCodeChanged] = useState(false)
 
   useEffect(() => {
-    if (!scriptComponent?.src.value) return
-    if (!validateScriptUrl(entity, scriptComponent?.src.value)) return
-    clearErrors(entity, ScriptComponent)
-
-    fetchCode(scriptComponent!.src.value).then((code) => {
-      fileCode.set(code)
+    fetchCode(scriptURL).then((code) => {
+      setCode(code)
     })
-  }, [scriptComponent?.src])
+  }, [scriptURL])
 
-  const addScript = () => EditorControlFunctions.addOrRemoveComponent([entity], ScriptComponent, true)
-  useQuery([ScriptComponent])
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      {entities.length && !validEntity ? (
+    <div className="flex h-full w-full flex-row items-center justify-center">
+      <Editor
+        height="100%"
+        language="javascript"
+        defaultLanguage="javascript"
+        value={code} // get the file contents
+        onChange={(newCode) => {
+          setCode(newCode ?? code)
+          setCodeChanged(true)
+        }}
+        theme="vs-dark"
+      />
+      <div className="flex h-full w-[5%] min-w-10 flex-col items-center justify-end gap-2 py-2">
+        <Tooltip
+          content={
+            scriptState.scripts.value[scriptURL] === UndefinedEntity
+              ? t('editor:script.panel.unLink')
+              : t('editor:script.panel.link')
+          }
+        >
+          <Button
+            variant="transparent"
+            startIcon={
+              scriptState.scripts.value[scriptURL] === UndefinedEntity ? (
+                <FaLinkSlash className="hover:text-amber-300" />
+              ) : (
+                <FaLink className="text-green-500 hover:text-red-500" />
+              )
+            }
+            className={`p-1`}
+            data-testid="script-panel-link-button"
+            onClick={() => {
+              scriptState.scripts.value[scriptURL] === UndefinedEntity
+                ? ScriptService.activateScript(scriptURL)
+                : ScriptService.deactivateScript(scriptURL)
+            }}
+          />
+        </Tooltip>
+        <Tooltip content={t('editor:script.panel.save')}>
+          <Button
+            variant="transparent"
+            startIcon={
+              <RiSaveLine className={twMerge(codeChanged ? 'text-amber-300' : 'text-white', 'hover:text-green-500')} />
+            }
+            className={`p-1`}
+            data-testid="script-panel-save-button"
+            onClick={() => {
+              updateScriptFile(getFileName(scriptURL), code)
+              setCodeChanged(false)
+            }}
+          />
+        </Tooltip>
+        <Tooltip content={t('editor:script.panel.discard')}>
+          <Button
+            variant="transparent"
+            startIcon={<VscDiscard className="hover:text-amber-300" />}
+            className={`p-1`}
+            data-testid="script-panel-discard-button"
+            onClick={() => {
+              fetchCode(scriptURL).then((code) => {
+                setCode(code)
+                setCodeChanged(false)
+              })
+            }}
+          />
+        </Tooltip>
+      </div>
+    </div>
+  )
+}
+
+const createNewScriptTab = (scriptURL) => {
+  return {
+    id: scriptURL,
+    closable: true,
+    cached: true,
+    title: <ScriptTabTitle scriptName={getFileName(scriptURL)} />,
+    content: <ActiveScript scriptURL={scriptURL} />
+  } as TabData
+}
+
+const ScriptContainer = () => {
+  const scriptState = useHookstate(getMutableState(ScriptState))
+
+  const dockPanelRef = useRef<DockLayout>(null)
+
+  const tabLayout = (): LayoutData => {
+    return {
+      dockbox: {
+        mode: 'horizontal' as DockMode,
+        children: [{ tabs: scriptState.scripts.keys.map(createNewScriptTab) }]
+      }
+    }
+  }
+  const [activeTabLayout, setActiveTabLayout] = useState<LayoutData>(tabLayout())
+
+  const setActiveTab = (tabId) => {
+    setActiveTabLayout((prevLayout) => {
+      return {
+        ...prevLayout,
+        dockbox: {
+          ...prevLayout.dockbox,
+          children: prevLayout.dockbox.children.map((child) => {
+            if ((child as PanelData).tabs) {
+              return {
+                ...child,
+                activeId: tabId // Update the active tab ID
+              }
+            }
+            return child
+          })
+        }
+      }
+    })
+  }
+
+  useEffect(() => {
+    setActiveTabLayout(tabLayout())
+  }, [scriptState.scripts])
+
+  const { t } = useTranslation()
+
+  console.log('DEBUG scriptState', scriptState.scripts.value)
+  return (
+    <div id="script-container" className="flex h-full w-full items-center justify-center">
+      {scriptState.scripts.keys.length !== 0 ? (
+        <DockLayout
+          onLayoutChange={(newLayout, currentTabId, direction) => {
+            if (direction === 'remove') ScriptService.removeScript(currentTabId)
+            if (direction === 'active') setActiveTab(currentTabId)
+          }}
+          ref={dockPanelRef}
+          defaultLayout={activeTabLayout}
+          layout={activeTabLayout}
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0
+          }}
+        />
+      ) : (
         <Button
           variant="outline"
-          onClick={() => {
-            addScript()
+          onClick={async () => {
+            const scriptURL = await createNewScriptFile()
+            ScriptService.addScript(scriptURL)
           }}
         >
           {t('editor:script.panel.addScript')}
         </Button>
-      ) : (
-        <></>
-      )}
-      {validEntity && (
-        <Editor
-          height="100%"
-          language="typescript"
-          defaultLanguage="typescript"
-          value={fileCode.value} // get the file contents
-          onMount={(editor, monaco) => {
-            loadTypeDefinitions(monaco)
-          }}
-          onChange={(newCode) => {
-            if (newCode === fileCode.value) return
-            if (!scriptComponent?.src.value) return
-            if (!validateScriptUrl(entity, scriptComponent?.src.value)) return
-            clearErrors(entity, ScriptComponent)
-            updateScriptFile(getFileName(scriptComponent!.src.value), newCode)
-          }}
-          theme="vs-dark"
-        />
       )}
     </div>
   )
 }
 
-const ScriptContainer = () => {
+const ScriptTabTitle = ({ scriptName }) => {
+  const { t } = useTranslation()
+
   return (
-    <>
-      <div className="flex h-full w-full flex-col">
-        <ActiveScript />
-      </div>
-    </>
+    <div>
+      <PanelDragContainer dataTestId="script-tab">
+        <PanelTitle>{scriptName}</PanelTitle>
+      </PanelDragContainer>
+    </div>
   )
 }
 
 export const ScriptPanelTitle = () => {
   const { t } = useTranslation()
-
   return (
     <div>
       <PanelDragContainer>

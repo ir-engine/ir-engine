@@ -83,6 +83,7 @@ function ScenesPanel() {
           rounded="none"
           className="ml-auto h-8 bg-theme-highlight px-2"
           size="small"
+          data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}
         >
           {t('editor:newScene')}
@@ -93,7 +94,7 @@ function ScenesPanel() {
           <LoadingView title={t('editor:loadingScenes')} fullSpace className="block h-12 w-12" />
         ) : (
           <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
-            <div className="flex flex-wrap gap-4 pb-8">
+            <div className="flex flex-wrap gap-4 pb-8" data-testid="scene-panel-scene-browser">
               {scenes.map((scene) => (
                 <SceneItem
                   key={scene.id}
@@ -124,7 +125,7 @@ const ScenePanelTitle = () => {
 
   return (
     <div>
-      <PanelDragContainer>
+      <PanelDragContainer dataTestId="scene-panel-tab">
         <PanelTitle>{t('editor:properties.scene.name')}</PanelTitle>
       </PanelDragContainer>
     </div>

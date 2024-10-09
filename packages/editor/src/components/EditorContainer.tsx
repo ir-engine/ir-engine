@@ -41,6 +41,7 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
 import { API } from '@ir-engine/common'
@@ -63,6 +64,7 @@ import { ScenePanelTab } from '../panels/scenes'
 import { ScriptPanelTab } from '../panels/script'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
+import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
 
@@ -78,6 +80,18 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
   )
 }
 
+const onEditorWarning = (warning) => {
+  console.warn(warning)
+  NotificationService.dispatchNotify(warning, {
+    variant: 'warning'
+  })
+
+  // popover design doesnt match the figma designs, we use notification for now
+  /*PopoverState.showPopupover(
+    <WarningDialog title={t('editor:warning')} description={warning || t('editor:warningMsg')} />
+  )*/
+}
+
 const onEditorError = (error) => {
   console.error(error)
   if (error['aborted']) {
@@ -91,9 +105,11 @@ const onEditorError = (error) => {
 }
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
-  flags.visualScriptPanelEnabled ?? tabs.push(VisualScriptPanelTab)
-  flags.scriptPanelEnabled ?? tabs.push(ScriptPanelTab)
+  const bottomLeftPanelTabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  const topLeftPanelTabs = [ViewportPanelTab, ScriptPanelTab]
+
+  flags.visualScriptPanelEnabled ?? bottomLeftPanelTabs.push(VisualScriptPanelTab)
+  flags.scriptPanelEnabled ?? topLeftPanelTabs.push(ScriptPanelTab)
 
   return {
     dockbox: {
@@ -104,10 +120,10 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEn
           size: 8,
           children: [
             {
-              tabs: [ViewportPanelTab]
+              tabs: topLeftPanelTabs
             },
             {
-              tabs: tabs
+              tabs: bottomLeftPanelTabs
             }
           ]
         },
@@ -187,6 +203,7 @@ const EditorContainer = () => {
   }, [originEntity, currentLoadedSceneURL.value])
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
+  const warningState = useHookstate(getMutableState(EditorWarningState).warning)
 
   const dockPanelRef = useRef<DockLayout>(null)
 
@@ -214,6 +231,12 @@ const EditorContainer = () => {
       onEditorError(errorState.value)
     }
   }, [errorState])
+
+  useEffect(() => {
+    if (warningState.value) {
+      onEditorWarning(warningState.value)
+    }
+  }, [warningState])
 
   useEffect(() => {
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {

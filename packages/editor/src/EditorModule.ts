@@ -31,6 +31,7 @@ import { GizmoSystem } from './systems/GizmoSystem'
 import { HighlightSystem } from './systems/HighlightSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
+import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
 
 export {
@@ -42,5 +43,6 @@ export {
   ModelHandlingSystem,
   ObjectGridSnapSystem,
   RenderInfoSystem,
+  RenderMonitorSystem,
   UploadRequestSystem
 }

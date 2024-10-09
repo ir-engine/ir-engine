@@ -6,6 +6,8 @@
   "selectSceneMsg": "Select a Scene in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
+  "warning": "Warning",
+  "warningMsg": "I dont think you should do that.",
   "generateScreenshot": "Generating Project Screenshot",
   "newScene": "Add Scene",
   "saving": "Saving Project",
@@ -72,7 +74,10 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
+  },
+  "warnings" : {
+    "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
     "title": "Viewport",
@@ -616,7 +621,16 @@
       "duration": "Duration",
       "prewarm": "Prewarm",
       "emitter-shape": "Emitter Shape",
+      "emitter-shape-type": {
+        "point": "Point",
+        "sphere": "Sphere",
+        "cone": "Cone",
+        "donut": "Donut",
+        "mesh": "Mesh"
+      },
       "emission-bursts": "Emission Bursts",
+      "add-burst": "Add Burst",
+      "remove-burst": "Remove Burst",
       "shape-mesh": "Emitter Shape Mesh",
       "shape-mesh-info": "Drag Gltf or Glb file here (or paste it's file asset url) to set the mesh to use as the emitter shape",
       "start-life": "Start Life",
@@ -626,6 +640,12 @@
       "start-color": "Start Color",
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
+      "render-mode-type": {
+        "billboard": "Billboard",
+        "stretched-billboard": "Stretched Billboard",
+        "mesh": "Mesh",
+        "trail": "Trail"
+      },
       "texture": "Particle Texture",
       "u-tiles": "U Tiles",
       "v-tiles": "V Tiles",
@@ -634,6 +654,14 @@
       "blending": "Blending",
       "transparent": "Transparent",
       "world-space": "Use World Space",
+      "blending-type": {
+        "normal": "Normal",
+        "additive": "Additive",
+        "subtractive": "Subtractive",
+        "multiply": "Multiply",
+        "custom": "Custom",
+        "no-blending": "No Blending"
+      },
       "burst": {
         "time": "Burst Time",
         "count": "Burst Count",
@@ -641,7 +669,8 @@
         "interval": "Burst Interval",
         "probability": "Burst Probability"
       },
-      "addBehavior": "Add Behavior"
+      "addBehavior": "Add Behavior",
+      "remove": "Remove"
     },
     "clouds": {
       "name": "Cloud",
@@ -1198,7 +1227,12 @@
   "script":{
     "panel": {
       "title": "Script",
-      "addScript": "Add Script"
+      "addScript": "Add Script",
+
+      "link": "Script is linked to scene, Press to unlink",
+      "unLink": "Script is not linked to scene, Press to link",
+      "save": "Save  Changes",
+      "discard" : "Discard Changes"
     }
   },
   "layout": {
@@ -1247,6 +1281,7 @@
       "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
+      "open" : "Open",
       "tab-name": "Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
@@ -1427,7 +1462,7 @@
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
+      "info-name": "Name must be between 4 and 64 characters (with only letters, numbers, underscores, dashes and periods allowed)",
       "lbl-confirm": "Save Scene"
     },
     "saveModel": {
@@ -1542,6 +1577,10 @@
     "description": "Please use Google Chrome for the best experience with the iR Studio.",
     "downloadChrome": "Download Chrome",
     "continue": "Continue Anyway"
+  },
+  "unsupportedFile": {
+    "title": "Unsupported File Type!",
+    "okay": "Okay"
   },
   "unsupportedDevice": {
     "title": "Unsupported Device Type!",
