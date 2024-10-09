@@ -23,11 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useOptionalComponent, useQuery } from '@ir-engine/ecs'
-import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { ScriptComponent, validateScriptUrl } from '@ir-engine/engine'
+import { useQuery } from '@ir-engine/ecs'
+import { ScriptComponent } from '@ir-engine/engine'
 import { getFileName } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { clearErrors } from '@ir-engine/engine/src/scene/functions/ErrorFunctions'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { fetchCode, updateScriptFile } from '@ir-engine/ui/src/components/editor/properties/script'
@@ -38,28 +36,18 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScriptState } from '../../services/ScriptService'
 
-const ActiveScript = () => {
-  const entities = SelectionState.useSelectedEntities()
-  const entity = entities[entities.length - 1]
-  const { t } = useTranslation()
-  const scriptComponent = useOptionalComponent(entity, ScriptComponent)
+const ActiveScript = ({ scriptURL }) => {
   const [code, setCode] = useState('')
 
   useEffect(() => {
-    if (!scriptComponent?.src.value) return
-    if (!validateScriptUrl(entity, scriptComponent?.src.value)) return
-    clearErrors(entity, ScriptComponent)
-
-    fetchCode(scriptComponent!.src.value).then((code) => {
+    fetchCode(scriptURL).then((code) => {
       setCode(code)
     })
-  }, [scriptComponent?.src])
+  }, [scriptURL])
 
   useEffect(() => {
-    if (!scriptComponent?.src.value) return
-    if (!validateScriptUrl(entity, scriptComponent?.src.value)) return
-    clearErrors(entity, ScriptComponent)
-    updateScriptFile(getFileName(scriptComponent!.src.value), code)
+    if (!scriptURL) return
+    updateScriptFile(getFileName(scriptURL), code)
   }, [code])
 
   useQuery([ScriptComponent])
@@ -79,24 +67,26 @@ const ActiveScript = () => {
   )
 }
 
-const createNewScriptTab = (scriptName) => {
+const createNewScriptTab = (scriptURL) => {
   return {
     id: uniqueId('scriptTab'),
     closable: true,
     cached: true,
-    title: <ScriptTabTitle scriptName={scriptName} />,
-    content: <ActiveScript />
+    title: <ScriptTabTitle scriptName={getFileName(scriptURL)} />,
+    content: <ActiveScript scriptURL={scriptURL} />
   } as TabData
 }
 
 const ScriptContainer = () => {
   const scriptState = getMutableState(ScriptState)
+  const tabs = scriptState.scripts.keys.map(createNewScriptTab)
 
+  console.log('tabs', tabs) // eslint-disable-line no-console
   const tabLayout = (): LayoutData => {
     return {
       dockbox: {
         mode: 'horizontal' as DockMode,
-        children: [{ tabs: [] }]
+        children: [{ tabs: tabs }]
       }
     }
   }
@@ -104,7 +94,7 @@ const ScriptContainer = () => {
 
   return (
     <div className="h-full w-full">
-      <DockLayout defaultLayout={tabLayout()} style={{ position: 'absolute' }} />
+      <DockLayout defaultLayout={tabLayout()} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
     </div>
   )
 }
