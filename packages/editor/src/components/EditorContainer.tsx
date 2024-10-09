@@ -108,6 +108,7 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEn
   const bottomLeftPanelTabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
   const topLeftPanelTabs = [ViewportPanelTab]
 
+  console.log('flags', flags)
   if (flags.visualScriptPanelEnabled) bottomLeftPanelTabs.push(VisualScriptPanelTab)
   if (flags.scriptPanelEnabled) topLeftPanelTabs.push(ScriptPanelTab)
 
@@ -219,6 +220,12 @@ const EditorContainer = () => {
     FeatureFlags.Studio.Panel.VisualScript,
     FeatureFlags.Studio.Panel.Script
   ])
+
+  useEffect(() => {
+    if (dockPanelRef.current) {
+      dockPanelRef.current.loadLayout(defaultLayout({ visualScriptPanelEnabled, scriptPanelEnabled }))
+    }
+  }, [visualScriptPanelEnabled, scriptPanelEnabled])
 
   useEffect(() => {
     return () => {
