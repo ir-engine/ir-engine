@@ -68,7 +68,6 @@ export const VariantComponent = defineComponent({
       if (variantComponent.heuristic.value != Heuristic.DEVICE) return
 
       const targetDevice = isMobile || isMobileXRHeadset ? Devices.MOBILE : Devices.DESKTOP
-      //get model src to mobile variant src
       const levelIndex = variantComponent.levels.value.findIndex((level) => level.metadata['device'] === targetDevice)
       if (levelIndex < 0) {
         console.warn('VariantComponent: No asset found for target device')
