@@ -27,6 +27,9 @@
     "declaration": true,
     "outDir": "./lib",
     "types": ["vite/client", "mocha", "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"],
+    "paths": {
+      "@ir-engine/ui/icons": ["./src/icons/index"]
+    }
   },
   "exclude": [
     "./node_modules/**",
