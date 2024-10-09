@@ -23,24 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { defineState } from '@ir-engine/hyperflux'
 
-import {
-  redisSettingDataSchema,
-  redisSettingPatchSchema,
-  redisSettingQuerySchema,
-  redisSettingSchema
-} from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    redisSettingDataSchema,
-    redisSettingPatchSchema,
-    redisSettingQuerySchema,
-    redisSettingSchema
-  },
-  docs: {
-    description: 'Redis setting service description',
-    securities: ['all']
-  }
+export const EditorWarningState = defineState({
+  name: 'EditorWarningState',
+  initial: { warning: null as string | null }
 })

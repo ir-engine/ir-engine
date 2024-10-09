@@ -41,7 +41,9 @@ import { FaStreetView } from 'react-icons/fa'
 import { VRM } from '@pixiv/three-vrm'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { LoopOnce, LoopPingPong, LoopRepeat } from 'three'
 import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
@@ -108,6 +110,23 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           value={loopAnimationComponent.timeScale.value}
           onChange={updateProperty(LoopAnimationComponent, 'timeScale')}
           onRelease={commitProperty(LoopAnimationComponent, 'timeScale')}
+        />
+      </InputGroup>
+      <InputGroup name="Paused" label={t('editor:properties.loopAnimation.lbl-paused')}>
+        <BooleanInput
+          value={loopAnimationComponent.paused.value}
+          onChange={commitProperty(LoopAnimationComponent, 'paused')}
+        />
+      </InputGroup>
+      <InputGroup name="Loop" label={t('editor:properties.loopAnimation.lbl-loop')}>
+        <SelectInput
+          options={[
+            { label: 'Once', value: LoopOnce },
+            { label: 'Repeat', value: LoopRepeat },
+            { label: 'Ping Pong', value: LoopPingPong }
+          ]}
+          value={loopAnimationComponent.loop.value}
+          onChange={commitProperty(LoopAnimationComponent, 'loop')}
         />
       </InputGroup>
     </NodeEditor>

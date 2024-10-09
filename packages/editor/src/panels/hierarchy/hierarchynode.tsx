@@ -102,7 +102,13 @@ function IconComponent({ entity }: { entity: Entity }) {
     : []
   const _IconComponent = icons.length > 0 ? icons[0] : TransformPropertyGroup.iconComponent
   if (!_IconComponent) return null
-  return <_IconComponent entity={entity} className="h-5 w-5 flex-shrink-0 text-inherit" />
+  return (
+    <_IconComponent
+      entity={entity}
+      className="h-5 w-5 flex-shrink-0 text-inherit"
+      data-testid="hierarchy-panel-scene-item-icon"
+    />
+  )
 }
 
 export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
@@ -290,7 +296,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     const modelComponent = getComponent(node.entity, ModelComponent)
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(modelComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
-    exportRelativeGLTF(node.entity, fullProjectName, fileName).then(() => {
+    const parsedName = fileName.split('?')[0]
+    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then(() => {
       ResourceLoaderManager.updateResource(modelComponent.src)
       getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
     })
@@ -316,6 +323,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         isOverOn && canDropOn && 'border border-dotted',
         'hover:text-white'
       )}
+      data-testid="hierarchy-panel-scene-item"
     >
       <div
         ref={drag}
@@ -346,6 +354,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
             <button
               type="button"
               className="m-0 h-5 w-5 border-[none] bg-inherit p-0 hover:opacity-80"
+              data-testid={`hierarchy-panel-scene-item-${node.isCollapsed ? 'expand' : 'collapse'}-button`}
               onClick={onCollapseExpandNode}
             >
               {node.isCollapsed ? (
@@ -364,6 +373,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                   <input
                     type="text"
                     className="absolute top-[-3px] m-0 w-full rounded-none bg-inherit py-0.5 pl-0.5 text-sm"
+                    data-testid="hierarchy-panel-scene-item-rename-input"
                     onChange={(event) => currentRenameNode.set(event.target.value)}
                     onKeyDown={(event: KeyboardEvent) => {
                       if (event.key === 'Escape') renamingNode.clear()
@@ -383,7 +393,9 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 </div>
               ) : (
                 <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit ">
-                  <span className="text-nowrap text-sm leading-4">{currentRenameNode.value}</span>
+                  <span className="text-nowrap text-sm leading-4" data-testid="hierarchy-panel-scene-item-name">
+                    {currentRenameNode.value}
+                  </span>
                 </div>
               )}
             </div>
@@ -426,6 +438,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
+              data-testid={`hierarchy-panel-scene-item-${visible ? 'hide' : 'unhide'}-button`}
               onClick={onHideUnhideNode}
             >
               {visible ? (
