@@ -1,0 +1,112 @@
+import { defineQuery } from "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/QueryFunctions.tsx"
+import { setComponent  , getComponent , getMutableComponent} from "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/ComponentFunctions.ts"
+import { VisibleComponent , setVisibleComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/renderer/components/VisibleComponent.ts'
+import { TransformComponent  } from "https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/transform/components/TransformComponent.ts"
+import { NameComponent } from "https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/common/NameComponent.ts"
+import { Vector3 , Quaternion , Euler , MathUtils , Color} from "https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.module.js";
+import {UUIDComponent} from "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/UUIDComponent.ts"
+import {createEntity} from "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/EntityFunctions.tsx"
+import {EntityTreeComponent} from "https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/transform/components/EntityTree.tsx"
+import {SourceComponent} from "https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/components/SourceComponent.ts"
+import {GLTFComponent} from "https://localhost:3000/@fs/root/ir-engine/packages/engine/src/gltf/GLTFComponent.tsx"
+import { getState} from  "https://localhost:3000/@fs/root/ir-engine/packages/hyperflux/src/functions/StateFunctions.ts"
+import {EngineState } from "https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/EngineState.ts"
+import { defineSystem  } from  "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/SystemFunctions.ts" 
+import { AnimationSystemGroup } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/SystemGroups.ts'
+import {PrimitiveGeometryComponent} from "https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/components/PrimitiveGeometryComponent.ts"
+import {GeometryTypeEnum} from "https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/constants/GeometryTypeEnum.ts"
+import {MeshComponent} from "https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/renderer/components/MeshComponent.ts"
+
+const heightMap = "https://localhost:8642/projects/ir-engine/default-project/assets/heightMap.png";
+const minBounds = 15 , maxBounds = 60, maxHeight = 10, heightOffset = 0, tileSize = 4;
+const totalTileCount = Math.ceil(maxBounds / tileSize);
+
+const loadHeightmap = (url) => new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        resolve(ctx.getImageData(0, 0, img.width, img.height));
+    };
+    img.onerror = reject;
+    img.src = url;
+});
+
+
+const getHeightAndColorAt = (imageData, x, y) => {
+    const pixelIndex = (y * imageData.width + x) * 4;
+    const [r, g, b] = [imageData.data[pixelIndex], imageData.data[pixelIndex + 1], imageData.data[pixelIndex + 2]];
+    const grayscale = (r + g + b) / 3;
+    const height = (grayscale / 255) * maxHeight;
+    return { height, color: new Color(r / 255, g / 255, b / 255) };
+};
+
+const imageData = await loadHeightmap(heightMap);
+const gltf = defineQuery([GLTFComponent])()[0]
+
+
+let tileCount = 0
+const tiles = []
+const generateTile = (position, visible = true) => {
+    const entity = createEntity();
+    setComponent(entity, EntityTreeComponent, {parentEntity : gltf })
+    setComponent(entity, NameComponent, `tile_${tileCount++}`);
+    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID());
+    setVisibleComponent(entity, visible);
+    setComponent(entity, TransformComponent, {
+        position,
+        rotation: new Quaternion().setFromEuler(new Euler(MathUtils.DEG2RAD * -90, 0, 0)),
+        scale: new Vector3(tileSize, tileSize, tileSize)
+    });
+    setComponent(entity, SourceComponent, getComponent(gltf,SourceComponent))
+    setComponent(entity, PrimitiveGeometryComponent, { geometryType: GeometryTypeEnum.BoxGeometry });
+    return entity;
+};
+
+    // take the cam x,z , generate tile right under it and min bound/ tilesize number of tiles across
+const _tempVector = new Vector3(0,0,0)
+const camPos = getComponent(getState(EngineState).viewerEntity , TransformComponent).position.clone()
+
+for (let i = -totalTileCount; i < totalTileCount; i++) {
+    const row = [];
+    for (let j = -totalTileCount; j < totalTileCount; j++) {
+        const mapX = Math.floor(((i + totalTileCount) / (totalTileCount * 2)) * imageData.width);
+        const mapY = Math.floor(((j + totalTileCount) / (totalTileCount * 2)) * imageData.height);
+        const { height, color } = getHeightAndColorAt(imageData, mapX, mapY);
+        const visible = camPos.set(camPos.x, 0, camPos.z).distanceTo(_tempVector.set(i * tileSize, 0, j * tileSize)) < minBounds;
+        const tileEntity = generateTile(_tempVector.set(i * tileSize, height + heightOffset, j * tileSize), visible);
+        getMutableComponent(tileEntity, MeshComponent).material.color.set(color);
+        row.push(tileEntity);
+    }
+    tiles.push(row);
+}
+
+const execute = () => {
+
+    const camPos = getComponent(getState(EngineState).viewerEntity, TransformComponent).position.clone();
+    for (let i = 0; i < totalTileCount * 2; i++) {
+        for (let j = 0; j < totalTileCount * 2; j++) {
+            const tileEntity = tiles[i][j];
+            const tilePos = getComponent(tileEntity, TransformComponent).position;
+            const visible = camPos.set(camPos.x, 0, camPos.z).distanceTo(_tempVector.set(tilePos.x, 0, tilePos.z)) < minBounds;
+            setVisibleComponent(tileEntity, visible);
+        }
+    }
+};
+
+export const scriptTileGeneration = defineSystem({
+  uuid: 'ee.editor.scriptTileGeneration',
+  insert: { before: AnimationSystemGroup },
+  execute
+})
+
+
+
+
+
+
+
