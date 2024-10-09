@@ -108,7 +108,6 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEn
   const bottomLeftPanelTabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
   const topLeftPanelTabs = [ViewportPanelTab]
 
-  console.log('flags', flags)
   if (flags.visualScriptPanelEnabled) bottomLeftPanelTabs.push(VisualScriptPanelTab)
   if (flags.scriptPanelEnabled) topLeftPanelTabs.push(ScriptPanelTab)
 
