@@ -109,7 +109,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     const oauth = { ...authSetting.oauth, ...(keySecret.value as any) }
 
     for (const key of Object.keys(oauth)) {
-      oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
+      oauth[key] = structuredClone(oauth[key])
     }
 
     patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
@@ -149,9 +149,9 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
   const handleOnChangeAppId = (event, type) => {
     keySecret.set({
-      ...JSON.parse(JSON.stringify(keySecret.value)),
+      ...structuredClone(keySecret.value),
       [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value)),
+        ...structuredClone(keySecret[type].value),
         appId: event.target.value
       }
     })
@@ -159,9 +159,9 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
   const handleOnChangeKey = (event, type) => {
     keySecret.set({
-      ...JSON.parse(JSON.stringify(keySecret.value)),
+      ...structuredClone(keySecret.value),
       [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value ?? {})),
+        ...structuredClone(keySecret[type].value ?? {}),
         key: event.target.value
       }
     })
@@ -169,9 +169,9 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
   const handleOnChangeSecret = (event, type) => {
     keySecret.set({
-      ...JSON.parse(JSON.stringify(keySecret.value)),
+      ...structuredClone(keySecret.value),
       [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value ?? {})),
+        ...structuredClone(keySecret[type].value ?? {}),
         secret: event.target.value
       }
     })

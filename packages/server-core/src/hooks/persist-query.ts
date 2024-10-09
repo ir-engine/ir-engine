@@ -34,5 +34,5 @@ import { Application } from '../../declarations'
  * we want to use actual query in after hook or around hook after next() call.
  */
 export default async (context: HookContext<Application>) => {
-  context.params.actualQuery = context.params.query ? JSON.parse(JSON.stringify(context.params.query)) : {}
+  context.params.actualQuery = context.params.query ? structuredClone(context.params.query) : {}
 }

@@ -156,7 +156,7 @@ export default function ModelCompressionPanel({
   }
 
   const applyPreset = (preset: ModelTransformParameters) => {
-    selectedPreset.set(JSON.parse(JSON.stringify(preset)))
+    selectedPreset.set(structuredClone(preset))
     PopoverState.showPopupover(
       <ConfirmDialog text={t('editor:properties.model.transform.applyPresetConfirmation')} onSubmit={confirmPreset} />
     )
@@ -168,7 +168,7 @@ export default function ModelCompressionPanel({
     const modelFormat = lod.params.modelFormat
     const uri = lod.params.resourceUri
 
-    const presetParams = JSON.parse(JSON.stringify(selectedPreset.value)) as ModelTransformParameters
+    const presetParams = structuredClone(selectedPreset.value) as ModelTransformParameters
     presetParams.dst = dst
     presetParams.modelFormat = modelFormat
     presetParams.resourceUri = uri
@@ -177,7 +177,7 @@ export default function ModelCompressionPanel({
   }
 
   const savePresetList = () => {
-    presetList.merge([JSON.parse(JSON.stringify(lods[selectedLODIndex.value].value))])
+    presetList.merge([structuredClone(lods[selectedLODIndex.value].value)])
     localStorage.setItem('presets', JSON.stringify(presetList.value))
   }
 
@@ -236,7 +236,7 @@ export default function ModelCompressionPanel({
     const fileName = fullSrc.split('/').pop()!.split('.').shift()!
 
     const defaults = defaultLODs.map((defaultLOD) => {
-      const lod = JSON.parse(JSON.stringify(defaultLOD)) as LODVariantDescriptor
+      const lod = structuredClone(defaultLOD) as LODVariantDescriptor
       lod.params.dst = fileName + lod.suffix
       lod.params.modelFormat = fullSrc.endsWith('.gltf') ? 'gltf' : fullSrc.endsWith('.vrm') ? 'vrm' : 'glb'
       lod.params.resourceUri = ''
@@ -247,7 +247,7 @@ export default function ModelCompressionPanel({
   }, [selectedFiles])
 
   const handleAddLOD = () => {
-    const params = JSON.parse(JSON.stringify(lods[selectedLODIndex.value].params.value)) as ModelTransformParameters
+    const params = structuredClone(lods[selectedLODIndex.value].params.value) as ModelTransformParameters
     const suffix = '-LOD' + lods.length
     params.dst = params.dst.replace(lods[selectedLODIndex.value].suffix.value, suffix)
     lods.merge([

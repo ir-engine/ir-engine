@@ -74,7 +74,7 @@ export const LoopAnimationComponent = defineComponent({
     timeScale: S.Number(1),
     blendMode: AnimationBlendMode,
     loop: AnimationActionLoopStyles,
-    repetitions: S.Number(Infinity),
+    repetitions: S.NonSerialized(S.Number(Infinity)), //No longer serializable for now. We don't expose in editor anyway
     clampWhenFinished: S.Bool(false),
     zeroSlopeAtStart: S.Bool(true),
     zeroSlopeAtEnd: S.Bool(true),

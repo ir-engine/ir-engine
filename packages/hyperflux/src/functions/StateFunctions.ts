@@ -59,7 +59,7 @@ export type StateDefinition<S, I, E, Receptors extends ReceptorMap> = {
 export const StateDefinitions = new Map<string, StateDefinition<any, any, any, any>>()
 
 export const setInitialState = (def: StateDefinition<any, any, any, any>) => {
-  const initial = typeof def.initial === 'function' ? (def.initial as any)() : JSON.parse(JSON.stringify(def.initial))
+  const initial = typeof def.initial === 'function' ? (def.initial as any)() : structuredClone(def.initial)
   if (HyperFlux.store.stateMap[def.name]) {
     HyperFlux.store.stateMap[def.name].set(initial)
   } else {

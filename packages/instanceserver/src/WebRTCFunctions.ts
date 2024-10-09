@@ -106,7 +106,7 @@ export async function startWebRTC() {
       logTags: ['sctp']
     })
 
-    const webRtcServerOptions = JSON.parse(JSON.stringify(mediaConfig.mediasoup.webRtcServerOptions))
+    const webRtcServerOptions = structuredClone(mediaConfig.mediasoup.webRtcServerOptions)
     offset = await getNewOffset(
       webRtcServerOptions.listenInfos[0].ipAddress,
       webRtcServerOptions.listenInfos[0].port,

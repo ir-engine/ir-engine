@@ -63,8 +63,8 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
     if (!adminAwsSettingsData) {
       return
     }
-    const tempSms = JSON.parse(JSON.stringify(adminAwsSettingsData.sms)) as AwsSmsType
-    const tempCloudfront = JSON.parse(JSON.stringify(adminAwsSettingsData.cloudfront)) as AwsCloudFrontType
+    const tempSms = structuredClone(adminAwsSettingsData.sms) as AwsSmsType
+    const tempCloudfront = structuredClone(adminAwsSettingsData.cloudfront) as AwsCloudFrontType
     sms.set(tempSms)
     cloudfront.set(tempCloudfront)
   }, [adminAwsSettingsData])
@@ -77,22 +77,22 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
   }
 
   const handleCancel = () => {
-    const tempSms = JSON.parse(JSON.stringify(adminAwsSettingsData?.sms)) as AwsSmsType
-    const tempCloudfront = JSON.parse(JSON.stringify(adminAwsSettingsData?.cloudfront)) as AwsCloudFrontType
+    const tempSms = structuredClone(adminAwsSettingsData?.sms) as AwsSmsType
+    const tempCloudfront = structuredClone(adminAwsSettingsData?.cloudfront) as AwsCloudFrontType
     sms.set(tempSms)
     cloudfront.set(tempCloudfront)
   }
 
   const handleUpdateCloudfront = (event, type) => {
     cloudfront.set({
-      ...JSON.parse(JSON.stringify(cloudfront.value)),
+      ...structuredClone(cloudfront.value),
       [type]: event.target.value
     })
   }
 
   const handleUpdateSms = (event, type) => {
     sms.set({
-      ...JSON.parse(JSON.stringify(sms.value)),
+      ...structuredClone(sms.value),
       [type]: event.target.value
     })
   }

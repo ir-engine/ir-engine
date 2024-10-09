@@ -373,7 +373,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                   credential: iceServer.credential,
                   webRTCStaticAuthSecretKey: iceServer.webRTCStaticAuthSecretKey
                 })
-              iceServers.push(JSON.parse(JSON.stringify(defaultIceServer)))
+              iceServers.push(structuredClone(defaultIceServer))
               settings.webRTCSettings.iceServers.set(iceServers)
             }}
           >
