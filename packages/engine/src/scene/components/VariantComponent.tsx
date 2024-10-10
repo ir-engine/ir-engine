@@ -23,13 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 
-import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 
+import { Entity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 
@@ -60,26 +68,46 @@ export const VariantComponent = defineComponent({
     currentLevel: S.NonSerialized(S.Number(0))
   }),
 
+  setDistanceLevel: (entity: Entity) => {
+    const variantComponent = getComponent(entity, VariantComponent)
+    if (variantComponent.heuristic !== Heuristic.DISTANCE) return
+    const distance = DistanceFromCameraComponent.squaredDistance[entity]
+    for (let i = 0; i < variantComponent.levels.length; i++) {
+      const level = variantComponent.levels[i]
+      if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
+      const minDistance = Math.pow(level.metadata['minDistance'], 2)
+      const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
+      if (minDistance <= distance && distance <= maxDistance) {
+        getMutableComponent(entity, VariantComponent).currentLevel.set(i)
+        break
+      }
+    }
+  },
+
   reactor: () => {
     const entity = useEntityContext()
     const variantComponent = useComponent(entity, VariantComponent)
 
-    useLayoutEffect(() => {
-      if (variantComponent.heuristic.value != Heuristic.DEVICE) return
+    useEffect(() => {
+      const heuristic = variantComponent.heuristic.value
+      if (heuristic === Heuristic.DEVICE) {
+        const targetDevice = isMobile || isMobileXRHeadset ? Devices.MOBILE : Devices.DESKTOP
+        const levelIndex = variantComponent.levels.value.findIndex((level) => level.metadata['device'] === targetDevice)
+        if (levelIndex < 0) {
+          console.warn('VariantComponent: No asset found for target device')
+          return
+        }
 
-      const targetDevice = isMobile || isMobileXRHeadset ? Devices.MOBILE : Devices.DESKTOP
-      const levelIndex = variantComponent.levels.value.findIndex((level) => level.metadata['device'] === targetDevice)
-      if (levelIndex < 0) {
-        console.warn('VariantComponent: No asset found for target device')
-        return
+        variantComponent.currentLevel.set(levelIndex)
+      } else if (heuristic === Heuristic.DISTANCE) {
+        VariantComponent.setDistanceLevel(entity)
       }
-
-      variantComponent.currentLevel.set(levelIndex)
     }, [variantComponent.heuristic.value])
 
     useEffect(() => {
       if (!variantComponent.levels.length) return
       const src = variantComponent.levels[variantComponent.currentLevel.value].src.value
+      if (!src) return
       setComponent(entity, GLTFComponent, { src: src })
     }, [variantComponent.currentLevel.value])
 

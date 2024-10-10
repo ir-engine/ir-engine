@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 
-import { getComponent, getMutableComponent, PresentationSystemGroup } from '@ir-engine/ecs'
+import { PresentationSystemGroup } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -34,9 +34,8 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { InstancingComponent } from '../components/InstancingComponent'
-import { Heuristic, VariantComponent } from '../components/VariantComponent'
+import { VariantComponent } from '../components/VariantComponent'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
@@ -65,19 +64,7 @@ function execute() {
   lastUpdate = ecsState.elapsedSeconds
 
   for (const entity of variantQuery()) {
-    const variantComponent = getComponent(entity, VariantComponent)
-    if (variantComponent.heuristic !== Heuristic.DISTANCE) return
-    const distance = DistanceFromCameraComponent.squaredDistance[entity]
-    for (let i = 0; i < variantComponent.levels.length; i++) {
-      const level = variantComponent.levels[i]
-      if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
-      const minDistance = Math.pow(level.metadata['minDistance'], 2)
-      const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
-      if (minDistance <= distance && distance <= maxDistance) {
-        getMutableComponent(entity, VariantComponent).currentLevel.set(i)
-        break
-      }
-    }
+    VariantComponent.setDistanceLevel(entity)
   }
 }
 
