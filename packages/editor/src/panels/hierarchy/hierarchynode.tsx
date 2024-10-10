@@ -296,7 +296,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     const modelComponent = getComponent(node.entity, ModelComponent)
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(modelComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
-    exportRelativeGLTF(node.entity, fullProjectName, fileName).then(() => {
+    const parsedName = fileName.split('?')[0]
+    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then(() => {
       ResourceLoaderManager.updateResource(modelComponent.src)
       getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
     })

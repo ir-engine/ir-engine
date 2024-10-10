@@ -22,27 +22,26 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { ArgTypes } from '@storybook/react'
 
-import ErrorView from './index'
+import assert from 'assert'
+import { cleanFileNameString } from './cleanFileName'
 
-const argTypes: ArgTypes = {}
+describe('cleanFileNameString', () => {
+  it('should return a cleaned version of the filename', () => {
+    const fullFileName = 'path/to/file/file_name.txt'
+    const result = cleanFileNameString(fullFileName)
+    assert.equal(result, 'path/to/file/file_name.txt')
+  })
 
-export default {
-  title: 'Primitives/Tailwind/ErrorView',
-  component: ErrorView,
-  parameters: {
-    componentSubtitle: 'ErrorView',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
-}
+  it('should return a cleaned version of the filename even if it doesnt have and extension', () => {
+    const fullFileName = 'path/to/file/file_name'
+    const result = cleanFileNameString(fullFileName)
+    assert.equal(result, 'path/to/file/file_name')
+  })
 
-export const Default = {
-  args: {
-    className: ''
-  }
-}
+  it('should return a cleaned version of the filename with a truncated name', () => {
+    const fullFileName = 'path/to/file/' + 'a'.repeat(1000) + '.txt'
+    const result = cleanFileNameString(fullFileName)
+    assert.equal(result, 'path/to/file/' + 'a'.repeat(64) + '.txt')
+  })
+})
