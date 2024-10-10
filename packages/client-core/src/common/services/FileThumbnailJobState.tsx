@@ -283,7 +283,7 @@ const ThumbnailJobReactor = () => {
   useEffect(() => {
     if (jobState.length > 0) {
       const newJob = jobState[0].get(NO_PROXY)
-      currentJob.set(structuredClone(newJob))
+      currentJob.set(JSON.parse(JSON.stringify(newJob)))
     } else {
       cleanupState()
     }

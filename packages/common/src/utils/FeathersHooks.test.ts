@@ -67,7 +67,7 @@ describe('FeathersHooks', () => {
             return new Promise((resolve) => {
               const data = db.find((item) => item.id === id)
               console.log('get', id, data)
-              resolve(data ? structuredClone(data) : null)
+              resolve(data ? JSON.parse(JSON.stringify(data)) : null)
             })
           },
           create: (data) => {

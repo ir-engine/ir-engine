@@ -36,7 +36,7 @@ export const migrateSceneSettings = (json: SceneJsonType) => {
   if (!json.entities[json.root].components.length) return
   const newEntity = {
     name: 'Settings',
-    components: structuredClone(rootEntity.components),
+    components: JSON.parse(JSON.stringify(rootEntity.components)),
     parent: json.root,
     index: 0
   } as EntityJsonType

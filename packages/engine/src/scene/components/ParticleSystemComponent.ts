@@ -866,18 +866,18 @@ export const ParticleSystemComponent = defineComponent({
   onSet: (entity, component, json) => {
     !!json?.systemParameters &&
       component.systemParameters.set({
-        ...structuredClone(component.systemParameters.value),
+        ...JSON.parse(JSON.stringify(component.systemParameters.value)),
         ...json.systemParameters
       })
 
-    !!json?.behaviorParameters && component.behaviorParameters.set(structuredClone(json.behaviorParameters))
+    !!json?.behaviorParameters && component.behaviorParameters.set(JSON.parse(JSON.stringify(json.behaviorParameters)))
     ;(!!json?.systemParameters || !!json?.behaviorParameters) &&
       component._refresh.set((component._refresh.value + 1) % 1000)
   },
 
   toJSON: (component) => ({
-    systemParameters: structuredClone(component.systemParameters),
-    behaviorParameters: structuredClone(component.behaviorParameters)
+    systemParameters: JSON.parse(JSON.stringify(component.systemParameters)),
+    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters))
   }),
 
   reactor: function () {
@@ -981,7 +981,7 @@ export const ParticleSystemComponent = defineComponent({
       const rendererInstance = createBatchedRenderer(sceneID!)
       const renderer = rendererInstance.renderer
 
-      const systemParameters = structuredClone(component.systemParameters) as ExpandedSystemJSON
+      const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
       const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
       renderer.addSystem(nuSystem)
       const behaviors = component.behaviorParameters.map((behaviorJSON) => {

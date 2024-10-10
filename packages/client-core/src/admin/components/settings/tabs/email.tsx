@@ -55,19 +55,19 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   const patchEmailSetting = useMutation(emailSettingPath).patch
 
   const handleSmtpSecure = (value) => {
-    smtp.set({ ...structuredClone(smtp.value), secure: value })
+    smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: value })
   }
 
   const handleUpdateSmtp = (event, type) => {
     smtp.set({
-      ...structuredClone(smtp.value),
+      ...JSON.parse(JSON.stringify(smtp.value)),
       [type]: event.target.value
     })
   }
 
   const handleUpdateAuth = (event, type) => {
     auth.set({
-      ...structuredClone(auth.value),
+      ...JSON.parse(JSON.stringify(auth.value)),
       [type]: event.target.value
     })
   }
@@ -110,7 +110,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
 
   const handleUpdateSubject = (event, type) => {
     subject.set({
-      ...structuredClone(subject.value),
+      ...JSON.parse(JSON.stringify(subject.value)),
       [type]: event.target.value
     })
   }

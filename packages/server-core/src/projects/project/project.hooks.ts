@@ -309,7 +309,7 @@ const uploadLocalProject = async (context: HookContext<ProjectService>) => {
     logger.warn(e)
   }
 
-  const manifestData = structuredClone(templateManifestJson) as ManifestJson
+  const manifestData = JSON.parse(JSON.stringify(templateManifestJson)) as ManifestJson
   manifestData.name = context.projectName
   manifestData.engineVersion = engineVersion
   fs.writeFileSync(path.resolve(projectLocalDirectory, 'manifest.json'), JSON.stringify(manifestData, null, 2))
