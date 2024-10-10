@@ -35,7 +35,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -118,7 +118,7 @@ function ModelReactor() {
   const removeLoadingGeo = () => {
     loadedSrc.set(modelComponent.src.value)
     if (!loadingEntity.value) return
-    removeEntity(loadingEntity.value)
+    removeEntityNodeRecursively(loadingEntity.value)
     loadingEntity.set(UndefinedEntity)
   }
 
