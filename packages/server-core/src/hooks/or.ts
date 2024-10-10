@@ -22,41 +22,25 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import { redisSettingMethods, redisSettingPath } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
-
-import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
-import { RedisSettingService } from './redis-setting.class'
-import redisSettingDocs from './redis-setting.docs'
-import hooks from './redis-setting.hooks'
-
-declare module '@ir-engine/common/declarations' {
-  interface ServiceTypes {
-    [redisSettingPath]: RedisSettingService
+import { Application, HookContext } from '../../declarations'
+/**
+ * @function or
+ * @argument HookFunction
+ * @description This operand hook will evaluate every hook function passed as argument,
+ * if at least 1 hook result in true, will provide a truthy response
+ *
+ * If not a single hook resulted in true, then will return false
+ */
+export default (...hooks: ((context: HookContext<Application>) => Promise<boolean> | boolean)[]) => {
+  return async (context: HookContext<Application>) => {
+    try {
+      // Execute all hook arguments and consolidate evaluation
+      return (await Promise.all(hooks.map((hook) => hook(context)))).reduce(
+        (acc, current) => (acc ? acc : current),
+        false
+      )
+    } catch (e) {
+      return false
+    }
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    name: redisSettingPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(redisSettingPath, new RedisSettingService(options), {
-    // A list of all methods this service exposes externally
-    methods: redisSettingMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: redisSettingDocs
-  })
-
-  const service = app.service(redisSettingPath)
-  service.hooks(hooks)
-
-  service.on('patched', () => {
-    updateAppConfig()
-  })
 }

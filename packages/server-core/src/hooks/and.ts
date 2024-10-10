@@ -22,20 +22,22 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
-
-import {
-  ZendeskSettingData,
-  ZendeskSettingPatch,
-  ZendeskSettingQuery,
-  ZendeskSettingType
-} from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
-
-export interface ZendeskSettingParams extends KnexAdapterParams<ZendeskSettingQuery> {}
-
-export class ZendeskSettingService<
-  T = ZendeskSettingType,
-  ServiceParams extends Params = ZendeskSettingParams
-> extends KnexService<ZendeskSettingType, ZendeskSettingData, ZendeskSettingParams, ZendeskSettingPatch> {}
+import { Application, HookContext } from '../../declarations'
+/**
+ * @function and
+ * @argument HookFunction
+ * @description This operand hook will evaluate every hook function passed as argument,
+ * if at least 1 hook result in false, will provide a falsy response
+ *
+ * If every single hook resulted in true, then will return true
+ */
+export default (...hooks: ((context: HookContext<Application>) => Promise<boolean> | boolean)[]) => {
+  return async (context: HookContext<Application>) => {
+    try {
+      // Execute all hook arguments and consolidate evaluation
+      return (await Promise.all(hooks.map((hook) => hook(context)))).reduce((acc, current) => acc && current, true)
+    } catch (e) {
+      return false
+    }
+  }
+}

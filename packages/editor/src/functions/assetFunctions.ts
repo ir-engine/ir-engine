@@ -30,10 +30,9 @@ import {
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { convertFileExtensionToLowercase } from '../panels/files/helpers'
 
 enum FileType {
   THREE_D = '3D',
@@ -44,7 +43,7 @@ enum FileType {
 }
 
 const unsupportedFileMessage = {
-  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a GLTF or a GLB.',
+  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a .gltf or a .glb.',
   [FileType.IMAGE]: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
   [FileType.AUDIO]: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
   [FileType.VIDEO]: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.',
@@ -52,7 +51,7 @@ const unsupportedFileMessage = {
 }
 
 const supportedFiles = {
-  [FileType.THREE_D]: new Set(['GLTF', 'GLB']),
+  [FileType.THREE_D]: new Set(['.gltf', '.glb', '.bin']),
   [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
   [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
@@ -90,7 +89,7 @@ function isValidFileType(file): boolean {
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
-      file = convertFileExtensionToLowercase(file)
+      file = cleanFileNameFile(file)
       const fileDirectory = file.webkitRelativePath || file.name
       return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
@@ -134,16 +133,11 @@ export const inputFileWithAddToScene = ({
         if (el.files?.length) {
           const newFiles: File[] = []
           for (let i = 0; i < el.files.length; i++) {
-            isValidFileType(el.files[i])
-            let fileName = el.files[i].name
-            if (fileName.length > 64) {
-              fileName = fileName.slice(0, 64)
-            } else if (fileName.length < 4) {
-              fileName = fileName + '0000'
-            }
-            newFiles.push(new File([el.files[i]], fileName, { type: el.files[i].type }))
+            const newFile = cleanFileNameFile(el.files[i])
+            isValidFileType(newFile)
+            newFiles.push(newFile)
           }
-          await handleUploadFiles(projectName, directoryPath, el.files)
+          await handleUploadFiles(projectName, directoryPath, newFiles)
         }
         resolve(null)
       } catch (err) {
@@ -223,7 +217,7 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const name = processFileName(file.name)
+    const name = cleanFileNameString(file.name)
     const path = `assets${directory}/` + name
 
     promises.push(

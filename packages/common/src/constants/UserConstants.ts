@@ -23,4 +23,4 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export const USERNAME_MAX_LENGTH = 60
+export const USERNAME_MAX_LENGTH = 70

@@ -22,46 +22,31 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import { TabData } from 'rc-dock'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { FileUploadProgress } from '../files/loaders'
-import CategoriesList, { VerticalDivider } from './categories'
-import { AssetsQueryProvider } from './hooks'
-import Resources from './resources'
-import Topbar from './topbar'
+import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
+import WarningView from '../../../primitives/tailwind/WarningView'
 
-const AssetsPanelTitle = () => {
-  const { t } = useTranslation()
+interface WarningDialogProps {
+  title: string
+  description?: string
+  modalProps?: ModalProps
+}
 
+const WarningDialog = ({ title, description, modalProps }: WarningDialogProps) => {
   return (
-    <div>
-      <PanelDragContainer dataTestId="assets-panel-tab">
-        <PanelTitle>
-          <span>{t('editor:tabs.scene-assets')}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
+    <Modal
+      onClose={PopoverState.hidePopupover}
+      showCloseButton={false}
+      submitButtonDisabled={true}
+      onSubmit={() => PopoverState.hidePopupover()}
+      className="w-[50vw] max-w-2xl bg-yellow-600"
+      hideFooter={true}
+      {...modalProps}
+    >
+      <WarningView title={title} description={description} />
+    </Modal>
   )
 }
 
-export const AssetsPanelTab: TabData = {
-  id: 'assetsPanel',
-  closable: true,
-  title: <AssetsPanelTitle />,
-  content: <AssetsContainer />
-}
-
-function AssetsContainer() {
-  return (
-    <div className="flex h-full flex-col">
-      <AssetsQueryProvider>
-        <Topbar />
-        <FileUploadProgress />
-        <VerticalDivider leftChildren={<CategoriesList />} rightChildren={<Resources />} />
-      </AssetsQueryProvider>
-    </div>
-  )
-}
+export default WarningDialog

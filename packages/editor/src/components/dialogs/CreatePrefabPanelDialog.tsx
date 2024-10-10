@@ -27,14 +27,23 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { Entity, createEntity, entityExists, getComponent, removeEntity, setComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  UUIDComponent,
+  createEntity,
+  entityExists,
+  getComponent,
+  removeEntity,
+  setComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs'
 import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dialogs/PrefabConfirmationPanelDialog'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '@ir-engine/engine/src/scene/functions/loadGLTFModel'
-import { getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
@@ -122,20 +131,36 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
                 parentEntity
               )
               getMutableState(SelectionState).selectedEntities.set([entityUUID])
-              reactor.stop()
+
+              const subReactor = startReactor(() => {
+                const entity = UUIDComponent.useEntityByUUID(entityUUID)
+                const modelComponent = useOptionalComponent(entity, ModelComponent)
+
+                useImmediateEffect(() => {
+                  if (!modelComponent) return
+                  const name = prefabName.value
+                  setComponent(entity, NameComponent, name)
+
+                  PopoverState.hidePopupover()
+                  defaultPrefabFolder.set('assets/custom-prefabs')
+                  prefabName.set('prefab')
+                  prefabTag.set([])
+                  isOverwriteModalVisible.set(false)
+                  isOverwriteConfirmed.set(false)
+                  PopoverState.showPopupover(<PrefabConfirmationPanelDialog entity={entity} />)
+
+                  subReactor.stop()
+                  reactor.stop()
+                }, [modelComponent])
+
+                return null
+              })
             } else {
               console.log('Entity not removed')
             }
           }, [nodes])
           return null
         })
-        PopoverState.hidePopupover()
-        defaultPrefabFolder.set('assets/custom-prefabs')
-        prefabName.set('prefab')
-        prefabTag.set([])
-        isOverwriteModalVisible.set(false)
-        isOverwriteConfirmed.set(false)
-        PopoverState.showPopupover(<PrefabConfirmationPanelDialog entity={entity} />)
       }
     } catch (e) {
       console.error(e)

@@ -39,14 +39,12 @@ import {
   instanceServerSettingPath,
   InstanceServerSettingType
 } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
-import { redisSettingPath, RedisSettingType } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
 import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
-import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
 import logger from './ServerLogger'
@@ -184,42 +182,6 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(instanceServerSettingPromise)
 
-  const redisSettingPromise = knexClient
-    .select()
-    .from<RedisSettingType>(redisSettingPath)
-    .then(async ([dbRedis]) => {
-      const { address, port, password } = dbRedis
-      if (
-        address !== process.env.REDIS_ADDRESS ||
-        port !== process.env.REDIS_PORT ||
-        password !== process.env.REDIS_PASSWORD
-      ) {
-        await knexClient(redisSettingPath).update({
-          address: process.env.REDIS_ADDRESS,
-          port: process.env.REDIS_PORT,
-          password: process.env.REDIS_PASSWORD
-        })
-        ;[dbRedis] = await knexClient.select().from<RedisSettingType>(redisSettingPath)
-      }
-
-      const dbRedisConfig = dbRedis && {
-        enabled: dbRedis.enabled,
-        address: dbRedis.address,
-        port: dbRedis.port,
-        password: dbRedis.password
-      }
-      if (dbRedisConfig) {
-        appConfig.redis = {
-          ...appConfig.redis,
-          ...dbRedisConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read redisSetting: ${e.message}`)
-    })
-  promises.push(redisSettingPromise)
-
   const serverSettingPromise = knexClient
     .select()
     .from<ServerSettingDatabaseType>(serverSettingPath)
@@ -236,22 +198,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
-
-  const zendeskSettingPromise = knexClient
-    .select()
-    .from<ZendeskSettingType>(zendeskSettingPath)
-    .then(([dbZendesk]) => {
-      if (dbZendesk) {
-        appConfig.zendesk = {
-          ...appConfig.zendesk,
-          ...dbZendesk
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read zendesk setting: ${e.message}`)
-    })
-  promises.push(zendeskSettingPromise)
 
   const mailchimpSettingPromise = knexClient
     .select()

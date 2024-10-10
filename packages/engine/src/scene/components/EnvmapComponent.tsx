@@ -111,6 +111,12 @@ export const EnvmapComponent = defineComponent({
     const probeQuery = useQuery([ReflectionProbeComponent])
 
     useEffect(() => {
+      return () => {
+        updateEnvMap(mesh, null)
+      }
+    }, [])
+
+    useEffect(() => {
       updateEnvMapIntensity(mesh, component.envMapIntensity.value)
     }, [mesh, component.envMapIntensity])
 
