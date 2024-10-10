@@ -38,11 +38,11 @@ import {
 } from '@ir-engine/ecs'
 import { dispatchAction } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag, NetworkState, WorldNetworkAction } from '@ir-engine/network'
-import { TransformComponent, TransformSystem } from '@ir-engine/spatial'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { DistanceFromLocalClientComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { getDistanceSquaredFromTarget } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { getDistanceSquaredFromTarget, TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'

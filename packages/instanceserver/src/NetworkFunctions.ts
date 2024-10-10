@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { Spark } from 'primus'
 
 import { API } from '@ir-engine/common'
@@ -263,7 +263,7 @@ export const handleConnectingPeer = async (
   const cachedActions = ([updatePeersAction] as Required<Action>[])
     .concat(NetworkPeerFunctions.getCachedActionsForPeer(peerID))
     .map((action) => {
-      return _.cloneDeep(action)
+      return cloneDeep(action)
     })
 
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)

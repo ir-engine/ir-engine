@@ -74,27 +74,25 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       .flat()
   : []
 
-export default (app: Application): void => {
-  ;[
-    ...ClusterServices,
-    ...AnalyticsServices,
-    ...UserServices,
-    ...AssetServices,
-    ...MediaServices,
-    ...EntityServices,
-    ...NetworkingServices,
-    ...SocialServices,
-    ...BotService,
-    ...ScopeService,
-    ...SettingService,
-    ...RouteService,
-    ...RecordingServices,
-    ...MatchMakingServices,
-    ...WorldServices,
-    ...IntegrationServices
-  ]
-    .concat(...installedProjects)
-    .forEach((service) => {
-      app.configure(service)
-    })
+const services = [
+  ...ClusterServices,
+  ...AnalyticsServices,
+  ...UserServices,
+  ...AssetServices,
+  ...MediaServices,
+  ...EntityServices,
+  ...NetworkingServices,
+  ...SocialServices,
+  ...BotService,
+  ...ScopeService,
+  ...SettingService,
+  ...RouteService,
+  ...RecordingServices,
+  ...MatchMakingServices,
+  ...WorldServices,
+  ...IntegrationServices
+]
+
+export default (app: Application) => {
+  services.concat(installedProjects).forEach((service) => app.configure(service))
 }

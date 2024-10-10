@@ -17,7 +17,7 @@
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --config .mocharc.js"
+    "test": "cross-env TEST=true vitest run"
   },
   "resolutions": {
     "@types/react": "18.2.0",
@@ -42,7 +42,7 @@
     "@types/react-window": "^1.8.8",
     "@uiw/react-color-sketch": "^2.1.1",
     "i18next": "21.6.16",
-    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
     "potpack": "^2.0.0",
     "postprocessing": "6.34.1",
     "rc-dock": "3.2.18",
@@ -61,13 +61,11 @@
     "uuid": "9.0.0"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.1",
     "@types/node": "18.15.5",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.0",
     "@types/three": "0.158.0",
     "@types/uuid": "^9.0.1",
-    "mocha": "10.2.0",
     "rimraf": "4.4.0",
     "trace-unhandled": "2.0.1"
   },

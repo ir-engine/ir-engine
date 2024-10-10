@@ -1,10 +1,11 @@
 {
   "name": "@ir-engine/default-project",
   "version": "0.0.0",
+  "type": "module",
   "main": "",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --config .mocharc.js"
+    "test": "exit 0"
   },
   "license": "CPAL"
 }

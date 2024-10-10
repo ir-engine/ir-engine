@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { VRM } from '@pixiv/three-vrm'
 
-import { getComponent, getOptionalMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -56,9 +56,9 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
-    const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
-    animationActionComponent?._action.value &&
-      animationActionComponent?.time.set(animationActionComponent._action.value.time)
+    //const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
+    // animationActionComponent?._action.value &&
+    //   animationActionComponent?.time.set(animationActionComponent._action.value.time)
   }
 
   for (const entity of loopAnimationQuery()) {
