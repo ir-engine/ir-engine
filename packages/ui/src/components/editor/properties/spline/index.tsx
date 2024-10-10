@@ -68,7 +68,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
             className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
             size="20px"
             onClick={() => {
-              const elem = { position: new Vector3(), quaternion: new Quaternion() }
+              const elem = { position: new Vector3(), rotation: new Quaternion() }
               const newElements = [...elements.get(NO_PROXY), elem]
               commitProperty(SplineComponent, 'elements')(newElements)
             }}
@@ -114,7 +114,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
               <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')}`} className="w-auto">
                 <EulerInput
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-                  quaternion={elem.quaternion.value}
+                  quaternion={elem.rotation.value}
                   unit="°"
                   onChange={(quat) => {
                     commitProperty(SplineComponent, `elements.${index}.quaternion` as any)(quat)

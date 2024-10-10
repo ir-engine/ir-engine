@@ -37,11 +37,11 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
