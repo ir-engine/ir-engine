@@ -27,6 +27,7 @@ import { useGet } from '@ir-engine/common'
 import { userPath } from '@ir-engine/common/src/schema.type.module'
 import {
   defineComponent,
+  ECSState,
   Entity,
   getComponent,
   getMutableComponent,
@@ -47,20 +48,35 @@ import { getState } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
+import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
+import { WebLayer3D } from '@ir-engine/xrui'
 import { useEffect } from 'react'
+import { MathUtils, Vector3 } from 'three'
+
+const xrDistVec3 = new Vector3()
+
+function updateXrDistVec3(selfAvatarEntity: Entity): void {
+  //TODO change from using rigidbody to use the transform position (+ height of avatar)
+  const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
+  const avatar = getComponent(selfAvatarEntity, AvatarComponent)
+  xrDistVec3.copy(selfAvatarRigidBodyComponent.position)
+  xrDistVec3.y += avatar.avatarHeight
+}
 
 export const XruiNameplateComponent = defineComponent({
   name: 'XruiNameplateComponent',
   schema: S.Object({
     uiEntity: S.Entity(),
     nameLabel: S.String('')
-    // transition: S.Type(createTransitionState(0.25))
   }),
+
+  Transitions: new Map<Entity, ReturnType<typeof createTransitionState>>(),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -71,22 +87,12 @@ export const XruiNameplateComponent = defineComponent({
     useEffect(() => {
       if (selfAvatarEntity === entity) return //don't add nameplate to self
 
-      // const xruiEntity = createEntity()
-      // setComponent(xruiEntity, EntityTreeComponent, { parentEntity: entity })
-      // setComponent(xruiEntity, TransformComponent)
-
-      //const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])//, Not(NetworkObjectOwnedTag)])
-      // for (const userEntity of userQuery())
-      // const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-
-      /** todo set up username here, can use networkobject */
-      // const username = user.data?.name ?? 'A User'
-
       const userName = user.data?.name ?? 'A User'
       addNameplateUI(entity, userName)
 
       const xruiEntity = getComponent(entity, XruiNameplateComponent).uiEntity
       return () => {
+        XruiNameplateComponent.Transitions.delete(xruiEntity)
         removeEntity(xruiEntity)
       }
     }, [user?.data?.name])
@@ -114,7 +120,7 @@ const addNameplateUI = (entity: Entity, username: string) => {
 
   const transition = createTransitionState(0.25)
   transition.setState('OUT')
-  // nameplayComponent.transition.set(transition)
+  XruiNameplateComponent.Transitions.set(uiEntity, transition)
 }
 
 export const updateNameplateUI = (entity: Entity) => {
@@ -127,16 +133,16 @@ export const updateNameplateUI = (entity: Entity) => {
 
   const xruiTransform = getOptionalComponent(xruiNameplateComponent.uiEntity, TransformComponent) //xrui!.entity!, TransformComponent)//
   if (!xrui || !xruiTransform) return
-
-  // updateXrDistVec3(selfAvatarEntity)
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  updateXrDistVec3(selfAvatarEntity)
 
   const hasVisibleComponent = hasComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
-  if (hasVisibleComponent && avatarComponent) {
-    // const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
+  if (hasVisibleComponent && avatarComponent && avatarTransform) {
+    const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
 
     xruiTransform.position.set(
       avatarTransform?.matrix.elements[12] ?? 0,
-      avatarComponent.avatarHeight * 1.1,
+      MathUtils.lerp(xruiTransform.position.y, avatarTransform.position.y + avatarComponent.avatarHeight * 1.1, alpha),
       avatarTransform?.matrix.elements[14] ?? 0
     )
 
@@ -144,36 +150,39 @@ export const updateNameplateUI = (entity: Entity) => {
     xruiTransform.rotation.copy(cameraTransform.rotation)
   }
 
-  // const distance = xrDistVec3.distanceToSquared(xruiTransform.position)
+  const distance = xrDistVec3.distanceToSquared(xruiTransform.position)
 
-  //slightly annoying to check this condition twice, but keeps distance calc on same frame
-  // if (hasVisibleComponent) {
-  //   xruiTransform.scale.setScalar(MathUtils.clamp(distance * 0.01, 1, 5))
-  // }
+  // slightly annoying to check this condition twice, but keeps distance calc on same frame
+  if (hasVisibleComponent) {
+    xruiTransform.scale.setScalar(MathUtils.clamp(distance * 0.01, 1, 5))
+  }
 
-  // const transition = xruiNameplateComponent.transition
-  let activateUI = false
+  const transition = XruiNameplateComponent.Transitions.get(xruiNameplateComponent.uiEntity)
 
   const inCameraFrustum = inFrustum(xruiNameplateComponent.uiEntity)
 
-  activateUI = inCameraFrustum
+  const activateUI = inCameraFrustum && distance < 81 //9m^2
 
-  if (/*transition.state === 'OUT' && */ activateUI) {
-    //transition.setState('IN')
-    setComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
+  if (transition) {
+    if (transition.state === 'OUT' && activateUI) {
+      transition.setState('IN')
+      setComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
+      console.log('setting IN')
+    }
+    if (transition.state === 'IN' && !activateUI) {
+      transition.setState('OUT')
+      removeComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
+      console.log('setting OUT')
+    }
+    const deltaSeconds = getState(ECSState).deltaSeconds
+    transition.update(deltaSeconds, (opacity) => {
+      if (opacity === 0) {
+        removeComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
+      }
+      xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+        const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+        mat.opacity = opacity
+      })
+    })
   }
-  if (/*transition.state === 'IN' &&*/ !activateUI) {
-    //transition.setState('OUT')
-    removeComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
-  }
-  // const deltaSeconds = getState(ECSState).deltaSeconds
-  // transition.update(deltaSeconds, (opacity) => {
-  //   if (opacity === 0) {
-  //     removeComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
-  //   }
-  //   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-  //     const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
-  //     mat.opacity = opacity
-  //   })
-  // })
 }
