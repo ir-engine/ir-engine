@@ -92,7 +92,7 @@ export const XruiNameplateComponent = defineComponent({
 
       const xruiEntity = getComponent(entity, XruiNameplateComponent).uiEntity
       return () => {
-        XruiNameplateComponent.Transitions.delete(xruiEntity)
+        XruiNameplateComponent.Transitions.delete(entity)
         removeEntity(xruiEntity)
       }
     }, [user?.data?.name])
@@ -120,7 +120,7 @@ const addNameplateUI = (entity: Entity, username: string) => {
 
   const transition = createTransitionState(0.25)
   transition.setState('OUT')
-  XruiNameplateComponent.Transitions.set(uiEntity, transition)
+  XruiNameplateComponent.Transitions.set(entity, transition)
 }
 
 export const updateNameplateUI = (entity: Entity) => {
@@ -131,7 +131,7 @@ export const updateNameplateUI = (entity: Entity) => {
   const avatarComponent = getOptionalComponent(entity, AvatarComponent)
   const xrui = getOptionalComponent(xruiNameplateComponent.uiEntity, XRUIComponent)
 
-  const xruiTransform = getOptionalComponent(xruiNameplateComponent.uiEntity, TransformComponent) //xrui!.entity!, TransformComponent)//
+  const xruiTransform = getOptionalComponent(xruiNameplateComponent.uiEntity, TransformComponent)
   if (!xrui || !xruiTransform) return
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   updateXrDistVec3(selfAvatarEntity)
@@ -142,7 +142,14 @@ export const updateNameplateUI = (entity: Entity) => {
 
     xruiTransform.position.set(
       avatarTransform?.matrix.elements[12] ?? 0,
-      MathUtils.lerp(xruiTransform.position.y, avatarTransform.position.y + avatarComponent.avatarHeight * 1.1, alpha),
+      MathUtils.lerp(
+        xruiTransform.position.y,
+        //between 66% avatar height and ~110% avatar height
+        avatarTransform.position.y +
+          avatarComponent.avatarHeight * 0.66 +
+          avatarComponent.avatarHeight * 0.33 * 1.32 * xruiTransform.scale.x,
+        alpha
+      ),
       avatarTransform?.matrix.elements[14] ?? 0
     )
 
@@ -152,32 +159,27 @@ export const updateNameplateUI = (entity: Entity) => {
 
   const distance = xrDistVec3.distanceToSquared(xruiTransform.position)
 
-  // slightly annoying to check this condition twice, but keeps distance calc on same frame
-  if (hasVisibleComponent) {
-    xruiTransform.scale.setScalar(MathUtils.clamp(distance * 0.01, 1, 5))
-  }
-
-  const transition = XruiNameplateComponent.Transitions.get(xruiNameplateComponent.uiEntity)
+  const transition = XruiNameplateComponent.Transitions.get(entity)
 
   const inCameraFrustum = inFrustum(xruiNameplateComponent.uiEntity)
 
-  const activateUI = inCameraFrustum && distance < 81 //9m^2
+  const activateUI = inCameraFrustum && distance < 64 //8m^2
 
   if (transition) {
     if (transition.state === 'OUT' && activateUI) {
       transition.setState('IN')
       setComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
-      console.log('setting IN')
     }
     if (transition.state === 'IN' && !activateUI) {
       transition.setState('OUT')
-      removeComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
-      console.log('setting OUT')
     }
     const deltaSeconds = getState(ECSState).deltaSeconds
     transition.update(deltaSeconds, (opacity) => {
       if (opacity === 0) {
         removeComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
+      }
+      if (hasVisibleComponent) {
+        xruiTransform.scale.setScalar(MathUtils.clamp(opacity * opacity * 1.2, 0.01, 1)) //scale changes slightly faster than f(n^2)
       }
       xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
         const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
