@@ -51,7 +51,7 @@ const unsupportedFileMessage = {
 }
 
 const supportedFiles = {
-  [FileType.THREE_D]: new Set(['.gltf', '.glb']),
+  [FileType.THREE_D]: new Set(['.gltf', '.glb', '.bin']),
   [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
   [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
