@@ -41,10 +41,25 @@ export interface InteractiveModalState {
   interactMessage: string
 }
 
-export const createModalView = (entity: Entity, interactMessage: string, isInteractable = true) => {
+export const createModalView = (
+  entity: Entity,
+  interactMessage: string,
+  isInteractable = true,
+  borderRadiusPx: number = 10,
+  bgPaddingPx: number = 30,
+  contentVerticalPadPx: number = 10,
+  contentHorizontalPadPx: number = 10
+) => {
   const uiEntity = createEntity()
   const ui = createXRUI(
-    () => InteractiveModalView(uiEntity),
+    () =>
+      InteractiveModalView({
+        entity: uiEntity,
+        borderRadiusPx: borderRadiusPx,
+        bgPaddingPx: bgPaddingPx,
+        contentVerticalPadPx: contentVerticalPadPx,
+        contentHorizontalPadPx: contentHorizontalPadPx
+      }),
     hookstate({
       interactMessage
     } as InteractiveModalState),
@@ -54,7 +69,15 @@ export const createModalView = (entity: Entity, interactMessage: string, isInter
   return ui
 }
 
-function createBackground(parentEntity: Entity, width: number, height: number): Entity {
+function createBackground(
+  parentEntity: Entity,
+  width: number,
+  height: number,
+  borderRadiusPx: number = 10,
+  paddingPx: number = 30,
+  contentVerticalPadPx: number = 10,
+  contentHorizontalPadPx: number = 10
+): Entity {
   const blurMat = new MeshPhysicalMaterial({
     color: new Color('#B9B9B9'),
     transmission: 1,
@@ -65,10 +88,17 @@ function createBackground(parentEntity: Entity, width: number, height: number): 
   })
 
   const backgroundEid = createEntity()
-  const calcWidth = width + 30 // 30 accounts for padding and border radius in the Element styling
-  const calcHeight = height + 30
+  const calcWidth = width + paddingPx // 30 accounts for padding and border radius in the Element styling
+  const calcHeight = height + paddingPx
   const mesh = new Mesh(
-    roundedRect(-(calcWidth / 1000) / 2, -(calcHeight / 1000) / 2, calcWidth / 1000, calcHeight / 1000, 0.01),
+    // roundedRect(-((calcWidth + contentHorizontalPadPx) / 1000) / 2, -((calcHeight + contentVerticalPadPx)/ 1000) / 2, (calcWidth + contentHorizontalPadPx) / 1000, (calcHeight + contentVerticalPadPx )/ 1000, borderRadiusPx/1000),
+    roundedRect(
+      -(calcWidth / 1000) / 2,
+      -(calcHeight / 1000) / 2,
+      calcWidth / 1000,
+      calcHeight / 1000,
+      borderRadiusPx / 1000
+    ),
     blurMat
   )
   setComponent(backgroundEid, EntityTreeComponent, { parentEntity: parentEntity })
@@ -93,7 +123,13 @@ function roundedRect(x: number, y: number, width: number, height: number, radius
   return new ShapeGeometry(shape)
 }
 
-export const InteractiveModalView: React.FC = (entity: Entity) => {
+export const InteractiveModalView: React.FC = (props: {
+  entity: Entity
+  borderRadiusPx: number
+  bgPaddingPx: number
+  contentVerticalPadPx: number
+  contentHorizontalPadPx: number
+}) => {
   const modalState = useXRUIState<InteractiveModalState>()
   const rootElement = React.useRef<HTMLDivElement>(null)
 
@@ -101,7 +137,15 @@ export const InteractiveModalView: React.FC = (entity: Entity) => {
 
   React.useLayoutEffect(() => {
     if (rootElement.current) {
-      createBackground(entity, rootElement.current.clientWidth, rootElement.current.clientHeight)
+      createBackground(
+        props.entity,
+        rootElement.current.clientWidth,
+        rootElement.current.clientHeight,
+        props.borderRadiusPx,
+        props.bgPaddingPx,
+        props.contentVerticalPadPx,
+        props.contentHorizontalPadPx
+      )
     }
   }, [rootElement.current]) //TODO this isn't firing, not calculating size to add BG
 
@@ -122,8 +166,11 @@ export const InteractiveModalView: React.FC = (entity: Entity) => {
           font-family: sans-serif;
           font-weight: 400;
           border: 4px solid #e7e7e7;
-          border-radius: 10px;
-          padding: 10px;
+          border-radius: ${props.borderRadiusPx}px;
+          padding-top: ${props.contentVerticalPadPx}px;
+          padding-bottom: ${props.contentVerticalPadPx}px;
+          padding-left: ${props.contentHorizontalPadPx}px;
+          padding-right: ${props.contentHorizontalPadPx}px;
           margin: 60px;
           width: fit-content;
           height: fit-content;

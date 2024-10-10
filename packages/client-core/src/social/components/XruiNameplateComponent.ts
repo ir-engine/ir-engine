@@ -102,7 +102,15 @@ export const XruiNameplateComponent = defineComponent({
 })
 
 const addNameplateUI = (entity: Entity, username: string) => {
-  const uiEntity = createUI(entity, username, false).entity
+  const uiEntity = createUI(
+    entity,
+    username,
+    false, //isInteractable
+    38, //borderRadiusPx
+    3, //bgPaddingPx
+    5, //verticalContentPaddingPx
+    40 //horizontalContentPaddingPx
+  ).entity
 
   const uiTransform = getComponent(uiEntity, TransformComponent)
   const avatar = getOptionalComponent(entity, AvatarComponent)
