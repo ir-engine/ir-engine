@@ -682,7 +682,7 @@ export const removeAllComponents = (entity: Entity) => {
 
 export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
   const component = getComponent(entity, Component)
-  return structuredClone(Component.toJSON(component)) as ReturnType<C['toJSON']>
+  return JSON.parse(JSON.stringify(Component.toJSON(component))) as ReturnType<C['toJSON']>
 }
 
 // use seems to be unavailable in the server environment
