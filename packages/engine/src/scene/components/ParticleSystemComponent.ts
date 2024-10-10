@@ -55,6 +55,7 @@ import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  hasComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -857,10 +858,10 @@ export const ParticleSystemComponent = defineComponent({
   schema: S.Object({
     systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
     behaviorParameters: S.Array(S.Type<BehaviorJSON>()),
-    behaviors: S.Optional(S.Array(S.Type<Behavior>())),
-    system: S.Type<ParticleSystem>(),
-    _loadIndex: S.Number(0),
-    _refresh: S.Number(0)
+    behaviors: S.NonSerialized(S.Optional(S.Array(S.Type<Behavior>()))),
+    system: S.NonSerialized(S.Type<ParticleSystem>()),
+    _loadIndex: S.NonSerialized(S.Number(0)),
+    _refresh: S.NonSerialized(S.Number(0))
   }),
 
   onSet: (entity, component, json) => {
@@ -886,7 +887,7 @@ export const ParticleSystemComponent = defineComponent({
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const sceneID = useOptionalComponent(entity, SourceComponent)?.value
     const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
-    const sceneLoaded = GLTFComponent.useSceneLoaded(rootEntity)
+    const sceneLoaded = hasComponent(rootEntity, GLTFComponent) ? GLTFComponent.useSceneLoaded(rootEntity) : true
     const refreshed = useHookstate(false)
 
     //for particle meshes
