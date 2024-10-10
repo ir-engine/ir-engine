@@ -349,12 +349,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     setComponent(objEntity, Object3DComponent, obj)
   }
 
-  const material = mesh.material
-  if (!material) return eJson
-
   delete mesh.userData['componentJson']
   delete mesh.userData['gltfExtensions']
   delete mesh.userData['useVisible']
-
+  delete mesh.userData['name']
   return eJson
 }
