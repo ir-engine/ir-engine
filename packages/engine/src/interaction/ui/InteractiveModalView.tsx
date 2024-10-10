@@ -84,7 +84,8 @@ function createBackground(
     roughness: 0.5,
     opacity: 1,
     transparent: true,
-    side: DoubleSide
+    side: DoubleSide,
+    depthWrite: false
   })
 
   const backgroundEid = createEntity()
@@ -104,7 +105,7 @@ function createBackground(
   setComponent(backgroundEid, EntityTreeComponent, { parentEntity: parentEntity })
   setComponent(backgroundEid, MeshComponent, mesh)
   setComponent(backgroundEid, VisibleComponent)
-  const backgroundTransform = setComponent(backgroundEid, TransformComponent, { position: new Vector3(0, 0, -0.0025) })
+  const backgroundTransform = setComponent(backgroundEid, TransformComponent, { position: new Vector3(0, 0, -0.0001) })
   addObjectToGroup(backgroundEid, mesh) // TODO: this should be managed by the MeshComponent
   return backgroundEid
 }

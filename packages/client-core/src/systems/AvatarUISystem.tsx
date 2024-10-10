@@ -23,17 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
-import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -58,6 +58,7 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
+import { XruiNameplateComponent } from '../social/components/XruiNameplateComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
@@ -294,6 +295,24 @@ const reactor = () => {
       removeEntity(getState(AvatarUIContextMenuState).ui.entity)
       getMutableState(PopupMenuState).menus[AvatarMenus.AvatarContext].set(none)
     }
+  }, [])
+
+  return (
+    <>
+      <QueryReactor
+        Components={[AvatarComponent, TransformComponent, NetworkObjectComponent]}
+        ChildEntityReactor={AvatarInstanceReactor}
+      />
+    </>
+  )
+}
+
+const AvatarInstanceReactor = () => {
+  const avatarEntity = useEntityContext()
+
+  useEffect(() => {
+    const userId = getComponent(avatarEntity, NetworkObjectComponent).ownerId
+    if (userId !== Engine.instance.store.userID) setComponent(avatarEntity, XruiNameplateComponent)
   }, [])
   return null
 }
