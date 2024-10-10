@@ -33,7 +33,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TbPointer, TbRefresh, TbSquareDotFilled, TbVector, TbWindowMaximize } from 'react-icons/tb'
+import { TbMarquee2, TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
 import { SelectionBoxState } from './SelectionBoxTool'
 
@@ -85,6 +85,7 @@ export default function GizmoTool({
     }
   }
   const handleClickSelectionBox = () => {
+    setPointerSelected(false)
     setIsClickedSelectionBox(!isClickedSelectionBox)
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
     getMutableState(InputState).capturingCameraOrbitEnabled.set(isClickedSelectionBox)
@@ -174,12 +175,12 @@ export default function GizmoTool({
         <Tooltip content={t('disable orbit camera and enable selection box')} position={'right center'}>
           <Button
             className={twMerge(
-              'p-2 text-[#A3A3A3]', // default styles
-              isClickedSelectionBox ? 'bg-theme-highlight' : 'bg-transparent', // toggle styles
+              'rounded-none bg-[#212226] p-2 text-[#A3A3A3]',
+              isClickedSelectionBox ? 'text-white' : 'text-[#A3A3A3]', // toggle styles
               'flex items-center justify-center rounded' // ensure proper layout and styling
             )}
             iconContainerClassName="m-0"
-            startIcon={<TbSquareDotFilled />}
+            startIcon={<TbMarquee2 />}
             onClick={handleClickSelectionBox}
           />
         </Tooltip>
