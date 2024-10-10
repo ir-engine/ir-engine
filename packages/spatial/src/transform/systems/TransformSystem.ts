@@ -71,7 +71,7 @@ declare module 'three/src/core/Object3D' {
 export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const needsMatrixCompose = getOptionalComponent(entity, ComputedTransformComponent)?.computeFunction()
-  needsMatrixCompose && composeMatrix(entity)
+  needsMatrixCompose != false && composeMatrix(entity)
   const entityTree = getOptionalComponent(entity, EntityTreeComponent)
   const parentEntity = entityTree?.parentEntity
   if (parentEntity) {
