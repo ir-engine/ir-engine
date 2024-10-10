@@ -23,35 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-
-
-
-import { defineSystem  } from  "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/SystemFunctions.ts" 
-import { defineQuery } from "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/QueryFunctions.tsx"
-import { getState} from  "https://localhost:3000/@fs/root/ir-engine/packages/hyperflux/src/functions/StateFunctions.ts"
-import { setComponent  , getComponent} from "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/ComponentFunctions.ts"
+import {
+  getComponent,
+  setComponent
+} from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/ComponentFunctions.ts'
+import { ECSState } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/ECSState.ts'
+import { defineQuery } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/QueryFunctions.tsx'
+import { defineSystem } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/SystemFunctions.ts'
 import { AnimationSystemGroup } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/SystemGroups.ts'
-import { SkyboxComponent } from "https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/components/SkyboxComponent.ts"
-import { ECSState} from "https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/ECSState.ts"
-import {SkyTypeEnum} from 'https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/constants/SkyTypeEnum.ts'
+import { SkyboxComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/components/SkyboxComponent.ts'
+import { SkyTypeEnum } from 'https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/constants/SkyTypeEnum.ts'
+import { getState } from 'https://localhost:3000/@fs/root/ir-engine/packages/hyperflux/src/functions/StateFunctions.ts'
 
-const skyboxs = defineQuery([SkyboxComponent ])
+const skyboxs = defineQuery([SkyboxComponent])
 
-setComponent(skyboxs()[0], SkyboxComponent , {backgroundType: SkyTypeEnum.skybox})
+setComponent(skyboxs()[0], SkyboxComponent, { backgroundType: SkyTypeEnum.skybox })
 
 const execute = () => {
   for (const skybox of skyboxs()) {
-    const value = (getState(ECSState).elapsedSeconds  % 24 ) / 24 
-    const props =   getComponent(skybox , SkyboxComponent).skyboxProps
-    setComponent(skybox , SkyboxComponent, {skyboxProps : {...props , azimuth : value} })
+    const value = (getState(ECSState).elapsedSeconds % 24) / 24
+    const props = getComponent(skybox, SkyboxComponent).skyboxProps
+    setComponent(skybox, SkyboxComponent, { skyboxProps: { ...props, azimuth: value } })
   }
 }
 
-
-
-
 export const scriptDayNightCycleSystem = defineSystem({
   uuid: 'ee.editor.scriptDayNightCycleSystem',
-  insert: { before : AnimationSystemGroup },
+  insert: { before: AnimationSystemGroup },
   execute
-  })
+})
