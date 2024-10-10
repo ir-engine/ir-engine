@@ -41,9 +41,8 @@ import {
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { State, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import React, { useEffect, useLayoutEffect, useState, useMemo } from 'react'
-import { Vector3, Quaternion, Matrix4 } from 'three'
-import { subscribeToComponent } from '@ir-engine/ecs'
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { Quaternion, Vector3 } from 'three'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent, TransformComponentType } from './TransformComponent'
@@ -674,9 +673,11 @@ export const filterParentEntities = (
   return parentEntityList
 }
 
-
-export function useRelativeTransform(entity: Entity, relativeEntity: Entity): State<null|Omit<TransformComponentType, 'matrixWorld'>> {
-  const result = useHookstate(null as null|Omit<TransformComponentType, 'matrixWorld'>)
+export function useRelativeTransform(
+  entity: Entity,
+  relativeEntity: Entity
+): State<null | Omit<TransformComponentType, 'matrixWorld'>> {
+  const result = useHookstate(null as null | Omit<TransformComponentType, 'matrixWorld'>)
   const entityTransform = useComponent(entity, TransformComponent)
   const relativeEntityTransform = useComponent(relativeEntity, TransformComponent)
 
@@ -687,7 +688,7 @@ export function useRelativeTransform(entity: Entity, relativeEntity: Entity): St
   useEffect(() => {
     if (!entityTransform || !relativeEntityTransform || !commonAncestor || !entityMatrix || !relativeEntityMatrix) {
       result.set(null)
-      return 
+      return
     }
 
     const matrix = entityMatrix.clone().invert().multiply(relativeEntityMatrix)
@@ -724,27 +725,25 @@ function useCommonAncestor(entity1: Entity, entity2: Entity): Entity | null {
   return commonAncestor
 }
 
-function useAncestors(entity: Entity): Entity[] {
+function useAncestors(entity: Entity, includeSelf = true): Entity[] {
   const forceUpdate = useForceUpdate()
-  const ancestors = useMemo(() => {
-    const result: Entity[] = [entity]
-    let current = entity
 
-    while (true) {
-      const parentEntity = getComponent(current, EntityTreeComponent).parentEntity
-      if (!parentEntity) break
-      result.unshift(parentEntity)
-      current = parentEntity
-    }
+  const ancestors = includeSelf ? [entity] : ([] as Entity[])
+  let current = entity
 
-    return result
-  }, [entity])
+  while (true) {
+    const parentEntity = getComponent(current, EntityTreeComponent).parentEntity
+    if (!parentEntity) break
+    ancestors.unshift(parentEntity)
+    current = parentEntity
+  }
 
   useEffect(() => {
     const root = startReactor(() => {
       ancestors.forEach((ancestor) => {
         useComponent(ancestor, EntityTreeComponent)
       })
+      forceUpdate()
       return null
     })
 

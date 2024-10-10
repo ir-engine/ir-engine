@@ -190,13 +190,13 @@ export const LayoutComponent = defineComponent({
 
     /**
      * Content fit mode for the entity. Options include:
-     * - contain: Scale the content to fit within the container container.
-     * - cover: Scale the content to cover the container container.
-     * - fill: Stretch the content to fill the container container.
+     * - contain: Scale the content to fit within the container.
+     * - cover: Scale the content to cover the container.
+     * - fill: Stretch the content to fill the container.
      * - none: Do not scale the content.
      * - scaleDown: Scale the content down if necessary.
      *
-     * Default is ContentFit.none.
+     * Default is ContentFit.contain.
      */
     contentFit: S.Optional(S.Enum(ContentFit)),
     contentFitTransition: Transition.defineVector3Transition(),
@@ -207,7 +207,7 @@ export const LayoutComponent = defineComponent({
       rotation: S.Quaternion(),
       rotationOrigin: Unit3StringSchema({ x: '50%', y: '50%', z: '50%' }),
       size: Unit3StringSchema({ x: '100%', y: '100%', z: '100%' }),
-      contentFit: S.Enum(ContentFit, ContentFit.none)
+      contentFit: S.Enum(ContentFit, ContentFit.contain)
     }),
 
     containerEntity: S.Entity()
@@ -238,29 +238,27 @@ export const LayoutComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const layout = useComponent(entity, LayoutComponent)
-    const effectiveLayout = LayoutComponent.useEffectiveState(entity)
+    const layout = useEffectiveLayout(entity)
 
     const simulationTime = getState(ECSState).simulationTime
 
-    // This layout might be containered to another layout, or an object, or a camera.
+    // This layout might be contained by another layout, or an object, or a camera.
     const containerEntity = layout.containerEntity.value
     const containerLayout = useOptionalComponent(containerEntity, LayoutComponent)
     const containerCamera = useOptionalComponent(containerEntity, CameraComponent)
     const containerRenderer = useOptionalComponent(containerEntity, RendererComponent)
     const containerBounds = useOptionalComponent(containerEntity, BoundingBoxComponent)
 
-    const contentFitScale = Transition.useTransitionTarget(
-      layout.positionTransition,
-      effectiveLayout.position,
-      simulationTime
-    )
-    Transition.useTransitionTarget(layout.originTransition, effectiveLayout.positionOrigin, simulationTime)
-    Transition.useTransitionTarget(layout.alignmentTransition, effectiveLayout.alignmentOrigin, simulationTime)
-    Transition.useTransitionTarget(layout.rotationTransition, effectiveLayout.rotation, simulationTime)
-    Transition.useTransitionTarget(layout.rotationOriginTransition, effectiveLayout.rotationOrigin, simulationTime)
-    Transition.useTransitionTarget(layout.sizeTransition, effectiveLayout.size, simulationTime)
-    Transition.useTransitionTarget(layout.contentFitTransition, effectiveLayout.contentFit, simulationTime)
+    const contentSize = useContentSize(entity)
+    const containerSize = useContainerSize(entity)
+    const contentFitScale = useContentFitScale(layout.contentFit, contentSize, containerSize)
+
+    Transition.useTransitionTarget(layout.originTransition, layout.positionOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.alignmentTransition, layout.alignmentOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.rotationTransition, layout.rotation, simulationTime)
+    Transition.useTransitionTarget(layout.rotationOriginTransition, layout.rotationOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.sizeTransition, layout.size, simulationTime)
+    Transition.useTransitionTarget(layout.contentFitTransition, layout.contentFit, simulationTime)
 
     // Reusable objects for calculations
     const finalPosition = new Vector3()
@@ -445,16 +443,38 @@ export const LayoutComponent = defineComponent({
   }
 })
 
-function useLayoutBounds(entity: Entity): State<Vector3> {
+const _box = new Box3()
+
+function useOrientedContentBounds(entity: Entity): State<Vector3> {
   const bounds = useHookstate(() => new Box3())
   const layout = LayoutComponent.useEffectiveState(entity)
   const rotation = layout.rotation.value
   const meshes = useChildrenWithComponents(entity, [MeshComponent, TransformComponent])
 
-  useImmediateEffect(() => {}, meshes)
+  useImmediateEffect(() => {
+    const box = new Box3()
+    meshes.forEach((entity) => {
+      const mesh = getComponent(entity, MeshComponent)
+      const transform = getComponent(entity, TransformComponent)
+      if (!mesh.geometry) return
+      if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox()
+      const geometryBox = _box.copy(mesh.geometry.boundingBox)
+      geometryBox.applyMatrix4(transform.matrix.value)
+      geometryBox.applyMatrix4(new Matrix4().makeRotationFromQuaternion(rotation))
+      box.union(geometryBox)
+    })
+    bounds.set(box)
+    return null
+  }, meshes)
 
   return bounds
 }
+
+/**
+ * Return the matrix that converts a point from the content space to the container space.
+ * @param entity
+ */
+function useContentToContainerMatrix(entity: Entity) {}
 
 /**
  * @param contentEntity

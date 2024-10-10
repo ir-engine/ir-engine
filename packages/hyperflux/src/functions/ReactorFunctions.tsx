@@ -210,3 +210,12 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
 
   return reactorRoot
 }
+
+export function useReactor(Reactor: React.FC, deps?: React.DependencyList | undefined): void {
+  React.useEffect(() => {
+    const reactorRoot = startReactor(Reactor)
+    return () => {
+      reactorRoot.stop()
+    }
+  }, deps)
+}
