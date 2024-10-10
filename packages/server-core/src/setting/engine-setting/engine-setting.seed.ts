@@ -85,6 +85,31 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'coil'
   )
+  const mailchimpSeedData: EngineSettingType[] = await generateSeedData(
+    [
+      {
+        key: EngineSettings.MailChimp.Key,
+        value: process.env.MAILCHIMP_KEY || ''
+      },
+      {
+        key: EngineSettings.MailChimp.Server,
+        value: process.env.MAILCHIMP_SERVER || ''
+      },
+      {
+        key: EngineSettings.MailChimp.AudienceId,
+        value: process.env.MAILCHIMP_AUDIENCE_ID || ''
+      },
+      {
+        key: EngineSettings.MailChimp.DefaultTags,
+        value: process.env.MAILCHIMP_DEFAULT_TAGS || ''
+      },
+      {
+        key: EngineSettings.MailChimp.GroupId,
+        value: process.env.MAILCHIMP_GROUP_ID || ''
+      }
+    ],
+    'mailchimp'
+  )
 
   const redisSeedData = await generateSeedData(
     [
@@ -111,6 +136,7 @@ export async function seed(knex: Knex): Promise<void> {
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
     ...coilSeedData,
+    ...mailchimpSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData
   ]

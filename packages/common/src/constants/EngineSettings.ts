@@ -37,6 +37,13 @@ export const EngineSettings = {
     ApiKey: 'apiKey',
     Url: 'url'
   },
+  MailChimp: {
+    Key: 'key',
+    Server: 'server',
+    AudienceId: 'audienceId',
+    DefaultTags: 'defaultTags',
+    GroupId: 'groupId'
+  },
   Redis: {
     Address: 'address',
     Password: 'password',
