@@ -83,6 +83,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }))
 
   const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
+  console.log(entity)
   const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.value!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})

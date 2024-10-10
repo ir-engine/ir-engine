@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import { EntityUUID, getComponent, getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, getComponent, getOptionalComponent, hasComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMaterialsFromScene } from '@ir-engine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { getMutableState } from '@ir-engine/hyperflux'
@@ -78,11 +78,14 @@ function MaterialsLibrary() {
             .map((entity) => getComponent(entity, UUIDComponent))
             .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
 
-    const materialsBySource = {} as Record<string, EntityUUID[]>
+    const materialsBySource = {} as Record<string, string[]>
     for (const uuid of materials) {
       const source = getOptionalComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent) ?? ''
+      console.log(uuid)
+      if (!hasComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), MaterialStateComponent)) continue
       materialsBySource[source] = materialsBySource[source] ? [...materialsBySource[source], uuid] : [uuid]
     }
+    console.log(materialsBySource)
     const materialsBySourceArray = Object.entries(materialsBySource)
     const flattenedMaterials = materialsBySourceArray.reduce(
       (acc: (EntityUUID | string)[], [source, uuids]) => acc.concat([source], uuids),
