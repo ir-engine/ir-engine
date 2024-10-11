@@ -2,6 +2,7 @@
   "name": "@ir-engine/taskserver",
   "description": "Task server for IREngine platform",
   "version": "1.6.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/ir-engine/ir-engine.git"
@@ -33,14 +34,13 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
-    "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect' ts-node --swc src/index.ts",
+    "start": "cross-env APP_ENV=production vite-node src/index.ts",
+    "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect' vite-node src/index.ts",
     "test": "exit 0",
     "validate": "npm run build && npm run test"
   },
   "dependencies": {
     "@ir-engine/server-core": "^1.6.0",
-    "@swc/core": "1.3.41",
     "cross-env": "7.0.3",
     "typescript": "5.4.5"
   },

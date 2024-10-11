@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cloneDeep, isEqual, uniqueId } from 'lodash'
+import { cloneDeep, isEqual, uniqueId } from 'lodash-es'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { ComponentMap, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'

@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// ensure logger is loaded first - it loads the dotenv config
+import logger from './ServerLogger'
+
 import knex from 'knex'
 
 import {
@@ -39,7 +42,6 @@ import {
   instanceServerSettingPath,
   InstanceServerSettingType
 } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
-import { redisSettingPath, RedisSettingType } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
   serverSettingPath
@@ -48,7 +50,6 @@ import {
 import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
-import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
@@ -182,42 +183,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read instanceServerSetting: ${e.message}`)
     })
   promises.push(instanceServerSettingPromise)
-
-  const redisSettingPromise = knexClient
-    .select()
-    .from<RedisSettingType>(redisSettingPath)
-    .then(async ([dbRedis]) => {
-      const { address, port, password } = dbRedis
-      if (
-        address !== process.env.REDIS_ADDRESS ||
-        port !== process.env.REDIS_PORT ||
-        password !== process.env.REDIS_PASSWORD
-      ) {
-        await knexClient(redisSettingPath).update({
-          address: process.env.REDIS_ADDRESS,
-          port: process.env.REDIS_PORT,
-          password: process.env.REDIS_PASSWORD
-        })
-        ;[dbRedis] = await knexClient.select().from<RedisSettingType>(redisSettingPath)
-      }
-
-      const dbRedisConfig = dbRedis && {
-        enabled: dbRedis.enabled,
-        address: dbRedis.address,
-        port: dbRedis.port,
-        password: dbRedis.password
-      }
-      if (dbRedisConfig) {
-        appConfig.redis = {
-          ...appConfig.redis,
-          ...dbRedisConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read redisSetting: ${e.message}`)
-    })
-  promises.push(redisSettingPromise)
 
   const serverSettingPromise = knexClient
     .select()
