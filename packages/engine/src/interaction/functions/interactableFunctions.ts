@@ -36,7 +36,7 @@ import {
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { inFrustum } from '../../camera/functions/cameraFunctions'
+import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 
 const mat4 = new Matrix4()

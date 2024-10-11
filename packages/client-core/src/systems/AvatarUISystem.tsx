@@ -55,9 +55,9 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
+import { Not } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { Not } from 'bitecs'
 import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 import { XruiNameplateComponent } from '../social/components/XruiNameplateComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
