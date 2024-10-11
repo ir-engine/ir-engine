@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { exportGLTFComponent } from '@ir-engine/engine/src/assets/functions/exportModelGLTF'
+import { exportGLTFScene } from '@ir-engine/engine/src/assets/functions/exportGLTFScene'
+import exportModelGLTF from '@ir-engine/engine/src/assets/functions/exportModelGLTF'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { uploadProjectFiles } from './assetFunctions'
 
@@ -35,15 +36,7 @@ export default async function exportGLTF(entity: Entity, path: string) {
 
 export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string) {
   const isGLTF = /\.gltf$/.test(relativePath)
-  // const gltf = await exportModelGLTF(entity, {
-  //   projectName,
-  //   relativePath,
-  //   binary: !isGLTF,
-  //   embedImages: !isGLTF,
-  //   includeCustomExtensions: true,
-  //   onlyVisible: false
-  // })
-  const gltf = await exportGLTFComponent(entity, {
+  const model = await exportModelGLTF(entity, {
     projectName,
     relativePath,
     binary: !isGLTF,
@@ -51,6 +44,7 @@ export async function exportRelativeGLTF(entity: Entity, projectName: string, re
     includeCustomExtensions: true,
     onlyVisible: false
   })
+  const gltf = exportGLTFScene(entity)
   if (!gltf) return
   const blob = [new Blob([JSON.stringify(gltf, null, 2)])]
   const file = new File(blob, relativePath)

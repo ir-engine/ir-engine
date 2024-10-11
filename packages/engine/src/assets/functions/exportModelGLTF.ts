@@ -23,22 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  getAllComponents,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  serializeComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-
-import { GLTF } from '@gltf-transform/core'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { GLTFWriter } from '../exporters/gltf/GLTFExporter'
 import createGLTFExporter from './createGLTFExporter'
 
 export default async function exportModelGLTF(
@@ -75,89 +63,4 @@ export default async function exportModelGLTF(
     )
   })
   return gltf
-}
-
-type GLTFWriterOptions = {
-  projectName: string
-  relativePath: string
-  binary: boolean
-  includeCustomExtensions: boolean
-  embedImages: boolean
-  onlyVisible: boolean
-}
-
-const createGLTFWriter = (options: GLTFWriterOptions) => {
-  const gltf = { nodes: [] as GLTF.INode[] } as GLTF.IGLTF
-  const writer = new GLTFWriter()
-  writer.json = gltf
-  return writer
-}
-
-export async function exportGLTFComponent(
-  entity: Entity,
-  options = {
-    projectName: '',
-    relativePath: '',
-    binary: true,
-    includeCustomExtensions: true,
-    embedImages: true,
-    onlyVisible: false
-  }
-) {
-  const extensionsUsed = new Set<string>()
-
-  const writer = createGLTFWriter(options)
-  exportGLTFNode(entity, writer, extensionsUsed)
-
-  const gltf = writer.json
-  if (extensionsUsed.size) gltf.extensionsUsed = [...extensionsUsed]
-  return gltf
-}
-
-const exportGLTFNode = (entity: Entity, writer: GLTFWriter, extensionsUsed: Set<string>): number[] => {
-  const gltf = writer.json as GLTF.IGLTF
-  const children = getComponent(entity, EntityTreeComponent).children
-  const childrenIndicies = [] as number[]
-  if (children.length > 0) {
-    for (const child of children) {
-      childrenIndicies.push(...exportGLTFNode(child, writer, extensionsUsed))
-    }
-  }
-
-  const indices = [] as number[]
-  const group = getOptionalComponent(entity, GroupComponent)
-  if (group && group.length) {
-    /** @todo how to map ECS data to nodes when multiple objects are in the group */
-    for (const obj of group) indices.push(writer.processNode(obj))
-  }
-
-  if (!indices.length) {
-    indices.push(gltf.nodes!.length)
-    gltf.nodes!.push({})
-  }
-
-  const node = gltf.nodes![indices[0]]
-  if (hasComponent(entity, NameComponent)) {
-    node.name = getComponent(entity, NameComponent)
-  }
-
-  const extensions = {} as Record<string, unknown>
-  const components = getAllComponents(entity)
-  for (const component of components) {
-    if (
-      component === TransformComponent || //skip transform data as that is stored in the object3d
-      !component.jsonID //skip components that don't have a jsonID
-    )
-      continue
-
-    const compData = serializeComponent(entity, component)
-    // Do we not want to serialize tag components?
-    if (!compData) continue
-    extensions[component.jsonID] = compData
-    extensionsUsed.add(component.jsonID)
-  }
-  if (Object.keys(extensions).length > 0) node.extensions = extensions
-  node.children = children
-
-  return indices
 }
