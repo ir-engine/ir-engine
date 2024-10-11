@@ -53,7 +53,7 @@ export const cleanFileNameString = (fullFileName: string): string => {
     // Combine the name with the lowercase extension
     const newFileName = lastDotIndex === -1 ? `${nameWithoutExtension}` : `${nameWithoutExtension}.${extension}`
 
-    return filePath + '/' + newFileName
+    return filePath ? filePath + '/' + newFileName : newFileName
   } catch (e) {
     return fullFileName
   }
