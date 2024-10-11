@@ -30,7 +30,7 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import { ChildProcess } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
-import { beforeAll, describe, it } from 'vitest'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { API } from '@ir-engine/common'
 import {
@@ -84,7 +84,7 @@ describe('InstanceLoad', () => {
     StartTestFileServer()
   })
 
-  after(() => {
+  afterAll(() => {
     config.instanceserver.p2pEnabled = p2pEnabled
     return destroyEngine()
   })
