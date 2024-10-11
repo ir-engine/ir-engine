@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
-import { random } from 'lodash'
+import { random } from 'lodash-es'
 
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'

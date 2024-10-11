@@ -1,37 +1,35 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "lib": ["esnext", "dom", "dom.iterable", "WebWorker"],
-    "allowJs": true,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
     "noEmit": true,
-    "module": "CommonJS",
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": false,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
-    "declaration": true,
-    "outDir": "./lib",
-    "types": ["vite/client", "mocha"]
+    "declaration": false,
+    "types": ["@types/node"]
   },
-  "exclude": [
-    "**/node_modules/**"
-  ],
   "include": [
     "../../../../../__global.d.ts",
-    "../../../../server-core/src/*",
-    "../../../../client-core/src/*",
-    "./**/*.ts",
-    "./**/*.tsx"
+    "../../../../client-core/src/",
+    "../../../../server-core/src/",
+    "./src"
   ]
 }

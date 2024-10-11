@@ -41,8 +41,8 @@ const createWorker = () => {
   }
 }
 
-const workerPool = new WorkerPool(1)
-workerPool.setWorkerCreator(createWorker)
+export const bvhWorkerPool = new WorkerPool(1)
+bvhWorkerPool.setWorkerCreator(createWorker)
 
 export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = {}) {
   if (
@@ -64,7 +64,7 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
     transferrables.push(index as ArrayLike<number>)
   }
 
-  const response = await workerPool.postMessage<BVHWorkerResponse>(
+  const response = await bvhWorkerPool.postMessage<BVHWorkerResponse>(
     {
       index,
       position: pos,
