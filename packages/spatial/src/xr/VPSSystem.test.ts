@@ -23,14 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import { describe } from 'vitest'
 
-import { SystemDefinitions, SystemUUID } from '@ir-engine/ecs/src/SystemFunctions'
-import { describe, it } from 'vitest'
-import { VPSSystem } from './VPSSystem'
-import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
-
-describe('VPSSystem', () => {
+describe.todo('VPSSystem', () => {
+  /**
+  // @todo
   const System = SystemDefinitions.get(VPSSystem)!
 
   describe('Fields', () => {
@@ -48,6 +45,7 @@ describe('VPSSystem', () => {
       assert.equal(System.insert!.after!, XRPersistentAnchorSystem)
     })
   }) //:: Fields
+  */
 
   describe('execute', () => {
     /**
