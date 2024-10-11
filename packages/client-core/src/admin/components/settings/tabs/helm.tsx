@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
@@ -85,6 +85,14 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     selectedMainVersion.set(helmSetting?.main)
     selectedBuilderVersion.set(helmSetting?.builder)
   }
+
+  useEffect(() => {
+    if (helmSetting?.main) selectedMainVersion.set(helmSetting.main)
+  }, [helmSetting?.main])
+
+  useEffect(() => {
+    if (helmSetting?.builder) selectedBuilderVersion.set(helmSetting.builder)
+  }, [helmSetting?.builder])
 
   return (
     <Accordion

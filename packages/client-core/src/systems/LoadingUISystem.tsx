@@ -61,6 +61,7 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@ir-engine/xrui'
 
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
@@ -345,7 +346,7 @@ const Reactor = () => {
   if (!sceneEntity) return null
 
   // wait for scene gltf to load
-  if (!gltfDocumentState[getComponent(sceneEntity, GLTFComponent).src]) return null
+  if (!gltfDocumentState[getComponent(sceneEntity, SourceComponent)]) return null
 
   return (
     <>

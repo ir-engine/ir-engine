@@ -112,6 +112,54 @@
     "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsfemale_03.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
   },
+  "assets/avatars/female_04.png": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/female_04.vrm": {
+    "type": "avatar",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/ir-engine/default-project/assets/avatars/female_04.png"
+    ]
+  },
+  "assets/avatars/female_05.png": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/female_05.vrm": {
+    "type": "avatar",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/ir-engine/default-project/assets/avatars/female_05.png"
+    ]
+  },
+  "assets/avatars/female_06.png": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/female_06.vrm": {
+    "type": "avatar",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/ir-engine/default-project/assets/avatars/female_06.png"
+    ]
+  },
   "assets/avatars/male_01.png": {
     "type": "asset",
     "tags": [
@@ -169,6 +217,22 @@
     ],
     "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsmale_03.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
+  },
+  "assets/avatars/male_04.png": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/male_04.vrm": {
+    "type": "avatar",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/ir-engine/default-project/assets/avatars/male_04.png"
+    ]
   },
   "assets/cloud.png": {
     "type": "asset",
@@ -538,15 +602,6 @@
     ],
     "dependencies": []
   },
-  "assets/test-equippable.glb": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetstest-equippable.glb-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
   "assets/UV.png": {
     "type": "asset",
     "tags": [
@@ -578,7 +633,7 @@
     "dependencies": []
   },
   "public/scenes/apartment.gltf": {
-    "type": "asset",
+    "type": "scene",
     "tags": [
       "Model"
     ],
@@ -600,7 +655,7 @@
     "dependencies": []
   },
   "public/scenes/default.gltf": {
-    "type": "asset",
+    "type": "scene",
     "tags": [
       "Model"
     ],
@@ -643,7 +698,7 @@
     "dependencies": []
   },
   "public/scenes/sky-station.gltf": {
-    "type": "asset",
+    "type": "scene",
     "tags": [
       "Model"
     ],
