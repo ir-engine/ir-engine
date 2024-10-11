@@ -40,6 +40,7 @@ import {
 import assert from 'assert'
 import { BoxGeometry, Material, Mesh, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertArrayAllNotEq, assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialInstanceComponent,
