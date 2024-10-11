@@ -81,11 +81,9 @@ function MaterialsLibrary() {
     const materialsBySource = {} as Record<string, string[]>
     for (const uuid of materials) {
       const source = getOptionalComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent) ?? ''
-      console.log(uuid)
       if (!hasComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), MaterialStateComponent)) continue
       materialsBySource[source] = materialsBySource[source] ? [...materialsBySource[source], uuid] : [uuid]
     }
-    console.log(materialsBySource)
     const materialsBySourceArray = Object.entries(materialsBySource)
     const flattenedMaterials = materialsBySourceArray.reduce(
       (acc: (EntityUUID | string)[], [source, uuids]) => acc.concat([source], uuids),
