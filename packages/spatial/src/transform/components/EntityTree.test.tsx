@@ -1435,12 +1435,6 @@ describe('useChildrenWithComponents', () => {
 
     // Define the Reactor that will run the tested hook
     const Reactor = () => {
-      /** @todo What is this warning about? gitblame: @SamMazerIR PR#61*/
-      //TODO pick up here where i left off in tests, need to properly convert result/entity to an array
-      //DO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT
-      //MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT
-      // MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT MEDO NOT COMMIT ME
-
       const entities = useChildrenWithComponents(rootEntity, components)
       useEffect(() => {
         results = entities
