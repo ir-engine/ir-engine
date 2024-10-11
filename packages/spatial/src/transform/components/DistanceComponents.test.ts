@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+
 import {
   UndefinedEntity,
   createEngine,
@@ -32,7 +35,6 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import assert from 'assert'
 import {
   DistanceComponentSchema,
   DistanceFromCameraComponent,

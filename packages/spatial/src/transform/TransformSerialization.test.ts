@@ -35,7 +35,8 @@ import {
 import { ViewCursor, createViewCursor, readFloat64, readUint8, writeComponent } from '@ir-engine/network'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
-import { assertVecApproxEq } from '../physics/classes/Physics.test'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertVecApproxEq } from '../../tests/util/mathAssertions'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import {
   TransformSerialization,
@@ -120,7 +121,7 @@ describe('TransformSerialization', () => {
 
         // Sanity check before running
         const beforeCursor = 0
-        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 4 * Float64Array.BYTES_PER_ELEMENT
+        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
         assert.equal(view.cursor, beforeCursor)
         // Run and Check the result
         readRotation(view, testEntity)

@@ -34,7 +34,8 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertArrayEqual } from '../../../tests/util/mathAssertions'
 import { ComputedTransformComponent } from './ComputedTransformComponent'
 import { TransformComponent } from './TransformComponent'
 
@@ -124,6 +125,14 @@ describe('ComputedTransformComponent', () => {
   }) //:: onSet
 
   describe('reactor', () => {
+    beforeEach(async () => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
     it('should set TransformComponent.transformsNeedSorting to true when it first mounts', () => {
       // Set the data as expected
       TransformComponent.transformsNeedSorting = false

@@ -42,12 +42,12 @@ import sinon from 'sinon'
 import { BoxGeometry, Layers, Matrix4, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import {
+  assertArrayEqual,
   assertMatrixAllApproxNotEq,
   assertMatrixApproxEq,
   assertVecAllApproxNotEq,
   assertVecApproxEq
 } from '../../../tests/util/mathAssertions'
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { TransformComponent } from '../RendererModule'
 import {
   GroupComponent,

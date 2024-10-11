@@ -44,7 +44,7 @@ import { startReactor } from '@ir-engine/hyperflux'
 import { NameComponent } from '../../common/NameComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
+import { assertArrayEqual } from '../../../tests/util/mathAssertions'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,

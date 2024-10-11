@@ -40,14 +40,14 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { Axis, PI, Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import {
+  assertArrayEqual,
   assertFloatApproxEq,
   assertFloatApproxNotEq,
   assertVecAnyApproxNotEq,
   assertVecApproxEq
-} from '../../physics/classes/Physics.test'
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
+} from '../../../tests/util/mathAssertions'
+import { Axis, PI, Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformDirtyUpdateSystem } from '../systems/TransformSystem'
 import { EntityTreeComponent, getAncestorWithComponents } from './EntityTree'

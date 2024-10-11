@@ -58,6 +58,12 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, UndefinedEntity, removeEntity } from '@ir-engine/ecs'
 import { act, render } from '@testing-library/react'
 import React from 'react'
+import {
+  assertFloatApproxEq,
+  assertFloatApproxNotEq,
+  assertVecAllApproxNotEq,
+  assertVecApproxEq
+} from '../../../tests/util/mathAssertions'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
@@ -74,89 +80,6 @@ import {
   Shapes
 } from '../types/PhysicsTypes'
 import { Physics, PhysicsWorld, RapierWorldState } from './Physics'
-
-const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
-
-const Epsilon = 0.001
-/**
- * @description Returns whether or not `@param A` and `@param B` are approximately equal, using `@param epsilon` as the margin of error.
- * @note Will also be true when both A and B are not finite.
- * @note Used as helper by multiple .test.ts* files */
-function floatApproxEq(A: number, B: number, epsilon = Epsilon): boolean {
-  if (!Number.isFinite(A) || !Number.isFinite(B)) {
-    return !Number.isFinite(A) && !Number.isFinite(B) ? true : false
-  } else return Math.abs(A - B) < epsilon
-}
-
-/**
- * @description
- * Triggers an assert when `@param A` and `@param B` are not approximately equal, using `@param epsilon` as the margin of error.
- * @note Used as helper by multiple .test.ts* files */
-export function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
-  assert.equal(floatApproxEq(A, B, epsilon), true, `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
-}
-
-/**
- * @description
- * Triggers an assert when `@param A` and `@param B` are approximately equal, using `@param epsilon` as the margin of error.
- * @note Used as helper by multiple .test.ts* files */
-export function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
-  assert.equal(floatApproxEq(A, B, epsilon), false, `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
-}
-
-/**
- * @description
- * Triggers an assert when one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
- * @note Used as helper by multiple .test.ts* files */
-export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
-  assertFloatApproxEq(A.x, B.x, epsilon)
-  assertFloatApproxEq(A.y, B.y, epsilon)
-  assertFloatApproxEq(A.z, B.z, epsilon)
-  if (elems > 3) assertFloatApproxEq(A.w, B.w, epsilon)
-}
-
-/**
- * @description
- * Triggers an assert when one or many of the members of `@param A` is not equal to `@param B`.
- * Does nothing for members that are equal
- * @note Used as helper by multiple .test.ts* files */
-export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  !floatApproxEq(A.x, B.x, epsilon) && assertFloatApproxNotEq(A.x, B.x, epsilon)
-  !floatApproxEq(A.y, B.y, epsilon) && assertFloatApproxNotEq(A.y, B.y, epsilon)
-  !floatApproxEq(A.z, B.z, epsilon) && assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) !floatApproxEq(A.w, B.w, epsilon) && assertFloatApproxNotEq(A.w, B.w, epsilon)
-}
-
-/**
- * @description
- * Triggers an assert when all the members of `@param A` are equal to `@param B`.
- * @note Used as helper by multiple .test.ts* files */
-export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  assertFloatApproxNotEq(A.x, B.x, epsilon)
-  assertFloatApproxNotEq(A.y, B.y, epsilon)
-  assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) assertFloatApproxNotEq(A.w, B.w, epsilon)
-}
-
-/**
- * @description
- * Triggers an assert when all the members of `@param A` are equal to `@param B`.
- * @note Used as helper by multiple .test.ts* files */
-export function assertMatrixApproxEq(A, B, epsilon = Epsilon) {
-  for (let id = 0; id < 16; ++id) {
-    assertFloatApproxEq(A.elements[id], B.elements[id], epsilon)
-  }
-}
-
-/**
- * @description
- * Triggers an assert when all the members of `@param A` are equal to `@param B`.
- * @note Used as helper by multiple .test.ts* files */
-export function assertMatrixAllApproxNotEq(A, B, epsilon = Epsilon) {
-  for (let id = 0; id < 16; ++id) {
-    assertFloatApproxNotEq(A.elements[id], B.elements[id], epsilon)
-  }
-}
 
 export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,

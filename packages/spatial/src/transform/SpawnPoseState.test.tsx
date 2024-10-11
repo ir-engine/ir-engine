@@ -36,8 +36,9 @@ import {
 import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertVecApproxEq } from '../../tests/util/mathAssertions'
 import { Vector3_One } from '../common/constants/MathConstants'
-import { assertVecApproxEq } from '../physics/classes/Physics.test'
 import { SpawnPoseState } from './SpawnPoseState'
 import { TransformComponent } from './components/TransformComponent'
 

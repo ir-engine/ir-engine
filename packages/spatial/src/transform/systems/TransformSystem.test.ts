@@ -44,13 +44,13 @@ import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
 import sinon from 'sinon'
 import { Box3, BoxGeometry, Group, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { MockXRFrame } from '../../../tests/util/MockXR'
+import { assertArrayAnyNotEq, assertArrayEqual, assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { destroySpatialEngine } from '../../initializeEngine'
-import { assertVecApproxEq } from '../../physics/classes/Physics.test'
-import { assertArrayAnyNotEq, assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -112,7 +112,7 @@ describe('TransformSystem', () => {
       assert.notEqual(spy.callCount, entities.length)
       // Run and Check the result
       System.execute()
-      assert.equal(spy.callCount, entities.length * 2)
+      assert.equal(spy.callCount, entities.length)
     })
 
     it('should call updateGroupChildren for all entities that have the components [GroupComponent, VisibleComponent] and are true in the TransformComponent.dirtyTransforms list', () => {

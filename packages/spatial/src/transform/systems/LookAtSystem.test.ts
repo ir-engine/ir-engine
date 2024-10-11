@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   EntityUUID,
@@ -41,9 +42,9 @@ import {
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
+import { assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
-import { assertVecApproxEq } from '../../physics/classes/Physics.test'
 import { EntityTreeComponent } from '../components/EntityTree'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '../components/TransformComponent'

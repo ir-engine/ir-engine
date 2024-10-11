@@ -37,12 +37,18 @@ import {
 import { getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Matrix4, Quaternion, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import {
+  assertArrayAllNotEq,
+  assertArrayEqual,
+  assertVecAllApproxNotEq,
+  assertVecAnyApproxNotEq,
+  assertVecApproxEq
+} from '../../tests/util/mathAssertions'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { EngineState } from '../EngineState'
 import { TransformComponent } from '../SpatialModule'
 import { Vector3_One } from '../common/constants/MathConstants'
-import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../physics/classes/Physics.test'
-import { assertArrayAllNotEq, assertArrayEqual } from '../physics/components/RigidBodyComponent.test'
 import { ReferenceSpace, XRState } from '../xr/XRState'
 import { EntityTreeComponent } from './components/EntityTree'
 import {
