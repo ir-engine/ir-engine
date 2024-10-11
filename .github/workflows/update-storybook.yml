@@ -1,0 +1,41 @@
+name: Build and Deploy Storybook
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'packages/ui/**'  # Trigger only when there's a change in the packages/ui directory
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Storybook
+        run: npm run build-storybook
+        working-directory: packages/ui
+
+      - name: Deploy to Storybook Docs Repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git clone https://x-access-token:${{ secrets.STORYBOOK_DOCS_PAT }}@github.com/your-username/storybook-docs.git
+          cp -R packages/ui/storybook-static/* storybook-docs/
+          
+          cd storybook-docs
+          git add .
+          git commit -m "Update Storybook documentation"
+          git push --force
