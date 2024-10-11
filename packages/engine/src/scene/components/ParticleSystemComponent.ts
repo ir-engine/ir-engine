@@ -31,6 +31,7 @@ import {
   CustomBlending,
   DoubleSide,
   Material,
+  Matrix4,
   MeshBasicMaterial,
   MultiplyBlending,
   NoBlending,
@@ -112,6 +113,7 @@ const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance
       remove: () => {},
       removeFromParent: () => {}
     } as Object3D
+    renderer.matrixWorld = new Matrix4().identity()
     const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
     particleState.renderers[sceneID].set(instance)
     return instance
