@@ -35,14 +35,19 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createTestLocation } from '@ir-engine/server-core/tests/util/createTestLocation'
 
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const params = { isInternal: true } as any
+
+const p2pEnabled = config.instanceserver.p2pEnabled
 
 describe('instance.test', () => {
   let app: Application
 
   beforeAll(async () => {
+    config.instanceserver.p2pEnabled = false
+
     app = await createFeathersKoaApp()
     await app.setup()
 
@@ -62,6 +67,7 @@ describe('instance.test', () => {
   })
 
   afterAll(async () => {
+    config.instanceserver.p2pEnabled = p2pEnabled
     await tearDownAPI()
     destroyEngine()
   })
@@ -77,7 +83,7 @@ describe('instance.test', () => {
 
     assert.ok(instance)
     assert.equal(instance.locationId, testLocation.id)
-    assert.equal(instance.currentUsers, 0)
+    assert.equal(instance.currentUsers, 1) // server is counted as a user
     assert.equal(instance.ended, false)
 
     testInstance = instance
