@@ -36,6 +36,7 @@ jobs:
           cp -R packages/ui/storybook-static/* storybook-docs/
           
           cd storybook-docs
+          touch .nojekyll
           git add .
           git commit -m "Update Storybook documentation"
           git push --force
