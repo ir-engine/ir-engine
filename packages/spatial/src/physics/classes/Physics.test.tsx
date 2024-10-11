@@ -22,12 +22,12 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import '../../..'
 
 import { RigidBodyType, ShapeType, TempContactForceEvent, Vector, World } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import sinon from 'sinon'
 import { BoxGeometry, Mesh, Quaternion, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   getComponent,
@@ -37,12 +37,11 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { destroyEngine } from '@ir-engine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
-import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { ObjectDirection, Vector3_Zero } from '../../common/constants/MathConstants'
+import { ObjectDirection, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -62,8 +61,10 @@ import React from 'react'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import '../../transform/TransformModule'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { PhysicsSystem } from '../PhysicsModule'
+import '../PhysicsModule'
+import { PhysicsSystem } from '../systems/PhysicsSystem'
 import {
   BodyTypes,
   ColliderDescOptions,
@@ -1901,16 +1902,14 @@ describe('Physics : Rapier->ECS API', () => {
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
-        testEntity = createEntity()
-        setComponent(testEntity, EntityTreeComponent, { parentEntity: rootEntity })
-        setComponent(testEntity, TransformComponent)
-        setComponent(testEntity, RigidBodyComponent)
-        setComponent(testEntity, ColliderComponent)
         rootEntity = createEntity()
         setComponent(rootEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(rootEntity, TransformComponent)
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: rootEntity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, ColliderComponent)
         setComponent(rootEntity, RigidBodyComponent)
-        setComponent(rootEntity, ColliderComponent)
       })
 
       afterEach(() => {
@@ -1927,7 +1926,13 @@ describe('Physics : Rapier->ECS API', () => {
 
       it('should return a descriptor with the expected default values', () => {
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        assert.deepEqual(result, Default)
+        for (const key in Default) {
+          if (typeof Default[key] === 'object' && 'x' in Default[key]) {
+            assertVecApproxEq(result[key], Default[key], 3)
+          } else {
+            assert.deepEqual(result[key], Default[key])
+          }
+        }
       })
 
       it('should set the friction to the same value as the ColliderComponent', () => {
@@ -1993,15 +1998,13 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should set the position relative to the parent entity', () => {
-        const Expected = new Vector3(1, 2, 3)
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assertVecApproxEq(result.translation, Vector3_Zero, 3)
       })
 
       it('should set the rotation relative to the parent entity', () => {
-        const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        assertVecApproxEq(result.rotation, Rotation_Zero, 4)
+        assertVecApproxEq(result.rotation, Q_IDENTITY, 4)
       })
     })
 

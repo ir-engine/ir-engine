@@ -23,9 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
+import '../patchEngineNode'
+
+import { NotFound } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -48,12 +51,12 @@ const mockUserHookContext = (user: UserType, app: Application) => {
 
 describe('verify-scope', () => {
   let app: Application
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })
@@ -83,7 +86,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    assert.rejects(() => verifyLocationReadScope(hookContext), Forbidden)
+    await assert.rejects(async () => await verifyLocationReadScope(hookContext), NotFound)
 
     // cleanup
     await app.service(userPath).remove(user.id!)

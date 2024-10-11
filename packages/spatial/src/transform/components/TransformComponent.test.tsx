@@ -37,6 +37,8 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { Axis, PI, Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import {

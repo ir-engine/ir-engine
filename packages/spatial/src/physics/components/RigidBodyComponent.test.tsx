@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import {
@@ -43,17 +44,18 @@ import {
 } from '@ir-engine/ecs'
 import React from 'react'
 import { Vector3 } from 'three'
-import { PhysicsSystem, TransformComponent } from '../../SpatialModule'
-import { Vector3_Zero } from '../../common/constants/MathConstants'
-import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { Physics, PhysicsWorld } from '../classes/Physics'
 import {
   assertFloatApproxEq,
   assertFloatApproxNotEq,
   assertVecAllApproxNotEq,
   assertVecApproxEq
-} from '../classes/Physics.test'
+} from '../../../tests/util/mathAssertions'
+import { Vector3_Zero } from '../../common/constants/MathConstants'
+import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Physics, PhysicsWorld } from '../classes/Physics'
+import { PhysicsSystem } from '../systems/PhysicsSystem'
 import { BodyTypes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'
 import {
