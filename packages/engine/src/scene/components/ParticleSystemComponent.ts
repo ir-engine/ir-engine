@@ -56,7 +56,6 @@ import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
-  hasComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -889,7 +888,7 @@ export const ParticleSystemComponent = defineComponent({
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const sceneID = useOptionalComponent(entity, SourceComponent)?.value
     const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
-    const sceneLoaded = hasComponent(rootEntity, GLTFComponent) ? GLTFComponent.useSceneLoaded(rootEntity) : true
+    const gltfComponent = useOptionalComponent(rootEntity, GLTFComponent)
     const refreshed = useHookstate(false)
 
     //for particle meshes
@@ -914,7 +913,7 @@ export const ParticleSystemComponent = defineComponent({
     })
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
-      if (!sceneLoaded) return
+      if (gltfComponent && GLTFComponent.isSceneLoaded(entity)) return
       if (refreshed.value) return
 
       //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
@@ -922,7 +921,7 @@ export const ParticleSystemComponent = defineComponent({
       dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
       //}
       refreshed.set(true)
-    }, [sceneLoaded])
+    }, [gltfComponent?.progress])
 
     useEffect(() => {
       //add dud material
