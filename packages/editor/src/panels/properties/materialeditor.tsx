@@ -50,7 +50,11 @@ import {
   prototypeQuery
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/constants/DefaultArgs'
-import { formatMaterialArgs, getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import {
+  extractValues,
+  formatMaterialArgs,
+  getMaterial
+} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
@@ -60,7 +64,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Texture, Uniform } from 'three'
+import { Material, Texture, Uniform } from 'three'
 
 type ThumbnailData = {
   src: string
@@ -85,7 +89,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
   console.log(entity)
   const materialComponent = useComponent(entity, MaterialStateComponent)
-  const material = materialComponent.material.get(NO_PROXY)!
+  const material = materialComponent.material.get(NO_PROXY) as Material
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
   const selectedPlugin = useHookstate(Object.keys(MaterialPlugins)[0])
@@ -184,11 +188,17 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   useEffect(() => {
     materialParameters.set({})
     const materialParameterValues = {}
-    Object.entries(material).map(([key, value]) => {
-      materialParameterValues[key] = { type: getDefaultType(value), default: value }
-    })
-    materialParameters.set(formatMaterialArgs(materialParameterValues))
-    console.log(materialParameters.value)
+    // Object.entries(material).map(([key, value]) => {
+    //   materialParameterValues[key] = { type: getDefaultType(value), default: value }
+    // })
+    // materialParameters.set(formatMaterialArgs(materialParameterValues))
+    materialParameters.set(
+      Object.fromEntries(
+        Object.keys(
+          extractValues(getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeArguments, material)
+        ).map((k) => [k, material[k]])
+      )
+    )
   }, [currentSelectedMaterial])
 
   useEffect(() => {})
@@ -253,7 +263,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
       <ParameterInput
         entity={props.materialUUID}
-        values={materialParameters.value}
+        values={materialParameters.get(NO_PROXY)}
         onChange={(key) => async (value) => {
           const property = await shouldLoadTexture(value, key, prototype.prototypeArguments)
           const texture = property as Texture
