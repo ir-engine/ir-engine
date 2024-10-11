@@ -37,19 +37,17 @@ import {
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
+import { CreateSchemaValue } from '@ir-engine/ecs/src/schemas/JSONSchemaUtils'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { State, getState, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { State, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import React from 'react'
 import { ArrayCamera, Box3, Matrix4, Quaternion, Vector3 } from 'three'
-import { Transition, TransitionData } from '../classes/Transition'
+import { Transition } from '../classes/Transition'
 
 export enum SizeMode {
   proportional = 'proportional',
@@ -66,34 +64,40 @@ export enum ContentFit {
 
 const _size = new Vector3()
 
-export const UnitSchema = S.Object({
+export const UnitNormalizedSchema = S.Object({
   millimeters: S.Number(0),
   pixels: S.Number(0),
   percent: S.Number(0)
 })
 
+export const UnitSchema = S.Union([UnitNormalizedSchema, S.String(), S.Number()], 0)
+
+export const Unit3NormalizedSchema = S.Object({
+  x: UnitNormalizedSchema,
+  y: UnitNormalizedSchema,
+  z: UnitNormalizedSchema
+})
+
 /**
  * Similar to CSS positioning, positive values correspond to right, down, and forward.
  */
-export const Unit3Schema = S.Object({
-  x: UnitSchema,
-  y: UnitSchema,
-  z: UnitSchema
-})
-
-export const Unit3StringSchema = (init = { x: '0', y: '0', z: '0' }) =>
+export const defineUnit3 = (init?: {
+  x: Static<typeof UnitSchema>
+  y: Static<typeof UnitSchema>
+  z: Static<typeof UnitSchema>
+}) =>
   S.Object(
     {
-      x: S.String(),
-      y: S.String(),
-      z: S.String()
+      x: UnitSchema,
+      y: UnitSchema,
+      z: UnitSchema
     },
     init,
-    { id: 'Unit3String' }
+    { id: 'Unit3' }
   )
 
 function defineUnit3Transition() {
-  return Transition.defineTransition<Static<typeof Unit3Schema>>({
+  return Transition.defineTransition<Static<typeof Unit3NormalizedSchema>>({
     buffer: [
       {
         timestamp: 0,
@@ -139,7 +143,7 @@ export const LayoutComponent = defineComponent({
      *
      * {x: "100% - 10px", y: "50mm", z: "0"}
      */
-    position: S.Optional(Unit3Schema),
+    position: S.Optional(defineUnit3()),
     positionTransition: defineUnit3Transition(),
 
     /**
@@ -153,7 +157,7 @@ export const LayoutComponent = defineComponent({
      *
      * {x: "0", y: "50% + 10mm", z: "0"}
      */
-    origin: S.Optional(Unit3Schema),
+    origin: S.Optional(defineUnit3()),
     originTransition: defineUnit3Transition(),
 
     /**
@@ -173,7 +177,7 @@ export const LayoutComponent = defineComponent({
      *
      * {x: "50%", y: "50% + 10mm", z: "50%"}
      */
-    rotationOrigin: S.Optional(Unit3Schema),
+    rotationOrigin: S.Optional(defineUnit3()),
     rotationOriginTransition: defineUnit3Transition(),
 
     /**
@@ -185,7 +189,7 @@ export const LayoutComponent = defineComponent({
      *
      * {x: "100% + 10mm", y: "100%", z: "100%"}
      */
-    size: S.Optional(Unit3Schema),
+    size: S.Optional(defineUnit3()),
     sizeTransition: defineUnit3Transition(),
 
     /**
@@ -202,18 +206,18 @@ export const LayoutComponent = defineComponent({
     contentFitTransition: Transition.defineVector3Transition(),
 
     defaults: S.Object({
-      position: Unit3StringSchema(),
-      origin: Unit3StringSchema(),
+      position: defineUnit3(),
+      origin: defineUnit3(),
       rotation: S.Quaternion(),
-      rotationOrigin: Unit3StringSchema({ x: '50%', y: '50%', z: '50%' }),
-      size: Unit3StringSchema({ x: '100%', y: '100%', z: '100%' }),
+      rotationOrigin: defineUnit3({ x: '50%', y: '50%', z: '50%' }),
+      size: defineUnit3({ x: '100%', y: '100%', z: '100%' }),
       contentFit: S.Enum(ContentFit, ContentFit.contain)
     }),
 
     containerEntity: S.Entity()
   }),
 
-  useRootContainerEntity(entity: Entity) {
+  getRootContainerEntity(entity: Entity) {
     const containerEntities = [] as Entity[]
     let layout = getOptionalComponent(entity, LayoutComponent)
     while (layout?.containerEntity && !containerEntities.includes(layout.containerEntity)) {
@@ -221,40 +225,17 @@ export const LayoutComponent = defineComponent({
       layout = getOptionalComponent(layout.containerEntity, LayoutComponent)
     }
 
-    const forceUpdate = useForceUpdate()
-    React.useEffect(() => {
-      const root = startReactor(() => {
-        containerEntities.forEach((entity) => {
-          useOptionalComponent(entity, LayoutComponent)?.containerEntity.value
-        })
-        forceUpdate()
-        return null
-      })
-      return () => root.stop()
-    }, containerEntities)
-
     return containerEntities[containerEntities.length - 1]
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const layout = useEffectiveLayout(entity)
+    const containerEntity = layout.containerEntity.value
 
     const simulationTime = getState(ECSState).simulationTime
-
-    // This layout might be contained by another layout, or an object, or a camera.
-    const containerEntity = layout.containerEntity.value
-    const containerLayout = useOptionalComponent(containerEntity, LayoutComponent)
-    const containerCamera = useOptionalComponent(containerEntity, CameraComponent)
-    const containerRenderer = useOptionalComponent(containerEntity, RendererComponent)
-    const containerBounds = useOptionalComponent(containerEntity, BoundingBoxComponent)
-
-    const contentSize = useContentSize(entity)
-    const containerSize = useContainerSize(entity)
-    const contentFitScale = useContentFitScale(layout.contentFit, contentSize, containerSize)
-
-    Transition.useTransitionTarget(layout.originTransition, layout.positionOrigin, simulationTime)
-    Transition.useTransitionTarget(layout.alignmentTransition, layout.alignmentOrigin, simulationTime)
+    Transition.useTransitionTarget(layout.positionTransition, layout.position, simulationTime)
+    Transition.useTransitionTarget(layout.originTransition, layout.origin, simulationTime)
     Transition.useTransitionTarget(layout.rotationTransition, layout.rotation, simulationTime)
     Transition.useTransitionTarget(layout.rotationOriginTransition, layout.rotationOrigin, simulationTime)
     Transition.useTransitionTarget(layout.sizeTransition, layout.size, simulationTime)
@@ -276,22 +257,21 @@ export const LayoutComponent = defineComponent({
           const frameTime = getState(ECSState).frameTime
 
           // Update transitions
-          Transition.computeCurrentValue(frameTime, layout.positionTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.originTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.alignmentTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.rotationTransition.value as TransitionData<Quaternion>)
-          Transition.computeCurrentValue(frameTime, layout.rotationOriginTransition.value as TransitionData<Vector3>)
-          Transition.computeCurrentValue(frameTime, layout.contentFitTransition.value as TransitionData<Vector3>)
+          const l = getComponent(entity, LayoutComponent)
+          Transition.computeCurrentValue(frameTime, l.positionTransition)
+          Transition.computeCurrentValue(frameTime, l.originTransition)
+          Transition.computeCurrentValue(frameTime, l.rotationTransition)
+          Transition.computeCurrentValue(frameTime, l.rotationOriginTransition)
+          Transition.computeCurrentValue(frameTime, l.sizeTransition)
+          Transition.computeCurrentValue(frameTime, l.contentFitTransition)
 
           // Get current values
-          const position = layout.positionTransition.value.current
-          const positionOrigin = layout.originTransition.value.current
-          const alignmentOrigin = layout.alignmentTransition.value.current
-          const rotation = layout.rotationTransition.value.current
-          const rotationOrigin = layout.rotationOriginTransition.value.current
-          const size = layout.effectiveSize.value
-          const contentFit = layout.effectiveContentFit.value
-          const contentFitScale = layout.contentFitTransition.value.current
+          const position = l.positionTransition.current
+          const origin = l.originTransition.current
+          const rotation = l.rotationTransition.current
+          const rotationOrigin = l.rotationOriginTransition.current
+          const size = l.sizeTransition.current
+          const contentFitScale = l.contentFitTransition.current
 
           // Compute the final position
           const finalPosition = new Vector3()
@@ -437,7 +417,7 @@ export const LayoutComponent = defineComponent({
           return false
         }
       })
-    }, [containerEntity, layout.contentEntity, layout.contentFit])
+    }, [containerEntity])
 
     return null
   }
@@ -492,19 +472,58 @@ function useContentSize(entity: Entity): State<Vector3> {
   return size
 }
 
-function useContentFitScale(effectiveContentFit: State<ContentFit>, contentSize: State<Vector3>) {}
-
 function useEffectiveLayout(entity: Entity) {
   const layout = useComponent(entity, LayoutComponent)
+  const position = useUnit3Normalized(layout.position.ornull ?? layout.defaults.position)
+  const origin = useUnit3Normalized(layout.origin.ornull ?? layout.defaults.origin)
+  const rotation = layout.rotation.ornull ?? layout.defaults.rotation
+  const rotationOrigin = useUnit3Normalized(layout.rotationOrigin.ornull ?? layout.defaults.rotationOrigin)
+  const size = useUnit3Normalized(layout.size.ornull ?? layout.defaults.size)
+  const contentFit = useHookstate(() => new Vector3(1, 1, 1))
   return {
     ...layout,
-    position: layout.position.ornull ?? layout.defaults.position,
-    positionOrigin: layout.origin.ornull ?? layout.defaults.positionOrigin,
-    alignmentOrigin: layout.alignment.ornull ?? layout.defaults.alignmentOrigin,
-    rotation: layout.rotation.ornull ?? layout.defaults.rotation,
-    rotationOrigin: layout.rotationOrigin.ornull ?? layout.defaults.rotationOrigin,
-    size: layout.size.ornull ?? layout.defaults.size,
-    sizeMode: layout.sizeMode.ornull ?? layout.defaults.sizeMode,
-    contentFit: layout.contentFit.ornull ?? layout.defaults.contentFit
+    position,
+    origin,
+    rotation,
+    rotationOrigin,
+    size,
+    contentFit
   }
+}
+
+function useUnitNormalized(
+  state: State<Static<typeof UnitSchema>>,
+  normalizedState: State<Static<typeof UnitNormalizedSchema>>
+): State<Static<typeof UnitNormalizedSchema>> {
+  if (typeof state.value === 'string') {
+    const match = state.value.match(/([0-9.]+)([a-z]+)/)
+    if (match) {
+      const value = parseFloat(match[1])
+      const unit = match[2]
+      switch (unit) {
+        case 'mm':
+          normalizedState.millimeters.set(value)
+          break
+        case 'px':
+          normalizedState.pixels.set(value)
+          break
+        case '%':
+          normalizedState.percent.set(value)
+          break
+      }
+    }
+  } else if (typeof state.value === 'number') {
+    normalizedState.millimeters.set(typeof state.value === 'number' ? state.value : 0)
+    normalizedState.pixels.set(0)
+    normalizedState.percent.set(0)
+  }
+  return normalizedState
+}
+
+function useUnit3Normalized(state: State<Static<ReturnType<typeof defineUnit3>>>) {
+  const normalizedState = useHookstate(() => CreateSchemaValue(Unit3NormalizedSchema))
+  useUnitNormalized(state.x, normalizedState.x)
+  useUnitNormalized(state.y, normalizedState.y)
+  useUnitNormalized(state.z, normalizedState.z)
+  return normalizedState
 }
