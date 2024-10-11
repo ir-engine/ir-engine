@@ -211,7 +211,7 @@ export default function Toolbar() {
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
         onClose={() => anchorEvent.set(null)}
       >
-        <div className="min-w-44 flex w-fit flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <div key={index}>
               <SidebarButton
@@ -252,7 +252,7 @@ const ProfilePill = () => {
         </button>
       }
     >
-      <div className="min-w-44 flex w-fit flex-col gap-1 truncate rounded-lg bg-neutral-900 p-8 shadow-lg">
+      <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 p-8 shadow-lg">
         <div className="flex items-center justify-center gap-2">
           <div className="h-14 w-14 overflow-hidden rounded-full">
             <img src={user.value?.avatar?.thumbnailResource?.url} />

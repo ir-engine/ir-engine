@@ -62,7 +62,7 @@ export function Topbar() {
             startIcon={<HiOutlinePlusCircle />}
             variant="transparent"
             rounded="none"
-            className="text-nowrap ml-auto w-32 bg-theme-highlight px-2 py-3 text-white"
+            className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
             size="small"
             textContainerClassName="mx-0"
             data-testid="hierarchy-panel-add-entity-button"

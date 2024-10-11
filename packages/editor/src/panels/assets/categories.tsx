@@ -82,10 +82,10 @@ function AssetCategory({ index }: { index: number }) {
           }
         />
         <AssetIconMap name={category.name} />
-        <div className="text-nowrap flex w-full items-center gap-1 pr-2" data-testid="assets-panel-category-name">
+        <div className="flex w-full items-center gap-1 text-nowrap pr-2" data-testid="assets-panel-category-name">
           <span
             className={twMerge(
-              "text-nowrap flex flex-row items-center gap-2 font-['Figtree'] text-[#e7e7e7]",
+              "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
               selectedCategory?.name === category.name && 'text-[#F5F5F5]'
             )}
           >

@@ -392,7 +392,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                   />
                 </div>
               ) : (
-                <div className="text-nowrap ml-2 min-w-0 flex-1 rounded bg-transparent px-0.5 py-0 text-inherit ">
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit ">
                   <span className="text-nowrap text-sm leading-4" data-testid="hierarchy-panel-scene-item-name">
                     {currentRenameNode.value}
                   </span>

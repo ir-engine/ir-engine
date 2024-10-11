@@ -178,7 +178,7 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
       <div
         className={twMerge(
           'mx-auto mt-2 flex h-full w-28 items-center justify-center',
-          'min-h-20 min-w-20 max-w-40 max-h-40'
+          'max-h-40 min-h-20 min-w-20 max-w-40'
         )}
         data-testid="assets-panel-resource-file-icon"
       >
@@ -187,7 +187,7 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
 
       <Tooltip content={name}>
         <span
-          className="text-wrap line-clamp-2 w-full break-all text-sm text-[#F5F5F5]"
+          className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]"
           data-testid="assets-panel-resource-file-name"
         >
           {name}

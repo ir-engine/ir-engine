@@ -75,7 +75,7 @@ export default function SceneItem({
   return (
     <div
       data-testid="scene-container"
-      className="min-w-64 max-w-64 col-span-2 inline-flex h-64 w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
+      className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
     >
       <img
         className="shrink grow basis-0 self-stretch rounded"

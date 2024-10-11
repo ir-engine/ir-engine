@@ -129,7 +129,7 @@ export function InputGroup({
       <div className="mr-2 flex">
         <Label
           className={twMerge(
-            'text-wrap mr-2.5 text-end text-xs ',
+            'mr-2.5 text-wrap text-end text-xs ',
             labelClassName,
             disabled ? 'text-[#6B6F78]' : 'text-[#A0A1A2]'
           )}

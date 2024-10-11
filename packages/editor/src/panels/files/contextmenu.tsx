@@ -105,7 +105,7 @@ export function FileContextMenu({
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
       <div
-        className="min-w-44 flex w-fit flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg"
+        className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg"
         data-testid="files-panel-file-item-context-menu"
       >
         <Button
