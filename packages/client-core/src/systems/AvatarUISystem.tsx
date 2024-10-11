@@ -28,7 +28,7 @@ import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
-import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -39,7 +39,7 @@ import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsSta
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { applyVideoToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
+import { NetworkObjectComponent, NetworkObjectOwnedTag, NetworkState } from '@ir-engine/network'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { easeOutElastic } from '@ir-engine/spatial/src/common/functions/MathFunctions'
@@ -57,6 +57,7 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { Not } from 'bitecs'
 import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 import { XruiNameplateComponent } from '../social/components/XruiNameplateComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
@@ -300,7 +301,7 @@ const reactor = () => {
   return (
     <>
       <QueryReactor
-        Components={[AvatarComponent, TransformComponent, NetworkObjectComponent]}
+        Components={[AvatarComponent, TransformComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)]}
         ChildEntityReactor={AvatarInstanceReactor}
       />
     </>
@@ -311,8 +312,10 @@ const AvatarInstanceReactor = () => {
   const avatarEntity = useEntityContext()
 
   useEffect(() => {
-    const userId = getComponent(avatarEntity, NetworkObjectComponent).ownerId
-    if (userId !== Engine.instance.store.userID) setComponent(avatarEntity, XruiNameplateComponent)
+    setComponent(avatarEntity, XruiNameplateComponent)
+    return () => {
+      removeComponent(avatarEntity, XruiNameplateComponent)
+    }
   }, [])
   return null
 }

@@ -34,15 +34,23 @@ const mat4 = new Matrix4()
 const frustum = new Frustum()
 const worldPosVec3 = new Vector3()
 
-export const inFrustum = (entity: Entity): boolean => {
-  const viewerEntity = getState(EngineState).viewerEntity
-  if (!viewerEntity) return false
+/**
+ * Check if an entity is in the camera's frustum
+ * @param entityToCheck The entity to check if it's in the camera's frustum
+ * @param cameraEntity The camera entity to check against
+ * @returns True if the entityToCheck is in the cameraEntity's camera frustum
+ */
+export const inFrustum = (
+  entityToCheck: Entity,
+  cameraEntity: Entity = getState(EngineState).viewerEntity
+): boolean => {
+  if (!cameraEntity) return false
 
-  const camera = getComponent(viewerEntity, CameraComponent)
+  const camera = getComponent(cameraEntity, CameraComponent)
 
   mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
   frustum.setFromProjectionMatrix(mat4)
 
-  TransformComponent.getWorldPosition(entity, worldPosVec3)
+  TransformComponent.getWorldPosition(entityToCheck, worldPosVec3)
   return frustum.containsPoint(worldPosVec3)
 }
