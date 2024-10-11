@@ -24,15 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  Color,
-  Euler,
-  MathUtils,
-  Quaternion,
-  Vector3
-} from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js'
-import {
   getComponent,
-  getMutableComponent,
   setComponent
 } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/ComponentFunctions.ts'
 import { createEntity } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/EntityFunctions.tsx'
@@ -41,9 +33,7 @@ import { defineSystem } from 'https://localhost:3000/@fs/root/ir-engine/packages
 import { AnimationSystemGroup } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/SystemGroups.ts'
 import { UUIDComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/ecs/src/UUIDComponent.ts'
 import { GLTFComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/engine/src/gltf/GLTFComponent.tsx'
-import { PrimitiveGeometryComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/components/PrimitiveGeometryComponent.ts'
 import { SourceComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/components/SourceComponent.ts'
-import { GeometryTypeEnum } from 'https://localhost:3000/@fs/root/ir-engine/packages/engine/src/scene/constants/GeometryTypeEnum.ts'
 import { getState } from 'https://localhost:3000/@fs/root/ir-engine/packages/hyperflux/src/functions/StateFunctions.ts'
 import { EngineState } from 'https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/EngineState.ts'
 import { NameComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/common/NameComponent.ts'
@@ -51,14 +41,19 @@ import { MeshComponent } from 'https://localhost:3000/@fs/root/ir-engine/package
 import { setVisibleComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/renderer/components/VisibleComponent.ts'
 import { EntityTreeComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/transform/components/EntityTree.tsx'
 import { TransformComponent } from 'https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/transform/components/TransformComponent.ts'
+import { addObjectToGroup } from 'https://localhost:3000/@fs/root/ir-engine/packages/spatial/src/renderer/components/GroupComponent.tsx'
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Mesh,
+  MeshBasicMaterial,
+  Vector3
+} from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js'
 
 const heightMap = 'https://localhost:8642/projects/ir-engine/default-project/assets/heightMap.png'
-const minBounds = 15,
-  maxBounds = 60,
-  maxHeight = 10,
-  heightOffset = 0,
-  tileSize = 4
-const totalTileCount = Math.ceil(maxBounds / tileSize)
+const tileScale = 5,
+  heightmapScale = 100,
+  loadDistance = 5 * tileScale
 
 const loadHeightmap = (url) =>
   new Promise((resolve, reject) => {
@@ -78,59 +73,106 @@ const loadHeightmap = (url) =>
 
 const getHeightAndColorAt = (imageData, x, y) => {
   const pixelIndex = (y * imageData.width + x) * 4
-  const [r, g, b] = [imageData.data[pixelIndex], imageData.data[pixelIndex + 1], imageData.data[pixelIndex + 2]]
-  const grayscale = (r + g + b) / 3
-  const height = (grayscale / 255) * maxHeight
-  return { height, color: new Color(r / 255, g / 255, b / 255) }
+  const [red, green, blue] = [
+    imageData.data[pixelIndex],
+    imageData.data[pixelIndex + 1],
+    imageData.data[pixelIndex + 2]
+  ]
+  const grayscale = (red + green + blue) / 3
+  const height = grayscale / 255
+  const r = red / 255
+  const g = green / 255
+  const b = blue / 255
+
+  return { height, r, g, b }
 }
 
 const imageData = await loadHeightmap(heightMap)
-const gltf = defineQuery([GLTFComponent])()[0]
+const totalTileCount = imageData.width / heightmapScale
 
-let tileCount = 0
-const tiles = []
-const generateTile = (position, visible = true) => {
+const gltfQuery = defineQuery([GLTFComponent])
+
+const tiles = {} // 2d array of tile entities indexed by x,y
+
+const triangulateHeightmap = (imageData, mapX, mapY, heightmapScale) => {
+  const geometry = new BufferGeometry()
+  const vertices = []
+  const indices = []
+  const colors = []
+  const vertexXCount = mapX + 1 === imageData.width / heightmapScale ? heightmapScale - 1 : heightmapScale
+  const vertexYCount = mapY + 1 === imageData.height / heightmapScale ? heightmapScale - 1 : heightmapScale
+
+  for (let i = 0; i < vertexXCount + 1; i++) {
+    for (let j = 0; j < vertexYCount + 1; j++) {
+      const { height, r, g, b } = getHeightAndColorAt(
+        imageData,
+        Math.floor(i + mapX * heightmapScale),
+        Math.floor(j + mapY * heightmapScale)
+      )
+      const x = i / vertexXCount
+      const y = j / vertexYCount
+      vertices.push(x, height, y)
+      colors.push(r, g, b)
+      if (i < vertexXCount && j < vertexYCount) {
+        const a = j + i * (vertexYCount + 1)
+        const b = j + 1 + i * (vertexYCount + 1)
+        const c = j + (i + 1) * (vertexYCount + 1)
+        const d = j + 1 + (i + 1) * (vertexYCount + 1)
+        indices.push(a, b, d, a, d, c)
+      }
+    }
+  }
+  geometry.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3))
+  geometry.setAttribute('color', new BufferAttribute(new Float32Array(colors), 3))
+  geometry.setIndex(indices)
+  return geometry
+}
+
+const generateTile = (mapX, mapY, parentEntity) => {
   const entity = createEntity()
-  setComponent(entity, EntityTreeComponent, { parentEntity: gltf })
-  setComponent(entity, NameComponent, `tile_${tileCount++}`)
+  setComponent(entity, NameComponent, `tile_${mapX}_${mapY}`)
   setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
-  setVisibleComponent(entity, visible)
+  setVisibleComponent(entity, true)
+  const mapSize = totalTileCount * tileScale
   setComponent(entity, TransformComponent, {
-    position,
-    rotation: new Quaternion().setFromEuler(new Euler(MathUtils.DEG2RAD * -90, 0, 0)),
-    scale: new Vector3(tileSize, tileSize, tileSize)
+    position: new Vector3(mapX * tileScale, 0, mapY * tileScale).sub(new Vector3(mapSize / 2, 0, mapSize / 2)),
+    scale: new Vector3(tileScale, tileScale, tileScale)
   })
-  setComponent(entity, SourceComponent, getComponent(gltf, SourceComponent))
-  setComponent(entity, PrimitiveGeometryComponent, { geometryType: GeometryTypeEnum.BoxGeometry })
+  setComponent(entity, EntityTreeComponent, { parentEntity: parentEntity })
+  setComponent(entity, SourceComponent, getComponent(parentEntity, SourceComponent))
+  const geometry = triangulateHeightmap(imageData, mapX, mapY, heightmapScale)
+  const mesh = new Mesh(geometry, new MeshBasicMaterial({ vertexColors: true }))
+  setComponent(entity, MeshComponent, mesh)
+  addObjectToGroup(entity, mesh)
   return entity
 }
 
 // take the cam x,z , generate tile right under it and min bound/ tilesize number of tiles across
 const _tempVector = new Vector3(0, 0, 0)
-const camPos = getComponent(getState(EngineState).viewerEntity, TransformComponent).position.clone()
-
-for (let i = -totalTileCount; i < totalTileCount; i++) {
-  const row = []
-  for (let j = -totalTileCount; j < totalTileCount; j++) {
-    const mapX = Math.floor(((i + totalTileCount) / (totalTileCount * 2)) * imageData.width)
-    const mapY = Math.floor(((j + totalTileCount) / (totalTileCount * 2)) * imageData.height)
-    const { height, color } = getHeightAndColorAt(imageData, mapX, mapY)
-    const visible =
-      camPos.set(camPos.x, 0, camPos.z).distanceTo(_tempVector.set(i * tileSize, 0, j * tileSize)) < minBounds
-    const tileEntity = generateTile(_tempVector.set(i * tileSize, height + heightOffset, j * tileSize), visible)
-    getMutableComponent(tileEntity, MeshComponent).material.color.set(color)
-    row.push(tileEntity)
-  }
-  tiles.push(row)
-}
+const camPos = new Vector3(0, 0, 0)
 
 const execute = () => {
-  const camPos = getComponent(getState(EngineState).viewerEntity, TransformComponent).position.clone()
-  for (let i = 0; i < totalTileCount * 2; i++) {
-    for (let j = 0; j < totalTileCount * 2; j++) {
-      const tileEntity = tiles[i][j]
-      const tilePos = getComponent(tileEntity, TransformComponent).position
-      const visible = camPos.set(camPos.x, 0, camPos.z).distanceTo(_tempVector.set(tilePos.x, 0, tilePos.z)) < minBounds
+  const parentEntity = gltfQuery()[0]
+  if (!parentEntity) return
+
+  for (let i = 0; i < totalTileCount; i++) {
+    for (let j = 0; j < totalTileCount; j++) {
+      if (!tiles[`${i},${j}`]) {
+        tiles[`${i},${j}`] = generateTile(i, j, parentEntity)
+      }
+    }
+  }
+
+  const viewerEntity = getState(EngineState).viewerEntity
+
+  TransformComponent.getWorldPosition(viewerEntity, camPos).y = 0
+
+  for (let i = 0; i < totalTileCount; i++) {
+    for (let j = 0; j < totalTileCount; j++) {
+      const tileEntity = tiles[`${i},${j}`]
+      const transform = getComponent(tileEntity, TransformComponent)
+      _tempVector.copy(transform.position).y = 0
+      const visible = camPos.distanceTo(_tempVector) < loadDistance
       setVisibleComponent(tileEntity, visible)
     }
   }
