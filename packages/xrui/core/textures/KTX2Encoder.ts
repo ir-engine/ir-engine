@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/functions/createWorkerFromCrossOriginURL'
 
+import { isClient } from '@ir-engine/hyperflux'
 import { WorkerPool } from '../WorkerPool'
 
-// @ts-ignore
-const workerPath = new URL('./KTX2Worker.bundle.js', import.meta.url).href
+const workerPath = isClient ? new URL('./KTX2Worker.bundle.js', import.meta.url).href : ''
 
 export enum UASTCFlags {
   /** Fastest is the lowest quality, although it's stil substantially higher quality vs. BC1/ETC1. It supports 5 modes.

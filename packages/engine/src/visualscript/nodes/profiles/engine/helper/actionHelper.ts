@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { startCase } from 'lodash'
+import { startCase } from 'lodash-es'
 import matches from 'ts-matches'
 
 import { defineSystem, destroySystem, InputSystemGroup, SystemDefinitions, SystemUUID } from '@ir-engine/ecs'
