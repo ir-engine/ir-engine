@@ -67,7 +67,7 @@ import { GLTFSourceState } from './GLTFState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 
 const loadDependencies = {
-  ['EE_model']: ['body']
+  ['EE_model']: ['dependencies']
 } as Record<string, string[]>
 
 type ComponentDependencies = Record<EntityUUID, Component[]>
