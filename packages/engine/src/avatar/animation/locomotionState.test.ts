@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import assert from 'assert'
 import sinon from 'sinon'
 import { Vector2, Vector3 } from 'three'
+import { describe, it } from 'vitest'
 
 import { enterLocomotionState, getLocomotionStateActions, updateLocomotionStateBlendValues } from './locomotionState'
 

@@ -30,6 +30,7 @@ import { createHookableFunction } from './createHookableFunction'
 
 import { OpaqueType } from '../types/OpaqueType'
 import { NetworkID, PeerID } from '../types/Types'
+import { isDev } from './EnvironmentConstants'
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
@@ -328,7 +329,7 @@ export const dispatchAction = <A extends Action>(_action: A) => {
   action.$uuid = action.$uuid ?? uuidv4()
   const topic = (action.$topic = action.$topic ?? HyperFlux.store.defaultTopic)
 
-  if (process.env.APP_ENV === 'development' && !action.$stack) {
+  if (isDev && !action.$stack) {
     const trace = { stack: '' }
     Error.captureStackTrace?.(trace, dispatchAction) // In firefox captureStackTrace is undefined
     const stack = trace.stack.split('\n')

@@ -29,7 +29,7 @@ import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/us
 import { InviteCode, UserName, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Application } from '@ir-engine/server-core/declarations'
 import crypto from 'crypto'
-import { random } from 'lodash'
+import { random } from 'lodash-es'
 import { v1 } from 'uuid'
 
 /**

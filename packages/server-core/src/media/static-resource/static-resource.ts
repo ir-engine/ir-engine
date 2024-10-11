@@ -41,7 +41,7 @@ import {
   projectPermissionPath,
   scopePath
 } from '@ir-engine/common/src/schema.type.module'
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'
 import staticResourceDocs from './static-resource.docs'
