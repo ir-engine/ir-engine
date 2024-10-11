@@ -483,10 +483,10 @@ export const AuthService = {
   /**
    * Logs in the current user based on an OAuth response.
    */
-  async loginUserByOAuth(service: string, location: any) {
+  async loginUserByOAuth(service: string, location: any, redirectUrl?: string) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
-    const path = new URLSearchParams(location.search).get('redirectUrl') || location.pathname
+    const path = redirectUrl || new URLSearchParams(location.search).get('redirectUrl') || location.pathname
 
     const redirectConfig = {
       path

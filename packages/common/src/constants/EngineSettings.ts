@@ -36,5 +36,16 @@ export const EngineSettings = {
   Chargebee: {
     ApiKey: 'apiKey',
     Url: 'url'
+  },
+  Redis: {
+    Address: 'address',
+    Password: 'password',
+    Port: 'port',
+    Enabled: 'enabled'
+  },
+  Zendesk: {
+    Name: 'name',
+    Secret: 'secret',
+    Kid: 'kid'
   }
 }

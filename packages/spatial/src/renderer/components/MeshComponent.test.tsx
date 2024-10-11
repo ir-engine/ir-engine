@@ -28,6 +28,7 @@ import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
 import { BoxGeometry, Color, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
+import { afterEach, beforeEach, describe, DoneCallback, it } from 'vitest'
 
 import {
   getComponent,
@@ -215,56 +216,105 @@ describe('MeshComponent', () => {
       })
     })
 
-    it('should dispose resources correctly', (done) => {
-      const entity = createEntity()
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
+    it('should dispose resources correctly', () =>
+      new Promise((done: DoneCallback) => {
+        const entity = createEntity()
+        const geometry = new BoxGeometry(1, 1, 1)
+        const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-      const spy = sinon.spy()
-      geometry.dispose = spy
-      material.dispose = spy
+        const spy = sinon.spy()
+        geometry.dispose = spy
+        material.dispose = spy
 
-      assert.doesNotThrow(() => {
-        const Reactor = () => {
-          const mesh = useMeshComponent(entity, geometry, material)
-          return <></>
-        }
+        assert.doesNotThrow(() => {
+          const Reactor = () => {
+            const mesh = useMeshComponent(entity, geometry, material)
+            return <></>
+          }
 
-        const { rerender, unmount } = render(<Reactor />)
+          const { rerender, unmount } = render(<Reactor />)
 
-        assert(hasComponent(entity, MeshComponent))
-        const meshUUID = getComponent(entity, MeshComponent).uuid
-        const resourceState = getState(ResourceState)
-        act(async () => {
-          assert(resourceState.resources[meshUUID])
-          assert(resourceState.resources[geometry.uuid])
-          assert(resourceState.resources[material.uuid])
-          unmount()
-        }).then(() => {
-          assert(!hasComponent(entity, MeshComponent))
-          assert(!resourceState.resources[meshUUID])
-          assert(!resourceState.resources[geometry.uuid])
-          assert(!resourceState.resources[material.uuid])
-          sinon.assert.calledTwice(spy)
-          removeEntity(entity)
-          done()
+          assert(hasComponent(entity, MeshComponent))
+          const meshUUID = getComponent(entity, MeshComponent).uuid
+          const resourceState = getState(ResourceState)
+          act(async () => {
+            assert(resourceState.resources[meshUUID])
+            assert(resourceState.resources[geometry.uuid])
+            assert(resourceState.resources[material.uuid])
+            unmount()
+          }).then(() => {
+            assert(!hasComponent(entity, MeshComponent))
+            assert(!resourceState.resources[meshUUID])
+            assert(!resourceState.resources[geometry.uuid])
+            assert(!resourceState.resources[material.uuid])
+            sinon.assert.calledTwice(spy)
+            removeEntity(entity)
+            done()
+          })
         })
-      })
-    })
+      }))
 
-    it("should update the mesh's geometry correctly", (done) => {
-      const entity = createEntity()
-      const geometry = new BoxGeometry(1, 1, 1)
-      const geometry2 = new SphereGeometry(0.5)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
+    it("should update the mesh's geometry correctly", () =>
+      new Promise((done: DoneCallback) => {
+        const entity = createEntity()
+        const geometry = new BoxGeometry(1, 1, 1)
+        const geometry2 = new SphereGeometry(0.5)
+        const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-      const geoUUID = geometry.uuid
+        const geoUUID = geometry.uuid
 
-      const spy = sinon.spy()
-      geometry.dispose = spy
+        const spy = sinon.spy()
+        geometry.dispose = spy
 
-      let meshState = undefined as undefined | State<Mesh<BoxGeometry | SphereGeometry, Material>>
-      assert.doesNotThrow(() => {
+        let meshState = undefined as undefined | State<Mesh<BoxGeometry | SphereGeometry, Material>>
+        assert.doesNotThrow(() => {
+          const Reactor = () => {
+            const mesh = useMeshComponent(entity, geometry, material)
+            meshState = mesh
+            return <></>
+          }
+
+          const { rerender, unmount } = render(<Reactor />)
+
+          assert(hasComponent(entity, MeshComponent))
+          const resourceState = getState(ResourceState)
+          act(async () => {
+            assert(meshState)
+            assert(meshState.geometry.value)
+            assert(resourceState.resources[geoUUID].asset)
+            assert(resourceState.resources[geoUUID].references.length == 1)
+            assert((resourceState.resources[geoUUID].asset as BoxGeometry).type === 'BoxGeometry')
+            assert(meshState.geometry.type.value === 'BoxGeometry')
+            meshState.geometry.set(geometry2)
+            rerender(<Reactor />)
+          }).then(() => {
+            sinon.assert.calledOnce(spy)
+            assert(meshState)
+            assert(meshState.geometry.value)
+            assert(resourceState.resources[geoUUID].asset)
+            assert(resourceState.resources[geoUUID].references.length == 1)
+            assert((resourceState.resources[geoUUID].asset as SphereGeometry).type === 'SphereGeometry')
+            assert(meshState.geometry.type.value === 'SphereGeometry')
+            unmount()
+            removeEntity(entity)
+            done()
+          })
+        })
+      }))
+
+    it("should update the mesh's material correctly", () =>
+      new Promise((done: DoneCallback) => {
+        const entity = createEntity()
+        const geometry = new BoxGeometry(1, 1, 1)
+        const material = new MeshBasicMaterial({ color: 0xdadada })
+        const material2 = new LineBasicMaterial({ color: 0xffff00 })
+
+        const matUUID = material.uuid
+
+        const spy = sinon.spy()
+        material.dispose = spy
+
+        let meshState = undefined as undefined | State<Mesh<Geometry, MeshBasicMaterial | LineBasicMaterial>>
         const Reactor = () => {
           const mesh = useMeshComponent(entity, geometry, material)
           meshState = mesh
@@ -276,90 +326,44 @@ describe('MeshComponent', () => {
         assert(hasComponent(entity, MeshComponent))
         const resourceState = getState(ResourceState)
         act(async () => {
-          assert(meshState)
-          assert(meshState.geometry.value)
-          assert(resourceState.resources[geoUUID].asset)
-          assert(resourceState.resources[geoUUID].references.length == 1)
-          assert((resourceState.resources[geoUUID].asset as BoxGeometry).type === 'BoxGeometry')
-          assert(meshState.geometry.type.value === 'BoxGeometry')
-          meshState.geometry.set(geometry2)
           rerender(<Reactor />)
         }).then(() => {
-          sinon.assert.calledOnce(spy)
           assert(meshState)
-          assert(meshState.geometry.value)
-          assert(resourceState.resources[geoUUID].asset)
-          assert(resourceState.resources[geoUUID].references.length == 1)
-          assert((resourceState.resources[geoUUID].asset as SphereGeometry).type === 'SphereGeometry')
-          assert(meshState.geometry.type.value === 'SphereGeometry')
-          unmount()
-          removeEntity(entity)
-          done()
-        })
-      })
-    })
-
-    it("should update the mesh's material correctly", (done) => {
-      const entity = createEntity()
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xdadada })
-      const material2 = new LineBasicMaterial({ color: 0xffff00 })
-
-      const matUUID = material.uuid
-
-      const spy = sinon.spy()
-      material.dispose = spy
-
-      let meshState = undefined as undefined | State<Mesh<Geometry, MeshBasicMaterial | LineBasicMaterial>>
-      const Reactor = () => {
-        const mesh = useMeshComponent(entity, geometry, material)
-        meshState = mesh
-        return <></>
-      }
-
-      const { rerender, unmount } = render(<Reactor />)
-
-      assert(hasComponent(entity, MeshComponent))
-      const resourceState = getState(ResourceState)
-      act(async () => {
-        rerender(<Reactor />)
-      }).then(() => {
-        assert(meshState)
-        assert(meshState.material.value)
-        assert(resourceState.resources[matUUID].asset)
-        assert(resourceState.resources[matUUID].references.length == 1)
-        assert((resourceState.resources[matUUID].asset as MeshBasicMaterial).type === 'MeshBasicMaterial')
-        assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0xdadada)
-        assert(meshState.material.type.value === 'MeshBasicMaterial')
-        assert(meshState.material.color.value.getHex() === 0xdadada)
-        meshState.material.set(material2)
-        act(async () => {
-          rerender(<Reactor />)
-        }).then(() => {
-          sinon.assert.calledOnce(spy)
-          assert(meshState)
+          assert(meshState.material.value)
           assert(resourceState.resources[matUUID].asset)
           assert(resourceState.resources[matUUID].references.length == 1)
-          assert((resourceState.resources[matUUID].asset as LineBasicMaterial).type === 'LineBasicMaterial')
-          assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0xffff00)
-          assert(meshState.material.type.value === 'LineBasicMaterial')
-          assert(meshState.material.color.value.getHex() === 0xffff00)
-          meshState.material.color.set(new Color(0x000000))
+          assert((resourceState.resources[matUUID].asset as MeshBasicMaterial).type === 'MeshBasicMaterial')
+          assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0xdadada)
+          assert(meshState.material.type.value === 'MeshBasicMaterial')
+          assert(meshState.material.color.value.getHex() === 0xdadada)
+          meshState.material.set(material2)
           act(async () => {
             rerender(<Reactor />)
           }).then(() => {
-            // Dispose wasn't called again because just a property was changed in the material, not the material itself
             sinon.assert.calledOnce(spy)
             assert(meshState)
-            assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0x000000)
+            assert(resourceState.resources[matUUID].asset)
+            assert(resourceState.resources[matUUID].references.length == 1)
+            assert((resourceState.resources[matUUID].asset as LineBasicMaterial).type === 'LineBasicMaterial')
+            assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0xffff00)
             assert(meshState.material.type.value === 'LineBasicMaterial')
-            assert(meshState.material.color.value.getHex() === 0x000000)
-            unmount()
-            removeEntity(entity)
-            done()
+            assert(meshState.material.color.value.getHex() === 0xffff00)
+            meshState.material.color.set(new Color(0x000000))
+            act(async () => {
+              rerender(<Reactor />)
+            }).then(() => {
+              // Dispose wasn't called again because just a property was changed in the material, not the material itself
+              sinon.assert.calledOnce(spy)
+              assert(meshState)
+              assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0x000000)
+              assert(meshState.material.type.value === 'LineBasicMaterial')
+              assert(meshState.material.color.value.getHex() === 0x000000)
+              unmount()
+              removeEntity(entity)
+              done()
+            })
           })
         })
-      })
-    })
+      }))
   }) //:: useMeshComponent
 })

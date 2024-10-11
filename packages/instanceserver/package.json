@@ -2,6 +2,7 @@
   "name": "@ir-engine/instanceserver",
   "description": "Multiplayer Instanceserver for Infinite Reality Engine",
   "version": "1.6.0",
+  "type": "module",
   "private": true,
   "homepage": "",
   "main": "./src",
@@ -32,12 +33,12 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
-    "start-channel": "cross-env APP_ENV=production INSTANCESERVER_PORT=3032 DEV_CHANNEL=true ts-node --swc src/index.ts",
-    "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect=2995' ts-node --swc src/index.ts",
-    "dev-channel": " cross-env APP_ENV=development NODE_OPTIONS='--inspect=2996' DEV_CHANNEL=true INSTANCESERVER_PORT=3032 ts-node --swc src/index.ts",
-    "dev-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",
-    "test": "cross-env TEST=true mocha --config .mocharc.js",
+    "start": "cross-env APP_ENV=production vite-node src/index.ts",
+    "start-channel": "cross-env APP_ENV=production INSTANCESERVER_PORT=3032 DEV_CHANNEL=true vite-node src/index.ts",
+    "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect=2995' vite-node src/index.ts",
+    "dev-channel": " cross-env APP_ENV=development NODE_OPTIONS='--inspect=2996' DEV_CHANNEL=true INSTANCESERVER_PORT=3032 vite-node src/index.ts",
+    "dev-nossl": "cross-env NOSSL=true vite-node src/index.ts",
+    "test": "cross-env TEST=true vitest run",
     "validate": "npm run build && npm run test"
   },
   "types": "lib/",
@@ -55,7 +56,6 @@
     "@feathersjs/primus-client": "4.5.15",
     "@feathersjs/transport-commons": "5.0.5",
     "@google-cloud/agones-sdk": "1.30.0",
-    "@swc/core": "1.3.41",
     "cross-env": "7.0.3",
     "detect-port": "^1.5.1",
     "ffmpeg-static": "^5.1.0",
@@ -66,9 +66,8 @@
     "primus": "^8.0.7",
     "ps-list": "7.2.0",
     "trace-unhandled": "2.0.1",
-    "ts-node": "10.9.1",
     "typescript": "5.4.5",
-    "uuid": "^9.0.0"
+    "uuid": "9.0.0"
   },
   "devDependencies": {
     "@types/node": "18.15.5"

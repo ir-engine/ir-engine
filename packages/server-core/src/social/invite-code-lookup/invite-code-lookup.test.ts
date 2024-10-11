@@ -23,7 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { inviteCodeLookupPath } from '@ir-engine/common/src/schemas/social/invite-code-lookup.schema'
 import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -37,8 +40,8 @@ let user: UserType
 
 describe('invite-code-lookup service', () => {
   let app: Application
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = `Test #${Math.random()}` as UserName
@@ -56,7 +59,7 @@ describe('invite-code-lookup service', () => {
       scopes: []
     })
   })
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

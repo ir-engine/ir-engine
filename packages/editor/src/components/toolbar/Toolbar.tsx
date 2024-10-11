@@ -27,6 +27,7 @@ import AddEditLocationModal from '@ir-engine/client-core/src/admin/components/lo
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
 import { useUserHasAccessHook } from '@ir-engine/client-core/src/user/userHasAccess'
 import { useFind } from '@ir-engine/common'
@@ -34,6 +35,7 @@ import { locationPath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
+import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import { SidebarButton } from '@ir-engine/ui/src/components/tailwind/SidebarButton'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
@@ -151,7 +153,7 @@ export default function Toolbar() {
   const hasLocationWriteScope = useUserHasAccessHook('location:write')
   const permission = useProjectPermissions(projectName.value!)
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
-  const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
+  const locationQuery = useFind(locationPath, { query: { action: 'studio', sceneId: sceneAssetID.value } })
   const currentLocation = locationQuery.data[0]
 
   return (
@@ -183,22 +185,27 @@ export default function Toolbar() {
           <span>/</span>
           <span>{sceneName.value}</span>
         </div>
-        {sceneAssetID.value && (
-          <div className="p-2">
-            <Button
-              rounded="full"
-              disabled={!hasPublishAccess}
-              onClick={() =>
-                PopoverState.showPopupover(
-                  <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
-                )
-              }
-              className="py-1 text-base"
-            >
-              {t('editor:toolbar.lbl-publish')}
-            </Button>
-          </div>
-        )}
+
+        <div className="flex items-center justify-center gap-2">
+          <ProfilePill />
+
+          {sceneAssetID.value && (
+            <div className="p-2">
+              <Button
+                rounded="full"
+                disabled={!hasPublishAccess}
+                onClick={() =>
+                  PopoverState.showPopupover(
+                    <AddEditLocationModal action="studio" sceneID={sceneAssetID.value} location={currentLocation} />
+                  )
+                }
+                className="py-1 text-base"
+              >
+                {t('editor:toolbar.lbl-publish')}
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
       <ContextMenu
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
@@ -225,5 +232,41 @@ export default function Toolbar() {
         </div>
       </ContextMenu>
     </>
+  )
+}
+
+const ProfilePill = () => {
+  const user = getMutableState(AuthState).user
+  const email = user.value.identityProviders.find((ip) => ip.type === 'email')?.accountIdentifier
+  return (
+    <Popup
+      trigger={
+        <button className="flex h-8 items-center justify-center gap-1.5 rounded-full bg-[#191B1F] focus:ring-1 focus:ring-blue-primary">
+          <div className="ml-1 h-6 w-6 overflow-hidden rounded-full">
+            <img src={user.value?.avatar?.thumbnailResource?.url} className="h-full w-full" />
+          </div>
+
+          <div className="cursor-pointer pr-2">
+            <MdOutlineKeyboardArrowDown size="1.2em" />
+          </div>
+        </button>
+      }
+    >
+      <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 p-8 shadow-lg">
+        <div className="flex items-center justify-center gap-2">
+          <div className="h-14 w-14 overflow-hidden rounded-full">
+            <img src={user.value?.avatar?.thumbnailResource?.url} />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <span className="text-xl font-medium text-[#F5F5F5]">{user.value.name}</span>
+            <span className="text-base text-[#B2B5BD]">{email}</span>
+          </div>
+        </div>
+        <div className="pb-1 pt-4">
+          <hr className="border border-[#212226]" />
+        </div>
+      </div>
+    </Popup>
   )
 }
