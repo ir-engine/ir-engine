@@ -58,6 +58,7 @@ import {
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { getNestedChildren } from '../transform/components/EntityTree'
@@ -87,40 +88,44 @@ declare module 'postprocessing' {
   }
 }
 
+export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActive: S.Bool() })])
+
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
 
-  onInit() {
-    const scene = new Scene()
-    scene.matrixAutoUpdate = false
-    scene.matrixWorldAutoUpdate = false
-    scene.layers.set(ObjectLayers.Scene)
-
-    return {
+  schema: S.NonSerialized(
+    S.Object({
       /** Is resize needed? */
-      needsResize: false,
+      needsResize: S.Bool(false),
 
-      renderPass: null as null | RenderPass,
-      normalPass: null as null | NormalPass,
-      renderContext: null as WebGLRenderingContext | WebGL2RenderingContext | null,
-      effects: {} as Record<string, Effect>,
+      renderPass: S.Nullable(S.Type<RenderPass>()),
+      normalPass: S.Nullable(S.Type<NormalPass>()),
+      renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
+      effects: S.Record(S.String(), EffectSchema),
 
-      supportWebGL2: false,
-      canvas: null as null | HTMLCanvasElement,
+      supportWebGL2: S.Bool(false),
+      canvas: S.Nullable(S.Type<HTMLCanvasElement>()),
 
-      renderer: null as null | WebGLRenderer,
-      effectComposer: null as null | EffectComposer,
+      renderer: S.Nullable(S.Type<WebGLRenderer>()),
+      effectComposer: S.Nullable(S.Type<EffectComposer>()),
 
-      scenes: [] as Entity[],
-      scene,
+      scenes: S.Array(S.Entity()),
+      scene: S.Class(() => new Scene()),
 
       /** @todo deprecate and replace with engine implementation */
-      xrManager: null as null | WebXRManager,
-      webGLLostContext: null as null | WEBGL_lose_context,
+      xrManager: S.Nullable(S.Type<WebXRManager>()),
+      webGLLostContext: S.Nullable(S.Type<WEBGL_lose_context>()),
 
-      csm: null as CSM | null,
-      csmHelper: null as CSMHelper | null
-    }
+      csm: S.Nullable(S.Type<CSM>()),
+      csmHelper: S.Nullable(S.Type<CSMHelper>())
+    })
+  ),
+
+  onInit(initial) {
+    initial.scene.matrixAutoUpdate = false
+    initial.scene.matrixWorldAutoUpdate = false
+    initial.scene.layers.set(ObjectLayers.Scene)
+    return initial
   },
 
   /**
@@ -132,11 +137,6 @@ export const RendererComponent = defineComponent({
   onSet(entity, component, json) {
     if (json?.canvas) component.canvas.set(json.canvas)
     if (json?.scenes) component.scenes.set(json.scenes)
-  },
-
-  onRemove(entity, component) {
-    component.value.renderer?.dispose()
-    component.value.effectComposer?.dispose()
   },
 
   reactor: () => {
@@ -200,6 +200,13 @@ export const RendererComponent = defineComponent({
         effectComposer.removePass(effectPass)
       }
     }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
+
+    useEffect(() => {
+      return () => {
+        rendererComponent.value.renderer?.dispose()
+        rendererComponent.value.effectComposer?.dispose()
+      }
+    }, [])
 
     return null
   }
@@ -321,7 +328,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.updateCSMFrustums && renderer.csm?.updateFrustums()
+    state.useShadows && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)

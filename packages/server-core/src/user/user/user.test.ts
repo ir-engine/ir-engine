@@ -23,8 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -33,22 +36,23 @@ import { UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const users: UserType[] = []
 
 describe('user.test', () => {
   let app: Application
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
-  after(() => {
-    return destroyEngine()
+  afterAll(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   let avatar: AvatarType
-  before(async () => {
+  beforeAll(async () => {
     const avatarName = 'CyberbotGreen'
     avatar = await app.service(avatarPath).create({
       name: avatarName
@@ -190,7 +194,7 @@ describe('user.test', () => {
 
     const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
 
-    assert.rejects(
+    await assert.rejects(
       async () =>
         await app.service(userPath).remove(adminUser.id, {
           provider: 'rest',

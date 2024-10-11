@@ -23,9 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ComponentType, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { ComponentType, getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
+import { Box3, Matrix4, PerspectiveCamera, Quaternion, Sphere, Vector3 } from 'three'
+import { BoundingBoxComponent, updateBoundingBox } from '../../transform/components/BoundingBoxComponents'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { getBoundingBoxVertices } from '../../transform/functions/BoundingBoxFunctions'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { CameraComponent } from '../components/CameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
@@ -45,4 +51,91 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
     cameraRotationTransition.theta = theta
     cameraRotationTransition.time = time
   }
+}
+
+/**
+ * Computes the distance and center of the camera required to fit the points in the camera's view
+ * @param camera - PerspectiveCamera
+ * @param pointsToFocus - Points to fit in the camera's view
+ * @param padding - Padding value to fit the points in the camera's view
+ */
+export function computeCameraDistanceAndCenter(
+  camera: PerspectiveCamera,
+  pointsToFocus: Vector3[],
+  padding: number = 1.1
+) {
+  // Create a bounding sphere from the points
+  const boundingSphere = new Sphere().setFromPoints(pointsToFocus)
+
+  const center = boundingSphere.center
+  const radius = boundingSphere.radius
+
+  // Compute the distance required to fit the sphere in the camera's vertical FOV
+  const fov = camera.fov * (Math.PI / 180) // Convert FOV to radians
+  // const distance = radius / Math.sin(fov / 2);
+
+  // Calculate the distance needed to fit the object in the camera's view, padding value of 1.1 is a good fit for most cases
+  const distance = (radius / 2 / Math.tan(fov / 2)) * padding
+  return { distance, center }
+}
+
+/**
+ * Computes the distance and center of the camera required to fit the box in the camera's view
+ * @param camera - PerspectiveCamera
+ * @param box - Box3 to fit in the camera's view
+ * @param padding - Padding value to fit the box in the camera's view
+ */
+export function computeCameraDistanceAndCenterFromBox(camera: PerspectiveCamera, box: Box3, padding: number = 1.1) {
+  const points = getBoundingBoxVertices(box)
+  return computeCameraDistanceAndCenter(camera, points, padding)
+}
+export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
+  updateBoundingBox(modelEntity)
+
+  const bbox = getComponent(modelEntity, BoundingBoxComponent).box
+  const center = bbox.getCenter(new Vector3())
+
+  // Calculate the bounding sphere radius
+  const boundingSphere = bbox.getBoundingSphere(new Sphere())
+  const radius = boundingSphere.radius
+
+  const camera = getComponent(cameraEntity, CameraComponent)
+  const fov = camera.fov * (Math.PI / 180) // convert vertical fov to radians
+
+  // Calculate the camera direction vector with the desired angle offsets
+  const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
+  const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
+
+  const direction = new Vector3(
+    Math.sin(angleY) * Math.cos(angleX),
+    Math.sin(angleX),
+    Math.cos(angleY) * Math.cos(angleX)
+  ).normalize()
+
+  // Calculate the distance from the camera to the bounding sphere such that it fully frames the content
+  const distance = radius / Math.sin(fov / 2)
+
+  // Calculate the camera position
+  const cameraPosition = direction.multiplyScalar(distance).add(center)
+
+  // Set the camera transform component
+  setComponent(cameraEntity, TransformComponent, { position: cameraPosition })
+  computeTransformMatrix(cameraEntity)
+
+  // Calculate the quaternion rotation to look at the center
+  const lookAtMatrix = new Matrix4()
+  lookAtMatrix.lookAt(cameraPosition, center, new Vector3(0, 1, 0))
+  const targetRotation = new Quaternion().setFromRotationMatrix(lookAtMatrix)
+
+  // Apply the rotation to the camera's TransfortexturemComponent
+  setComponent(cameraEntity, TransformComponent, { rotation: targetRotation })
+  computeTransformMatrix(cameraEntity)
+  camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
+
+  // Update the view camera matrices
+  const viewCamera = camera.cameras[0]
+  viewCamera.matrixWorld.copy(camera.matrixWorld)
+  viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
+  viewCamera.projectionMatrix.copy(camera.projectionMatrix)
+  viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
 }

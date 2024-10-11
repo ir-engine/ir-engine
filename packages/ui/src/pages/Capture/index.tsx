@@ -35,19 +35,21 @@ import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanva
 import { useResizableVideoCanvas } from '@ir-engine/client-core/src/hooks/useResizableVideoCanvas'
 import { useScrubbableVideo } from '@ir-engine/client-core/src/hooks/useScrubbableVideo'
 import { CaptureClientSettingsState } from '@ir-engine/client-core/src/media/CaptureClientSettingsState'
+import { MediaStreamState } from '@ir-engine/client-core/src/media/MediaStreamState'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import { MediaStreamState } from '@ir-engine/client-core/src/transports/MediaStreams'
+import { useGet } from '@ir-engine/common'
 import {
-  SocketWebRTCClientNetwork,
-  toggleWebcamPaused
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
+  ECSRecordingActions,
+  PlaybackState,
+  RecordingState,
+  activePlaybacks
+} from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import {
   RecordingID,
   StaticResourceType,
   recordingPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { useVideoFrameCallback } from '@ir-engine/common/src/utils/useVideoFrameCallback'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import {
@@ -55,12 +57,6 @@ import {
   MotionCaptureResults,
   mocapDataChannelType
 } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
-import {
-  ECSRecordingActions,
-  PlaybackState,
-  RecordingState,
-  activePlaybacks
-} from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import {
   defineState,
   dispatchAction,
@@ -71,12 +67,13 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Header from '@ir-engine/ui/src/components/tailwind/Header'
 import RecordingsList from '@ir-engine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
+import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
+import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import Button from '../../primitives/tailwind/Button'
 
 /**
@@ -132,16 +129,6 @@ const sendResults = (results: MotionCaptureResults) => {
   network.bufferToAll(mocapDataChannelType, Engine.instance.store.peerID, data)
 }
 
-// const useVideoStatus = () => {
-//   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
-//   const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
-//   const videoActive = !!videoStream.value && !videoPaused.value
-//   const mediaNetworkState = useMediaNetwork()
-//   if (!mediaNetworkState?.ready?.value) return 'loading'
-//   if (!videoActive) return 'ready'
-//   return 'active'
-// }
-
 export const CaptureState = defineState({
   name: 'CaptureState',
   initial: {
@@ -187,7 +174,7 @@ const CaptureMode = () => {
 
   const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
 
-  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+  const videoStream = useHookstate(getMutableState(MediaStreamState).webcamMediaStream)
 
   useEffect(() => {
     detectingStatus.set('loading')
@@ -281,7 +268,7 @@ const CaptureMode = () => {
           <Button
             className="z-2 container absolute left-0 top-0 m-0 mx-auto h-full w-full bg-transparent p-0"
             onClick={() => {
-              if (mediaNetworkState?.ready?.value) toggleWebcamPaused()
+              if (mediaNetworkState?.ready?.value) MediaStreamState.toggleWebcamPaused()
             }}
           >
             <a>{!videoStream.value ? 'CLICK TO ENABLE VIDEO' : ''}</a>
@@ -314,7 +301,7 @@ const CaptureMode = () => {
             videoStatus={videoStatus}
             detectingStatus={detectingStatus.value}
             onToggleRecording={onToggleRecording}
-            toggleWebcam={toggleWebcamPaused}
+            toggleWebcam={MediaStreamState.toggleWebcamPaused}
             toggleDetecting={() => {
               detectingStatus.set(detectingStatus.value === 'active' ? 'inactive' : 'active')
             }}

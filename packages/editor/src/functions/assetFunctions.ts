@@ -28,16 +28,68 @@ import {
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
 } from '@ir-engine/client-core/src/util/upload'
+import { API } from '@ir-engine/common'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
-import { Engine } from '@ir-engine/ecs'
+import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 
-import { pathJoin } from '@ir-engine/common/src/utils/miscUtils'
+enum FileType {
+  THREE_D = '3D',
+  IMAGE = 'Image',
+  AUDIO = 'Audio',
+  VIDEO = 'Video',
+  UNKNOWN = 'Unknown'
+}
+
+const unsupportedFileMessage = {
+  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a .gltf or a .glb.',
+  [FileType.IMAGE]: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
+  [FileType.AUDIO]: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
+  [FileType.VIDEO]: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.',
+  [FileType.UNKNOWN]: 'Unsupported File Type! Please upload a valid 3D, Image, Audio, or Video file.'
+}
+
+const supportedFiles = {
+  [FileType.THREE_D]: new Set(['.gltf', '.glb', '.bin']),
+  [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
+  [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
+  [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
+}
+
+function findMimeType(file): FileType {
+  let fileType = FileType.UNKNOWN
+  if (file.type.startsWith('image/')) {
+    fileType = FileType.IMAGE
+  } else if (file.type.startsWith('audio/')) {
+    fileType = FileType.AUDIO
+  } else if (file.type.startsWith('video/')) {
+    fileType = FileType.VIDEO
+  } else if (file.name.endsWith('.gltf') || file.name.endsWith('.glb')) {
+    fileType = FileType.THREE_D
+  }
+
+  return fileType
+}
+
+function isValidFileType(file): boolean {
+  const mimeType: FileType = findMimeType(file)
+  const fileName = file.name
+  const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase()
+
+  for (const [type, extensions] of Object.entries(supportedFiles)) {
+    if (extensions.has(extension)) {
+      return true
+    }
+  }
+
+  throw new Error(unsupportedFileMessage[mimeType])
+}
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
+      file = cleanFileNameFile(file)
       const fileDirectory = file.webkitRelativePath || file.name
       return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
@@ -78,7 +130,15 @@ export const inputFileWithAddToScene = ({
 
     el.onchange = async () => {
       try {
-        if (el.files?.length) await handleUploadFiles(projectName, directoryPath, el.files)
+        if (el.files?.length) {
+          const newFiles: File[] = []
+          for (let i = 0; i < el.files.length; i++) {
+            const newFile = cleanFileNameFile(el.files[i])
+            isValidFileType(newFile)
+            newFiles.push(newFile)
+          }
+          await handleUploadFiles(projectName, directoryPath, newFiles)
+        }
         resolve(null)
       } catch (err) {
         reject(err)
@@ -113,13 +173,17 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
 
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
-  const exists = await Engine.instance.api.service(fileBrowserPath).get(resourcePath)
+  const exists = await API.instance.service(fileBrowserPath).get(resourcePath)
   if (exists) {
-    await Engine.instance.api.service(fileBrowserPath).remove(resourcePath)
+    await API.instance.service(fileBrowserPath).remove(resourcePath)
   }
 }
 
-export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {
+export const uploadProjectAssetsFromUpload = async (
+  projectName: string,
+  entries: FileSystemEntry[],
+  onProgress = (...args: any[]) => {}
+) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < entries.length; i++) {
@@ -153,11 +217,16 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const name = processFileName(file.name)
+    const name = cleanFileNameString(file.name)
     const path = `assets${directory}/` + name
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { projectName, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        { args: [{ project: projectName, path, contentType: file.type }] },
+        onProgress
+      )
     )
   }
 }
@@ -188,7 +257,7 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
 export const extractZip = async (path: string): Promise<any> => {
   try {
     const params = { path: path }
-    await Engine.instance.api.service(assetLibraryPath).create(params)
+    await API.instance.service(assetLibraryPath).create(params)
   } catch (err) {
     console.error('error extracting zip: ', err)
   }

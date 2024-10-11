@@ -23,12 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
@@ -36,7 +38,7 @@ import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunct
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const params = { isInternal: true } as any
 
@@ -82,19 +84,20 @@ describe('route.test', () => {
   let testRoute: string
   let testProjectId: string
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await cleanup(app, testProject, testProjectId)
-    await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should find the installed project routes', async () => {
-    testProject = `@org1/test-project-${uuidv4()}`
-    testRoute = `test-route-${uuidv4()}`
+    testProject = `org1/test-project-${Math.random()}`.replace('.', '')
+    testRoute = `test-route`
 
     testProjectId = await (await app.service(projectPath).create({ name: testProject }, params)).id
     updateXREngineConfigForTest(testProject, testRoute)

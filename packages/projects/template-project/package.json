@@ -2,12 +2,11 @@
   "name": "@ir-engine/ir-template",
   "version": "0.0.0",
   "scripts": {
-    "test": "mocha --config .mocharc.js",
+    "test": "cross-env TEST=true vitest run",
     "check-errors": "tsc --noemit",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"**/*.scss\" --fix",
-    "format-staged": "lint-staged",
-    "precommit": "no-master-commits -b main"
+    "format-staged": "lint-staged"
   },
   "license": "ISC",
   "pre-commit": [
@@ -15,10 +14,10 @@
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
-      "prettier --write"
+      "prettier --write \"**/*.{ts,tsx}\""
     ],
     "*.scss": [
-      "stylelint --fix"
+      "stylelint \"**/*.scss\" --fix"
     ]
   }
 }

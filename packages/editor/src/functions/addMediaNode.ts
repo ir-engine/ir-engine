@@ -27,7 +27,7 @@ import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -43,6 +43,7 @@ import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/Volu
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -139,6 +140,7 @@ export async function addMediaNode(
 
         useImmediateEffect(() => {
           if (!modelComponent) return
+
           modelComponent.dereference.set(true)
           reactor.stop()
         }, [modelComponent])
@@ -157,6 +159,26 @@ export async function addMediaNode(
         parent!,
         before
       )
+
+      const reactor = startReactor(() => {
+        const entity = UUIDComponent.useEntityByUUID(entityUUID)
+        const modelComponent = useOptionalComponent(entity, ModelComponent)
+
+        useImmediateEffect(() => {
+          if (!modelComponent) return
+          const pathArray = url.split('/')
+          const lastIndex = pathArray.length - 1
+          const fileNameWithExt = pathArray[lastIndex]
+          const fileNameArray = fileNameWithExt.split('.')
+          const name = decodeURI(fileNameArray[0])
+          setComponent(entity, NameComponent, name)
+
+          reactor.stop()
+        }, [modelComponent])
+
+        return null
+      })
+
       return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {

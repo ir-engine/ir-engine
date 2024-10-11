@@ -28,7 +28,7 @@ import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import https from 'https'
 import { Knex } from 'knex'
-import _ from 'lodash'
+import _ from 'lodash-es'
 import fetch from 'node-fetch'
 
 import {
@@ -419,7 +419,7 @@ export async function checkForDuplicatedAssignments({
   ])
 
   if (!responsivenessCheck) {
-    logger.warn(`Instanceserver at ${ipAddress} too long to respond, assuming it is unresponsive and killing`)
+    logger.warn(`Instanceserver at ${ipAddress} took too long to respond, assuming it is unresponsive and killing`)
     await app.service(instancePath).remove(assignResult.id)
     const k8DefaultClient = getState(ServerState).k8DefaultClient
     if (config.kubernetes.enabled)

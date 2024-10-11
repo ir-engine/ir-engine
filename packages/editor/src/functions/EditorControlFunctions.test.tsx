@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
 import { Cache, Color, MathUtils } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { createEntity, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
@@ -52,7 +53,7 @@ describe('EditorControlFunctions', () => {
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
-    Engine.instance.userID = 'user' as UserID
+    Engine.instance.store.userID = 'user' as UserID
 
     await Physics.load()
     physicsWorldEntity = createEntity()
@@ -265,6 +266,12 @@ describe('EditorControlFunctions', () => {
                       x: 0,
                       y: 0,
                       z: 0
+                    },
+                    rotation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1
                     }
                   },
                   {
@@ -272,6 +279,12 @@ describe('EditorControlFunctions', () => {
                       x: 5,
                       y: 5,
                       z: 5
+                    },
+                    rotation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1
                     }
                   }
                 ]
@@ -846,6 +859,7 @@ describe('EditorControlFunctions', () => {
       applyIncomingActions()
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
+      console.log('newSnapshot', newSnapshot)
       assert.equal(newSnapshot.nodes?.length, 4)
       assert.equal(newSnapshot.nodes?.[beforeNodeIndex].name, targetNodeName)
     })

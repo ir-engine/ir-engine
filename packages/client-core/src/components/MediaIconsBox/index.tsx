@@ -23,20 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import {
-  toggleMicrophonePaused,
-  toggleScreenshare,
-  toggleWebcamPaused
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { Engine, defineQuery, getOptionalComponent } from '@ir-engine/ecs'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
-import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
@@ -47,22 +42,21 @@ import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWithTooltip'
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import multiLogger from '@ir-engine/common/src/logger'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'
+import { MediaStreamService, MediaStreamState } from '../../media/MediaStreamState'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
-import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
-import { clientContextParams } from '../../util/contextParams'
+import { clientContextParams } from '../../util/ClientContextState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 const sceneSettings = defineQuery([SceneSettingsComponent])
-const logger = multiLogger.child({ component: 'client-core:MediaIconsBox' })
-const clogger = multiLogger.child({ component: 'client-core:MediaIconsBox', modifier: clientContextParams })
+const logger = multiLogger.child({ component: 'client-core:MediaIconsBox', modifier: clientContextParams })
 
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
@@ -70,9 +64,6 @@ export const MediaIconsBox = () => {
   const recordingState = useMutableState(RecordingState)
 
   const location = useLocation()
-  const hasAudioDevice = useHookstate(false)
-  const hasVideoDevice = useHookstate(false)
-  const numVideoDevices = useHookstate(0)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
@@ -90,11 +81,14 @@ export const MediaIconsBox = () => {
     : false
 
   const mediaStreamState = useMutableState(MediaStreamState)
+  const numVideoDevices = mediaStreamState.availableVideoDevices.value.length
+  const hasAudioDevice = mediaStreamState.availableAudioDevices.value.length > 0
+  const hasVideoDevice = numVideoDevices > 0
   const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
-  const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
-  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isCamVideoEnabled = !!mediaStreamState.webcamMediaStream.value && mediaStreamState.webcamEnabled.value
+  const isCamAudioEnabled = !!mediaStreamState.microphoneMediaStream.value && mediaStreamState.microphoneEnabled.value
   const isScreenVideoEnabled =
-    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
+    !!mediaStreamState.screenshareMediaStream.value && mediaStreamState.screenshareEnabled.value
 
   const spectating =
     !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value &&
@@ -108,17 +102,6 @@ export const MediaIconsBox = () => {
     FeatureFlags.Client.Menu.MotionCapture,
     FeatureFlags.Client.Menu.XR
   ])
-
-  useEffect(() => {
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then((devices) => {
-        hasAudioDevice.set(devices.filter((device) => device.kind === 'audioinput').length > 0)
-        hasVideoDevice.set(devices.filter((device) => device.kind === 'videoinput').length > 0)
-        numVideoDevices.set(devices.filter((device) => device.kind === 'videoinput').length)
-      })
-      .catch((err) => logger.error(err, 'Could not get media devices.'))
-  }, [])
 
   const toggleRecording = () => {
     const activeRecording = recordingState.recordingID.value
@@ -172,29 +155,32 @@ export const MediaIconsBox = () => {
           </div>
         </div>
       )}
-      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready?.value ? (
+      {audioEnabled && hasAudioDevice && mediaNetworkReady && mediaNetworkState?.ready?.value ? (
         <IconButtonWithTooltip
           id="UserAudio"
           title={t('user:menu.toggleMute')}
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
-          onClick={toggleMicrophonePaused}
+          onClick={MediaStreamState.toggleMicrophonePaused}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />}
         />
       ) : null}
-      {videoEnabled && hasVideoDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+      {videoEnabled && hasVideoDevice && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <>
           <IconButtonWithTooltip
             id="UserVideo"
             title={t('user:menu.toggleVideo')}
             className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
-            onClick={toggleWebcamPaused}
+            onClick={() => {
+              MediaStreamState.toggleWebcamPaused()
+              logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
+            }}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
           />
-          {isCamVideoEnabled && numVideoDevices.value > 1 && (
+          {isCamVideoEnabled && numVideoDevices > 1 && (
             <IconButtonWithTooltip
               id="FlipVideo"
               title={t('user:menu.cycleCamera')}
@@ -212,7 +198,10 @@ export const MediaIconsBox = () => {
               className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
               onClick={() => {
                 window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
-                clogger.info({ event_name: 'motion_capture', event_value: isMotionCaptureEnabled })
+                logger.info({
+                  event_name: 'toggle_motion_capture',
+                  event_value: isMotionCaptureEnabled
+                })
               }}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -231,7 +220,7 @@ export const MediaIconsBox = () => {
             id="UserScreenSharing"
             title={t('user:menu.shareScreen')}
             className={styles.iconContainer + ' ' + (isScreenVideoEnabled ? styles.on : '')}
-            onClick={toggleScreenshare}
+            onClick={MediaStreamState.toggleScreenshare}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type="ScreenShare" />}

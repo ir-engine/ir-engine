@@ -23,9 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
+import '../patchEngineNode'
+
+import { NotFound } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -34,7 +37,7 @@ import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../declarations'
-import { createFeathersKoaApp } from '../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../createApp'
 import verifyScope from './verify-scope'
 
 const mockUserHookContext = (user: UserType, app: Application) => {
@@ -48,13 +51,14 @@ const mockUserHookContext = (user: UserType, app: Application) => {
 
 describe('verify-scope', () => {
   let app: Application
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  afterAll(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should fail if user does not have scope', async () => {
@@ -82,7 +86,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    assert.rejects(() => verifyLocationReadScope(hookContext), Forbidden)
+    await assert.rejects(async () => await verifyLocationReadScope(hookContext), NotFound)
 
     // cleanup
     await app.service(userPath).remove(user.id!)

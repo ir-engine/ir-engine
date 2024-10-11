@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { useFind, useMutation } from '@ir-engine/common'
 import { InstalledRoutesInterface } from '@ir-engine/common/src/interfaces/Route'
 import { routePath } from '@ir-engine/common/src/schema.type.module'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
 import { routeColumns, RouteRowType } from '../../common/constants/route'
@@ -67,5 +67,5 @@ export default function RoutesTable() {
       })
       .flat()
 
-  return <DataTable query={routesQuery} columns={routeColumns} rows={createRows(installedRouteData)} />
+  return <DataTable size="xl" query={routesQuery} columns={routeColumns} rows={createRows(installedRouteData)} />
 }

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -40,7 +40,7 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { EntityTreeComponent, useAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GiTriggerHurt } from 'react-icons/gi'
@@ -48,6 +48,7 @@ import { HiPlus, HiTrash } from 'react-icons/hi2'
 import Button from '../../../../primitives/tailwind/Button'
 import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
+import NodeInput from '../../input/Node'
 import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
 import NodeEditor from '../nodeEditor'
@@ -61,7 +62,7 @@ const TriggerProperties: EditorComponentType = (props) => {
   const targets = useHookstate<TargetOptionType[]>([{ label: 'Self', value: '', callbacks: [] }])
 
   const triggerComponent = useComponent(props.entity, TriggerComponent)
-  const hasRigidbody = useAncestorWithComponent(props.entity, RigidBodyComponent)
+  const hasRigidbody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
   useEffect(() => {
     if (!hasComponent(props.entity, ColliderComponent)) {
@@ -103,7 +104,7 @@ const TriggerProperties: EditorComponentType = (props) => {
           <Button
             title={t('editor:properties.triggerVolume.lbl-addRigidBody')}
             startIcon={<HiPlus />}
-            className="text-sm text-[#8B8B8D]"
+            className="text-sm text-[#FFFFFF]"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
               EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
@@ -149,10 +150,9 @@ const TriggerProperties: EditorComponentType = (props) => {
               }}
             />
             <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
-              <SelectInput
-                value={trigger.target.value ?? ''}
-                onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
-                options={targets.value.map(({ label, value }) => ({ label, value }))}
+              <NodeInput
+                value={trigger.target.value ?? ('' as EntityUUID)}
+                onRelease={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
                 disabled={props.multiEdit}
               />
             </InputGroup>

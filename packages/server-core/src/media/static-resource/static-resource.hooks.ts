@@ -30,9 +30,9 @@ import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/sc
 
 import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
+import logger from '../../ServerLogger'
 import allowNullQuery from '../../hooks/allow-null-query'
 import checkScope from '../../hooks/check-scope'
-import collectAnalytics from '../../hooks/collect-analytics'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import resolveProjectId from '../../hooks/resolve-project-id'
@@ -173,6 +173,46 @@ const isKeyPublic = (context: HookContext<StaticResourceService>) => {
   return context
 }
 
+const deleteOldThumbnail = async (context: HookContext<StaticResourceService>) => {
+  const data = context.data
+  const id = context.id
+  if (!data || !id) return context
+  const resources = Array.isArray(data) ? data : [data]
+  for (const resource of resources) {
+    if (!resource.thumbnailKey) continue
+    const existingResource = await context.app.service(staticResourcePath).get(id, {
+      query: {
+        $select: ['thumbnailKey']
+      }
+    })
+    if (!existingResource.thumbnailKey || existingResource.thumbnailKey === resource.thumbnailKey) continue
+    const resourcesWithOldThumbnail = await context.app.service(staticResourcePath).find({
+      query: {
+        thumbnailKey: existingResource.thumbnailKey,
+        type: { $ne: 'thumbnail' },
+        $select: ['id']
+      }
+    })
+    if (resourcesWithOldThumbnail.data.length > 1) {
+      logger.warn('Thumbnail is still in use, not deleting')
+      continue
+    }
+    const oldThumbnail = await context.app.service(staticResourcePath).find({
+      query: {
+        key: existingResource.thumbnailKey,
+        $select: ['id']
+      }
+    })
+    if (oldThumbnail.data.length) {
+      const oldThumbnailResource = oldThumbnail.data[0]
+      await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
+    } else {
+      logger.warn('Old thumbnail resource not found')
+    }
+  }
+  return context
+}
+
 const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) => {
   if (!context.result) return context
   const data = context.result
@@ -277,10 +317,9 @@ export default {
       ),
       enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
       allowNullQuery('thumbnailKey'),
-      discardQuery('action', 'projectId'),
-      collectAnalytics()
+      discardQuery('action', 'projectId')
     ],
-    get: [collectAnalytics()],
+    get: [],
     create: [
       ensureProject,
       iff(
@@ -322,6 +361,7 @@ export default {
           [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
         )
       ),
+      deleteOldThumbnail,
       // schemaHooks.validateData(staticResourcePatchValidator),
       discardQuery('projectId'),
       schemaHooks.resolveData(staticResourcePatchResolver)

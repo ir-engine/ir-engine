@@ -56,7 +56,7 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { isArray } from 'lodash'
+import { isArray } from 'lodash-es'
 import { Material, MeshBasicMaterial } from 'three'
 import { SourceComponent } from '../../components/SourceComponent'
 
@@ -92,9 +92,9 @@ const MeshReactor = () => {
 
   useEffect(() => {
     if (materialComponent) return
-    const material = meshComponent.material.value as Material
-    if (!isArray(material)) createAndSourceMaterial(material)
-    else for (const mat of material) createAndSourceMaterial(mat)
+    const material = meshComponent.material.value as any as Material | Material[]
+    if (isArray(material)) for (const mat of material as Material[]) createAndSourceMaterial(mat)
+    else createAndSourceMaterial(material as Material)
   }, [])
   return null
 }
@@ -105,8 +105,8 @@ const MaterialEntityReactor = () => {
   useEffect(() => {
     if (!materialComponent.instances.value!) return
     for (const sourceEntity of materialComponent.instances.value) {
-      const sourceComponent = getComponent(sourceEntity, SourceComponent)
-      if (!SourceComponent.entitiesBySource[sourceComponent]) return
+      const sourceComponent = getOptionalComponent(sourceEntity, SourceComponent)
+      if (!sourceComponent || !SourceComponent.entitiesBySource[sourceComponent]) return
       for (const entity of SourceComponent.entitiesBySource[getComponent(sourceEntity, SourceComponent)]) {
         const uuid = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid as EntityUUID[] | undefined
         if (uuid) setMeshMaterial(entity, uuid)

@@ -25,12 +25,20 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Material, Uniform, Vector3 } from 'three'
 
-import { defineComponent, defineQuery, getComponent, PresentationSystemGroup, useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  PresentationSystemGroup,
+  useEntityContext
+} from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { generateNoiseTexture } from '@ir-engine/spatial/src/renderer/functions/generateNoiseTexture'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect } from 'react'
 import { MaterialStateComponent } from '../../MaterialComponent'
 import { setPlugin } from '../../materialFunctions'
@@ -43,24 +51,25 @@ export type NoiseOffsetParameters = {
   offsetAxis: Uniform
 }
 
-export const NoiseOffsetPlugin = defineComponent({
-  name: 'NoiseOffsetPlugin',
-  onInit: (entity) => {
-    return {
-      textureSize: new Uniform(64),
-      frequency: new Uniform(0.00025),
-      amplitude: new Uniform(0.005),
-      noiseTexture: new Uniform(generateNoiseTexture(64)),
-      offsetAxis: new Uniform(new Vector3(0, 1, 0)),
-      time: new Uniform(0)
-    }
-  },
+export const NoiseOffsetPluginComponent = defineComponent({
+  name: 'NoiseOffsetPluginComponent',
+
+  schema: S.Object({
+    textureSize: S.Class(() => new Uniform(64)),
+    frequency: S.Class(() => new Uniform(0.00025)),
+    amplitude: S.Class(() => new Uniform(0.005)),
+    noiseTexture: S.Class(() => new Uniform(generateNoiseTexture(64))),
+    offsetAxis: S.Class(() => new Uniform(new Vector3(0, 1, 0))),
+    time: S.Class(() => new Uniform(0))
+  }),
+
   reactor: () => {
     const entity = useEntityContext()
     useEffect(() => {
-      const materialComponent = getComponent(entity, MaterialStateComponent)
+      const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+      if (!materialComponent) return
       const callback = (shader) => {
-        const plugin = getComponent(entity, NoiseOffsetPlugin)
+        const plugin = getComponent(entity, NoiseOffsetPluginComponent)
 
         shader.uniforms.textureSize = plugin.textureSize
         shader.uniforms.frequency = plugin.frequency
@@ -78,32 +87,32 @@ export const NoiseOffsetPlugin = defineComponent({
             uniform float frequency;
             uniform float amplitude;
             uniform float time;
-    
+
             vec3 sampleNoise(vec3 pos) {
                 float zSlice = (pos.z * textureSize);
                 vec2 slicePos = vec2(zSlice / textureSize, fract(zSlice / textureSize));
                 vec2 noisePos = slicePos + pos.xy / textureSize;
                 return vec3(texture2D(noiseTexture, noisePos).r);
             }
-    
+
             vec3 turbulence(vec3 position) {
               vec3 sum = vec3(0.0);
               float frequencyMutliplied = frequency;
               float amplitudeMultiplied = amplitude;
-    
+
               for (int i = 0; i < 4; i++) {
                   vec3 p = position * frequencyMutliplied;
                   p.z += time * 0.0015;
-    
+
                   sum += sampleNoise(p).rgb * amplitudeMultiplied;
-              
+
                   frequencyMutliplied *= 2.0;
                   amplitudeMultiplied *= 7.0;
               }
-            
+
               return sum;
             }
-    
+
             void main() {
           `
         )
@@ -127,15 +136,16 @@ export const NoiseOffsetPlugin = defineComponent({
         )
       }
       setPlugin(materialComponent.material as Material, callback)
-    })
+    }, [])
     return null
   }
 })
 
-const noisePluginQuery = defineQuery([NoiseOffsetPlugin])
+const noisePluginQuery = defineQuery([NoiseOffsetPluginComponent])
 const execute = () => {
   for (const entity of noisePluginQuery()) {
-    const noisePlugin = getComponent(entity, NoiseOffsetPlugin)
+    const noisePlugin = getOptionalComponent(entity, NoiseOffsetPluginComponent)
+    if (!noisePlugin) continue
     const elapsedSeconds = getState(ECSState).elapsedSeconds
     noisePlugin.time.value = elapsedSeconds
   }

@@ -29,6 +29,7 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
+import { API } from '@ir-engine/common/src/API'
 import config, { validateEmail, validatePhoneNumber } from '@ir-engine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/AuthUser'
 import multiLogger from '@ir-engine/common/src/logger'
@@ -57,13 +58,24 @@ import {
   userPath,
   userSettingPath
 } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { defineState, getMutableState, getState, syncStateWithLocalStorage, useHookstate } from '@ir-engine/hyperflux'
-import { API } from '../../API'
+import type { HasAccessType } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
+import {
+  HyperFlux,
+  defineState,
+  getMutableState,
+  getState,
+  stateNamespaceKey,
+  syncStateWithLocalStorage,
+  useHookstate
+} from '@ir-engine/hyperflux'
+import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
+
+const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
+const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl) //Eventually we can configure iframe target seperatly
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -125,6 +137,104 @@ const resolveWalletUser = (credentials: any): UserType => {
   }
 }
 
+const invalidDomainHandling = (error: MessageResponse): void => {
+  if (error?.data?.invalidDomain) {
+    try {
+      localStorage.setItem('invalidCrossOriginDomain', 'true')
+    } catch (err) {
+      console.log('Was not able to read invalid Domain messaging', err)
+    }
+  }
+}
+
+const waitForToken = (win: Window, clientUrl: string): Promise<string> => {
+  return communicator
+    .sendMessage('get', {
+      key: `${stateNamespaceKey}.AuthState.authUser`
+    })
+    .then((response) => {
+      if (response.success) {
+        try {
+          const data = JSON.parse(response.data) //this is cookie data(e.data.data) so it's a string
+          if (data?.accessToken != null) {
+            return data?.accessToken
+          }
+          return ''
+        } catch {
+          return '' // Failed to parse token from cookie
+        }
+      } else {
+        return '' // didn't get data but can't guarantee
+      }
+    })
+    .catch((message) => {
+      if (message instanceof SyntaxError) {
+        throw message
+      }
+      invalidDomainHandling(message)
+      return message
+    })
+}
+
+const getToken = async (): Promise<string> => {
+  let win
+  try {
+    win = iframe!.contentWindow
+  } catch (e) {
+    win = iframe!.contentWindow
+  }
+
+  const clientUrl = config.client.clientUrl
+  const hasAccess = (await communicator
+    .sendMessage('checkAccess')
+    .then((message) => {
+      if (message?.data?.skipCrossOriginCookieCheck === true || message?.data?.storageAccessPermission === 'denied')
+        localStorage.setItem('skipCrossOriginCookieCheck', 'true')
+      return message.data
+    })
+    .catch((message) => {
+      invalidDomainHandling(message)
+      return {}
+    })) as HasAccessType
+
+  if (!hasAccess?.cookieSet || !hasAccess?.hasStorageAccess) {
+    const skipCheck = localStorage.getItem('skipCrossOriginCookieCheck')
+    const invalidCrossOriginDomain = localStorage.getItem('invalidCrossOriginDomain')
+    if (skipCheck === 'true' || invalidCrossOriginDomain === 'true') {
+      const authState = getMutableState(AuthState)
+      const accessToken = authState?.authUser?.accessToken?.value
+      return Promise.resolve(accessToken?.length > 0 ? accessToken : '')
+    } else {
+      iframe.style.visibility = 'visible'
+      return new Promise((resolve) => {
+        const clickResponseListener = async function (e) {
+          if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
+          try {
+            const data = e?.data?.data
+            if (data.skipCrossOriginCookieCheck === true || data.storageAccessPermission === 'denied') {
+              localStorage.setItem('skipCrossOriginCookieCheck', 'true')
+              iframe.style.visibility = 'hidden'
+              resolve('')
+            } else {
+              const token = waitForToken(win, clientUrl)
+              iframe.style.visibility = 'hidden'
+              resolve(token)
+            }
+          } catch (err) {
+            //Do nothing
+            resolve('')
+          } finally {
+            window.removeEventListener('message', clickResponseListener)
+          }
+        }
+        window.addEventListener('message', clickResponseListener)
+      })
+    }
+  } else {
+    return waitForToken(win, clientUrl)
+  }
+}
+
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
@@ -159,21 +269,41 @@ export interface LinkedInLoginForm {
   email: string
 }
 
+export const writeAuthUserToIframe = async () => {
+  if (localStorage.getItem('skipCrossOriginCookieCheck') === 'true') return
+  const iframe = document.getElementById('root-cookie-accessor') as HTMLFrameElement
+  let win
+  try {
+    win = iframe!.contentWindow
+  } catch (e) {
+    win = iframe!.contentWindow
+  }
+
+  await communicator
+    .sendMessage('set', {
+      key: `${stateNamespaceKey}.${AuthState.name}.authUser`,
+      data: getState(AuthState).authUser
+    })
+    .catch((message) => {
+      invalidDomainHandling(message)
+    })
+}
+
 /**
  * Resets the current user's accessToken to a new random guest token.
  */
 async function _resetToGuestToken(options = { reset: true }) {
   if (options.reset) {
-    await API.instance.client.authentication.reset()
+    await API.instance.authentication.reset()
   }
-  const newProvider = await Engine.instance.api.service(identityProviderPath).create({
+  const newProvider = await API.instance.service(identityProviderPath).create({
     type: 'guest',
     token: uuidv4(),
     userId: '' as UserID
   })
   const accessToken = newProvider.accessToken!
-  console.log(`Created new guest accessToken: ${accessToken}`)
-  await API.instance.client.authentication.setAccessToken(accessToken as string)
+  await API.instance.authentication.setAccessToken(accessToken as string)
+  writeAuthUserToIframe()
   return accessToken
 }
 
@@ -182,29 +312,30 @@ export const AuthService = {
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
     // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
-    // The client and auth settigns will not be needed on these routes
+    // The client and auth settings will not be needed on these routes
     if (location.pathname.startsWith('/auth')) return
     const authState = getMutableState(AuthState)
     try {
-      const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
+      const rootDomainToken = await getToken()
 
-      if (forceClientAuthReset) {
-        await API.instance.client.authentication.reset()
-      }
-      if (accessToken) {
-        await API.instance.client.authentication.setAccessToken(accessToken as string)
-      } else {
-        await _resetToGuestToken({ reset: false })
-      }
+      if (forceClientAuthReset) await API.instance.authentication.reset()
+
+      if (rootDomainToken?.length > 0) await API.instance.authentication.setAccessToken(rootDomainToken as string)
+      else await _resetToGuestToken({ reset: false })
 
       let res: AuthenticationResult
       try {
-        res = await API.instance.client.reAuthenticate()
+        res = await API.instance.reAuthenticate()
       } catch (err) {
-        if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
+        if (
+          err.className === 'not-found' ||
+          (err.className === 'not-authenticated' && err.message === 'jwt expired') ||
+          (err.className === 'not-authenticated' && err.message === 'invalid algorithm') ||
+          (err.className === 'not-authenticated' && err.message === 'invalid signature')
+        ) {
           authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
-          res = await API.instance.client.reAuthenticate()
+          res = await API.instance.reAuthenticate()
         } else {
           logger.error(err, 'Error re-authenticating')
           throw err
@@ -216,18 +347,20 @@ export const AuthService = {
         if (!identityProvider?.id) {
           authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
-          res = await API.instance.client.reAuthenticate()
+          res = await API.instance.reAuthenticate()
         }
         const authUser = resolveAuthUser(res)
         // authUser is now { accessToken, authentication, identityProvider }
         authState.merge({ authUser })
-        await AuthService.loadUserData(authUser.identityProvider?.userId)
+        writeAuthUserToIframe()
+        await AuthService.loadUserData(authUser.identityProvider.userId)
       } else {
         logger.warn('No response received from reAuthenticate()!')
       }
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      writeAuthUserToIframe()
 
       // if (window.location.pathname !== '/') {
       //   window.location.href = '/';
@@ -237,7 +370,7 @@ export const AuthService = {
 
   async loadUserData(userId: UserID) {
     try {
-      const client = API.instance.client
+      const client = API.instance
       const user = await client.service(userPath).get(userId)
       if (!user.userSetting) {
         const settingsRes = (await client
@@ -272,7 +405,7 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
 
     try {
-      const authenticationResult = await API.instance.client.authenticate({
+      const authenticationResult = await API.instance.authenticate({
         strategy: 'local',
         email: form.email,
         password: form.password
@@ -350,10 +483,10 @@ export const AuthService = {
   /**
    * Logs in the current user based on an OAuth response.
    */
-  async loginUserByOAuth(service: string, location: any) {
+  async loginUserByOAuth(service: string, location: any, redirectUrl?: string) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
-    const path = new URLSearchParams(location.search).get('redirectUrl') || location.pathname
+    const path = redirectUrl || new URLSearchParams(location.search).get('redirectUrl') || location.pathname
 
     const redirectConfig = {
       path
@@ -372,24 +505,24 @@ export const AuthService = {
   },
 
   async removeUserOAuth(service: string) {
-    const ipResult = (await Engine.instance.api.service(identityProviderPath).find()) as Paginated<IdentityProviderType>
+    const ipResult = (await API.instance.service(identityProviderPath).find()) as Paginated<IdentityProviderType>
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
         NotificationService.dispatchNotify('You can not remove your last login method.', { variant: 'warning' })
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
-        const newTokenResult = await Engine.instance.api.service(generateTokenPath).create({
+        const newTokenResult = await API.instance.service(generateTokenPath).create({
           type: otherIp!.type,
           token: otherIp!.token
         })
 
         if (newTokenResult?.token) {
           getMutableState(AuthState).merge({ isProcessing: true, error: '' })
-          await API.instance.client.authentication.setAccessToken(newTokenResult.token)
-          const res = await API.instance.client.reAuthenticate(true)
+          await API.instance.authentication.setAccessToken(newTokenResult.token)
+          const res = await API.instance.reAuthenticate(true)
           const authUser = resolveAuthUser(res)
-          await Engine.instance.api.service(identityProviderPath).remove(ipToRemove.id)
+          await API.instance.service(identityProviderPath).remove(ipToRemove.id)
           const authState = getMutableState(AuthState)
           authState.merge({ authUser })
           await AuthService.loadUserData(authUser.identityProvider.userId)
@@ -403,14 +536,15 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      await API.instance.client.authentication.setAccessToken(accessToken as string)
-      const res = await API.instance.client.authenticate({
+      await API.instance.authentication.setAccessToken(accessToken as string)
+      const res = await API.instance.authenticate({
         strategy: 'jwt',
         accessToken
       })
 
       const authUser = resolveAuthUser(res)
       authState.merge({ authUser })
+      writeAuthUserToIframe()
       await AuthService.loadUserData(authUser.identityProvider?.userId)
       authState.merge({ isProcessing: false, error: '' })
       let timeoutTimer = 0
@@ -419,8 +553,7 @@ export const AuthService = {
       // in properly. This interval waits to make sure the token has been updated before redirecting
       const waitForTokenStored = setInterval(() => {
         timeoutTimer += TIMEOUT_INTERVAL
-        const authData = authState
-        const storedToken = authData.authUser?.accessToken?.value
+        const storedToken = authState.authUser?.accessToken?.value
         if (storedToken === accessToken) {
           clearInterval(waitForTokenStored)
           window.location.href = redirectSuccess
@@ -440,7 +573,7 @@ export const AuthService = {
 
   async loginUserMagicLink(token, redirectSuccess, redirectError) {
     try {
-      const res = await Engine.instance.api.service(loginPath).get(token)
+      const res = await API.instance.service(loginPath).get(token)
       await AuthService.loginUserByJwt(res.token!, '/', '/')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -453,12 +586,31 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      await API.instance.client.logout()
+      await API.instance.logout()
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } catch (_) {
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
+      writeAuthUserToIframe()
+      await new Promise<void>((resolve) => {
+        const clientUrl = config.client.clientUrl
+        const getIframeResponse = function (e) {
+          if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
+          if (e?.data?.data) {
+            try {
+              const data = e?.data?.data
+              if (data?.cookieWasSet === `${stateNamespaceKey}.${AuthState.name}.authUser`) {
+                window.removeEventListener('message', getIframeResponse)
+                resolve()
+              }
+            } catch {
+              resolve()
+            }
+          }
+        }
+        window.addEventListener('message', getIframeResponse)
+      })
       window.location.reload()
     }
   },
@@ -467,7 +619,7 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider: any = await Engine.instance.api.service(identityProviderPath).create({
+      const identityProvider: any = await API.instance.service(identityProviderPath).create({
         token: form.email,
         type: 'password',
         userId: '' as UserID
@@ -542,7 +694,7 @@ export const AuthService = {
     }
 
     try {
-      await Engine.instance.api
+      await API.instance
         .service(magicLinkPath)
         .create({ type, [paramName]: emailPhone, accessToken: storedToken, redirectUrl })
       const message = {
@@ -566,7 +718,7 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
 
     try {
-      const identityProvider = await Engine.instance.api.service(identityProviderPath).create({
+      const identityProvider = await API.instance.service(identityProviderPath).create({
         token: form.email,
         type: 'password',
         userId: '' as UserID
@@ -584,7 +736,7 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
+      const identityProvider = (await API.instance.service(magicLinkPath).create({
         email,
         type: 'email',
         userId
@@ -612,7 +764,7 @@ export const AuthService = {
     }
 
     try {
-      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
+      const identityProvider = (await API.instance.service(magicLinkPath).create({
         mobile: sendPhone,
         type: 'sms',
         userId
@@ -638,7 +790,7 @@ export const AuthService = {
   async removeConnection(identityProviderId: number, userId: UserID) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
-      await Engine.instance.api.service(identityProviderPath).remove(identityProviderId)
+      await API.instance.service(identityProviderPath).remove(identityProviderId)
       return AuthService.loadUserData(userId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -652,37 +804,35 @@ export const AuthService = {
   },
 
   async updateUserSettings(id: UserSettingID, data: UserSettingPatch) {
-    const response = await Engine.instance.api.service(userSettingPath).patch(id, data)
+    const response = await API.instance.service(userSettingPath).patch(id, data)
     getMutableState(AuthState).user.userSetting.merge(response)
   },
 
   async removeUser(userId: UserID) {
-    await Engine.instance.api.service(userPath).remove(userId)
+    await API.instance.service(userPath).remove(userId)
     AuthService.logoutUser()
   },
 
   async updateApiKey() {
-    const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
+    const userApiKey = (await API.instance.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
 
     let apiKey: UserApiKeyType | undefined
     if (userApiKey.data.length > 0) {
-      apiKey = await Engine.instance.api.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
+      apiKey = await API.instance.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
     } else {
-      apiKey = await Engine.instance.api.service(userApiKeyPath).create({})
+      apiKey = await API.instance.service(userApiKeyPath).create({})
     }
 
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
   async createLoginToken() {
-    return Engine.instance.api.service(loginTokenPath).create({})
+    return API.instance.service(loginTokenPath).create({})
   },
 
   useAPIListeners: () => {
     useEffect(() => {
       const userPatchedListener = (user: UserPublicPatch | UserPatch) => {
-        console.log('USER PATCHED %o', user)
-
         if (!user.id) return
 
         const selfUser = getMutableState(AuthState).user
@@ -693,24 +843,22 @@ export const AuthService = {
       }
 
       const userAvatarPatchedListener = async (userAvatar: UserAvatarPatch) => {
-        console.log('USER AVATAR PATCHED %o', userAvatar)
-
         if (!userAvatar.userId) return
 
         const selfUser = getMutableState(AuthState).user
 
         if (selfUser.id.value === userAvatar.userId) {
-          const user = await Engine.instance.api.service(userPath).get(userAvatar.userId)
+          const user = await API.instance.service(userPath).get(userAvatar.userId)
           getMutableState(AuthState).user.merge(user)
         }
       }
 
-      Engine.instance.api.service(userPath).on('patched', userPatchedListener)
-      Engine.instance.api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
+      API.instance.service(userPath).on('patched', userPatchedListener)
+      API.instance.service(userAvatarPath).on('patched', userAvatarPatchedListener)
 
       return () => {
-        Engine.instance.api.service(userPath).off('patched', userPatchedListener)
-        Engine.instance.api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
+        API.instance.service(userPath).off('patched', userPatchedListener)
+        API.instance.service(userAvatarPath).off('patched', userAvatarPatchedListener)
       }
     }, [])
   }
@@ -763,10 +911,13 @@ export const useAuthenticated = () => {
 
   useEffect(() => {
     AuthService.doLoginAuto()
+    return () => {
+      communicator.destroy()
+    }
   }, [])
 
   useEffect(() => {
-    Engine.instance.userID = authState.user.id.value
+    HyperFlux.store.userID = authState.user.id.value
   }, [authState.user.id])
 
   return authState.isLoggedIn.value

@@ -24,12 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { MathUtils, Quaternion, Vector3 } from 'three'
+import { MathUtils } from 'three'
 
 import {
   defineComponent,
   Engine,
-  Entity,
   getComponent,
   removeComponent,
   setComponent,
@@ -39,18 +38,17 @@ import {
 } from '@ir-engine/ecs'
 import {
   SnapMode,
-  TransformAxisType,
+  TransformAxis,
   TransformMode,
-  TransformModeType,
-  TransformSpace,
-  TransformSpaceType
+  TransformSpace
 } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getState, matches, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -70,63 +68,34 @@ import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 export const TransformGizmoControlComponent = defineComponent({
   name: 'TransformGizmoControl',
 
-  onInit(entity) {
-    const control = {
-      controlledEntities: [] as Entity[],
-      visualEntity: UndefinedEntity,
-      planeEntity: UndefinedEntity,
-      pivotEntity: UndefinedEntity,
-      enabled: true,
-      dragging: false,
-      axis: null! as TransformAxisType | null,
-      space: TransformSpace.world as TransformSpaceType,
-      mode: TransformMode.translate as TransformModeType,
-      translationSnap: null! as number,
-      rotationSnap: null! as number,
-      scaleSnap: null! as number,
-      size: 1,
-      showX: true,
-      showY: true,
-      showZ: true,
-      worldPosition: new Vector3(),
-      worldPositionStart: new Vector3(),
-      worldQuaternion: new Quaternion(),
-      worldQuaternionStart: new Quaternion(),
-      pointStart: new Vector3(),
-      pointEnd: new Vector3(),
-      rotationAxis: new Vector3(),
-      rotationAngle: 0,
-      eye: new Vector3()
-    }
-    return control
-  },
-  onSet(entity, component, json) {
-    if (!json) return
+  schema: S.Object({
+    controlledEntities: S.Array(S.Entity(), []),
+    visualEntity: S.Entity(),
+    planeEntity: S.Entity(),
+    pivotEntity: S.Entity(),
+    enabled: S.Bool(true),
+    dragging: S.Bool(false),
+    axis: S.Nullable(S.LiteralUnion(Object.values(TransformAxis)), null),
+    space: S.LiteralUnion(Object.values(TransformSpace), TransformSpace.world),
+    mode: S.LiteralUnion(Object.values(TransformMode), TransformMode.translate),
+    translationSnap: S.Nullable(S.Number(), null),
+    rotationSnap: S.Nullable(S.Number(), null),
+    scaleSnap: S.Nullable(S.Number(), null),
+    size: S.Number(1),
+    showX: S.Bool(true),
+    showY: S.Bool(true),
+    showZ: S.Bool(true),
+    worldPosition: S.Vec3(),
+    worldPositionStart: S.Vec3(),
+    worldQuaternion: S.Quaternion(),
+    worldQuaternionStart: S.Quaternion(),
+    pointStart: S.Vec3(),
+    pointEnd: S.Vec3(),
+    rotationAxis: S.Vec3(),
+    rotationAngle: S.Number(0),
+    eye: S.Vec3()
+  }),
 
-    if (matches.array.test(json.controlledEntities)) component.controlledEntities.set(json.controlledEntities)
-    if (matches.number.test(json.visualEntity)) component.visualEntity.set(json.visualEntity)
-    if (matches.number.test(json.pivotEntity)) component.pivotEntity.set(json.pivotEntity)
-    if (matches.number.test(json.planeEntity)) component.planeEntity.set(json.planeEntity)
-
-    if (typeof json.enabled === 'boolean') component.enabled.set(json.enabled)
-    if (typeof json.dragging === 'boolean') component.dragging.set(json.dragging)
-    if (typeof json.axis === 'string') component.axis.set(json.axis)
-    if (typeof json.space === 'string') component.space.set(json.space)
-    if (typeof json.mode === 'string') component.mode.set(json.mode)
-    if (typeof json.translationSnap === 'number') component.translationSnap.set(json.translationSnap)
-    if (typeof json.rotationSnap === 'number') component.rotationSnap.set(json.rotationSnap)
-    if (typeof json.scaleSnap === 'number') component.scaleSnap.set(json.scaleSnap)
-    if (typeof json.size === 'number') component.size.set(json.size)
-    if (typeof json.showX === 'number') component.showX.set(json.showX)
-    if (typeof json.showY === 'number') component.showY.set(json.showY)
-    if (typeof json.showZ === 'number') component.showZ.set(json.showZ)
-  },
-  onRemove: (entity, component) => {
-    component.controlledEntities.set([])
-    component.visualEntity.set(UndefinedEntity)
-    component.planeEntity.set(UndefinedEntity)
-    component.pivotEntity.set(UndefinedEntity)
-  },
   reactor: function (props) {
     const gizmoControlEntity = useEntityContext()
     const gizmoControlComponent = useComponent(gizmoControlEntity, TransformGizmoControlComponent)

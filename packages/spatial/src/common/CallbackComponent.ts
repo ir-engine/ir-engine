@@ -29,12 +29,13 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 export const enum StandardCallbacks {
   PLAY = 'xre.play',
   PAUSE = 'xre.pause',
+  STOP = 'xre.stop',
   RESET = 'xre.reset'
 }
 
 export const CallbackComponent = defineComponent({
   name: 'CallbackComponent',
-  onInit: (entity) => new Map<string, (...params: any) => void>()
+  onInit: () => new Map<string, (...params: any) => void>()
 })
 
 export function setCallback(entity: Entity, key: string, callback: (...params: any) => void) {
@@ -42,6 +43,13 @@ export function setCallback(entity: Entity, key: string, callback: (...params: a
   const callbacks = getComponent(entity, CallbackComponent)
   callbacks.set(key, callback)
   callbacks[key] = key // for inspector
+}
+
+export function removeCallback(entity: Entity, key: string) {
+  if (!hasComponent(entity, CallbackComponent)) return
+  const callbacks = getComponent(entity, CallbackComponent)
+  callbacks.delete(key)
+  callbacks[key] = undefined // for inspector
 }
 
 export function getCallback(entity: Entity, key: string): ((...params: any) => void) | undefined {

@@ -24,12 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { InstanceID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent, getComponent } from '@ir-engine/ecs'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
+import { NetworkID, PeerID, UserID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { SpawnObjectActions } from '../../../spatial/src/transform/SpawnObjectActions'
@@ -55,7 +55,7 @@ describe('NetworkPeerFunctions', () => {
     it('should add peer', () => {
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
-      Engine.instance.userID = 'another user id' as UserID
+      Engine.instance.store.userID = 'another user id' as UserID
 
       const userIndex = 1
       const peerIndex = 2
@@ -77,7 +77,7 @@ describe('NetworkPeerFunctions', () => {
     it('should update peer if it already exists', () => {
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
-      Engine.instance.userID = 'another user id' as UserID
+      Engine.instance.store.userID = 'another user id' as UserID
 
       const userIndex = 1
       const userIndex2 = 2
@@ -103,7 +103,7 @@ describe('NetworkPeerFunctions', () => {
     it('should remove peer', () => {
       const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
-      Engine.instance.userID = 'another user id' as UserID
+      Engine.instance.store.userID = 'another user id' as UserID
       const userIndex = 1
       const peerIndex = 2
       const network = NetworkState.worldNetwork as Network
@@ -122,7 +122,7 @@ describe('NetworkPeerFunctions', () => {
     it('should not remove self peer', () => {
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
-      Engine.instance.userID = 'another user id' as UserID
+      Engine.instance.store.userID = 'another user id' as UserID
 
       const userIndex = 1
       const peerIndex = 2
@@ -140,9 +140,9 @@ describe('NetworkPeerFunctions', () => {
     })
 
     it('should remove peer and owned network objects', async () => {
-      const userId = 'world' as UserID & InstanceID
+      const userId = 'world' as UserID & NetworkID
       const anotherPeerID = 'another peer id' as PeerID
-      Engine.instance.userID = 'another user id' as UserID
+      Engine.instance.store.userID = 'another user id' as UserID
       const userIndex = 1
       const peerIndex = 5
       const network = NetworkState.worldNetwork as Network

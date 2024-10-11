@@ -32,7 +32,7 @@ import Label from '../Label'
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
   label?: string
-  containerClassname?: string
+  containerClassName?: string
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
   onChange?: InputHTMLAttributes<HTMLInputElement>['onChange']
@@ -43,6 +43,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   variant?: 'outlined' | 'underlined' | 'onboarding'
   labelClassname?: string
   errorBorder?: boolean
+  maxLength?: number
 }
 
 const variants = {
@@ -54,7 +55,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       className,
-      containerClassname,
+      containerClassName,
       label,
       type = 'text',
       error,
@@ -99,7 +100,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const twcontainerClassName = twMerge(
       'flex w-full flex-col items-center',
       containerVariants[variant],
-      containerClassname
+      containerClassName
     )
 
     const containerClass =
@@ -111,7 +112,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && <Label className={twMerge(`self-stretch ${labelClass}`, labelClassname)}>{label}</Label>}
         <div className={containerClass}>
           {startComponent && (
-            <div className="pointer-events-auto absolute inset-y-0 start-0 flex items-center ps-3.5">
+            <div className="pointer-events-auto absolute inset-y-0 left-0 start-0 ml-2 flex items-center ps-0">
               {startComponent}
             </div>
           )}
@@ -129,9 +130,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center">{endComponent}</div>
           )}
         </div>
-        {description && <p className="self-stretch text-xs text-theme-secondary">{description}</p>}
+        {description && (
+          <p className="self-stretch text-xs text-theme-secondary" data-testid="input-description-text">
+            {description}
+          </p>
+        )}
         {error && (
-          <p className="inline-flex items-center gap-2.5 self-start text-sm text-theme-iconRed">
+          <p
+            className="inline-flex items-center gap-2.5 self-start text-sm text-theme-iconRed"
+            data-testid="input-error-text"
+          >
             <HiXCircle /> {error}
           </p>
         )}

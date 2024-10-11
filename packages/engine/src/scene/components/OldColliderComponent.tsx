@@ -40,7 +40,6 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY } from '@ir-engine/hyperflux'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ColliderComponent as NewColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -138,16 +137,16 @@ export const OldColliderComponent = defineComponent({
     }
   },
 
-  toJSON(entity, component) {
+  toJSON: (component) => {
     return {
-      bodyType: component.bodyType.value,
-      shapeType: component.shapeType.value,
-      isTrigger: component.isTrigger.value,
-      removeMesh: component.removeMesh.value,
-      collisionLayer: component.collisionLayer.value,
-      collisionMask: component.collisionMask.value,
-      restitution: component.restitution.value,
-      triggers: component.triggers.get(NO_PROXY)
+      bodyType: component.bodyType,
+      shapeType: component.shapeType,
+      isTrigger: component.isTrigger,
+      removeMesh: component.removeMesh,
+      collisionLayer: component.collisionLayer,
+      collisionMask: component.collisionMask,
+      restitution: component.restitution,
+      triggers: component.triggers
     }
   },
 

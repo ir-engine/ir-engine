@@ -25,8 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect, useLayoutEffect } from 'react'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { Engine, EntityUUID, getOptionalComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineState,
@@ -36,8 +34,10 @@ import {
   none,
   PeerID,
   useHookstate,
-  useMutableState
+  useMutableState,
+  UserID
 } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
@@ -174,7 +174,7 @@ const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {
     return () => {
       // ensure reactor isn't completely unmounting
       if (!getState(EntityNetworkState)[props.uuid]) return
-      if (ownerPeer !== Engine.instance.store.peerID && Engine.instance.userID === state.ownerId.value) {
+      if (ownerPeer !== Engine.instance.store.peerID && Engine.instance.store.userID === state.ownerId.value) {
         const lowestPeer = [...networkState.users[Engine.instance.userID].value].sort((a, b) => (a > b ? 1 : -1))[0]
         if (lowestPeer !== Engine.instance.store.peerID) return
         dispatchAction(

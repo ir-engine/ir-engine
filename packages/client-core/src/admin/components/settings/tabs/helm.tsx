@@ -23,13 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
+import { useFind, useMutation } from '@ir-engine/common'
 import { helmBuilderVersionPath, helmMainVersionPath, helmSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -85,6 +85,14 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     selectedMainVersion.set(helmSetting?.main)
     selectedBuilderVersion.set(helmSetting?.builder)
   }
+
+  useEffect(() => {
+    if (helmSetting?.main) selectedMainVersion.set(helmSetting.main)
+  }, [helmSetting?.main])
+
+  useEffect(() => {
+    if (helmSetting?.builder) selectedBuilderVersion.set(helmSetting.builder)
+  }, [helmSetting?.builder])
 
   return (
     <Accordion

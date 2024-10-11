@@ -23,8 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { locationSettingPath } from '@ir-engine/common/src/schemas/social/location-setting.schema'
 import { LocationID, locationPath, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
@@ -32,7 +35,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { LocationParams } from './location.class'
 
 const params = { isInternal: true } as LocationParams
@@ -41,13 +44,14 @@ describe('location.test', () => {
   let app: Application
   const locations: any[] = []
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  afterAll(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should create a new location', async () => {
@@ -62,19 +66,15 @@ describe('location.test', () => {
     const item = await app.service(locationPath).create(
       {
         name,
-        slugifiedName: '',
         sceneId: scene.data[0].id,
-        maxUsersPerInstance: 20,
+        maxUsersPerInstance: 10,
         locationSetting: {
-          id: '',
           locationType: 'public',
           audioEnabled: true,
           videoEnabled: true,
           faceStreamingEnabled: false,
           screenSharingEnabled: false,
-          locationId: '' as LocationID,
-          createdAt: '',
-          updatedAt: ''
+          locationId: '' as LocationID
         },
         isLobby: false,
         isFeatured: false
@@ -107,18 +107,14 @@ describe('location.test', () => {
       locationId: locations[0].id
     })
 
-    const locationData = JSON.parse(JSON.stringify(locations[0]))
-    delete locationData.locationBans
-    delete locationData.locationAuthorizedUsers
-    delete locationData.locationAdmin
-    delete locationData.createdAt
-    delete locationData.updatedAt
-    delete locationData.sceneAsset
-    delete locationData.url
+    locationSetting.audioEnabled = true
+    locationSetting.videoEnabled = true
+    locationSetting.faceStreamingEnabled = false
+    locationSetting.screenSharingEnabled = false
 
     const item = (await app
       .service(locationPath)
-      .patch(locations[0].id, { ...locationData, name: newName, locationSetting })) as any as LocationType
+      .patch(locations[0].id, { name: newName, locationSetting })) as any as LocationType
 
     assert.ok(item)
     assert.equal(item.name, newName)

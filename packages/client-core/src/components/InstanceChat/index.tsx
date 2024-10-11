@@ -31,11 +31,11 @@ import { useTranslation } from 'react-i18next'
 
 import { ChannelState } from '@ir-engine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { InstanceID, MessageID, messagePath, UserName } from '@ir-engine/common/src/schema.type.module'
+import { useFind, useMutation } from '@ir-engine/common'
+import { InstanceID, MessageID, UserName, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useFind, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Avatar from '@ir-engine/ui/src/primitives/mui/Avatar'
 import Badge from '@ir-engine/ui/src/primitives/mui/Badge'
 import Card from '@ir-engine/ui/src/primitives/mui/Card'
@@ -44,11 +44,15 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 import TextField from '@ir-engine/ui/src/primitives/mui/TextField'
 
+import multiLogger from '@ir-engine/common/src/logger'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
+import { clientContextParams } from '../../util/ClientContextState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { default as defaultStyles, default as styles } from './index.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:InstanceChat', modifier: clientContextParams })
 
 interface ChatHooksProps {
   chatWindowOpen: boolean
@@ -289,6 +293,7 @@ export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
       }, 500)
     }
     chatWindowOpen.set(!chatWindowOpen.value)
+    logger.info({ event_name: 'world_chat_toggle', event_value: chatWindowOpen.value })
     chatWindowOpen.value && unreadMessages.set(false)
     isInitRender.set(false)
   }

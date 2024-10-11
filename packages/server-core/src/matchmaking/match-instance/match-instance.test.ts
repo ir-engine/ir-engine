@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import '../../patchEngineNode'
+
 import nock from 'nock'
+import { afterAll, afterEach, assert, beforeAll, describe, it } from 'vitest'
 
 import { matchInstancePath } from '@ir-engine/common/src/schemas/matchmaking/match-instance.schema'
 import { instancePath } from '@ir-engine/common/src/schemas/networking/instance.schema'
@@ -39,7 +41,7 @@ import { matchTicketAssignmentPath } from '@ir-engine/matchmaking/src/match-tick
 import { MatchTicketType, matchTicketPath } from '@ir-engine/matchmaking/src/match-ticket.schema'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 interface User {
   id: string
@@ -84,8 +86,8 @@ describe.skip('matchmaking match-instance service', () => {
   }
 
   let app: Application
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
 
     scope = nock(FRONTEND_SERVICE_URL)
@@ -107,8 +109,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     location = await app.service(locationPath).create({
       name: `game-${gameMode}`,
-      slugifiedName: `game-${gameMode}`,
-      maxUsersPerInstance: 20,
+      maxUsersPerInstance: 10,
       sceneId: `test/game-${gameMode}`,
       locationSetting: commonlocationSetting,
       isLobby: false,
@@ -159,7 +160,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     tickets.push(...(await Promise.all(ticketsPromises)))
   })
-  after(async () => {
+  afterAll(async () => {
     const cleanupPromises: Promise<any>[] = []
 
     // delete tickets
@@ -178,7 +179,8 @@ describe.skip('matchmaking match-instance service', () => {
     cleanupPromises.push(app.service(locationPath).remove(location.id, {}))
 
     await Promise.all(cleanupPromises)
-    return destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   afterEach(() => {

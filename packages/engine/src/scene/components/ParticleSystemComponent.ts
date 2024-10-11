@@ -28,10 +28,15 @@ import {
   AdditiveBlending,
   Blending,
   BufferGeometry,
+  CustomBlending,
   DoubleSide,
   Material,
   MeshBasicMaterial,
+  MultiplyBlending,
+  NoBlending,
+  NormalBlending,
   Object3D,
+  SubtractiveBlending,
   Texture,
   Vector2,
   Vector3
@@ -55,6 +60,8 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, generateEntityUUID, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import {
   NO_PROXY,
   defineState,
@@ -70,14 +77,12 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-
-import { AssetType } from '@ir-engine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
-import getFirstMesh from '../util/meshUtils'
+import getFirstMesh, { getMeshes, mergeGeometries } from '../util/meshUtils'
 import { SourceComponent } from './SourceComponent'
 
 export type ParticleSystemRendererInstance = {
@@ -193,11 +198,13 @@ export const DONUT_SHAPE_DEFAULT: DonutShapeJSON = {
 export type MeshShapeJSON = {
   type: 'mesh_surface'
   mesh?: string
+  geometry: BufferGeometry
 }
 
 export const MESH_SHAPE_DEFAULT: MeshShapeJSON = {
   type: 'mesh_surface',
-  mesh: ''
+  mesh: '',
+  geometry: new BufferGeometry()
 }
 
 export type GridShapeJSON = {
@@ -763,82 +770,98 @@ export const ParticleSystemJSONParametersValidator = matches.shape({
   worldSpace: matches.boolean
 })
 
-export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
-  version: '1.0',
-  autoDestroy: false,
-  looping: true,
-  prewarm: false,
-  material: '',
-  duration: 5,
-  shape: { type: 'point' },
-  startLife: {
-    type: 'IntervalValue',
-    a: 1,
-    b: 2
-  },
-  startSpeed: {
-    type: 'IntervalValue',
-    a: 0.1,
-    b: 5
-  },
-  startRotation: {
-    type: 'IntervalValue',
-    a: 0,
-    b: 300
-  },
-  startSize: {
-    type: 'IntervalValue',
-    a: 0.025,
-    b: 0.45
-  },
-  startColor: {
-    type: 'ConstantColor',
-    color: { r: 1, g: 1, b: 1, a: 0.1 }
-  },
-  emissionOverTime: {
-    type: 'ConstantValue',
-    value: 400
-  },
-  emissionOverDistance: {
-    type: 'ConstantValue',
-    value: 0
-  },
-  emissionBursts: [],
-  onlyUsedByOther: false,
-  rendererEmitterSettings: {
-    startLength: {
-      type: 'ConstantValue',
-      value: 1
-    },
-    followLocalOrigin: true
-  },
-  renderMode: RenderMode.BillBoard,
-  texture: '/static/editor/dot.png',
-  instancingGeometry: '',
-  startTileIndex: {
-    type: 'ConstantValue',
-    value: 0
-  },
-  uTileCount: 1,
-  vTileCount: 1,
-  blending: AdditiveBlending,
-  behaviors: [],
-  worldSpace: true
-}
+const BlendingSchema = S.LiteralUnion(
+  [NoBlending, NormalBlending, AdditiveBlending, SubtractiveBlending, MultiplyBlending, CustomBlending],
+  AdditiveBlending
+)
+
+export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
+  version: S.String('1.0'),
+  autoDestroy: S.Bool(false),
+  looping: S.Bool(true),
+  prewarm: S.Bool(false),
+  material: S.String(''),
+  transparent: S.Optional(S.Bool()),
+  duration: S.Number(5),
+  shape: S.Object({ type: S.String('point'), mesh: S.Optional(S.String()), geometry: S.Optional(S.String()) }),
+  startLife: S.Object({
+    type: S.String('IntervalValue'),
+    a: S.Number(1),
+    b: S.Number(2)
+  }),
+  startSpeed: S.Object({
+    type: S.String('IntervalValue'),
+    a: S.Number(0.1),
+    b: S.Number(5)
+  }),
+  startRotation: S.Object({
+    type: S.String('IntervalValue'),
+    a: S.Number(0),
+    b: S.Number(300)
+  }),
+  startSize: S.Object({
+    type: S.String('IntervalValue'),
+    a: S.Number(0.025),
+    b: S.Number(0.45)
+  }),
+  startColor: S.Object({
+    type: S.String('ConstantColor'),
+    color: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(0.1) })
+  }),
+  emissionOverTime: S.Object({
+    type: S.String('ConstantValue'),
+    value: S.Number(400)
+  }),
+  emissionOverDistance: S.Object({
+    type: S.String('ConstantValue'),
+    value: S.Number(0)
+  }),
+  emissionBursts: S.Array(
+    S.Object({
+      time: S.Number(),
+      count: S.Number(),
+      cycle: S.Number(),
+      interval: S.Number(),
+      probability: S.Number()
+    })
+  ),
+  onlyUsedByOther: S.Bool(false),
+  rendererEmitterSettings: S.Object({
+    startLength: S.Object({
+      type: S.String('ConstantValue'),
+      value: S.Number(1)
+    }),
+    followLocalOrigin: S.Bool(true)
+  }),
+  renderMode: S.Enum(RenderMode, RenderMode.BillBoard),
+  texture: S.String('/static/editor/dot.png'),
+  /**
+   * particle mesh geometry
+   */
+  instancingGeometry: S.String(''),
+  startTileIndex: S.Object({
+    type: S.String('ConstantValue'),
+    value: S.Number(0)
+  }),
+  uTileCount: S.Number(1),
+  vTileCount: S.Number(1),
+  blending: BlendingSchema,
+  behaviors: S.Array(S.Type<BehaviorJSON>()),
+  worldSpace: S.Bool(true)
+})
 
 export const ParticleSystemComponent = defineComponent({
   name: 'ParticleSystemComponent',
   jsonID: 'EE_particle_system',
 
-  onInit: (entity) => {
-    return {
-      systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
-      behaviorParameters: [],
-      behaviors: undefined,
-      _loadIndex: 0,
-      _refresh: 0
-    } as ParticleSystemComponentType
-  },
+  schema: S.Object({
+    systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
+    behaviorParameters: S.Array(S.Type<BehaviorJSON>()),
+    behaviors: S.Optional(S.Array(S.Type<Behavior>())),
+    system: S.Type<ParticleSystem>(),
+    _loadIndex: S.Number(0),
+    _refresh: S.Number(0)
+  }),
 
   onSet: (entity, component, json) => {
     !!json?.systemParameters &&
@@ -852,9 +875,9 @@ export const ParticleSystemComponent = defineComponent({
       component._refresh.set((component._refresh.value + 1) % 1000)
   },
 
-  toJSON: (entity, component) => ({
-    systemParameters: JSON.parse(JSON.stringify(component.systemParameters.value)),
-    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters.value))
+  toJSON: (component) => ({
+    systemParameters: JSON.parse(JSON.stringify(component.systemParameters)),
+    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters))
   }),
 
   reactor: function () {
@@ -866,9 +889,12 @@ export const ParticleSystemComponent = defineComponent({
     const sceneLoaded = GLTFComponent.useSceneLoaded(rootEntity)
     const refreshed = useHookstate(false)
 
+    //for particle meshes
     const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
+
+    //for mesh shape emitters
     const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
@@ -901,20 +927,43 @@ export const ParticleSystemComponent = defineComponent({
       metadata.materials.nested('dud').set(dudMaterial)
     }, [])
 
+    //for particle meshes
     useEffect(() => {
       if (!geoDependency || !geoDependency.scene) return
 
       const scene = geoDependency.scene
-      const geo = getFirstMesh(scene)?.geometry
-      !!geo && metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry!).set(geo)
+
+      const mesh = getFirstMesh(scene)
+      if (mesh) {
+        const scaledGeometry = mesh.geometry.clone()
+        const scale = getNestedScale(mesh)
+        scaledGeometry.scale(scale.x, scale.y, scale.z)
+        !!scaledGeometry &&
+          metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry!).set(scaledGeometry)
+      }
     }, [geoDependency])
 
+    //for mesh shape emitters
     useEffect(() => {
       if (!shapeMesh || !shapeMesh.scene) return
 
       const scene = shapeMesh.scene
-      const mesh = getFirstMesh(scene)
-      mesh && metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mesh.geometry)
+      const meshes = getMeshes(scene)
+
+      if (meshes) {
+        const geometries = meshes.map((mesh) => {
+          const scaledGeometry = mesh.geometry.clone()
+          const scale = getNestedScale(mesh)
+          scaledGeometry.scale(scale.x, scale.y, scale.z)
+          return scaledGeometry
+        })
+        const mergedGeometry = mergeGeometries(geometries)
+
+        if (mergedGeometry) {
+          componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
+          metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
+        }
+      }
     }, [shapeMesh])
 
     useEffect(() => {
@@ -998,3 +1047,13 @@ export const ParticleSystemComponent = defineComponent({
     return null
   }
 })
+
+function getNestedScale(node: Object3D): Vector3 {
+  const scale = node.scale.clone()
+
+  if (node.parent) {
+    scale.multiply(getNestedScale(node.parent))
+  }
+
+  return scale
+}

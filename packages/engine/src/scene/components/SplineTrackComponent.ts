@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -37,11 +37,12 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
-import { PhysicsSystem } from '@ir-engine/spatial'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { PhysicsSystem } from '@ir-engine/spatial/src/physics/systems/PhysicsSystem'
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()
@@ -53,35 +54,14 @@ export const SplineTrackComponent = defineComponent({
   name: 'SplineTrackComponent',
   jsonID: 'EE_spline_track',
 
-  onInit: (entity) => {
-    return {
-      alpha: 0, // internal
-      splineEntityUUID: null as EntityUUID | null,
-      velocity: 1.0,
-      enableRotation: false,
-      lockToXZPlane: true,
-      loop: true
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.splineEntityUUID !== 'undefined') component.splineEntityUUID.set(json.splineEntityUUID)
-    if (typeof json.velocity === 'number') component.velocity.set(json.velocity)
-    if (typeof json.enableRotation === 'boolean') component.enableRotation.set(json.enableRotation)
-    if (typeof json.lockToXZPlane === 'boolean') component.lockToXZPlane.set(json.lockToXZPlane)
-    if (typeof json.loop === 'boolean') component.loop.set(json.loop)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      splineEntityUUID: component.splineEntityUUID.value,
-      velocity: component.velocity.value,
-      enableRotation: component.enableRotation.value,
-      lockToXZPlane: component.lockToXZPlane.value,
-      loop: component.loop.value
-    }
-  },
+  schema: S.Object({
+    alpha: S.Number(0), // internal
+    splineEntityUUID: S.Nullable(S.EntityUUID()),
+    velocity: S.Number(1.0),
+    enableRotation: S.Bool(false),
+    lockToXZPlane: S.Bool(true),
+    loop: S.Bool(true)
+  }),
 
   reactor: function (props) {
     const entity = useEntityContext()
@@ -132,8 +112,8 @@ export const SplineTrackComponent = defineComponent({
         transform.position.copy(_point1Vector)
 
         // rotation
-        const q1 = elements[index].quaternion
-        const q2 = elements[nextIndex].quaternion
+        const q1 = elements[index].rotation
+        const q2 = elements[nextIndex].rotation
 
         if (component.enableRotation.value) {
           if (component.lockToXZPlane.value) {

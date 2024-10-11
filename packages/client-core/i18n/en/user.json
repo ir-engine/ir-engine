@@ -125,7 +125,11 @@
     "share": {
       "lbl-share": "Share",
       "ph-phoneEmail": "Invite by email or phone number",
+      "ph-email": "Invite by email",
+      "ph-phone": "Invite by phone number",
       "lbl-phoneEmail": "Send to email or phone number",
+      "lbl-email": "Send to email",
+      "lbl-phone": "Send to phone number",
       "lbl-copy": "Copy",
       "lbl-send-invite": "Send Invite",
       "lbl-spectator-mode": "Spectator Mode",
@@ -192,6 +196,7 @@
       "lbl-settings": "Settings",
       "lbl-username": "Username",
       "usernameError": "Invalid username",
+      "usernameLengthError": "Username must have less than {{maxCharacters}} characters",
       "update-msg": "Username updated",
       "inviteCode": "Invite Code",
       "createLoginLink": "Create Login Link",
@@ -223,8 +228,10 @@
       "requestVC": "Request a VC",
       "addSocial": "Connect your Social Logins",
       "logIn": "Log In",
+      "agreeToRequired": "Please agree to all iR Studio requirements before proceeding:",
       "agreeTOS": "I agree to the ",
       "termsOfService": "Infinite Reality Terms of Service",
+      "agreeToMarketing": "I agree to opt-in to marketing communications",
       "confirmAge13": "I am 13 years of age or older",
       "confirmAge18": "I am 18 years of age or older",
       "removeSocial": "Remove Social Logins",
@@ -274,16 +281,14 @@
       "reportWorld": "Report World"
     },
     "oauth": {
-      "authenticating": "Authenticating...",
-      "authFailed": "{{service}} authentication failed."
+      "authenticating": "Authenticating..."
     },
     "magikLink": {
       "wait": "Please wait a moment while processing..."
     }
   },
   "oauth": {
-    "authenticating": "Authenticating...",
-    "authFailed": "{{service}} authentication failed.",
+    "error": "Unfortunately, {{name}} authentication failed.",
     "redirectToRoot": "Return to Home"
   },
   "magikLink": {
@@ -414,9 +419,7 @@
     "unmuteMe": "Unmute me",
     "muteThisPerson": "Mute this person",
     "unmuteThisPerson": "Unmute this person",
-    "openPictureInPicture": "Open Picture in Picture",
-    "openConferenceMode": "Open Conference Mode",
-    "closeConferenceMode": "Close Conference Mode"
+    "openPictureInPicture": "Open Picture in Picture"
   },
   "friends": {
     "find": "Find",

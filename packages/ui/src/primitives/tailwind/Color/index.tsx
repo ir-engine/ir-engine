@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { ColorResult } from '@uiw/color-convert'
 import SketchPicker from '@uiw/react-color-sketch'
 import React from 'react'
-import { Color } from 'three'
+import { Color, ColorRepresentation } from 'three'
 
 import { twMerge } from 'tailwind-merge'
 import Text from '../Text'
 
 interface ColorInputProp {
-  value: Color
+  value: ColorRepresentation
   onChange: (color: Color) => void
   onRelease?: (color: Color) => void
   disabled?: boolean
@@ -50,7 +50,8 @@ export function ColorInput({
   textClassName,
   sketchPickerClassName
 }: ColorInputProp) {
-  const hexColor = typeof value.getHexString === 'function' ? '#' + value.getHexString() : '#000'
+  const color = new Color(value)
+  const hexColor = '#' + color.getHexString()
 
   const handleChange = (result: ColorResult) => {
     const color = new Color(result.hex)
@@ -71,14 +72,14 @@ export function ColorInput({
       >
         <SketchPicker
           className={twMerge(
-            'absolute z-10 mt-5 scale-0 bg-theme-surface-main focus-within:scale-100 group-focus:scale-100',
+            'absolute right-4 z-10 mt-5 scale-0 bg-theme-surface-main focus-within:scale-100 group-focus:scale-100',
             sketchPickerClassName
           )}
           color={hexColor}
           onChange={handleChange}
           disableAlpha={true}
           onPointerLeave={() => {
-            onRelease && onRelease(value)
+            onRelease && onRelease(color)
           }}
         />
       </div>

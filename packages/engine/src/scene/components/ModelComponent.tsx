@@ -34,8 +34,9 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
@@ -47,7 +48,7 @@ import {
   EntityTreeComponent,
   iterateEntityNode,
   removeEntityNodeRecursively,
-  useAncestorWithComponent
+  useAncestorWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
@@ -63,6 +64,7 @@ import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToG
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
+import { createLoadingSpinner } from '../functions/spatialLoadingSpinner'
 import { SourceComponent } from './SourceComponent'
 
 /**
@@ -72,33 +74,22 @@ export const ModelComponent = defineComponent({
   name: 'ModelComponent',
   jsonID: 'EE_model',
 
-  onInit: (entity) => {
-    return {
-      src: '',
-      cameraOcclusion: true,
-      /** optional, only for bone matchable avatars */
-      convertToVRM: false,
-      scene: null as Group | null,
-      asset: null as VRM | GLTF | null,
-      dereference: false
-    }
-  },
+  schema: S.Object({
+    src: S.String(''),
+    cameraOcclusion: S.Bool(true),
+    /** optional, only for bone matchable avatars */
+    convertToVRM: S.Bool(false),
+    scene: S.Nullable(S.Type<Group>()),
+    asset: S.Nullable(S.Type<VRM | GLTF>()),
+    dereference: S.Bool(false)
+  }),
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      src: component.src.value,
-      cameraOcclusion: component.cameraOcclusion.value,
-      convertToVRM: component.convertToVRM.value
+      src: component.src,
+      cameraOcclusion: component.cameraOcclusion,
+      convertToVRM: component.convertToVRM
     }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.src === 'string') component.src.set(json.src)
-    if (typeof (json as any).avoidCameraOcclusion === 'boolean')
-      component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
-    if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
-    if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
@@ -114,6 +105,33 @@ function ModelReactor() {
 
   const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
+  const loadedSrc = useHookstate('')
+  const loadingEntity = useHookstate<Entity>(UndefinedEntity)
+
+  const createLoadingGeo = () => {
+    if (loadedSrc.value === modelComponent.src.value) return
+    if (loadingEntity.value) return
+    const spinnerEntity = createLoadingSpinner(`loading ${modelComponent.src.value}`, entity)
+    loadingEntity.set(spinnerEntity)
+  }
+
+  const removeLoadingGeo = () => {
+    loadedSrc.set(modelComponent.src.value)
+    if (!loadingEntity.value) return
+    removeEntity(loadingEntity.value)
+    loadingEntity.set(UndefinedEntity)
+  }
+
+  useEffect(() => {
+    createLoadingGeo()
+
+    if (modelComponent.src.value) return
+    addError(entity, ModelComponent, 'INVALID_SOURCE', 'No source provided')
+    return () => {
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    }
+  }, [modelComponent.src])
+
   useEffect(() => {
     const occlusion = modelComponent.cameraOcclusion.value
     if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
@@ -122,8 +140,12 @@ function ModelReactor() {
 
   useEffect(() => {
     if (!error) return
+    removeLoadingGeo()
     console.error(error)
     addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
+    return () => {
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    }
   }, [error])
 
   useEffect(() => {
@@ -210,6 +232,9 @@ function ModelReactor() {
         animations: scene.animations
       })
     }
+
+    removeLoadingGeo()
+
     return () => {
       getMutableState(GLTFSourceState)[uuid].set(none)
 
@@ -252,7 +277,7 @@ function ModelReactor() {
  */
 export const useHasModelOrIndependentMesh = (entity: Entity) => {
   const hasModel = !!useOptionalComponent(entity, ModelComponent)
-  const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
+  const isChildOfModel = !!useAncestorWithComponents(entity, [ModelComponent])
   const hasMesh = !!useOptionalComponent(entity, MeshComponent)
 
   return hasModel || (hasMesh && !isChildOfModel)

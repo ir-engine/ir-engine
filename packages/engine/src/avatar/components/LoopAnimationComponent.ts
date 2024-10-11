@@ -26,90 +26,62 @@ Infinite Reality Engine. All Rights Reserved.
 import { VRM } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import {
+  AdditiveAnimationBlendMode,
   AnimationAction,
-  AnimationActionLoopStyles,
-  AnimationBlendMode,
   AnimationClip,
+  LoopOnce,
+  LoopPingPong,
   LoopRepeat,
   NormalAnimationBlendMode
 } from 'three'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getComponent,
-  hasComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
-import { CallbackComponent, StandardCallbacks, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
+import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
+const AnimationBlendMode = S.LiteralUnion(
+  [NormalAnimationBlendMode, AdditiveAnimationBlendMode],
+  NormalAnimationBlendMode
+)
+
+const AnimationActionLoopStyles = S.LiteralUnion([LoopOnce, LoopRepeat, LoopPingPong], LoopRepeat)
+
 export const LoopAnimationComponent = defineComponent({
   name: 'LoopAnimationComponent',
   jsonID: 'EE_loop_animation',
 
-  onInit: (entity) => {
-    return {
-      activeClipIndex: -1,
-      animationPack: '',
+  schema: S.Object({
+    activeClipIndex: S.Number(-1),
+    animationPack: S.String(''),
 
-      // TODO: support blending multiple animation actions. Refactor into AnimationMixerComponent and AnimationActionComponent
-      paused: false,
-      enabled: true,
-      time: 0,
-      timeScale: 1,
-      blendMode: NormalAnimationBlendMode as AnimationBlendMode,
-      loop: LoopRepeat as AnimationActionLoopStyles,
-      repetitions: Infinity,
-      clampWhenFinished: false,
-      zeroSlopeAtStart: true,
-      zeroSlopeAtEnd: true,
-      weight: 1,
+    // TODO: support blending multiple animation actions. Refactor into AnimationMixerComponent and AnimationActionComponent
+    enabled: S.Bool(true),
+    paused: S.Bool(false),
+    time: S.Number(0),
+    timeScale: S.Number(1),
+    blendMode: AnimationBlendMode,
+    loop: AnimationActionLoopStyles,
+    repetitions: S.Number(Infinity),
+    clampWhenFinished: S.Bool(false),
+    zeroSlopeAtStart: S.Bool(true),
+    zeroSlopeAtEnd: S.Bool(true),
+    weight: S.Number(1),
 
-      // internal
-      _action: null as AnimationAction | null
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof (json as any).animationSpeed === 'number') component.timeScale.set((json as any).animationSpeed) // backwards-compat
-    if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
-    if (typeof json.animationPack === 'string') component.animationPack.set(json.animationPack)
-    if (typeof json.paused === 'number') component.paused.set(json.paused)
-    if (typeof json.time === 'number') component.time.set(json.time)
-    if (typeof json.timeScale === 'number') component.timeScale.set(json.timeScale)
-    if (typeof json.blendMode === 'number') component.blendMode.set(json.blendMode)
-    if (typeof json.loop === 'number') component.loop.set(json.loop)
-    if (typeof json.repetitions === 'number') component.repetitions.set(json.repetitions)
-    if (typeof json.clampWhenFinished === 'boolean') component.clampWhenFinished.set(json.clampWhenFinished)
-    if (typeof json.zeroSlopeAtStart === 'boolean') component.zeroSlopeAtStart.set(json.zeroSlopeAtStart)
-    if (typeof json.zeroSlopeAtEnd === 'boolean') component.zeroSlopeAtEnd.set(json.zeroSlopeAtEnd)
-    if (typeof json.weight === 'number') component.weight.set(json.weight)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      activeClipIndex: component.activeClipIndex.value,
-      animationPack: component.animationPack.value,
-      paused: component.paused.value,
-      time: component.time.value,
-      timeScale: component.timeScale.value,
-      blendMode: component.blendMode.value,
-      loop: component.loop.value,
-      clampWhenFinished: component.clampWhenFinished.value,
-      zeroSlopeAtStart: component.zeroSlopeAtStart.value,
-      zeroSlopeAtEnd: component.zeroSlopeAtEnd.value,
-      weight: component.weight.value
-    }
-  },
+    // internal
+    _action: S.Nullable(S.Type<AnimationAction>())
+  }),
 
   reactor: function () {
     if (!isClient) return null
@@ -145,12 +117,12 @@ export const LoopAnimationComponent = defineComponent({
     }, [loopAnimationComponent.activeClipIndex, modelComponent?.asset, animComponent?.animations])
 
     useEffect(() => {
-      if (animationAction?.isRunning()) {
+      if (!animationAction) return
+      if (animationAction.isRunning()) {
         animationAction.paused = loopAnimationComponent.paused.value
-      } else if (!animationAction?.isRunning() && !loopAnimationComponent.paused.value) {
-        animationAction?.getMixer().stopAllAction()
-        animationAction?.reset()
-        animationAction?.play()
+      } else if (!animationAction.isRunning() && !loopAnimationComponent.paused.value) {
+        animationAction.paused = false
+        animationAction.play()
       }
     }, [loopAnimationComponent._action, loopAnimationComponent.paused])
 
@@ -182,19 +154,35 @@ export const LoopAnimationComponent = defineComponent({
       animationAction.setEffectiveTimeScale(loopAnimationComponent.timeScale.value)
     }, [loopAnimationComponent._action, loopAnimationComponent.weight, loopAnimationComponent.timeScale])
 
+    useEffect(() => {
+      if (!animationAction) return
+      animationAction.time = loopAnimationComponent.time.value
+    }, [loopAnimationComponent.time])
+
     /**
      * Callback functions
      */
     useEffect(() => {
-      if (hasComponent(entity, CallbackComponent)) return
       const play = () => {
         loopAnimationComponent.paused.set(false)
       }
       const pause = () => {
         loopAnimationComponent.paused.set(true)
       }
+      const stop = () => {
+        loopAnimationComponent.paused.set(true)
+        loopAnimationComponent.time.set(0)
+        loopAnimationComponent._action.value?.stop()
+      }
       setCallback(entity, StandardCallbacks.PLAY, play)
       setCallback(entity, StandardCallbacks.PAUSE, pause)
+      setCallback(entity, StandardCallbacks.STOP, stop)
+
+      return () => {
+        removeCallback(entity, StandardCallbacks.PLAY)
+        removeCallback(entity, StandardCallbacks.PAUSE)
+        removeCallback(entity, StandardCallbacks.STOP)
+      }
     }, [])
 
     /**
@@ -226,6 +214,26 @@ export const LoopAnimationComponent = defineComponent({
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
     }, [gltf, animComponent, modelComponent?.asset])
+
+    useEffect(() => {
+      if (!animComponent?.animations) return
+      const animations = animComponent.animations.value
+      if (animations.length === 0) return
+      const callbackNames: string[] = []
+      for (let i = 0; i < animations.length; i++) {
+        const clip = animations[i] as AnimationClip
+        const callbackName = `Switch to Animation ${clip.name}`
+        setCallback(entity, callbackName, () => {
+          loopAnimationComponent.activeClipIndex.set(i)
+        })
+        callbackNames.push(callbackName)
+      }
+      return () => {
+        for (const name of callbackNames) {
+          removeCallback(entity, name)
+        }
+      }
+    }, [animComponent?.animations])
 
     return null
   }

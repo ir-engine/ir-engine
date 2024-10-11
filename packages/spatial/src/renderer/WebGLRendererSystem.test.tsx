@@ -41,6 +41,7 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
@@ -77,6 +78,7 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
+    setComponent(rootEntity, VisibleComponent)
     mockEngineRenderer(rootEntity)
     setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))
 
@@ -177,5 +179,7 @@ describe('WebGl Renderer System', () => {
     const scenes = getComponent(rootEntity, RendererComponent).scenes
     const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
     assert(entitiesToRender.length == 1 && entitiesToRender[0] == visibleEntity, 'visible children')
+
+    unmount()
   })
 })

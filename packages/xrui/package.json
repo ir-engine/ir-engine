@@ -1,6 +1,8 @@
 {
   "name": "@ir-engine/xrui",
   "version": "1.6.0",
+  "type": "module",
+  "main": "index.ts",
   "description": "A set of utilities for using DOM elements to create immerive user interfaces",
   "homepage": "https://github.com/ir-engine/ir-engine#readme",
   "keywords": [
@@ -30,13 +32,12 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "index.ts",
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
     "build": "npm run build:worker",
     "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.js --loader:.wasm=binary",
-    "test": "cross-env TEST=true mocha --config .mocharc.cjs"
+    "test": "cross-env TEST=true vitest run"
   },
   "dependencies": {
     "@juggle/resize-observer": "^3.4.0",

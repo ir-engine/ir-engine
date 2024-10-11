@@ -28,11 +28,11 @@ import { Consumer, PlainTransport, Router } from 'mediasoup/node/lib/types'
 import { useEffect } from 'react'
 import { PassThrough } from 'stream'
 
+import { API } from '@ir-engine/common'
+import { RecordingAPIState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
 import { RecordingID, recordingResourceUploadPath, RecordingSchemaType } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { RecordingAPIState } from '@ir-engine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, none, PeerID } from '@ir-engine/hyperflux'
 import {
   DataChannelType,
@@ -199,7 +199,7 @@ type onUploadPartArgs = {
 
 // todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
 export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchemaType['peers']) => {
-  const api = Engine.instance.api
+  const api = API.instance
   const network = NetworkState.mediaNetwork as SocketWebRTCServerNetwork
 
   const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>

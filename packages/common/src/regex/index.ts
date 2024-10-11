@@ -25,33 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 // Add unit tests for new patterns in packages/common/tests/regex.test.ts
 
+/*
+A filename is valid if:
+  - it has 4 to 64 characters
+  - its first and last character are alphanumeric
+  - any other characters are either alphanumeric, '_', '-', or '.'
+*/
+
 // eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^(?!.*[\s_<>:"/\\|?*\u0000-\u001F].*)[^\s_<>:"/\\|?*\u0000-\u001F]{1,64}$/
+export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-\.]{2,62})([^_\W])$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
-export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{2,62}[a-zA-Z0-9]$/
+export const VALID_SCENE_NAME_REGEX = VALID_FILENAME_REGEX
 export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
-
-/**
- * Matches CSS imports & URLS.
- * For eg: `@import "styles.css"`, `url(image.png)`. Captures the resource in group 2 or group 3.
- */
-export const CSS_URL_REGEX = /(@import\s+["']([^"']+)["']|url\((?!['"]?(?:data):)['"]?([^'"\)]+)['"]?\))/gi
-
-/**
- * Matches absolute URLs. For eg: `http://example.com`, `https://example.com`, `ftp://example.com`, `//example.com`, etc.
- * This Does NOT match relative URLs like `example.com`
- */
-export const ABSOLUTE_URL_PROTOCOL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/
-
-/**
- * Captures org name, project name and asset path from a URL.
- * For eg: `/path/to/projects/project123/assets/images/logo.png` will capture following groups
- * - `@org123` => Group 1
- * - `project123` => Group 2
- * - `assets/images/logo.png` => Group 3
- */
-export const STATIC_ASSET_REGEX = /^(?:.*\/(?:projects|static-resources)\/([^\/]*)\/([^\/]*)\/((?:assets\/|).*)$)/
 
 // =====================================================================
 // ========================= ID Regex Patterns =========================
@@ -137,11 +123,3 @@ export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 
 export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
 export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
-
-// ==========================================================================
-// ========================= Dynamic Regex Patterns =========================
-// ==========================================================================
-
-export const getCacheRegex = (fileServer: string) => {
-  return new RegExp(`${fileServer}\/projects`)
-}

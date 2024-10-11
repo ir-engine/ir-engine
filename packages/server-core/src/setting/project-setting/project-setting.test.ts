@@ -23,16 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { ProjectType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { ProjectSettingType } from '@ir-engine/common/src/schemas/setting/project-setting.schema'
 import { UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
-import { createFeathersKoaApp } from '@ir-engine/server-core/src/createApp'
+import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 import {
   createProject,
   createProjectSetting,
@@ -58,8 +61,8 @@ describe('project-setting.test', () => {
   let project: ProjectType
   let projectSetting: ProjectSettingType
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const projectResponse = await createProject(app)
@@ -70,11 +73,12 @@ describe('project-setting.test', () => {
     projectSetting = projectSettingResponse.projectSetting
   })
 
-  after(async () => {
+  afterAll(async () => {
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
     cleanup(project.name)
-    await destroyEngine()
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should create project-setting', async () => {

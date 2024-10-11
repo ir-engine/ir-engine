@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -32,6 +32,7 @@ import commonStyles from '@ir-engine/client-core/src/common/components/common.mo
 import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import Tabs from '@ir-engine/client-core/src/common/components/Tabs'
 import Text from '@ir-engine/client-core/src/common/components/Text'
+import { useFind, useGet } from '@ir-engine/common'
 import {
   ChannelID,
   channelPath,
@@ -43,7 +44,6 @@ import {
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useFind, useGet } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Chip from '@ir-engine/ui/src/primitives/mui/Chip'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'

@@ -39,18 +39,18 @@ import {
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
+import { useFind, useSearch } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import CopyText from '@ir-engine/ui/src/primitives/tailwind/CopyText'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import DataTable from '../../common/Table'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -254,17 +254,18 @@ export default function ProjectTable(props: { search: string }) {
         ),
         visibility: <Toggle value={row.visibility === 'public'} onChange={() => handleVisibilityChange(row)} />,
         commitSHA: (
-          <span className="flex items-center justify-between">
-            <Tooltip content={row.commitSHA || ''}>
-              <>{row.commitSHA?.slice(0, 8)}</>
-            </Tooltip>{' '}
-            <CopyText text={row.commitSHA || ''} className="ml-1" />
-          </span>
+          <TruncatedText
+            variant="copy"
+            text={row.commitSHA || ''}
+            truncatorChar=" "
+            visibleChars={8}
+            truncatorPosition="end"
+          />
         ),
         commitDate: toDisplayDateTime(row.commitDate),
         actions: <RowActions project={row} />
       }
     })
 
-  return <DataTable query={projectQuery} columns={projectsColumns} rows={createRows(projectQuery.data)} />
+  return <DataTable size="xs" query={projectQuery} columns={projectsColumns} rows={createRows(projectQuery.data)} />
 }

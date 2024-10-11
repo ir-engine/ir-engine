@@ -23,9 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import assert from 'assert'
 import nock from 'nock'
-import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { projectCheckSourceDestinationMatchPath } from '@ir-engine/common/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
@@ -37,7 +39,7 @@ import { UserName, userPath } from '@ir-engine/common/src/schemas/user/user.sche
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application, HookContext } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { identityProviderDataResolver } from '../../user/identity-provider/identity-provider.resolvers'
 import { getRepoManifestJson1, getRepoManifestJson2 } from '../../util/mockOctokitResponses'
 
@@ -62,14 +64,14 @@ describe('project-check-source-destination-match.test', () => {
     }
   })
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
 
-    const name = ('test-project-check-source-destination-match-user-name-' + uuidv4()) as UserName
+    const name = ('test-project-user-name-' + Math.random().toString().slice(2, 12)) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-check-source-destination-match-avatar-name-' + uuidv4()
+      name: 'test-project-avatar-name-' + Math.random().toString().slice(2, 12)
     })
 
     const testUser = await app.service(userPath).create({
@@ -94,7 +96,10 @@ describe('project-check-source-destination-match.test', () => {
     )
   })
 
-  after(() => destroyEngine())
+  afterAll(async () => {
+    await tearDownAPI()
+    destroyEngine()
+  })
 
   it('should match source and destination contents with same repos', async () => {
     nock('https://api.github.com')
@@ -149,13 +154,13 @@ describe('project-check-source-destination-match.test', () => {
   describe('installed project check', () => {
     let createdProject: ProjectType
 
-    before(async () => {
+    beforeAll(async () => {
       createdProject = await app.service(projectPath).create({
         name: 'myorg/my-first-project'
       })
     })
 
-    after(async () => {
+    afterAll(async () => {
       await app.service(projectPath).remove(createdProject.id)
     })
 

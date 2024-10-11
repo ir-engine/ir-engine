@@ -25,19 +25,18 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, matches, NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
@@ -46,23 +45,10 @@ export const SpawnPointComponent = defineComponent({
   name: 'SpawnPointComponent',
   jsonID: 'EE_spawn_point',
 
-  onInit: (entity) => {
-    return {
-      permissionedUsers: [] as UserID[],
-      helperEntity: null as Entity | null
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.array.test(json.permissionedUsers)) component.permissionedUsers.set(json.permissionedUsers as any)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      permissionedUsers: component.permissionedUsers.get(NO_PROXY)
-    }
-  },
+  schema: S.Object({
+    permissionedUsers: S.Array(S.UserID()),
+    helperEntity: S.Nullable(S.Entity())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

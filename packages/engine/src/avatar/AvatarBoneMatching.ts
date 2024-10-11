@@ -29,8 +29,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters } from '@pixiv/three-vrm'
 import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { Object3DUtils } from '@ir-engine/common/src/utils/Object3DUtils'
-
+import { Object3DUtils } from '@ir-engine/spatial/src/transform/Object3DUtils'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 
 export type MixamoBoneNames =
@@ -639,7 +638,8 @@ export const recursiveHipsLookup = (model: Object3D) => {
   }
   if (model.children.length > 0) {
     for (const child of model.children) {
-      return recursiveHipsLookup(child)
+      const results = recursiveHipsLookup(child)
+      if (results) return results
     }
   }
 }

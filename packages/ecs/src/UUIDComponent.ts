@@ -23,19 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { MathUtils } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
 import { hookstate, NO_PROXY_STEALTH, State, useHookstate } from '@ir-engine/hyperflux'
 
 import { defineComponent, setComponent } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity } from './EntityFunctions'
+import { S } from './schemas/JSONSchemas'
 
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',
   jsonID: 'EE_uuid',
 
-  onInit: () => '' as EntityUUID,
+  schema: S.EntityUUID(),
 
   onSet: (entity, component, uuid: EntityUUID) => {
     if (!uuid) throw new Error('UUID cannot be empty')
@@ -57,10 +58,6 @@ export const UUIDComponent = defineComponent({
     // set new uuid
     component.set(uuid)
     _getUUIDState(uuid).set(entity)
-  },
-
-  toJSON(entity, component) {
-    return component.value
   },
 
   onRemove: (entity, component) => {
@@ -88,7 +85,7 @@ export const UUIDComponent = defineComponent({
   },
 
   generateUUID() {
-    return MathUtils.generateUUID() as EntityUUID
+    return uuidv4() as EntityUUID
   }
 })
 

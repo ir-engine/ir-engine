@@ -25,15 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert, { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { NetworkId } from '@ir-engine/common/src/interfaces/NetworkId'
-import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
+import { getMutableState, getState, PeerID, UserID } from '@ir-engine/hyperflux'
+import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { TransformComponent } from '@ir-engine/spatial'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import {
@@ -350,14 +350,6 @@ describe('DataReader', () => {
 
     writeTransform(view, entity)
 
-    transform.position.x = 0
-    transform.position.y = 0
-    transform.position.z = 0
-    transform.rotation.x = 0
-    transform.rotation.y = 0
-    transform.rotation.z = 0
-    transform.rotation.w = 0
-
     view.cursor = 0
 
     readTransform(view, entity)
@@ -501,14 +493,6 @@ describe('DataReader', () => {
 
     writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
-    transform.position.x = 0
-    transform.position.y = 0
-    transform.position.z = 0
-    transform.rotation.x = 0
-    transform.rotation.y = 0
-    transform.rotation.z = 0
-    transform.rotation.w = 0
-
     view.cursor = 0
 
     readEntity(view, network, peerId, Object.values(getState(NetworkState).networkSchema))
@@ -545,7 +529,7 @@ describe('DataReader', () => {
     const networkId = 5678 as NetworkId
     const userID = 'user id' as UserID
     const peerID = 'peer id' as PeerID
-    Engine.instance.userID = userID
+    Engine.instance.store.userID = userID
     const userIndex = 0
     const peerIndex = 0
 
@@ -624,7 +608,7 @@ describe('DataReader', () => {
     const networkId = 5678 as NetworkId
     const userID = 'user Id' as UserID
     const peerID = 'peer ID' as PeerID
-    Engine.instance.userID = userID
+    Engine.instance.store.userID = userID
     const userIndex = 0
     const peerIndex = 0
 
@@ -691,7 +675,7 @@ describe('DataReader', () => {
     const peerID = 'peer id' as PeerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.userID = userID
+    Engine.instance.store.userID = userID
     const userIndex = 0
     const peerIndex = 0
     const peer2Index = 1
@@ -815,18 +799,6 @@ describe('DataReader', () => {
 
     writeEntities(writeView, network, entities)
 
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i]
-
-      TransformComponent.position.x[entity] = 0
-      TransformComponent.position.y[entity] = 0
-      TransformComponent.position.z[entity] = 0
-      TransformComponent.rotation.x[entity] = 0
-      TransformComponent.rotation.y[entity] = 0
-      TransformComponent.rotation.z[entity] = 0
-      TransformComponent.rotation.w[entity] = 0
-    }
-
     const packet = sliceViewCursor(writeView)
 
     const readView = createViewCursor(packet)
@@ -850,7 +822,7 @@ describe('DataReader', () => {
     const write = createDataWriter()
     const network = NetworkState.worldNetwork as Network
 
-    Engine.instance.userID = 'userId' as UserID
+    Engine.instance.store.userID = 'userId' as UserID
     const userId = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
     const userIndex = 0

@@ -39,7 +39,6 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
-import { FileType, createFileDigest } from '@ir-engine/ui/src/components/editor/panels/Files/container'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -48,6 +47,7 @@ import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
+import { FileDataType } from '../../constants/AssetTypes'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -67,11 +67,10 @@ export default function ImageCompressionPanel({
   selectedFiles,
   refreshDirectory
 }: {
-  selectedFiles: ImmutableArray<FileType>
+  selectedFiles: ImmutableArray<FileDataType>
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
-  const digest = createFileDigest(selectedFiles)
 
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
@@ -88,7 +87,7 @@ export default function ImageCompressionPanel({
     PopoverState.hidePopupover()
   }
 
-  const compressImage = async (props: FileType) => {
+  const compressImage = async (props: FileDataType) => {
     compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
 
     const ktx2Encoder = new KTX2Encoder()
@@ -150,7 +149,7 @@ export default function ImageCompressionPanel({
   }
 
   return (
-    <div className="max-h-[80vh] w-[680px] overflow-y-auto rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-full min-w-[400px] max-w-[680px] overflow-y-auto rounded-xl bg-[#212226]">
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
         <Button
@@ -161,18 +160,18 @@ export default function ImageCompressionPanel({
         />
       </div>
 
-      <div className="mx-auto grid w-1/2 gap-y-2">
+      <div className="mx-auto grid w-4/5 min-w-[400px] justify-center gap-y-2">
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-24 text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-theme-input bg-[#141619] px-2 py-1.5" value={title} disabled />
+          <Input className="border-theme-input bg-[#2C2E33] px-2 py-1.5" value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="mode"
@@ -191,7 +190,7 @@ export default function ImageCompressionPanel({
           />
         </InputGroup>
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="flipY"
@@ -199,13 +198,13 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.flipYTooltip')}
         >
           <BooleanInput
-            className="bg-[#141619]"
+            className="bg-[#2C2E33]"
             value={compressProperties.flipY.value}
             onChange={compressProperties.flipY.set}
           />
         </InputGroup>
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="linear"
@@ -213,13 +212,13 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.srgbTooltip')}
         >
           <BooleanInput
-            className="bg-[#141619]"
+            className="bg-[#2C2E33]"
             value={compressProperties.srgb.value}
             onChange={compressProperties.srgb.set}
           />
         </InputGroup>
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="mipmaps"
@@ -227,13 +226,13 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.mipmapsTooltip')}
         >
           <BooleanInput
-            className="bg-[#141619]"
+            className="bg-[#2C2E33]"
             value={compressProperties.mipmaps.value}
             onChange={compressProperties.mipmaps.set}
           />
         </InputGroup>
         <InputGroup
-          containerClassName="w-full justify-start"
+          containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="normalMap"
@@ -241,7 +240,7 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.normalMapTooltip')}
         >
           <BooleanInput
-            className="bg-[#141619]"
+            className="bg-[#2C2E33]"
             value={compressProperties.normalMap.value}
             onChange={compressProperties.normalMap.set}
           />
@@ -249,7 +248,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'ETC1S' && (
           <>
             <InputGroup
-              containerClassName="w-full justify-start"
+              containerClassName="w-full justify-start flex-nowrap"
               labelClassName="w-20 text-theme-gray3"
               infoClassName="text-theme-gray3"
               name="quality"
@@ -257,7 +256,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
               <Slider
-                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
+                className="bg-[#212226] [&::-moz-range-track]:bg-[#212226]"
                 width={160}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
@@ -268,7 +267,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              containerClassName="w-full justify-start"
+              containerClassName="w-full justify-start flex-nowrap"
               labelClassName="w-20 text-theme-gray3"
               infoClassName="text-theme-gray3"
               name="compressionLevel"
@@ -276,7 +275,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
               <Slider
-                className="bg-theme-studio-surface [&::-moz-range-track]:bg-theme-studio-surface"
+                className="bg-[#212226] [&::-moz-range-track]:bg-[#212226]"
                 width={160}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
@@ -291,7 +290,7 @@ export default function ImageCompressionPanel({
         {compressProperties.mode.value === 'UASTC' && (
           <>
             <InputGroup
-              containerClassName="w-full justify-start"
+              containerClassName="w-full justify-start flex-nowrap"
               labelClassName="w-20 text-theme-gray3"
               infoClassName="text-theme-gray3"
               name="uastcFlags"
@@ -306,7 +305,7 @@ export default function ImageCompressionPanel({
               />
             </InputGroup>
             <InputGroup
-              containerClassName="w-full justify-start"
+              containerClassName="w-full justify-start flex-nowrap"
               labelClassName="w-20 text-theme-gray3"
               infoClassName="text-theme-gray3"
               name="uastcZstandard"
@@ -314,7 +313,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}
             >
               <BooleanInput
-                className="bg-[#141619]"
+                className="bg-[#2C2E33]"
                 value={compressProperties.uastcZstandard.value}
                 onChange={compressProperties.uastcZstandard.set}
               />

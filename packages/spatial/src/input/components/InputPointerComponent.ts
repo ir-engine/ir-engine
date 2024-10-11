@@ -23,43 +23,75 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Vector2 } from 'three'
+import {
+  defineComponent,
+  defineQuery,
+  Entity,
+  getComponent,
+  UndefinedEntity,
+  useComponent,
+  useEntityContext,
+  useQuery
+} from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { defineState, getState, OpaqueType, useImmediateEffect } from '@ir-engine/hyperflux'
 
-import { defineComponent, defineQuery, Entity, getComponent, UndefinedEntity, useQuery } from '@ir-engine/ecs'
-import { defineState, getState } from '@ir-engine/hyperflux'
+/**
+ * @description
+ * Type alias for CameraPointer hashes.
+ * Strings of this type Hash should be created with `InputPointerState.createCameraPointerHash(entity, pointerID)` */
+export type CameraPointerHash = OpaqueType<'CameraPointerHash'> & string
 
 export const InputPointerState = defineState({
   name: 'InputPointerState',
   initial() {
     return {
-      pointers: new Map<string, Entity>()
+      pointers: new Map<CameraPointerHash, Entity>()
     }
+  },
+
+  /**
+   * @description
+   *  Creates a string ID (aka hash) for the given `@param camera` and `@param pointer`,
+   *  with the format expected by the Keys of  `InputPointerState.pointers` Map.
+   * @warning Remember to call `.value` before sending the data into this function if you are getting them from a Component. */
+  createCameraPointerHash(camera: Entity, pointer: number): CameraPointerHash {
+    return `canvas-${camera}.pointer-${pointer}` as CameraPointerHash
   }
 })
 
 export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',
 
-  onInit: () => {
-    return {
-      pointerId: -1 as number,
-      position: new Vector2(),
-      lastPosition: new Vector2(),
-      movement: new Vector2(),
-      cameraEntity: UndefinedEntity
-    }
+  schema: S.Object({
+    pointerId: S.Number(-1),
+    position: S.Vec2(),
+    lastPosition: S.Vec2(),
+    movement: S.Vec2(),
+    cameraEntity: S.Entity()
+  }),
+
+  onSet(entity, component, json: { pointerId: number; cameraEntity: Entity }) {
+    if (typeof json.pointerId === 'number') component.pointerId.set(json.pointerId)
+    if (typeof json.cameraEntity === 'number') component.cameraEntity.set(json.cameraEntity)
   },
 
-  onSet(entity, component, args: { pointerId: number; cameraEntity: Entity }) {
-    component.pointerId.set(args.pointerId)
-    component.cameraEntity.set(args.cameraEntity)
-    const pointerHash = `canvas-${args.cameraEntity}.pointer-${args.pointerId}`
-    getState(InputPointerState).pointers.set(pointerHash, entity)
-  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const inputPointerComponent = useComponent(entity, InputPointerComponent)
 
-  onRemove(entity, component) {
-    const pointerHash = `canvas-${component.cameraEntity}.pointer-${component.pointerId}`
-    getState(InputPointerState).pointers.delete(pointerHash)
+    useImmediateEffect(() => {
+      const pointerId = inputPointerComponent.pointerId.value
+      const cameraEntity = inputPointerComponent.cameraEntity.value
+      const pointerHash = InputPointerState.createCameraPointerHash(cameraEntity, pointerId)
+
+      getState(InputPointerState).pointers.set(pointerHash, entity)
+      return () => {
+        getState(InputPointerState).pointers.delete(pointerHash)
+      }
+    }, [inputPointerComponent.pointerId, inputPointerComponent.cameraEntity])
+
+    return null
   },
 
   getPointersForCamera(cameraEntity: Entity) {
@@ -72,7 +104,7 @@ export const InputPointerComponent = defineComponent({
   },
 
   getPointerByID(cameraEntity: Entity, pointerId: number) {
-    const pointerHash = `canvas-${cameraEntity}.pointer-${pointerId}`
+    const pointerHash = InputPointerState.createCameraPointerHash(cameraEntity, pointerId)
     return getState(InputPointerState).pointers.get(pointerHash) ?? UndefinedEntity
   }
 })

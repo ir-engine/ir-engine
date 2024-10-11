@@ -23,29 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
-describe('identity-provider.service', () => {
+describe('identity-provider.test', () => {
   let userId: UserID
   let accessToken: string
   let app: Application
   let providers: IdentityProviderType[] = []
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  afterAll(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should create an identity provider for guest', async () => {

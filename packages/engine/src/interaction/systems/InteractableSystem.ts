@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 
 import { hasComponent, removeComponent, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -131,7 +131,8 @@ export const InteractableSystem = defineSystem({
 let clicking = false
 
 const clickInteract = (entity: Entity) => {
-  const interactable = getComponent(entity, InteractableComponent)
+  const interactable = getOptionalComponent(entity, InteractableComponent)
+  if (!interactable) return
   for (const callback of interactable.callbacks) {
     if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
     const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity

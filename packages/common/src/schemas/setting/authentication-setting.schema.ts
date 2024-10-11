@@ -37,6 +37,7 @@ export const authStrategiesSchema = Type.Object(
   {
     jwt: Type.Optional(Type.Boolean()),
     apple: Type.Optional(Type.Boolean()),
+    discord: Type.Optional(Type.Boolean()),
     facebook: Type.Optional(Type.Boolean()),
     github: Type.Optional(Type.Boolean()),
     google: Type.Optional(Type.Boolean()),
@@ -94,8 +95,11 @@ export const authAppCredentialsSchema = Type.Object(
     appId: Type.Optional(Type.String()),
     key: Type.String(),
     secret: Type.String(),
+    nonce: Type.Optional(Type.Boolean()),
+    response: Type.Optional(Type.Array(Type.String())),
     scope: Type.Optional(Type.Array(Type.String())),
-    custom_params: Type.Optional(Type.Record(Type.String(), Type.String()))
+    custom_params: Type.Optional(Type.Record(Type.String(), Type.String())),
+    privateKey: Type.Optional(Type.String())
   },
   { $id: 'AuthAppCredentials', additionalProperties: false }
 )
@@ -124,7 +128,9 @@ export const authenticationSettingSchema = Type.Object(
     }),
     service: Type.String(),
     entity: Type.String(),
-    secret: Type.String(),
+    secret: Type.String({ maxLength: 4095 }),
+    jwtAlgorithm: Type.Optional(Type.String()),
+    jwtPublicKey: Type.Optional(Type.String({ maxLength: 1023 })),
     authStrategies: Type.Array(Type.Ref(authStrategiesSchema)),
     jwtOptions: Type.Optional(Type.Ref(authJwtOptionsSchema)),
     bearerToken: Type.Optional(Type.Ref(authBearerTokenSchema)),

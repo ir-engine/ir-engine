@@ -23,11 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 
+import { useHookstate } from '@ir-engine/hyperflux'
 import ImageInput from '..'
 import InputGroup from '../../Group'
 import { StringInputProps } from '../../String'
+
+async function checkImage(url: string) {
+  const response = await fetch(url)
+  const buff = await response.blob()
+  return buff.type.startsWith('image/')
+}
 
 export const ImageContainer = ({ children }) => {
   return <div className="flex h-auto flex-col items-center justify-start gap-2">{children}</div>
@@ -40,25 +47,31 @@ export default function ImagePreviewInput({
   previewOnly,
   ...rest
 }: StringInputProps & { label?: string; previewOnly?: boolean }) {
+  const isValidImage = useHookstate(false)
+  useEffect(() => {
+    checkImage(value).then((valid) => isValidImage.set(valid))
+  }, [value])
   return (
     <ImageContainer>
       {label && <div className="self-stretch text-[8px] font-normal leading-3 text-neutral-200">{label}</div>}
       <div className="flex flex-col items-start justify-start gap-1 rounded-t-md bg-[#1A1A1A] p-1">
-        <div className="h-[274px] w-[305px]">
-          <div className="flex h-[274px] w-[305px] justify-center rounded-t-md">
-            <div className="h-auto w-auto rounded">
-              <img
-                src={value}
-                alt="No Image"
-                crossOrigin="anonymous"
-                className="h-full w-full rounded object-contain text-white"
-              />
+        {isValidImage.value && (
+          <div className="h-[274px] w-[305px]">
+            <div className="flex h-[274px] w-[305px] justify-center rounded-t-md">
+              <div className="h-auto w-auto rounded">
+                <img
+                  src={value}
+                  alt="No Image"
+                  crossOrigin="anonymous"
+                  className="h-full w-full rounded object-contain text-white"
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
         {(previewOnly === undefined || previewOnly === false) && (
           <div className="inline-flex w-[305px] items-center justify-center gap-2.5 self-stretch rounded-b-md bg-[#1A1A1A] px-2 py-1">
-            <ImageInput className="bg-[#242424]" containerClassname="w-full" value={value} onRelease={onRelease} />
+            <ImageInput className="bg-[#242424]" containerClassName="w-full" value={value} onRelease={onRelease} />
           </div>
         )}
       </div>

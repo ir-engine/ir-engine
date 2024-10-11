@@ -39,11 +39,7 @@ export const inviteMethods = ['create', 'find', 'remove', 'patch', 'get'] as con
 
 export const spawnDetailsSchema = Type.Object(
   {
-    inviteCode: Type.Optional(
-      TypedString<InviteCode>({
-        format: 'uuid'
-      })
-    ),
+    inviteCode: Type.Optional(TypedString<InviteCode>()),
     spawnPoint: Type.Optional(Type.String()),
     spectate: Type.Optional(Type.String())
   },
@@ -94,34 +90,39 @@ export interface InviteDatabaseType extends Omit<InviteType, 'spawnDetails'> {
 }
 
 // Schema for creating new entries
-export const inviteDataProperties = Type.Pick(
-  inviteSchema,
+export const inviteDataProperties = Type.Pick(inviteSchema, [
+  'token',
+  'identityProviderType',
+  'passcode',
+  'targetObjectId',
+  'deleteOnUse',
+  'makeAdmin',
+  'spawnType',
+  'spawnDetails',
+  'timed',
+  'inviteeId',
+  'inviteType',
+  'startTime',
+  'endTime'
+])
+
+export const inviteDataSchema = Type.Intersect(
   [
-    'token',
-    'identityProviderType',
-    'passcode',
-    'targetObjectId',
-    'deleteOnUse',
-    'makeAdmin',
-    'spawnType',
-    'spawnDetails',
-    'timed',
-    'inviteeId',
-    'inviteType',
-    'startTime',
-    'endTime'
+    inviteDataProperties,
+    Type.Object(
+      {
+        userId: Type.Optional(
+          TypedString<UserID>({
+            format: 'uuid'
+          })
+        )
+      },
+      { additionalProperties: false }
+    )
   ],
   {
     $id: 'InviteData'
   }
-)
-export const inviteDataSchema = Type.Intersect(
-  [
-    inviteDataProperties,
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
 )
 export interface InviteData extends Static<typeof inviteDataSchema> {}
 
@@ -144,7 +145,8 @@ export const inviteQueryProperties = Type.Pick(inviteSchema, [
   'timed',
   'userId',
   'inviteType',
-  'inviteeId'
+  'inviteeId',
+  'createdAt'
 ])
 export const inviteQuerySchema = Type.Intersect(
   [

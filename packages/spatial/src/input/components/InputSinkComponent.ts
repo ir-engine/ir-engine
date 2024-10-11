@@ -24,17 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 /** InputSinkComponent - receives input from input entities.  */
 export const InputSinkComponent = defineComponent({
   name: 'InputSinkComponent',
-
-  onInit: () => {
-    return {
-      /**
-       * The set of entities that are actively channeling input into this Entity Tree
-       */
-      inputEntities: []
-    }
-  }
+  schema: S.Object({ inputEntities: S.Array(S.Entity()) })
 })

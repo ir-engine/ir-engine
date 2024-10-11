@@ -56,6 +56,7 @@ export interface SelectProps<T extends OptionValueType> {
   errorBorder?: boolean
   searchDisabled?: boolean
   inputContainerClassName?: string
+  endComponent?: JSX.Element
 }
 
 const Select = <T extends OptionValueType>({
@@ -75,7 +76,8 @@ const Select = <T extends OptionValueType>({
   inputClassName,
   errorBorder,
   searchDisabled,
-  inputContainerClassName
+  inputContainerClassName,
+  endComponent
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -155,19 +157,21 @@ const Select = <T extends OptionValueType>({
         onClick={toggleDropdown}
         onMouseDown={handleMouseDown}
         endComponent={
-          <MdOutlineKeyboardArrowDown
-            size="1.5em"
-            className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
-              disabled ? 'opacity-50' : ''
-            }`}
-            onClick={() => {
-              if (!disabled) {
-                toggleDropdown()
-              }
-            }}
-          />
+          endComponent ?? (
+            <MdOutlineKeyboardArrowDown
+              size="1.5em"
+              className={`mr-2 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
+                disabled ? 'opacity-50' : ''
+              }`}
+              onClick={() => {
+                if (!disabled) {
+                  toggleDropdown()
+                }
+              }}
+            />
+          )
         }
-        containerClassname={inputContainerClassName}
+        containerClassName={inputContainerClassName}
       />
       <div
         className={`absolute z-30 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
@@ -176,9 +180,9 @@ const Select = <T extends OptionValueType>({
         ref={menuRef}
       >
         <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
-          {filteredOptions.value.map((option) => (
+          {filteredOptions.value.map((option, index) => (
             <li
-              key={option.label + option.value}
+              key={index}
               value={option.value}
               className={twMerge(
                 'cursor-pointer px-4 py-2 text-theme-secondary',

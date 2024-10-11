@@ -23,9 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
-
-const performance: Performance = isClient ? window.performance : require('perf_hooks').performance
+const performance: Performance = window.performance
 
 /**
  * return current time of the system.
@@ -213,7 +211,7 @@ export class ServerLoop {
     this._deltas = Array<number>()
   }
   _nano() {
-    const hrtime = process.hrtime()
+    const hrtime = globalThis.process.hrtime()
     return +hrtime[0] * 1e9 + +hrtime[1]
   }
   _ConvertSecondsToNano(sec: number): number {

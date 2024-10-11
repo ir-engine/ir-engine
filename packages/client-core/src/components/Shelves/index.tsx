@@ -33,7 +33,7 @@ import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWi
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { AppState } from '../../common/services/AppService'
-import { clientContextParams } from '../../util/contextParams'
+import { clientContextParams } from '../../util/ClientContextState'
 import styles from './index.module.scss'
 
 const logger = multiLogger.child({ component: 'system:Shelves ', modifier: clientContextParams })
@@ -47,14 +47,14 @@ export const Shelves = () => {
 
   const handleShowMediaIcons = () => {
     appState.showTopShelf.set((prevValue) => {
-      logger.info({ event_name: 'header_show', event_value: !prevValue })
+      logger.info({ event_name: prevValue ? 'header_hide' : 'header_show', event_value: true })
       return !prevValue
     })
   }
 
   const handleShowBottomIcons = () => {
     appState.showBottomShelf.set((prevValue) => {
-      logger.info({ event_name: 'footer_show', event_value: !prevValue })
+      logger.info({ event_name: prevValue ? 'footer_hide' : 'footer_show', event_value: true })
       return !prevValue
     })
   }

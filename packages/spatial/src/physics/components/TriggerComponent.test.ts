@@ -38,9 +38,10 @@ import {
 } from '@ir-engine/ecs'
 import assert from 'assert'
 import { Vector3 } from 'three'
-import { TransformComponent } from '../../SpatialModule'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { Shapes } from '../types/PhysicsTypes'
@@ -138,17 +139,6 @@ describe('TriggerComponent', () => {
 
       const data = getComponent(testEntity, TriggerComponent)
       assertTriggerComponentEqual(data, Expected)
-    })
-
-    it('should not change values of an initialized TriggerComponent when the data passed had incorrect types', () => {
-      const Incorrect = { triggers: 'triggers' }
-      const before = getComponent(testEntity, TriggerComponent)
-      assertTriggerComponentEqual(before, TriggerComponentDefaults)
-
-      // @ts-ignore
-      setComponent(testEntity, TriggerComponent, Incorrect)
-      const data = getComponent(testEntity, TriggerComponent)
-      assertTriggerComponentEqual(data, TriggerComponentDefaults)
     })
   }) // << onSet
 

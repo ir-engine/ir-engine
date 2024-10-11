@@ -1,9 +1,9 @@
 name: branch-build
 on:
   pull_request:
-    branches: [dev]
+    branches: [dev, int]
   push:
-    branches: [dev]
+    branches: [dev, int]
   merge_group:
     types: [checks_requested]
 jobs:
@@ -64,7 +64,7 @@ jobs:
       - run: npm run lint
       - run: npm run check-eslint
         timeout-minutes: 20
-    
+
   check-errors:
     needs: install-modules
     runs-on: ubuntu-latest
@@ -151,3 +151,4 @@ jobs:
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: cd packages/${{ matrix.package }} && npm run test
+        timeout-minutes: 20

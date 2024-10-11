@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, discardQuery, iff, iffElse, isProvider, keepQuery } from 'feathers-hooks-common'
 
 import { locationAdminPath } from '@ir-engine/common/src/schemas/social/location-admin.schema'
 import { locationAuthorizedUserPath } from '@ir-engine/common/src/schemas/social/location-authorized-user.schema'
@@ -46,7 +46,10 @@ import { projectHistoryPath, staticResourcePath } from '@ir-engine/common/src/sc
 import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import disallowNonId from '../../hooks/disallow-non-id'
+import hasAction from '../../hooks/has-action'
+import isAction from '../../hooks/is-action'
 import persistData from '../../hooks/persist-data'
+import persistQuery from '../../hooks/persist-query'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import logger from '../../ServerLogger'
 import { LocationService } from './location.class'
@@ -120,14 +123,12 @@ const createAuthorizedLocation = async (context: HookContext<LocationService>) =
   for (const item of data) {
     if (item.locationAdmin && context.params && context.params.user) {
       await context.app.service(locationAdminPath).create({
-        ...(item as LocationType).locationAdmin,
         userId: context.params.user.id,
-        locationId: (item as LocationType).id as LocationID
+        locationId: item.id as LocationID
       })
       await context.app.service(locationAuthorizedUserPath).create({
-        ...(item as LocationType).locationAdmin,
         userId: context.params.user.id,
-        locationId: (item as LocationType).id as LocationID
+        locationId: item.id as LocationID
       })
     }
   }
@@ -224,17 +225,83 @@ const duplicateNameError = async (context: HookContext<LocationService>) => {
   }
 }
 
+/* BEFORE FIND HOOKS */
+/**
+ * @function rejectEmptyQuery
+ * @param context
+ * @description This hook function ensure that no empty queries are present
+ */
+const rejectEmptyQuery = async (context: HookContext<LocationService>) => {
+  const keys: string[] = Object.keys(context.params.query || {})
+  if (keys.length == 0) throw new BadRequest(`Query can't have empty params object`)
+}
+/**
+ * @function restrictProtectedQuery
+ * @param context
+ * @description This hook function restricts allowed query params for scoped user's calls
+ * from authorized sections (admin, dashboard, studio)
+ */
+const restrictProtectedQuery = async (context: HookContext<LocationService>) => {
+  keepQuery(
+    'id',
+    'name',
+    'slugifiedName',
+    '$like',
+    '$limit',
+    '$sort',
+    '$select',
+    '$skip',
+    'sceneId',
+    'projectId'
+  )(context)
+}
+/**
+ * @function restrictPublicQuery
+ * @param context
+ * @description This hook function restricts allowed query params for public calls
+ * from the viewer section by only allowing the slugifiedName parameter, any other
+ * parameter will be discarded from the query protecting from any malicious query injection.
+ *
+ * This function is discarding all params but slugifiedName instead of throwing a BadRequest if other
+ * parameters are present, having as goal to avoid providing any feedback to malicious users
+ * that could allow them to figure out unforeseen and unsafe patterns or combinations in order to
+ * successfully perform an injection attack.
+ */
+const restrictPublicQuery = async (context: HookContext<LocationService>) => {
+  keepQuery('slugifiedName')(context)
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(locationExternalResolver), schemaHooks.resolveResult(locationResolver)]
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
-    find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
+    all: [schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
+    find: [
+      // Empty query object in findLocation is not allowed
+      rejectEmptyQuery,
+      // Persist query to avoid hook collitions or malformed knex query instances
+      persistQuery,
+      // Clean up query of non db relevant parameters
+      discardQuery('action'),
+      // On external calls. evaluate action property presence and restrict queries according
+      iff(
+        isProvider('external'),
+        iffElse(
+          hasAction,
+          [
+            iff(isAction('admin'), verifyScope('location', 'read')).else(verifyScope('editor', 'write')),
+            restrictProtectedQuery
+          ],
+          restrictPublicQuery
+        )
+      ),
+      sortByLocationSetting
+    ],
     get: [],
     create: [
-      () => schemaHooks.validateData(locationDataValidator),
+      schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
       iff(
         isProvider('external'),
@@ -249,7 +316,7 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      () => schemaHooks.validateData(locationPatchValidator),
+      schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
       iff(
         isProvider('external'),

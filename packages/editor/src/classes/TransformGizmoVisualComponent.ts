@@ -31,10 +31,10 @@ import {
   Engine,
   removeEntity,
   setComponent,
-  UndefinedEntity,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -87,37 +87,24 @@ const cleanupGizmo = (gizmoObj: Object3D) => {
 export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',
 
-  onInit(entity) {
-    const visual = {
-      gizmo: {
-        translate: UndefinedEntity,
-        rotate: UndefinedEntity,
-        scale: UndefinedEntity
-      },
-      picker: {
-        translate: UndefinedEntity,
-        rotate: UndefinedEntity,
-        scale: UndefinedEntity
-      },
+  schema: S.Object({
+    gizmo: S.Object({
+      translate: S.Entity(),
+      rotate: S.Entity(),
+      scale: S.Entity()
+    }),
+    picker: S.Object({
+      translate: S.Entity(),
+      rotate: S.Entity(),
+      scale: S.Entity()
+    }),
+    helper: S.Object({
+      translate: S.Entity(),
+      rotate: S.Entity(),
+      scale: S.Entity()
+    })
+  }),
 
-      helper: {
-        translate: UndefinedEntity,
-        rotate: UndefinedEntity,
-        scale: UndefinedEntity
-      }
-    }
-    return visual
-  },
-  onSet(entity, component, json) {
-    if (!json) return
-  },
-  onRemove: (entity, component) => {
-    for (const mode in TransformMode) {
-      removeEntity(component.gizmo[mode])
-      removeEntity(component.picker[mode])
-      removeEntity(component.helper[mode])
-    }
-  },
   reactor: function (props) {
     const gizmoVisualEntity = useEntityContext()
     const visualComponent = useComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
@@ -179,6 +166,10 @@ export const TransformGizmoVisualComponent = defineComponent({
           cleanupGizmo(pickerObject[mode])
           removeObjectFromGroup(helper[mode], helperObject[mode])
           cleanupGizmo(helperObject[mode])
+
+          removeEntity(gizmo[mode])
+          removeEntity(picker[mode])
+          removeEntity(helper[mode])
         }
       }
     }, [])

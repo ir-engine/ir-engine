@@ -37,7 +37,7 @@ import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import multiLogger from '@ir-engine/common/src/logger'
 import { EMAIL_REGEX, PHONE_REGEX } from '@ir-engine/common/src/regex'
-import { InviteCode, InviteData } from '@ir-engine/common/src/schema.type.module'
+import { authenticationSettingPath, InviteCode, InviteData } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { isShareAvailable } from '@ir-engine/spatial/src/common/functions/DetectFeatures'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -46,6 +46,7 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 import OutlinedInput from '@ir-engine/ui/src/primitives/mui/OutlinedInput'
 
+import { useFind } from '@ir-engine/common'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
@@ -174,6 +175,10 @@ const ShareMenu = (): JSX.Element => {
     refLink
   })
 
+  useEffect(() => {
+    logger.info({ event_name: 'share_clicked' })
+  }, [])
+
   // Ref: https://developer.oculus.com/documentation/web/web-launch
   const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
@@ -183,6 +188,29 @@ const ShareMenu = (): JSX.Element => {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
+  }
+  const authSetting = useFind(authenticationSettingPath).data.at(0)
+
+  const getConnectPlaceholder = () => {
+    let smsMagicLink,
+      emailMagicLink = false
+
+    if (authSetting?.authStrategies) {
+      for (let item of authSetting.authStrategies) {
+        if (item.smsMagicLink) smsMagicLink = true
+        if (item.emailMagicLink) emailMagicLink = true
+      }
+
+      if (emailMagicLink && smsMagicLink) {
+        return t('user:usermenu.share.ph-phoneEmail')
+      } else if (emailMagicLink && !smsMagicLink) {
+        return t('user:usermenu.share.ph-email')
+      } else if (!emailMagicLink && smsMagicLink) {
+        return t('user:usermenu.share.ph-phone')
+      } else {
+        return ''
+      }
+    } else return ''
   }
 
   return (
@@ -255,7 +283,7 @@ const ShareMenu = (): JSX.Element => {
         <InputText
           endIcon={<Icon type="Send" />}
           label={t('user:usermenu.share.shareInvite')}
-          placeholder={t('user:usermenu.share.ph-phoneEmail')}
+          placeholder={getConnectPlaceholder()}
           value={token}
           onChange={(e) => handleChangeToken(e)}
           onEndIconClick={packageInvite}

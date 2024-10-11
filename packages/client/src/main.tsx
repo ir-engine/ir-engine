@@ -28,7 +28,7 @@ import React, { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Route, Routes } from 'react-router-dom'
 
-import ErrorBoundary from '@ir-engine/client-core/src/common/components/ErrorBoundary'
+import ClientErrorBoundary from '@ir-engine/client-core/src/common/components/ClientErrorBoundary'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 // tslint:disable:ordered-imports
@@ -39,15 +39,15 @@ const $offline = lazy(() => import('@ir-engine/client/src/pages/offline/offline'
 const $location = lazy(() => import('@ir-engine/client/src/pages/location/location'))
 const $auth = lazy(() => import('@ir-engine/client/src/pages/auth/authRoutes'))
 
-const Engine = lazy(() => import('./engine'))
+const Store = lazy(() => import('./store'))
 
 const AppPage = lazy(() => import('./pages/AppPage'))
 const Router = lazy(() => import('./route/CustomRouter'))
 
 const App = () => {
   return (
-    <ErrorBoundary>
-      <Engine>
+    <ClientErrorBoundary>
+      <Store>
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
@@ -100,8 +100,8 @@ const App = () => {
             }
           />
         </Routes>
-      </Engine>
-    </ErrorBoundary>
+      </Store>
+    </ClientErrorBoundary>
   )
 }
 

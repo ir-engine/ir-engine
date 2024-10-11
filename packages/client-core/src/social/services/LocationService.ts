@@ -36,8 +36,8 @@ import {
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { API } from '@ir-engine/common'
 import { useEffect } from 'react'
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -141,7 +141,7 @@ export const LocationService = {
   getLocation: async (locationId: LocationID) => {
     try {
       LocationState.fetchingCurrentSocialLocation()
-      const location = await API.instance.client.service(locationPath).get(locationId)
+      const location = await API.instance.service(locationPath).get(locationId)
       LocationState.socialLocationRetrieved(location)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -149,40 +149,36 @@ export const LocationService = {
   },
   getLocationByName: async (locationName: string) => {
     LocationState.fetchingCurrentSocialLocation()
-    const locationResult = (await API.instance.client.service(locationPath).find({
-      query: {
-        slugifiedName: locationName
-      }
-    })) as Paginated<LocationType>
+    try {
+      const locationResult = (await API.instance.service(locationPath).find({
+        query: {
+          slugifiedName: locationName
+        }
+      })) as Paginated<LocationType>
 
-    if (locationResult && locationResult.total > 0) {
-      if (
-        locationResult.data[0].locationSetting?.locationType === 'private' &&
-        !locationResult.data[0].locationAuthorizedUsers?.find((authUser) => authUser.userId === Engine.instance.userID)
-      ) {
-        LocationState.socialLocationNotAuthorized()
-      } else LocationState.socialLocationRetrieved(locationResult.data[0])
-    } else {
-      LocationState.socialLocationNotFound()
-    }
-  },
-  getLobby: async () => {
-    const lobbyResult = (await API.instance.client.service(locationPath).find({
-      query: {
-        isLobby: true,
-        $limit: 1
+      if (locationResult && locationResult.total > 0) {
+        if (
+          locationResult.data[0].locationSetting?.locationType === 'private' &&
+          !locationResult.data[0].locationAuthorizedUsers?.find(
+            (authUser) => authUser.userId === Engine.instance.userID
+          )
+        ) {
+          LocationState.socialLocationNotAuthorized()
+        } else LocationState.socialLocationRetrieved(locationResult.data[0])
+      } else {
+        LocationState.socialLocationNotFound()
       }
-    })) as Paginated<LocationType>
-
-    if (lobbyResult && lobbyResult.total > 0) {
-      return lobbyResult.data[0]
-    } else {
-      return null
+    } catch (err) {
+      if (err.message.includes('Unable to find projectId'))
+        NotificationService.dispatchNotify('You do not have access to this location.', {
+          variant: 'error',
+          persist: true
+        })
     }
   },
   banUserFromLocation: async (userId: UserID, locationId: LocationID) => {
     try {
-      await API.instance.client.service(locationBanPath).create({
+      await API.instance.service(locationBanPath).create({
         userId: userId,
         locationId: locationId
       })
@@ -198,13 +194,13 @@ export const LocationService = {
         const locationBan = params.locationBan
         if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           const userId = selfUser.id ?? ''
-          const user = await Engine.instance.api.service(userPath).get(userId)
+          const user = await API.instance.service(userPath).get(userId)
           getMutableState(AuthState).merge({ user })
         }
       }
-      Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
+      API.instance.service(locationBanPath).on('created', locationBanCreatedListener)
       return () => {
-        Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
+        API.instance.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])
   }

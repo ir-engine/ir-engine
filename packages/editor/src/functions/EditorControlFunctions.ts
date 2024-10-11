@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { getNestedObject } from '@ir-engine/common/src/utils/getNestedProperty'
 import { EntityUUID, generateEntityUUID, SetComponentType, UUIDComponent } from '@ir-engine/ecs'
 import {
   Component,
@@ -38,13 +37,13 @@ import {
   updateComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, getNestedObject, getState } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
 import { MAT4_IDENTITY } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -81,7 +80,7 @@ const getGLTFNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
 
 const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
   const nodeIndex = gltf.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === uuid)
-  if (!nodeIndex || nodeIndex < 0) return
+  if (nodeIndex === undefined || nodeIndex < 0) return
   return gltf.nodes?.find((n) => n.children?.includes(nodeIndex))
 }
 
@@ -194,9 +193,13 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
+    const materialEntity = UUIDComponent.getEntityByUUID(materialId)
+    const sceneID = getComponent(materialEntity, SourceComponent)
+    getMutableState(GLTFModifiedState)[sceneID].set(true)
     material.needsUpdate = true
   }
 }
+
 const overwriteLookdevObject = (
   beforeComponentJson: ComponentJsonType[] = [],
   componentJson: ComponentJsonType[] = [],
@@ -383,7 +386,7 @@ const duplicateObject = (entities: Entity[]) => {
         const parentEntity = getComponent(rootEntity, EntityTreeComponent).parentEntity
         if (!parentEntity) throw new Error('Root entity must have a parent')
         const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
-        const parentNode = getParentNodeByUUID(gltf.data, parentEntityUUID)
+        const parentNode = getGLTFNodeByUUID(gltf.data, parentEntityUUID)
         if (!parentNode) throw new Error('Parent node not found')
         if (!parentNode.children) parentNode.children = []
         parentNode.children.push(newIndex)
@@ -440,11 +443,11 @@ const positionObject = (
 const T_QUAT_1 = new Quaternion()
 const T_QUAT_2 = new Quaternion()
 
-const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(EditorHelperState).transformSpace) => {
+const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState(EditorHelperState).transformSpace) => {
   for (let i = 0; i < nodes.length; i++) {
     const entity = nodes[i]
-
-    T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
+    T_QUAT_1.copy(rotations[i] ?? rotations[0])
+    const euler = new Euler().setFromQuaternion(T_QUAT_1, 'YXZ')
 
     const transform = getComponent(entity, TransformComponent)
 
@@ -460,6 +463,7 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
 
       const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
       const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
+      euler.copy(new Euler().setFromQuaternion(newLocalQuaternion, 'YXZ'))
 
       transform.rotation.copy(newLocalQuaternion)
     }
@@ -523,6 +527,11 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
 const reparentObject = (entities: Entity[], before?: Entity | null, parent = getState(EditorState).rootEntity) => {
   const scenes = getSourcesForEntities(entities)
 
+  const targetSceneID = getComponent(parent, SourceComponent)
+  const nodeData = [] as GLTF.INode[]
+
+  const newParentUUID = getComponent(parent, UUIDComponent)
+
   for (const [sceneID, entities] of Object.entries(scenes)) {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
@@ -531,9 +540,9 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
 
       const entityUUID = getComponent(entity, UUIDComponent)
       const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+
       const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
 
-      // Remove from current parent
       if (isCurrentlyChildOfRoot) {
         gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
       } else {
@@ -557,39 +566,68 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           .toArray()
       }
 
-      const newParentUUID = getComponent(parent, UUIDComponent)
-      const isParentRoot = parent === getState(EditorState).rootEntity
+      if (targetSceneID === sceneID) {
+        const isParentRoot = parent === getState(EditorState).rootEntity
 
-      // Add to new parent
-      if (isParentRoot) {
-        if (before) {
-          const beforeIndex = gltf.data.nodes!.findIndex(
-            (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
-          )
-          gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
-          gltf.data.nodes?.splice(beforeIndex, 0, gltf.data.nodes?.[nodeIndex])
-          gltf.data.nodes?.splice(nodeIndex + 1, 1)
+        // Add to new parent
+        if (isParentRoot) {
+          if (before) {
+            const beforeIndex = gltf.data.nodes!.findIndex(
+              (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
+            )
+            gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
+            const replacingNode = structuredClone(gltf.data.nodes?.[nodeIndex])!
+            gltf.data.nodes?.splice(nodeIndex, 1)
+            gltf.data.nodes?.splice(beforeIndex, 0, replacingNode)
+          } else {
+            gltf.data.scenes![0].nodes.push(nodeIndex)
+            gltf.data.nodes?.push(gltf.data.nodes[nodeIndex])
+          }
         } else {
-          gltf.data.scenes![0].nodes.push(nodeIndex)
-          gltf.data.nodes?.push(gltf.data.nodes[nodeIndex])
+          const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)
+          if (newParentNode) {
+            if (!newParentNode.children) newParentNode.children = []
+            if (before) {
+              const beforeIndex = newParentNode.children.findIndex(
+                (n) =>
+                  n ===
+                  gltf.data.nodes!.find(
+                    (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
+                  )
+              )
+              newParentNode.children.splice(beforeIndex, 0, nodeIndex)
+            } else {
+              newParentNode.children.push(nodeIndex)
+            }
+          }
         }
       } else {
-        const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)
-        if (!newParentNode) continue
-        if (!newParentNode.children) newParentNode.children = []
-        if (before) {
-          const beforeIndex = newParentNode.children.findIndex(
-            (n) =>
-              n ===
-              gltf.data.nodes!.find((n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent))
-          )
-          newParentNode.children.splice(beforeIndex, 0, nodeIndex)
-        } else {
-          newParentNode.children.push(nodeIndex)
-        }
+        node && nodeData.push(node)
       }
     }
 
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+  }
+
+  if (!Object.keys(scenes).includes(targetSceneID)) {
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(targetSceneID)
+    for (const node of nodeData) {
+      const nodeIndex = gltf.data.nodes!.push(node) - 1
+      gltf.data.scenes![0].nodes.push(nodeIndex)
+
+      const newParentNode = getGLTFNodeByUUID(gltf.data, newParentUUID)!
+      if (!newParentNode.children) newParentNode.children = []
+      if (before) {
+        const beforeIndex = newParentNode.children.findIndex(
+          (n) =>
+            n ===
+            gltf.data.nodes!.find((n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent))
+        )
+        newParentNode.children.splice(beforeIndex, 0, nodeIndex)
+      } else {
+        newParentNode.children.push(nodeIndex)
+      }
+    }
     dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
 }
@@ -766,7 +804,7 @@ const toggleSelection = (entities: EntityUUID[]) => {
     }
   }
 
-  SelectionState.updateSelection(entities)
+  SelectionState.updateSelection(selectedEntities)
 }
 
 const addToSelection = (entities: EntityUUID[]) => {

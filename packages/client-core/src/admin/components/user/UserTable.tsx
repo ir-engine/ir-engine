@@ -19,16 +19,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Id, NullableId } from '@feathersjs/feathers'
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { UserType, userPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { UserParams } from '@ir-engine/server-core/src/user/user/user.class'
-import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
@@ -45,9 +45,9 @@ import AddEditUserModal from './AddEditUserModal'
 export const removeUsers = async (
   modalProcessing: State<boolean>,
   adminUserRemove: {
-    (id: Id, params?: UserParams | undefined): Promise<UserType>
-    (id: null, params?: UserParams | undefined): Promise<UserType[]>
-    (id: NullableId, params?: UserParams | undefined): Promise<any>
+    (id: Id): Promise<UserType>
+    (id: null): Promise<UserType[]>
+    (id: NullableId): Promise<any>
   },
   users: UserType[]
 ) => {
@@ -108,7 +108,13 @@ export default function UserTable({
           />
         ),
         id: row.id,
-        name: row.name,
+        name: (
+          <div className="flex">
+            <Tooltip content={row.name}>
+              <span>{truncateText(row.name, { visibleChars: 14, truncatorPosition: 'end' })}</span>
+            </Tooltip>
+          </div>
+        ),
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin: row.lastLogin && (
@@ -142,9 +148,8 @@ export default function UserTable({
               disabled={!userHasAccess('location:write')}
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
-            >
-              <HiPencil className="place-self-center text-theme-iconGreen" />
-            </Button>
+              startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+            />
             <Button
               rounded="full"
               variant="outline"
@@ -161,9 +166,8 @@ export default function UserTable({
                   />
                 )
               }}
-            >
-              <HiTrash className="place-self-center text-theme-iconRed" />
-            </Button>
+              startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+            />
           </div>
         )
       }
@@ -171,6 +175,7 @@ export default function UserTable({
 
   return (
     <DataTable
+      size="lg"
       query={adminUserQuery}
       columns={[
         {

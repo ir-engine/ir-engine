@@ -23,11 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { describe } from 'vitest'
+
 // import { AuthState, AuthAction, avatarFetchedReceptor } from '../../src/user/services/AuthService' // make browser globals defined
 
 // import { createEngine } from '@ir-engine/ecs/src/Engine'
 // import { getMutableState } from '@ir-engine/hyperflux
-// import { Downgraded } from '@ir-engine/hyperflux/functions/StateFunctions'
+// import { Downgraded } from '@ir-engine/hyperflux'
 
 // ;(globalThis as any).document = {}
 // ;(globalThis as any).navigator = {}

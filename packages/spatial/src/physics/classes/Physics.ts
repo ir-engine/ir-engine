@@ -61,13 +61,12 @@ import {
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { defineState, none, useHookstate } from '@ir-engine/hyperflux'
-import { NO_PROXY, getMutableState, getState } from '@ir-engine/hyperflux/functions/StateFunctions'
+import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { getAncestorWithComponent, useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { getAncestorWithComponents, useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -143,7 +142,7 @@ function destroyWorld(id: EntityUUID) {
 }
 
 function getWorld(entity: Entity) {
-  const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
   if (!sceneEntity) return
   const sceneUUID = getOptionalComponent(sceneEntity, UUIDComponent)
   if (!sceneUUID) return
@@ -151,7 +150,7 @@ function getWorld(entity: Entity) {
 }
 
 function useWorld(entity: Entity) {
-  const sceneEntity = useAncestorWithComponent(entity, SceneComponent)
+  const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
   const sceneUUID = useOptionalComponent(sceneEntity, UUIDComponent)?.value
   const worlds = useHookstate(getMutableState(RapierWorldState))
   return sceneUUID ? (worlds[sceneUUID].get(NO_PROXY) as PhysicsWorld) : undefined
@@ -265,6 +264,12 @@ function createRigidBody(world: PhysicsWorld, entity: Entity) {
 function isSleeping(world: PhysicsWorld, entity: Entity) {
   const rigidBody = world.Rigidbodies.get(entity)
   return !rigidBody || rigidBody.isSleeping()
+}
+
+function wakeUp(world: PhysicsWorld, entity: Entity) {
+  const rigidBody = world.Rigidbodies.get(entity)
+  if (!rigidBody) return
+  rigidBody.wakeUp()
 }
 
 const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
@@ -523,7 +528,10 @@ function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Ent
   colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
   colliderDesc.setRotation(quaternionRelativeToRoot)
 
-  colliderDesc.setSensor(hasComponent(entity, TriggerComponent))
+  if (hasComponent(entity, TriggerComponent)) {
+    colliderDesc.setSensor(true)
+    colliderDesc.setCollisionGroups(getInteractionGroups(CollisionGroups.Trigger, collisionMask))
+  }
 
   // TODO expose these
   colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
@@ -921,6 +929,7 @@ export const Physics = {
   createRigidBody,
   removeRigidbody,
   isSleeping,
+  wakeUp,
   setRigidBodyType,
   setRigidbodyPose,
   enabledCcd,

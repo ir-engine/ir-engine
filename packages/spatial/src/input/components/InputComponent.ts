@@ -34,13 +34,14 @@ import {
   useExecute
 } from '@ir-engine/ecs'
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '../../EngineState'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { getAncestorWithComponent, isAncestor } from '../../transform/components/EntityTree'
+import { getAncestorWithComponents, isAncestor } from '../../transform/components/EntityTree'
 import {
   AnyAxis,
   AnyButton,
@@ -79,33 +80,16 @@ export const InputComponent = defineComponent({
   name: 'InputComponent',
   jsonID: 'EE_input',
 
-  onInit: () => {
-    return {
-      inputSinks: ['Self'] as EntityUUID[],
-      activationDistance: 2,
-      highlight: false,
-      grow: false,
+  schema: S.Object({
+    inputSinks: S.Array(S.EntityUUID(), ['Self']),
+    activationDistance: S.Number(2),
+    highlight: S.Bool(false),
+    grow: S.Bool(false),
 
-      //internal
-      /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[]
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (Array.isArray(json.inputSinks)) component.inputSinks.set(json.inputSinks)
-    if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
-    if (json.activationDistance) component.activationDistance.set(json.activationDistance)
-    if (typeof json.grow === 'boolean') component.grow.set(json.grow)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      inputSinks: component.inputSinks.value,
-      activationDistance: component.activationDistance.value
-    }
-  },
+    //internal
+    /** populated automatically by ClientInputSystem */
+    inputSources: S.Array(S.Entity())
+  }),
 
   useExecuteWithInput(
     executeOnInput: () => void,
@@ -126,8 +110,8 @@ export const InputComponent = defineComponent({
   },
 
   getInputEntities(entityContext: Entity): Entity[] {
-    const inputSinkEntity = getAncestorWithComponent(entityContext, InputSinkComponent)
-    const closestInputEntity = getAncestorWithComponent(entityContext, InputComponent)
+    const inputSinkEntity = getAncestorWithComponents(entityContext, [InputSinkComponent])
+    const closestInputEntity = getAncestorWithComponents(entityContext, [InputComponent])
     const inputSinkInputEntities = getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
     const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
     return inputEntities.filter(
@@ -158,6 +142,10 @@ export const InputComponent = defineComponent({
     return InputComponent.getMergedAxesForInputSources(inputSourceEntities, inputAlias)
   },
 
+  /**
+   * @description Returns an object that:
+   * - Contains all of the buttons described by the InputSourceComponent.buttons of all `@param inputSourceEntities`
+   * - Has synchronized the state of the buttons described by all entries of `@param inputAlias` into fields of the same name.  */
   getMergedButtonsForInputSources<AliasType extends InputAlias = typeof DefaultButtonAlias>(
     inputSourceEntities: Entity[],
     inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType

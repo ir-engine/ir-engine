@@ -37,8 +37,7 @@ export const FeatureFlags = {
   },
   Studio: {
     Model: {
-      Dereference: 'ir.studio.model.dereference',
-      GLTFTransform: 'ir.studio.model.gltfTransform'
+      Dereference: 'ir.studio.model.dereference'
     },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript'
@@ -47,7 +46,8 @@ export const FeatureFlags = {
       TransformPivot: 'ir.editor.ui.transformPivot',
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
-      }
+      },
+      PointClick: 'ir.editor.ui.pointClick'
     }
   }
 }

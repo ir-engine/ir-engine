@@ -26,10 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
+import { validate as isValidUUID } from 'uuid'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { locationPath, LocationType } from '@ir-engine/common/src/schema.type.module'
-import { useFind, useMutation, useSearch } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
@@ -58,14 +59,15 @@ export default function LocationTable({ search }: { search: string }) {
     {
       $or: [
         {
+          id: isValidUUID(search) ? search : undefined
+        },
+        {
           name: {
             $like: `%${search}%`
           }
         },
         {
-          sceneId: {
-            $like: `%${search}%`
-          }
+          sceneId: isValidUUID(search) ? search : undefined
         }
       ]
     },
@@ -76,9 +78,19 @@ export default function LocationTable({ search }: { search: string }) {
 
   const createRows = (rows: readonly LocationType[]): LocationRowType[] =>
     rows.map((row) => ({
-      name: <a href={`/location/${transformLink(row.name)}`}>{row.name}</a>,
+      name: (
+        <a target="_blank" rel="noopener noreferrer" href={`/location/${transformLink(row.name)}`}>
+          {row.name}
+        </a>
+      ),
       sceneId: (
-        <a href={`/studio?projectName=${row.sceneAsset.project!}&scenePath=${row.sceneAsset.key}`}>{row.sceneId}</a>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`/studio?projectName=${row.sceneAsset.project!}&scenePath=${row.sceneAsset.key}`}
+        >
+          {row.sceneId}
+        </a>
       ),
       maxUsersPerInstance: row.maxUsersPerInstance.toString(),
       scene: row.slugifiedName,
@@ -94,10 +106,9 @@ export default function LocationTable({ search }: { search: string }) {
             className="h-8 w-8"
             disabled={!userHasAccess('location:write')}
             title={t('admin:components.common.view')}
-            onClick={() => PopoverState.showPopupover(<AddEditLocationModal location={row} />)}
-          >
-            <HiPencil className="place-self-center text-theme-iconGreen" />
-          </Button>
+            startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
+            onClick={() => PopoverState.showPopupover(<AddEditLocationModal action="admin" location={row} />)}
+          />
           <Button
             rounded="full"
             variant="outline"
@@ -113,12 +124,18 @@ export default function LocationTable({ search }: { search: string }) {
                 />
               )
             }
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
+          />
         </div>
       )
     }))
 
-  return <DataTable query={adminLocationQuery} columns={locationColumns} rows={createRows(adminLocationQuery.data)} />
+  return (
+    <DataTable
+      size="xl"
+      query={adminLocationQuery}
+      columns={locationColumns}
+      rows={createRows(adminLocationQuery.data)}
+    />
+  )
 }

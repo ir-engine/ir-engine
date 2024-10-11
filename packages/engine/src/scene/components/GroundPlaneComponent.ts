@@ -24,11 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
+import { ColorRepresentation, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { matches } from '@ir-engine/hyperflux'
+import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
@@ -41,9 +43,14 @@ export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
   jsonID: 'EE_ground_plane',
 
+  schema: S.Object({
+    color: S.Color(0xffffff),
+    visible: S.Bool(true)
+  }),
+
   onInit(entity) {
     return {
-      color: new Color(),
+      color: 0xffffff as ColorRepresentation,
       visible: true
     }
   },
@@ -51,15 +58,14 @@ export const GroundPlaneComponent = defineComponent({
   onSet(entity, component, json) {
     if (!json) return
 
-    if (matches.object.test(json.color) || matches.string.test(json.color) || matches.number.test(json.color))
-      component.color.value.set(json.color)
+    if (matchesColor.test(json.color)) component.color.set(json.color)
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
   },
 
-  toJSON(entity, component) {
+  toJSON: (component) => {
     return {
-      color: component.color.value,
-      visible: component.visible.value
+      color: component.color,
+      visible: component.visible
     }
   },
 
@@ -98,7 +104,7 @@ export const GroundPlaneComponent = defineComponent({
     useLayoutEffect(() => {
       const color = component.color.value
       if (mesh.material.color.value == color) return
-      mesh.material.color.set(component.color.value)
+      mesh.material.color.value.set(component.color.value)
     }, [component.color])
 
     useLayoutEffect(() => {

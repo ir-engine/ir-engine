@@ -43,7 +43,8 @@ import { useEffect } from 'react'
 import { Vector3 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { EntityTreeComponent, useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { EntityTreeComponent, useAncestorWithComponents } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -52,7 +53,6 @@ import { AnyButton, ButtonState, ButtonStateMap, createInitialButtonState, Mouse
 import { InputState } from '../state/InputState'
 import ClientInputFunctions from './ClientInputFunctions'
 import normalizeWheel from './normalizeWheel'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const useNonSpatialInputSources = () => {
   useEffect(() => {
@@ -91,22 +91,27 @@ export const useNonSpatialInputSources = () => {
     }
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
-    document.addEventListener('touchgamepadbuttondown', (event: CustomEvent) => {
+    const handleTouchGamepadButtonDown = (event: CustomEvent) => {
       const buttonState = inputSourceComponent.buttons
       buttonState[event.detail.button] = createInitialButtonState(eid)
-    })
+    }
+    document.addEventListener('touchgamepadbuttondown', handleTouchGamepadButtonDown)
 
-    document.addEventListener('touchgamepadbuttonup', (event: CustomEvent) => {
+    const handleTouchGamepadButtonUp = (event: CustomEvent) => {
       const buttonState = inputSourceComponent.buttons
       if (buttonState[event.detail.button]) buttonState[event.detail.button].up = true
-    })
+    }
+    document.addEventListener('touchgamepadbuttonup', handleTouchGamepadButtonUp)
 
     return () => {
       document.removeEventListener('DOMMouseScroll', ClientInputFunctions.preventDefault, false)
       document.removeEventListener('gesturestart', ClientInputFunctions.preventDefault)
       document.removeEventListener('keyup', onKeyEvent)
       document.removeEventListener('keydown', onKeyEvent)
+      document.removeEventListener('keydown', ClientInputFunctions.preventDefaultKeyDown, false)
       document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
+      document.removeEventListener('touchgamepadbuttondown', handleTouchGamepadButtonDown)
+      document.removeEventListener('touchgamepadbuttonup', handleTouchGamepadButtonUp)
       removeEntity(eid)
     }
   }, [])
@@ -344,7 +349,7 @@ export const CanvasInputReactor = () => {
 
 export const MeshInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
 
   useImmediateEffect(() => {
     const inputState = getState(InputState)
@@ -356,7 +361,7 @@ export const MeshInputReactor = () => {
 
 export const BoundingBoxInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
   useImmediateEffect(() => {
     const inputState = getState(InputState)
     if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)

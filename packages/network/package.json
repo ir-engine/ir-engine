@@ -1,6 +1,7 @@
 {
   "name": "@ir-engine/network",
   "version": "1.6.0",
+  "type": "module",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"
@@ -8,20 +9,19 @@
   "description": "Networking abstractions and APIs for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --jobs 1"
+    "test": "cross-env TEST=true vitest run"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
-    "@ir-engine/common": "^1.6.0",
     "@ir-engine/ecs": "^1.6.0",
     "@ir-engine/hyperflux": "^1.6.0"
   },
   "devDependencies": {
-    "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",
-    "rimraf": "4.4.0"
+    "rimraf": "4.4.0",
+    "three": "0.158.0"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

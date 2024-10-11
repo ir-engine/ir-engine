@@ -25,33 +25,38 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import {
+  BackSide,
   BufferAttribute,
   BufferGeometry,
   CompressedTexture,
   DoubleSide,
+  FrontSide,
   InterleavedBufferAttribute,
   LinearMipmapLinearFilter,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
   ShaderMaterial,
+  Side,
   SphereGeometry,
   SRGBColorSpace,
   Texture,
+  TwoPassDoubleSide,
   Vector2
 } from 'three'
 
-import config from '@ir-engine/common/src/config'
-import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
-import { EntityUUID } from '@ir-engine/ecs'
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 
-import { AssetType } from '@ir-engine/common/src/constants/AssetType'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
+import { DomainConfigState } from '../../assets/state/DomainConfigState'
+import { ImageAlphaMode, ImageProjection } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 // Making these functions to make it more explicit, otherwise .clone() needs to be called any time these are referenced between components
@@ -60,51 +65,19 @@ export const SPHERE_GEO = () => new SphereGeometry(1, 64, 32)
 export const PLANE_GEO_FLIPPED = () => flipNormals(new PlaneGeometry(1, 1, 1, 1))
 export const SPHERE_GEO_FLIPPED = () => flipNormals(new SphereGeometry(1, 64, 32))
 
-export type ImageResource = {
-  source?: string
-  ktx2StaticResource?: StaticResourceType
-  pngStaticResource?: StaticResourceType
-  jpegStaticResource?: StaticResourceType
-  gifStaticResource?: StaticResourceType
-  id?: EntityUUID
-}
+export const SideSchema = (init: Side) => S.LiteralUnion([FrontSide, BackSide, DoubleSide, TwoPassDoubleSide], init)
 
 export const ImageComponent = defineComponent({
   name: 'EE_image',
   jsonID: 'EE_image',
 
-  onInit: (entity) => {
-    return {
-      source: `${config.client.fileServer}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`,
-      alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
-      alphaCutoff: 0.5,
-      projection: ImageProjection.Flat as ImageProjectionType,
-      side: DoubleSide
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      source: component.source.value,
-      alphaMode: component.alphaMode.value,
-      alphaCutoff: component.alphaCutoff.value,
-      projection: component.projection.value,
-      side: component.side.value
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    // backwards compatability
-    if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
-    if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)
-      component.alphaMode.set(json.alphaMode)
-    if (typeof json.alphaCutoff === 'number' && json.alphaCutoff !== component.alphaCutoff.value)
-      component.alphaCutoff.set(json.alphaCutoff)
-    if (typeof json.projection === 'string' && json.projection !== component.projection.value)
-      component.projection.set(json.projection)
-    if (typeof json.side === 'number' && json.side !== component.side.value) component.side.set(json.side)
-  },
+  schema: S.Object({
+    source: S.String(''),
+    alphaMode: S.Enum(ImageAlphaMode, ImageAlphaMode.Opaque),
+    alphaCutoff: S.Number(0.5),
+    projection: S.Enum(ImageProjection, ImageProjection.Flat),
+    side: SideSchema(DoubleSide)
+  }),
 
   errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR', 'INVALID_URL'],
 
@@ -126,6 +99,8 @@ export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
 
   if (!width || !height) return
 
+  const transform = getComponent(mesh.entity, TransformComponent)
+
   const ratio = (height || 1) / (width || 1)
   const _width = Math.min(1.0, 1.0 / ratio)
   const _height = Math.min(1.0, ratio)
@@ -139,9 +114,10 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 
   if (!width || !height) return
 
+  const transform = getComponent(mesh.entity, TransformComponent)
   const ratio = (height || 1) / (width || 1)
-  const _width = Math.min(1.0, 1.0 / ratio)
-  const _height = Math.min(1.0, ratio)
+  const _width = Math.min(1.0, 1.0 / ratio) * transform.scale.x
+  const _height = Math.min(1.0, ratio) * transform.scale.y
   mesh.scale.set(_width, _height, 1)
 }
 
@@ -163,6 +139,13 @@ export function ImageReactor() {
     PLANE_GEO,
     () => new MeshBasicMaterial()
   )
+
+  useImmediateEffect(() => {
+    if (!image.source.value)
+      image.source.set(
+        `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
+      )
+  }, [])
 
   useEffect(() => {
     if (!error) return

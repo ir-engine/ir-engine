@@ -1,24 +1,28 @@
 {
   "name": "@ir-engine/common",
   "version": "1.6.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
   "description": "Shared types for other Infinite Reality Engine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --jobs 1"
+    "test": "cross-env TEST=true vitest run"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
+    "@ir-engine/hyperflux": "1.6.0",
+    "@ir-engine/ecs": "1.6.0",
+    "@ir-engine/spatial": "1.6.0",
+    "@ir-engine/network": "1.6.0",
+    "@ir-engine/engine": "1.6.0",
     "cross-fetch": "^3.1.5",
-    "lru-cache": "8.0.4",
-    "ts-toolbelt": "^9.6.0"
+    "lru-cache": "8.0.4"
   },
   "devDependencies": {
-    "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",
     "rimraf": "4.4.0"
   },

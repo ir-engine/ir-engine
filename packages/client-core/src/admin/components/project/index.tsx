@@ -32,11 +32,12 @@ import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 
+import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
-import BuildStatusTable from './build-status/BuildStatusTable'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
+import BuildStatusTable from './build-status/BuildStatusTable'
 
 export default function AdminProject() {
   const { t } = useTranslation()
@@ -101,7 +102,11 @@ export default function AdminProject() {
             tabLabel: t('admin:components.common.all'),
             rightComponent: <ProjectTopMenu />,
             bottomComponent: <ProjectTable search={search.query.value} />,
-            search: search
+            topComponent: (
+              <div className="mb-4 flex justify-between">
+                <SearchBar search={search} />
+              </div>
+            )
           },
           {
             title: t('admin:components.buildStatus.buildStatus'),

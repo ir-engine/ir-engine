@@ -26,8 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
 
-import { useForceUpdate } from '@ir-engine/common/src/utils/useForceUpdate'
-import { getState, HyperFlux, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, HyperFlux, startReactor, useForceUpdate, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
@@ -82,9 +81,9 @@ export const ReactiveQuerySystem = defineSystem({
  * - "components" argument must not change
  */
 export function useQuery(components: QueryComponents) {
-  const query = defineQuery(components)
-  const eids = query()
-  removeQuery(query)
+  const query = bitECS.defineQuery(components)
+  const eids = query(HyperFlux.store) as Entity[]
+  bitECS.removeQuery(HyperFlux.store, query)
 
   const forceUpdate = useForceUpdate()
 

@@ -115,12 +115,15 @@ type Resource = {
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
 
-  initial: () => ({
-    resources: {} as Record<string, Resource>,
-    totalVertexCount: 0,
-    totalBufferCount: 0,
-    debug: false
-  }),
+  initial: () => {
+    Cache.clear()
+    return {
+      resources: {} as Record<string, Resource>,
+      totalVertexCount: 0,
+      totalBufferCount: 0,
+      debug: false
+    }
+  },
 
   debugLog: (...data: any[]) => {
     if (getState(ResourceState).debug) console.log(...data)
@@ -256,10 +259,14 @@ const resourceCallbacks = {
         resource.metadata.size.set(size)
         // Non compressed texture size
       } else {
-        const height = asset.image.height
-        const width = asset.image.width
-        const size = width * height * 4
-        resource.metadata.size.set(size)
+        if (asset.image) {
+          const height = asset.image.height
+          const width = asset.image.width
+          const size = width * height * 4
+          resource.metadata.size.set(size)
+        } else {
+          resource.metadata.size.set(0)
+        }
       }
 
       if ((asset as CompressedTexture).isCompressedTexture) {
@@ -267,7 +274,7 @@ const resourceCallbacks = {
         if (id.endsWith('ktx2')) asset.source.data.src = id
       }
 
-      resource.metadata.merge({ textureWidth: asset.image.width })
+      resource.metadata.merge({ textureWidth: asset.image ? asset.image.width : 0 })
       resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},

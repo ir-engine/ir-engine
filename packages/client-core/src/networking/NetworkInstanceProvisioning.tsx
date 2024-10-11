@@ -38,15 +38,16 @@ import {
   MediaInstanceState,
   useMediaInstance
 } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
-import useFeatureFlags from '@ir-engine/engine/src/useFeatureFlags'
+import { PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { FriendService } from '../social/services/FriendService'
-import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
+import { connectToInstance } from '../transports/mediasoup/MediasoupClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
@@ -283,7 +284,7 @@ export const FriendMenus = () => {
   return <UseFriendsListeners />
 }
 
-export const InstanceProvisioning = () => {
+export const reactor = () => {
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
 
   return (
@@ -294,3 +295,9 @@ export const InstanceProvisioning = () => {
     </>
   )
 }
+
+export const InstanceProvisioningSystem = defineSystem({
+  uuid: 'ee.client.InstanceProvisioningSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor
+})

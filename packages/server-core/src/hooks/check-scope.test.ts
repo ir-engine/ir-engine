@@ -23,8 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../patchEngineNode'
+
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -33,7 +36,7 @@ import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../declarations'
-import { createFeathersKoaApp } from '../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../createApp'
 import checkScope from './check-scope'
 
 const mockUserHookContext = (user: UserType, app: Application) => {
@@ -47,13 +50,14 @@ const mockUserHookContext = (user: UserType, app: Application) => {
 
 describe('check-scope', () => {
   let app: Application
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(() => {
-    return destroyEngine()
+  afterAll(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
   it('should return false if user does not have scope', async () => {

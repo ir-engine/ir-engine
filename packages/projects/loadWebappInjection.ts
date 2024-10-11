@@ -23,14 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { API } from '@ir-engine/common'
 import { projectsPath } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 
 import { loadConfigForProject } from './loadConfigForProject'
 
 export const loadWebappInjection = async () => {
   if (window.location.pathname.startsWith('/auth/oauth')) return []
-  const projects = await Engine.instance.api.service(projectsPath).find()
+  const projects = await API.instance.service(projectsPath).find()
   return (
     await Promise.all(
       projects.map(async (project) => {

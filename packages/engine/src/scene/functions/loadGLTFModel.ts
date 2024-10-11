@@ -36,17 +36,17 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { TransformComponent } from '@ir-engine/spatial'
-import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { FrustumCullCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
@@ -337,7 +337,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const skinnedMesh = obj as SkinnedMesh
   if (skinnedMesh.isSkinnedMesh) setComponent(objEntity, SkinnedMeshComponent, skinnedMesh)
-  else setComponent(objEntity, FrustumCullCameraComponent)
+  else if (mesh.isMesh) setComponent(objEntity, FrustumCullCameraComponent)
 
   if (obj.userData['componentJson']) {
     for (const json of obj.userData['componentJson']) {
@@ -349,12 +349,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     setComponent(objEntity, Object3DComponent, obj)
   }
 
-  const material = mesh.material
-  if (!material) return eJson
-
   delete mesh.userData['componentJson']
   delete mesh.userData['gltfExtensions']
   delete mesh.userData['useVisible']
-
+  delete mesh.userData['name']
   return eJson
 }

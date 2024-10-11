@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
@@ -61,8 +61,6 @@ type PortalOptions = {
   label: string
   value: string
 }
-
-const rotation = new Quaternion()
 
 /**
  * PortalNodeEditor provides the editor for properties of PortalNode.
@@ -117,10 +115,8 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     commitProperties(PortalComponent, { previewImageURL: url }, [props.entity])
   }
 
-  const changeSpawnRotation = (value: Euler) => {
-    rotation.setFromEuler(value)
-
-    commitProperties(PortalComponent, { spawnRotation: rotation })
+  const changeSpawnRotation = (value: Quaternion) => {
+    commitProperties(PortalComponent, { spawnRotation: value })
   }
 
   const changePreviewType = (val) => {

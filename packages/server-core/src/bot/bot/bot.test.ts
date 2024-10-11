@@ -23,8 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { botPath, BotType } from '@ir-engine/common/src/schemas/bot/bot.schema'
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
@@ -35,7 +38,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createTestLocation } from '../../../tests/util/createTestLocation'
-import { createFeathersKoaApp } from '../../createApp'
+import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('bot.service', () => {
   let app: Application
@@ -46,15 +49,16 @@ describe('bot.service', () => {
 
   const params = { isInternal: true }
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
-  after(() => {
-    return destroyEngine()
+  afterAll(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 
-  before(async () => {
+  beforeAll(async () => {
     testLocation = await createTestLocation(app, params)
 
     testInstance = await app
@@ -62,7 +66,7 @@ describe('bot.service', () => {
       .create({ locationId: testLocation.id as LocationID, roomCode: '' as RoomCode, currentUsers: 0 })
   })
 
-  before(async () => {
+  beforeAll(async () => {
     const name = ('test-bot-user-name-' + uuidv4()) as UserName
     const avatarName = 'test-bot-avatar-name-' + uuidv4()
 

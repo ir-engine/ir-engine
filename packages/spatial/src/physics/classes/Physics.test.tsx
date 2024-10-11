@@ -22,12 +22,12 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import '../../..'
 
 import { RigidBodyType, ShapeType, TempContactForceEvent, Vector, World } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import sinon from 'sinon'
 import { BoxGeometry, Mesh, Quaternion, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   getComponent,
@@ -37,12 +37,11 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { destroyEngine } from '@ir-engine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
-import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { ObjectDirection, Vector3_Zero } from '../../common/constants/MathConstants'
+import { ObjectDirection, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -59,10 +58,19 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, UndefinedEntity, removeEntity } from '@ir-engine/ecs'
 import { act, render } from '@testing-library/react'
 import React from 'react'
+import {
+  assertFloatApproxEq,
+  assertFloatApproxNotEq,
+  assertVecAllApproxNotEq,
+  assertVecApproxEq
+} from '../../../tests/util/mathAssertions'
+import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import '../../transform/TransformModule'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { PhysicsSystem } from '../PhysicsModule'
+import '../PhysicsModule'
+import { PhysicsSystem } from '../systems/PhysicsSystem'
 import {
   BodyTypes,
   ColliderDescOptions,
@@ -72,48 +80,6 @@ import {
   Shapes
 } from '../types/PhysicsTypes'
 import { Physics, PhysicsWorld, RapierWorldState } from './Physics'
-
-const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
-
-const Epsilon = 0.001
-function floatApproxEq(A: number, B: number, epsilon = Epsilon): boolean {
-  return Math.abs(A - B) < epsilon
-}
-export function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
-}
-
-export function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(!floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
-}
-
-export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by RigidBodyComponent.test.ts
-  assertFloatApproxEq(A.x, B.x, epsilon)
-  assertFloatApproxEq(A.y, B.y, epsilon)
-  assertFloatApproxEq(A.z, B.z, epsilon)
-  if (elems > 3) assertFloatApproxEq(A.w, B.w, epsilon)
-}
-
-/**
- * @description
- * Triggers an assert if one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
- * Does nothing for members that are equal */
-export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by PhysicsSystem.test.ts
-  !floatApproxEq(A.x, B.x, epsilon) && assertFloatApproxNotEq(A.x, B.x, epsilon)
-  !floatApproxEq(A.y, B.y, epsilon) && assertFloatApproxNotEq(A.y, B.y, epsilon)
-  !floatApproxEq(A.z, B.z, epsilon) && assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) !floatApproxEq(A.w, B.w, epsilon) && assertFloatApproxEq(A.w, B.w, epsilon)
-}
-
-export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by RigidBodyComponent.test.ts
-  assertFloatApproxNotEq(A.x, B.x, epsilon)
-  assertFloatApproxNotEq(A.y, B.y, epsilon)
-  assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) assertFloatApproxNotEq(A.w, B.w, epsilon)
-}
 
 export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,
@@ -345,7 +311,272 @@ describe('Physics : Rapier->ECS API', () => {
       assertVecApproxEq(world.gravity, expected, 3)
       assert.equal(world.substeps, 2)
     })
-  })
+  }) //:: createWorld
+
+  describe('smoothKinematicBody', () => {
+    // Epsilon Constants for Interpolation
+    const LerpEpsilon = 0.000001
+    /** @note three.js Quat.slerp fails tests at 6 significant figures, but passes at 5 */
+    const SLerpEpsilon = 0.00001
+
+    const Quaternion_Zero = new Quaternion(0, 0, 0, 1).normalize()
+
+    /** @description Pair of `deltaTime` and `substep` values that will be used during an interpolation test */
+    type Step = { dt: number; substep: number }
+    /** @description Creates a Step object. @note Just a clarity/readability alias */
+    function createStep(dt: number, substep: number): Step {
+      return { dt, substep }
+    }
+
+    const DeltaTime = 1 / 60
+    const Start = {
+      position: new Vector3(1, 2, 3),
+      rotation: new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
+    }
+    const Final = {
+      position: new Vector3(4, 5, 6),
+      rotation: new Quaternion(0.0, 0.2, 0.8, 0.0).normalize()
+    }
+
+    /** @description List of steps that will be tested against for both the linear and smoooth interpolation tests */
+    const Step = {
+      Tenth: createStep(DeltaTime, 0.1),
+      Quarter: createStep(DeltaTime, 0.25),
+      Half: createStep(DeltaTime, 0.5),
+      One: createStep(DeltaTime, 1),
+      Two: createStep(DeltaTime, 2)
+    }
+
+    /** @description {@link Step} list, in array form */
+    const Steps = [Step.Tenth, Step.Quarter, Step.Half, Step.One, Step.Two]
+
+    /** @description List of non-zero values that {@link RigidbodyComponent.targetKinematicLerpMultiplier} will be set to during the gradual smoothing tests */
+    const KinematicMultiplierCases = [0.5, 0.25, 0.1, 0.01, 0.001, 0.0001, 2, 3, 4, 5]
+
+    /**
+     *  @section Initialize/Terminate the engine, entities and physics
+     */
+    let testEntity = UndefinedEntity
+    let physicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      await Physics.load()
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+
+      testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, RigidBodyComponent)
+      // Set the Start..Final values for interpolation
+      const body = getComponent(testEntity, RigidBodyComponent)
+      body.previousPosition.set(Start.position.x, Start.position.y, Start.position.z)
+      body.previousRotation.set(Start.rotation.x, Start.rotation.y, Start.rotation.z, Start.rotation.w)
+      body.targetKinematicPosition.set(Final.position.x, Final.position.y, Final.position.z)
+      body.targetKinematicRotation.set(Final.rotation.x, Final.rotation.y, Final.rotation.z, Final.rotation.w)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    describe('when RigidbodyComponent.targetKinematicLerpMultiplier is set to 0 ...', () => {
+      /** @description Calculates the Deterministic Lerp value for the `@param entity`, as expected by the tests, based on the given {@link Step.substep} value  */
+      function computeLerp(entity: Entity, step: Step) {
+        const body = getComponent(entity, RigidBodyComponent)
+        const result = {
+          position: body.previousPosition.clone().lerp(body.targetKinematicPosition.clone(), step.substep).clone(),
+          rotation: body.previousRotation.clone().slerp(body.targetKinematicRotation.clone(), step.substep).clone()
+        }
+        return result
+      }
+      /** @description Set the {@link RigidBodyComponent.targetKinematicLerpMultiplier} to 0 for all of the linear interpolation tests */
+      beforeEach(() => {
+        getMutableComponent(testEntity, RigidBodyComponent).targetKinematicLerpMultiplier.set(0)
+      })
+
+      it('... should apply deterministic linear interpolation to the position of the KinematicBody of the given entity', () => {
+        // Check data before
+        const body = getComponent(testEntity, RigidBodyComponent)
+        const before = body.position.clone()
+        assertVecApproxEq(before, Vector3_Zero, 3, LerpEpsilon)
+
+        // Run and Check resulting data
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Quarter.dt, Step.Quarter.substep)
+        const after = body.position.clone()
+        assertVecAllApproxNotEq(before, after, 3, LerpEpsilon)
+        assertVecApproxEq(after, computeLerp(testEntity, Step.Quarter).position, 3, LerpEpsilon)
+        // Check the other Step cases
+        getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Tenth.dt, Step.Tenth.substep)
+        assertVecApproxEq(body.position.clone(), computeLerp(testEntity, Step.Tenth).position, 3, LerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Half.dt, Step.Half.substep)
+        assertVecApproxEq(body.position.clone(), computeLerp(testEntity, Step.Half).position, 3, LerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.One.dt, Step.One.substep)
+        assertVecApproxEq(body.position.clone(), computeLerp(testEntity, Step.One).position, 3, LerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Two.dt, Step.Two.substep)
+        assertVecApproxEq(body.position.clone(), computeLerp(testEntity, Step.Two).position, 3, LerpEpsilon)
+        // Check substep precision Step cases
+        const TestCount = 1_000_000
+        for (let divider = 1; divider <= TestCount; divider += 1_000) {
+          const step = createStep(DeltaTime, 1 / divider)
+          getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+          Physics.smoothKinematicBody(physicsWorld, testEntity, step.dt, step.substep)
+          assertVecApproxEq(body.position.clone(), computeLerp(testEntity, step).position, 3, LerpEpsilon)
+        }
+      })
+
+      it('... should apply deterministic spherical linear interpolation to the rotation of the KinematicBody of the given entity', () => {
+        // Check data before
+        const body = getComponent(testEntity, RigidBodyComponent)
+        const before = body.rotation.clone()
+        assertVecApproxEq(before, new Quaternion(0, 0, 0, 1), 3, SLerpEpsilon)
+
+        // Run and Check resulting data
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Quarter.dt, Step.Quarter.substep)
+        const after = body.rotation.clone()
+        assertVecAllApproxNotEq(before, after, 4, SLerpEpsilon)
+        assertVecApproxEq(after, computeLerp(testEntity, Step.Quarter).rotation, 4, SLerpEpsilon)
+        // Check the other Step cases
+        getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Tenth.dt, Step.Tenth.substep)
+        assertVecApproxEq(body.rotation.clone(), computeLerp(testEntity, Step.Tenth).rotation, 4, SLerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Half.dt, Step.Half.substep)
+        assertVecApproxEq(body.rotation.clone(), computeLerp(testEntity, Step.Half).rotation, 4, SLerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.One.dt, Step.One.substep)
+        assertVecApproxEq(body.rotation.clone(), computeLerp(testEntity, Step.One).rotation, 4, SLerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Two.dt, Step.Two.substep)
+        assertVecApproxEq(body.rotation.clone(), computeLerp(testEntity, Step.Two).rotation, 4, SLerpEpsilon)
+        // Check substep precision Step cases
+        const TestCount = 1_000_000
+        for (let divider = 1; divider <= TestCount; divider += 1_000) {
+          const step = createStep(DeltaTime, 1 / divider)
+          getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+          Physics.smoothKinematicBody(physicsWorld, testEntity, step.dt, step.substep)
+          assertVecApproxEq(body.rotation.clone(), computeLerp(testEntity, step).rotation, 4, SLerpEpsilon)
+        }
+      })
+    })
+
+    describe('when RigidbodyComponent.targetKinematicLerpMultiplier is set to a value other than 0 ...', () => {
+      type LerpData = {
+        position: { start: Vector3; final: Vector3 }
+        rotation: { start: Quaternion; final: Quaternion }
+      }
+
+      /**
+       *  @description Sets the entity's {@link RigidBodyComponent.targetKinematicLerpMultiplier} property to `@param mult`
+       *  @returns The `@param mult` itself  */
+      function setMultiplier(entity: Entity, mult: number): number {
+        getMutableComponent(entity, RigidBodyComponent).targetKinematicLerpMultiplier.set(mult)
+        return mult
+      }
+      /**
+       *  @description Sets the entity's {@link RigidBodyComponent.targetKinematicLerpMultiplier} property to `@param mult` and calculates its smooth lerp alpha
+       *  @returns The exponentially smootheed Lerp Alpha value to use as `dt` in {@link smoothKinematicBody}  */
+      function getAlphaWithMultiplier(entity: Entity, dt: number, mult: number): number {
+        return smootheLerpAlpha(setMultiplier(entity, mult), dt)
+      }
+
+      /** @description Computes the lerp of the (`@param start`,`@param final`) input Vectors without mutating their values */
+      function lerpNoRef(start: Vector3, final: Vector3, dt: number) {
+        return start.clone().lerp(final.clone(), dt).clone()
+      }
+      /** @description Computes the fastSlerp of the (`@param start`,`@param final`) input Quaternions without mutating their values */
+      function fastSlerpNoRef(start: Quaternion, final: Quaternion, dt: number) {
+        return start.clone().fastSlerp(final.clone(), dt).clone()
+      }
+
+      /** @description Calculates the Exponential Lerp value for the `@param data`, as expected by the tests, based on the given `@param dt` alpha value  */
+      function computeELerp(data: LerpData, alpha: number) {
+        return {
+          position: lerpNoRef(data.position.start, data.position.final, alpha),
+          rotation: fastSlerpNoRef(data.rotation.start, data.rotation.final, alpha)
+        }
+      }
+
+      it('... should apply gradual smoothing (aka exponential interpolation) to the position of the KinematicBody of the given entity', () => {
+        // Check data before
+        const body = getComponent(testEntity, RigidBodyComponent)
+        const before = body.position.clone()
+        assertVecApproxEq(before, Vector3_Zero, 3, LerpEpsilon)
+
+        // Run and Check resulting data
+        // ... Infinite smoothing case
+        const MultInfinite = 1 // Multiplier 1 shouldn't change the position (aka. infinite smoothing)
+        setMultiplier(testEntity, MultInfinite)
+        Physics.smoothKinematicBody(physicsWorld, testEntity, DeltaTime, /*substep*/ 1)
+        assertVecApproxEq(before, body.position, 3, LerpEpsilon)
+
+        // ... Hardcoded case
+        setMultiplier(testEntity, 0.12345)
+        Physics.smoothKinematicBody(physicsWorld, testEntity, 1 / 60, 1)
+        const ExpectedHardcoded = { x: 0.1370581001805662, y: 0.17132262522570774, z: 0.20558715027084928 }
+        assertVecApproxEq(body.position.clone(), ExpectedHardcoded, 3)
+
+        // ... Check the other Step cases
+        for (const multiplier of KinematicMultiplierCases) {
+          for (const step of Steps) {
+            getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+            const alpha = getAlphaWithMultiplier(testEntity, step.dt, multiplier)
+            const before = {
+              position: { start: body.position.clone(), final: body.targetKinematicPosition.clone() },
+              rotation: { start: body.rotation.clone(), final: body.targetKinematicRotation.clone() }
+            }
+            Physics.smoothKinematicBody(physicsWorld, testEntity, step.dt, step.substep)
+            assertVecApproxEq(body.position, computeELerp(before, alpha).position, 3, LerpEpsilon)
+          }
+        }
+      })
+
+      it('... should apply gradual smoothing (aka exponential interpolation) to the rotation of the KinematicBody of the given entity', () => {
+        // Check data before
+        const body = getComponent(testEntity, RigidBodyComponent)
+        const before = body.rotation.clone()
+        assertVecApproxEq(before, Quaternion_Zero, 4, SLerpEpsilon)
+
+        // Run and Check resulting data
+        // ... Infinite smoothing case
+        const MultInfinite = 1 // Multiplier 1 shouldn't change the rotation (aka. infinite smoothing)
+        setMultiplier(testEntity, MultInfinite)
+        Physics.smoothKinematicBody(physicsWorld, testEntity, DeltaTime, /*substep*/ 1)
+        assertVecApproxEq(before, body.rotation, 3, SLerpEpsilon)
+
+        // ... Hardcoded case
+        setMultiplier(testEntity, 0.12345)
+        Physics.smoothKinematicBody(physicsWorld, testEntity, 1 / 60, 1)
+        const ExpectedHardcoded = new Quaternion(0, 0.013047535062645674, 0.052190140250582696, 0.9985524073985961)
+        assertVecApproxEq(body.rotation.clone(), ExpectedHardcoded, 4)
+
+        // ... Check the other Step cases
+        for (const multiplier of KinematicMultiplierCases) {
+          for (const step of Steps) {
+            getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+            const alpha = getAlphaWithMultiplier(testEntity, step.dt, multiplier)
+            const before = {
+              position: { start: body.position.clone(), final: body.targetKinematicPosition.clone() },
+              rotation: { start: body.rotation.clone(), final: body.targetKinematicRotation.clone() }
+            } as LerpData
+            Physics.smoothKinematicBody(physicsWorld, testEntity, step.dt, step.substep)
+            assertVecApproxEq(body.rotation, computeELerp(before, alpha).rotation, 3, SLerpEpsilon)
+          }
+        }
+      })
+    })
+  }) //:: smoothKinematicBody
 
   describe('Rigidbodies', () => {
     describe('createRigidBody', () => {
@@ -508,6 +739,44 @@ describe('Physics : Rapier->ECS API', () => {
           false,
           "Returns false when the entity is first created and physics haven't been simulated yet"
         )
+      })
+    })
+
+    describe('wakeUp', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: PhysicsWorld
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, SceneComponent)
+        setComponent(entity, TransformComponent)
+        setComponent(entity, EntityTreeComponent)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+        Physics.createRigidBody(physicsWorld, testEntity)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        return destroyEngine()
+      })
+
+      it('should wake up the body', () => {
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
+        body.sleep()
+        assert.equal(body.isSleeping(), true)
+        Physics.wakeUp(physicsWorld, testEntity)
+        assert.equal(body.isSleeping(), false)
       })
     })
 
@@ -1556,16 +1825,14 @@ describe('Physics : Rapier->ECS API', () => {
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
-        testEntity = createEntity()
-        setComponent(testEntity, EntityTreeComponent, { parentEntity: rootEntity })
-        setComponent(testEntity, TransformComponent)
-        setComponent(testEntity, RigidBodyComponent)
-        setComponent(testEntity, ColliderComponent)
         rootEntity = createEntity()
         setComponent(rootEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(rootEntity, TransformComponent)
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: rootEntity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, ColliderComponent)
         setComponent(rootEntity, RigidBodyComponent)
-        setComponent(rootEntity, ColliderComponent)
       })
 
       afterEach(() => {
@@ -1582,7 +1849,13 @@ describe('Physics : Rapier->ECS API', () => {
 
       it('should return a descriptor with the expected default values', () => {
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        assert.deepEqual(result, Default)
+        for (const key in Default) {
+          if (typeof Default[key] === 'object' && 'x' in Default[key]) {
+            assertVecApproxEq(result[key], Default[key], 3)
+          } else {
+            assert.deepEqual(result[key], Default[key])
+          }
+        }
       })
 
       it('should set the friction to the same value as the ColliderComponent', () => {
@@ -1648,7 +1921,6 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should set the position relative to the parent entity', () => {
-        const Expected = new Vector3(1, 2, 3)
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         console.log(JSON.stringify(result))
         console.log(JSON.stringify(result.translation))
@@ -1656,10 +1928,8 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should set the rotation relative to the parent entity', () => {
-        const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        console.log(JSON.stringify(result.rotation))
-        assertVecApproxEq(result.rotation, Rotation_Zero, 4)
+        assertVecApproxEq(result.rotation, Q_IDENTITY, 4)
       })
     })
 
@@ -2267,13 +2537,13 @@ describe('Physics : Rapier->ECS API', () => {
         assert.equal(testEntity1, entity1)
         assert.equal(testEntity2, entity2)
         // Check before
-        assert.ok(!hasComponent(entity1, CollisionComponent))
-        assert.ok(!hasComponent(entity2, CollisionComponent))
+        assert.equal(hasComponent(entity1, CollisionComponent), false)
+        assert.equal(hasComponent(entity2, CollisionComponent), false)
 
         // Run and Check after
         event(collider1.handle, collider2.handle, true)
-        assert.ok(hasComponent(entity1, CollisionComponent))
-        assert.ok(hasComponent(entity2, CollisionComponent))
+        assert.equal(hasComponent(entity1, CollisionComponent), true)
+        assert.equal(hasComponent(entity2, CollisionComponent), true)
       })
 
       describe('when `started` is set to `true` ...', () => {

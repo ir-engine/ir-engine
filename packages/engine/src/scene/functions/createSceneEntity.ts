@@ -29,15 +29,15 @@ import {
   UndefinedEntity,
   createEntity,
   generateEntityUUID,
-  getComponent,
+  getOptionalComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Group } from 'three'
 import { proxifyParentChildRelationships } from './loadGLTFModel'
 
@@ -48,9 +48,13 @@ export const createSceneEntity = (name: string, parentEntity: Entity = Undefined
   setComponent(entity, NameComponent, name)
   setComponent(entity, VisibleComponent)
   setComponent(entity, TransformComponent)
-  setComponent(entity, EntityTreeComponent, { parentEntity })
-  const sceneID = getComponent(parentEntity, SourceComponent)
-  setComponent(entity, SourceComponent, sceneID)
+  if (parentEntity !== UndefinedEntity) {
+    setComponent(entity, EntityTreeComponent, { parentEntity })
+  }
+  const sceneID = getOptionalComponent(parentEntity, SourceComponent)
+  if (sceneID != null) {
+    setComponent(entity, SourceComponent, sceneID)
+  }
 
   setComponent(entity, UUIDComponent, generateEntityUUID())
 

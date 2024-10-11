@@ -6,6 +6,8 @@
   "selectSceneMsg": "Select a Scene in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
+  "warning": "Warning",
+  "warningMsg": "I dont think you should do that.",
   "generateScreenshot": "Generating Project Screenshot",
   "newScene": "Add Scene",
   "saving": "Saving Project",
@@ -29,7 +31,7 @@
   "loadingAssets": "Loading Assets",
   "loadingScenes": "Loading Scenes",
   "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
-  "help": "Help",
+  "help": "Customer Service Live Chat",
   "menubar": {
     "newScene": "New Scene",
     "newEmptyScene": "New Empty Scene",
@@ -72,7 +74,10 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
+  },
+  "warnings" : {
+    "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
     "title": "Viewport",
@@ -129,16 +134,18 @@
       "lbl-selection": "Selection",
       "info-selection": "The center pivot of the final asset you selected in the sequence.",
       "lbl-center": "Center",
-      "info-center": "A pivot that sits at an equal distance between all selections.",
-      "lbl-bottom": "Bottom",
-      "info-bottom": "A pivot that sits equally between all selections and at the bottom of your final selection in the sequence.",
+      "info-center": "A pivot that sits at an equal distance between all selections (centroid).",
+      "lbl-bbox": "BoundingBox",
+      "info-bbox": "A pivot that uses the center point of a bounding box containing all selected entities' positions.",
+      "lbl-bbox-bottom": "BBoxBottom",
+      "info-bbox-bottom": "A pivot that sits at the center of the bottom face of a bounding box containing all selected entities' positions.",
       "lbl-origin": "Origin",
       "info-origin": "Sets pivot mode to the world origin (0,0,0)"
     },
     "transformSnapTool": {
       "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
       "toggleSnapMode": "[C] Toggle Grid Snap",
-      "info-translate": "Translate objects by a unit of measurement.",
+      "info-translate": "Grid and translation snap size (meters).",
       "info-rotate": "Snap rotation angle"
     },
     "placement": {
@@ -177,7 +184,8 @@
     },
     "grid": {
       "info-toggleGridVisibility": "Toggle Grid Visibility",
-      "info-gridSpacing": "Set grid spacing meters",
+      "info-gridSpacing": "Set grid spacing (meters)",
+      "info-gridHeight": "Set grid height (meters)",
       "info-incrementHeight": "Increment Grid Height",
       "info-decrementHeight": "Decrement Grid Height"
     },
@@ -241,7 +249,8 @@
     "rigidbody": {
       "name": "Rigidbody",
       "description": "A rigidbody component that allows the entity to be affected by physics.",
-      "lbl-type": "Body Type"
+      "lbl-type": "Body Type",
+      "duplicateError": "A rigidbody component already exists in the current entity hierarchy, removing it from entity {{entity}} with name {{name}}"
     },
     "prefab": {
       "name": "Prefab",
@@ -254,7 +263,8 @@
       "lbl-load": "Load Into Scene",
       "lbl-loadOptions": "Load Options",
       "lbl-unload": "Unload",
-      "lbl-reload": "Reload"
+      "lbl-reload": "Reload",
+      "lbl-confimation": "Prefab Created"
     },
     "persistent-anchor": {
       "name": "Persistent Anchor",
@@ -357,6 +367,7 @@
       "info-refDistance": "A double value representing the reference distance for reducing volume as the audio source moves further from the listener.",
       "lbl-maxDistance": "Max Distance",
       "info-maxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
+      "info-maxDistanceDisabled": "Only supported with the Linear Distance Model.",
       "lbl-coneInnerAngle": "Cone Inner Angle",
       "info-coneInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
       "lbl-coneOuterAngle": "Cone Outer Angle",
@@ -449,7 +460,7 @@
     },
     "shadow": {
       "name": "Shadows",
-      "description": "Shadow properties for the model",
+      "description": "Configure ability for the model to cast or receive shadows for improved visual realism.",
       "lbl-castShadow": "Cast Shadow",
       "lbl-receiveShadow": "Receive Shadow"
     },
@@ -529,7 +540,14 @@
         "uastcZstandard": "UASTC Zstandard",
         "uastcZstandardTooltip": "Use UASTC Zstandard supercompression",
         "useMeshoptimizer": "Use Meshoptimizer",
-        "maxCodebooks": "Max Codebooks"
+        "maxCodebooks": "Max Codebooks",
+        "status": {
+          "transformingmodels": "Transforming models...",
+          "processingtexture": "Processing texture {{numerator}} of {{denominator}}...",
+          "writingfiles": "Writing files...",
+          "complete": "Complete."
+        },
+        "progress": "LOD {{currentLOD}} of {{totalLODs}}: {{caption}}"
       },
       "lods": {
         "label": "Level of Detail",
@@ -603,8 +621,18 @@
       "duration": "Duration",
       "prewarm": "Prewarm",
       "emitter-shape": "Emitter Shape",
+      "emitter-shape-type": {
+        "point": "Point",
+        "sphere": "Sphere",
+        "cone": "Cone",
+        "donut": "Donut",
+        "mesh": "Mesh"
+      },
       "emission-bursts": "Emission Bursts",
+      "add-burst": "Add Burst",
+      "remove-burst": "Remove Burst",
       "shape-mesh": "Emitter Shape Mesh",
+      "shape-mesh-info": "Drag Gltf or Glb file here (or paste it's file asset url) to set the mesh to use as the emitter shape",
       "start-life": "Start Life",
       "start-size": "Start Size",
       "start-speed": "Start Speed",
@@ -612,6 +640,12 @@
       "start-color": "Start Color",
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
+      "render-mode-type": {
+        "billboard": "Billboard",
+        "stretched-billboard": "Stretched Billboard",
+        "mesh": "Mesh",
+        "trail": "Trail"
+      },
       "texture": "Particle Texture",
       "u-tiles": "U Tiles",
       "v-tiles": "V Tiles",
@@ -620,6 +654,14 @@
       "blending": "Blending",
       "transparent": "Transparent",
       "world-space": "Use World Space",
+      "blending-type": {
+        "normal": "Normal",
+        "additive": "Additive",
+        "subtractive": "Subtractive",
+        "multiply": "Multiply",
+        "custom": "Custom",
+        "no-blending": "No Blending"
+      },
       "burst": {
         "time": "Burst Time",
         "count": "Burst Count",
@@ -627,7 +669,8 @@
         "interval": "Burst Interval",
         "probability": "Burst Probability"
       },
-      "addBehavior": "Add Behavior"
+      "addBehavior": "Add Behavior",
+      "remove": "Remove"
     },
     "clouds": {
       "name": "Cloud",
@@ -730,11 +773,18 @@
     },
     "cameraSettings": {
       "name": "Camera Settings",
-      "description": "Change the camera settings for this scene."
+      "description": "Adjust camera settings to optimize scene visualization, including projection type, field of view, and distance parameters.",
+      "lbl-projectionType" : "Projection Type",
+      "lbl-fov": "Field of View",
+      "lbl-calcClippingPlanes": "Calculate Clipping Planes",
+      "lbl-projectionDistance": "Projection Distance",
+      "lbl-cameraDistance": "Camera Distance",
+      "lbl-startCameraDistance": "Start Camera Distance",
+      "lbl-phi": "Phi"
     },
     "cameraComponent": {
       "name": "Camera",
-      "description": "Camera Component",
+      "description": "Configure camera parameters for optimal scene rendering.",
       "lbl-fov": "FOV",
       "lbl-aspect": "Aspect",
       "lbl-near": "Near",
@@ -747,7 +797,7 @@
     },
     "mediaSettings": {
       "name": "Media Settings",
-      "description": "Customise the scene media settings",
+      "description": "Enhance immersion by adjusting media settings, including positional audio, distance-based sound, and immersive media for a more dynamic auditory experience.",
       "lbl-audioSettings": "Use Positional Audio",
       "lbl-avatarDistanceModel": "Avatar Distance Model",
       "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
@@ -779,6 +829,7 @@
     },
     "audioAnalysis": {
       "name": "Audio Analysis",
+      "description": "Adjust advanced audio settings with options to enable and fine-tune bass, treble, and mid frequencies using configurable multipliers for precise sound control.",
       "lbl-bassEnabled": "Bass Enabled",
       "lbl-trebleEnabled": "Treble Enabled",
       "lbl-midEnabled": "Mid Enabled",
@@ -793,7 +844,7 @@
     },
     "renderSettings": {
       "name": "Render Settings",
-      "description": "Customise the scene renderer settings",
+      "description": "Configure various rendering settings for the scene, including lighting, shadows, post-processing effects, tone mapping, and level of detail adjustments.",
       "lbl-bgcolor": "Background Color",
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
@@ -817,7 +868,7 @@
     },
     "sceneSettings": {
       "name": "Scene Settings",
-      "description": "Customise the scene settings",
+      "description": "Enhance user experience by customizing thumbnails, loading screens, colors, and spectating options.",
       "lbl-thumbnail": "Thumbnail",
       "info-thumbnail": "Change the thumbnail",
       "generate": "Generate",
@@ -875,7 +926,10 @@
       "lbl-penumbra": "Penumbra",
       "lbl-angle": "Angle",
       "lbl-range": "Range",
-      "lbl-decay": "Decay"
+      "lbl-decay": "Decay",
+      "lbl-shadowBias": "Shadow Bias",
+      "lbl-shadowRadius": "Shadow Radius",
+      "lbl-castShadow": "Cast Shadow"
     },
     "transform": {
       "title": "Transform",
@@ -896,7 +950,7 @@
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
       "ph-selectNode": "Select node...",
-      "lbl-addRigidBody": "Add RigidBody..."
+      "lbl-addRigidBody": "Add RigidBody"
     },
     "video": {
       "name": "Video",
@@ -1015,6 +1069,8 @@
       "lbl-dismount": "Dismount point, offsets this transform"
     },
     "text": {
+      "name": "3D Text",
+      "description": "A 3D text object.",
       "textGroup": "Text",
       "textOpacity": "Opacity",
       "textWidth": "Width",
@@ -1196,7 +1252,7 @@
       "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
-      "tab-name": "Project Files",
+      "tab-name": "Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
       "copyAsset": "Copy",
@@ -1213,32 +1269,38 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
+      "downloadProjectUnavailable": "Cannot Download From Project Directory",
       "uploadAssets": "Upload Assets",
       "uploadFiles": "Upload Files",
       "uploadFolder": "Upload Folder",
       "uploadingFiles": "Uploading Files ({{completed}}/{{total}})",
+      "fetchingProject": "Fetching Project",
       "downloadingProject": "Downloading Project ({{completed}}/{{total}})",
       "search-placeholder": "Search",
       "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "file": "File",
       "directory": "Directory",
+      "fileNameLengthError": "File name must be between 4 and 64 characters.",
       "fileProperties": {
         "header": "Info for {{fileName}}",
         "header-plural": "Info for {{itemCount}} Items",
         "regenerateThumbnail": "Regenerate Thumbnail",
         "name": "Name",
+        "fileName": "File Name",
         "type": "Type",
         "size": "Size",
         "url": "URL",
         "author": "Author",
         "attribution": "Attribution",
         "licensing": "Licensing",
+        "description": "Description",
         "tag": "Tag",
         "addTag": "Add New Tag",
         "add": "Add",
         "save-changes": "Save Changes",
         "discard": "Discard",
-        "mixedValues": "Mixed"
+        "mixedValues": "Mixed",
+        "uploadThumbnail": "Upload Thumbnail"
       },
       "view-mode": {
         "icons": "View: Icons",
@@ -1362,6 +1424,7 @@
       "lbl-confirm": "Save Scene",
       "info-confirm": "Are you sure you want to save the scene?",
       "info-question": "Do you want to save the current scene?",
+      "info-save-success": "Scene saved successfully!",
       "unsavedChanges": {
         "title": "Unsaved Changes"
       }
@@ -1369,8 +1432,17 @@
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
+      "info-name": "Name must be between 4 and 64 characters (with only letters, numbers, underscores, dashes and periods allowed)",
       "lbl-confirm": "Save Scene"
+    },
+    "saveModel": {
+      "title": "Save Changes",
+      "text": "Are you sure you want to save changes to this file?"
+    },
+    "revertModel": {
+      "lbl-name": "Revert",
+      "title": "Revert Changes",
+      "text": "Are you sure you want to revert changes to this file?"
     },
     "support": {
       "title": "Support",
@@ -1468,5 +1540,20 @@
     "path": "Path",
     "type": "Type",
     "tags": "Tags"
+  },
+  "unsupportedBrowser": {
+    "title": "Browser Not Supported!",
+    "description": "Please use Google Chrome for the best experience with the iR Studio.",
+    "downloadChrome": "Download Chrome",
+    "continue": "Continue Anyway"
+  },
+  "unsupportedFile": {
+    "title": "Unsupported File Type!",
+    "okay": "Okay"
+  },
+  "unsupportedDevice": {
+    "title": "Unsupported Device Type!",
+    "description": "We have detected you are using an unsupported device. You may experience errors using this device. If you want to have the best experience with IR Studio, please use a desktop running the latest version of Google Chrome. Thank you!",
+    "continue": "Continue Anyway"
   }
 }

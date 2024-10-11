@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { Object3DUtils } from '@ir-engine/common/src/utils/Object3DUtils'
+import { Object3DUtils } from '@ir-engine/spatial/src/transform/Object3DUtils'
 
 const toLocalQuat = new Quaternion(),
   rotation = new Quaternion(),

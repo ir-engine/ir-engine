@@ -22,20 +22,23 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import './patchEngineNode'
 
 import assert from 'assert'
+import { afterAll, describe, it } from 'vitest'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
-import { createFeathersKoaApp } from './createApp'
+import { createFeathersKoaApp, tearDownAPI } from './createApp'
 
 describe('Core', () => {
   it('should initialise app', async () => {
-    const app = createFeathersKoaApp()
+    const app = await createFeathersKoaApp()
     await app.setup()
     assert.ok(app.isSetup)
   })
-  after(() => {
-    return destroyEngine()
+  afterAll(async () => {
+    await tearDownAPI()
+    destroyEngine()
   })
 })

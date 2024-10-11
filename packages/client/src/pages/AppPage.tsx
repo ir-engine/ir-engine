@@ -32,7 +32,6 @@ import { initGA, logPageView } from '@ir-engine/client-core/src/common/analytics
 import { NotificationSnackbar } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useSearchParamState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
-import Debug from '@ir-engine/client-core/src/components/Debug'
 import InviteToast from '@ir-engine/client-core/src/components/InviteToast'
 import { LoadWebappInjection } from '@ir-engine/client-core/src/components/LoadWebappInjection'
 import { useAuthenticated } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -41,7 +40,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import './mui.styles.scss' /** @todo Remove when MUI is removed */
 import './styles.scss'
 
-const AppPage = (props: { children: React.ReactNode }) => {
+const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element }) => {
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
 
@@ -55,15 +54,16 @@ const AppPage = (props: { children: React.ReactNode }) => {
   useSearchParamState()
 
   if (!isLoggedIn) {
-    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
+    return (
+      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
+    )
   }
 
   return (
     <>
       <NotificationSnackbar />
-      <LoadWebappInjection>{props.children}</LoadWebappInjection>
+      <LoadWebappInjection fallback={props.fallback}>{props.children}</LoadWebappInjection>
       <InviteToast />
-      <Debug />
     </>
   )
 }

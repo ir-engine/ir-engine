@@ -27,10 +27,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiEye } from 'react-icons/hi2'
 
+import { useFind } from '@ir-engine/common'
 import { buildStatusPath, BuildStatusType } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
+import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import { PopoverState } from '../../../../common/services/PopoverState'
 import { buildStatusColumns, BuildStatusRowType } from '../../../common/constants/build-status'
 import DataTable from '../../../common/Table'
@@ -51,7 +52,15 @@ export default function BuildStatusTable() {
   const createRows = (rows: readonly BuildStatusType[]): BuildStatusRowType[] =>
     rows.map((row) => ({
       id: row.id.toString(),
-      commitSHA: row.commitSHA,
+      commitSHA: (
+        <TruncatedText
+          variant="copy"
+          text={row.commitSHA || ''}
+          truncatorChar=""
+          visibleChars={8}
+          truncatorPosition="end"
+        />
+      ),
       status: <BuildStatusBadge status={row.status} />,
       dateStarted: getStartOrEndDate(row.dateStarted),
       dateEnded: getStartOrEndDate(row.dateEnded, true),

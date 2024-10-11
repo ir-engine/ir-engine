@@ -65,7 +65,7 @@ export default function Locations() {
               }, 100)
             }}
             className="bg-theme-surface-main"
-            containerClassname="w-1/5 block"
+            containerClassName="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
           <div>
@@ -74,7 +74,7 @@ export default function Locations() {
               size="small"
               fullWidth
               onClick={() => {
-                PopoverState.showPopupover(<AddEditLocationModal />)
+                PopoverState.showPopupover(<AddEditLocationModal action="admin" />)
               }}
             >
               {t('admin:components.location.createLocation')}

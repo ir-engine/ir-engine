@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
-import fs from 'fs'
-import lodash from 'lodash'
+import fs, { readFileSync, writeFileSync } from 'fs'
+import { isArray, mergeWith } from 'lodash-es'
 import path from 'path'
-import { defineConfig, UserConfig } from 'vite'
+import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -37,14 +37,14 @@ import svgr from 'vite-plugin-svgr'
 
 import appRootPath from 'app-root-path'
 import { getProjectsFSList } from '../server-core/src/util/getProjectsFSList'
+import { EngineSettings } from '../common/src/constants/EngineSettings'
 import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
-import { getCoilSetting } from './scripts/getCoilSettings'
 import importMap from './scripts/viteImportMaps'
 
-const { isArray, mergeWith } = lodash
+import { getEngineSetting } from './scripts/getEngineSettings'
 
 const parseModuleName = (moduleName: string) => {
   // // chunk medisoup-client
@@ -118,13 +118,6 @@ const merge = (src, dest) =>
       return b.concat(a)
     }
   })
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import('ts-node').then((tsnode) => {
-  tsnode.register({
-    project: './tsconfig.json'
-  })
-})
 
 const projects = getProjectsFSList()
 
@@ -243,18 +236,37 @@ const resetSWFiles = () => {
   deleteDirFilesUsingPattern(/workbox-/, './public/')
 }
 
+const updateRootCookieAccessorDomain = (isDevOrLocal) => {
+  const localStorageAccessor = readFileSync(
+    path.join(appRootPath.path, 'packages', 'client', 'public', 'root-cookie-accessor-template.html')
+  ).toString()
+
+  const apiUrl =
+    isDevOrLocal && process.env.VITE_LOCAL_NGINX !== 'true'
+      ? `https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`
+      : `https://${process.env.VITE_SERVER_HOST}`
+  const updated = localStorageAccessor.replace(/<API_URL>/g, apiUrl)
+
+  writeFileSync(
+    path.join(appRootPath.path, 'packages', 'client', 'public', 'root-cookie-accessor.html'),
+    Buffer.from(updated)
+  )
+}
+
 export default defineConfig(async ({ command }) => {
   dotenv.config({
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
-  const coilSetting = await getCoilSetting()
+  const coilSetting = await getEngineSetting('coil', [EngineSettings.Coil.PaymentPointer])
 
   const projectsWithConfigs = getProjectsWithConfigs()
 
   resetSWFiles()
 
   const isDevOrLocal = process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+
+  updateRootCookieAccessorDomain(isDevOrLocal)
 
   let base = `https://${process.env['APP_HOST'] ? process.env['APP_HOST'] : process.env['VITE_APP_HOST']}/`
 
@@ -275,7 +287,7 @@ export default defineConfig(async ({ command }) => {
     define: define,
     server: {
       proxy: {},
-      cors: isDevOrLocal ? false : true,
+      cors: !isDevOrLocal,
       hmr:
         process.env.VITE_HMR === 'true'
           ? {
@@ -333,7 +345,8 @@ export default defineConfig(async ({ command }) => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting?.paymentPointer || ''
+        paymentPointer: coilSetting?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || '',
+        rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,
@@ -358,7 +371,7 @@ export default defineConfig(async ({ command }) => {
     },
     build: {
       target: 'esnext',
-      sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? true : false,
+      sourcemap: process.env.VITE_SOURCEMAPS === 'true',
       minify: 'terser',
       terserOptions: {
         mangle: {

@@ -48,7 +48,7 @@ const roundedTypes = {
 }
 
 const sizes = {
-  small: 'text-sm px-3 py-2',
+  small: 'text-sm px-3 py-1',
   medium: 'text-base px-4 py-2',
   large: 'text-lg px-7 py-3'
 }
@@ -56,7 +56,7 @@ const sizes = {
 const variants = {
   primary: 'bg-blue-primary',
   secondary: 'bg-theme-blue-secondary',
-  outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
+  outline: 'border border-solid border-theme-primary bg-[#212226] dark:bg-theme-highlight text-theme-primary',
   danger: 'bg-red-500',
   success: 'bg-teal-700',
   transparent: 'bg-transparent dark:bg-transparent'
@@ -81,7 +81,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const twClassName = twMerge(
-      'flex items-center',
+      'flex items-center justify-center',
       'font-medium text-white',
       'transition ease-in-out',
       'disabled:cursor-not-allowed',
@@ -98,9 +98,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button ref={ref} role="button" disabled={disabled} className={twClassName} {...props}>
         {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
         {children && (
-          <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}>{children}</span>
+          <span
+            className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}
+            data-testid="button-name"
+          >
+            {children}
+          </span>
         )}
-        {EndIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{EndIcon}</span>}
+        {EndIcon && (
+          <span className={twMerge('mx-1', iconContainerClassName)} data-testid="button-end-icon">
+            {EndIcon}
+          </span>
+        )}
       </button>
     )
   }

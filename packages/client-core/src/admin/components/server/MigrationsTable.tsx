@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useFind } from '@ir-engine/common'
 import { migrationsInfoPath, MigrationsInfoType } from '@ir-engine/common/src/schema.type.module'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { migrationsInfoColumns, MigrationsInfoRowType } from '../../common/constants/migrations-info'
@@ -55,6 +55,7 @@ export default function MigrationsInfoTable() {
 
   return (
     <DataTable
+      size="sm"
       query={adminMigrationsInfoQuery}
       columns={migrationsInfoColumns}
       rows={createRows(adminMigrationsInfoQuery.data)}

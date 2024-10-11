@@ -1,0 +1,183 @@
+<html lang="en">
+  <head id="head">
+    <title>Local Storage Accessor</title>
+    <link rel="stylesheet" href="cookie-accessor.css" />
+    <script>
+      let origin
+
+      function getCookies() {
+        return document.cookie.split('; ').reduce((accumulator, current) => {
+          const values = current.split('=')
+          accumulator.set(values[0], values[1])
+          return accumulator
+        }, new Map())
+      }
+
+      let cookiesMapObj = getCookies()
+
+      const processMessage = async (e) => {
+        origin = e.origin
+        const payload = e?.data?.payload
+        if (e?.data?.method == null) return
+        const parent = window.parent
+        const message = { id: e.data.id, success: true, data: {} }
+        switch (e?.data?.method) {
+          case 'set':
+            if (payload?.data) {
+              document.cookie = `${payload.key}=${JSON.stringify(payload.data)}; SameSite=None; Secure`
+              message.data.cookieWasSet = payload.key
+              parent.postMessage(message, e.origin)
+            }
+            break
+          case 'get':
+            const result = cookiesMapObj.get(payload.key)
+            if (result === undefined || result === '') {
+              message.success = false
+              parent.postMessage(message, e.origin)
+              break
+            }
+            message.data = result
+            parent.postMessage(message, e.origin)
+            break
+          case 'remove':
+            document.cookie = document.cookie
+              .split('; ')
+              .find((row) => row.startsWith(`${payload.key}=`))
+              .replace(/^ +/, '')
+              .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+            parent.postMessage(message, e.origin)
+            break
+          case 'checkAccess':
+            const cookieSet = cookiesMapObj.get('visited') || cookiesMapObj.get('allowedDomains')
+            if (!document.hasStorageAccess) {
+              message.data.hasStorageAccess = false
+              message.data.cookieSet = cookieSet
+              parent.postMessage(message, e.origin)
+              break
+            } else {
+              const hasAccess = await document.hasStorageAccess()
+              let storageAccessPermission
+              try {
+                storageAccessPermission = await navigator.permissions.query({
+                  name: 'storage-access'
+                })
+              } catch (error) {
+                storageAccessPermission = { state: 'denied' } 
+                console.error('Failed to query storage permission', error)
+              }
+              if (hasAccess && storageAccessPermission.state === 'granted') {
+                message.data.hasStorageAccess = hasAccess
+                message.data.cookieSet = cookieSet
+                parent.postMessage(message, e.origin)
+                break
+              } else {
+                try {
+                  await document.requestStorageAccess()
+                  message.data.hasStorageAccess = true
+                  message.data.cookieSet = cookieSet
+                  parent.postMessage(message, e.origin)
+                  break
+                } catch (err) {
+                  if (storageAccessPermission.state === 'prompt') {
+                    message.data.hasStorageAccess = false
+                    message.data.cookieSet = cookieSet
+                    parent.postMessage(message, e.origin)
+                    break
+                  } else if (storageAccessPermission.state === 'denied') {
+                    message.data.hasStorageAccess = false
+                    message.data.cookieSet = cookieSet
+                    message.data.storageAccessPermission = 'denied'
+                    parent.postMessage(message, e.origin)
+                    break
+                  }
+                }
+              }
+              break
+            }
+        }
+      }
+      window.onmessage = async function (e) {
+        let allowedDomains
+        cookiesMapObj = getCookies()
+        try {
+          await document.requestStorageAccess()
+          const allowedDomainCookie = cookiesMapObj.get('allowedDomains')
+          allowedDomains = allowedDomainCookie !== '' ? JSON.parse(allowedDomains) : []
+        } catch (err) {
+          allowedDomains = []
+        }
+        if (allowedDomains?.indexOf(e.origin) > -1) await processMessage(e)
+        else {
+          const response = await fetch(`<API_URL>/allowed-domains?domainToCheck=${e.origin}`)
+          if (response.status === 200) {
+            const body = await response.json()
+            if (body) {
+              allowedDomains.push(e.origin)
+              document.cookie = `allowedDomains=${JSON.stringify(allowedDomains)}; SameSite=None; Secure`
+              cookiesMapObj = getCookies()
+              await processMessage(e)
+            }
+          } else {
+            const message = { id: e?.data?.id, success: false, data: { invalidDomain: true } }
+            parent.postMessage(message, e.origin)
+          }
+        }
+      }
+      document.addEventListener('DOMContentLoaded', async (event) => {
+        document.getElementById('confirmButton').onclick = async (event) => {
+          try {
+            const requestStorageAccessResponse = await document.requestStorageAccess()
+            if (requestStorageAccessResponse == null) {
+              cookiesMapObj = getCookies()
+              const cookieSet = cookiesMapObj['visited'] || cookiesMapObj['allowedDomains']
+              parent.postMessage({ success: true, data: { hasStorageAccess: true, cookieSet } }, origin)
+            }
+          } catch (err) {
+            if (err.message === 'requestStorageAccess not allowed')
+              parent.postMessage(
+                { success: false, data: { hasStorageAccess: false, storageAccessPermission: 'denied' } },
+                origin
+              )
+          }
+        }
+
+        document.getElementById('cancelButton').onclick = (event) =>
+          parent.postMessage({ success: true, data: { skipCrossOriginCookieCheck: true } }, origin)
+
+        let data
+        if (document.cookie) cookiesMapObj = getCookies()
+        try {
+          data = JSON.parse(cookiesMapObj['ir.hyperflux.AuthState.authUser'])
+        } catch {
+          //do nothing
+        }
+        if (data) {
+          const token = data.accessToken
+          const userId = data.identityProvider.userId
+          const req = new Request(`<API_URL>/user/${userId}`, {
+            headers: new Headers({
+              Authorization: `Bearer ${token}`
+            })
+          })
+          const response = await fetch(req)
+          const body = await response.json()
+          if (body)
+            document.getElementById('mainText').textContent = document
+              .getElementById('mainText')
+              .textContent.replace('your login', `your login as ${body.name}`)
+        }
+      })
+    </script>
+  </head>
+  <body>
+    <h2 id="mainText">
+      This site runs on IR Engine. To automatically use your login across all IR Engine-powered sites, please confirm
+      below. If you decline, then each IR Engine-powered site will log in separately, and you will receive this prompt
+      on each site.
+    </h2>
+    <div class="button-container">
+      <button id="confirmButton">Share my login across sites</button>
+      <button id="cancelButton">Do not share my login across sites</button>
+    </div>
+  </body>
+</html>

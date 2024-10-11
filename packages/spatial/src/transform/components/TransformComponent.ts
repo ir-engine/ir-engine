@@ -23,15 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { EntityTreeComponent, getAncestorWithComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { isZero } from '../../common/functions/MathFunctions'
-import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { QuaternionProxyDirty, Vec3ProxyDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 
 export type TransformComponentType = {
@@ -42,35 +49,31 @@ export type TransformComponentType = {
   matrixWorld: Matrix4
 }
 
-const { f64 } = Types
-export const Vector3Schema = { x: f64, y: f64, z: f64 }
-export const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
-export const PoseSchema = {
-  position: Vector3Schema,
-  rotation: QuaternionSchema
+export const PoseECS = {
+  position: ECSSchema.Vec3,
+  rotation: ECSSchema.Quaternion
 }
-export const TransformSchema = {
-  position: Vector3Schema,
-  rotation: QuaternionSchema,
-  scale: Vector3Schema
+export const TransformECS = {
+  position: ECSSchema.Vec3,
+  rotation: ECSSchema.Quaternion,
+  scale: ECSSchema.Vec3
+  // There might be a way to make this a performance gain, but in testing it's about 15% slower than JS arrays
+  // matrix: ECSSchema.Mat4,
+  // matrixWorld: ECSSchema.Mat4
 }
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
   jsonID: 'EE_transform',
-  schema: TransformSchema,
+  schema: TransformECS,
 
-  onInit: (entity) => {
+  onInit: (initial) => {
+    const entity = initial.entity
     const dirtyTransforms = TransformComponent.dirtyTransforms
     const component = {
-      position: proxifyVector3WithDirty(TransformComponent.position, entity, dirtyTransforms) as Vector3,
-      rotation: proxifyQuaternionWithDirty(TransformComponent.rotation, entity, dirtyTransforms) as Quaternion,
-      scale: proxifyVector3WithDirty(
-        TransformComponent.scale,
-        entity,
-        dirtyTransforms,
-        new Vector3(1, 1, 1)
-      ) as Vector3,
+      position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
+      rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
+      scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms, { x: 1, y: 1, z: 1 }),
       matrix: new Matrix4(),
       matrixWorld: new Matrix4()
     } as TransformComponentType
@@ -78,38 +81,42 @@ export const TransformComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    const rotation = json?.rotation
-      ? typeof json.rotation.w === 'number'
-        ? json.rotation
-        : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
-      : undefined
-
-    if (json?.position) component.position.value.copy(json.position)
-    if (rotation) component.rotation.value.copy(rotation)
-    if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
-
-    const transform = getComponent(entity, TransformComponent)
-    composeMatrix(entity)
-    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-    const parentEntity = entityTree?.parentEntity
-    if (parentEntity) {
-      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-      if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
-    } else {
-      transform.matrixWorld.copy(transform.matrix)
-    }
+    if (!json) return
+    if (json.position) component.position.value.copy(json.position)
+    if (json.rotation) component.rotation.value.copy(json.rotation)
+    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
   },
 
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      position: component.position.value,
-      rotation: component.rotation.value,
-      scale: component.scale.value
+      position: component.position,
+      rotation: component.rotation,
+      scale: component.scale
     }
   },
 
-  onRemove: (entity) => {
-    delete TransformComponent.dirtyTransforms[entity]
+  reactor: () => {
+    const entity = useEntityContext()
+    const transformComponent = useComponent(entity, TransformComponent)
+
+    useImmediateEffect(() => {
+      const transform = transformComponent.value as TransformComponentType
+      composeMatrix(entity)
+      const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+      const parentEntity = entityTree?.parentEntity
+      if (parentEntity) {
+        const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+        if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+      } else {
+        transform.matrixWorld.copy(transform.matrix)
+      }
+
+      return () => {
+        delete TransformComponent.dirtyTransforms[entity]
+      }
+    }, [])
+
+    return null
   },
 
   getWorldPosition: (entity: Entity, vec3: Vector3) => {
@@ -127,8 +134,9 @@ export const TransformComponent = defineComponent({
   },
 
   getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {
-    const relativeEntity = getAncestorWithComponent(entity, SceneComponent)
+    const relativeEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!relativeEntity) return outMatrix.copy(getComponent(entity, TransformComponent).matrixWorld)
+    /** @todo We should force updating the parent chain between entity and relativeEntity (for completeness) */
     return TransformComponent.getMatrixRelativeToEntity(entity, relativeEntity, outMatrix)
   },
 
@@ -189,7 +197,7 @@ export const TransformComponent = defineComponent({
   },
 
   getSceneScale: (entity: Entity, vec3: Vector3) => {
-    const sceneEntity = getAncestorWithComponent(entity, SceneComponent)
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!sceneEntity) return vec3.set(1, 1, 1)
 
     TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)
@@ -211,7 +219,7 @@ export const TransformComponent = defineComponent({
   },
 
   /**
-   * Updates the matrixWorld property of the transform component
+   * Updates the local matrix and transform from the matrixWorld property of the transform component
    * @param entity
    */
   updateFromWorldMatrix: (entity: Entity) => {

@@ -24,13 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 // import * as polyfill from 'credential-handler-polyfill'
-import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
 import Avatar from '@ir-engine/client-core/src/common/components/Avatar'
-import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
 import ConfirmDialog from '@ir-engine/client-core/src/common/components/ConfirmDialog'
 import { AppleIcon } from '@ir-engine/client-core/src/common/components/Icons/AppleIcon'
 import { DiscordIcon } from '@ir-engine/client-core/src/common/components/Icons/DiscordIcon'
@@ -41,16 +39,17 @@ import { XIcon } from '@ir-engine/client-core/src/common/components/Icons/XIcon'
 import InputText from '@ir-engine/client-core/src/common/components/InputText'
 import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import Text from '@ir-engine/client-core/src/common/components/Text'
+import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
+import { useFind } from '@ir-engine/common'
 import config, { validateEmail, validatePhoneNumber } from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import {
+  UserName,
   authenticationSettingPath,
   clientSettingPath,
-  UserName,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { useFind } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Checkbox from '@ir-engine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'
@@ -58,24 +57,24 @@ import FormControlLabel from '@ir-engine/ui/src/primitives/mui/FormControlLabel'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
-import { Engine } from '@ir-engine/ecs'
+import { API } from '@ir-engine/common'
+import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useZendesk } from '../../../../hooks/useZendesk'
-import { clientContextParams } from '../../../../util/contextParams'
+import { clientContextParams } from '../../../../util/ClientContextState'
+import { UserMenus } from '../../../UserUISystem'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { AvatarService } from '../../../services/AvatarService'
 import { useUserHasAccessHook } from '../../../userHasAccess'
-import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })
-
 interface Props {
   className?: string
   hideLogin?: boolean
@@ -98,7 +97,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
-  const loginLink = useHookstate('')
+  /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
+  //const loginLink = useHookstate('')
 
   const authSetting = useFind(authenticationSettingPath).data.at(0)
   const clientSetting = useFind(clientSettingPath).data.at(0)
@@ -117,7 +117,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   useEffect(() => {
     if (!originallyAcceptedTOS.value && checked18OrOver.value) {
-      Engine.instance.api
+      API.instance
         .service(userPath)
         .patch(userId, { acceptedTOS: true })
         .then(() => {
@@ -222,12 +222,19 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const handleUsernameChange = (e) => {
     username.set(e.target.value)
     if (!e.target.value) errorUsername.set(t('user:usermenu.profile.usernameError'))
+    else if (e.target.value.length > USERNAME_MAX_LENGTH)
+      errorUsername.set(
+        t('user:usermenu.profile.usernameLengthError', {
+          maxCharacters: USERNAME_MAX_LENGTH
+        })
+      )
     else errorUsername.set('')
   }
 
   const handleUpdateUsername = () => {
     const name = username.value.trim() as UserName
     if (!name) return
+    if (errorUsername.value.length > 0) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
       AvatarService.updateUsername(userId, name).then(() =>
@@ -258,27 +265,37 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
     // Get the url without query parameters.
     const redirectUrl = window.location.toString().replace(window.location.search, '')
-    if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl)
-    else if (type === 'sms') AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl)
+    if (type === 'email')
+      AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl).then(() =>
+        logger.info({
+          event_name: 'connect_email',
+          event_value: e.currentTarget.id
+        })
+      )
+    else if (type === 'sms')
+      AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl).then(() =>
+        logger.info({
+          event_name: 'connect_sms',
+          event_value: e.currentTarget.id
+        })
+      )
     return
   }
 
   const handleOAuthServiceClick = (e) => {
-    AuthService.loginUserByOAuth(e.currentTarget.id, location).then(() =>
-      logger.info({
-        event_name: 'connect_social_login',
-        event_value: e.currentTarget.id
-      })
-    )
+    logger.info({
+      event_name: 'connect_social_login',
+      event_value: e.currentTarget.id
+    })
+    AuthService.loginUserByOAuth(e.currentTarget.id, location)
   }
 
   const handleRemoveOAuthServiceClick = (e) => {
-    AuthService.removeUserOAuth(e.currentTarget.id).then(() =>
-      logger.info({
-        event_name: 'disconnect_social_login',
-        event_value: e.currentTarget.id
-      })
-    )
+    logger.info({
+      event_name: 'disconnect_social_login',
+      event_value: e.currentTarget.id
+    })
+    AuthService.removeUserOAuth(e.currentTarget.id)
   }
 
   const handleLogout = async () => {
@@ -370,10 +387,10 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const refreshApiKey = () => {
     AuthService.updateApiKey()
   }
-
-  const createLoginLink = () => {
+  /** Feature that was needed for multi cam mocap that is not currently necessary*/
+  /*   const createLoginLink = () => {
     AuthService.createLoginToken().then((token) => loginLink.set(`${config.client.serverUrl}/login/${token.token}`))
-  }
+  } */
 
   const getConnectText = () => {
     if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
@@ -446,11 +463,11 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </Text>
             )}
 
-            {hasAcceptedTermsAndAge && !selfUser?.isGuest.value && (
+            {/* {hasAcceptedTermsAndAge && !selfUser?.isGuest.value && (
               <Text mt={1} variant="body2" onClick={() => createLoginLink()}>
                 {t('user:usermenu.profile.createLoginLink')}
               </Text>
-            )}
+            )} */}
 
             {hasAcceptedTermsAndAge && (
               <Text id="show-user-id" mt={1} variant="body2" onClick={() => showUserId.set(!showUserId.value)}>
@@ -491,6 +508,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                           textDecoration: 'underline'
                         }}
                         to={termsOfService}
+                        target="_blank"
                       >
                         {t('user:usermenu.profile.termsOfService')}
                       </Link>
@@ -701,7 +719,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           />
         )}
 
-        {loginLink.value.length > 0 && (
+        {/* {loginLink.value.length > 0 && (
           <div>
             <InputText
               label={t('user:usermenu.profile.loginLink')}
@@ -722,7 +740,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               <QRCodeSVG height={176} width={200} value={loginLink.value} />
             </div>
           </div>
-        )}
+        )} */}
 
         {!hideLogin && hasAcceptedTermsAndAge && (
           <>
@@ -920,7 +938,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
             fontSize: '12px'
           }}
         >
-          <a href={clientSetting?.privacyPolicy}>{t('user:usermenu.profile.privacyPolicy')}</a>
+          <a target="_blank" href={clientSetting?.privacyPolicy}>
+            {t('user:usermenu.profile.privacyPolicy')}
+          </a>
         </div>
       </Box>
     </Menu>

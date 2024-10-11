@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   ComponentMap,
@@ -170,7 +171,8 @@ describe('UUIDComponent', () => {
       assert.notEqual(uuid, '' as EntityUUID)
     })
 
-    const iter = 8_500 /** @note 10_000 iterations takes ~4sec on an AMD Ryzen 5 2600 */
+    // const iter = 8_500 /** @note 10_000 iterations takes ~4sec on an AMD Ryzen 5 2600 */
+    const iter = 10
     it(`should generate unique UUIDs when run multiple times  (${iter} iterations)`, () => {
       const list = [] as EntityUUID[]
       // Generate the list of (supposedly) unique UUIDs

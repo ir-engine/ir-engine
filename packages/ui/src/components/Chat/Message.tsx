@@ -30,19 +30,14 @@ import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
 import { MdScreenShare, MdStopScreenShare, MdVideocam, MdVideocamOff } from 'react-icons/md'
 
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
+import { MediaStreamState } from '@ir-engine/client-core/src/media/MediaStreamState'
 import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/services/ChannelService'
-import { MediaStreamState } from '@ir-engine/client-core/src/transports/MediaStreams'
-import {
-  toggleMicrophonePaused,
-  toggleScreenshare,
-  toggleWebcamPaused
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { useFind, useGet, useMutation } from '@ir-engine/common'
 import { ChannelID, channelPath, ChannelType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { useFind, useGet, useMutation } from '@ir-engine/spatial/src/common/functions/FeathersHooks'
 
 import AttachFileIcon from './assets/attach-file2.svg'
 import SendIcon from './assets/send.svg'
@@ -204,10 +199,10 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   console.log(selectedChannelID, channel, channelName)
 
   const mediaStreamState = useMutableState(MediaStreamState)
-  const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
-  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isCamVideoEnabled = !!mediaStreamState.webcamMediaStream.value && mediaStreamState.webcamEnabled.value
+  const isCamAudioEnabled = !!mediaStreamState.microphoneMediaStream.value && mediaStreamState.microphoneEnabled.value
   const isScreenVideoEnabled =
-    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
+    !!mediaStreamState.screenshareMediaStream.value && mediaStreamState.screenshareEnabled.value
 
   const startMediaCall = () => {
     if (!selectedChannelID) return
@@ -235,7 +230,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
           <>
             <button
               className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
-              onClick={toggleWebcamPaused}
+              onClick={MediaStreamState.toggleWebcamPaused}
             >
               {isCamVideoEnabled ? (
                 <MdVideocam className="mt-2 h-5 w-5 overflow-hidden fill-[#ff1515]" />
@@ -245,7 +240,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
             </button>
             <button
               className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
-              onClick={toggleMicrophonePaused}
+              onClick={MediaStreamState.toggleMicrophonePaused}
             >
               {isCamAudioEnabled ? (
                 <FaMicrophone className="mt-2 h-5 w-5 overflow-hidden fill-[#ff1515]" />
@@ -255,7 +250,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
             </button>
             <button
               className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
-              onClick={toggleScreenshare}
+              onClick={MediaStreamState.toggleScreenshare}
             >
               {isScreenVideoEnabled ? (
                 <MdScreenShare className="mt-2 h-6 w-6 overflow-hidden fill-[#ff1515]" />
