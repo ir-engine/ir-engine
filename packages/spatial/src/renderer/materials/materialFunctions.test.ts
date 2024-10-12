@@ -38,7 +38,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { isArray } from 'lodash-es'
+import { isArray } from 'lodash'
 import sinon from 'sinon'
 import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
