@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
@@ -60,6 +59,7 @@ import {
   copyNodes,
   duplicateNode,
   gltfHierarchyTreeWalker,
+  GLTFSnapshotToHierarchy,
   groupNodes,
   HierarchyTreeNodeType,
   pasteNodes,
@@ -96,9 +96,13 @@ const HierarchyTreeContext = createContext({
   }
 })
 
-export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) => {
-  const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
-  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
+const HierarchySnapshotReactor = (props: {
+  children?: ReactNode
+  rootEntity: Entity
+  sourceId: string
+  snapshotIndex: number
+}) => {
+  const { children, rootEntity, sourceId, snapshotIndex } = props
   const gltfState = useMutableState(GLTFSnapshotState)
   const selectionState = useMutableState(SelectionState)
   const hierarchyNodes = useHookstate<HierarchyTreeNodeType[]>([])
@@ -106,15 +110,11 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
-  const snapshotIndex = GLTFSnapshotState.useSnapshotIndex(sourceId)
   const modifiedState = useMutableState(GLTFModifiedState)
 
-  if (snapshotIndex === undefined) return null
-
-  const gltfSnapshot = gltfState[sourceId].snapshots[snapshotIndex.value]
   const displayedNodes = useMemo(() => {
     if (hierarchyTreeState.search.query.value.length > 0) {
-      let searchedNodes: HierarchyTreeNodeType[] = []
+      const searchedNodes: HierarchyTreeNodeType[] = []
       const adjustedSearchValue = hierarchyTreeState.search.query.value.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       const condition = new RegExp(adjustedSearchValue, 'i')
       hierarchyNodes.value.forEach((node) => {
@@ -133,14 +133,14 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
   }, [sourceId])
 
   useEffect(() => {
-    const nodes = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[], showModelChildren)
+    const hierarchy = GLTFSnapshotToHierarchy(gltfState, sourceId, snapshotIndex)
+    const nodes = gltfHierarchyTreeWalker(rootEntity, hierarchy, showModelChildren)
     if (didHierarchyChange(hierarchyNodes.value as HierarchyTreeNodeType[], nodes)) {
       hierarchyNodes.set(nodes.filter((node) => entityExists(node.entity)))
     }
   }, [
     hierarchyTreeState.expandedNodes.value[sourceId], // extra dep for rebuilding tree for expanded/collapsed nodes
     snapshotIndex,
-    gltfSnapshot,
     gltfState,
     selectionState.selectedEntities,
     showModelChildren,
@@ -173,6 +173,21 @@ export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) =
       {children}
     </HierarchyTreeContext.Provider>
   )
+}
+
+export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) => {
+  const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
+  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
+  const snapshotIndex = GLTFSnapshotState.useSnapshotIndex(sourceId)
+
+  return snapshotIndex !== undefined ? (
+    <HierarchySnapshotReactor
+      children={children}
+      rootEntity={rootEntity}
+      sourceId={sourceId}
+      snapshotIndex={snapshotIndex.value}
+    />
+  ) : null
 }
 
 export const useHierarchyNodes = () => useContext(HierarchyTreeContext).nodes

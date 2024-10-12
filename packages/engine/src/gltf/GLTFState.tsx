@@ -146,15 +146,16 @@ export const GLTFSourceState = defineState({
   }
 })
 
+export type GLTFSnapshotStateType = Record<
+  string,
+  {
+    snapshots: Array<GLTF.IGLTF>
+    index: number
+  }
+>
 export const GLTFSnapshotState = defineState({
   name: 'ee.engine.gltf.GLTFSnapshotState',
-  initial: {} as Record<
-    string,
-    {
-      snapshots: Array<GLTF.IGLTF>
-      index: number
-    }
-  >,
+  initial: {} as GLTFSnapshotStateType,
 
   receptors: {
     onSnapshot: GLTFSnapshotAction.createSnapshot.receive((action) => {
