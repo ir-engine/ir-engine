@@ -27,7 +27,8 @@ Infinite Reality Engine. All Rights Reserved.
  * An object for swagger documentation configuration
  */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import swagger from 'feathers-swagger'
+const createSwaggerServiceOptions = swagger.createSwaggerServiceOptions
 
 import {
   recordingResourceDataSchema,

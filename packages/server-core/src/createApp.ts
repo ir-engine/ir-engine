@@ -175,6 +175,8 @@ export const createFeathersKoaApp = async (
 ): Promise<Application> => {
   createEngine(createHyperStore())
 
+  console.log('Creating feathers app')
+
   getMutableState(DomainConfigState).merge({
     publicDomain: config.client.dist,
     cloudDomain: commonConfig.client.fileServer,

@@ -47,7 +47,6 @@ import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@ir-engine/commo
 import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
-import { ProjectPackageJsonType } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
 import { ResourcesJson, ResourceType } from '@ir-engine/common/src/interfaces/ResourcesJson'
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
@@ -74,6 +73,7 @@ import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/P
 
 import { BUILDER_CHART_REGEX } from '@ir-engine/common/src/regex'
 import { Application } from '../../../declarations'
+import packageJson from '../../../package.json'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
 import { getJobBody } from '../../k8s-job-helper'
@@ -328,9 +328,7 @@ export const getProjectManifest = (projectName: string): ManifestJson => {
   throw new Error(`No manifest.json found in project '${projectName}'`)
 }
 
-export const engineVersion = (
-  require(path.resolve(appRootPath.path, 'packages/server-core/package.json')) as ProjectPackageJsonType
-).version!
+export const engineVersion = packageJson.version
 
 export const getProjectEnabled = (projectName: string) => {
   const matchesVersion = getProjectManifest(projectName).engineVersion === engineVersion
@@ -1253,7 +1251,7 @@ export const getGitProjectData = (project) => {
   }
 
   //TODO: We can use simpleGit instead of manually accessing files.
-  const projectGitDir = path.resolve(__dirname, `../../../../projects/projects/${project}/.git`)
+  const projectGitDir = path.resolve(appRootPath.path, `packages/projects/projects/${project}/.git`)
 
   const config = getGitConfigData(projectGitDir)
   if (config?.remote?.origin?.url) {

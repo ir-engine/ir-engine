@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Noise } from 'noisejs'
+import * as NoiseJS from 'noisejs'
 import { DataTexture, LinearFilter, RedFormat, RepeatWrapping, UnsignedByteType } from 'three'
 
 export function generateNoiseTexture(textureSize: number) {
-  const noise = new Noise(Math.random())
+  const noise = new NoiseJS.Noise(Math.random())
 
   // Create a data array to store the noise values
   const size = textureSize * textureSize * textureSize

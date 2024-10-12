@@ -37,7 +37,9 @@ import config from '@ir-engine/server-core/src/appconfig'
 import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
 import { updateAppConfig } from '@ir-engine/server-core/src/updateAppConfig'
 import { Octokit } from '@octokit/rest'
-import { JwtPayload, verify } from 'jsonwebtoken'
+
+import jwt from 'jsonwebtoken'
+const { verify } = jwt
 
 dotenv.config({
   path: appRootPath.path,
@@ -88,7 +90,7 @@ cli.main(async () => {
       if (!config.authentication.oauth.github.privateKey) throw new NotAuthenticated('No GitHub private key configured')
       const jwtDecoded = verify(token, config.authentication.oauth.github.privateKey, {
         algorithms: ['RS256']
-      })! as JwtPayload
+      })! as jwt.JwtPayload
       if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
         throw new NotAuthenticated('Invalid app credentials')
       const octoKit = new Octokit({ auth: token })

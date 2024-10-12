@@ -117,13 +117,15 @@ const merge = (src, dest) =>
   })
 
 const getProjectConfigExtensions = async (config: UserConfig) => {
-  const projects = fs.existsSync(path.resolve(__dirname, '../projects/projects'))
+  const projects = fs.existsSync(path.resolve(appRootPath.path, 'packages/projects/projects'))
     ? fs
-        .readdirSync(path.resolve(__dirname, '../projects/projects'), { withFileTypes: true })
+        .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects'), { withFileTypes: true })
         .filter((orgDir) => orgDir.isDirectory())
         .map((orgDir) => {
           return fs
-            .readdirSync(path.resolve(__dirname, '../projects/projects', orgDir.name), { withFileTypes: true })
+            .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects', orgDir.name), {
+              withFileTypes: true
+            })
             .filter((projectDir) => projectDir.isDirectory())
             .map((projectDir) => `${orgDir.name}/${projectDir.name}`)
         })
@@ -131,7 +133,12 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
     : []
 
   for (const project of projects) {
-    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
+    const staticPath = path.resolve(
+      appRootPath.path,
+      `packages/projects/projects/`,
+      project,
+      'vite.config.extension.ts'
+    )
     if (fs.existsSync(staticPath)) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-var-requires

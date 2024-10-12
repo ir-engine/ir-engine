@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { allowedDomainsSchema } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import swagger from 'feathers-swagger'
+const createSwaggerServiceOptions = swagger.createSwaggerServiceOptions
 
 export default createSwaggerServiceOptions({
   schemas: {

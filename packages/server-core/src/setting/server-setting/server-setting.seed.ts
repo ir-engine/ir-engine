@@ -49,7 +49,7 @@ const server = {
     (process.env.BUILD_MODE === 'individual'
       ? path.resolve(appRootPath.path, 'public')
       : path.resolve(appRootPath.path, 'packages', 'server', 'public')),
-  nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
+  nodeModulesDir: path.resolve(appRootPath.path, 'node_modules'),
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER ?? 's3',
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER!,

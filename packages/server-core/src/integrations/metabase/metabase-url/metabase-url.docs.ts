@@ -27,7 +27,8 @@ import {
   metabaseUrlDataSchema,
   metabaseUrlQuerySchema
 } from '@ir-engine/common/src/schemas/integrations/metabase/metabase-url.schema'
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import swagger from 'feathers-swagger'
+const createSwaggerServiceOptions = swagger.createSwaggerServiceOptions
 
 export default createSwaggerServiceOptions({
   schemas: {

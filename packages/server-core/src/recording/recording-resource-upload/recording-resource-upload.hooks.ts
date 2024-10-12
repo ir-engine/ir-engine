@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { disallow } from 'feathers-hooks-common'
-import { SYNC } from 'feathers-sync'
+import * as sync from 'feathers-sync'
+const SYNC = sync.SYNC
 
 export default {
   before: {

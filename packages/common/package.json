@@ -5,6 +5,8 @@
   "publishConfig": {
     "access": "public"
   },
+  "module": "index.ts",
+  "main": "index.ts",
   "description": "Shared types for other Infinite Reality Engine packages",
   "scripts": {
     "check-errors": "tsc --noemit",

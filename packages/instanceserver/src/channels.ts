@@ -27,7 +27,8 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import '@feathersjs/transport-commons'
 
-import { verify } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
+const { verify } = jwt
 
 import { NetworkConnectionParams } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
 import {

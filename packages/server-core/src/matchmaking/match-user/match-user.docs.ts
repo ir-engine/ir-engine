@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import swagger from 'feathers-swagger'
+const createSwaggerServiceOptions = swagger.createSwaggerServiceOptions
 
 import {
   matchUserDataSchema,

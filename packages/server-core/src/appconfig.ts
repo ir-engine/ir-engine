@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import chargebeeInst from 'chargebee'
 import fs from 'fs'
 import path from 'path'
-import traceUnhandled from 'trace-unhandled'
+import * as traceUnhandled from 'trace-unhandled'
 import url from 'url'
 
 // ensure logger is loaded first - it loads the dotenv config
@@ -144,7 +144,7 @@ const server = {
     (process.env.BUILD_MODE === 'individual'
       ? path.resolve(appRootPath.path, 'public')
       : path.resolve(appRootPath.path, 'packages', 'server', 'public')),
-  nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
+  nodeModulesDir: path.resolve(appRootPath.path, 'node_modules'),
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER!,
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,

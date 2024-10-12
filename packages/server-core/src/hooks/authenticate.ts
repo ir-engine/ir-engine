@@ -33,9 +33,10 @@ import { isProvider } from 'feathers-hooks-common'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
-import { JwtPayload, verify } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { Application } from '../../declarations'
 import config from '../appconfig'
+const { verify } = jwt
 
 const { authenticate } = authentication.hooks
 
@@ -73,7 +74,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
     if (!config.authentication.oauth.github.privateKey) throw new NotAuthenticated('No GitHub private key configured')
     const jwtDecoded = verify(token, config.authentication.oauth.github.privateKey, {
       algorithms: ['RS256']
-    })! as JwtPayload
+    })! as jwt.JwtPayload
     if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
       throw new NotAuthenticated('Invalid app credentials')
     const octoKit = new Octokit({ auth: token })

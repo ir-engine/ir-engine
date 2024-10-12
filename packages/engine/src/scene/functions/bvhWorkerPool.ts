@@ -36,6 +36,9 @@ const createWorker = () => {
     return new Worker('/workers/generateBVHAsync.worker.js')
   } else {
     const path = require('path')
+    const { fileURLToPath } = require('url')
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
     const workerPath = path.resolve(__dirname, './generateBVHAsync.register.js')
     return new Worker(workerPath, { type: 'module' })
   }

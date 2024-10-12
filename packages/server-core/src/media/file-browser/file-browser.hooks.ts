@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
-import { SYNC } from 'feathers-sync'
+import * as sync from 'feathers-sync'
+const SYNC = sync.SYNC
 
 import {
   fileBrowserPatchValidator,

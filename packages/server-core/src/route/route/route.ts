@@ -31,6 +31,7 @@ import { InstalledRoutesInterface } from '@ir-engine/common/src/interfaces/Route
 import { routeMethods, routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
 import { ProjectConfigInterface } from '@ir-engine/projects/ProjectConfigInterface'
 
+import appRootPath from 'app-root-path'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RouteService } from './route.class'
@@ -57,7 +58,7 @@ declare module '@ir-engine/common/declarations' {
 
 export const getInstalledRoutes = () => {
   return async () => {
-    const rootPath = path.resolve(__dirname, '../../../../projects/projects/')
+    const rootPath = path.resolve(appRootPath.path, 'packages/projects/projects/')
     const projects = fs
       .readdirSync(rootPath, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
@@ -73,7 +74,7 @@ export const getInstalledRoutes = () => {
     await Promise.all(
       projects.map(async (project) => {
         try {
-          const filePath = path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`)
+          const filePath = path.resolve(appRootPath.path, `/projects/projects/${project}/xrengine.config.ts`)
           if (fs.existsSync(filePath)) {
             const mod = await import(filePath)
             const projectConfig: ProjectConfigInterface = mod.default

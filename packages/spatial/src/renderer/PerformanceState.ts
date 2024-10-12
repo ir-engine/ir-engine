@@ -23,11 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GetGPUTier, getGPUTier } from 'detect-gpu'
+import detectGPU from 'detect-gpu'
 import { debounce } from 'lodash-es'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import { Camera, MathUtils, Scene } from 'three'
+const { getGPUTier } = detectGPU
 
 import { ComponentType, defineSystem, ECSState, PresentationSystemGroup } from '@ir-engine/ecs'
 import { profile } from '@ir-engine/ecs/src/Timer'
@@ -420,7 +421,7 @@ const decrementCPUPerformance = () => {
 
 const buildPerformanceState = async (
   renderer: ComponentType<typeof RendererComponent>,
-  override?: GetGPUTier['override']
+  override?: detectGPU.GetGPUTier['override']
 ) => {
   const performanceState = getMutableState(PerformanceState)
   const gl = renderer.renderContext as WebGL2RenderingContext

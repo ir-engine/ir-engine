@@ -32,10 +32,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 `
 
-const rootDir = join(__dirname, '..')
+import appRootPath from 'app-root-path'
 const targetExtensions = ['ts', 'js', 'tsx', 'jsx']
 
-const files = execSync('git ls-files', { cwd: rootDir })
+const files = execSync('git ls-files', { cwd: appRootPath.path })
   .toString()
   .split('\n')
   .filter((file) => {
@@ -43,7 +43,7 @@ const files = execSync('git ls-files', { cwd: rootDir })
   })
 
 for (const f of files) {
-  const file = readFileSync(join(rootDir, f), 'utf8')
+  const file = readFileSync(join(appRootPath.path, f), 'utf8')
   if (file.includes('Copyright')) continue
-  writeFileSync(join(rootDir, f), licenseHeader + file)
+  writeFileSync(join(appRootPath.path, f), licenseHeader + file)
 }

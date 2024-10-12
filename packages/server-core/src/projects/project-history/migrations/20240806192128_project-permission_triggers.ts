@@ -27,6 +27,11 @@ import * as fs from 'fs'
 import type { Knex } from 'knex'
 import * as path from 'path'
 
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 const sqlFilePath = path.join(__dirname, './project-permission_triggers.sql')
 
 /**

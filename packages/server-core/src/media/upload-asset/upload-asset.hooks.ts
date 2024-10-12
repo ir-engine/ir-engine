@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { disallow } from 'feathers-hooks-common'
-import { SYNC } from 'feathers-sync'
+import * as sync from 'feathers-sync'
+const SYNC = sync.SYNC
 
 import logRequest from '@ir-engine/server-core/src/hooks/log-request'
 import setLoggedInUser from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'

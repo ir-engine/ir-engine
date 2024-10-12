@@ -26,7 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { Application, HookContext } from '@feathersjs/feathers/lib/declarations'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 import { disallow } from 'feathers-hooks-common'
-import { sign } from 'jsonwebtoken'
+
+import jwt from 'jsonwebtoken'
+const { sign } = jwt
 
 const getZendeskToken = (context: HookContext<Application>) => {
   const { email } = context.params.user.identityProviders.find((ip) => ip.email)

@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { iff, isProvider } from 'feathers-hooks-common'
-import { SYNC } from 'feathers-sync'
+import * as sync from 'feathers-sync'
+const SYNC = sync.SYNC
 
 import verifyScope from '../../hooks/verify-scope'
 

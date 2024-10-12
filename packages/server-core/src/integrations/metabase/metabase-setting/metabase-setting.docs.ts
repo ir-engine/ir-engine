@@ -29,7 +29,8 @@ import {
   metabaseSettingQuerySchema,
   metabaseSettingSchema
 } from '@ir-engine/common/src/schemas/integrations/metabase/metabase-setting.schema'
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import swagger from 'feathers-swagger'
+const createSwaggerServiceOptions = swagger.createSwaggerServiceOptions
 
 export default createSwaggerServiceOptions({
   schemas: {
