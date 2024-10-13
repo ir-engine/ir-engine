@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VisualScriptComponent } from '@ir-engine/engine'
+import { ScriptComponent, VisualScriptComponent } from '@ir-engine/engine'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
@@ -123,12 +123,14 @@ import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spl
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
+import ScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/script'
+import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/script/visual'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
 import TextNodeEditor from '@ir-engine/ui/src/components/editor/properties/text'
 import TriggerComponentEditor from '@ir-engine/ui/src/components/editor/properties/trigger'
 import VariantNodeEditor from '@ir-engine/ui/src/components/editor/properties/variant'
 import VideoNodeEditor from '@ir-engine/ui/src/components/editor/properties/video'
-import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/visualScript'
+
 import VolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric'
 import NewVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
@@ -181,6 +183,7 @@ export const ComponentEditorsState = defineState({
       [SplineComponent.name]: SplineNodeEditor,
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
+      [ScriptComponent.name]: ScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [InteractableComponent.name]: InteractableComponentNodeEditor,
       [InputComponent.name]: InputComponentNodeEditor,
