@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import assert from 'assert'
+import { describe, it } from 'vitest'
 import {
   ASSETS_REGEX,
   BUILDER_CHART_REGEX,
@@ -95,7 +96,7 @@ describe('regex.test', () => {
   })
 
   describe('HEIRARCHY_SEARCH_REPLACE_REGEX', () => {
-    it('should replace special characters in search', () => {
+    describe('should replace special characters in search', () => {
       const escapeSpecialChars = (input) => {
         return input.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       }
