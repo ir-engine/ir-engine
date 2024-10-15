@@ -71,7 +71,10 @@ const SelectOptions = {
     { label: 'Break Word', value: 'break-word' }
   ],
   Font: fonts as FontOption[],
-  FontMaterial: [{ label: 'Basic', value: FontMaterialKind.Basic }]
+  FontMaterial: [
+    { label: 'Basic', value: FontMaterialKind.Basic },
+    { label: 'Standard', value: FontMaterialKind.Standard }
+  ]
 }
 
 /**
