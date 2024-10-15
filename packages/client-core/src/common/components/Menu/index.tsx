@@ -136,7 +136,7 @@ const Menu = ({
 
   return (
     <MUIDialog
-      sx={{ pointerEvents: 'all', ...sx }}
+      sx={{ pointerEvents: 'all', zIndex: 0, ...sx }}
       open={open}
       maxWidth={maxWidth}
       fullWidth
