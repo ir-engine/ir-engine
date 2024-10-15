@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { transform } from '@svgr/core'
 import fs from 'fs/promises'
-import iconaJson from './icona.json'
+import iconaJson from '../icona.json'
 
 function transformName(name: string) {
-  const parts = name.replaceAll('-', '_').split('_')
+  const parts = name.split(/[^A-Za-z]/gi)
   return parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('')
 }
 

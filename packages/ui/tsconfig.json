@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -28,15 +24,13 @@
     "outDir": "./lib",
     "types": ["vite/client", "mocha", "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"]
   },
-  "exclude": [
-    "./node_modules/**",
-    "./src/**/*.test.ts*"
-  ],
+  "exclude": ["./node_modules/**", "./src/**/*.test.ts*"],
   "include": [
     "../../__global.d.ts",
     "../server-core/src/*",
     "../client-core/src/*",
     "./src/**/*.ts",
-    "./src/**/*.tsx"
+    "./src/**/*.tsx",
+    "scripts/build-icons.ts"
   ]
 }

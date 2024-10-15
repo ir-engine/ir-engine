@@ -2,7 +2,7 @@
 
 if [ -e '../../.icona/icons.json' ]
 then
-    mv '../../.icona/icons.json' './src/icons/icona.json'
+    mv '../../.icona/icons.json' './icona.json'
     echo "moved icona json!"
 else
     echo "icona file not found"

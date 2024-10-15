@@ -35,7 +35,8 @@
     "deploy": "gh-pages -d build/",
     "storybook": "./scripts/start-storybook.sh",
     "build-storybook": "storybook build",
-    "copy-icona": "./scripts/copy-icona-json.sh"
+    "copy-icona": "./scripts/copy-icona-json.sh",
+    "build-icons": "npx tsx scripts/build-icons.ts"
   },
   "dependencies": {
     "@emotion/react": "11.10.6",
