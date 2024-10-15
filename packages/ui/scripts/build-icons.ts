@@ -28,7 +28,7 @@ import fs from 'fs/promises'
 import iconaJson from '../icona.json'
 
 function transformName(name: string) {
-  const parts = name.split(/[^A-Za-z]/gi)
+  const parts = name.split(/[^A-Za-z0-9]/gi)
   return parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('')
 }
 
