@@ -27,7 +27,7 @@ import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, setComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -43,7 +43,6 @@ import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/Volu
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -68,6 +67,12 @@ export async function addMediaNode(
 ): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
+
+  const pathArray = url.split('/')
+  const lastIndex = pathArray.length - 1
+  const fileNameWithExt = pathArray[lastIndex]
+  const fileNameArray = fileNameWithExt.split('.')
+  const name = decodeURI(fileNameArray[0])
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
@@ -131,6 +136,7 @@ export async function addMediaNode(
     } else if (contentType.startsWith('model/prefab')) {
       const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+        name,
         parent!,
         before
       )
@@ -156,28 +162,10 @@ export async function addMediaNode(
           { name: EnvmapComponent.jsonID },
           ...extraComponentJson
         ],
+        name,
         parent!,
         before
       )
-
-      const reactor = startReactor(() => {
-        const entity = UUIDComponent.useEntityByUUID(entityUUID)
-        const modelComponent = useOptionalComponent(entity, ModelComponent)
-
-        useImmediateEffect(() => {
-          if (!modelComponent) return
-          const pathArray = url.split('/')
-          const lastIndex = pathArray.length - 1
-          const fileNameWithExt = pathArray[lastIndex]
-          const fileNameArray = fileNameWithExt.split('.')
-          const name = decodeURI(fileNameArray[0])
-          setComponent(entity, NameComponent, name)
-
-          reactor.stop()
-        }, [modelComponent])
-
-        return null
-      })
 
       return entityUUID
     }
@@ -188,6 +176,7 @@ export async function addMediaNode(
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
+      name,
       parent!,
       before
     )
@@ -195,6 +184,7 @@ export async function addMediaNode(
   } else if (contentType.startsWith('image/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
+      name,
       parent!,
       before
     )
@@ -206,6 +196,7 @@ export async function addMediaNode(
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
+      name,
       parent!,
       before
     )
@@ -217,6 +208,7 @@ export async function addMediaNode(
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
+      name,
       parent!,
       before
     )
