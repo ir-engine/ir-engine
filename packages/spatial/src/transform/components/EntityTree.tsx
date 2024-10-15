@@ -406,7 +406,7 @@ export function useAncestorWithComponents(
   const componentsString = components.map((component) => component.name).join()
 
   // hook into reactive changes up the tree to trigger a re-render of the parent when necessary
-  useEffect(() => {
+  useImmediateEffect(() => {
     let unmounted = false
     const ParentSubReactor = React.memo((props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)

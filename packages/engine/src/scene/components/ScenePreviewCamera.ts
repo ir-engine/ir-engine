@@ -37,7 +37,7 @@ import {
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
@@ -53,6 +53,8 @@ export const ScenePreviewCameraComponent = defineComponent({
   }),
 
   reactor: function () {
+    if (!isClient) return null
+
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)

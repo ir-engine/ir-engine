@@ -59,9 +59,6 @@ import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('fix-esm').register()
-
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
@@ -172,10 +169,10 @@ export const serverJobRedisPipe = pipe(configurePrimus(), configureRedis(), conf
   app: Application
 ) => Application
 
-export const createFeathersKoaApp = (
+export const createFeathersKoaApp = async (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
-): Application => {
+): Promise<Application> => {
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({

@@ -67,6 +67,7 @@ import {
   FrustumCullCameraComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
 import {
   MaterialInstanceComponent,
@@ -77,7 +78,6 @@ import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 
 const disposeMaterial = (material: Material) => {
@@ -198,7 +198,6 @@ const execute = () => {
     const callbacks = getComponent(entity, CallbackComponent)
     callbacks.get(UpdatableCallback)?.(delta)
   }
-
   for (const entity of groupQuery()) {
     const group = getComponent(entity, GroupComponent)
     /**

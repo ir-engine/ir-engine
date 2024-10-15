@@ -7,7 +7,7 @@
   "description": "Shared types for other Infinite Reality Engine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --jobs 1"
+    "test": "cross-env TEST=true vitest run"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",
@@ -22,7 +22,6 @@
     "lru-cache": "8.0.4"
   },
   "devDependencies": {
-    "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",
     "rimraf": "4.4.0"
   },
