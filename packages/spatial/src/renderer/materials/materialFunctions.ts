@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isArray } from 'lodash-es'
+import { isArray } from 'lodash'
 import { Color, Material, Mesh, Texture } from 'three'
 
 import {

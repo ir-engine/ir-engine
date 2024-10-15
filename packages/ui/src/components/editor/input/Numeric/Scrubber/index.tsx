@@ -23,41 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as fs from 'fs'
-import { isEqual } from 'lodash'
-import mime from 'mime-types'
-import path from 'path'
+import React from 'react'
+import NumericInput, { NumericInputProp } from '..'
+import Scrubber from '../../../layout/Scrubber'
 
-export const getContentType = (url: string): string => {
-  return /\.ts$/.exec(url) ? 'application/octet-stream' : mime.lookup(url) || 'application/octet-stream'
-}
-
-export type DirectorySnapshot = {
-  modified: number
-  files: {
-    uri: string
-    modified: number
-  }[]
-}
-
-export function snapshot(directory: string): DirectorySnapshot {
-  let dirModified = 0
-  const files = fs.readdirSync(directory).map((file) => {
-    const uri = path.join(directory, file)
-    const stat = fs.statSync(uri)
-    const modified = stat.mtime.getDate()
-    dirModified = Math.max(dirModified, modified)
-    return { uri, modified }
-  })
-  return {
-    modified: dirModified,
-    files
-  }
-}
-
-export function delta(shot1: DirectorySnapshot, shot2: DirectorySnapshot): DirectorySnapshot {
-  return {
-    modified: shot2.modified,
-    files: shot2.files.filter((file) => !shot1.files.find((oldFile) => isEqual(file, oldFile)))
-  }
-}
+export default (props: NumericInputProp) => (
+  <Scrubber className="w-full" {...props}>
+    <NumericInput className="w-full" {...props} />
+  </Scrubber>
+)
