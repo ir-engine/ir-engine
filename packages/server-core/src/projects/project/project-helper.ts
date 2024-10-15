@@ -960,8 +960,7 @@ export async function getProjectUpdateJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'ts-node',
-    '--swc',
+    'vite-node',
     'scripts/update-project.ts',
     '--sourceURL',
     data.sourceURL,
@@ -1027,8 +1026,7 @@ export async function getProjectPushJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'ts-node',
-    '--swc',
+    'vite-node',
     'scripts/push-project.ts',
     `--userId`,
     user.id,
@@ -1100,7 +1098,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
                   name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
-                  command: ['npx', 'ts-node', '--swc', 'scripts/auto-update-project.ts', '--projectName', project.name],
+                  command: ['npx', 'vite-node', 'scripts/auto-update-project.ts', '--projectName', project.name],
                   env: Object.entries(process.env).map(([key, value]) => {
                     return { name: key, value: value }
                   })
@@ -1120,16 +1118,7 @@ export async function getDirectoryArchiveJobBody(
   projectName: string,
   jobId: string
 ): Promise<k8s.V1Job> {
-  const command = [
-    'npx',
-    'ts-node',
-    '--swc',
-    'scripts/archive-directory.ts',
-    `--project`,
-    projectName,
-    '--jobId',
-    jobId
-  ]
+  const command = ['npx', 'vite-node', 'scripts/archive-directory.ts', `--project`, projectName, '--jobId', jobId]
 
   const projectJobName = cleanProjectName(projectName)
 

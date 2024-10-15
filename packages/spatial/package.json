@@ -1,6 +1,7 @@
 {
   "name": "@ir-engine/spatial",
   "version": "1.6.0",
+  "type": "module",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"
@@ -21,7 +22,7 @@
     "@ir-engine/network": "^1.6.0",
     "@tweenjs/tween.js": "^23.1.2",
     "bitecs": "0.3.40",
-    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
     "noisejs": "2.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",

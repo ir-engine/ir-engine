@@ -1,6 +1,7 @@
 {
   "name": "@ir-engine/common",
   "version": "1.6.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

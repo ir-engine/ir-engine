@@ -1,6 +1,7 @@
 {
   "name": "@ir-engine/matchmaking",
   "version": "1.6.0",
+  "type": "module",
   "author": {
     "name": "Infinite Reality Engine Collective",
     "email": "hello@ir-engine.org"

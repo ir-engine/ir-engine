@@ -1,1 +1,1 @@
-APP_ENV=development FORCE_DB_REFRESH=true ts-node --swc ../
+APP_ENV=development FORCE_DB_REFRESH=true vite-node ../

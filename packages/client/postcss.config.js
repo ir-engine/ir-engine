@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 
-module.exports = {
+export default {
   plugins: {
     tailwindcss: import('tailwindcss'),
     autoprefixer: import('autoprefixer'),

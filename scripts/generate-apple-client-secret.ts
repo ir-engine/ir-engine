@@ -32,7 +32,7 @@ cli.enable('status')
 
 /**
  * Add following script in package.json to run this script
- * "generate-apple-client-secret": "ts-node --swc scripts/generate-apple-client-secret.ts",
+ * "generate-apple-client-secret": "vite-node scripts/generate-apple-client-secret.ts",
  */
 cli.main(async () => {
   try {
