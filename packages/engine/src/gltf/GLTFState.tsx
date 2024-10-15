@@ -986,30 +986,31 @@ const PrimitiveReactor = (props: {
   return (
     <>
       {meshDef.primitives.map((primitive, index) => (
-        <MaterialInstanceReactor
-          key={`materials-${index}-${props.nodeIndex}`}
-          nodeIndex={props.nodeIndex}
-          primitiveIndex={index}
-          documentID={props.documentID}
-          entity={props.entity}
-          isArray={meshDef.primitives.length > 1}
-        />
+        <>
+          <MaterialInstanceReactor
+            key={`materials-${index}-${props.nodeIndex}`}
+            nodeIndex={props.nodeIndex}
+            primitiveIndex={index}
+            documentID={props.documentID}
+            entity={props.entity}
+            isArray={meshDef.primitives.length > 1}
+          />
+          <PrimitiveExtensionReactor
+            key={`primitives-${index}-${props.nodeIndex}`}
+            nodeIndex={props.nodeIndex}
+            primitiveIndex={index}
+            documentID={props.documentID}
+            entity={props.entity}
+          />
+        </>
       ))}
-      {
-        <MorphTargetReactor
-          key={`targets-${props.nodeIndex}-${props.entity}`}
-          documentID={props.documentID}
-          entity={props.entity}
-          nodeIndex={props.nodeIndex}
-        />
-        // <PrimitiveExtensionReactor
-        // key={`primitives-${index}-${props.nodeIndex}`}
-        // nodeIndex={props.nodeIndex}
-        //   primitiveIndex={index}
-        //   documentID={props.documentID}
-        //   entity={props.entity}
-        // />
-      }
+
+      <MorphTargetReactor
+        key={`targets-${props.nodeIndex}-${props.entity}`}
+        documentID={props.documentID}
+        entity={props.entity}
+        nodeIndex={props.nodeIndex}
+      />
     </>
   )
 }
@@ -1033,6 +1034,7 @@ const PrimitiveExtensionReactor = (props: {
     for (const extension in extensions) {
       console.log(extension)
       const Component = ComponentJSONIDMap.get(extension)
+      console.log(Component)
       if (!Component) continue
       setComponent(props.entity, Component, extensions[extension])
     }

@@ -65,8 +65,6 @@ interface Props {
   onAvatarLoaded?: () => void
 }
 
-const defaultAnimationPath = '/projects/ir-engine/default-project/assets/animations/'
-
 const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: Props) => {
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>

@@ -80,14 +80,14 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   }, [progress])
 
   useEffect(() => {
-    if (!animationComponent?.animations || !animationComponent.animations.length) return
-    animation.set(getComponent(assetEntity, AnimationComponent).animations)
+    if (!animationComponent?.animations || !animationComponent.animations.length || animation.value) return
     iterateEntityNode(assetEntity, (entity) => {
       removeComponent(entity, MeshComponent)
       removeComponent(entity, SkinnedMeshComponent)
       removeComponent(entity, MaterialStateComponent)
       removeComponent(entity, MaterialInstanceComponent)
     })
+    animation.set(getComponent(assetEntity, AnimationComponent).animations)
     if (!keepEntity) removeEntity(assetEntity)
   }, [animationComponent?.animations])
   return [animation, keepEntity ? assetEntity : UndefinedEntity] as [State<AnimationClip[]>, Entity]

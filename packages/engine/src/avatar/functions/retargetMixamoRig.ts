@@ -104,10 +104,11 @@ export const bindAnimationClipFromMixamo = (clip: AnimationClip) => {
     let mixamoBoneName = mixamoPrefix + trackSplitted[0]
     mixamoBoneName = mixamoBoneName.replace(':', '')
     const vrmBoneName = mixamoVRMRigMap[mixamoBoneName]
+    if (!vrmBoneName) continue
     const propertyName = trackSplitted[1]
     trackClone.name = `${vrmBoneName}.${propertyName}`
     tracks.push(trackClone)
   }
-  clip.tracks = tracks
+  clip.tracks = tracks.length ? tracks : clip.tracks
   return clip
 }
