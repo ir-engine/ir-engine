@@ -37,6 +37,7 @@ const createWorker = () => {
   } else {
     const path = require('path')
     const workerPath = path.resolve(__dirname, './generateBVHAsync.register.js')
+    console.log({ workerPath })
     return new Worker(workerPath, { type: 'module' })
   }
 }

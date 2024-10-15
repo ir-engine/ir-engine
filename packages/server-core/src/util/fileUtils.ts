@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import * as fs from 'fs'
-import { isEqual } from 'lodash-es'
+import { isEqual } from 'lodash'
 import mime from 'mime-types'
 import path from 'path'
 

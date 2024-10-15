@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import chargebeeInst from 'chargebee'
 import fs from 'fs'
 import path from 'path'
-import traceUnhandled from 'trace-unhandled'
+import { register } from 'trace-unhandled'
 import url from 'url'
 
 // ensure logger is loaded first - it loads the dotenv config
@@ -58,7 +58,7 @@ const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
 if (!testEnabled) {
-  traceUnhandled.register()
+  register()
 
   // ensure process fails properly
   process.on('exit', async (code) => {
