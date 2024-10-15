@@ -28,11 +28,11 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { Entity, entityExists, EntityUUID, getComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFSnapshotState, GLTFSnapshotStateType } from '@ir-engine/engine/src/gltf/GLTFState'
+import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
-import { getState, State } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -148,6 +148,20 @@ function buildHierarchyTree(
     }
   }
 
+  if (hasComponent(entity, GLTFComponent)) {
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const snapshotState = getState(GLTFSnapshotState)
+    const snapshots = snapshotState[instanceID]
+    if (snapshots) {
+      const snapshotNodes = snapshots.snapshots[snapshots.index].nodes
+      if (snapshotNodes && snapshotNodes.length > 0) {
+        item.isLeaf = false
+        if (!item.isCollapsed)
+          buildHierarchyTreeForNodes(depth + 1, snapshotNodes, item.children, sceneID, showModelChildren)
+      }
+    }
+  }
+
   if (node.children && !item.isCollapsed) {
     for (let i = 0; i < node.children.length; i++) {
       const childIndex = node.children[i]
@@ -218,42 +232,4 @@ export function gltfHierarchyTreeWalker(
   }
 
   return tree
-}
-
-export function GLTFSnapshotToHierarchy(snapshotState: State<GLTFSnapshotStateType>, source: string, index: number) {
-  const snapshot = snapshotState[source].snapshots[index]
-  const nodes = JSON.parse(JSON.stringify(snapshot.nodes.value)) as GLTF.INode[]
-  if (nodes && nodes.length) {
-    for (let i = 0; i < nodes.length; i++) {
-      const node = nodes[i]
-      if (node.extensions && node.extensions[UUIDComponent.jsonID] && node.extensions[GLTFComponent.jsonID]) {
-        const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
-        const entity = UUIDComponent.getEntityByUUID(uuid)
-        const instanceID = GLTFComponent.getInstanceID(entity)
-        if (instanceID) {
-          const childSnapshotState = snapshotState[instanceID].value
-          if (childSnapshotState) {
-            const childSnapshot = childSnapshotState.snapshots[childSnapshotState.index]
-            if (!childSnapshot.nodes) continue
-            const childNodes = JSON.parse(JSON.stringify(childSnapshot.nodes)) as GLTF.INode[]
-            const offset = nodes.length
-            for (let i2 = 0, len2 = childNodes.length; i2 < len2; i2++) {
-              const childNode = childNodes[i2]
-              const childIndex = nodes.push(childNode) - 1
-              if (childNode.children) {
-                for (let i3 = 0, len3 = childNode.children.length; i3 < len3; i3++) {
-                  childNode.children[i3] = childNode.children[i3] + offset
-                }
-              }
-              if (isChild(i2, childSnapshot.nodes as GLTF.INode[])) continue
-              if (!node.children) node.children = []
-              node.children.push(childIndex)
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return nodes
 }

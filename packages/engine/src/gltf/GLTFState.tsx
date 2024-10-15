@@ -685,6 +685,23 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   }, [])
 
   useLayoutEffect(() => {
+    const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
+
+    if (!node.extensions?.[UUIDComponent.jsonID]) {
+      if (!node.extensions.value)
+        node.merge({
+          extensions: {
+            [UUIDComponent.jsonID]: uuid
+          }
+        })
+      else
+        node.extensions.merge({
+          [UUIDComponent.jsonID]: uuid
+        })
+    }
+  }, [])
+
+  useLayoutEffect(() => {
     if (!entity) return
 
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })

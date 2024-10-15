@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
+import { GLTF } from '@gltf-transform/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
@@ -59,7 +59,6 @@ import {
   copyNodes,
   duplicateNode,
   gltfHierarchyTreeWalker,
-  GLTFSnapshotToHierarchy,
   groupNodes,
   HierarchyTreeNodeType,
   pasteNodes,
@@ -111,6 +110,7 @@ const HierarchySnapshotReactor = (props: {
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const modifiedState = useMutableState(GLTFModifiedState)
+  const gltfSnapshot = gltfState[sourceId].snapshots[snapshotIndex]
 
   const displayedNodes = useMemo(() => {
     if (hierarchyTreeState.search.query.value.length > 0) {
@@ -133,8 +133,7 @@ const HierarchySnapshotReactor = (props: {
   }, [sourceId])
 
   useEffect(() => {
-    const hierarchy = GLTFSnapshotToHierarchy(gltfState, sourceId, snapshotIndex)
-    const nodes = gltfHierarchyTreeWalker(rootEntity, hierarchy, showModelChildren)
+    const nodes = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[], showModelChildren)
     if (didHierarchyChange(hierarchyNodes.value as HierarchyTreeNodeType[], nodes)) {
       hierarchyNodes.set(nodes.filter((node) => entityExists(node.entity)))
     }
@@ -142,6 +141,7 @@ const HierarchySnapshotReactor = (props: {
     hierarchyTreeState.expandedNodes.value[sourceId], // extra dep for rebuilding tree for expanded/collapsed nodes
     snapshotIndex,
     gltfState,
+    gltfSnapshot,
     selectionState.selectedEntities,
     showModelChildren,
     modifiedState.keys
