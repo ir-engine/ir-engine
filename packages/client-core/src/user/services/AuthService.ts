@@ -48,6 +48,7 @@ import {
   UserSettingPatch,
   UserSettingType,
   UserType,
+  avatarPath,
   generateTokenPath,
   identityProviderPath,
   loginPath,
@@ -381,6 +382,25 @@ export const AuthService = {
           user.userSetting = await client.service(userSettingPath).create({ userId: userId })
         } else {
           user.userSetting = settingsRes.data[0]
+        }
+      }
+      if (!user.avatarId) {
+        const avatars = await client.service(avatarPath).find({
+          query: {
+            isPublic: true,
+            $limit: 1000
+          }
+        })
+
+        if (avatars.data.length > 0) {
+          const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
+
+          const result = await client
+            .service(userAvatarPath)
+            .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
+
+          user.avatarId = randomReplacementAvatar.id
+          user.avatar = randomReplacementAvatar
         }
       }
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
