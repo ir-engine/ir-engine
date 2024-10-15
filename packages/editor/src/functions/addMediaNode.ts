@@ -136,9 +136,9 @@ export async function addMediaNode(
     } else if (contentType.startsWith('model/prefab')) {
       const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-        name,
         parent!,
-        before
+        before,
+        name
       )
       const reactor = startReactor(() => {
         const entity = UUIDComponent.useEntityByUUID(entityUUID)
@@ -162,9 +162,9 @@ export async function addMediaNode(
           { name: EnvmapComponent.jsonID },
           ...extraComponentJson
         ],
-        name,
         parent!,
-        before
+        before,
+        name
       )
 
       return entityUUID
@@ -176,17 +176,17 @@ export async function addMediaNode(
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
-      name,
       parent!,
-      before
+      before,
+      name
     )
     return entityUUID
   } else if (contentType.startsWith('image/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
-      name,
       parent!,
-      before
+      before,
+      name
     )
     return entityUUID
   } else if (contentType.startsWith('audio/')) {
@@ -196,9 +196,9 @@ export async function addMediaNode(
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
-      name,
       parent!,
-      before
+      before,
+      name
     )
     return entityUUID
   } else if (url.includes('.uvol')) {
@@ -208,9 +208,9 @@ export async function addMediaNode(
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
-      name,
       parent!,
-      before
+      before,
+      name
     )
     return entityUUID
   } else {

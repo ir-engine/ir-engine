@@ -251,9 +251,9 @@ const overwriteLookdevObject = (
 }
 const createObjectFromSceneElement = (
   componentJson: ComponentJsonType[] = [],
-  requestedName?: string,
   parentEntity = getState(EditorState).rootEntity,
-  beforeEntity?: Entity
+  beforeEntity?: Entity,
+  requestedName?: string
 ): { entityUUID: EntityUUID; sceneID: string } => {
   const scenes = getSourcesForEntities([parentEntity])
   const entityUUID: EntityUUID =
