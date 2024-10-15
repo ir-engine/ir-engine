@@ -101,9 +101,7 @@ export const LoopAnimationComponent = defineComponent({
       }
       animComponent.mixer.time.set(0)
       try {
-        const action = animComponent.mixer.value.clipAction(
-          rigComponent?.vrm ? bindAnimationClipFromMixamo(clip) : clip
-        )
+        const action = animComponent.mixer.value.clipAction(clip)
         loopAnimationComponent._action.set(action)
         return () => {
           action.stop()
@@ -175,21 +173,26 @@ export const LoopAnimationComponent = defineComponent({
 
     useEffect(() => {
       if (
-        !animationPackGLTF[0].value ||
-        !animComponent ||
+        (!animationPackGLTF[0].value && loopAnimationComponent.animationPack.value !== '') ||
+        !animComponent?.animations.value ||
         //gltfComponent?.progress.value !== 100 ||
-        !loopAnimationComponent.animationPack.value ||
-        lastAnimationPack.value === loopAnimationComponent.animationPack.value
+        (loopAnimationComponent.animationPack.value != '' &&
+          lastAnimationPack.value === loopAnimationComponent.animationPack.value)
       )
         return
 
       animComponent.mixer.time.set(0)
       animComponent.mixer.value.stopAllAction()
       const animations = animationPackGLTF[0].get(NO_PROXY) as AnimationClip[]
-      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], animationPackGLTF[1])
+      if (animations) {
+        for (let i = 0; i < animations.length; i++) {
+          retargetAnimationClip(animations[i], animationPackGLTF[1])
+          bindAnimationClipFromMixamo(animations[i])
+        }
+        animComponent.animations.set(animations)
+      }
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
-      animComponent.animations.set(animations)
-    }, [animationPackGLTF, animComponent, gltfComponent?.progress])
+    }, [animationPackGLTF])
 
     return null
   }
