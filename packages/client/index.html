@@ -78,7 +78,7 @@
 </head>
   <body>
     <div id="root"  style='z-index: 1; margin: 0; width: 100%; height: 100vh; position: absolute; pointer-events: none;'></div>
-    <iframe style="display:block; visibility: hidden; height: 400px; width: 400px; pointer-events: auto; position: absolute; z-index: 100; max-width: 100%; max-height: 100%;" id="root-cookie-accessor" src="<%- rootCookieAccessor %>" sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin"></iframe>
+    <iframe style="display:none; visibility: hidden; height: 400px; width: 400px; pointer-events: auto; position: absolute; z-index: 100; max-width: 100%; max-height: 100%;" id="root-cookie-accessor" src="<%- rootCookieAccessor %>" sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin"></iframe>
     <script type="module" src="/src/main.tsx"></script>
     <canvas hidden id='engine-renderer-canvas' tabindex="1" style='outline: none; z-index: 0; width: 100%; height: 100%; position: fixed; -webkit-user-select: none; pointer-events: auto; user-select: none'></canvas>
   </body>
