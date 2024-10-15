@@ -29,7 +29,6 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  removeComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -102,9 +101,6 @@ export const VariantComponent = defineComponent({
       } else if (heuristic === Heuristic.DISTANCE) {
         setComponent(entity, DistanceFromCameraComponent)
         VariantComponent.setDistanceLevel(entity)
-        return () => {
-          removeComponent(entity, DistanceFromCameraComponent)
-        }
       }
     }, [variantComponent.heuristic])
 
