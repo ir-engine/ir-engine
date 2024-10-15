@@ -300,9 +300,7 @@ export const onProjectEvent = async (
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hookFilePath = path.resolve(projectsRootFolder, project.name, hookPath)
-  if (!fs.existsSync(hookFilePath)) return logger.warn(`No hooks file found at ${hookFilePath}`)
-  const hooks = (await import(hookFilePath)).default
+  const hooks = require(path.resolve(projectsRootFolder, project.name, hookPath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
       return await hooks[eventType](app, project, ...args)
@@ -311,12 +309,16 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = async (projectName: string) => {
+export const getProjectConfig = (projectName: string) => {
   try {
-    const configFilePath = path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')
-    return (await import(configFilePath)).default as ProjectConfigInterface
+    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts'))
+      .default as ProjectConfigInterface
   } catch (e) {
-    // asset only projects do not have a config file
+    logger.error(
+      e,
+      '[Projects]: WARNING project with ' +
+        `name ${projectName} has no xrengine.config.ts file - this is not recommended.`
+    )
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
@@ -960,7 +962,9 @@ export async function getProjectUpdateJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'vite-node',
+    'cross-env',
+    'ts-node',
+    '--swc',
     'scripts/update-project.ts',
     '--sourceURL',
     data.sourceURL,
@@ -1026,7 +1030,9 @@ export async function getProjectPushJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'vite-node',
+    'cross-env',
+    'ts-node',
+    '--swc',
     'scripts/push-project.ts',
     `--userId`,
     user.id,
@@ -1098,7 +1104,15 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
                   name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
-                  command: ['npx', 'vite-node', 'scripts/auto-update-project.ts', '--projectName', project.name],
+                  command: [
+                    'npx',
+                    'cross-env',
+                    'ts-node',
+                    '--swc',
+                    'scripts/auto-update-project.ts',
+                    '--projectName',
+                    project.name
+                  ],
                   env: Object.entries(process.env).map(([key, value]) => {
                     return { name: key, value: value }
                   })
@@ -1118,7 +1132,17 @@ export async function getDirectoryArchiveJobBody(
   projectName: string,
   jobId: string
 ): Promise<k8s.V1Job> {
-  const command = ['npx', 'vite-node', 'scripts/archive-directory.ts', `--project`, projectName, '--jobId', jobId]
+  const command = [
+    'npx',
+    'cross-env',
+    'ts-node',
+    '--swc',
+    'scripts/archive-directory.ts',
+    `--project`,
+    projectName,
+    '--jobId',
+    jobId
+  ]
 
   const projectJobName = cleanProjectName(projectName)
 
@@ -1237,7 +1261,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
 }
 
 export const copyDefaultProject = () => {
-  deleteFolderRecursive(path.join(projectsRootFolder, `ir-engine/default-project`))
+  deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
   copyFolderRecursiveSync(
     path.join(appRootPath.path, 'packages/projects/default-project'),
     path.join(projectsRootFolder, 'ir-engine')
@@ -1419,7 +1443,7 @@ export const updateProject = async (
 
   const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
-  const projectConfig = await getProjectConfig(projectName)
+  const projectConfig = getProjectConfig(projectName)
 
   const enabled = getProjectEnabled(projectName)
 

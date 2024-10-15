@@ -23,11 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -42,12 +39,12 @@ describe('identity-provider.test', () => {
   let app: Application
   let providers: IdentityProviderType[] = []
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
   })
 
-  afterAll(async () => {
+  after(async () => {
     await tearDownAPI()
     destroyEngine()
   })

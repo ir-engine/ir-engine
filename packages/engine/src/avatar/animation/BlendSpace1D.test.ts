@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { describe, it } from 'vitest'
 
 import { addBlendSpace1DNode, updateBlendSpace1D } from './BlendSpace1D'
 

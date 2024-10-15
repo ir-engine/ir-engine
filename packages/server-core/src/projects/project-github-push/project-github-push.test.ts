@@ -23,13 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import assert from 'assert'
 import { createHash } from 'crypto'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
 
 import { projectGithubPushPath } from '@ir-engine/common/src/schemas/projects/project-github-push.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
@@ -56,14 +53,14 @@ describe('project-github-push.test', () => {
     }
   })
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
 
-    const name = ('test-project-destination-check-user-name-' + Math.random().toString().slice(2, 12)) as UserName
+    const name = ('test-project-destination-check-user-name-' + uuidv4()) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-destination-check-avatar-name-' + Math.random().toString().slice(2, 12)
+      name: 'test-project-destination-check-avatar-name-' + uuidv4()
     })
 
     const testUser = await app.service(userPath).create({
@@ -88,7 +85,7 @@ describe('project-github-push.test', () => {
       getParams()
     )
 
-    const projectName = `test-project-github-push-${Math.random().toString().slice(2, 12)}`
+    const projectName = `test-project-github-push-${uuidv4()}`
     const fullName = `@ir-engine/${projectName}`
     testProject = await app
       .service(projectPath)
@@ -106,7 +103,7 @@ describe('project-github-push.test', () => {
     nock.cleanAll()
   })
 
-  afterAll(async () => {
+  after(async () => {
     await app.service(projectPath).remove(testProject.id)
 
     await tearDownAPI()

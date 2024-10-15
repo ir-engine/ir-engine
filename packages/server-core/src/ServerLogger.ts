@@ -23,9 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// This must always be imported first
-import './patchEngineNode'
-
 /**
  * A server-side only multi-stream logger.
  * For isomorphic or client-side logging, use packages/common/src/logger.ts

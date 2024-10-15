@@ -23,11 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
-import { afterAll, beforeAll, describe } from 'vitest'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
@@ -41,12 +38,12 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 // causes CI/CD weirdness
 describe('avatar-helper', () => {
   let app: Application
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
   })
 
-  afterAll(async () => {
+  after(async () => {
     await tearDownAPI()
     destroyEngine()
   })

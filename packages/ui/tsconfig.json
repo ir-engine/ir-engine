@@ -1,31 +1,42 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "skipLibCheck": true,
-    "moduleResolution": "node",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
+    "target": "esnext",
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
     "allowJs": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "module": "ESNext",
     "strict": false,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
+    "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
-    "declaration": false,
-    "types": ["@types/node"]
+    "declaration": true,
+    "outDir": "./lib",
+    "types": ["vite/client", "mocha", "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"],
   },
-  "exclude": ["./src/**/*.test.tsx"],
-  "include": ["../../__global.d.ts", "../server-core/src", "../client-core/src", "./src", "./index.ts"]
+  "exclude": [
+    "./node_modules/**",
+    "./src/**/*.test.ts*"
+  ],
+  "include": [
+    "../../__global.d.ts",
+    "../server-core/src/*",
+    "../client-core/src/*",
+    "./src/**/*.ts",
+    "./src/**/*.tsx"
+  ]
 }

@@ -43,21 +43,21 @@ export const SplineComponent = defineComponent({
     elements: S.Array(
       S.Object({
         position: S.Vec3(),
-        rotation: S.Quaternion()
+        quaternion: S.Quaternion()
       }),
       [
-        { position: new Vector3(-1, 0, -1), rotation: new Quaternion() },
+        { position: new Vector3(-1, 0, -1), quaternion: new Quaternion() },
         {
           position: new Vector3(1, 0, -1),
-          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI / 2)
+          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI / 2)
         },
         {
           position: new Vector3(1, 0, 1),
-          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI)
+          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI)
         },
         {
           position: new Vector3(-1, 0, 1),
-          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, (3 * Math.PI) / 2)
+          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, (3 * Math.PI) / 2)
         }
       ]
     ),
@@ -70,7 +70,7 @@ export const SplineComponent = defineComponent({
       component.elements.set(
         json.elements.map((e) => ({
           position: new Vector3().copy(e.position),
-          rotation: new Quaternion().copy(e.rotation)
+          quaternion: new Quaternion().copy(e.quaternion)
         }))
       )
   },
@@ -96,7 +96,7 @@ export const SplineComponent = defineComponent({
     }, [
       elements.length,
       // force a unique dep change upon any position or quaternion change
-      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.rotation)})`).join('')
+      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.quaternion)})`).join('')
     ])
 
     useEffect(() => {

@@ -23,9 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// This must always be imported first
-import '@ir-engine/server-core/src/patchEngineNode'
-
 import { projectPath } from '@ir-engine/common/src/schema.type.module'
 import logger from '@ir-engine/server-core/src/ServerLogger'
 import { ServerMode } from '@ir-engine/server-core/src/ServerState'
@@ -52,7 +49,7 @@ db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.ho
 
 async function installAllProjects() {
   try {
-    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     createDefaultStorageProvider()
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')

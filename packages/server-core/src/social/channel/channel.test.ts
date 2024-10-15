@@ -22,11 +22,8 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import '../../patchEngineNode'
-
 import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'
@@ -42,7 +39,7 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 describe('channel service', () => {
   let app: Application
   beforeEach(async () => {
-    app = await createFeathersKoaApp()
+    app = createFeathersKoaApp()
     await app.setup()
   })
 

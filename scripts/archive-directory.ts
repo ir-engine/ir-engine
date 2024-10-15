@@ -22,8 +22,6 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
-// This must always be imported first
-import '@ir-engine/server-core/src/patchEngineNode'
 
 import appRootPath from 'app-root-path'
 import cli from 'cli'
@@ -59,7 +57,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const { project, jobId } = options
     await app.service(archiverPath).get(null, {

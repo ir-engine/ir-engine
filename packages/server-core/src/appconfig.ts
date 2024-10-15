@@ -25,13 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import appRootPath from 'app-root-path'
 import chargebeeInst from 'chargebee'
-import fs from 'fs'
+import dotenv from 'dotenv-flow'
 import path from 'path'
-import traceUnhandled from 'trace-unhandled'
 import url from 'url'
-
-// ensure logger is loaded first - it loads the dotenv config
-import multiLogger from './ServerLogger'
 
 import { oembedPath } from '@ir-engine/common/src/schemas/media/oembed.schema'
 import { allowedDomainsPath } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
@@ -44,6 +40,7 @@ import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { createHash } from 'crypto'
+import multiLogger from './ServerLogger'
 import {
   APPLE_SCOPES,
   DISCORD_SCOPES,
@@ -58,7 +55,8 @@ const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
 if (!testEnabled) {
-  traceUnhandled.register()
+  const { register } = require('trace-unhandled')
+  register()
 
   // ensure process fails properly
   process.on('exit', async (code) => {
@@ -92,10 +90,18 @@ if (!testEnabled) {
   })
 }
 
+if (!kubernetesEnabled) {
+  dotenv.config({
+    path: appRootPath.path,
+    node_env: 'local'
+  })
+}
+
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
+  const fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
     const fromEnvPath = appRootPath.path + '/.env.local.default'
     const toEnvPath = appRootPath.path + '/.env.local'

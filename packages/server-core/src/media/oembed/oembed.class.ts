@@ -78,7 +78,7 @@ export class OembedService implements ServiceInterface<OembedType | BadRequest |
       const uniqueProjects = [...new Set<string>(activeRoutes.map((item) => item.project))]
 
       for (const projectName of uniqueProjects) {
-        const projectConfig = await getProjectConfig(projectName)
+        const projectConfig = getProjectConfig(projectName)
         if (projectConfig?.onEvent) {
           const project = await this.app.service(projectPath)._find({
             query: {

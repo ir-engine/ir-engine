@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../src/patchEngineNode'
-
 import approot from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs-extra'
@@ -32,7 +30,6 @@ import https from 'https'
 import fetch from 'node-fetch'
 import path from 'path/posix'
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -71,7 +68,7 @@ describe('storageprovider', () => {
         await fs.ensureDir(path.join(testRootPath, 'testDirectory'))
       }
 
-      beforeAll(async function () {
+      before(async function () {
         createEngine()
         provider = new providerType()
         await createTestDirectories()
@@ -179,6 +176,8 @@ describe('storageprovider', () => {
       })
 
       it(`should put over 1000 objects in ${providerType.name}`, async function () {
+        this.timeout(30000) // increase timeout to 30 seconds
+
         const batchSize = 100
         const totalObjects = 1010
 
@@ -198,7 +197,7 @@ describe('storageprovider', () => {
           await Promise.all(promises)
           await new Promise((resolve) => setTimeout(resolve, 100)) // Add a small delay between batches
         }
-      }, 30000)
+      })
 
       it(`should list over 1000 objects in ${providerType.name}`, async function () {
         const res = await provider.listFolderContent(testFolderName, true)
@@ -237,7 +236,7 @@ describe('storageprovider', () => {
         )
       })
 
-      afterAll(async function () {
+      after(async function () {
         destroyEngine()
         await providerAfterTest(provider, testFolderName)
         // clean up the test directory

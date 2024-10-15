@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert, { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'

@@ -23,10 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Cache, LoadingManager } from 'three'
-import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
+import { LoadingManager } from 'three'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
@@ -36,21 +34,12 @@ import { ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/Re
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { loadResource } from '../functions/resourceLoaderFunctions'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
-import { GLTF as THREE_GLTF } from '../loaders/gltf/GLTFLoader'
+import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { setDefaultLoadingManager } from './ResourceLoadingManagerState'
 
-const gltf: GLTF.IGLTF = {
-  asset: {
-    version: '2.0'
-  },
-  scenes: [{ nodes: [] }],
-  scene: 0,
-  nodes: []
-}
-
-const url = '/packages/projects/default-project/assets/collisioncube.gltf'
-
 describe('ResourceLoadingManager', () => {
+  const url = '/packages/projects/default-project/assets/collisioncube.glb'
+
   beforeEach(async () => {
     createEngine()
     loadEmptyScene()
@@ -60,35 +49,31 @@ describe('ResourceLoadingManager', () => {
     return destroyEngine()
   })
 
-  it('Calls loading manager', () =>
-    new Promise((done: DoneCallback) => {
-      const entity = createEntity()
-      const resourceState = getState(ResourceState)
-      const controller = new AbortController()
+  it('Calls loading manager', (done) => {
+    const entity = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller = new AbortController()
+    assert.doesNotThrow(() => {
+      setDefaultLoadingManager(
+        new ResourceLoadingManager((startUrl) => {
+          assert(startUrl === url)
+          assert(resourceState.resources[url] !== undefined, 'Asset not added to resource manager')
+          done()
+          setDefaultLoadingManager()
+        }) as LoadingManager
+      )
 
-      assert.doesNotThrow(() => {
-        Cache.add(url, gltf)
-        setDefaultLoadingManager(
-          new ResourceLoadingManager((startUrl) => {
-            assert(startUrl === url)
-            assert(resourceState.resources[url] !== undefined, 'Asset not added to resource manager')
-            setDefaultLoadingManager()
-          }) as LoadingManager
-        )
-
-        loadResource<THREE_GLTF>(
-          url,
-          ResourceType.GLTF,
-          entity,
-          (response) => {
-            done()
-          },
-          (resquest) => {},
-          (error) => {
-            assert(false)
-          },
-          controller.signal
-        )
-      }, done)
-    }))
+      loadResource<GLTF>(
+        url,
+        ResourceType.GLTF,
+        entity,
+        (response) => {},
+        (resquest) => {},
+        (error) => {
+          assert(false)
+        },
+        controller.signal
+      )
+    }, done)
+  })
 })

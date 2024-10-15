@@ -25,6 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Color, Material, MeshStandardMaterial, MeshStandardMaterialParameters, Uniform } from 'three'
 
+import { createEntity, setComponent } from '@ir-engine/ecs'
+import { UpdatableCallback, UpdatableComponent } from '@ir-engine/engine/src/scene/components/UpdatableComponent'
+import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { addOBCPlugin } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { MaterialPrototypeDefinition } from '../MaterialComponent'
 import { BasicArgs } from '../constants/BasicArgs'
@@ -200,13 +203,12 @@ export class HolographicMaterial extends MeshStandardMaterial {
     //@ts-ignore
     this.userData.type = 'HolographicMaterial'
 
-    /** @todo move to system */
     // Create an entity with an UpdatableComponent to increment the time uniform
-    // const updater = createEntity()
-    // setCallback(updater, UpdatableCallback, (dt) => {
-    //   this._uniforms.time.value += dt
-    // })
-    // setComponent(updater, UpdatableComponent, true)
+    const updater = createEntity()
+    setCallback(updater, UpdatableCallback, (dt) => {
+      this._uniforms.time.value += dt
+    })
+    setComponent(updater, UpdatableComponent, true)
   }
 
   get speed() {

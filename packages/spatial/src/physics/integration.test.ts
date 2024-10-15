@@ -41,7 +41,6 @@ import {
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../common/NameComponent'
 import { Axis, Vector3_Zero } from '../common/constants/MathConstants'
@@ -59,13 +58,10 @@ import {
 } from '../transform/systems/TransformSystem'
 import { PhysicsPreTransformSystem, PhysicsSystem } from './PhysicsModule'
 import { Physics, PhysicsWorld } from './classes/Physics'
+import { assertVecAnyApproxNotEq, assertVecApproxEq } from './classes/Physics.test'
 import { ColliderComponent } from './components/ColliderComponent'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
 import { BodyTypes, Shapes } from './types/PhysicsTypes'
-
-import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../tests/util/mathAssertions'
-import '../transform/TransformModule'
-import './PhysicsModule'
 
 const execute = {
   physicsSystem: SystemDefinitions.get(PhysicsSystem)!.execute, // with: SimulationSystemGroup
@@ -273,7 +269,6 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
     })
 
     afterEach(() => {
-      removeChidren()
       removeEntity(testEntity)
       removeEntity(parentEntity)
       removeEntity(physicsWorldEntity)

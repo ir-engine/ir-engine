@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { EntityUUID, UUIDComponent, getComponent } from '@ir-engine/ecs'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'

@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
-import { describe, it } from 'vitest'
 
 import { DualQuaternion } from './DualQuaternion'
 

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect, useRef } from 'react'
 
-import { StateMethods } from '../functions/StateFunctions'
+import { StateMethods } from '@ir-engine/hyperflux'
 
 export const usePrevious = <T>(value: StateMethods<T, object>) => {
   const ref = useRef(null as T | null)

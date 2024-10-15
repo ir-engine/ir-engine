@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import assert from 'assert'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
 
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -43,12 +40,12 @@ const getRandomizedName = (name: string, suffix = '', prefix = PREFIX) =>
 
 describe('file-browser.test', () => {
   let app: Application
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
   })
 
-  afterAll(async () => {
+  after(async () => {
     const directories = (await getStorageProvider().listFolderContent('projects/'))
       .map((directory) => directory.key)
       .filter((directory) => directory.startsWith('projects/test'))
@@ -63,9 +60,9 @@ describe('file-browser.test', () => {
   })
 
   describe('create', () => {
-    const testProjectName = `testorg/${getRandomizedName('directory')}`
+    const testProjectName = `@org/${getRandomizedName('directory')}`
     let project: ProjectType
-    afterAll(async () => {
+    after(async () => {
       await app.service(projectPath).remove(project.id)
     })
 
@@ -79,13 +76,13 @@ describe('file-browser.test', () => {
   })
 
   describe('find', () => {
-    const testProjectName = `testorg/${getRandomizedName('directory')}`
+    const testProjectName = `@org/${getRandomizedName('directory')}`
     let project: ProjectType
-    beforeAll(async () => {
+    before(async () => {
       project = await app.service(projectPath).create({ name: testProjectName })
     })
 
-    afterAll(async () => {
+    after(async () => {
       await app.service(projectPath).remove(project.id)
     })
 
@@ -127,7 +124,7 @@ describe('file-browser.test', () => {
   })
 
   describe('patch', () => {
-    const testProjectName = `testorg/${getRandomizedName('directory')}`
+    const testProjectName = `@org/${getRandomizedName('directory')}`
     const testFileFullName = getRandomizedName('file', '.txt')
     const testFileFullPath = 'projects/' + testProjectName + '/public/' + testFileFullName
     const testFileName = testFileFullName.split('.')[0]
@@ -137,11 +134,11 @@ describe('file-browser.test', () => {
     const testFileSize = Buffer.byteLength(body)
     let project: ProjectType
 
-    beforeAll(async () => {
+    before(async () => {
       project = await app.service(projectPath).create({ name: testProjectName })
     })
 
-    afterAll(async () => {
+    after(async () => {
       await app.service(projectPath).remove(project.id)
     })
 
@@ -201,8 +198,8 @@ describe('file-browser.test', () => {
     let project2: ProjectType
 
     beforeEach(async () => {
-      testProjectName = `testorg/${getRandomizedName('directory')}`
-      testProjectName2 = `testorg/${getRandomizedName('directory2')}`
+      testProjectName = `@org/${getRandomizedName('directory')}`
+      testProjectName2 = `@org/${getRandomizedName('directory2')}`
 
       project = await app.service(projectPath).create({ name: testProjectName })
       project2 = await app.service(projectPath).create({ name: testProjectName2 })
@@ -312,7 +309,7 @@ describe('file-browser.test', () => {
 
       const storageProvider = getStorageProvider()
       assert.ok(await storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileName3))
-      await assert.rejects(storageProvider.getObject('projects/' + testProjectName2 + '/public/' + testFileName3))
+      assert.rejects(storageProvider.getObject('projects/' + testProjectName2 + '/public/' + testFileName3))
     })
 
     it('moves directory', async () => {
@@ -365,11 +362,11 @@ describe('file-browser.test', () => {
   })
 
   describe('remove', () => {
-    const testProjectName = `testorg/${getRandomizedName('directory')}`
+    const testProjectName = `@org/${getRandomizedName('directory')}`
     const testFileFullName = getRandomizedName('file', '.txt')
     let project: ProjectType
 
-    beforeAll(async () => {
+    before(async () => {
       project = await app.service(projectPath).create({ name: testProjectName })
       await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
       await app.service(fileBrowserPath).patch(null, {
@@ -380,7 +377,7 @@ describe('file-browser.test', () => {
       })
     })
 
-    afterAll(async () => {
+    after(async () => {
       await app.service(projectPath).remove(project.id)
     })
 
@@ -391,7 +388,7 @@ describe('file-browser.test', () => {
       assert.ok(removeResult)
 
       const storageProvider = getStorageProvider()
-      await assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileFullName))
+      assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileFullName))
     })
 
     it('removes directory', async () => {
@@ -399,7 +396,7 @@ describe('file-browser.test', () => {
       assert.ok(removeResult)
 
       const storageProvider = getStorageProvider()
-      await assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/'))
+      assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/'))
     })
   })
 })

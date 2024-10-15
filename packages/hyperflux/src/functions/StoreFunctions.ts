@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID, UserID } from '../types/Types'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
-import { ReactorRoot } from './ReactorFunctions'
+import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -145,4 +145,10 @@ export function createHyperStore(options?: {
   }
   HyperFlux.store = store
   return store
+}
+
+export const disposeStore = (store = HyperFlux.store) => {
+  for (const reactor of store.activeReactors) {
+    ReactorReconciler.flushSync(() => reactor.stop())
+  }
 }

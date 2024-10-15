@@ -33,7 +33,7 @@ import { Application } from '../declarations'
 import { seeder } from './seeder'
 import multiLogger from './ServerLogger'
 
-import config from '../knexfile'
+const config = require('../knexfile')
 
 const logger = multiLogger.child({ component: 'server-core:mysql' })
 

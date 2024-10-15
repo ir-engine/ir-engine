@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import { ProjectType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { ProjectSettingType } from '@ir-engine/common/src/schemas/setting/project-setting.schema'
 import { UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -35,7 +33,6 @@ import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/cr
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 import {
   createProject,
   createProjectSetting,
@@ -61,8 +58,8 @@ describe('project-setting.test', () => {
   let project: ProjectType
   let projectSetting: ProjectSettingType
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
 
     const projectResponse = await createProject(app)
@@ -73,7 +70,7 @@ describe('project-setting.test', () => {
     projectSetting = projectSettingResponse.projectSetting
   })
 
-  afterAll(async () => {
+  after(async () => {
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
     cleanup(project.name)

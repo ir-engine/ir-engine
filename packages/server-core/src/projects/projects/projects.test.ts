@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { projectsPath } from '@ir-engine/common/src/schemas/projects/projects.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -37,12 +34,12 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 describe('projects.test', () => {
   let app: Application
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
   })
 
-  afterAll(async () => {
+  after(async () => {
     await tearDownAPI()
     destroyEngine()
   })

@@ -27,7 +27,6 @@ import { act } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { ChannelID, MessageID, UserID } from '@ir-engine/common/src/schema.type.module'
 import { createEngine } from '@ir-engine/ecs'

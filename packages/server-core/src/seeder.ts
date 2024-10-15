@@ -48,6 +48,8 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
       await seedFile.seed(knexClient)
       logger.info('Finished seeding', seedFile)
     }
+
+    await app.service(projectPath)._addOrgNameToProject()
   }
 
   if (prepareDb) return

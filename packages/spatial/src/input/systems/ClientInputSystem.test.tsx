@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   createEngine,
@@ -44,9 +43,9 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
-import { assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { assertVecApproxEq } from '../../physics/classes/Physics.test'
+import { TransformComponent } from '../../SpatialModule'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -63,7 +62,7 @@ import { ClientInputCleanupSystem, ClientInputSystem } from './ClientInputSystem
 //   const mockDocEvents = new MockEventListener()
 //   const mockWinEvents = new MockEventListener()
 
-//   beforeAll(() => {
+//   before(() => {
 //     documentAddEvent = globalThis.document.addEventListener
 //     documentRemoveEvent = globalThis.document.removeEventListener
 //     windowAddEvent = globalThis.window.addEventListener
@@ -78,7 +77,7 @@ import { ClientInputCleanupSystem, ClientInputSystem } from './ClientInputSystem
 //     globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
 //   })
 
-//   afterAll(() => {
+//   after(() => {
 //     globalThis.document.addEventListener = documentAddEvent
 //     globalThis.document.removeEventListener = documentRemoveEvent
 //     globalThis.window.addEventListener = windowAddEvent

@@ -23,7 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-const performance: Performance = window.performance
+import { isClient } from '@ir-engine/hyperflux'
+
+const performance: Performance = isClient ? window.performance : require('perf_hooks').performance
 
 /**
  * return current time of the system.
@@ -211,7 +213,7 @@ export class ServerLoop {
     this._deltas = Array<number>()
   }
   _nano() {
-    const hrtime = globalThis.process.hrtime()
+    const hrtime = process.hrtime()
     return +hrtime[0] * 1e9 + +hrtime[1]
   }
   _ConvertSecondsToNano(sec: number): number {

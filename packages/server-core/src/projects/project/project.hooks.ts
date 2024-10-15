@@ -409,7 +409,7 @@ const getProjectName = async (context: HookContext<ProjectService>) => {
  * @returns
  */
 const runProjectUninstallScript = async (context: HookContext<ProjectService>) => {
-  const projectConfig = await getProjectConfig(context.project.name)
+  const projectConfig = getProjectConfig(context.project.name)
 
   if (projectConfig?.onEvent) {
     await onProjectEvent(context.app, context.project, projectConfig.onEvent, 'onUninstall')

@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import matches from 'ts-matches'
-import { describe, it } from 'vitest'
 
 import { PeerID } from '@ir-engine/hyperflux'
 

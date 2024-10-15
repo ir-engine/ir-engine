@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   Entity,
@@ -41,11 +40,11 @@ import {
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Vector3 } from 'three'
-import { assertVecAllApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { TransformComponent } from '../../SpatialModule'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, getAncestorWithComponents } from '../../transform/components/EntityTree'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
+import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { BodyTypes, Shapes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'

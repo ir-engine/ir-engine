@@ -52,7 +52,7 @@ import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/Mes
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { TransformComponent } from '@ir-engine/spatial'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'

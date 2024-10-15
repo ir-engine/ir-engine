@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert, { strictEqual } from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'

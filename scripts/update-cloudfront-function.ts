@@ -23,9 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// This must always be imported first
-import '@ir-engine/server-core/src/patchEngineNode'
-
 import { Application } from '@feathersjs/feathers'
 import cli from 'cli'
 

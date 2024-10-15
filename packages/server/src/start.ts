@@ -48,7 +48,7 @@ process.on('unhandledRejection', (error, promise) => {
 })
 
 export const start = async (): Promise<void> => {
-  const app = await createFeathersKoaApp(ServerMode.API)
+  const app = createFeathersKoaApp(ServerMode.API)
 
   app.use(favicon(join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)

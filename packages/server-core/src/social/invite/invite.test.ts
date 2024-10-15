@@ -23,11 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { inviteTypes } from '@ir-engine/common/src/schemas/social/invite-type.schema'
 import { invitePath, InviteType } from '@ir-engine/common/src/schemas/social/invite.schema'
@@ -46,8 +43,8 @@ describe('invite.service', () => {
   let testLocation: LocationType
   const invites: InviteType[] = []
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-invite-user-name-' + uuidv4()) as UserName
@@ -67,7 +64,7 @@ describe('invite.service', () => {
     testLocation = await createTestLocation(app)
   })
 
-  afterAll(async () => {
+  after(async () => {
     await app.service(userPath).remove(testUser.id)
     await tearDownAPI()
     destroyEngine()

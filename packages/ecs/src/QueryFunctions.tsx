@@ -81,9 +81,9 @@ export const ReactiveQuerySystem = defineSystem({
  * - "components" argument must not change
  */
 export function useQuery(components: QueryComponents) {
-  const query = bitECS.defineQuery(components)
-  const eids = query(HyperFlux.store) as Entity[]
-  bitECS.removeQuery(HyperFlux.store, query)
+  const query = defineQuery(components)
+  const eids = query()
+  removeQuery(query)
 
   const forceUpdate = useForceUpdate()
 

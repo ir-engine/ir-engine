@@ -1,3 +1,3 @@
-### iR Engine Project
+### Ethereal Engine Project
 
-This is an iR Engine project.
+This is an Ethereal Engine project.

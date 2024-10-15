@@ -2,7 +2,6 @@
   "name": "@ir-engine/server-core",
   "description": "Shared components for Infinite Reality Engine server",
   "version": "1.6.0",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/ir-engine/ir-engine.git"
@@ -37,7 +36,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run",
+    "test": "cross-env TEST=true mocha --config .mocharc.js",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback --all",
@@ -93,7 +92,7 @@
     "koa-helmet": "^7.0.2",
     "koa-mount": "^4.0.0",
     "koa-simple-healthcheck": "^0.0.1",
-    "lodash-es": "4.17.21",
+    "lodash": "4.17.21",
     "meshoptimizer": "^0.18.1",
     "mime-types": "^2.1.35",
     "minio": "7.1.3",

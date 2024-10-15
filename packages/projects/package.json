@@ -1,13 +1,10 @@
 {
   "name": "@ir-engine/projects",
   "version": "1.6.0",
-  "type": "module",
   "main": "index.ts",
   "private": true,
   "description": "",
-  "scripts": {
-    "test": "exit 0"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://github.com/ir-engine/ir-engine.git"

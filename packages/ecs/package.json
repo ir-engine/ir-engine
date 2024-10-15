@@ -1,7 +1,6 @@
 {
   "name": "@ir-engine/ecs",
   "version": "1.6.0",
-  "type": "module",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"
@@ -9,7 +8,7 @@
   "description": "Core execution context for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run"
+    "test": "mocha --jobs 1"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",
@@ -20,6 +19,7 @@
     "uuid": "9.0.0"
   },
   "devDependencies": {
+    "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",
     "rimraf": "4.4.0"
   },

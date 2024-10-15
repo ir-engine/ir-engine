@@ -23,13 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import {
   projectPermissionPath,
@@ -43,11 +40,10 @@ import { InviteCode, UserID, UserName, userPath, UserType } from '@ir-engine/com
 import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
-import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
-const newProjectName1 = 'testorg/projecttest_test_project_name_1'
+const newProjectName1 = 'org/projecttest_test_project_name_1'
 
 const cleanup = async (app: Application) => {
   const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1.split('/')[0]}/`)
@@ -75,8 +71,8 @@ describe('project-permission.test', () => {
   let user3: UserType
   let user4: UserType
   let project1, project1Permission1, project1Permission2, project1Permission4
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
 
@@ -158,7 +154,7 @@ describe('project-permission.test', () => {
     })
   })
 
-  afterAll(async () => {
+  after(async () => {
     await tearDownAPI()
     destroyEngine()
   })
@@ -240,16 +236,19 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).create(
-            {
-              projectId: 'abcdefg',
-              userId: user2.id,
-              type: 'editor'
-            },
-            params
-          )
-        }, new NotFound("No record found for id 'abcdefg'"))
+        assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).create(
+              {
+                projectId: 'abcdefg',
+                userId: user2.id,
+                type: 'editor'
+              },
+              params
+            )
+          },
+          { message: 'Invalid project ID' }
+        )
       })
 
       it('should throw an error if the userId is invalid', async function () {
@@ -260,16 +259,19 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).create(
-            {
-              projectId: project1.id,
-              userId: 'abcdefg' as UserID,
-              type: 'editor'
-            },
-            params
-          )
-        }, new BadRequest('validation failed'))
+        assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).create(
+              {
+                projectId: project1.id,
+                userId: 'abcdefg' as UserID,
+                type: 'editor'
+              },
+              params
+            )
+          },
+          { message: 'Invalid user ID and/or user invite code' }
+        )
       })
 
       it('should not allow a user who does not have owner permission on a project to create new permissions for that project', async function () {
@@ -280,16 +282,19 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          const res = await app.service(projectPermissionPath).create(
-            {
-              projectId: project1.id,
-              userId: user3.id,
-              type: 'editor'
-            },
-            params
-          )
-        }, new Forbidden('Missing required project permission'))
+        assert.rejects(
+          async () => {
+            const res = await app.service(projectPermissionPath).create(
+              {
+                projectId: project1.id,
+                userId: user3.id,
+                type: 'editor'
+              },
+              params
+            )
+          },
+          { message: 'You are not an owner of this project' }
+        )
       })
 
       it('should not allow a user with no permission on a project to create new permissions for that project', async function () {
@@ -300,16 +305,19 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).create(
-            {
-              projectId: project1.id,
-              userId: user3.id,
-              type: 'editor'
-            },
-            params
-          )
-        }, new Forbidden('Project permission not found'))
+        assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).create(
+              {
+                projectId: project1.id,
+                userId: user3.id,
+                type: 'editor'
+              },
+              params
+            )
+          },
+          { message: 'You are not an owner of this project' }
+        )
       })
 
       it('should allow an admin user to create new permissions for a project', async function () {
@@ -388,15 +396,18 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).patch(
-            project1Permission2.id,
-            {
-              type: ''
-            },
-            params
-          )
-        }, new Forbidden('Missing required project permission'))
+        assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).patch(
+              project1Permission2.id,
+              {
+                type: ''
+              },
+              params
+            )
+          },
+          { message: 'You are not an owner of this project' }
+        )
       })
 
       it('should not allow a user with no permission on a project to patch permissions for that project', async function () {
@@ -413,15 +424,18 @@ describe('project-permission.test', () => {
           },
           paginate: false
         })
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).patch(
-            project1Permission2.id,
-            {
-              type: ''
-            },
-            params
-          )
-        }, new Forbidden('Project permission not found'))
+        assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).patch(
+              project1Permission2.id,
+              {
+                type: ''
+              },
+              params
+            )
+          },
+          { message: 'You are not an owner of this project' }
+        )
       })
     })
 
@@ -434,9 +448,12 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).remove(project1Permission2.id, params)
-        }, new Forbidden('Missing required project permission'))
+        assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).remove(project1Permission2.id, params)
+          },
+          { message: 'You are not an owner of this project' }
+        )
       })
 
       it('should not allow a user with no permission on a project to remove permissions for that project', async function () {
@@ -447,9 +464,12 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).remove(project1Permission2.id, params)
-        }, new Forbidden('Project permission not found'))
+        assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).remove(project1Permission2.id, params)
+          },
+          { message: 'You are not an owner of this project' }
+        )
       })
 
       it('should allow an owner to remove permissions for that project, and if the last owner permission is removed, a user permission should be made the owner', async function () {
@@ -509,7 +529,7 @@ describe('project-permission.test', () => {
       })
     })
 
-    afterAll(async () => {
+    after(async () => {
       await cleanup(app)
     })
   })

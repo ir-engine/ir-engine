@@ -173,7 +173,7 @@ export function defineSystem(systemConfig: SystemArgs) {
 
   const insert = system.insert
 
-  /** these are here to ensure we aren't failing to specify an insertion system */
+  /** these are here to ensure we aren't failing to specify an insertion system that ts-node fails with higher level module imports */
   if ('before' in insert && typeof insert.before === 'undefined') {
     console.log(system)
     throw new Error('System insert.before is undefined')

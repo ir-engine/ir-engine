@@ -100,9 +100,9 @@ ENV VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED
 
 RUN npm run build-client
 
-RUN npx vite-node scripts/push-client-to-s3.ts
+RUN npx cross-env ts-node --swc scripts/push-client-to-s3.ts
 
-RUN npx vite-node scripts/update-cloudfront-function.ts --stage=$STAGE
+RUN npx cross-env ts-node --swc scripts/update-cloudfront-function.ts --stage=$STAGE
 
 RUN rm -r packages/client/public
 

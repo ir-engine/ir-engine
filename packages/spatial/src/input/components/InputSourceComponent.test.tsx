@@ -39,7 +39,6 @@ import {
 import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Raycaster } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'

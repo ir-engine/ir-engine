@@ -28,7 +28,7 @@ import { Matrix4, Object3D } from 'three'
 
 import { EntityUUID, generateEntityUUID, SerializedComponentType, UUIDComponent } from '@ir-engine/ecs'
 import { sceneRelativePathIdentifier } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { TransformComponent } from '@ir-engine/spatial'
 
 import { getState } from '@ir-engine/hyperflux'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'

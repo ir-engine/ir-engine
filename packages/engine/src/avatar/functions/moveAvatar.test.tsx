@@ -27,7 +27,6 @@ import { act, render } from '@testing-library/react'
 import { strictEqual } from 'assert'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'

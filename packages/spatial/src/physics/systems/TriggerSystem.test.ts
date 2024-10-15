@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   EntityUUID,
@@ -41,10 +40,10 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
+import { TransformComponent } from '../../SpatialModule'
 import { setCallback } from '../../common/CallbackComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'

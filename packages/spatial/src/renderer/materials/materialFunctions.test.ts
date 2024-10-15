@@ -38,10 +38,9 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { isArray } from 'lodash-es'
+import { isArray } from 'lodash'
 import sinon from 'sinon'
 import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../../common/NameComponent'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'

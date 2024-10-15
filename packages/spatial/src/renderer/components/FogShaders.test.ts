@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { afterEach, assert, describe, it } from 'vitest'
+import assert from 'assert'
 
 import { ShaderChunk } from 'three'
 import { FogShaders, initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from './FogShaders'

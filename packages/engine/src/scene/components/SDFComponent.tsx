@@ -37,18 +37,19 @@ import {
   WebGLRenderTarget
 } from 'three'
 
-import { AnimationSystemGroup, defineSystem, ECSState, Entity } from '@ir-engine/ecs'
-import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs'
+import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { SDFShader } from '@ir-engine/spatial/src/renderer/effects/sdf/SDFShader'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getState } from '@ir-engine/hyperflux'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export enum SDFMode {
   TORUS,
@@ -78,6 +79,10 @@ export const SDFComponent = defineComponent({
       const cameraPosition = cameraTransform.position
       const transformComponent = getComponent(entity, TransformComponent)
       const cameraComponent = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      const updater = createEntity()
+      setCallback(updater, UpdatableCallback, (dt) => {
+        SDFShader.shader.uniforms.uTime.value += dt * 0.1
+      })
 
       SDFShader.shader.uniforms.cameraMatrix.value = cameraTransform.matrix
       SDFShader.shader.uniforms.fov.value = cameraComponent.fov
@@ -86,6 +91,7 @@ export const SDFComponent = defineComponent({
       SDFShader.shader.uniforms.far.value = cameraComponent.far
       SDFShader.shader.uniforms.sdfMatrix.value = transformComponent.matrixWorld
       SDFShader.shader.uniforms.cameraPos.value = cameraPosition
+      setComponent(updater, UpdatableComponent, true)
     }, [])
 
     useEffect(() => {
@@ -104,15 +110,6 @@ export const SDFComponent = defineComponent({
     if (!rendererEntity) return null
 
     return <RendererReactor entity={entity} rendererEntity={rendererEntity} />
-  }
-})
-
-export const SDFSystem = defineSystem({
-  uuid: 'ir.engine.SDFSystem',
-  insert: { after: AnimationSystemGroup },
-  execute: () => {
-    const delta = getState(ECSState).deltaSeconds
-    SDFShader.shader.uniforms.uTime.value += delta * 0.1
   }
 })
 

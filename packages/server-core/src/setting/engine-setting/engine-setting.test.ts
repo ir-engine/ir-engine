@@ -23,15 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
-import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
+import { createFeathersKoaApp } from '@ir-engine/server-core/src/createApp'
 import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 import {
   createEngineSetting,
   findEngineSetting,
@@ -41,7 +38,7 @@ import {
 } from '../../test-utils/setting-test-utils'
 import { createUser, createUserApiKey } from '../../test-utils/user-test-utils'
 
-describe('engine-setting.test', () => {
+describe.only('engine-setting.test', () => {
   let app: Application
 
   const key1 = 'MyKey1'
@@ -51,8 +48,8 @@ describe('engine-setting.test', () => {
   let user: UserType
   let engineSetting: EngineSettingType
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
 
     const engineSettingResponse = await createEngineSetting(app, key1, value1, 'private', 'aws')
@@ -60,9 +57,8 @@ describe('engine-setting.test', () => {
     user = engineSettingResponse.user
   })
 
-  afterAll(async () => {
+  after(async () => {
     await app.service(userPath).remove(user.id)
-    await tearDownAPI()
     await destroyEngine()
   })
 

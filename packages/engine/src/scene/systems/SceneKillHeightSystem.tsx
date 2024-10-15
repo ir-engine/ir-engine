@@ -29,6 +29,7 @@ import { Vector3 } from 'three'
 import { defineQuery, defineSystem, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag } from '@ir-engine/network'
+import { SpawnPoseState, TransformComponent } from '@ir-engine/spatial'
 import {
   RigidBodyComponent,
   RigidBodyFixedTagComponent
@@ -37,8 +38,6 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { SpawnPoseState } from '@ir-engine/spatial/src/transform/SpawnPoseState'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
 import { SceneSettingsComponent } from '../components/SceneSettingsComponent'

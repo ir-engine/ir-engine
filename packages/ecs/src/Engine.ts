@@ -115,6 +115,7 @@ export function destroyEngine() {
 
   disposeStore()
 
-  bitECS.deleteWorld(HyperFlux.store)
+  /** @todo include in next bitecs update */
+  // bitecs.deleteWorld(Engine.instance)
   Engine.instance = null!
 }

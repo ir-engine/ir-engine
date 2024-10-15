@@ -23,12 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../patchEngineNode'
-
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
 import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -39,6 +36,7 @@ import path from 'path'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../createApp'
 import resolveProjectId from './resolve-project-id'
+resolveProjectId
 
 const mockHookContext = (app: Application, query?: Partial<{ project: string }>) => {
   return {
@@ -51,33 +49,32 @@ const mockHookContext = (app: Application, query?: Partial<{ project: string }>)
 
 describe('resolve-project-id', () => {
   let app: Application
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
   })
 
-  afterAll(async () => {
+  after(async () => {
     await tearDownAPI()
     destroyEngine()
   })
 
-  it('should pass if project name is missing', async () => {
+  it('should fail if project name is missing', async () => {
     const resolveProject = resolveProjectId()
     const hookContext = mockHookContext(app)
-    const contextUpdated = await resolveProject(hookContext)
-    assert.equal(contextUpdated, hookContext)
+    assert.rejects(() => resolveProject(hookContext), BadRequest)
   })
 
   it('should fail if project is not found', async () => {
     const resolveProject = resolveProjectId()
     const hookContext = mockHookContext(app, { project: `Test #${Math.random()}` })
-    await assert.rejects(async () => await resolveProject(hookContext), BadRequest)
+    assert.rejects(() => resolveProject(hookContext), BadRequest)
   })
 
   it('should find project id by name', async () => {
     const resolveProject = resolveProjectId()
     const project = await app.service(projectPath).create({
-      name: `testorg/project`
+      name: `@org/project #${Math.random()}`
     })
     const hookContext = mockHookContext(app, { project: project.name })
     const contextUpdated = await resolveProject(hookContext)

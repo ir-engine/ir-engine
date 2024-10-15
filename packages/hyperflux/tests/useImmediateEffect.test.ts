@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { renderHook } from '@testing-library/react'
 import assert from 'assert'
-import { describe, it } from 'vitest'
 import { useImmediateEffect } from '../src/hooks/useImmediateEffect'
 
 describe('useImmediateEffect', () => {
@@ -52,7 +51,7 @@ describe('useImmediateEffect', () => {
       }
     }
 
-    const { rerender } = renderHook<void, number[]>((deps: number[]) => useImmediateEffect(effect, deps), {
+    const { rerender } = renderHook((deps: number[]) => useImmediateEffect(effect, deps), {
       initialProps: []
     })
 

@@ -5,7 +5,7 @@ rm -rf npx
 for d in packages/* ; do
   rm -rf "$d/tests"
   rm -rf "$d/.gitignore"
-  rm -rf "$d/vitest.config.ts"
+  rm -rf "$d/.mocharc.js"
   rm -rf "$d/LICENSE"
   rm -rf "$d/README.md"
   rm -rf "$d/CHANGELOG.md"

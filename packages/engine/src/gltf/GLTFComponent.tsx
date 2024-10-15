@@ -287,9 +287,9 @@ const useGLTFDocument = (url: string, entity: Entity) => {
 
       if (typeof data === 'string') {
         json = JSON.parse(data)
-      } else if ('byteLength' in data) {
-        // for some reason, "instanceof ArrayBuffer" is not working in node
+      } else if (data instanceof ArrayBuffer) {
         const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+
         if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
           try {
             /** TODO we will need to refactor and persist this */

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Component, ComponentMap, defineQuery, removeQuery } from '@ir-engine/ecs'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { TransformComponent } from '@ir-engine/spatial'
 import { NodeCategory, SocketsList, makeFunctionNodeDefinition, sequence } from '@ir-engine/visual-script'
 
 export const getQuery = makeFunctionNodeDefinition({

@@ -23,11 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { locationSettingPath } from '@ir-engine/common/src/schemas/social/location-setting.schema'
 import { LocationID, locationPath, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
@@ -44,12 +41,12 @@ describe('location.test', () => {
   let app: Application
   const locations: any[] = []
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
   })
 
-  afterAll(async () => {
+  after(async () => {
     await tearDownAPI()
     destroyEngine()
   })

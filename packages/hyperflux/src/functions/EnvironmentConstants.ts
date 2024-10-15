@@ -33,10 +33,8 @@ const isWebWorker =
 const isClient =
   typeof process !== 'object' || typeof process.versions !== 'object' || typeof process.versions.node === 'undefined'
 
-const envDefined = typeof globalThis.process !== 'undefined' && typeof globalThis.process.env !== 'undefined'
+const isDev = globalThis.process.env.APP_ENV === 'development'
 
-const isDev = envDefined ? globalThis.process.env.APP_ENV === 'development' : false
-
-const isTest = envDefined ? globalThis.process.env.APP_ENV === 'test' : false
+const isTest = globalThis.process.env.APP_ENV === 'test'
 
 export { isBrowser, isClient, isDev, isTest, isWebWorker }

@@ -23,11 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../patchEngineNode'
-
 import assert from 'assert'
 import nock from 'nock'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { v4 as uuidv4 } from 'uuid'
 
 import { projectCommitsPath } from '@ir-engine/common/src/schemas/projects/project-commits.schema'
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
@@ -53,14 +51,14 @@ describe('project-commits.test', () => {
     }
   })
 
-  beforeAll(async () => {
-    app = await createFeathersKoaApp()
+  before(async () => {
+    app = createFeathersKoaApp()
     await app.setup()
 
-    const name = ('test-project-commits-user-name-' + Math.random().toString().slice(2, 12)) as UserName
+    const name = ('test-project-commits-user-name-' + uuidv4()) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-commits-avatar-name-' + Math.random().toString().slice(2, 12)
+      name: 'test-project-commits-avatar-name-' + uuidv4()
     })
 
     const testUser = await app.service(userPath).create({
@@ -85,7 +83,7 @@ describe('project-commits.test', () => {
     )
   })
 
-  afterAll(async () => {
+  after(async () => {
     await tearDownAPI()
     destroyEngine()
   })

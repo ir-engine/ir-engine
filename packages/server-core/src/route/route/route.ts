@@ -73,10 +73,10 @@ export const getInstalledRoutes = () => {
     await Promise.all(
       projects.map(async (project) => {
         try {
-          const filePath = path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`)
-          if (fs.existsSync(filePath)) {
-            const mod = await import(filePath)
-            const projectConfig: ProjectConfigInterface = mod.default
+          if (fs.existsSync(path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`))) {
+            const projectConfig: ProjectConfigInterface = (
+              await import(`@ir-engine/projects/projects/${project}/xrengine.config.ts`)
+            ).default
             if (!projectConfig.routes) return
             data.push({
               routes: Object.keys(projectConfig.routes!),

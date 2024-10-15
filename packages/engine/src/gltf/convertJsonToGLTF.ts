@@ -27,7 +27,7 @@ import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { TransformComponent } from '@ir-engine/spatial'
 
 import { migrateDirectionalLightUseInCSM } from '../scene/functions/migrateDirectionalLightUseInCSM'
 import { migrateOldColliders } from '../scene/functions/migrateOldColliders'

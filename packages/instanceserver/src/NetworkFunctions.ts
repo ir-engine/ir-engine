@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cloneDeep } from 'lodash-es'
+import _ from 'lodash'
 import { Spark } from 'primus'
 
 import { API } from '@ir-engine/common'
@@ -248,7 +248,7 @@ export const handleConnectingPeer = (
   const cachedActions = ([updatePeersAction] as Required<Action>[])
     .concat(NetworkPeerFunctions.getCachedActionsForPeer(peerID))
     .map((action) => {
-      return cloneDeep(action)
+      return _.cloneDeep(action)
     })
 
   const instanceServerState = getState(InstanceServerState)

@@ -22,12 +22,8 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import '../../patchEngineNode'
-
 import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'
@@ -43,7 +39,7 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 describe('channel-user service', () => {
   let app: Application
   beforeEach(async () => {
-    app = await createFeathersKoaApp()
+    app = createFeathersKoaApp()
     await app.setup()
   })
 
@@ -100,8 +96,7 @@ describe('channel-user service', () => {
     assert.equal(channelUserAfterRemove.data.length, 0)
   })
 
-  /** @todo this restriction is not implemented */
-  it.skip('will not remove user if they are not the owner', async () => {
+  it('will not remove user if they are not the owner', async () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: true,
@@ -163,15 +158,14 @@ describe('channel-user service', () => {
     assert.equal(channelUser.data[1].userId, user2.id)
     assert.equal(channelUser.data[1].isOwner, false)
 
-    await assert.rejects(
-      async () =>
-        await app.service(channelUserPath).remove(null, {
-          query: {
-            channelId: channel.id,
-            userId: user.id
-          },
-          user: user2
-        })
+    assert.rejects(() =>
+      app.service(channelUserPath).remove(null, {
+        query: {
+          channelId: channel.id,
+          userId: user.id
+        },
+        user: user2
+      })
     )
 
     const channelUserAfterRemove = (await app.service(channelUserPath).find({
@@ -184,8 +178,7 @@ describe('channel-user service', () => {
     assert.equal(channelUserAfterRemove.data.length, 2)
   })
 
-  /** @todo this restriction is not implemented */
-  it.skip('user can not add themselves to a channel', async () => {
+  it('user can not add themselves to a channel', async () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: true,
@@ -198,18 +191,17 @@ describe('channel-user service', () => {
 
     assert.ok(channel.id)
 
-    await assert.rejects(
-      async () =>
-        await app.service(channelUserPath).create(
-          {
-            channelId: channel.id,
-            userId: user.id
-          },
-          {
-            user,
-            provider: 'rest' // force external to avoid authentication internal escape
-          }
-        )
+    assert.rejects(() =>
+      app.service(channelUserPath).create(
+        {
+          channelId: channel.id,
+          userId: user.id
+        },
+        {
+          user,
+          provider: 'rest' // force external to avoid authentication internal escape
+        }
+      )
     )
 
     const channelUserAfterRemove = (await app.service(channelUserPath).find({

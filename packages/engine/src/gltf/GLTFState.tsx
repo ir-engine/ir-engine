@@ -39,7 +39,7 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useOptionalComponent,
+  useComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -55,13 +55,13 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
@@ -370,8 +370,7 @@ const ChildGLTFReactor = (props: { source: string }) => {
   }, [index])
 
   const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
-  const parentUUID = useOptionalComponent(entity, UUIDComponent)?.value
-  if (!entity || !parentUUID) return null
+  const parentUUID = useComponent(entity, UUIDComponent).value
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }

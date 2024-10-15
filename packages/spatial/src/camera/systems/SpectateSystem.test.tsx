@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
-import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   Engine,
