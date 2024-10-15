@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { uniqueId } from 'lodash-es'
+import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
 
 import {
