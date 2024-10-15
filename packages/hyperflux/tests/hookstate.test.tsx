@@ -22,10 +22,12 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import '@hookstate/core' // required for hookstate to override react properly work - see https://github.com/avkonst/hookstate/issues/412
 
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
+import { describe, it } from 'vitest'
 
 import { createHyperStore, defineState, getMutableState, NO_PROXY, NO_PROXY_STEALTH, none, useHookstate } from '..'
 
@@ -51,6 +53,7 @@ describe('hookstate reactivity', () => {
         const state = useHookstate(getMutableState(TestState).test)
         useEffect(() => {
           count++
+          state.value
         }, [state])
         return null
       }
@@ -59,6 +62,8 @@ describe('hookstate reactivity', () => {
       const { rerender, unmount } = render(tag)
 
       await act(() => rerender(tag))
+
+      assert.equal(count, 1)
 
       // update to new value
       getMutableState(TestState).test.set(1)
@@ -675,7 +680,7 @@ describe('hookstate reactivity', () => {
   })
 
   describe('nested mutable state reactivity with merge', () => {
-    it('should re-render a useEffect if nested value mutable state is merged to without value changing and proxy is used, even with .value called', async () => {
+    it('should re-render a useEffect if nested value mutable state is merged to without value changing and proxy is used, without .value called', async () => {
       const TestState = defineState({
         name: 'test.state.' + testID++,
         initial: () => ({

@@ -31,6 +31,7 @@ import {
   CustomBlending,
   DoubleSide,
   Material,
+  Matrix4,
   MeshBasicMaterial,
   MultiplyBlending,
   NoBlending,
@@ -111,6 +112,7 @@ const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance
       remove: () => {},
       removeFromParent: () => {}
     } as Object3D
+    renderer.matrixWorld = new Matrix4().identity()
     const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
     particleState.renderers[sceneID].set(instance)
     return instance
@@ -857,10 +859,10 @@ export const ParticleSystemComponent = defineComponent({
   schema: S.Object({
     systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
     behaviorParameters: S.Array(S.Type<BehaviorJSON>()),
-    behaviors: S.Optional(S.Array(S.Type<Behavior>())),
-    system: S.Type<ParticleSystem>(),
-    _loadIndex: S.Number(0),
-    _refresh: S.Number(0)
+    behaviors: S.NonSerialized(S.Optional(S.Array(S.Type<Behavior>()))),
+    system: S.NonSerialized(S.Type<ParticleSystem>()),
+    _loadIndex: S.NonSerialized(S.Number(0)),
+    _refresh: S.NonSerialized(S.Number(0))
   }),
 
   onSet: (entity, component, json) => {
@@ -886,7 +888,7 @@ export const ParticleSystemComponent = defineComponent({
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const sceneID = useOptionalComponent(entity, SourceComponent)?.value
     const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
-    const sceneLoaded = GLTFComponent.useSceneLoaded(rootEntity)
+    const gltfComponent = useOptionalComponent(rootEntity, GLTFComponent)
     const refreshed = useHookstate(false)
 
     //for particle meshes
@@ -911,7 +913,7 @@ export const ParticleSystemComponent = defineComponent({
     })
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
-      if (!sceneLoaded) return
+      if (gltfComponent && !GLTFComponent.isSceneLoaded(entity)) return
       if (refreshed.value) return
 
       //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
@@ -919,7 +921,7 @@ export const ParticleSystemComponent = defineComponent({
       dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
       //}
       refreshed.set(true)
-    }, [sceneLoaded])
+    }, [gltfComponent?.progress])
 
     useEffect(() => {
       //add dud material

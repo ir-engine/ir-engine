@@ -210,3 +210,9 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
 
   return reactorRoot
 }
+
+export const disposeStore = (store = HyperFlux.store) => {
+  for (const reactor of store.activeReactors) {
+    ReactorReconciler.flushSync(() => reactor.stop())
+  }
+}

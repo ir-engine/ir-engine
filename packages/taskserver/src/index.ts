@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// required for hookstate to override react properly work - see https://github.com/avkonst/hookstate/issues/412
+import '@hookstate/core'
+
 import { updateAppConfig } from '@ir-engine/server-core/src/updateAppConfig'
 
 const init = async () => {

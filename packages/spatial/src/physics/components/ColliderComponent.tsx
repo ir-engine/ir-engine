@@ -27,7 +27,8 @@ import { defineComponent, useComponent, useEntityContext, useOptionalComponent }
 import { useState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
+import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -114,6 +115,21 @@ export const ColliderComponent = defineComponent({
         Physics.setTrigger(physicsWorld, entity, false)
       }
     }, [physicsWorld, triggerComponent, hasCollider])
+
+    useEffect(() => {
+      setCallback(entity, 'Disable Collision', () => {
+        if (!physicsWorld) return
+        Physics.setCollisionLayer(physicsWorld, entity, CollisionGroups.None)
+      })
+      setCallback(entity, 'Enable Collision', () => {
+        if (!physicsWorld) return
+        Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
+      })
+      return () => {
+        removeCallback(entity, 'Disable Collision')
+        removeCallback(entity, 'Enable Collision')
+      }
+    }, [])
 
     return null
   }

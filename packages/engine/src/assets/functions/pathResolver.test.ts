@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { describe, it } from 'vitest'
 import { STATIC_ASSET_REGEX } from './pathResolver'
 
 describe('STATIC_ASSET_REGEX', () => {

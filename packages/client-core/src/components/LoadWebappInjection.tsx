@@ -30,10 +30,10 @@ import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import { loadWebappInjection } from '@ir-engine/projects/loadWebappInjection'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export const LoadWebappInjection = (props: { children: React.ReactNode }) => {
+export const LoadWebappInjection = (props: { children: React.ReactNode; fallback?: JSX.Element }) => {
   const { t } = useTranslation()
 
   const clientSettingQuery = useFind(clientSettingPath)
@@ -51,15 +51,18 @@ export const LoadWebappInjection = (props: { children: React.ReactNode }) => {
     })
   }, [])
 
-  if (!projectComponents.value)
-    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.authenticating')} />
+  if (!projectComponents.value) {
+    return (
+      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.authenticating')} />
+    )
+  }
 
   return (
     <>
       {projectComponents.get(NO_PROXY)!.map((Component, i) => (
         <Component key={i} />
       ))}
-      {props.children}
+      <Suspense fallback={props.fallback}>{props.children}</Suspense>
     </>
   )
 }
