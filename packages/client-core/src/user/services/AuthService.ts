@@ -401,11 +401,15 @@ export const AuthService = {
 
           user.avatarId = randomReplacementAvatar.id
           user.avatar = randomReplacementAvatar
+        } else {
+          NotificationService.dispatchNotify('Failed to find suitable avatar', { variant: 'error' })
+          throw new Error('No avatars found in database')
         }
       }
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
+      console.error(err)
     }
   },
 
