@@ -23,60 +23,112 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { HiCheck } from 'react-icons/hi'
-
+import React, { useEffect, useState } from 'react'
+import { FaCheck, FaMinus } from 'react-icons/fa6'
 import { twMerge } from 'tailwind-merge'
-import { v4 as uuidv4 } from 'uuid'
 
-import Label from '../Label'
-
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
-  value: boolean
-  label?: React.ReactNode
-  className?: string
-  containerClassName?: string
-  onChange: (value: boolean) => void
+export interface CheckboxProps {
+  checked?: boolean
   disabled?: boolean
+  defaultChecked?: boolean
+  indeterminate?: boolean
+  label?: string
+  description?: string
+  onChange: (checked: boolean) => void
 }
 
-const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
+const Checkbox = (
+  { checked, disabled, defaultChecked, indeterminate, label, description, onChange }: CheckboxProps,
+  ref: React.ForwardedRef<HTMLDivElement>
+) => {
   const handleChange = () => {
-    if (!disabled) {
-      onChange(!value)
+    if (!disabled && onChange) {
+      onChange(!checked)
     }
   }
 
-  const id = uuidv4()
+  const [isCheckedInternal, setIsCheckedInternal] = useState(defaultChecked !== undefined ? defaultChecked : checked)
+  const [isIndeterminateInternal, setIsIndeterminateInternal] = useState(indeterminate)
+
+  useEffect(() => {
+    if (checked) {
+      setIsCheckedInternal(true)
+      setIsIndeterminateInternal(false)
+    } else {
+      setIsCheckedInternal(false)
+      setIsIndeterminateInternal(indeterminate)
+    }
+  }, [checked])
+
+  useEffect(() => {
+    if (indeterminate) {
+      setIsCheckedInternal(false)
+      setIsIndeterminateInternal(true)
+    } else {
+      setIsIndeterminateInternal(false)
+      setIsCheckedInternal(checked)
+    }
+  }, [indeterminate])
 
   return (
-    <div className={twMerge('relative flex cursor-pointer items-end', containerClassName)}>
-      <input
-        type="checkbox"
-        checked={value}
-        onChange={handleChange}
-        id={id}
+    <div
+      className={twMerge(
+        'relative flex cursor-pointer items-center justify-center gap-x-2',
+        description && 'items-start'
+      )}
+    >
+      <div
+        className={twMerge(
+          'relative',
+          'grid h-4 w-4 place-items-center rounded',
+          'border border-[#42454D] bg-[#141619]',
+          !isCheckedInternal && !isIndeterminateInternal && !disabled && 'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
+          !isCheckedInternal && !disabled && 'focus:border-[#375DAF] focus:bg-[#212226]',
+          (isCheckedInternal || isIndeterminateInternal) && 'border-[#375DAF] bg-[#212226]',
+          disabled && 'cursor-not-allowed border-[#42454D] bg-[#191B1F]'
+        )}
+        onClick={handleChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             handleChange()
           }
         }}
-        className={twMerge(
-          'peer relative appearance-none',
-          'grid h-4 w-4 place-items-center rounded border border-theme-primary focus:border-2 focus:border-theme-focus focus:outline-none',
-          value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
-          disabled ? 'cursor-not-allowed opacity-50' : '',
-          className
-        )}
-      />
-      <HiCheck onClick={handleChange} className="absolute m-0.5 hidden h-3 w-3 text-white peer-checked:block" />
+        tabIndex={0}
+        ref={ref}
+      >
+        <FaCheck
+          onClick={handleChange}
+          className={twMerge(
+            'absolute h-3 w-3 transition-transform duration-200 ease-in-out',
+            disabled ? 'cursor-not-allowed text-[#42454D]' : 'text-[#5F7DBF]',
+            isCheckedInternal ? 'scale-100' : 'scale-0'
+          )}
+        />
+
+        <FaMinus
+          onClick={handleChange}
+          className={twMerge(
+            'absolute h-3 w-3 transition-transform duration-200 ease-in-out',
+            disabled ? 'cursor-not-allowed text-[#42454D]' : 'text-[#5F7DBF]',
+            isIndeterminateInternal ? 'scale-100' : 'scale-0'
+          )}
+        />
+      </div>
 
       {label && (
-        <Label className="ml-2 cursor-pointer self-stretch leading-[1.15]" htmlFor={id}>
-          {label}
-        </Label>
+        <div
+          className={twMerge(
+            'text-sm',
+            disabled ? 'cursor-auto text-[#6B6F78]' : 'cursor-pointer text-[#D3D5D9]',
+            description && 'grid gap-y-1 leading-none'
+          )}
+          onClick={handleChange}
+        >
+          <p>{label}</p>
+          <p className="block max-w-[220px] text-wrap">{description}</p>
+        </div>
       )}
     </div>
   )
 }
-export default Checkbox
+export default React.forwardRef(Checkbox)
