@@ -33,10 +33,14 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           git clone https://x-access-token:${{ secrets.STORYBOOK_DOCS_PAT }}@github.com/your-username/storybook-docs.git
-          cp -R packages/ui/storybook-static/* storybook-docs/
-          
+
           cd storybook-docs
+          git checkout --orphan temp-main
+          git rm -rf .
+
+          cp -R ../packages/ui/storybook-static/* .
           touch .nojekyll
           git add .
           git commit -m "Update Storybook documentation"
-          git push --force
+
+          git push --force origin temp-main:main
