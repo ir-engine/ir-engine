@@ -44,14 +44,12 @@ export interface CheckboxProps
 
 const Checkbox = ({ className, containerClassName, label, value, onChange, onBlur, disabled }: CheckboxProps) => {
   const handleChange = () => {
-    console.log('DEBUG: Checkbox -> handleChange -> value', value)
     if (!disabled) {
       onChange(!value)
     }
   }
 
   const handleRelease = () => {
-    console.log('DEBUG: Checkbox -> handleRelease -> value', value)
     if (!disabled) {
       onBlur?.(value)
     }
