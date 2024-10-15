@@ -28,6 +28,7 @@ import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/fu
 import { isClient } from '@ir-engine/hyperflux'
 import { WorkerPool } from '../WorkerPool'
 
+// @ts-ignore
 const workerPath = isClient ? new URL('./KTX2Worker.bundle.js', import.meta.url).href : ''
 
 export enum UASTCFlags {

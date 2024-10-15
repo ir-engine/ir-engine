@@ -216,9 +216,9 @@ const execute = () => {
   audioContext.listener.forwardZ.linearRampToValueAtTime(_rot.z, endTime)
 
   /** @todo support different world ups */
-  // audioContext.listener.upX.linearRampToValueAtTime(camera.up.x, endTime)
-  // audioContext.listener.upY.linearRampToValueAtTime(camera.up.y, endTime)
-  // audioContext.listener.upZ.linearRampToValueAtTime(camera.up.z, endTime)
+  audioContext.listener.upX.linearRampToValueAtTime(0, endTime)
+  audioContext.listener.upY.linearRampToValueAtTime(1, endTime)
+  audioContext.listener.upZ.linearRampToValueAtTime(0, endTime)
 }
 
 function PositionalAudioPannerReactor() {

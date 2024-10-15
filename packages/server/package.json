@@ -3,7 +3,6 @@
   "description": "API Server for Infinite Reality Engine",
   "version": "1.6.0",
   "private": true,
-  "type": "module",
   "homepage": "",
   "main": "dist/index.js",
   "keywords": [
@@ -32,12 +31,12 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files -c '#FF9800,#A2789C,#00908F,#F93822' \"vite-node src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\"",
-    "start": "cross-env APP_ENV=production vite-node src/index.ts",
-    "dev-api-server": "NODE_ENV=production vite-node src/index.ts",
-    "dev-api-server-nossl": "cross-env NOSSL=true vite-node src/index.ts",
-    "dev-nossl": "concurrently \"cross-env NOSSL=true vite-node src/index.ts\" \"cd ../instanceserver && cross-env NOSSL=true vite-node src/index.ts\"",
-    "dev-reinit-db": "cross-env FORCE_DB_REFRESH=true vite-node src/index.ts",
+    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files -c '#FF9800,#A2789C,#00908F,#F93822' \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\"",
+    "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
+    "dev-api-server": "ts-node --swc src/index.ts",
+    "dev-api-server-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",
+    "dev-nossl": "concurrently \"cross-env NOSSL=true ts-node --swc src/index.ts\" \"cd ../instanceserver && cross-env NOSSL=true ts-node --swc src/index.ts\"",
+    "dev-reinit-db": "cross-env FORCE_DB_REFRESH=true ts-node --swc src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "validate": "npm run build && npm run test"
   },
