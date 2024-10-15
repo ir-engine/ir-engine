@@ -76,6 +76,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
         await isOverwriteModalVisible.set(true)
       } else {
         setComponent(entity, NameComponent, prefabName.value)
+        getMutableState(SelectionState).selectedEntities.set([])
         await exportRelativeGLTF(entity, srcProject, fileName)
 
         const resources = await API.instance.service(staticResourcePath).find({

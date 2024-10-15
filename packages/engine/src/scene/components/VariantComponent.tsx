@@ -29,6 +29,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  removeComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -97,19 +98,25 @@ export const VariantComponent = defineComponent({
           console.warn('VariantComponent: No asset found for target device')
           return
         }
-
         variantComponent.currentLevel.set(levelIndex)
       } else if (heuristic === Heuristic.DISTANCE) {
+        setComponent(entity, DistanceFromCameraComponent)
         VariantComponent.setDistanceLevel(entity)
+        return () => {
+          removeComponent(entity, DistanceFromCameraComponent)
+        }
       }
-    }, [variantComponent.heuristic.value])
+    }, [variantComponent.heuristic])
 
     useEffect(() => {
       if (!variantComponent.levels.length) return
-      const src = variantComponent.levels[variantComponent.currentLevel.value].src.value
+
+      const currentLevel = variantComponent.currentLevel.value
+      const src = variantComponent.levels[currentLevel].src.value
       if (!src) return
+
       setComponent(entity, GLTFComponent, { src: src })
-    }, [variantComponent.currentLevel.value])
+    }, [variantComponent.currentLevel])
 
     return null
   }
