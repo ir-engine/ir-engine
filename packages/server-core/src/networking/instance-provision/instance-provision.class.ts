@@ -28,7 +28,7 @@ import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import https from 'https'
 import { Knex } from 'knex'
-import _ from 'lodash-es'
+import _ from 'lodash'
 import fetch from 'node-fetch'
 
 import {
