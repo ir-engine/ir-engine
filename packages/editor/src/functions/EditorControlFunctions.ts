@@ -104,17 +104,26 @@ const appendToSnapshot = (toAppend: GLTF.IGLTF, parent = getState(EditorState).r
 
   const nodesToAppend = toAppend.scenes[0].nodes
   for (let i = 0; i < nodesToAppend.length; i++) {
-    const nodeindex = nodesToAppend[i]
-    const node = toAppend.nodes[nodeindex]
-    const offsetIndex = offset + nodeindex
-    gltf.data.nodes![offsetIndex] = node
-    if (node.children) {
-      node.children = node.children.map((index) => offset + index)
-    }
-    gltf.data.scenes![0].nodes.push(offsetIndex)
+    const nodeIndex = nodesToAppend[i]
+    const newIndex = appendNode(nodeIndex, toAppend, gltf.data, offset)
+    gltf.data.scenes![0].nodes.push(newIndex)
   }
 
   dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+}
+
+const appendNode = (nodeIndex: number, src: GLTF.IGLTF, dst: GLTF.IGLTF, offset: number): number => {
+  const node = src.nodes![nodeIndex]
+  const offsetIndex = offset + nodeIndex
+  dst.nodes![offsetIndex] = node
+  if (node.children) {
+    node.children = node.children.map((index) => {
+      appendNode(index, src, dst, offset)
+      return offset + index
+    })
+  }
+
+  return offsetIndex
 }
 
 const addOrRemoveComponent = <C extends Component<any, any>>(
