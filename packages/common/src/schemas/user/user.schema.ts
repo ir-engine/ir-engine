@@ -79,7 +79,6 @@ export const userSchema = Type.Object(
     locationAdmins: Type.Array(Type.Ref(locationAdminSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
     scopes: Type.Array(Type.Ref(userScopeSchema)),
-    instanceAttendance: Type.Array(Type.Ref(instanceAttendanceSchema)),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
