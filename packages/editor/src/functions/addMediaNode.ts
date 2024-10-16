@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -72,7 +73,12 @@ export async function addMediaNode(
   const lastIndex = pathArray.length - 1
   const fileNameWithExt = pathArray[lastIndex]
   const fileNameArray = fileNameWithExt.split('.')
-  const name = decodeURI(fileNameArray[0])
+  let name: string | undefined = undefined
+  try {
+    const name = decodeURI(fileNameArray[0])
+  } catch (err) {
+    NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  }
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
