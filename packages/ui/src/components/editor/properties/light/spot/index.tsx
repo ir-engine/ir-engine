@@ -119,7 +119,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="castShadow" label={t('editor:properties.spotLight.lbl-castShadow')}>
         <BooleanInput
-          onChange={updateProperty(SpotLightComponent, 'castShadow')}
+          onChange={commitProperty(SpotLightComponent, 'castShadow')}
           value={lightComponent.castShadow.value}
         />
       </InputGroup>

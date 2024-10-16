@@ -41,8 +41,8 @@ import {
   TroikaTextLineHeight
 } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import { ColorInput } from '../../../../primitives/tailwind/Color'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -71,7 +71,10 @@ const SelectOptions = {
     { label: 'Break Word', value: 'break-word' }
   ],
   Font: fonts as FontOption[],
-  FontMaterial: [{ label: 'Basic', value: FontMaterialKind.Basic }]
+  FontMaterial: [
+    { label: 'Basic', value: FontMaterialKind.Basic },
+    { label: 'Standard', value: FontMaterialKind.Standard }
+  ]
 }
 
 /**
@@ -209,11 +212,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup name="TextWrap" label={t('editor:properties.text.textWrap')}>
-            <BooleanInput
-              value={text.textWrap.value}
-              onChange={text.textWrap.set}
-              onRelease={commitProperty(TextComponent, 'textWrap')}
-            />
+            <BooleanInput value={text.textWrap.value} onChange={commitProperty(TextComponent, 'textWrap')} />
           </InputGroup>
           <InputGroup name="TextAnchor" label={t('editor:properties.text.textAnchor')}>
             <Vector2Input
@@ -269,14 +268,13 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               unit="em"
             />
           </InputGroup>
-          {/* <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
+          <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
             <SelectInput
               options={SelectOptions.TextDirection}
               value={text.textDirection.value}
               onChange={commitProperty(TextComponent, 'textDirection')}
-              //onRelease={commitProperty(TextComponent, 'textDirection')}
             />
-          </InputGroup> */}
+          </InputGroup>
         </div>
       </InputGroup>
       <br></br>
@@ -431,7 +429,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               label={t('editor:properties.text.clippingActive')}
               info={HoverInfo.Clipping}
             >
-              <BooleanInput value={text.clipActive.value} onChange={text.clipActive.set} />
+              <BooleanInput value={text.clipActive.value} onChange={commitProperty(TextComponent, 'clipActive')} />
             </InputGroup>
             <InputGroup
               disabled={!text.clipActive.value}
@@ -491,8 +489,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             >
               <BooleanInput
                 value={text.gpuAccelerated.value}
-                onChange={text.gpuAccelerated.set}
-                onRelease={commitProperty(TextComponent, 'gpuAccelerated')}
+                onChange={commitProperty(TextComponent, 'gpuAccelerated')}
               />
             </InputGroup>
           </div>
