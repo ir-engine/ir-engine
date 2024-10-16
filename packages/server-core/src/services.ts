@@ -103,7 +103,8 @@ const services = [
   ...IntegrationServices
 ]
 
-export default (app: Application) => {
+export default async (app: Application) => {
+  const projectServices = await installedProjects()
   services.forEach((service) => app.configure(service))
-  installedProjects().then((projects) => projects.forEach((service) => app.configure(service)))
+  projectServices.forEach((service) => app.configure(service))
 }
