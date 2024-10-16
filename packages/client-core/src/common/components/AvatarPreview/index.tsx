@@ -30,7 +30,15 @@ import { useTranslation } from 'react-i18next'
 import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { createEntity, generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  generateEntityUUID,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  useComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { preloadedAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@ir-engine/engine/src/camera/components/AssetPreviewCameraComponent'
@@ -46,7 +54,8 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
-import { getState } from '@ir-engine/hyperflux'
+import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { getState, startReactor } from '@ir-engine/hyperflux'
 import styles from './index.module.scss'
 
 interface Props {
@@ -81,6 +90,25 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
 
+    const reactor = startReactor(() => {
+      const modelLoaded = useComponent(sceneEntity, ModelComponent).scene.value
+      const errorComponent = ErrorComponent.useComponentErrors(sceneEntity, ModelComponent)
+
+      useEffect(() => {
+        if (!modelLoaded) return
+        if (onAvatarLoaded) onAvatarLoaded()
+        reactor.stop()
+      }, [modelLoaded])
+
+      useEffect(() => {
+        if (!errorComponent) return
+        if (onAvatarError) onAvatarError(errorComponent.value['LOADING_ERROR'])
+        reactor.stop()
+      }, [errorComponent])
+
+      return null
+    })
+
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
     const lightEntity = createEntity()
@@ -89,6 +117,11 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(lightEntity, VisibleComponent)
     setComponent(lightEntity, NameComponent, 'Ambient Light')
     setComponent(lightEntity, EntityTreeComponent, { parentEntity: sceneEntity })
+
+    return () => {
+      removeEntity(lightEntity)
+      reactor.stop()
+    }
   }, [avatarUrl])
 
   return (
