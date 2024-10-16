@@ -44,6 +44,7 @@ import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { getState } from '@ir-engine/hyperflux'
 
+import { instanceAttendancePath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -408,6 +409,7 @@ export async function checkForDuplicatedAssignments({
       while (retry) {
         try {
           await fetch(protocol + ipAddress, options)
+          retry = false
           resolve(true)
         } catch (e) {
           // wait and try again
@@ -704,7 +706,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         try {
           await this.app.service(channelPath).get(channelId)
         } catch (err) {
-          throw new BadRequest('Invalid channel ID', channelId)
+          throw new BadRequest(`Invalid channel ID: ${channelId}`)
         }
 
         if (config.instanceserver.p2pEnabled) {
@@ -941,6 +943,20 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
 
           instance.instance_authorized_users =
             instanceAuthorizedUsers.find((user) => user.instanceId === instance.id) || []
+
+          const peers = await this.app.service(instanceAttendancePath).find({
+            query: {
+              instanceId: instance.id,
+              ended: false,
+              updatedAt: {
+                // Only consider instances that have been updated in the last 10 seconds
+                $gt: toDateTimeSql(new Date(new Date().getTime() - 10000))
+              }
+            },
+            paginate: false
+          })
+          const users = _.uniq(peers.map((peer) => peer.userId))
+          instance.currentUsers = users.length
         }
 
         const allowedLocationInstances = availableLocationInstances.filter(
