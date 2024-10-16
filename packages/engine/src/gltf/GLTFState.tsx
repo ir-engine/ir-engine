@@ -1003,7 +1003,7 @@ const PrimitiveReactor = (props: {
   return (
     <>
       {meshDef.primitives.map((primitive, index) => (
-        <React.Fragment key={`${index}-${props.nodeIndex}-${props.documentID}`}>
+        <React.Fragment key={`${index}-${props.nodeIndex}`}>
           <MaterialInstanceReactor
             key={`materials-${index}-${props.nodeIndex}`}
             nodeIndex={props.nodeIndex}
