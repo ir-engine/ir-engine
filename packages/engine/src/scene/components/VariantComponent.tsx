@@ -36,6 +36,8 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { Entity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
@@ -87,6 +89,7 @@ export const VariantComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const variantComponent = useComponent(entity, VariantComponent)
+    const engineState = useMutableState(EngineState)
 
     useEffect(() => {
       const heuristic = variantComponent.heuristic.value
@@ -102,7 +105,11 @@ export const VariantComponent = defineComponent({
         setComponent(entity, DistanceFromCameraComponent)
         VariantComponent.setDistanceLevel(entity)
       }
-    }, [variantComponent.heuristic])
+    }, [variantComponent.heuristic.value])
+
+    useEffect(() => {
+      if (engineState.isEditing.value) variantComponent.currentLevel.set(0)
+    }, [engineState.isEditing])
 
     useEffect(() => {
       if (!variantComponent.levels.length) return

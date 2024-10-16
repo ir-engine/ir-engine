@@ -127,24 +127,10 @@ function buildHierarchyTree(
   }
   array.push(item)
 
-  if (hasComponent(entity, ModelComponent) && showModelChildren) {
-    const modelSceneID = getModelSceneID(entity)
+  if (hasComponent(entity, ModelComponent) || (hasComponent(entity, GLTFComponent) && showModelChildren)) {
+    const scene = hasComponent(entity, GLTFComponent) ? GLTFComponent.getInstanceID(entity) : getModelSceneID(entity)
     const snapshotState = getState(GLTFSnapshotState)
-    const snapshots = snapshotState[modelSceneID]
-    if (snapshots) {
-      const snapshotNodes = snapshots.snapshots[snapshots.index].nodes
-      if (snapshotNodes && snapshotNodes.length > 0) {
-        item.isLeaf = false
-        if (!item.isCollapsed)
-          buildHierarchyTreeForNodes(depth + 1, snapshotNodes, item.children, sceneID, showModelChildren)
-      }
-    }
-  }
-
-  if (hasComponent(entity, GLTFComponent)) {
-    const instanceID = GLTFComponent.getInstanceID(entity)
-    const snapshotState = getState(GLTFSnapshotState)
-    const snapshots = snapshotState[instanceID]
+    const snapshots = snapshotState[scene]
     if (snapshots) {
       const snapshotNodes = snapshots.snapshots[snapshots.index].nodes
       if (snapshotNodes && snapshotNodes.length > 0) {

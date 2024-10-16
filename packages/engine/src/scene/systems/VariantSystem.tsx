@@ -34,13 +34,14 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { VariantComponent } from '../components/VariantComponent'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
 
-export const variantQuery = defineQuery([VariantComponent, TransformComponent])
+export const distanceVariantQuery = defineQuery([VariantComponent, TransformComponent, DistanceFromCameraComponent])
 export const meshVariantQuery = defineQuery([
   VariantComponent,
   MeshComponent,
@@ -63,7 +64,7 @@ function execute() {
   if (ecsState.elapsedSeconds - lastUpdate < updateFrequency) return
   lastUpdate = ecsState.elapsedSeconds
 
-  for (const entity of variantQuery()) {
+  for (const entity of distanceVariantQuery()) {
     VariantComponent.setDistanceLevel(entity)
   }
 }
