@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent } from '@ir-engine/ecs'
-import { getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
+import { getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
@@ -33,13 +33,13 @@ import { useEffect } from 'react'
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
   const lastRef = useHookstate(() => ref.current)
 
-  useImmediateEffect(() => {
+  useEffect(() => {
     if (ref.current !== lastRef.value) {
       lastRef.set(ref.current)
     }
   }, [ref.current])
 
-  useImmediateEffect(() => {
+  useEffect(() => {
     if (!lastRef.value) return
 
     const parent = lastRef.value as HTMLElement
@@ -63,7 +63,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
   }, [lastRef.value])
 
   /** Essentially mount/unmount upon the attach/detatch state of the ref node */
-  useImmediateEffect(() => {
+  useEffect(() => {
     if (!lastRef.value) return
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
     initializeSpatialViewer(canvas)
@@ -71,6 +71,42 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
       destroySpatialViewer()
     }
   }, [!!lastRef.value])
+
+  /** 
+   * Since the viewer and XR reference spaces can technically exist without the other,
+   * we need to reactively update the core renderer's scenes
+   */
+  const { viewerEntity, originEntity, localFloorEntity } = useMutableState(EngineState).value
+
+  useEffect(() => {
+    if (!viewerEntity || !originEntity) return
+
+    const rendererComponent = getOptionalMutableComponent(viewerEntity, RendererComponent)
+    if (!rendererComponent) return
+
+    rendererComponent.scenes.merge([originEntity])
+
+    return () => {
+      if (!hasComponent(viewerEntity, RendererComponent)) return
+      const index = rendererComponent.scenes.value.indexOf(originEntity)
+      rendererComponent.scenes[index].set(none)
+    }
+  }, [viewerEntity, originEntity])
+
+  useEffect(() => {
+    if (!viewerEntity || !localFloorEntity) return
+
+    const rendererComponent = getOptionalMutableComponent(viewerEntity, RendererComponent)
+    if (!rendererComponent) return
+
+    rendererComponent.scenes.merge([localFloorEntity])
+
+    return () => {
+      if (!hasComponent(viewerEntity, RendererComponent)) return
+      const index = rendererComponent.scenes.value.indexOf(localFloorEntity)
+      rendererComponent.scenes[index].set(none)
+    }
+  }, [viewerEntity, localFloorEntity])
 }
 
 export const useRemoveEngineCanvas = () => {
