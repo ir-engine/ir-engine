@@ -28,7 +28,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { Entity, getComponent } from '@ir-engine/ecs'
 import { Object3DUtils } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export type MixamoBoneNames =
   | 'Root'
@@ -707,6 +710,16 @@ const _rightHandPos = new Vector3(),
 
 //   return new VRMHumanoid(bones)
 // }
+
+export const getHips = (root: Entity) => {
+  return iterateEntityNode(
+    root,
+    (entity) => entity,
+    (entity) => hipsRegex.test(getComponent(entity, NameComponent)),
+    false,
+    true
+  )?.[0]
+}
 
 export const mixamoVRMRigMap = {
   mixamorigHips: 'hips',
