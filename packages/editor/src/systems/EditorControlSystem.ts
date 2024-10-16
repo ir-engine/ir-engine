@@ -362,8 +362,14 @@ const execute = () => {
       clickStartEntity = capturingEntity
     }
   }
+
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
-    if (hasComponent(clickStartEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (
+      hasComponent(clickStartEntity, SourceComponent) &&
+      !getState(ClickPlacementState).placementEntity &&
+      urlParams.get('wizardEnabled') === 'false'
+    ) {
       const selectedEntities = SelectionState.getSelectedEntities()
 
       //only update selection if the selection actually changed (prevents unnecessarily creating new transform gizmos in edit mode)
