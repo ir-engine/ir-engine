@@ -30,7 +30,6 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
@@ -56,9 +55,6 @@ export const instancedMeshVariantQuery = defineQuery([
 ])
 
 function execute() {
-  const engineState = getState(EngineState)
-  if (engineState.isEditing) return
-
   const ecsState = getState(ECSState)
 
   if (ecsState.elapsedSeconds - lastUpdate < updateFrequency) return

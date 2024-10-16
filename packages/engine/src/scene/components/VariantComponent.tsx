@@ -36,8 +36,6 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { Entity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useMutableState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
@@ -89,9 +87,10 @@ export const VariantComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const variantComponent = useComponent(entity, VariantComponent)
-    const engineState = useMutableState(EngineState)
 
     useEffect(() => {
+      if (!variantComponent.levels.length) return
+
       const heuristic = variantComponent.heuristic.value
       if (heuristic === Heuristic.DEVICE) {
         const targetDevice = isMobile || isMobileXRHeadset ? Devices.MOBILE : Devices.DESKTOP
@@ -105,11 +104,7 @@ export const VariantComponent = defineComponent({
         setComponent(entity, DistanceFromCameraComponent)
         VariantComponent.setDistanceLevel(entity)
       }
-    }, [variantComponent.heuristic.value])
-
-    useEffect(() => {
-      if (engineState.isEditing.value) variantComponent.currentLevel.set(0)
-    }, [engineState.isEditing])
+    }, [variantComponent.heuristic.value, variantComponent.levels])
 
     useEffect(() => {
       if (!variantComponent.levels.length) return
