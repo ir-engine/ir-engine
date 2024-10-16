@@ -75,7 +75,7 @@ export async function addMediaNode(
   const fileNameArray = fileNameWithExt.split('.')
   let name: string | undefined = undefined
   try {
-    const name = decodeURI(fileNameArray[0])
+    name = decodeURI(fileNameArray[0])
   } catch (err) {
     NotificationService.dispatchNotify(err.message, { variant: 'error' })
   }
