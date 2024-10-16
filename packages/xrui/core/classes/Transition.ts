@@ -180,7 +180,7 @@ export const Transition = {
     return data.value.interpolationFunction(a, b, t)
   },
 
-  computeCurrentValue<V>(timestamp: number, data: TransitionData<V>) {
+  computeCurrentValue<V>(data: TransitionData<V>, timestamp: number) {
     // Finite Impulse Response Filter
     const current = data.interpolationFunction(data.buffer[0].value, data.buffer[0].value, 0, data.current)
     for (let i = 0; i < data.buffer.length; i++) {

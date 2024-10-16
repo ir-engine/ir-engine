@@ -34,8 +34,7 @@ import {
   getOptionalComponent,
   setComponent,
   useComponent,
-  useEntityContext,
-  useOptionalComponent
+  useEntityContext
 } from '@ir-engine/ecs'
 import { CreateSchemaValue } from '@ir-engine/ecs/src/schemas/JSONSchemaUtils'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -45,7 +44,8 @@ import { Vector3_One, Vector3_Zero } from '@ir-engine/spatial/src/common/constan
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { ArrayCamera, Box3, Matrix4, Quaternion, Vector3 } from 'three'
 import { Transition } from '../classes/Transition'
 
@@ -233,13 +233,13 @@ export const LayoutComponent = defineComponent({
     const layout = useEffectiveLayout(entity)
     const containerEntity = layout.containerEntity.value
 
-    const simulationTime = getState(ECSState).simulationTime
-    Transition.useTransitionTarget(layout.positionTransition, layout.position, simulationTime)
-    Transition.useTransitionTarget(layout.originTransition, layout.origin, simulationTime)
-    Transition.useTransitionTarget(layout.rotationTransition, layout.rotation, simulationTime)
-    Transition.useTransitionTarget(layout.rotationOriginTransition, layout.rotationOrigin, simulationTime)
-    Transition.useTransitionTarget(layout.sizeTransition, layout.size, simulationTime)
-    Transition.useTransitionTarget(layout.contentFitTransition, layout.contentFit, simulationTime)
+    const frameTime = getState(ECSState).frameTime
+    Transition.useTransitionTarget(layout.positionTransition, layout.position, frameTime)
+    Transition.useTransitionTarget(layout.originTransition, layout.origin, frameTime)
+    Transition.useTransitionTarget(layout.rotationTransition, layout.rotation, frameTime)
+    Transition.useTransitionTarget(layout.rotationOriginTransition, layout.rotationOrigin, frameTime)
+    Transition.useTransitionTarget(layout.sizeTransition, layout.size, frameTime)
+    Transition.useTransitionTarget(layout.contentFitTransition, layout.contentFit, frameTime)
 
     // Reusable objects for calculations
     const finalPosition = new Vector3()
@@ -258,12 +258,12 @@ export const LayoutComponent = defineComponent({
 
           // Update transitions
           const l = getComponent(entity, LayoutComponent)
-          Transition.computeCurrentValue(frameTime, l.positionTransition)
-          Transition.computeCurrentValue(frameTime, l.originTransition)
-          Transition.computeCurrentValue(frameTime, l.rotationTransition)
-          Transition.computeCurrentValue(frameTime, l.rotationOriginTransition)
-          Transition.computeCurrentValue(frameTime, l.sizeTransition)
-          Transition.computeCurrentValue(frameTime, l.contentFitTransition)
+          Transition.computeCurrentValue(l.positionTransition, frameTime)
+          Transition.computeCurrentValue(l.originTransition, frameTime)
+          Transition.computeCurrentValue(l.rotationTransition, frameTime)
+          Transition.computeCurrentValue(l.rotationOriginTransition, frameTime)
+          Transition.computeCurrentValue(l.sizeTransition, frameTime)
+          Transition.computeCurrentValue(l.contentFitTransition, frameTime)
 
           // Get current values
           const position = l.positionTransition.current
@@ -425,51 +425,31 @@ export const LayoutComponent = defineComponent({
 
 const _box = new Box3()
 
-function useOrientedContentBounds(entity: Entity): State<Vector3> {
+function getOrientedContentBounds(entity: Entity): State<Vector3> {
   const bounds = useHookstate(() => new Box3())
-  const layout = LayoutComponent.useEffectiveState(entity)
-  const rotation = layout.rotation.value
-  const meshes = useChildrenWithComponents(entity, [MeshComponent, TransformComponent])
+  const layout = getComponent(entity, LayoutComponent)
+  const rotation = layout.rotation
+  const containerEntity = layout.containerEntity
 
-  useImmediateEffect(() => {
-    const box = new Box3()
-    meshes.forEach((entity) => {
-      const mesh = getComponent(entity, MeshComponent)
-      const transform = getComponent(entity, TransformComponent)
-      if (!mesh.geometry) return
-      if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox()
-      const geometryBox = _box.copy(mesh.geometry.boundingBox)
-      geometryBox.applyMatrix4(transform.matrix.value)
-      geometryBox.applyMatrix4(new Matrix4().makeRotationFromQuaternion(rotation))
-      box.union(geometryBox)
-    })
-    bounds.set(box)
-    return null
-  }, meshes)
+  // reset entity transforms to calculate object-space bounding boxes
+  const transform = getComponent(entity, TransformComponent)
+  transform.position.setScalar(0)
+  transform.rotation.identity()
+  transform.scale.setScalar(1)
+
+  iterateEntityNode(entity, (entity) => {
+    computeTransformMatrix(entity)
+    const mesh = getOptionalComponent(entity, MeshComponent)
+    const transform = getComponent(entity, TransformComponent)
+    if (!mesh.geometry) return
+    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox()
+    const geometryBox = _box.copy(mesh.geometry.boundingBox)
+    geometryBox.applyMatrix4(transform.matrix.value)
+    geometryBox.applyMatrix4(new Matrix4().makeRotationFromQuaternion(rotation))
+    bounds.union(geometryBox)
+  })
 
   return bounds
-}
-
-/**
- * Return the matrix that converts a point from the content space to the container space.
- * @param entity
- */
-function useContentToContainerMatrix(entity: Entity) {}
-
-/**
- * @param contentEntity
- * @returns oriented content size from the bounding box component
- */
-function useContentSize(entity: Entity): State<Vector3> {
-  const size = useHookstate(() => new Vector3())
-  const layout = LayoutComponent.useEffectiveState(entity)
-  const rotation = layout.rotation.value
-  const boundingBox = useOptionalComponent(entity, BoundingBoxComponent)
-  boundingBox?.objectSpaceBox.value
-    .clone()
-    .applyMatrix4(new Matrix4().makeRotationFromQuaternion(rotation))
-    .getSize(size)
-  return size
 }
 
 function useEffectiveLayout(entity: Entity) {
