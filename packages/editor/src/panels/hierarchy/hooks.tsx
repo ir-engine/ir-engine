@@ -244,13 +244,16 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
 
     if (node) {
       if (place === 'Before') {
+        console.log('before!!')
         const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
         parentNode = entityTreeComponent?.parentEntity
-        beforeNode = node.entity
+        const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+        beforeNode = parentTreeComponent ? parentTreeComponent.children[node.childIndex] : node.entity
       } else if (place === 'After') {
         const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
         parentNode = entityTreeComponent?.parentEntity
         const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+        console.log('after!!')
         if (
           parentTreeComponent &&
           !node.lastChild &&
