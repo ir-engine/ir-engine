@@ -26,8 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { defineQuery } from '@ir-engine/ecs'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RenderInfoState } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { LightTagComponent } from '@ir-engine/spatial/src/renderer/components/lights/LightTagComponent'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Stats from './stats'
@@ -35,6 +39,7 @@ import Stats from './stats'
 export const StatsPanel = (props: { show: boolean }) => {
   const renderInfoState = useMutableState(RenderInfoState)
   const info = renderInfoState.visible.value && renderInfoState.info.value
+  const lightQuery = defineQuery([LightTagComponent, VisibleComponent, SourceComponent])
 
   const toggleStats = () => {
     renderInfoState.visible.set(!renderInfoState.visible.value)
@@ -85,12 +90,18 @@ export const StatsPanel = (props: { show: boolean }) => {
         <ul className="list-none text-sm text-theme-secondary">
           <li>
             {t('editor:viewport.state.memory')}
-            <ul style={{ listStyle: 'none' }}>
+            <ul className="ml-2 list-none">
               <li>
                 {t('editor:viewport.state.geometries')}: {info.geometries}
               </li>
               <li>
                 {t('editor:viewport.state.textures')}: {info.textures}
+              </li>
+              <li>
+                {t('editor:viewport.state.texturesMB')}: {info.texturesMB}
+              </li>
+              <li>
+                {t('editor:viewport.state.shaderComplexity')}: {info.shaderComplexity}
               </li>
             </ul>
           </li>
@@ -115,7 +126,13 @@ export const StatsPanel = (props: { show: boolean }) => {
               <li>
                 {t('editor:viewport.state.lines')}: {info.lines}
               </li>
+              <li>
+                {t('editor:viewport.state.lights')}: {lightQuery().length}
+              </li>
             </ul>
+          </li>
+          <li>
+            {t('editor:viewport.state.sceneComplexity')}: {info.sceneComplexity}
           </li>
         </ul>
       )}
