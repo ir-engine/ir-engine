@@ -24,29 +24,32 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent } from '@ir-engine/ecs'
-import { getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
   const lastRef = useHookstate(() => ref.current)
 
-  useImmediateEffect(() => {
+  const engineState = useMutableState(EngineState)
+
+  useLayoutEffect(() => {
     if (ref.current !== lastRef.value) {
       lastRef.set(ref.current)
     }
   }, [ref.current])
 
-  useImmediateEffect(() => {
+  useLayoutEffect(() => {
     if (!lastRef.value) return
+    if (!engineState.localFloorEntity || !engineState.originEntity) return
 
     const parent = lastRef.value as HTMLElement
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
     const originalParent = canvas.parentElement
-
+    initializeSpatialViewer(canvas)
     parent.appendChild(canvas)
 
     const observer = new ResizeObserver(() => {
@@ -56,21 +59,12 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     observer.observe(parent)
 
     return () => {
+      destroySpatialViewer()
       observer.disconnect()
       parent.removeChild(canvas)
       originalParent?.appendChild(canvas)
     }
-  }, [lastRef.value])
-
-  /** Essentially mount/unmount upon the attach/detatch state of the ref node */
-  useImmediateEffect(() => {
-    if (!lastRef.value) return
-    const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
-    initializeSpatialViewer(canvas)
-    return () => {
-      destroySpatialViewer()
-    }
-  }, [!!lastRef.value])
+  }, [lastRef.value, engineState.localFloorEntity, engineState.originEntity])
 }
 
 export const useRemoveEngineCanvas = () => {
