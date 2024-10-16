@@ -72,7 +72,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     }
   }, [!!lastRef.value])
 
-  /** 
+  /**
    * Since the viewer and XR reference spaces can technically exist without the other,
    * we need to reactively update the core renderer's scenes
    */
