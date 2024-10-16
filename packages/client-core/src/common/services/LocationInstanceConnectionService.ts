@@ -82,7 +82,7 @@ export const LocationInstanceConnectionService = {
     roomCode?: RoomCode,
     createPrivateRoom?: boolean
   ) => {
-    logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
+    logger.info({ locationId, instanceId, sceneId, roomCode }, 'Provision World Server')
     const token = getState(AuthState).authUser.accessToken
     if (instanceId != null) {
       const instance = (await API.instance.service(instancePath).find({

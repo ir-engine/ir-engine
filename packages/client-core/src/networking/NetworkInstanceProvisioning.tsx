@@ -35,8 +35,7 @@ import {
 } from '@ir-engine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
-  MediaInstanceState,
-  useMediaInstance
+  MediaInstanceState
 } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/services/ChannelService'
@@ -189,19 +188,20 @@ export const MediaInstanceProvisioning = () => {
 
   MediaInstanceConnectionService.useAPIListeners()
   const mediaInstanceState = useHookstate(getMutableState(MediaInstanceState).instances)
-  const instance = useMediaInstance()
+  // const instance = useMediaInstance()
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (mediaInstanceState.keys.length) return
-    if (!channelState.channels.channels?.value.length) return
+    if (mediaInstanceState.keys.length || !worldNetwork?.ready?.value || !channelState.channels.channels?.value.length)
+      return
+
     const currentChannel =
       channelState.targetChannelId.value === ''
         ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkId)?.id
         : channelState.targetChannelId.value
     if (!currentChannel) return
 
-    MediaInstanceConnectionService.provisionServer(currentChannel, true)
+    MediaInstanceConnectionService.provisionServer(currentChannel, false)
 
     /** @todo support multiple locations & cleanup properly */
     // return () => {
@@ -215,9 +215,9 @@ export const MediaInstanceProvisioning = () => {
     // }
   }, [
     channelState.channels.channels?.length,
-    worldNetwork?.ready,
+    worldNetwork?.ready?.value,
     mediaInstanceState.keys.length,
-    channelState.targetChannelId
+    channelState.targetChannelId.value
   ])
 
   return (

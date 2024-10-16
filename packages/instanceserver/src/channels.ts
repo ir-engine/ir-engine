@@ -505,9 +505,9 @@ export const onConnection = (app: Application) => async (connection: RealTimeCon
       (roomCode && instanceServerState.instance.roomCode != roomCode))
 
   logger.info(
-    `current id: ${instanceServerState.instance?.locationId ?? instanceServerState.instance?.channelId} and new id: ${
-      locationId ?? channelId
-    }`
+    `current location id or channel id: ${
+      instanceServerState.instance?.locationId ?? instanceServerState.instance?.channelId
+    } and new id: ${locationId ?? channelId}`
   )
   logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
