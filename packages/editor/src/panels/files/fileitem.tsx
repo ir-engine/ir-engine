@@ -43,7 +43,6 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { FileDataType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
-import { FileContextMenu } from './contextmenu'
 import { FileIcon } from './fileicon'
 import {
   FILES_PAGE_LIMIT,
@@ -201,10 +200,15 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
   )
 }
 
-export default function FileItem({ file }: { file: FileDataType }) {
+export default function FileItem({
+  file,
+  onContextMenu
+}: {
+  file: FileDataType
+  onContextMenu: React.MouseEventHandler
+}) {
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const isListView = filesViewMode.value === 'list'
-  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent>(undefined)
   const filesState = useMutableState(FilesState)
   const { changeDirectoryByPath, files } = useCurrentFiles()
   const dropOnFileBrowser = useFileBrowserDrop()
@@ -236,13 +240,6 @@ export default function FileItem({ file }: { file: FileDataType }) {
       isOver: monitor.canDrop() && monitor.isOver()
     })
   })
-
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setAnchorEvent(event)
-    if (selectedFiles.length <= 1) selectedFiles.set([file])
-  }
 
   const handleSelectedFiles = (event: React.MouseEvent) => {
     event.stopPropagation()
@@ -293,13 +290,8 @@ export default function FileItem({ file }: { file: FileDataType }) {
     drag,
     drop,
     isOver,
-    onContextMenu: handleContextMenu
+    onContextMenu
   }
 
-  return (
-    <>
-      {isListView ? <TableView {...commonProps} /> : <GridView {...commonProps} />}
-      <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} file={file} />
-    </>
-  )
+  return isListView ? <TableView {...commonProps} /> : <GridView {...commonProps} />
 }

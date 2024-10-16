@@ -23,15 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { twMerge } from 'tailwind-merge'
-import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { FileDataType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeState, SelectedFilesState } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
-import { BrowserContextMenu } from './contextmenu'
+import { BrowserContextMenu, FileContextMenu } from './contextmenu'
 import FileItem, { TableWrapper } from './fileitem'
 import { CurrentFilesQueryProvider, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 import FilesLoaders from './loaders'
@@ -51,11 +51,26 @@ function Browser() {
   const selectedFiles = useMutableState(SelectedFilesState)
   const { files } = useCurrentFiles()
 
+  const contextMenuFile = useHookstate<FileDataType | null>(null)
+
   const FileItems = () => (
     <>
       {files.map((file) => (
-        <FileItem file={file} key={file.key} data-testid="files-panel-file-item" />
+        <FileItem
+          file={file}
+          onContextMenu={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            contextMenuFile.set(file)
+            setAnchorEvent(event)
+          }}
+          key={file.key}
+          data-testid="files-panel-file-item"
+        />
       ))}
+      {contextMenuFile.value && (
+        <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} file={contextMenuFile.value!} />
+      )}
     </>
   )
 
@@ -87,7 +102,7 @@ function Browser() {
           )}
         </div>
       </div>
-      <BrowserContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />
+      {!contextMenuFile.value && <BrowserContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />}
     </div>
   )
 }

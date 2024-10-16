@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { ImmutableObject, NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -57,7 +57,7 @@ function PasteFileButton({
   const isFilesLoading = filesQuery?.status === 'pending'
   const filesState = useMutableState(FilesState)
   const fileService = useMutation(fileBrowserPath)
-  const file = filesState.clipboardFile.value?.file
+  const clipboardFile = filesState.clipboardFile.value?.file
   const currentDirectory = filesState.selectedDirectory.value.startsWith('/')
     ? filesState.selectedDirectory.value.substring(1)
     : filesState.selectedDirectory.value
@@ -68,17 +68,17 @@ function PasteFileButton({
       size="small"
       fullWidth
       data-testid="files-panel-context-menu-paste-asset-button"
-      disabled={!file}
+      disabled={!clipboardFile}
       onClick={() => {
-        if (!file || isFilesLoading) return
+        if (!clipboardFile || isFilesLoading) return
         setAnchorEvent(undefined)
         fileService.update(null, {
           oldProject: filesState.projectName.value,
           newProject: filesState.projectName.value,
-          oldName: file.fullName,
-          newName: file.fullName,
-          oldPath: file.path,
-          newPath: (newPath ?? currentDirectory) + file.fullName,
+          oldName: clipboardFile.fullName,
+          newName: clipboardFile.fullName,
+          oldPath: clipboardFile.path,
+          newPath: (newPath ?? currentDirectory) + clipboardFile.fullName,
           isCopy: filesState.clipboardFile.value?.isCopy
         })
       }}
@@ -95,7 +95,7 @@ export function FileContextMenu({
 }: {
   anchorEvent: React.MouseEvent | undefined
   setAnchorEvent: (event: React.MouseEvent | undefined) => void
-  file: FileDataType
+  file: ImmutableObject<FileDataType>
 }) {
   const { t } = useTranslation()
   const { createNewFolder, refreshDirectory } = useCurrentFiles()
