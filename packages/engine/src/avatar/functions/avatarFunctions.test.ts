@@ -23,7 +23,7 @@
 // Infinite Reality Engine. All Rights Reserved.
 // */
 
-// import assert from 'assert'
+// import { assert, describe, it, beforeEach, afterEach, before, after } from 'vitest'
 // import { AnimationClip, Bone, Group, SkinnedMesh, Vector3 } from 'three'
 
 // import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'

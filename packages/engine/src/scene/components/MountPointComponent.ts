@@ -39,10 +39,10 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'

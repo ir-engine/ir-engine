@@ -44,7 +44,6 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState, isClient, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -67,6 +66,7 @@ import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'

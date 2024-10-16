@@ -28,6 +28,7 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import assert from 'assert'
 import { Matrix4 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { Mat4Proxy, Vec3Proxy } from './createThreejsProxy'
 
 describe('createThreejsProxy', () => {
