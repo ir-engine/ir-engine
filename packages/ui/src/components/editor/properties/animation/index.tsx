@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { getOptionalComponent, hasComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -38,6 +38,9 @@ import { useState } from '@ir-engine/hyperflux'
 import { getCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { FaStreetView } from 'react-icons/fa'
 
+import Button from '@ir-engine/client-core/src/common/components/Button'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { getHips } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import React, { useEffect } from 'react'
@@ -61,6 +64,8 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const animationComponent = useOptionalComponent(entity, AnimationComponent)
 
   const errors = getEntityErrors(props.entity, ModelComponent)
+
+  const canConvert = !hasComponent(entity, AvatarRigComponent) && getHips(entity)
 
   useEffect(() => {
     const animationComponent = getOptionalComponent(entity, AnimationComponent)
@@ -112,6 +117,17 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(LoopAnimationComponent, 'timeScale')}
         />
       </InputGroup>
+      {canConvert && (
+        <Button
+          onClick={() => {
+            EditorControlFunctions.addOrRemoveComponent([entity], AvatarRigComponent, true, {
+              avatarURL: gltfComponent?.src.value
+            })
+          }}
+        >
+          Use VRM
+        </Button>
+      )}
     </NodeEditor>
   )
 }

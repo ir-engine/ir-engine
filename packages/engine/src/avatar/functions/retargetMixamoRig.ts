@@ -31,7 +31,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
+import { getHips, mixamoVRMRigMap } from '../AvatarBoneMatching'
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()
@@ -42,13 +42,7 @@ const _scale = new Vector3()
  * @todo refactor to use ecs
  */
 export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) => {
-  const hips = iterateEntityNode(
-    gltfEntity,
-    (entity) => entity,
-    (entity) => hipsRegex.test(getComponent(entity, NameComponent)),
-    false,
-    true
-  )?.[0]
+  const hips = getHips(gltfEntity)
   const hipsPositionScale = TransformComponent.getWorldScale(hips, _scale).y
   getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
   for (let i = 0; i < clip.tracks.length; i++) {

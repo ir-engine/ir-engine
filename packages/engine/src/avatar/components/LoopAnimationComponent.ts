@@ -45,7 +45,6 @@ import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
@@ -87,7 +86,6 @@ export const LoopAnimationComponent = defineComponent({
     const entity = useEntityContext()
 
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
-    const gltfComponent = useOptionalComponent(entity, GLTFComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
     const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
 
