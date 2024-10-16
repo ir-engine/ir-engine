@@ -826,8 +826,8 @@ const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Ent
     <>
       {GLTFComponent.getInstanceID(gltfEntity) === props.documentID && (
         <PrimitiveReactor
-          isSinglePrimitive={isSinglePrimitive}
           key={`${props.entity}-${props.documentID}-${props.nodeIndex}`}
+          isSinglePrimitive={isSinglePrimitive}
           nodeIndex={props.nodeIndex}
           documentID={props.documentID}
           entity={props.entity}
@@ -1003,7 +1003,7 @@ const PrimitiveReactor = (props: {
   return (
     <>
       {meshDef.primitives.map((primitive, index) => (
-        <>
+        <React.Fragment key={`${index}-${props.nodeIndex}-${props.documentID}`}>
           <MaterialInstanceReactor
             key={`materials-${index}-${props.nodeIndex}`}
             nodeIndex={props.nodeIndex}
@@ -1019,7 +1019,7 @@ const PrimitiveReactor = (props: {
             documentID={props.documentID}
             entity={props.entity}
           />
-        </>
+        </React.Fragment>
       ))}
 
       <MorphTargetReactor
