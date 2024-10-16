@@ -387,22 +387,20 @@ export const AuthService = {
       if (!user.avatarId) {
         const avatars = await client.service(avatarPath).find({
           query: {
-            isPublic: true,
-            $limit: 1000
+            isPublic: true
           }
         })
 
         if (avatars.data.length > 0) {
           const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
 
-          const result = await client
+          await client
             .service(userAvatarPath)
             .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
 
           user.avatarId = randomReplacementAvatar.id
           user.avatar = randomReplacementAvatar
         } else {
-          NotificationService.dispatchNotify('Failed to find suitable avatar', { variant: 'error' })
           throw new Error('No avatars found in database')
         }
       }
