@@ -33,7 +33,7 @@ import {
   hasComponent,
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -48,6 +48,24 @@ export interface GLTFSceneExportExtension {
   afterComponent?: (entity: Entity, component: ComponentType<any>, node: GLTF.INode, index: number) => void
   afterNode?: (entity: Entity, node: GLTF.INode, index: number) => void
   after?: (rootEntity: Entity, gltf: GLTF.IGLTF) => void
+}
+
+export class RemoveRootNodeParentExportExtension implements GLTFSceneExportExtension {
+  parentEntity: Entity = UndefinedEntity
+
+  before(rootEntity: Entity) {
+    if (hasComponent(rootEntity, EntityTreeComponent)) {
+      const tree = getMutableComponent(rootEntity, EntityTreeComponent)
+      this.parentEntity = tree.parentEntity.value
+      tree.parentEntity.set(UndefinedEntity)
+    }
+  }
+
+  after(rootEntity: Entity) {
+    if (hasComponent(rootEntity, EntityTreeComponent)) {
+      getMutableComponent(rootEntity, EntityTreeComponent).parentEntity.set(this.parentEntity)
+    }
+  }
 }
 
 export class IgnoreGLTFComponentExportExtension implements GLTFSceneExportExtension {
@@ -74,7 +92,10 @@ export class IgnoreGLTFComponentExportExtension implements GLTFSceneExportExtens
 
 export type ExportExtension = new () => GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [IgnoreGLTFComponentExportExtension] as ExportExtension[]
+export const defaultExportExtensionList = [
+  IgnoreGLTFComponentExportExtension,
+  RemoveRootNodeParentExportExtension
+] as ExportExtension[]
 
 export function exportGLTFScene(entity: Entity, exportExtensionTypes: ExportExtension[] = defaultExportExtensionList) {
   const exportExtensions = exportExtensionTypes.map((ext) => new ext())
@@ -92,7 +113,8 @@ export function exportGLTFScene(entity: Entity, exportExtensionTypes: ExportExte
     extensionsUsed: new Set<string>(),
     exportExtensions
   }
-  exportGLTFSceneNode(entity, gltf, meta)
+  const rootIndex = exportGLTFSceneNode(entity, gltf, meta)
+  gltf.scenes![0].nodes.push(rootIndex)
   if (meta.extensionsUsed.size) gltf.extensionsUsed = [...meta.extensionsUsed]
   cleanStorageProviderURLs(gltf)
 
@@ -100,6 +122,9 @@ export function exportGLTFScene(entity: Entity, exportExtensionTypes: ExportExte
 
   return gltf
 }
+
+const _diffMatrix = new Matrix4()
+const _transformMatrix = new Matrix4()
 
 const exportGLTFSceneNode = (
   entity: Entity,
@@ -136,7 +161,12 @@ const exportGLTFSceneNode = (
 
     if (component === TransformComponent) {
       const transform = getComponent(entity, TransformComponent)
-      node.matrix = new Matrix4().compose(transform.position, transform.rotation, transform.scale).elements
+      const parent = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
+      if (parent) {
+        const parentTransform = getComponent(parent, TransformComponent)
+        _diffMatrix.copy(parentTransform.matrix).invert().multiply(transform.matrix)
+        node.matrix = _transformMatrix.copy(parentTransform.matrix).multiply(_diffMatrix).toArray()
+      } else node.matrix = _diffMatrix.identity().toArray()
     } else {
       const compData = serializeComponent(entity, component)
       // Do we not want to serialize tag components?
@@ -149,7 +179,6 @@ const exportGLTFSceneNode = (
   }
   if (Object.keys(extensions).length > 0) node.extensions = extensions
   node.children = childrenIndicies
-  gltf.scenes![0].nodes.push(index)
 
   for (const extension of meta.exportExtensions) extension.afterNode?.(entity, node, index)
 
