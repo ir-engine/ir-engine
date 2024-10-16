@@ -44,7 +44,7 @@ import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { getState } from '@ir-engine/hyperflux'
 
-import { instanceAttendancePath } from '@ir-engine/common/src/schema.type.module'
+import { instanceAttendancePath, InstanceAttendanceType } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -944,7 +944,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
           instance.instance_authorized_users =
             instanceAuthorizedUsers.find((user) => user.instanceId === instance.id) || []
 
-          const peers = await this.app.service(instanceAttendancePath).find({
+          const peers = (await this.app.service(instanceAttendancePath).find({
             query: {
               instanceId: instance.id,
               ended: false,
@@ -954,7 +954,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
               }
             },
             paginate: false
-          })
+          })) as any as InstanceAttendanceType[]
           const users = _.uniq(peers.map((peer) => peer.userId))
           instance.currentUsers = users.length
         }

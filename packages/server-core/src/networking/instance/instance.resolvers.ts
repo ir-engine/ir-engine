@@ -28,12 +28,15 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { BadRequest } from '@feathersjs/errors'
-import { instanceAttendancePath } from '@ir-engine/common/src/schema.type.module'
+import {
+  instanceAttendancePath,
+  InstanceAttendanceType
+} from '@ir-engine/common/src/schemas/networking/instance-attendance.schema'
 import {
   InstanceID,
+  instancePath,
   InstanceQuery,
-  InstanceType,
-  instancePath
+  InstanceType
 } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelPath } from '@ir-engine/common/src/schemas/social/channel.schema'
 import { locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
@@ -47,7 +50,7 @@ export const instanceResolver = resolve<InstanceType, HookContext>({
       return await context.app.service(locationPath).get(instance.locationId)
   }),
   currentUsers: virtual(async (instance, context) => {
-    const peers = await context.app.service(instanceAttendancePath).find({
+    const peers = (await context.app.service(instanceAttendancePath).find({
       query: {
         instanceId: instance.id,
         ended: false,
@@ -57,7 +60,7 @@ export const instanceResolver = resolve<InstanceType, HookContext>({
         }
       },
       paginate: false
-    })
+    })) as InstanceAttendanceType[]
     const users = _.uniq(peers.map((peer) => peer.userId))
     const p2p = !!instance.ipAddress
     // If not p2p, add one for the host
