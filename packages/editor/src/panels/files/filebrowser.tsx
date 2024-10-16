@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { useMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
@@ -49,7 +50,12 @@ function Browser() {
   })
   const isListView = useMutableState(FilesViewModeState).viewMode.value === 'list'
   const selectedFiles = useMutableState(SelectedFilesState)
-  const { files } = useCurrentFiles()
+  const { files, refreshDirectory } = useCurrentFiles()
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+
+  useEffect(() => {
+    refreshDirectory()
+  }, [thumbnailJobState.length])
 
   const FileItems = () => (
     <>
