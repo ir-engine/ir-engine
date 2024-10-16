@@ -44,7 +44,6 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -98,7 +97,7 @@ export type Matrices = { local: Matrix4; world: Matrix4 }
 
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
-  jsonID: 'IR_avatarRig',
+
   schema: S.Object({
     /** rig bones with quaternions relative to the raw bones in their bind pose */
     normalizedRig: S.Type<VRMHumanBones>(),
@@ -114,15 +113,8 @@ export const AvatarRigComponent = defineComponent({
       {}
     ),
     /** The VRM model */
-    vrm: S.Type<VRM>(),
-    avatarURL: S.Nullable(S.String())
+    vrm: S.Type<VRM>()
   }),
-
-  toJSON: (component) => {
-    return {
-      avatarURL: component.avatarURL
-    }
-  },
 
   reactor: function () {
     const entity = useEntityContext()
@@ -133,23 +125,15 @@ export const AvatarRigComponent = defineComponent({
     )
 
     useEffect(() => {
-      if (!rigComponent?.avatarURL?.value) return
-      setComponent(entity, GLTFComponent, { src: rigComponent.avatarURL.value })
-      return () => {
-        removeComponent(entity, GLTFComponent)
-      }
-    }, [rigComponent?.avatarURL?.value])
-
-    useEffect(() => {
       if (gltfComponent?.progress?.value !== 100) return
       console.log('Creating VRM')
       const vrm = createVRM(entity)
       setupAvatarProportions(entity, vrm)
       rigComponent.vrm.set(vrm)
-    }, [gltfComponent?.progress?.value])
+    }, [gltfComponent?.progress?.value, gltfComponent?.src])
 
     useEffect(() => {
-      if (!rigComponent.value || !rigComponent.value.vrm || !rigComponent.value.avatarURL) return
+      if (!rigComponent.value || !rigComponent.value.vrm) return
       const rig = getComponent(entity, AvatarRigComponent)
       try {
         setupAvatarForUser(entity, rig.vrm)

@@ -53,6 +53,7 @@ import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { AnimationClip } from 'three'
 import styles from './index.module.scss'
@@ -81,7 +82,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
     setComponent(sceneEntity, AvatarComponent)
-    setComponent(sceneEntity, AvatarRigComponent, { avatarURL: avatarUrl })
+    setComponent(sceneEntity, GLTFComponent, { src: avatarUrl })
+    setComponent(sceneEntity, AvatarRigComponent)
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
     if (getChildrenWithComponents(sceneEntity, [AmbientLightComponent]).length) return
