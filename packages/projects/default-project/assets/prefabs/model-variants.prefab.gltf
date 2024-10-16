@@ -6,24 +6,6 @@
   "nodes": [
     {
       "name": "Model Variants",
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1
-      ],
       "extensions": {
         "EE_uuid": "13e161b8-fa44-482a-a2c0-c10f9c173860",
         "EE_visible": true,
@@ -60,14 +42,8 @@
   "scene": 0,
   "scenes": [
     {
-      "nodes": [
-        0
-      ]
+      "nodes": [0]
     }
   ],
-  "extensionsUsed": [
-    "EE_uuid",
-    "EE_visible",
-    "EE_variant"
-  ]
+  "extensionsUsed": ["EE_uuid", "EE_visible", "EE_variant"]
 }

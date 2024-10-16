@@ -95,6 +95,28 @@ const hasComponentInAuthoringLayer = <C extends Component<any, any>>(entity: Ent
   return node?.extensions?.[componentJsonId] !== undefined
 }
 
+const appendToSnapshot = (toAppend: GLTF.IGLTF, parent = getState(EditorState).rootEntity) => {
+  if (!toAppend.scenes || !toAppend.nodes) return
+
+  const sceneID = getComponent(parent, SourceComponent)
+  const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+  const offset = gltf.data.nodes!.length
+
+  const nodesToAppend = toAppend.scenes[0].nodes
+  for (let i = 0; i < nodesToAppend.length; i++) {
+    const nodeindex = nodesToAppend[i]
+    const node = toAppend.nodes[nodeindex]
+    const offsetIndex = offset + nodeindex
+    gltf.data.nodes![offsetIndex] = node
+    if (node.children) {
+      node.children = node.children.map((index) => offset + index)
+    }
+    gltf.data.scenes![0].nodes.push(offsetIndex)
+  }
+
+  dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+}
+
 const addOrRemoveComponent = <C extends Component<any, any>>(
   entities: Entity[],
   component: C,
@@ -835,6 +857,7 @@ const commitTransformSave = (entities: Entity[]) => {
 }
 
 export const EditorControlFunctions = {
+  appendToSnapshot,
   addOrRemoveComponent,
   hasComponentInAuthoringLayer,
   modifyProperty,

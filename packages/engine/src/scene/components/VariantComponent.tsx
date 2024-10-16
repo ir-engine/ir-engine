@@ -112,7 +112,7 @@ export const VariantComponent = defineComponent({
       if (!src) return
 
       setComponent(entity, GLTFComponent, { src: src })
-    }, [variantComponent.currentLevel])
+    }, [variantComponent.currentLevel, variantComponent.levels])
 
     return null
   }

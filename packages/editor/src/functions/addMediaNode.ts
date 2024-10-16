@@ -26,25 +26,24 @@ Infinite Reality Engine. All Rights Reserved.
 import { Intersection, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
-import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { generateEntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFComponent, loadGltfFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -127,23 +126,13 @@ export async function addMediaNode(
         )
       })
     } else if (contentType.startsWith('model/prefab')) {
-      const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: GLTFComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-        parent!,
-        before
-      )
-      const reactor = startReactor(() => {
-        const entity = UUIDComponent.useEntityByUUID(entityUUID)
-        const modelComponent = useOptionalComponent(entity, ModelComponent)
-
-        useImmediateEffect(() => {
-          if (!modelComponent) return
-
-          modelComponent.dereference.set(true)
-          reactor.stop()
-        }, [modelComponent])
-
-        return null
+      loadGltfFile(url, (gltf) => {
+        if (gltf.nodes)
+          gltf.nodes.every((node) => {
+            if (node.extensions && node.extensions[UUIDComponent.jsonID])
+              node.extensions[UUIDComponent.jsonID] = generateEntityUUID()
+          })
+        EditorControlFunctions.appendToSnapshot(gltf)
       })
     } else if (contentType.startsWith('model/vrm')) {
       EditorControlFunctions.createObjectFromSceneElement(

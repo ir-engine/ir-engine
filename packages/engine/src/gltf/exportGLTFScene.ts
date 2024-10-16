@@ -38,8 +38,8 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Matrix4 } from 'three'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { cleanStorageProviderURLs } from './parseSceneJSON'
+import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
+import { GLTFComponent } from './GLTFComponent'
 
 export interface GLTFSceneExportExtension {
   before?: (rootEntity: Entity, gltf: GLTF.IGLTF) => void
@@ -74,7 +74,7 @@ export class IgnoreGLTFComponentExportExtension implements GLTFSceneExportExtens
 
 export type ExportExtension = new () => GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [IgnoreGLTFComponentExportExtension]
+export const defaultExportExtensionList = [IgnoreGLTFComponentExportExtension] as ExportExtension[]
 
 export function exportGLTFScene(entity: Entity, exportExtensionTypes: ExportExtension[] = defaultExportExtensionList) {
   const exportExtensions = exportExtensionTypes.map((ext) => new ext())
