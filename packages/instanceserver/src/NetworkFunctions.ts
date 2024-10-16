@@ -291,13 +291,18 @@ const getUserSpawnFromInvite = async (
 
     if (inviteCodeLookups.length > 0) {
       const inviterUser = inviteCodeLookups[0]
+      /** @todo we can probably do this for loop in the query itself */
       const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []
-      const userInstanceAttendance = user.instanceAttendance || []
+      const userInstanceAttendance = await API.instance.service(instanceAttendancePath).find({
+        query: {
+          userId: user.id
+        }
+      })
       let bothOnSameInstance = false
       for (const instanceAttendance of inviterUserInstanceAttendance) {
         if (
           !instanceAttendance.isChannel &&
-          userInstanceAttendance.find(
+          userInstanceAttendance.data.find(
             (userAttendance) => !userAttendance.isChannel && userAttendance.id === instanceAttendance.id
           )
         )
