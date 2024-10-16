@@ -133,10 +133,8 @@ export const RendererComponent = defineComponent({
    */
   activeRender: false,
 
-  onSet(entity, component, json: { canvas: HTMLCanvasElement; scenes?: Entity[] }) {
-    if (!json.canvas) throw new Error('Canvas is not defined')
-
-    if (json.canvas) component.canvas.set(json.canvas)
+  onSet(entity, component, json) {
+    if (json?.canvas) component.canvas.set(json.canvas)
     if (json?.scenes) component.scenes.set(json.scenes)
   },
 
