@@ -175,7 +175,7 @@ export default function HierarchyTreeContextMenu() {
           className="text-left text-xs"
           onClick={() => {
             setMenu()
-            PopoverState.showPopupover(<CreatePrefabPanel entity={entity} />)
+            PopoverState.showPopupover(<CreatePrefabPanel entity={entity} isExportLookDev={false} />)
           }}
         >
           {t('editor:hierarchy.lbl-createPrefab')}
