@@ -90,7 +90,6 @@ export const ComponentShelfCategoriesState = defineState({
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
         SpawnPointComponent,
-        PortalComponent,
         LinkComponent,
         MountPointComponent,
         InteractableComponent,
@@ -125,6 +124,8 @@ export const ComponentShelfCategoriesState = defineState({
   },
   reactor: () => {
     const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+    const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
+
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
       if (visualScriptPanelEnabled) {
@@ -136,5 +137,16 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [visualScriptPanelEnabled])
+
+    useEffect(() => {
+      if (portalEnabled) {
+        cShelfState.Interaction.merge([PortalComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == PortalComponent.name))
+          })
+        }
+      }
+    }, [portalEnabled])
   }
 })
