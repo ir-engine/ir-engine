@@ -23,16 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 
 import { useMutableState } from '@ir-engine/hyperflux'
 
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import { first } from 'lodash'
-import { HiMiniXMark } from 'react-icons/hi2'
+import { first, isNil } from 'lodash'
+import { NotificationService } from '../../common/services/NotificationService'
 import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -47,37 +46,21 @@ const InviteToast = () => {
       InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
   }, [inviteState.receivedUpdateNeeded.value, authState.isLoggedIn.value])
 
-  const acceptInvite = () => {
-    InviteService.acceptInvite(newestInvite)
-  }
-
-  const declineInvite = () => {
-    InviteService.declineInvite(newestInvite)
-  }
-
-  if (!newestInvite?.inviteType) {
-    return null
-  }
-
-  return (
-    <div className="fixed right-[25px] top-[100px] flex w-80 flex-col rounded-lg bg-[#191B1F] p-5 shadow-xl shadow-black">
-      <div className="flex">
-        <span className="flex-1 text-neutral-100 first-letter:uppercase">
-          {t('social:invite.inviteMessage', {
-            inviteType: newestInvite?.inviteType.replace('-', ' '),
-            userName: newestInvite.user?.name as UserName
-          })}
-        </span>
-
-        <HiMiniXMark className="cursor-pointer text-xl" onClick={declineInvite} />
-      </div>
-      <div className="ml-auto mt-6">
-        <Button onClick={acceptInvite} className="cursor-pointer">
-          {t('social:invite.accept')}
-        </Button>
-      </div>
-    </div>
-  )
+  useEffect(() => {
+    if (!isNil(newestInvite?.inviteType)) {
+      NotificationService.dispatchNotify(
+        t('social:invite.inviteMessage', {
+          inviteType: newestInvite?.inviteType.replace('-', ' '),
+          userName: newestInvite.user?.name as UserName
+        }),
+        {
+          variant: 'default',
+          persist: true,
+          actionType: 'invite'
+        }
+      )
+    }
+  }, [newestInvite?.inviteType])
 }
 
 export default InviteToast

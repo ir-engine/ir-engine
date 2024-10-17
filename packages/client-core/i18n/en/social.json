@@ -207,6 +207,7 @@
   },
   "invite": {
     "inviteMessage": "{{inviteType}} invite from {{userName}}",
+    "decline": "Decline",
     "accept": "Accept"
   }
 }
