@@ -74,7 +74,7 @@ export const userSchema = Type.Object(
     avatar: Type.Ref(avatarDataSchema),
     userSetting: Type.Ref(userSettingSchema),
     apiKey: Type.Ref(userApiKeySchema),
-    identityProviders: Type.Array(Type.Ref(identityProviderSchema)),
+    // identityProviders: Type.Array(Type.Ref(identityProviderSchema)),
     locationAdmins: Type.Array(Type.Ref(locationAdminSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),

@@ -23,7 +23,14 @@ import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation } from '@ir-engine/common'
-import { ScopeType, UserType, avatarPath, scopePath, scopeTypePath } from '@ir-engine/common/src/schema.type.module'
+import {
+  ScopeType,
+  UserType,
+  avatarPath,
+  identityProviderPath,
+  scopePath,
+  scopeTypePath
+} from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
@@ -32,6 +39,7 @@ import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@ir-engine/ui/src/primitives/tailwind/MultiSelect'
 import Select, { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 
+import { Engine } from '@ir-engine/ecs'
 import AccountIdentifiers from './AccountIdentifiers'
 
 const getDefaultErrors = () => ({
@@ -88,6 +96,8 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       avatarOptions.push({ label: user.avatar.name || user.avatarId, value: user.avatarId })
     }
   }
+
+  const identityProvidersQuery = useFind(identityProviderPath)
 
   const submitLoading = useHookstate(false)
   const errors = useHookstate(getDefaultErrors())
@@ -200,10 +210,10 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
         {user?.inviteCode && (
           <Input disabled label={t('admin:components.user.inviteCode')} onChange={() => {}} value={user.inviteCode} />
         )}
-        {user?.id && user.identityProviders.filter((ip) => ip.type !== 'guest').length > 0 ? (
+        {user?.id && identityProvidersQuery.data.filter((ip) => ip.type !== 'guest').length > 0 ? (
           <div className="grid gap-2">
             <Label>{t('admin:components.user.linkedAccounts')}</Label>
-            <AccountIdentifiers user={user} />
+            <AccountIdentifiers />
           </div>
         ) : null}
       </div>

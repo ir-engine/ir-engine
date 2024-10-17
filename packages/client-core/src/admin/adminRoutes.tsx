@@ -41,7 +41,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 
 import { useFind } from '@ir-engine/common'
-import { scopePath } from '@ir-engine/common/src/schema.type.module'
+import { identityProviderPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { RouterState } from '../common/services/RouterService'
@@ -52,8 +52,9 @@ const $allowed = lazy(() => import('@ir-engine/client-core/src/admin/allowedRout
 const AdminTopBar = () => {
   const { t } = useTranslation()
   const theme = useHookstate(getMutableState(ThemeState)).theme
+  const identityProvidersQuery = useFind(identityProviderPath)
   const selfUser = getState(AuthState).user
-  const tooltip = `${selfUser.name} (${selfUser.identityProviders
+  const tooltip = `${selfUser.name} (${identityProvidersQuery.data
     .map((item) => `${item.type}: ${item.accountIdentifier}`)
     .join(', ')}) ${selfUser.id}`
 

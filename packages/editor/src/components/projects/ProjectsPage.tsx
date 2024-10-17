@@ -32,7 +32,7 @@ import { ProjectService } from '@ir-engine/client-core/src/common/services/Proje
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { ProjectType, ScopeType, projectPath, scopePath } from '@ir-engine/common/src/schema.type.module'
+import { ProjectType, ScopeType, identityProviderPath, projectPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { Engine } from '@ir-engine/ecs'
@@ -344,7 +344,8 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
   const authState = useMutableState(AuthState)
   const authUser = authState.authUser
   const user = authState.user
-  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const githubProvider = identityProvidersQuery.data.find((ip) => ip.type === 'github')
 
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
 

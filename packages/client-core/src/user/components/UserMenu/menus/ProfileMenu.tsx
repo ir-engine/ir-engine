@@ -48,6 +48,7 @@ import {
   UserName,
   authenticationSettingPath,
   clientSettingPath,
+  identityProviderPath,
   scopePath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
@@ -193,35 +194,36 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     if (!loading.value) logger.info({ event_name: 'view_profile' })
   }, [loading.value])
 
+  const identityProvidersQuery = useFind(identityProviderPath)
+
   useEffect(() => {
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
-    if (selfUser.identityProviders.get({ noproxy: true }))
-      for (const ip of selfUser.identityProviders.get({ noproxy: true })!) {
-        switch (ip.type) {
-          case 'apple':
-            oauthConnectedState.merge({ apple: true })
-            break
-          case 'discord':
-            oauthConnectedState.merge({ discord: true })
-            break
-          case 'facebook':
-            oauthConnectedState.merge({ facebook: true })
-            break
-          case 'linkedin':
-            oauthConnectedState.merge({ linkedin: true })
-            break
-          case 'google':
-            oauthConnectedState.merge({ google: true })
-            break
-          case 'twitter':
-            oauthConnectedState.merge({ twitter: true })
-            break
-          case 'github':
-            oauthConnectedState.merge({ github: true })
-            break
-        }
+    for (const ip of identityProvidersQuery.data) {
+      switch (ip.type) {
+        case 'apple':
+          oauthConnectedState.merge({ apple: true })
+          break
+        case 'discord':
+          oauthConnectedState.merge({ discord: true })
+          break
+        case 'facebook':
+          oauthConnectedState.merge({ facebook: true })
+          break
+        case 'linkedin':
+          oauthConnectedState.merge({ linkedin: true })
+          break
+        case 'google':
+          oauthConnectedState.merge({ google: true })
+          break
+        case 'twitter':
+          oauthConnectedState.merge({ twitter: true })
+          break
+        case 'github':
+          oauthConnectedState.merge({ github: true })
+          break
       }
-  }, [selfUser.identityProviders])
+    }
+  }, [identityProvidersQuery.data])
 
   const updateUserName = (e) => {
     e.preventDefault()

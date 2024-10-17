@@ -30,7 +30,7 @@ import { RouterState } from '@ir-engine/client-core/src/common/services/RouterSe
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
 import { useFind } from '@ir-engine/common'
-import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
+import { ScopeType, identityProviderPath, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -244,7 +244,8 @@ export default function Toolbar() {
 
 const ProfilePill = () => {
   const user = getMutableState(AuthState).user
-  const email = user.value.identityProviders.find((ip) => ip.type === 'email')?.accountIdentifier
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const email = identityProvidersQuery.data.find((ip) => ip.type === 'email')?.accountIdentifier
   return (
     <Popup
       trigger={
