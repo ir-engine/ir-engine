@@ -29,7 +29,7 @@ import { ArgTypes } from 'storybook/internal/types'
 import ImageLink, { ImageLinkProps } from './index'
 
 const argTypes: ArgTypes = {
-  value: {
+  src: {
     control: 'text'
   },
   variant: {
@@ -50,14 +50,14 @@ export default {
   },
   argTypes,
   args: {
-    value: '',
+    src: '',
     variant: 'md'
   }
 }
 
 const ImageLinkRenderer = (args: ImageLinkProps) => {
-  const [_currentArgs, updateArgs] = useArgs<{ value: string }>()
-  return <ImageLink {...args} onChange={(value) => updateArgs({ value })} />
+  const [_currentArgs, updateArgs] = useArgs<{ src: string }>()
+  return <ImageLink {...args} onChange={(value) => updateArgs({ src: value })} />
 }
 
 export const Default = {

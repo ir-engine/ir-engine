@@ -23,52 +23,66 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { ImgHTMLAttributes, useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import ImageUrlFallback from './image-url-fallback.png'
 
-export interface ImageLinkProps {
-  value: string
+export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'onChange'> {
   variant?: 'lg' | 'md' | 'sm'
   onChange: (value: string) => void
 }
 
 const containerVariants = {
-  lg: 'h-[405px] w-[330px] p-4',
-  md: 'h-[280px] w-[280px] p-2',
-  sm: 'h-[190px] w-[190px] p-2'
+  lg: 'h-[405px] w-[330px] p-4 gap-y-2',
+  md: 'h-[280px] w-[280px] p-2 gap-y-1',
+  sm: 'h-[190px] w-[190px] p-2 gap-y-1'
 }
 
 const imageVariants = {
-  lg: 'max-h-[310px] max-w-[300px]',
-  md: 'max-h-[210px] max-w-[265px]',
-  sm: 'max-h-[120px] max-w-[175px]'
+  lg: 'max-h-[310px] max-w-[297px]',
+  md: 'max-h-[210px] max-w-[264px]',
+  sm: 'max-h-[119px] max-w-[174px]'
 }
 
-export default function ImageLink({ value, onChange, variant = 'md' }: ImageLinkProps) {
+export default function ImageLink({ src, onChange, variant = 'md', ...props }: ImageLinkProps) {
   const imageRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
     if (!imageRef.current) return
-    imageRef.current.onerror = () => {
+    const onErrorCallback = () => {
       if (!imageRef.current) return
       imageRef.current.src = ImageUrlFallback
     }
+
+    imageRef.current.addEventListener('error', onErrorCallback)
+
+    return () => {
+      if (!imageRef.current) return
+      imageRef.current.removeEventListener('error', onErrorCallback)
+    }
   }, [])
 
+  useEffect(() => {
+    if (!src && imageRef.current) {
+      imageRef.current.src = ImageUrlFallback
+    }
+  }, [src])
+
   return (
-    <div className={twMerge('rounded-[10px] bg-[#191B1F]', containerVariants[variant])}>
-      <img src={value} className={twMerge('mx-auto rounded', imageVariants[variant])} ref={imageRef} />
-      <button className={twMerge('float-right text-sm text-[#AFBEDF]', variant === 'lg' ? 'mt-2' : 'mt-1')}>
+    <div className={twMerge('flex flex-col rounded-[10px] bg-[#191B1F]', containerVariants[variant])}>
+      <img src={src} className={twMerge('mx-auto rounded', imageVariants[variant])} ref={imageRef} {...props} />
+      <button
+        className={twMerge('text-right text-sm text-[#AFBEDF]')}
+        onClick={() => {
+          onChange('')
+        }}
+      >
         Clear
       </button>
       <input
-        value={value}
+        value={src}
         onChange={(event) => onChange(event.target.value)}
-        className={twMerge(
-          'w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]',
-          variant === 'lg' ? 'mt-2' : 'mt-1'
-        )}
+        className={twMerge('w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]')}
       />
     </div>
   )
