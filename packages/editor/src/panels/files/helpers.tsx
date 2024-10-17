@@ -66,7 +66,10 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   const filesQuery = useFind(fileBrowserPath, {
     query: {
       $limit: FILES_PAGE_LIMIT,
-      directory: filesState.selectedDirectory.value
+      directory:
+        filesState.selectedDirectory.value != ''
+          ? filesState.selectedDirectory.value
+          : '/projects/' + filesState.projectName.value
     }
   })
 
