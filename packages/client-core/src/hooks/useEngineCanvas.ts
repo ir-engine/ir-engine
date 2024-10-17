@@ -24,16 +24,28 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent } from '@ir-engine/ecs'
+import { isSupportedBrowser } from '@ir-engine/editor/src/functions/browserCheck'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect, useLayoutEffect } from 'react'
+import { NotificationService } from '../common/services/NotificationService'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
   const lastRef = useHookstate(() => ref.current)
-
   const engineState = useMutableState(EngineState)
+
+  const supportedBrowser = useHookstate(isSupportedBrowser)
+
+  useEffect(() => {
+    if (!supportedBrowser) {
+      NotificationService.dispatchNotify(
+        'The browser you are on is not supported. For the best experience please use Google Chrome.',
+        { variant: 'warning' }
+      )
+    }
+  }, [])
 
   useLayoutEffect(() => {
     if (ref.current !== lastRef.value) {
