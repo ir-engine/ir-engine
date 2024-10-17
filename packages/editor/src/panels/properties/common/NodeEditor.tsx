@@ -23,33 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { PropsWithChildren, Suspense } from 'react'
+import React, { Suspense } from 'react'
 
 import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorPropType } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import ComponentDropdown, { ComponentDropdownProps } from '@ir-engine/ui/src/components/editor/ComponentDropdown'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
-import LoadingView from '../../../../primitives/tailwind/LoadingView'
-import Text from '../../../../primitives/tailwind/Text'
-import PropertyGroup from '../group'
 
-interface NodeErrorProps {
+interface INodeErrorProps {
   name?: string
   children?: React.ReactNode
 }
 
-interface NodeErrorState {
+interface INodeErrorState {
   error: Error | null
 }
 
-class NodeEditorErrorBoundary extends React.Component<NodeErrorProps, NodeErrorState> {
-  public state: NodeErrorState = {
+class NodeEditorErrorBoundary extends React.Component<INodeErrorProps, INodeErrorState> {
+  public state: INodeErrorState = {
     error: null
   }
 
-  public static getDerivedStateFromError(error: Error): NodeErrorState {
-    // Update state so the next render will show the fallback UI.
+  public static getDerivedStateFromError(error: Error): INodeErrorState {
     return { error }
   }
 
@@ -73,27 +72,21 @@ class NodeEditorErrorBoundary extends React.Component<NodeErrorProps, NodeErrorS
   }
 }
 
-type NodeEditorProps = EditorPropType & {
-  description?: string
-  name?: string
-  icon?: JSX.Element
-}
-
-export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
+export const NodeEditor = ({
   description,
   children,
   name,
   entity,
   component,
-  icon
-}) => {
+  Icon
+}: ComponentDropdownProps & EditorPropType) => {
   const { t } = useTranslation()
 
   return (
-    <PropertyGroup
+    <ComponentDropdown
       name={name}
       description={description}
-      icon={icon}
+      Icon={Icon}
       onClose={
         component && hasComponent(entity, component)
           ? () => {
@@ -104,13 +97,11 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
       }
     >
       <Suspense
-        fallback={
-          <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp', { name })} />
-        }
+        fallback={<LoadingView className="block h-12 w-12" title={t('common:loader.loadingDynamic', { name })} />}
       >
         <NodeEditorErrorBoundary name={name}>{children}</NodeEditorErrorBoundary>
       </Suspense>
-    </PropertyGroup>
+    </ComponentDropdown>
   )
 }
 
