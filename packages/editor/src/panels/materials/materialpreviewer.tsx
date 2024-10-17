@@ -32,7 +32,7 @@ import {
   getComponent,
   getMutableComponent,
   setComponent,
-  useComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
@@ -52,7 +52,10 @@ function MaterialPreviewCanvas() {
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const panel = document.getElementById(MATERIALS_PANEL_ID)
-  const materialComponent = useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!), MaterialStateComponent)
+  const materialComponent = useOptionalComponent(
+    UUIDComponent.getEntityByUUID(selectedMaterial.value!),
+    MaterialStateComponent
+  )
 
   useEffect(() => {
     if (!selectedMaterial.value) return
@@ -74,7 +77,7 @@ function MaterialPreviewCanvas() {
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])
     orbitCamera.refocus.set(true)
-  }, [selectedMaterial, materialComponent.material])
+  }, [selectedMaterial, materialComponent?.material])
 
   useEffect(() => {
     if (!panelRef?.current) return
