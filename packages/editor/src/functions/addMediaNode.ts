@@ -33,7 +33,6 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { GLTFComponent, loadGltfFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
@@ -103,7 +102,7 @@ export async function addMediaNode(
       //     (mesh: Mesh) => mesh?.isMesh
       //   )[0]
       //   if (!material) return
-      //   const materialEntity = createMaterialEntity(material)
+      //   const materialEntity = createMaterialEntity(materal)
       //   let foundTarget = false
       //   for (const intersection of intersections) {
       //     iterateObject3D(intersection.object, (mesh: Mesh) => {
@@ -134,18 +133,6 @@ export async function addMediaNode(
           })
         EditorControlFunctions.appendToSnapshot(gltf)
       })
-    } else if (contentType.startsWith('model/vrm')) {
-      EditorControlFunctions.createObjectFromSceneElement(
-        [
-          { name: GLTFComponent.jsonID, props: { src: url, progress: 0, body: null } },
-          { name: AvatarRigComponent.jsonID, props: { avatarURL: url } },
-          { name: ShadowComponent.jsonID },
-          { name: EnvmapComponent.jsonID },
-          ...extraComponentJson
-        ],
-        parent!,
-        before
-      )
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [

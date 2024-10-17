@@ -130,7 +130,7 @@ export const AvatarRigComponent = defineComponent({
       const vrm = createVRM(entity)
       setupAvatarProportions(entity, vrm)
       rigComponent.vrm.set(vrm)
-    }, [gltfComponent?.progress?.value, gltfComponent?.src])
+    }, [gltfComponent?.progress?.value, gltfComponent?.src.value])
 
     useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm) return

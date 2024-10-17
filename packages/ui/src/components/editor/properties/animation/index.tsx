@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent, hasComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { getOptionalComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -38,14 +38,13 @@ import { useState } from '@ir-engine/hyperflux'
 import { getCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { FaStreetView } from 'react-icons/fa'
 
-import Button from '@ir-engine/client-core/src/common/components/Button'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { getHips } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
@@ -65,7 +64,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
 
   const errors = getEntityErrors(props.entity, ModelComponent)
 
-  const canConvert = !hasComponent(entity, AvatarRigComponent) && getHips(entity)
+  const canConvert = getHips(entity)
 
   useEffect(() => {
     const animationComponent = getOptionalComponent(entity, AnimationComponent)
@@ -118,15 +117,12 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {canConvert && (
-        <Button
-          onClick={() => {
-            EditorControlFunctions.addOrRemoveComponent([entity], AvatarRigComponent, true, {
-              avatarURL: gltfComponent?.src.value
-            })
-          }}
-        >
-          Use VRM
-        </Button>
+        <InputGroup name="Use VRM" label={t('editor:properties.loopAnimation.lbl-useVRM')}>
+          <BooleanInput
+            value={loopAnimationComponent.useVRM.value}
+            onChange={commitProperty(LoopAnimationComponent, 'useVRM')}
+          />
+        </InputGroup>
       )}
     </NodeEditor>
   )

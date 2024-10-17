@@ -37,6 +37,8 @@ import {
 import {
   defineComponent,
   hasComponent,
+  removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -63,7 +65,7 @@ export const LoopAnimationComponent = defineComponent({
   schema: S.Object({
     activeClipIndex: S.Number(-1),
     animationPack: S.String(''),
-
+    useVRM: S.Bool(false),
     // TODO: support blending multiple animation actions. Refactor into AnimationMixerComponent and AnimationActionComponent
     enabled: S.Bool(true),
     paused: S.Bool(false),
@@ -108,6 +110,14 @@ export const LoopAnimationComponent = defineComponent({
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
     }, [loopAnimationComponent.activeClipIndex, rigComponent?.vrm, animComponent?.animations])
+
+    useEffect(() => {
+      if (!loopAnimationComponent.useVRM.value && hasComponent(entity, AvatarRigComponent))
+        removeComponent(entity, LoopAnimationComponent)
+      else if (loopAnimationComponent.useVRM.value && !hasComponent(entity, AvatarRigComponent)) {
+        setComponent(entity, AvatarRigComponent)
+      }
+    }, [loopAnimationComponent.useVRM.value])
 
     const animationAction = loopAnimationComponent._action.value as AnimationAction
 
@@ -173,7 +183,7 @@ export const LoopAnimationComponent = defineComponent({
       if (
         (!animationPackGLTF[0].value && loopAnimationComponent.animationPack.value !== '') ||
         !animComponent?.animations.value ||
-        //gltfComponent?.progress.value !== 100 ||
+        // gltfComponent?.progress.value !== 100 ||
         (loopAnimationComponent.animationPack.value != '' &&
           lastAnimationPack.value === loopAnimationComponent.animationPack.value)
       )
