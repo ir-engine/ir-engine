@@ -20,7 +20,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Id, NullableId } from '@feathersjs/feathers'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { ScopeType, UserType, scopePath, userPath } from '@ir-engine/common/src/schema.type.module'
+import { ScopeType, UserType, scopePath, userLoginPath, userPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -106,6 +106,13 @@ export default function UserTable({
 
   const createRows = (rows: readonly UserType[]): UserRowType[] =>
     rows.map((row) => {
+      const login = useFind(userLoginPath, {
+        query: {
+          userId: user.id,
+          $sort: { createdAt: -1 },
+          $limit: 1
+        }
+      })
       return {
         select: (
           <Checkbox
@@ -126,22 +133,22 @@ export default function UserTable({
         ),
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
-        lastLogin: row.lastLogin && (
+        lastLogin: login.data.length > 0 ? (
           <div className="flex">
-            {toDisplayDateTime(row.lastLogin.createdAt)}
+            {toDisplayDateTime(login.data[0].createdAt)}
             <Tooltip
               content={
                 <>
-                  <span>IP Address: {row.lastLogin.ipAddress}</span>
+                  <span>IP Address: {login.data[0].ipAddress}</span>
                   <br />
-                  <span>User Agent: {row.lastLogin.userAgent}</span>
+                  <span>User Agent: {login.data[0].userAgent}</span>
                 </>
               }
             >
               <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
             </Tooltip>
           </div>
-        ),
+        ) : <></>,
         acceptedTOS: row.acceptedTOS ? (
           <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
         ) : (

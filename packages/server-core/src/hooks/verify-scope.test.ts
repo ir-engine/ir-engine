@@ -74,14 +74,6 @@ describe('verify-scope', () => {
 
     user = await app.service(userPath).get(user.id, { user })
 
-    const user1ApiKeys = (await app.service(userApiKeyPath).find({
-      query: {
-        userId: user.id
-      }
-    })) as Paginated<UserApiKeyType>
-
-    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
-
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
@@ -136,14 +128,6 @@ describe('verify-scope', () => {
 
     user = await app.service(userPath).get(user.id, { user })
 
-    const user1ApiKeys = (await app.service(userApiKeyPath).find({
-      query: {
-        userId: user.id
-      }
-    })) as Paginated<UserApiKeyType>
-
-    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
-
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
@@ -175,14 +159,6 @@ describe('verify-scope', () => {
     })
 
     user = await app.service(userPath).get(user.id, { user })
-
-    const user1ApiKeys = (await app.service(userApiKeyPath).find({
-      query: {
-        userId: user.id
-      }
-    })) as Paginated<UserApiKeyType>
-
-    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)

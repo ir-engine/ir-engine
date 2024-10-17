@@ -50,6 +50,7 @@ import {
   clientSettingPath,
   identityProviderPath,
   scopePath,
+  userApiKeyPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -107,7 +108,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const clientSetting = useFind(clientSettingPath).data.at(0)
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
-  const apiKey = selfUser.apiKey?.token?.value
+  const apiKey = useFind(userApiKeyPath).data[0]
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = !!selfUser.acceptedTOS.value
 
@@ -486,7 +487,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </Text>
             )}
 
-            {hasAcceptedTermsAndAge && selfUser?.apiKey?.id && (
+            {hasAcceptedTermsAndAge && apiKey?.id && (
               <Text variant="body2" mt={1} onClick={() => showApiKey.set(!showApiKey.value)}>
                 {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
               </Text>
@@ -715,14 +716,14 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         {showApiKey.value && (
           <InputText
             label={t('user:usermenu.profile.apiKey')}
-            value={apiKey}
+            value={apiKey?.token}
             sx={{ mt: 2 }}
             endIcon={<Icon type="ContentCopy" />}
             startIcon={<Icon type="Refresh" />}
             startIconTitle={t('user:usermenu.profile.refreshApiKey')}
             onStartIconClick={refreshApiKey}
             onEndIconClick={() => {
-              navigator.clipboard.writeText(apiKey)
+              navigator.clipboard.writeText(apiKey?.token)
               NotificationService.dispatchNotify(t('user:usermenu.profile.apiKeyCopied'), {
                 variant: 'success'
               })

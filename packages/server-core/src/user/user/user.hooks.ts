@@ -43,6 +43,7 @@ import {
 } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
+import { userLoginPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -263,6 +264,22 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
   }
 }
 
+const addLastLogin = async (context: HookContext<UserService>) => {
+  const results = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+
+  for (const item of results) {
+    const user = item as UserType
+    const lastLogin = await context.app.service(userLoginPath).find({
+      query: {
+        userId: user.id,
+        $sort: { createdAt: -1 },
+        $limit: 1
+      }
+    })
+    user.lastLogin = lastLogin.data[0]
+  }
+}
+
 export default createSkippableHooks(
   {
     around: {
@@ -308,7 +325,7 @@ export default createSkippableHooks(
 
     after: {
       all: [],
-      find: [],
+      find: [iff(isProvider('external'), verifyScope('admin', 'admin'), addLastLogin)],
       get: [],
       create: [
         addUserSettings,

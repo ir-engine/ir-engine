@@ -35,7 +35,6 @@ import { TypedString } from '../../types/TypeboxUtils'
 import { ScopeType } from '../scope/scope.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { avatarDataSchema, AvatarID } from './avatar.schema'
-import { userApiKeySchema } from './user-api-key.schema'
 import { userLoginSchema } from './user-login.schema'
 
 export type { UserID }
@@ -68,7 +67,6 @@ export const userSchema = Type.Object(
     inviteCode: Type.Optional(TypedString<InviteCode>()),
     avatarId: TypedString<AvatarID>(),
     avatar: Type.Ref(avatarDataSchema),
-    apiKey: Type.Ref(userApiKeySchema),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

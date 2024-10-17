@@ -27,19 +27,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { locationAdminPath, LocationAdminType } from '@ir-engine/common/src/schemas/social/location-admin.schema'
-import { locationBanPath, LocationBanType } from '@ir-engine/common/src/schemas/social/location-ban.schema'
 import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
-import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { userAvatarPath, UserAvatarType } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
-import { userSettingPath, UserSettingType } from '@ir-engine/common/src/schemas/user/user-setting.schema'
 import { InviteCode, UserID, UserName, UserQuery, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { userLoginPath } from '@ir-engine/common/src/schemas/user/user-login.schema'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -70,27 +64,6 @@ export const userExternalResolver = resolve<UserType, HookContext>({
       } catch (err) {
         return {}
       }
-  }),
-  apiKey: virtual(async (user, context) => {
-    const apiKey = (await context.app.service(userApiKeyPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as UserApiKeyType[]
-
-    return apiKey.length > 0 ? apiKey[0] : undefined
-  }),
-  lastLogin: virtual(async (user, context) => {
-    const login = await context.app.service(userLoginPath).find({
-      query: {
-        userId: user.id,
-        $sort: { createdAt: -1 },
-        $limit: 1
-      },
-      paginate: false
-    })
-    return login.length > 0 ? login[0] : undefined
   }),
   // https://stackoverflow.com/a/56523892/2077741
   isGuest: async (value, user) => !!user.isGuest

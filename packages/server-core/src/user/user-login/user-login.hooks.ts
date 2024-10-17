@@ -29,7 +29,8 @@ import {
   userLoginPatchValidator,
   userLoginQueryValidator
 } from '@ir-engine/common/src/schemas/user/user-login.schema'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import verifyScope from '../../hooks/verify-scope'
 import {
   userLoginDataResolver,
   userLoginExternalResolver,
@@ -45,7 +46,7 @@ export default {
 
   before: {
     all: [schemaHooks.validateQuery(userLoginQueryValidator), schemaHooks.resolveQuery(userLoginQueryResolver)],
-    find: [disallow('external')],
+    find: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     get: [disallow()],
     create: [
       disallow('external'),
