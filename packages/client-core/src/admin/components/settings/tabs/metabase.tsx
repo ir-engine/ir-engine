@@ -24,7 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { metabaseSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { EngineSettingData, EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
@@ -41,61 +42,95 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
     loading: false,
     errorMessage: ''
   })
-  const id = useHookstate<string | undefined>(undefined)
   const siteUrl = useHookstate('')
   const secretKey = useHookstate('')
   const environment = useHookstate('')
-  const expiration = useHookstate(10)
+  const expiration = useHookstate('10')
   const crashDashboardId = useHookstate('')
-  const metabaseSettingMutation = useMutation(metabaseSettingPath)
+  const metabaseSettingMutation = useMutation(engineSettingPath)
 
-  const { data } = useFind(metabaseSettingPath)
+  const engineSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'metabase',
+      paginate: false
+    }
+  }).data
+
+  const secretValue = engineSettings.find((el) => el.key === EngineSettings.Metabase.SecretKey)?.value || ''
+  const siteUrlValue = engineSettings.find((el) => el.key === EngineSettings.Metabase.SiteUrl)?.value || ''
+  const environmentValue = engineSettings.find((el) => el.key === EngineSettings.Metabase.Environment)?.value || ''
+  const expirationValue = engineSettings.find((el) => el.key === EngineSettings.Metabase.Expiration)?.value || '10'
+  const crashDashboardIdValue =
+    engineSettings.find((el) => el.key === EngineSettings.Metabase.CrashDashboardId)?.value || ''
 
   useEffect(() => {
-    if (data.length) {
-      id.set(data[0].id)
-      siteUrl.set(data[0].siteUrl)
-      secretKey.set(data[0].secretKey)
-      environment.set(data[0].environment)
-      expiration.set(data[0].expiration)
-      crashDashboardId.set(data[0].crashDashboardId || '')
+    if (engineSettings.length) {
+      siteUrl.set(siteUrlValue)
+      secretKey.set(secretValue)
+      environment.set(environmentValue)
+      expiration.set(expirationValue)
+      crashDashboardId.set(crashDashboardIdValue)
     }
-  }, [data])
+  }, [engineSettings])
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
+  const handleSubmit = async (event) => {
+    try {
+      event.preventDefault()
 
-    if (!siteUrl.value || !secretKey.value || !environment.value) return
+      if (!siteUrl.value || !secretKey.value || !environment.value) return
 
-    state.loading.set(true)
+      state.loading.set(true)
 
-    const setting = {
-      siteUrl: siteUrl.value,
-      secretKey: secretKey.value,
-      environment: environment.value,
-      crashDashboardId: crashDashboardId.value
+      const setting = {
+        siteUrl: siteUrl.value,
+        secretKey: secretKey.value,
+        environment: environment.value,
+        crashDashboardId: crashDashboardId.value
+      }
+
+      const createData: EngineSettingData[] = []
+      const operations: Promise<EngineSettingType | EngineSettingType[]>[] = []
+
+      Object.values(EngineSettings.Metabase).forEach((key) => {
+        const settingInDb = engineSettings.find((el) => el.key === key)
+        if (!settingInDb) {
+          createData.push({
+            key,
+            category: 'metabase',
+            value: setting[key],
+            type: 'private'
+          })
+        } else if (settingInDb.value !== setting[key]) {
+          operations.push(
+            metabaseSettingMutation.patch(settingInDb.id, {
+              key,
+              category: 'metabase',
+              value: setting[key],
+              type: 'private'
+            })
+          )
+        }
+      })
+
+      if (createData.length > 0) {
+        const createOperation = metabaseSettingMutation.create(createData)
+        operations.push(createOperation)
+      }
+
+      await Promise.all(operations)
+      state.set({ loading: false, errorMessage: '' })
+    } catch (e) {
+      state.set({ loading: false, errorMessage: e.message })
     }
-
-    const operation = !id.value
-      ? metabaseSettingMutation.create(setting)
-      : metabaseSettingMutation.patch(id.value, setting)
-    operation
-      .then(() => {
-        state.set({ loading: false, errorMessage: '' })
-      })
-      .catch((e) => {
-        state.set({ loading: false, errorMessage: e.message })
-      })
   }
 
   const handleCancel = () => {
-    if (data.length) {
-      id.set(data[0].id)
-      siteUrl.set(data[0].siteUrl)
-      secretKey.set(data[0].secretKey)
-      environment.set(data[0].environment)
-      expiration.set(data[0].expiration)
-      crashDashboardId.set(data[0].crashDashboardId || '')
+    if (engineSettings.length) {
+      siteUrl.set(siteUrlValue)
+      secretKey.set(secretValue)
+      environment.set(environmentValue)
+      expiration.set(expirationValue)
+      crashDashboardId.set(crashDashboardIdValue)
     }
   }
 
@@ -135,7 +170,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
           type="number"
           label={t('admin:components.setting.metabase.expiration')}
           value={expiration?.value || 10}
-          onChange={(e) => expiration.set(isNaN(parseInt(e.target.value)) ? 10 : parseInt(e.target.value))}
+          onChange={(e) => expiration.set(e.target.value)}
         />
 
         <Input

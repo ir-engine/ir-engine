@@ -25,6 +25,4 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
 
-import * as metabaseSettingSeed from './metabase/metabase-setting/metabase-setting.seed'
-
-export const integrationsSeeds: Array<KnexSeed> = [metabaseSettingSeed]
+export const integrationsSeeds: Array<KnexSeed> = []

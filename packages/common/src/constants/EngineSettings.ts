@@ -37,6 +37,15 @@ export const EngineSettings = {
     ApiKey: 'apiKey',
     Url: 'url'
   },
+  Metabase: {
+    SiteUrl: 'siteUrl',
+    SecretKey: 'secretKey',
+    CrashDashboardId: 'crashDashboardId',
+    Expiration: 'expiration',
+    ProjectDashboardId: 'projectDashboardId',
+    AccountDashboardId: 'accountDashboardId',
+    Environment: 'environment'
+  },
   Redis: {
     Address: 'address',
     Password: 'password',
