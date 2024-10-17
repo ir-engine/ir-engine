@@ -31,10 +31,10 @@ import { BsLightning } from 'react-icons/bs'
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
-import NodeEditor from '../../nodeEditor'
 import LightShadowProperties from '../shadowProperties'
 
 /**
@@ -49,7 +49,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.directionalLight.name')}
       description={t('editor:properties.directionalLight.description')}
-      icon={<DirectionalLightNodeEditor.iconComponent />}
+      Icon={DirectionalLightNodeEditor.iconComponent}
     >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
         <ColorInput

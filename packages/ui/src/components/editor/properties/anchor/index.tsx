@@ -28,11 +28,11 @@ import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { PersistentAnchorComponent } from '@ir-engine/spatial/src/xr/XRAnchorComponents'
 import { MdAnchor } from 'react-icons/md'
 import InputGroup from '../../input/Group'
 import StringInput from '../../input/String'
-import NodeEditor from '../nodeEditor'
 
 export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -44,7 +44,7 @@ export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.persistent-anchor.name')}
       description={t('editor:properties.persistent-anchor.description')}
-      icon={<PersistentAnchorNodeEditor.iconComponent />}
+      Icon={PersistentAnchorNodeEditor.iconComponent}
     >
       <InputGroup name="Volume" label={t('editor:properties.persistent-anchor.lbl-name')}>
         <StringInput

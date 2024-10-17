@@ -21,6 +21,9 @@ Original Code is the Infinite Reality Engine team.
 
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
+/*
+CPAL-1.0 License
+...
 */
 
 import React from 'react'
@@ -29,11 +32,11 @@ import { FaSquareFull } from 'react-icons/fa6'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'
-import NodeEditor from '../nodeEditor'
 
 export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -45,7 +48,7 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.groundPlane.name')}
       description={t('editor:properties.groundPlane.description')}
-      icon={<GroundPlaneNodeEditor.iconComponent />}
+      Icon={GroundPlaneNodeEditor.iconComponent}
     >
       <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
         <ColorInput

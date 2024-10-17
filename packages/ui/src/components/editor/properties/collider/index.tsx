@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import React from 'react'
@@ -35,7 +36,6 @@ import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
-import NodeEditor from '../nodeEditor'
 
 const shapeTypeOptions = Object.entries(Shapes)
   .filter(([_, value]) => supportedColliderShapes.includes(value as any))
@@ -53,7 +53,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.collider.name')}
       description={t('editor:properties.collider.description')}
-      icon={<ColliderComponentEditor.iconComponent />}
+      Icon={ColliderComponentEditor.iconComponent}
     >
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput

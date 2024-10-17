@@ -42,6 +42,7 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import { bakeEnvmapTexture, uploadCubemapBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { imageDataToBlob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -55,7 +56,6 @@ import ImagePreviewInput from '../../input/Image/Preview'
 import SelectInput from '../../input/Select'
 import StringInput, { ControlledStringInput } from '../../input/String'
 import Vector3Input from '../../input/Vector3'
-import NodeEditor from '../nodeEditor'
 
 type PortalOptions = {
   label: string
@@ -128,7 +128,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.portal.name')}
       description={t('editor:properties.portal.description')}
-      icon={<PortalNodeEditor.iconComponent />}
+      Icon={PortalNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>

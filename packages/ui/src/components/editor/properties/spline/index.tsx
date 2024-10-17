@@ -32,6 +32,7 @@ import { MdOutlineTimeline } from 'react-icons/md'
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import { HiPlus } from 'react-icons/hi2'
 import { MdClear } from 'react-icons/md'
@@ -39,7 +40,6 @@ import { Quaternion, Vector3 } from 'three'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import Vector3Input from '../../input/Vector3'
-import NodeEditor from '../nodeEditor'
 
 /**
  * SplineNodeEditor used to create and customize splines in the scene.
@@ -56,7 +56,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       description={t('editor:properties.spline.description')}
-      icon={<SplineNodeEditor.iconComponent />}
+      Icon={SplineNodeEditor.iconComponent}
       {...props}
     >
       <div className="flex-strech flex w-full flex-row items-center gap-2 px-6 py-1">

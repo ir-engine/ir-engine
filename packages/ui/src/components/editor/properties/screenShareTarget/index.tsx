@@ -29,8 +29,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ScreenshareTargetComponent } from '@ir-engine/engine/src/scene/components/ScreenshareTargetComponent'
-import NodeEditor from '../nodeEditor'
 
 export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -41,7 +41,7 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
       component={ScreenshareTargetComponent}
       name={t('editor:properties.screenshare.name')}
       description={t('editor:properties.screenshare.description')}
-      icon={<ScreenshareTargetNodeEditor.iconComponent />}
+      Icon={ScreenshareTargetNodeEditor.iconComponent}
     />
   )
 }

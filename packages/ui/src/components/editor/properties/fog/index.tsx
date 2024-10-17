@@ -23,42 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { FogSettingsComponent, FogType } from '@ir-engine/spatial/src/renderer/components/FogSettingsComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { FogSettingsComponent, FogType } from '@ir-engine/spatial/src/renderer/components/FogSettingsComponent'
-
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { GiFog } from 'react-icons/gi'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 const FogTypeOptions = [
-  {
-    label: 'Disabled',
-    value: FogType.Disabled
-  },
-  {
-    label: 'Linear',
-    value: FogType.Linear
-  },
-  {
-    label: 'Exponential',
-    value: FogType.Exponential
-  },
-  {
-    label: 'Brownian Motion',
-    value: FogType.Brownian
-  },
-  {
-    label: 'Height',
-    value: FogType.Height
-  }
+  { label: 'Disabled', value: FogType.Disabled },
+  { label: 'Linear', value: FogType.Linear },
+  { label: 'Exponential', value: FogType.Exponential },
+  { label: 'Brownian Motion', value: FogType.Brownian },
+  { label: 'Height', value: FogType.Height }
 ]
 
 export const FogSettingsEditor: EditorComponentType = (props) => {
@@ -71,7 +55,7 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.fog.name')}
       description={t('editor:properties.fog.description')}
-      icon={<FogSettingsEditor.iconComponent />}
+      Icon={FogSettingsComponent.iconComponent}
     >
       <InputGroup name="Fog Type" label={t('editor:properties.fog.lbl-fogType')}>
         <SelectInput

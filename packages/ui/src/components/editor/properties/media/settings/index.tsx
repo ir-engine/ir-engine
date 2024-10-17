@@ -32,11 +32,11 @@ import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio
 import { MediaSettingsComponent } from '@ir-engine/engine/src/scene/components/MediaSettingsComponent'
 import { MdPermMedia } from 'react-icons/md'
 import Slider from '../../../../../primitives/tailwind/Slider'
+import ComponentDropdown from '../../../ComponentDropdown'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
-import PropertyGroup from '../../group'
 
 export const MediaSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -44,10 +44,10 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
   const mediaState = useComponent(props.entity, MediaSettingsComponent)
 
   return (
-    <PropertyGroup
+    <ComponentDropdown
       name={t('editor:properties.mediaSettings.name')}
       description={t('editor:properties.mediaSettings.description')}
-      icon={<MediaSettingsEditor.iconComponent />}
+      Icon={MediaSettingsEditor.iconComponent}
     >
       <InputGroup
         name="Media Distance Model"
@@ -185,7 +185,7 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(MediaSettingsComponent, 'coneOuterGain')}
         />
       </InputGroup>
-    </PropertyGroup>
+    </ComponentDropdown>
   )
 }
 

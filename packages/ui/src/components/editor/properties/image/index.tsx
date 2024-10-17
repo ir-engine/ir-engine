@@ -31,10 +31,10 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { LuImage } from 'react-icons/lu'
 import InputGroup from '../../input/Group'
 import ImageInput from '../../input/Image'
-import NodeEditor from '../nodeEditor'
 import ImageSourceProperties from './sourceProperties'
 
 export const ImageNodeEditor: EditorComponentType = (props) => {
@@ -48,7 +48,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.image.name')}
       description={t('editor:properties.image.description')}
-      icon={<ImageNodeEditor.iconComponent />}
+      Icon={ImageNodeEditor.iconComponent}
     >
       <InputGroup
         name="Image Url"

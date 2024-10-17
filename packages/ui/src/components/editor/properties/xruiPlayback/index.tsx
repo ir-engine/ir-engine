@@ -24,12 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuPlayCircle } from 'react-icons/lu'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
-import NodeEditor from '../nodeEditor'
 
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
@@ -45,7 +45,7 @@ export const XRUIPlaybackNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.xruiPlayback.name')}
       description={t('editor:properties.xruiPlayback.description')}
-      icon={<XRUIPlaybackNodeEditor.iconComponent />}
+      Icon={XRUIPlaybackNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup

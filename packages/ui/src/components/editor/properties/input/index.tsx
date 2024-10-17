@@ -32,6 +32,7 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -42,7 +43,6 @@ import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 export const InputComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -84,7 +84,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.input.name')}
       description={t('editor:properties.input.description')}
-      icon={<InputComponentNodeEditor.iconComponent />}
+      Icon={InputComponentNodeEditor.iconComponent}
     >
       <InputGroup name="ActivationDistance" label={t('editor:properties.input.lbl-activationDistance')}>
         <NumericInput

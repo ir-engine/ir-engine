@@ -31,6 +31,7 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
@@ -51,7 +52,6 @@ import InputGroup from '../../input/Group'
 import NodeInput from '../../input/Node'
 import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
-import NodeEditor from '../nodeEditor'
 
 const callbackQuery = defineQuery([CallbackComponent])
 
@@ -97,7 +97,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.trigger.name')}
       description={t('editor:properties.trigger.description')}
-      icon={<TriggerProperties.iconComponent />}
+      Icon={TriggerProperties.iconComponent}
     >
       <div className="my-3 flex justify-end">
         {!hasRigidbody && (

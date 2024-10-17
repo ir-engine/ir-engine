@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, hasComponent, useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
@@ -38,7 +39,6 @@ import { Scrubber } from 'react-scrubber'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
-import NodeEditor from '../../nodeEditor'
 
 interface OptionsType {
   value: number
@@ -88,7 +88,7 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
-      icon={<NewVolumetricNodeEditor.iconComponent />}
+      Icon={NewVolumetricNodeEditor.iconComponent}
     >
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
         <Slider

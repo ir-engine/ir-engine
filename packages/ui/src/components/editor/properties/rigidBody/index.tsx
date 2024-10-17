@@ -32,6 +32,7 @@ import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseTo
 import { getComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -43,7 +44,6 @@ import {
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 const bodyTypeOptions = Object.entries(BodyTypes).map(([label, value]) => {
   return { label: camelCaseToSpacedString(label as string), value }
@@ -79,7 +79,7 @@ export const RigidBodyComponentEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.rigidbody.name')}
       description={t('editor:properties.rigidbody.description')}
-      icon={<RigidBodyComponentEditor.iconComponent />}
+      Icon={RigidBodyComponentEditor.iconComponent}
     >
       <InputGroup name="Type" label={t('editor:properties.rigidbody.lbl-type')}>
         <SelectInput
