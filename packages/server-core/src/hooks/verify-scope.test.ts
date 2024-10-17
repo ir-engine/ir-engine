@@ -26,13 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import '../patchEngineNode'
 
 import { NotFound } from '@feathersjs/errors'
-import { HookContext, Paginated } from '@feathersjs/feathers/lib'
+import { HookContext } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
-import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 

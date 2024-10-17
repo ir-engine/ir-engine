@@ -39,7 +39,6 @@ import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@ir-engine/ui/src/primitives/tailwind/MultiSelect'
 import Select, { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 
-import { Engine } from '@ir-engine/ecs'
 import AccountIdentifiers from './AccountIdentifiers'
 
 const getDefaultErrors = () => ({

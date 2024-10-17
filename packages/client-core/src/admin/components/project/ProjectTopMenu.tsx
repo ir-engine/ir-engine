@@ -37,7 +37,6 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 import { useFind } from '@ir-engine/common'
 import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import UpdateEngineModal from './UpdateEngineModal'

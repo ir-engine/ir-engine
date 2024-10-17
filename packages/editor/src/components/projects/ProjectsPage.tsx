@@ -32,7 +32,13 @@ import { ProjectService } from '@ir-engine/client-core/src/common/services/Proje
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useFind } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { ProjectType, ScopeType, identityProviderPath, projectPath, scopePath } from '@ir-engine/common/src/schema.type.module'
+import {
+  ProjectType,
+  ScopeType,
+  identityProviderPath,
+  projectPath,
+  scopePath
+} from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { Engine } from '@ir-engine/ecs'

@@ -98,7 +98,6 @@ export const UserSeed: UserType = {
   updatedAt: ''
 }
 
-
 const invalidDomainHandling = (error: MessageResponse): void => {
   if (error?.data?.invalidDomain) {
     try {

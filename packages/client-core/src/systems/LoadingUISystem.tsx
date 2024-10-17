@@ -61,17 +61,16 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@ir-engine/xrui'
 
+import { useFind } from '@ir-engine/common'
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
-import { AuthState } from '../user/services/AuthService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
-import { useFind } from '@ir-engine/common'
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 
 const SCREEN_SIZE = new Vector2()
 

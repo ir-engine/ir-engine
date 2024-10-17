@@ -133,22 +133,25 @@ export default function UserTable({
         ),
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
-        lastLogin: login.data.length > 0 ? (
-          <div className="flex">
-            {toDisplayDateTime(login.data[0].createdAt)}
-            <Tooltip
-              content={
-                <>
-                  <span>IP Address: {login.data[0].ipAddress}</span>
-                  <br />
-                  <span>User Agent: {login.data[0].userAgent}</span>
-                </>
-              }
-            >
-              <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
-            </Tooltip>
-          </div>
-        ) : <></>,
+        lastLogin:
+          login.data.length > 0 ? (
+            <div className="flex">
+              {toDisplayDateTime(login.data[0].createdAt)}
+              <Tooltip
+                content={
+                  <>
+                    <span>IP Address: {login.data[0].ipAddress}</span>
+                    <br />
+                    <span>User Agent: {login.data[0].userAgent}</span>
+                  </>
+                }
+              >
+                <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
+              </Tooltip>
+            </div>
+          ) : (
+            <></>
+          ),
         acceptedTOS: row.acceptedTOS ? (
           <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
         ) : (

@@ -32,9 +32,15 @@ import InputSlider from '@ir-engine/client-core/src/common/components/InputSlide
 import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import Tabs from '@ir-engine/client-core/src/common/components/Tabs'
 import Text from '@ir-engine/client-core/src/common/components/Text'
-import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@ir-engine/common/src/constants/DefaultThemeSettings'
-import { ScopeType, UserSettingPatch, clientSettingPath, scopePath, userSettingPath } from '@ir-engine/common/src/schema.type.module'
+import {
+  ScopeType,
+  UserSettingPatch,
+  clientSettingPath,
+  scopePath,
+  userSettingPath
+} from '@ir-engine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import {
@@ -140,12 +146,15 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     const { name, value } = event.target
 
     const settings: UserSettingPatch = { themeModes: { ...themeModes, [name]: value } }
-    API.instance.service(userSettingPath).patch(userSettings.id, settings).then(() =>
-      logger.info({
-        event_name: `change_${name}_theme`,
-        event_value: value
-      })
-    )
+    API.instance
+      .service(userSettingPath)
+      .patch(userSettings.id, settings)
+      .then(() =>
+        logger.info({
+          event_name: `change_${name}_theme`,
+          event_value: value
+        })
+      )
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {

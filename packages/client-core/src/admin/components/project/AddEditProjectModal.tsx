@@ -31,9 +31,13 @@ import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
-import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
-import { identityProviderPath, ProjectBranchType, ProjectCommitType, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import {
+  identityProviderPath,
+  ProjectBranchType,
+  ProjectCommitType,
+  ProjectType
+} from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -46,10 +50,9 @@ import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
+import { useFind } from '@ir-engine/common'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
-import { useFind } from '@ir-engine/common'
-import { Engine } from '@ir-engine/ecs'
 
 const autoUpdateIntervalOptions = [
   {
