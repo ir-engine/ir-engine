@@ -42,6 +42,7 @@ import { githubRepoAccessWebhookPath } from '@ir-engine/common/src/schemas/user/
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
+import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { createHash } from 'crypto'
 import {
@@ -204,7 +205,8 @@ const instanceserver = {
   releaseName: process.env.RELEASE_NAME || 'local',
   port: process.env.INSTANCESERVER_PORT!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
-  shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
+  shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0,
+  webRTCSettings: defaultWebRTCSettings
 }
 
 /**

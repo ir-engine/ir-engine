@@ -41,9 +41,11 @@ export const engineSettingSchema = Type.Object(
       format: 'uuid'
     }),
     key: Type.String(),
-    value: Type.String(),
+    value: Type.String({
+      maxLength: 4095
+    }),
     type: StringEnum(['private', 'public']),
-    category: StringEnum(['aws', 'server', 'task-server', 'chargebee', 'coil', 'zendesk', 'redis']),
+    category: StringEnum(['aws', 'server', 'task-server', 'chargebee', 'coil', 'zendesk', 'instance-server', 'redis']),
     updatedBy: Type.Optional(
       TypedString<UserID>({
         format: 'uuid'
