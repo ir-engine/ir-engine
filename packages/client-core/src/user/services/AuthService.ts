@@ -44,8 +44,6 @@ import {
   UserName,
   UserPatch,
   UserPublicPatch,
-  UserSettingID,
-  UserSettingPatch,
   UserSettingType,
   UserType,
   avatarPath,
@@ -103,14 +101,6 @@ export const UserSeed: UserType = {
     updatedAt: ''
   },
   acceptedTOS: false,
-  userSetting: {
-    id: '' as UserSettingID,
-    themeModes: {},
-    userId: '' as UserID,
-    createdAt: '',
-    updatedAt: ''
-  },
-  locationAdmins: [],
   lastLogin: {
     id: '',
     ipAddress: '',
@@ -369,16 +359,13 @@ export const AuthService = {
     try {
       const client = API.instance
       const user = await client.service(userPath).get(userId)
-      if (!user.userSetting) {
-        const settingsRes = (await client
-          .service(userSettingPath)
-          .find({ query: { userId: userId } })) as Paginated<UserSettingType>
 
-        if (settingsRes.total === 0) {
-          user.userSetting = await client.service(userSettingPath).create({ userId: userId })
-        } else {
-          user.userSetting = settingsRes.data[0]
-        }
+      const settingsRes = (await client
+        .service(userSettingPath)
+        .find({ query: { userId: userId } })) as Paginated<UserSettingType>
+
+      if (settingsRes.total === 0) {
+        await client.service(userSettingPath).create({ userId: userId })
       }
       if (!user.avatarId) {
         const avatars = await client.service(avatarPath).find({
@@ -819,11 +806,6 @@ export const AuthService = {
 
   refreshConnections(userId: UserID) {
     AuthService.loadUserData(userId)
-  },
-
-  async updateUserSettings(id: UserSettingID, data: UserSettingPatch) {
-    const response = await API.instance.service(userSettingPath).patch(id, data)
-    getMutableState(AuthState).user.userSetting.merge(response)
   },
 
   async removeUser(userId: UserID) {

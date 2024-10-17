@@ -34,7 +34,7 @@ import Tabs from '@ir-engine/client-core/src/common/components/Tabs'
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@ir-engine/common/src/constants/DefaultThemeSettings'
-import { ScopeType, UserSettingPatch, clientSettingPath, scopePath } from '@ir-engine/common/src/schema.type.module'
+import { ScopeType, UserSettingPatch, clientSettingPath, scopePath, userSettingPath } from '@ir-engine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import {
@@ -50,7 +50,7 @@ import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
-import { useFind } from '@ir-engine/common'
+import { API, useFind } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
 import { Engine } from '@ir-engine/ecs'
 import { clientContextParams } from '../../../../util/ClientContextState'
@@ -108,9 +108,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const handOptions = ['left', 'right']
   const selectedTab = useHookstate('general')
 
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSettings = clientSettingQuery.data[0]
-  const userSettings = selfUser.userSetting.value
+  const clientSettings = useFind(clientSettingPath).data[0]
+  const userSettings = useFind(userSettingPath).data[0]
 
   const adminScopeQuery = useFind(scopePath, {
     query: {
@@ -141,7 +140,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     const { name, value } = event.target
 
     const settings: UserSettingPatch = { themeModes: { ...themeModes, [name]: value } }
-    AuthService.updateUserSettings(userSettings.id, settings).then(() =>
+    API.instance.service(userSettingPath).patch(userSettings.id, settings).then(() =>
       logger.info({
         event_name: `change_${name}_theme`,
         event_value: value

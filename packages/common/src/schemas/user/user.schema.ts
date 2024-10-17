@@ -33,12 +33,8 @@ import { UserID } from '@ir-engine/hyperflux'
 import { USERNAME_MAX_LENGTH } from '../../constants/UserConstants'
 import { TypedString } from '../../types/TypeboxUtils'
 import { ScopeType } from '../scope/scope.schema'
-import { locationAdminSchema } from '../social/location-admin.schema'
-import { locationBanSchema } from '../social/location-ban.schema'
-import { userSettingSchema } from '../user/user-setting.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { avatarDataSchema, AvatarID } from './avatar.schema'
-import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
 import { userLoginSchema } from './user-login.schema'
 
@@ -72,9 +68,7 @@ export const userSchema = Type.Object(
     inviteCode: Type.Optional(TypedString<InviteCode>()),
     avatarId: TypedString<AvatarID>(),
     avatar: Type.Ref(avatarDataSchema),
-    userSetting: Type.Ref(userSettingSchema),
     apiKey: Type.Ref(userApiKeySchema),
-    locationAdmins: Type.Array(Type.Ref(locationAdminSchema)),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

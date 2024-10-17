@@ -71,16 +71,6 @@ export const userExternalResolver = resolve<UserType, HookContext>({
         return {}
       }
   }),
-  userSetting: virtual(async (user, context) => {
-    const userSetting = (await context.app.service(userSettingPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as UserSettingType[]
-
-    return userSetting.length > 0 ? userSetting[0] : undefined
-  }),
   apiKey: virtual(async (user, context) => {
     const apiKey = (await context.app.service(userApiKeyPath).find({
       query: {
@@ -90,14 +80,6 @@ export const userExternalResolver = resolve<UserType, HookContext>({
     })) as UserApiKeyType[]
 
     return apiKey.length > 0 ? apiKey[0] : undefined
-  }),
-  locationAdmins: virtual(async (user, context) => {
-    return (await context.app.service(locationAdminPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as LocationAdminType[]
   }),
   lastLogin: virtual(async (user, context) => {
     const login = await context.app.service(userLoginPath).find({
