@@ -25,13 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../patchEngineNode'
 
-import { HookContext, Paginated } from '@feathersjs/feathers/lib'
+import { HookContext } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
-import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -68,19 +67,10 @@ describe('check-scope', () => {
       name,
       isGuest,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     user = await app.service(userPath).get(user.id, { user })
-
-    const user1ApiKeys = (await app.service(userApiKeyPath).find({
-      query: {
-        userId: user.id
-      }
-    })) as Paginated<UserApiKeyType>
-
-    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
     const checkLocationReadScope = checkScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -100,8 +90,7 @@ describe('check-scope', () => {
       name,
       isGuest,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     await app.service(scopePath).create({
@@ -129,8 +118,7 @@ describe('check-scope', () => {
       name,
       isGuest,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     await app.service(scopePath).create({
@@ -139,14 +127,6 @@ describe('check-scope', () => {
     })
 
     user = await app.service(userPath).get(user.id, { user })
-
-    const user1ApiKeys = (await app.service(userApiKeyPath).find({
-      query: {
-        userId: user.id
-      }
-    })) as Paginated<UserApiKeyType>
-
-    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
     const checkLocationReadScope = checkScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -166,8 +146,7 @@ describe('check-scope', () => {
       name,
       isGuest,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     await app.service(scopePath).create({
@@ -181,14 +160,6 @@ describe('check-scope', () => {
     })
 
     user = await app.service(userPath).get(user.id, { user })
-
-    const user1ApiKeys = (await app.service(userApiKeyPath).find({
-      query: {
-        userId: user.id
-      }
-    })) as Paginated<UserApiKeyType>
-
-    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
     const checkLocationReadScope = checkScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)

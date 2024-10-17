@@ -36,20 +36,23 @@ import {
   RiTwitterXFill
 } from 'react-icons/ri'
 
-import { IdentityProviderType, UserType } from '@ir-engine/common/src/schema.type.module'
+import { useFind } from '@ir-engine/common'
+import { identityProviderPath, IdentityProviderType, UserType } from '@ir-engine/common/src/schema.type.module'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 export default function AccountIdentifiers({ user }: { user: UserType }) {
-  const appleIp = user.identityProviders.find((ip) => ip.type === 'apple')
-  const discordIp = user.identityProviders.find((ip) => ip.type === 'discord')
-  const googleIp = user.identityProviders.find((ip) => ip.type === 'google')
-  const facebookIp = user.identityProviders.find((ip) => ip.type === 'facebook')
-  const twitterIp = user.identityProviders.find((ip) => ip.type === 'twitter')
-  const linkedinIp = user.identityProviders.find((ip) => ip.type === 'linkedin')
-  const githubIp = user.identityProviders.find((ip) => ip.type === 'github')
-  const emailIp = user.identityProviders.find((ip) => ip.type === 'email')
-  const smsIp = user.identityProviders.find((ip) => ip.type === 'sms')
+  const identityProvidersQuery = useFind(identityProviderPath, { query: { userId: user.id } })
+
+  const appleIp = identityProvidersQuery.data.find((ip) => ip.type === 'apple')
+  const discordIp = identityProvidersQuery.data.find((ip) => ip.type === 'discord')
+  const googleIp = identityProvidersQuery.data.find((ip) => ip.type === 'google')
+  const facebookIp = identityProvidersQuery.data.find((ip) => ip.type === 'facebook')
+  const twitterIp = identityProvidersQuery.data.find((ip) => ip.type === 'twitter')
+  const linkedinIp = identityProvidersQuery.data.find((ip) => ip.type === 'linkedin')
+  const githubIp = identityProvidersQuery.data.find((ip) => ip.type === 'github')
+  const emailIp = identityProvidersQuery.data.find((ip) => ip.type === 'email')
+  const smsIp = identityProvidersQuery.data.find((ip) => ip.type === 'sms')
 
   const getAccountIdentifierTitle = (ip: IdentityProviderType) => {
     return (

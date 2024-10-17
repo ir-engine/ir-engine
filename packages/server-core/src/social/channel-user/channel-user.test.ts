@@ -62,8 +62,7 @@ describe('channel-user service', () => {
       name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const channel = await app.service(channelPath).create({}, { user })
@@ -106,16 +105,14 @@ describe('channel-user service', () => {
       name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const user2 = await app.service(userPath).create({
       name: 'user2' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
@@ -190,8 +187,7 @@ describe('channel-user service', () => {
       name: 'user' as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const channel = await app.service(channelPath).create({})

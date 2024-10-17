@@ -30,11 +30,11 @@ import { validate as isValidUUID } from 'uuid'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { locationPath, LocationType } from '@ir-engine/common/src/schema.type.module'
+import { locationPath, LocationType, scopePath, ScopeType } from '@ir-engine/common/src/schema.type.module'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
-import { userHasAccess } from '../../../user/userHasAccess'
+import { Engine } from '@ir-engine/ecs'
 import { locationColumns, LocationRowType } from '../../common/constants/location'
 import DataTable from '../../common/Table'
 import AddEditLocationModal from './AddEditLocationModal'
@@ -43,6 +43,15 @@ const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
 export default function LocationTable({ search }: { search: string }) {
   const { t } = useTranslation()
+
+  const scopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'location:write' as ScopeType
+    }
+  })
+
+  const userHasAccess = scopeQuery.data.length > 0
 
   const adminLocationQuery = useFind(locationPath, {
     query: {
@@ -104,7 +113,7 @@ export default function LocationTable({ search }: { search: string }) {
             rounded="full"
             variant="outline"
             className="h-8 w-8"
-            disabled={!userHasAccess('location:write')}
+            disabled={!userHasAccess}
             title={t('admin:components.common.view')}
             startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
             onClick={() => PopoverState.showPopupover(<AddEditLocationModal action="admin" location={row} />)}

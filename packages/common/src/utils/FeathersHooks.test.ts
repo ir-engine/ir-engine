@@ -199,7 +199,7 @@ describe('FeathersHooks', () => {
         rerender()
       })
       await act(() => {
-        result.current.create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+        result.current.create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true })
       })
       const findHook = renderHook(() => {
         return useFind(userPath)
@@ -287,9 +287,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          API.instance
-            .service(userPath)
-            .create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+          API.instance.service(userPath).create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true })
         })
         await act(() => {
           rerender()
@@ -310,9 +308,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          API.instance
-            .service(userPath)
-            .create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+          API.instance.service(userPath).create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true })
         })
         await act(() => {
           rerender()
