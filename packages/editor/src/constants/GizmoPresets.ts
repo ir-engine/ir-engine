@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   BoxGeometry,
   BufferGeometry,
@@ -219,9 +218,11 @@ const matGray = getGizmoMaterial(GizmoMaterial.GRAY);
 // reusable geometry
 
 const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12).translate(0, 0.05, 0)
+const sphereGeometry = new SphereGeometry(0.075)
 const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08).translate(0, 0.04, 0)
 const lineGeometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3))
-const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3).translate(0, 0.25, 0)
+const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 4).translate(0, 0.25, 0)
+const lineGeometry3 = new CylinderGeometry(0.02, 0.02, 0.5, 4).translate(0, 0.25, 0)
 
 //plane geomerty
 const gizmoPlane = new Mesh(
@@ -256,6 +257,30 @@ function TranslateHelperGeometry() {
 // Creates an Object3D with gizmos described in custom hierarchy definition.
 
 // Gizmo definitions - custom hierarchy definitions for setupGizmo() function
+
+const cameraGizmo = {
+  X: [
+    [new Mesh(sphereGeometry, matRed.clone()), [0.5, 0, 0]],
+    [new Mesh(lineGeometry3, matRed.clone()), [0, 0, 0], [0, 0, -Math.PI / 2]]
+  ],
+  Xn: [[new Mesh(sphereGeometry, matRed.clone()), [-0.5, 0, 0]]],
+  Y: [[new Mesh(sphereGeometry, matGreen.clone()), [0, 0.5, 0]], [new Mesh(lineGeometry3, matGreen.clone())]],
+  Yn: [[new Mesh(sphereGeometry, matGreen.clone()), [0, -0.5, 0]]],
+  Z: [
+    [new Mesh(sphereGeometry, matBlue.clone()), [0, 0, 0.5]],
+    [new Mesh(lineGeometry3, matBlue.clone()), null, [Math.PI / 2, 0, 0]]
+  ],
+  Zn: [[new Mesh(sphereGeometry, matBlue.clone()), [0, 0, -0.5]]]
+}
+
+const cameraPicker = {
+  X: [[new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0.3, 0, 0], [0, 0, -Math.PI / 2]]],
+  Xn: [[new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [-0.3, 0, 0], [0, 0, Math.PI / 2]]],
+  Y: [[new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0.3, 0]]],
+  Yn: [[new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, -0.3, 0], [0, 0, Math.PI]]],
+  Z: [[new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, 0.3], [Math.PI / 2, 0, 0]]],
+  Zn: [[new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, -0.3], [-Math.PI / 2, 0, 0]]]
+}
 
 const gizmoTranslate = {
   X: [
@@ -407,7 +432,6 @@ function setupGizmo(gizmoMap) {
       tempGeometry.applyMatrix4(object.matrix)
       object.geometry = tempGeometry
       object.renderOrder = Infinity
-      object.layers.set(ObjectLayers.TransformGizmo)
       object.position.set(0, 0, 0)
       object.rotation.set(0, 0, 0)
       object.scale.set(1, 1, 1)
@@ -421,6 +445,8 @@ function setupGizmo(gizmoMap) {
 
 export {
   GizmoMaterial,
+  cameraGizmo,
+  cameraPicker,
   gizmoMaterialProperties,
   gizmoPlane,
   gizmoRotate,

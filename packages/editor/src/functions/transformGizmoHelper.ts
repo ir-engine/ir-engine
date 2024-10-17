@@ -45,8 +45,8 @@ import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
-import { TransformGizmoVisualComponent } from '../classes/TransformGizmoVisualComponent'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
+import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'
 import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'

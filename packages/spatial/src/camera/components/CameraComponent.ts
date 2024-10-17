@@ -58,3 +58,5 @@ export const CameraComponent = defineComponent({
     return null
   }
 })
+
+export const CameraGizmoTagComponent = defineComponent({ name: 'CameraGizmoTag' })

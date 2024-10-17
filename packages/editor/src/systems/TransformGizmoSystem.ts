@@ -31,9 +31,9 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 
-import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
-import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
-import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/gizmoHelper'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
+import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
+import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformGizmoHelper'
 import { SelectionState } from '../services/SelectionServices'
 
 const sourceQuery = defineQuery([SourceComponent, TransformGizmoControlledComponent])
@@ -68,8 +68,8 @@ const reactor = () => {
   return null
 }
 
-export const GizmoSystem = defineSystem({
-  uuid: 'ee.editor.GizmoSystem',
+export const TransformGizmoSystem = defineSystem({
+  uuid: 'ee.editor.TransformGizmoSystem',
   insert: { with: AnimationSystemGroup },
   execute,
   reactor

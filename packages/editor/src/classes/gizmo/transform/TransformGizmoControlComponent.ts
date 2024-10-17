@@ -53,7 +53,7 @@ import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/I
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { gizmoPlane } from '../constants/GizmoPresets'
+import { gizmoPlane } from '../../../constants/GizmoPresets'
 import {
   onGizmoCommit,
   onPointerDown,
@@ -61,8 +61,8 @@ import {
   onPointerLost,
   onPointerMove,
   onPointerUp
-} from '../functions/gizmoHelper'
-import { EditorHelperState } from '../services/EditorHelperState'
+} from '../../../functions/transformGizmoHelper'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
 export const TransformGizmoControlComponent = defineComponent({

@@ -44,8 +44,8 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { EditorHelperState } from '../services/EditorHelperState'
-import { SelectionState } from '../services/SelectionServices'
+import { EditorHelperState } from '../../../services/EditorHelperState'
+import { SelectionState } from '../../../services/SelectionServices'
 import { TransformGizmoControlComponent } from './TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 

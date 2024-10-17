@@ -50,11 +50,12 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
 import { EditorState } from '../../services/EditorServices'
-import GizmoTool from './tools/GizmoTool'
+import CameraGizmoTool from './tools/CameraGizmoTool'
 import GridTool from './tools/GridTool'
 import PlayModeTool from './tools/PlayModeTool'
 import RenderModeTool from './tools/RenderTool'
 import SceneHelpersTool from './tools/SceneHelpersTool'
+import TransformGizmoTool from './tools/TransformGizmoTool'
 import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
 import TransformSpaceTool from './tools/TransformSpaceTool'
@@ -163,7 +164,8 @@ function ViewportContainer() {
           <RenderModeTool />
           <PlayModeTool />
         </div>
-        {sceneName.value ? <GizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <TransformGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (
           <>
             <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />

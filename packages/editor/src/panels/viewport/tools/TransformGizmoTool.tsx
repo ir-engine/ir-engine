@@ -44,7 +44,7 @@ function Placer() {
   )
 }
 
-export default function GizmoTool({
+export default function TransformGizmoTool({
   viewportRef,
   toolbarRef
 }: {
