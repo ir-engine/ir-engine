@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { EntityUUID, SerializedComponentType } from '@ir-engine/ecs'
-import { DirectionalLightComponent } from '@ir-engine/spatial'
 
+import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneJsonType } from '../types/SceneTypes'
 

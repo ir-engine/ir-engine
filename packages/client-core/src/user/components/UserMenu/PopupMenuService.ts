@@ -31,7 +31,7 @@ export const PopupMenuState = defineState({
     openMenu: null as string | null,
     params: null as object | null,
     menus: {} as { [id: string]: UserMenuPanelType },
-    hotbar: {} as { [id: string]: { icon: React.ReactNode; tooltip: string } }
+    hotbar: {} as { [id: string]: { icon: React.ReactNode; tooltip: string; disabled?: boolean } }
   })
 })
 
@@ -47,7 +47,8 @@ export const PopupMenuServices = {
     menu?: UserMenuPanelType,
     tooltip?: string,
     icon?: React.ReactNode,
-    unregister?: boolean
+    unregister?: boolean,
+    disabled = false
   ) => {
     const s = getMutableState(PopupMenuState)
     if (unregister) {
@@ -55,7 +56,7 @@ export const PopupMenuServices = {
       s.hotbar.merge({ [id]: none })
     } else {
       if (menu) s.menus.merge({ [id]: menu })
-      if (icon) s.hotbar.merge({ [id]: { icon: icon!, tooltip: tooltip! } })
+      if (icon) s.hotbar.merge({ [id]: { icon: icon!, tooltip: tooltip!, disabled: disabled } })
     }
   }
 }

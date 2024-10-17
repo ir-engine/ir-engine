@@ -23,12 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
+import { afterAll, beforeAll, describe } from 'vitest'
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
@@ -39,8 +42,8 @@ const testProject = 'test-project'
 describe('upload-asset', () => {
   let app: Application
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
     const url = storageProvider.getCachedURL('/projects/default-project/public/scenes/default.gltf')
@@ -61,7 +64,7 @@ describe('upload-asset', () => {
     })
   })
 
-  after(async () => {
+  afterAll(async () => {
     restoreFetch()
     await tearDownAPI()
     destroyEngine()

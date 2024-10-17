@@ -125,7 +125,11 @@
     "share": {
       "lbl-share": "Share",
       "ph-phoneEmail": "Invite by email or phone number",
+      "ph-email": "Invite by email",
+      "ph-phone": "Invite by phone number",
       "lbl-phoneEmail": "Send to email or phone number",
+      "lbl-email": "Send to email",
+      "lbl-phone": "Send to phone number",
       "lbl-copy": "Copy",
       "lbl-send-invite": "Send Invite",
       "lbl-spectator-mode": "Spectator Mode",

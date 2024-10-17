@@ -28,6 +28,7 @@ import { compress, decompress } from 'fflate'
 import { Packr, Unpackr } from 'msgpackr'
 import { Matrix4 } from 'three'
 
+import { isClient } from '@ir-engine/hyperflux'
 import {
   Bounds,
   downloadBlob,
@@ -109,7 +110,7 @@ export class LayerStore extends Dexie {
   textures!: Table<TextureStoreData>
 
   constructor(name: string) {
-    super(name)
+    super(name, { indexedDB: globalThis.indexedDB, IDBKeyRange: globalThis.IDBKeyRange })
     this.version(3).stores({
       states: '&hash',
       textures: '&hash, timestamp'
@@ -503,8 +504,9 @@ export class WebLayerManagerBase {
 
       const hashComponents = [...svgCSS.map((s) => s.hash), parentsHTML[0], layerHTML, parentsHTML[1]].join('\n')
 
-      // @ts-ignore
-      const stateHashBuffer = await crypto.subtle.digest('SHA-1', WebRenderer.textEncoder.encode(hashComponents))
+      const stateHashBuffer = isClient
+        ? await crypto.subtle.digest('SHA-1', WebRenderer.textEncoder.encode(hashComponents))
+        : new ArrayBuffer(0)
       const stateHash =
         bufferToHex(stateHashBuffer) +
         '?w=' +

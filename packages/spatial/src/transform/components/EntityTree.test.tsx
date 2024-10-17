@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { EntityUUID, hasComponents, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'

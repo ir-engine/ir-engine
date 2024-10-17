@@ -37,7 +37,7 @@ import {
   updateComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -193,9 +193,13 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
+    const materialEntity = UUIDComponent.getEntityByUUID(materialId)
+    const sceneID = getComponent(materialEntity, SourceComponent)
+    getMutableState(GLTFModifiedState)[sceneID].set(true)
     material.needsUpdate = true
   }
 }
+
 const overwriteLookdevObject = (
   beforeComponentJson: ComponentJsonType[] = [],
   componentJson: ComponentJsonType[] = [],
@@ -248,14 +252,18 @@ const overwriteLookdevObject = (
 const createObjectFromSceneElement = (
   componentJson: ComponentJsonType[] = [],
   parentEntity = getState(EditorState).rootEntity,
-  beforeEntity?: Entity
+  beforeEntity?: Entity,
+  requestedName?: string
 ): { entityUUID: EntityUUID; sceneID: string } => {
   const scenes = getSourcesForEntities([parentEntity])
   const entityUUID: EntityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
   const sceneIDUsed = Object.keys(scenes)[0]
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const name = 'New Object'
+    let name = 'New Object'
+    if (requestedName) {
+      name = requestedName
+    }
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
     const nodeIndex = gltf.data.nodes!.length
@@ -382,7 +390,7 @@ const duplicateObject = (entities: Entity[]) => {
         const parentEntity = getComponent(rootEntity, EntityTreeComponent).parentEntity
         if (!parentEntity) throw new Error('Root entity must have a parent')
         const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
-        const parentNode = getParentNodeByUUID(gltf.data, parentEntityUUID)
+        const parentNode = getGLTFNodeByUUID(gltf.data, parentEntityUUID)
         if (!parentNode) throw new Error('Parent node not found')
         if (!parentNode.children) parentNode.children = []
         parentNode.children.push(newIndex)

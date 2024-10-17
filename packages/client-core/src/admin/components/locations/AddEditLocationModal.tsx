@@ -56,13 +56,18 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-export default function AddEditLocationModal(props: { location?: LocationType; sceneID?: string | null }) {
+export default function AddEditLocationModal(props: {
+  action: string
+  location?: LocationType
+  sceneID?: string | null
+}) {
   const { t } = useTranslation()
 
   const locationID = useHookstate(props.location?.id || null)
 
   const params = {
     query: {
+      action: props.action,
       id: locationID.value
     }
   }
