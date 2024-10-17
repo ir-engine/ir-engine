@@ -76,7 +76,7 @@ export default function UserTable({
   const scopeQuery = useFind(scopePath, {
     query: {
       userId: Engine.instance.store.userID,
-      type: 'location:write' as ScopeType
+      type: 'location:write' as ScopeType, paginate: false
     }
   })
 

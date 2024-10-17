@@ -123,7 +123,7 @@ const AdminSideBar = () => {
 
 const AdminRoutes = () => {
   const location = useLocation()
-  const scopes = useFind(scopePath, { query: { userId: Engine.instance.store.userID } }).data
+  const scopeQuery = useFind(scopePath, { query: { userId: Engine.instance.store.userID, paginate: false } })
 
   const allowedRoutes = useMutableState(AllowedAdminRoutesState)
 
@@ -136,21 +136,23 @@ const AdminRoutes = () => {
       const routeScope = state.scope.value
       const hasScope =
         routeScope === '' ||
-        scopes?.find((scope) => {
+        scopeQuery.data.find((scope) => {
           const [scopeKey, type] = scope.type.split(':')
           return Array.isArray(routeScope) ? routeScope.includes(scopeKey) : scopeKey === routeScope
         })
       state.access.set(!!hasScope)
     }
-  }, [scopes])
+  }, [scopeQuery.data])
 
   useEffect(() => {
-    if (!scopes.find((scope) => scope.type === 'admin:admin')) {
+    if (scopeQuery.status !== 'success') return
+
+    if (!scopeQuery.data.find((scope) => scope.type === 'admin:admin')) {
       RouterState.navigate('/', { redirectUrl: location.pathname })
     }
-  }, [scopes])
+  }, [scopeQuery.data])
 
-  if (!scopes.find((scope) => scope.type === 'admin:admin')) {
+  if (!scopeQuery.data.find((scope) => scope.type === 'admin:admin')) {
     return <></>
   }
 
