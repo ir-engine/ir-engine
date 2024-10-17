@@ -32,6 +32,8 @@ import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/us
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { userLoginPath } from '@ir-engine/common/src/schemas/user/user-login.schema'
+import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import moment from 'moment'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import makeInitialAdmin from '../../util/make-initial-admin'
@@ -77,9 +79,63 @@ export class LoginService implements ServiceInterface {
       }
       if (new Date() > new Date(result.data[0].expiresAt)) {
         logger.info('Login Token has expired')
+        await this.app.service(loginTokenPath).remove(result.data[0].id)
         return { error: 'Login link has expired' }
       }
       const identityProvider = await this.app.service(identityProviderPath).get(result.data[0].identityProviderId)
+      let addToLogin = false
+      if (result.data[0].associateUserId && params!.query?.associate === 'true') {
+        await this.app.service(identityProviderPath).patch(identityProvider.id, {
+          userId: result.data[0].associateUserId
+        })
+        await this.app.service(userLoginPath).create({
+          userId: result.data[0].associateUserId as UserID,
+          userAgent: params!.headers!['user-agent'],
+          identityProviderId: identityProvider.id,
+          ipAddress: params!.forwarded?.ip || ''
+        })
+      }
+      if (params!.query?.associate != null) addToLogin = true
+      const logins = await this.app.service(userLoginPath).find({
+        query: {
+          userId: identityProvider.userId
+        }
+      })
+      //Email identity-providers are created as type email, so new vs. existing logins can't be discerned by
+      //whether the current identity-provider is a guest. We're using logins === 0 and !addToLogin as a proxy for
+      //a brand-new login with that email, which should trigger the auto-association, and that not being true
+      //will be seen as an email that is established and shouldn't have the auto-association trigger
+      if (identityProvider.type === 'email' && logins.total === 0 && !addToLogin) {
+        console.log('')
+        const existingIdentityProviders = await this.app.service(identityProviderPath).find({
+          query: {
+            $or: [
+              {
+                email: identityProvider.token
+              },
+              {
+                token: identityProvider.token
+              }
+            ],
+            id: {
+              $ne: identityProvider.id
+            }
+          }
+        })
+        if (existingIdentityProviders.total > 0) {
+          const loginToken = await this.app.service(loginTokenPath).create({
+            identityProviderId: identityProvider.id,
+            associateUserId: existingIdentityProviders.data[0].userId,
+            expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+          })
+          return {
+            ...identityProvider,
+            associateEmail: identityProvider.token,
+            loginToken: loginToken.token,
+            promptForConnection: true
+          }
+        }
+      }
       await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {
