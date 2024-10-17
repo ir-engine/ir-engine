@@ -88,7 +88,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
 
   return {
     isValid: false,
-    errorMessage: unsupportedFileMessage[mimeType] // should I just put the extension that is invalid? should we update the error message
+    errorMessage: unsupportedFileMessage[mimeType]
   }
 }
 
@@ -98,7 +98,7 @@ function sanitizeFiles(files) {
     const newFile = cleanFileNameFile(file)
     const { isValid, errorMessage } = isValidFileType(newFile)
     if (!isValid) {
-      NotificationService.dispatchNotify(errorMessage, { variant: 'warning' })
+      NotificationService.dispatchNotify(`${file.name} is not supported. ${errorMessage}`, { variant: 'warning' })
     }
     newFiles.push(newFile)
   }
