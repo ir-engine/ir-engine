@@ -36,7 +36,7 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getState, isClient, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, isClient, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
@@ -76,6 +76,7 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
 
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
+    const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
 
     useImmediateEffect(() => {
       if (!skyboxState.cubemapPath.value)
@@ -111,6 +112,7 @@ export const SkyboxComponent = defineComponent({
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
         texture.mapping = CubeReflectionMapping
+        cubemapTexture.set(texture)
         setComponent(entity, BackgroundComponent, texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
@@ -127,7 +129,19 @@ export const SkyboxComponent = defineComponent({
       ]
       /** @todo replace this with useCubemap */
       loadCubeMapTexture(...loadArgs)
+      return () => {
+        removeComponent(entity, BackgroundComponent)
+      }
     }, [skyboxState.backgroundType, skyboxState.cubemapPath])
+
+    useEffect(() => {
+      const cubemap = cubemapTexture.value
+      if (!cubemap) return
+
+      return () => {
+        cubemap.dispose()
+      }
+    }, [cubemapTexture])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.skybox) {

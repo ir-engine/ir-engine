@@ -37,7 +37,7 @@ import {
   Texture
 } from 'three'
 
-import { entityExists, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -169,9 +169,6 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
 
   useImmediateEffect(() => {
     setComponent(entity, DistanceFromCameraComponent)
-    return () => {
-      if (entityExists(entity)) removeComponent(entity, DistanceFromCameraComponent)
-    }
   }, [])
 
   useEffect(() => {

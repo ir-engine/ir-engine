@@ -76,8 +76,8 @@
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
   },
-  "warnings" : {
-    "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
+  "warnings": {
+    "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
     "title": "Viewport",
@@ -438,16 +438,16 @@
     "variant": {
       "name": "Variant",
       "description": "Load different assets based on heuristics",
+      "add-variant": "Add Variant",
+      "remove-variant": "Remove",
       "device": "Device",
       "device-mobile": "Mobile",
       "device-desktop": "Desktop",
       "device-xr": "XR",
       "heuristic": "Heuristic",
       "heuristic-distance": "Distance",
-      "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
       "heuristic-device": "Device",
-      "heuristic-budget": "Budget",
       "useDistance": "Use Distance",
       "textureSize": "Texture Size: ",
       "vertexCount": "Vertices: ",
@@ -775,7 +775,7 @@
     "cameraSettings": {
       "name": "Camera Settings",
       "description": "Adjust camera settings to optimize scene visualization, including projection type, field of view, and distance parameters.",
-      "lbl-projectionType" : "Projection Type",
+      "lbl-projectionType": "Projection Type",
       "lbl-fov": "Field of View",
       "lbl-calcClippingPlanes": "Calculate Clipping Planes",
       "lbl-projectionDistance": "Projection Distance",

@@ -67,7 +67,7 @@ import { GLTFSourceState } from './GLTFState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 
 const loadDependencies = {
-  ['EE_model']: ['body']
+  ['EE_model']: ['dependencies']
 } as Record<string, string[]>
 
 type ComponentDependencies = Record<EntityUUID, Component[]>
@@ -162,7 +162,10 @@ export const GLTFComponent = defineComponent({
   },
 
   getInstanceID: (entity: Entity) => {
-    return `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
+    const uuid = getOptionalComponent(entity, UUIDComponent)
+    const src = getOptionalComponent(entity, GLTFComponent)?.src
+    if (!uuid || !src) return ''
+    return `${uuid}-${src}`
   },
 
   useInstanceID: (entity: Entity) => {
@@ -301,6 +304,58 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
   // console.log(event)
 }
 
+export const loadGltfFile = (
+  url: string,
+  onLoad: (gltf: GLTF.IGLTF, body: ArrayBuffer | null) => void,
+  onProgress?: (event: ProgressEvent) => void,
+  onError?: (error: ErrorEvent) => void,
+  signal?: AbortSignal
+) => {
+  const onSuccess = (data: string | ArrayBuffer | GLTF.IGLTF) => {
+    if (signal && signal.aborted) return
+
+    const textDecoder = new TextDecoder()
+    let json: GLTF.IGLTF | SceneJsonType
+    let body: ArrayBuffer | null = null
+
+    if (typeof data === 'string') {
+      json = JSON.parse(data)
+    } else if (data instanceof ArrayBuffer) {
+      const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+
+      if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
+        try {
+          const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
+          body = bodyContent
+          json = jsonContent
+        } catch (error) {
+          if (onError) onError(error)
+          return
+        }
+      } else {
+        json = JSON.parse(textDecoder.decode(data))
+      }
+    } else {
+      json = data
+    }
+
+    /** Migrate old scene json format */
+    if ('entities' in json && 'root' in json) {
+      json = migrateSceneJSONToGLTF(json)
+    }
+
+    onLoad(json, body)
+  }
+
+  const loader = new FileLoader()
+
+  loader.setResponseType('arraybuffer')
+  loader.setRequestHeader({})
+  loader.setWithCredentials(false)
+
+  loader.load(url, onSuccess, onProgress, onError, signal)
+}
+
 const useGLTFDocument = (url: string, entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
   const source = GLTFComponent.getInstanceID(entity)
@@ -318,55 +373,24 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     const abortController = new AbortController()
     const signal = abortController.signal
 
-    const onSuccess = (data: string | ArrayBuffer | GLTF.IGLTF) => {
-      if (signal.aborted) return
+    loadGltfFile(
+      url,
+      (gltf, body) => {
+        if (body) state.body.set(body)
 
-      const textDecoder = new TextDecoder()
-      let json: GLTF.IGLTF | SceneJsonType
-
-      if (typeof data === 'string') {
-        json = JSON.parse(data)
-      } else if (data instanceof ArrayBuffer) {
-        const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
-        if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-          try {
-            const { json: jsonContent, body } = parseBinaryData(data)
-            state.body.set(body)
-            json = jsonContent
-          } catch (error) {
-            if (onError) onError(error)
-            return
-          }
-        } else {
-          json = JSON.parse(textDecoder.decode(data))
-        }
-      } else {
-        json = data
-      }
-
-      /** Migrate old scene json format */
-      if ('entities' in json && 'root' in json) {
-        json = migrateSceneJSONToGLTF(json)
-      }
-
-      const dependencies = buildComponentDependencies(json)
-      state.dependencies.set(dependencies)
-      dispatchAction(
-        GLTFSnapshotAction.createSnapshot({
-          source,
-          data: parseStorageProviderURLs(JSON.parse(JSON.stringify(json)))
-        })
-      )
-    }
-
-    const loader = new FileLoader()
-
-    loader.setResponseType('arraybuffer')
-    loader.setRequestHeader({})
-    loader.setWithCredentials(false)
-
-    loader.load(url, onSuccess, onProgress, onError, signal)
+        const dependencies = buildComponentDependencies(gltf)
+        state.dependencies.set(dependencies)
+        dispatchAction(
+          GLTFSnapshotAction.createSnapshot({
+            source,
+            data: parseStorageProviderURLs(JSON.parse(JSON.stringify(gltf)))
+          })
+        )
+      },
+      onProgress,
+      onError,
+      signal
+    )
 
     return () => {
       abortController.abort()
