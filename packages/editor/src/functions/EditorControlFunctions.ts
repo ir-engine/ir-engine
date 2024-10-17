@@ -252,14 +252,18 @@ const overwriteLookdevObject = (
 const createObjectFromSceneElement = (
   componentJson: ComponentJsonType[] = [],
   parentEntity = getState(EditorState).rootEntity,
-  beforeEntity?: Entity
+  beforeEntity?: Entity,
+  requestedName?: string
 ): { entityUUID: EntityUUID; sceneID: string } => {
   const scenes = getSourcesForEntities([parentEntity])
   const entityUUID: EntityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
   const sceneIDUsed = Object.keys(scenes)[0]
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const name = 'New Object'
+    let name = 'New Object'
+    if (requestedName) {
+      name = requestedName
+    }
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
     const nodeIndex = gltf.data.nodes!.length
