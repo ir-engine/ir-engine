@@ -53,14 +53,6 @@ export const userResolver = resolve<UserType, HookContext>({
 
     return userAvatars.length > 0 ? userAvatars[0].avatarId : undefined
   }),
-  // identityProviders: virtual(async (user, context) => {
-  //   return (await context.app.service(identityProviderPath).find({
-  //     query: {
-  //       userId: user.id
-  //     },
-  //     paginate: false
-  //   })) as IdentityProviderType[]
-  // }),
   acceptedTOS: virtual(async (user, context) => {
     if (isDev) return true
     return !!user.acceptedTOS
@@ -79,19 +71,6 @@ export const userExternalResolver = resolve<UserType, HookContext>({
         return {}
       }
   }),
-  // identityProviders: virtual(async (user, context) => {
-  //   return (
-  //     (await context.app.service(identityProviderPath).find({
-  //       query: {
-  //         userId: user.id
-  //       },
-  //       paginate: false
-  //     })) as IdentityProviderType[]
-  //   ).map((ip) => {
-  //     const { oauthToken, ...returned } = ip
-  //     return returned
-  //   })
-  // }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({
       query: {
@@ -119,14 +98,6 @@ export const userExternalResolver = resolve<UserType, HookContext>({
       },
       paginate: false
     })) as LocationAdminType[]
-  }),
-  locationBans: virtual(async (user, context) => {
-    return (await context.app.service(locationBanPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as LocationBanType[]
   }),
   lastLogin: virtual(async (user, context) => {
     const login = await context.app.service(userLoginPath).find({
