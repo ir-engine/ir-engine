@@ -30,6 +30,7 @@ import { EditorControlSystem } from './systems/EditorControlSystem'
 import { GizmoSystem } from './systems/GizmoSystem'
 import { HighlightSystem } from './systems/HighlightSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
+import { ModelLoadingSpinnerSystem } from './systems/ModelLoadingSpinnerSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
 import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
@@ -41,6 +42,7 @@ export {
   GizmoSystem,
   HighlightSystem,
   ModelHandlingSystem,
+  ModelLoadingSpinnerSystem,
   ObjectGridSnapSystem,
   RenderInfoSystem,
   RenderMonitorSystem,
