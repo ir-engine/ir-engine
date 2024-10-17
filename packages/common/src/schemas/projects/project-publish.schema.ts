@@ -28,6 +28,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { TypedString } from '../../types/TypeboxUtils'
+import { locationDataSchema } from '../social/location.schema'
 import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
@@ -55,9 +56,13 @@ export const projectPublishSchema = Type.Object(
 export interface ProjectPublishType extends Static<typeof projectPublishSchema> {}
 
 // Schema for creating new entries
-export const projectPublishDataSchema = Type.Pick(projectPublishSchema, ['projectId', 'updatedAt'], {
-  $id: 'ProjectPublishData'
-})
+export const projectPublishDataSchema = Type.Intersect(
+  [
+    Type.Pick(projectPublishSchema, ['projectId', 'updatedAt']),
+    Type.Object({ locations: Type.Optional(Type.Array(Type.Ref(locationDataSchema))) }, { additionalProperties: false })
+  ],
+  { $id: 'ProjectPublishData' }
+)
 export interface ProjectPublishData extends Static<typeof projectPublishDataSchema> {}
 
 // Schema for updating existing entries

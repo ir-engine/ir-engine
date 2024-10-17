@@ -30,15 +30,17 @@ import {
   projectPublishQueryValidator,
   ProjectPublishType
 } from '@ir-engine/common/src/schemas/projects/project-publish.schema'
-import { disallow, iff } from 'feathers-hooks-common'
+import { disallow, discard, iff } from 'feathers-hooks-common'
 
 import { BadRequest } from '@feathersjs/errors'
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
 import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { ProjectData, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
+import { locationPath, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { HookContext } from '../../../declarations'
+import persistData from '../../hooks/persist-data'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { projectDataResolver } from '../project/project.resolvers'
 import { ProjectPublishService } from './project-publish.class'
@@ -238,6 +240,32 @@ const createProjectCopy = async (context: HookContext<ProjectPublishService>) =>
   await context.app.service(projectPath)._create(resolvedData)
 }
 
+const createLocations = async (context: HookContext<ProjectPublishService>) => {
+  if (!context.data || !(context.method === 'create')) {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Batch create is not supported')
+
+  const data: LocationType[] = context['actualData'].locations
+
+  if (!data) return
+
+  const scenes = (await context.app.service(staticResourcePath).find({
+    query: {
+      project: `${context.project.name}-${context.data.updatedAt}`,
+      type: 'scene'
+    },
+    paginate: false
+  })) as any as StaticResourceType[]
+
+  data.map((location) => {
+    location.sceneId = scenes.find((scene) => scene.key === location.sceneId)!.id
+  })
+
+  await context.app.service(locationPath).create(data)
+}
+
 /**
  * Updates the original project to reference the new published project
  * @param context
@@ -274,7 +302,9 @@ export default {
       schemaHooks.validateData(projectPublishDataValidator),
       schemaHooks.resolveData(projectPublishDataResolver),
       populateProjectInContext,
-      iff(verifyAssetsOnly, copyPublishedFiles, updateProjectFiles)
+      iff(verifyAssetsOnly, copyPublishedFiles, updateProjectFiles),
+      persistData,
+      discard('locations')
     ],
     update: [disallow()],
     patch: [
@@ -288,7 +318,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [createProjectCopy, updateProjectEntry],
+    create: [createProjectCopy, createLocations, updateProjectEntry],
     update: [],
     patch: [],
     remove: []
