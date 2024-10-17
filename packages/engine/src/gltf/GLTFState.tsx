@@ -249,7 +249,7 @@ export const GLTFSnapshotState = defineState({
 
   cloneCurrentSnapshot: (source: string) => {
     const state = getState(GLTFSnapshotState)[source]
-    return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
+    return structuredClone({ source, data: state.snapshots[state.index] }) as {
       data: GLTF.IGLTF
       source: string
     }

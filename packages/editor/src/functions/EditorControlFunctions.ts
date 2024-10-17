@@ -364,7 +364,7 @@ const duplicateObject = (entities: Entity[]) => {
         }
       }
 
-      const entityDataClone = JSON.parse(JSON.stringify(node))
+      const entityDataClone = structuredClone(node)
       const newUUID = generateEntityUUID()
       copyMap[entityUUID] = newUUID
       entityDataClone.extensions![UUIDComponent.jsonID] = newUUID
