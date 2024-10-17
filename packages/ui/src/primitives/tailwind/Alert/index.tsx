@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { isEmpty } from 'lodash'
 import React, { forwardRef, ReactNode } from 'react'
-import { HiCheckCircle, HiExclamationCircle, HiInformationCircle, HiXCircle } from 'react-icons/hi2'
+import { HiCheckCircle, HiExclamationCircle, HiInformationCircle } from 'react-icons/hi2'
+import { PiWarningFill } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
 
 export enum AlertVariantEnum {
@@ -37,7 +38,7 @@ export enum AlertVariantEnum {
 
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string
-  message: string
+  message: string | React.ReactNode
   variant: AlertVariantEnum
 }
 
@@ -54,9 +55,9 @@ const variantMap: Record<string, AlertVariant> = {
     icon: <HiCheckCircle />
   },
   danger: {
-    containerClass: 'bg-red-100',
+    containerClass: 'bg-[#310d13]',
     iconClass: 'text-red-500',
-    icon: <HiXCircle />
+    icon: <PiWarningFill color="#c3324b" />
   },
   info: {
     containerClass: 'bg-blue-100',
