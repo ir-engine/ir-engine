@@ -113,7 +113,7 @@ export default function ProjectTable(props: { search: string }) {
       }).catch((err) => {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
-      PopoverState.hidePopupover()
+      if (activeProjectId?.value === project.id) PopoverState.hidePopupover()
     }
 
     return (
@@ -123,11 +123,12 @@ export default function ProjectTable(props: { search: string }) {
           size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'ir-engine/default-project'}
-          onClick={() =>
+          onClick={() => {
+            activeProjectId.set(project.id)
             PopoverState.showPopupover(
               <AddEditProjectModal update={true} inputProject={project} onSubmit={handleProjectUpdate} />
             )
-          }
+          }}
         >
           {t('admin:components.project.actions.update')}
         </Button>
