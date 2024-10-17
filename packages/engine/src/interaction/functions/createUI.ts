@@ -38,9 +38,29 @@ import { createModalView } from '../ui/InteractiveModalView'
  * @param entity  entity to add the xrUI to
  * @param uiMessage  text to display on the UI
  * @param isInteractable  (optional, default = true) sets whether the UI is interactable or not
+ * @param borderRadiusPx (optional, default = 10) sets the border radius of the UI in px
+ * @param bgPaddingPx (optional, default = 30) sets the padding of the UI background in px
+ * @param contentVerticalPadPx (optional, default = 10) sets the padding of the UI content in px
+ * @param contentHorizontalPadPx (optional, default = 0) sets the padding of the UI content in px
  */
-export function createUI(entity: Entity, uiMessage: string, isInteractable = true) {
-  const ui = createModalView(entity, uiMessage, isInteractable)
+export function createUI(
+  entity: Entity,
+  uiMessage: string,
+  isInteractable = true,
+  borderRadiusPx: number = 10,
+  bgPaddingPx: number = 30,
+  contentVerticalPadPx: number = 10,
+  contentHorizontalPadPx: number = 10
+) {
+  const ui = createModalView(
+    entity,
+    uiMessage,
+    isInteractable,
+    borderRadiusPx,
+    bgPaddingPx,
+    contentVerticalPadPx,
+    contentHorizontalPadPx
+  )
 
   const nameComponent = getComponent(entity, NameComponent)
   setComponent(ui.entity, NameComponent, 'interact-ui-' + uiMessage + '-' + nameComponent)
