@@ -44,6 +44,7 @@ import logger from '../../ServerLogger'
 
 export interface AcceptInviteParams extends KnexAdapterParams {
   preventUserRelationshipRemoval?: boolean
+  passcode?: string
 }
 
 /**
@@ -89,12 +90,14 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
         }
       }
 
-      if (params.query!.passcode !== invite.passcode) {
+      if (params.query?.passcode !== invite.passcode) {
         logger.info('INVALID INVITE PASSCODE')
         return {
           error: 'Invalid Invite Passcode'
         }
       }
+
+      if (params.query?.passcode) delete params.query.passcode
 
       const dateNow = new Date()
 

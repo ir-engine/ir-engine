@@ -50,7 +50,6 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@ir-engine/network'
-import { ClientInputSystem } from '@ir-engine/spatial'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -60,6 +59,7 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { ClientInputSystem } from '@ir-engine/spatial/src/input/systems/ClientInputSystem'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent, onDrop } from '../components/GrabbableComponent'
 import { GrabbableNetworkAction } from '../functions/grabbableFunctions'

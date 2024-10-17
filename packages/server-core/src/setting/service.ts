@@ -33,7 +33,6 @@ import Helm from './helm-setting/helm-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting'
 import MailchimpSetting from './mailchimp-setting/mailchimp-setting'
 import ProjectSetting from './project-setting/project-setting'
-import RedisSetting from './redis-setting/redis-setting'
 import ServerSetting from './server-setting/server-setting'
 
 export default [
@@ -46,7 +45,6 @@ export default [
   FeatureFlagSetting,
   Authentication,
   Aws,
-  RedisSetting,
   Helm,
   MailchimpSetting
 ]

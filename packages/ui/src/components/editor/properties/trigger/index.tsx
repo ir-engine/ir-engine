@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -48,6 +48,7 @@ import { HiPlus, HiTrash } from 'react-icons/hi2'
 import Button from '../../../../primitives/tailwind/Button'
 import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
+import NodeInput from '../../input/Node'
 import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
 import NodeEditor from '../nodeEditor'
@@ -149,10 +150,9 @@ const TriggerProperties: EditorComponentType = (props) => {
               }}
             />
             <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
-              <SelectInput
-                value={trigger.target.value ?? ''}
-                onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
-                options={targets.value.map(({ label, value }) => ({ label, value }))}
+              <NodeInput
+                value={trigger.target.value ?? ('' as EntityUUID)}
+                onRelease={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
                 disabled={props.multiEdit}
               />
             </InputGroup>

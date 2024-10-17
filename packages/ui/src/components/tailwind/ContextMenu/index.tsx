@@ -54,7 +54,6 @@ const ShowContextMenu = ({
 }: { onClose: () => void; anchorEvent: React.MouseEvent } & Omit<PopupProps, 'trigger' | 'onClose'>) => {
   const offset = useHookstate({ x: anchorEvent.clientX, y: anchorEvent.clientY })
   const ref = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     if (!ref.current) return
 
