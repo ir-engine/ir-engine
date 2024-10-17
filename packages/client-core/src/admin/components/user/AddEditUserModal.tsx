@@ -97,7 +97,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
     }
   }
 
-  const identityProvidersQuery = useFind(identityProviderPath)
+  const identityProvidersQuery = useFind(identityProviderPath, { query: { userId: user?.id } })
 
   const submitLoading = useHookstate(false)
   const errors = useHookstate(getDefaultErrors())
@@ -213,7 +213,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
         {user?.id && identityProvidersQuery.data.filter((ip) => ip.type !== 'guest').length > 0 ? (
           <div className="grid gap-2">
             <Label>{t('admin:components.user.linkedAccounts')}</Label>
-            <AccountIdentifiers />
+            <AccountIdentifiers user={user} />
           </div>
         ) : null}
       </div>

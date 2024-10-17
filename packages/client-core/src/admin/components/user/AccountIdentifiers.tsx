@@ -36,14 +36,13 @@ import {
   RiTwitterXFill
 } from 'react-icons/ri'
 
+import { useFind } from '@ir-engine/common'
 import { identityProviderPath, IdentityProviderType, UserType } from '@ir-engine/common/src/schema.type.module'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import { useFind } from '@ir-engine/common'
-import { Engine } from '@ir-engine/ecs'
 
-export default function AccountIdentifiers() {
-  const identityProvidersQuery = useFind(identityProviderPath)
+export default function AccountIdentifiers({ user }: { user: UserType }) {
+  const identityProvidersQuery = useFind(identityProviderPath, { query: { userId: user.id } })
 
   const appleIp = identityProvidersQuery.data.find((ip) => ip.type === 'apple')
   const discordIp = identityProvidersQuery.data.find((ip) => ip.type === 'discord')
