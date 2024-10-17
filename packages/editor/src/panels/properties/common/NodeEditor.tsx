@@ -72,7 +72,7 @@ class NodeEditorErrorBoundary extends React.Component<INodeErrorProps, INodeErro
   }
 }
 
-export const NodeEditor = ({
+const NodeEditor = ({
   description,
   children,
   name,
