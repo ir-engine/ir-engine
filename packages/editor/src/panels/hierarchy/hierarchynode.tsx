@@ -265,8 +265,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         firstSelectedEntity.set(entity)
       }
     } else if (event.detail === 2) {
-      if (entity && getOptionalComponent(entity, CameraOrbitComponent)) {
-        const cameraEntity = getState(EngineState).viewerEntity
+      const cameraEntity = getState(EngineState).viewerEntity
+      if (entity && getOptionalComponent(cameraEntity, CameraOrbitComponent)) {
         const editorCameraState = getMutableComponent(cameraEntity, CameraOrbitComponent)
         editorCameraState.focusedEntities.set([entity])
         editorCameraState.refocus.set(true)

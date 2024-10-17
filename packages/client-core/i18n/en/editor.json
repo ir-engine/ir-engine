@@ -99,13 +99,17 @@
       "memory": "Memory",
       "geometries": "Geometries",
       "textures": "Textures",
+      "texturesMB": "Textures MB",
       "render": "Render",
       "FPS": "FPS",
       "frameTime": "Frame Time",
       "calls": "Calls",
       "triangles": "Triangles",
       "points": "Points",
-      "lines": "Lines"
+      "lines": "Lines",
+      "shaderComplexity": "Shader Complexity",
+      "sceneComplexity": "Scene Complexity",
+      "lights": "Lights"
     }
   },
   "toolbar": {
