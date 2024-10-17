@@ -368,7 +368,7 @@ const execute = () => {
     if (
       hasComponent(clickStartEntity, SourceComponent) &&
       !getState(ClickPlacementState).placementEntity &&
-      urlParams.get('wizardEnabled') === 'false'
+      !(urlParams.get('wizardEnabled') === 'true')
     ) {
       const selectedEntities = SelectionState.getSelectedEntities()
 
