@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserName } from '@ir-engine/common/src/schema.type.module'
+import { InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 
 import { useMutableState } from '@ir-engine/hyperflux'
 
@@ -40,7 +40,7 @@ const InviteToast = () => {
   const { t } = useTranslation()
   const inviteState = useMutableState(InviteState)
   const authState = useMutableState(AuthState)
-  const newestInvite: any = first(inviteState.receivedInvites.invites)?.value
+  const newestInvite: InviteType = first(inviteState.receivedInvites.invites)?.value as InviteType
 
   useEffect(() => {
     if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
