@@ -32,7 +32,7 @@ import { v4 as uuidv4 } from 'uuid'
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { ScopeID, scopePath, ScopeTypeInterface, userPath, UserType } from '@ir-engine/common/src/schema.type.module'
 
-const { scopeTypeSeed } = require('../packages/server-core/src/scope/scope-type/scope-type.seed')
+import { scopeTypeSeed } from '../packages/server-core/src/scope/scope-type/scope-type.seed'
 
 dotenv.config({
   path: appRootPath.path,

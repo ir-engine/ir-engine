@@ -79,9 +79,7 @@ export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/mailchimp-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
-export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
-export type * from './schemas/setting/zendesk-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
 export type * from './schemas/social/invite-code-lookup.schema'
@@ -230,8 +228,6 @@ export const instanceServerSettingPath = 'instance-server-setting'
 
 export const clientSettingPath = 'client-setting'
 
-export const redisSettingPath = 'redis-setting'
-
 export const matchUserPath = 'match-user'
 
 export const matchInstancePath = 'match-instance'
@@ -241,8 +237,6 @@ export const authenticationSettingPath = 'authentication-setting'
 export const analyticsPath = 'analytics'
 
 export const serverSettingPath = 'server-setting'
-
-export const zendeskSettingPath = 'zendesk-setting'
 
 export const mailchimpSettingPath = 'mailchimp-setting'
 

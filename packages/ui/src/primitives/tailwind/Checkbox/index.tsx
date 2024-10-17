@@ -31,19 +31,27 @@ import { v4 as uuidv4 } from 'uuid'
 
 import Label from '../Label'
 
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
+export interface CheckboxProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'onBlur'> {
   value: boolean
   label?: React.ReactNode
   className?: string
   containerClassName?: string
   onChange: (value: boolean) => void
+  onBlur?: (value: boolean) => void
   disabled?: boolean
 }
 
-const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
+const Checkbox = ({ className, containerClassName, label, value, onChange, onBlur, disabled }: CheckboxProps) => {
   const handleChange = () => {
     if (!disabled) {
       onChange(!value)
+    }
+  }
+
+  const handleRelease = () => {
+    if (!disabled) {
+      onBlur?.(value)
     }
   }
 

@@ -37,12 +37,12 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
-import { PhysicsSystem } from '@ir-engine/spatial'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { PhysicsSystem } from '@ir-engine/spatial/src/physics/systems/PhysicsSystem'
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()
@@ -112,8 +112,8 @@ export const SplineTrackComponent = defineComponent({
         transform.position.copy(_point1Vector)
 
         // rotation
-        const q1 = elements[index].quaternion
-        const q2 = elements[nextIndex].quaternion
+        const q1 = elements[index].rotation
+        const q2 = elements[nextIndex].rotation
 
         if (component.enableRotation.value) {
           if (component.lockToXZPlane.value) {

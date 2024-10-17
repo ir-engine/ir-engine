@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { AssetExt, AssetType, FileToAssetExt, FileToAssetType } from './AssetType'
 
 describe('AssetType', () => {

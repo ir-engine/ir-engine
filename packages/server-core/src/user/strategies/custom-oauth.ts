@@ -45,12 +45,20 @@ export class CustomOAuthStrategy extends OAuthStrategy {
   app: Application
 
   async getEntityQuery(profile: any, _params: Params): Promise<any> {
+    if (!profile)
+      throw new Error(
+        'Something went wrong when logging you in. Please return to the page you started from and try again.'
+      )
     return {
       token: profile.sub ? `${this.name}:::${profile.sub as string}` : `${this.name}:::${profile.id as string}`
     }
   }
 
   async getEntityData(profile: any, _existingEntity: any, _params: Params): Promise<any> {
+    if (!profile)
+      throw new Error(
+        'Something went wrong when logging you in. Please return to the page you started from and try again.'
+      )
     return {
       token: profile.sub ? `${this.name}:::${profile.sub as string}` : `${this.name}:::${profile.id as string}`
     }
