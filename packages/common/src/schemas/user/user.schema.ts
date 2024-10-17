@@ -32,7 +32,6 @@ import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 import { UserID } from '@ir-engine/hyperflux'
 import { USERNAME_MAX_LENGTH } from '../../constants/UserConstants'
 import { TypedString } from '../../types/TypeboxUtils'
-import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { ScopeType } from '../scope/scope.schema'
 import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
@@ -87,10 +86,9 @@ export const userSchema = Type.Object(
 export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
-export const userDataSchema = Type.Partial(
-  Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId']),
-  { $id: 'UserData' }
-)
+export const userDataSchema = Type.Partial(Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId']), {
+  $id: 'UserData'
+})
 export interface UserData extends Static<typeof userDataSchema> {}
 
 // Schema for updating existing entries

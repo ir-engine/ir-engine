@@ -27,7 +27,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { scopePath, ScopeTypeInterface } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { locationAdminPath, LocationAdminType } from '@ir-engine/common/src/schemas/social/location-admin.schema'
 import { locationBanPath, LocationBanType } from '@ir-engine/common/src/schemas/social/location-ban.schema'
 import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'

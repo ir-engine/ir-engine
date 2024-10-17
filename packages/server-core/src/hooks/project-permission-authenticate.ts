@@ -35,26 +35,25 @@ import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { scopePath, ScopeType } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../declarations'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
-import { scopePath, ScopeType } from '@ir-engine/common/src/schema.type.module'
 
 export default (writeAccess) => {
   return async (context: HookContext<Application>) => {
     const { params, app } = context
     if (context.params.isInternal) return context
     const loggedInUser = params.user as UserType
-    const isAdmin = (await app.service(scopePath).find({
-      query: {
-        userId: loggedInUser.id,
-        type: 'admin:admin' as ScopeType
-      }
-    })).data.length > 0
-    if (
-      (!writeAccess && isAdmin) ||
-      context.provider == null
-    )
-      return context
+    const isAdmin =
+      (
+        await app.service(scopePath).find({
+          query: {
+            userId: loggedInUser.id,
+            type: 'admin:admin' as ScopeType
+          }
+        })
+      ).data.length > 0
+    if ((!writeAccess && isAdmin) || context.provider == null) return context
     let projectId, projectRepoPath
     const projectName = context.arguments[0]?.projectName || params.query?.projectName
     if (projectName) {

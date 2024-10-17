@@ -34,10 +34,10 @@ import { locationPath, LocationType, scopePath, ScopeType } from '@ir-engine/com
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
+import { Engine } from '@ir-engine/ecs'
 import { locationColumns, LocationRowType } from '../../common/constants/location'
 import DataTable from '../../common/Table'
 import AddEditLocationModal from './AddEditLocationModal'
-import { Engine } from '@ir-engine/ecs'
 
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
