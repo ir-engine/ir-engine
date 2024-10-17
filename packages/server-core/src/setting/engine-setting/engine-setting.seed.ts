@@ -105,14 +105,6 @@ export async function seed(knex: Knex): Promise<void> {
         value: process.env.METABASE_CRASH_DASHBOARD_ID || ''
       },
       {
-        key: EngineSettings.Metabase.ProjectDashboardId,
-        value: process.env.METABASE_PROJECT_DASHBOARD_ID || ''
-      },
-      {
-        key: EngineSettings.Metabase.AccountDashboardId,
-        value: process.env.METABASE_ACCOUNT_DASHBOARD_ID || ''
-      },
-      {
         key: EngineSettings.Metabase.Environment,
         value: process.env.METABASE_ENVIRONMENT || ''
       }
@@ -168,7 +160,7 @@ export async function seed(knex: Knex): Promise<void> {
   }
 }
 
-async function generateSeedData(
+export async function generateSeedData(
   items: { key: string; value: string }[],
   category: EngineSettingType['category'],
   type: EngineSettingType['type'] = 'private'

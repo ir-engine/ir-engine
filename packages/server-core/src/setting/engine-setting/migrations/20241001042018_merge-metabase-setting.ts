@@ -40,9 +40,8 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists) {
     const recordExists = await knex.table(metabaseSettingPath).first()
-
     if (recordExists) {
-      const taskServerSettings: EngineSettingType[] = await Promise.all(
+      const metabaseSettings: EngineSettingType[] = await Promise.all(
         [
           {
             key: EngineSettings.Metabase.SiteUrl,
@@ -61,14 +60,6 @@ export async function up(knex: Knex): Promise<void> {
             value: recordExists.expiration || process.env.METABASE_EXPIRATION || ''
           },
           {
-            key: EngineSettings.Metabase.ProjectDashboardId,
-            value: recordExists.projectDashboardId || process.env.METABASE_PROJECT_DASHBOARD_ID || ''
-          },
-          {
-            key: EngineSettings.Metabase.AccountDashboardId,
-            value: recordExists.accountDashboardId || process.env.METABASE_ACCOUNT_DASHBOARD_ID || ''
-          },
-          {
             key: EngineSettings.Metabase.Environment,
             value: recordExists.environment || process.env.METABASE_ENVIRONMENT || ''
           }
@@ -81,7 +72,8 @@ export async function up(knex: Knex): Promise<void> {
           updatedAt: await getDateTimeSql()
         }))
       )
-      await knex.from(engineSettingPath).insert(taskServerSettings)
+      console.log('items', metabaseSettings.length)
+      await knex.from(engineSettingPath).insert(metabaseSettings)
     }
   }
 
