@@ -20,8 +20,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Id, NullableId } from '@feathersjs/feathers'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { UserType, userPath } from '@ir-engine/common/src/schema.type.module'
+import { ScopeType, UserType, scopePath, userPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { Engine } from '@ir-engine/ecs'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
@@ -36,7 +37,6 @@ import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { LuInfo } from 'react-icons/lu'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
-import { userHasAccess } from '../../../user/userHasAccess'
 import DataTable from '../../common/Table'
 import { UserRowType, userColumns } from '../../common/constants/user'
 import AccountIdentifiers from './AccountIdentifiers'
@@ -72,6 +72,15 @@ export default function UserTable({
 }) {
   const { t } = useTranslation()
   const user = useHookstate(getMutableState(AuthState).user)
+
+  const scopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'location:write' as ScopeType
+    }
+  })
+
+  const userHasAccess = scopeQuery.data.length > 0
 
   const adminUserQuery = useFind(userPath, {
     query: {
@@ -145,7 +154,7 @@ export default function UserTable({
               rounded="full"
               variant="outline"
               className="h-8 w-8"
-              disabled={!userHasAccess('location:write')}
+              disabled={!userHasAccess}
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
               startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}

@@ -35,7 +35,7 @@ export interface ScopeParams extends KnexAdapterParams<ScopeQuery> {}
  */
 
 export class ScopeService<T = ScopeTypeInterface, ServiceParams extends Params = ScopeParams> extends KnexService<
-  ScopeTypeInterface | ScopeData,
+  ScopeTypeInterface,
   ScopeData,
   ScopeParams,
   ScopePatch

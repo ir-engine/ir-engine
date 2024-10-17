@@ -78,8 +78,7 @@ describe('verify-project-permission', () => {
       name: `Test #${Math.random()}` as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user })
@@ -93,8 +92,7 @@ describe('verify-project-permission', () => {
       name: `Test #${Math.random()}` as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const verifyPermission = verifyProjectPermission(['owner'])
@@ -115,15 +113,13 @@ describe('verify-project-permission', () => {
       name: `Test #${Math.random()}` as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     const user = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     const project = await app.service(projectPath).create({
       name: `testorg/project${Math.random()}`
@@ -162,8 +158,7 @@ describe('verify-project-permission', () => {
       name: `Test #${Math.random()}` as UserName,
       isGuest: true,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const project = await app.service(projectPath).create({

@@ -124,8 +124,7 @@ describe.skip('matchmaking match-instance service', () => {
           name: ('Test #' + Math.random()) as UserName,
           isGuest: true,
           avatarId: '' as AvatarID,
-          inviteCode: '' as InviteCode,
-          scopes: []
+          inviteCode: '' as InviteCode
         })
         usersPromises.push(userPromise)
 

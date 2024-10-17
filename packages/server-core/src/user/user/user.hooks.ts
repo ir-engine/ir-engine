@@ -74,16 +74,6 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
 
   if (hasAdminScope && hasUserWriteScope) {
     return
-  } else if (hasUserWriteScope) {
-    // do not allow user:write scope to change other users' scopes
-    if (Array.isArray(context.data)) {
-      context.data.forEach((userPatchData) => {
-        delete userPatchData.scopes
-      })
-    } else {
-      delete context.data?.scopes
-    }
-    return
   }
 
   // only allow a user to patch it's own data
@@ -142,47 +132,6 @@ const removeApiKey = async (context: HookContext<UserService>) => {
         userId: context.id as UserID
       }
     })
-  }
-}
-
-/**
- * Removes existing scopes of user
- * @param context
- */
-const removeUserScopes = async (context: HookContext<UserService>) => {
-  const data = Array.isArray(context.data) ? context.data : [context.data]
-
-  for (const item of data) {
-    if (item?.scopes) {
-      await context.app.service(scopePath).remove(null, {
-        query: {
-          userId: context.id as UserID
-        }
-      })
-    }
-  }
-}
-
-/**
- * Adds new scopes to user
- * @param useActualData
- */
-const addUserScopes = (useActualData = false) => {
-  return async (context: HookContext<UserService>) => {
-    const dataKey = useActualData ? 'actualData' : 'data'
-    const data: UserType[] = Array.isArray(context[dataKey]) ? context[dataKey] : [context[dataKey]]
-
-    for (const item of data) {
-      if (item?.scopes) {
-        const scopeData = item.scopes.map((el) => {
-          return {
-            ...el,
-            userId: useActualData ? item.id : (context.id as UserID)
-          }
-        })
-        if (scopeData.length > 0) await context.app.service(scopePath).create(scopeData)
-      }
-    }
   }
 }
 
@@ -338,7 +287,10 @@ export default createSkippableHooks(
         schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
         persistData,
-        discard('scopes', 'avatarId')
+        discard(
+          // 'scopes',
+          'avatarId'
+        )
       ],
       update: [disallow()],
       patch: [
@@ -347,8 +299,8 @@ export default createSkippableHooks(
         schemaHooks.resolveData(userPatchResolver),
         persistData,
         disallowNonId,
-        removeUserScopes,
-        addUserScopes(false),
+        // removeUserScopes,
+        // addUserScopes(false),
         discard('scopes', 'avatarId')
       ],
       remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
@@ -358,7 +310,13 @@ export default createSkippableHooks(
       all: [],
       find: [],
       get: [],
-      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode, addUpdateUserAvatar],
+      create: [
+        addUserSettings,
+        // addUserScopes(true),
+        addApiKey,
+        updateInviteCode,
+        addUpdateUserAvatar
+      ],
       update: [],
       patch: [updateInviteCode, addUpdateUserAvatar],
       remove: []

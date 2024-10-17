@@ -110,7 +110,6 @@ export const UserSeed: UserType = {
     createdAt: '',
     updatedAt: ''
   },
-  scopes: [],
   identityProviders: [],
   locationAdmins: [],
   locationBans: [],

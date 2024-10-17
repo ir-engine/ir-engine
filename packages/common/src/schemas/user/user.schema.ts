@@ -78,7 +78,6 @@ export const userSchema = Type.Object(
     identityProviders: Type.Array(Type.Ref(identityProviderSchema)),
     locationAdmins: Type.Array(Type.Ref(locationAdminSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
-    scopes: Type.Array(Type.Ref(userScopeSchema)),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -89,7 +88,7 @@ export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
 export const userDataSchema = Type.Partial(
-  Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId', 'scopes']),
+  Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId']),
   { $id: 'UserData' }
 )
 export interface UserData extends Static<typeof userDataSchema> {}

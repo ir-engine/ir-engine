@@ -29,9 +29,9 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
-import { useUserHasAccessHook } from '@ir-engine/client-core/src/user/userHasAccess'
 import { useFind } from '@ir-engine/common'
-import { locationPath } from '@ir-engine/common/src/schema.type.module'
+import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
@@ -150,7 +150,14 @@ export default function Toolbar() {
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
 
-  const hasLocationWriteScope = useUserHasAccessHook('location:write')
+  const locationScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'location:write' as ScopeType
+    }
+  })
+
+  const hasLocationWriteScope = locationScopeQuery.data.length > 0
   const permission = useProjectPermissions(projectName.value!)
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
   const locationQuery = useFind(locationPath, { query: { action: 'studio', sceneId: sceneAssetID.value } })

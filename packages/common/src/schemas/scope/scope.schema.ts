@@ -64,9 +64,17 @@ export const scopeDataSchema = Type.Pick(scopeSchema, ['type', 'userId'], {
 export interface ScopeData extends Static<typeof scopeDataSchema> {}
 
 // Schema for updating existing entries
-export const scopePatchSchema = Type.Partial(scopeSchema, {
-  $id: 'ScopePatch'
-})
+export const scopePatchSchema = Type.Object(
+  {
+    scopes: Type.Array(TypedString<ScopeType>()),
+    userId: TypedString<UserID>({
+      format: 'uuid'
+    })
+  },
+  {
+    $id: 'ScopePatch'
+  }
+)
 export interface ScopePatch extends Static<typeof scopePatchSchema> {}
 
 // Schema for allowed query properties

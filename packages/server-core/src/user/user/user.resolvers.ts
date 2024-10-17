@@ -62,14 +62,6 @@ export const userResolver = resolve<UserType, HookContext>({
       paginate: false
     })) as IdentityProviderType[]
   }),
-  scopes: virtual(async (user, context) => {
-    return (await context.app.service(scopePath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as ScopeTypeInterface[]
-  }),
   acceptedTOS: virtual(async (user, context) => {
     if (isDev) return true
     return !!user.acceptedTOS

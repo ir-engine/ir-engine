@@ -84,29 +84,25 @@ describe('project-permission.test', () => {
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     user2 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     user3 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     user4 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
       query: {

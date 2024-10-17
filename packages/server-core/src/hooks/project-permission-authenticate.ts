@@ -37,14 +37,21 @@ import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { Application } from '../../declarations'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
+import { scopePath, ScopeType } from '@ir-engine/common/src/schema.type.module'
 
 export default (writeAccess) => {
   return async (context: HookContext<Application>) => {
     const { params, app } = context
     if (context.params.isInternal) return context
     const loggedInUser = params.user as UserType
+    const isAdmin = (await app.service(scopePath).find({
+      query: {
+        userId: loggedInUser.id,
+        type: 'admin:admin' as ScopeType
+      }
+    })).data.length > 0
     if (
-      (!writeAccess && loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) ||
+      (!writeAccess && isAdmin) ||
       context.provider == null
     )
       return context

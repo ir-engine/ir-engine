@@ -68,8 +68,7 @@ describe('check-scope', () => {
       name,
       isGuest,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     user = await app.service(userPath).get(user.id, { user })
@@ -100,8 +99,7 @@ describe('check-scope', () => {
       name,
       isGuest,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     await app.service(scopePath).create({
@@ -129,8 +127,7 @@ describe('check-scope', () => {
       name,
       isGuest,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     await app.service(scopePath).create({
@@ -166,8 +163,7 @@ describe('check-scope', () => {
       name,
       isGuest,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     await app.service(scopePath).create({

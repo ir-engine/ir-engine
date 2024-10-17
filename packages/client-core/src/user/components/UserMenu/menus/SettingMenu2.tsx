@@ -30,8 +30,9 @@ import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services
 import { useFind } from '@ir-engine/common'
 import { defaultThemeModes, defaultThemeSettings } from '@ir-engine/common/src/constants/DefaultThemeSettings'
 import multiLogger from '@ir-engine/common/src/logger'
-import { UserSettingPatch, clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { ScopeType, UserSettingPatch, clientSettingPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
+import { Engine } from '@ir-engine/ecs'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
@@ -51,7 +52,6 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Menu from '../../../../common/components/Menu'
 import { clientContextParams } from '../../../../util/ClientContextState'
 import { UserMenus } from '../../../UserUISystem'
-import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
@@ -108,8 +108,23 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
   const clientSettings = clientSettingQuery.data[0]
   const userSettings = selfUser.userSetting.value
 
-  const hasAdminAccess = userHasAccess('admin:admin')
-  const hasEditorAccess = userHasAccess('editor:write')
+  const adminScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'admin:admin' as ScopeType
+    }
+  })
+
+  const hasAdminAccess = adminScopeQuery.data.length > 0
+
+  const editorScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'editor:write' as ScopeType
+    }
+  })
+
+  const hasEditorAccess = editorScopeQuery.data.length > 0
   const themeSettings = { ...defaultThemeSettings, ...clientSettings?.themeSettings }
   const themeModes = {
     client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
