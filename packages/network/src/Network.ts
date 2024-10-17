@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Action, HyperFlux, NetworkID, PeerID, Topic, UserID, getState } from '@ir-engine/hyperflux'
 import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
-import { MediaTagType, NetworkPeer } from './NetworkState'
+import { NetworkPeer } from './NetworkState'
 import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
 
 /**
@@ -51,28 +51,8 @@ export type Network<Ext = unknown> = {
   /** Map of peer IDs to numerical peer index */
   peerIDToPeerIndex: Record<PeerID, number>
 
-  /**
-   * The index to increment when a new peer connects
-   * NOTE: Must only be updated by the host
-   * @todo - make this a function and throw an error if we are not the host
-   */
-  peerIndexCount: number
-
   /** Connected users */
   users: Record<UserID, PeerID[]>
-
-  /** Map of numerical user index to user client IDs */
-  userIndexToUserID: Record<number, UserID>
-
-  /** Map of user client IDs to numerical user index */
-  userIDToUserIndex: Record<UserID, number>
-
-  /**
-   * The index to increment when a new user joins
-   * NOTE: Must only be updated by the host
-   * @todo - make this a function and throw an error if we are not the host
-   */
-  userIndexCount: number
 
   /**
    * The UserID of the host
@@ -80,9 +60,9 @@ export type Network<Ext = unknown> = {
    * @todo rename to hostUserID to differentiate better from hostPeerID
    * @todo change from UserID to PeerID and change "get hostPeerID()" to "get hostUserID()"
    */
-  hostPeerID: PeerID
+  hostPeerID: PeerID | null
 
-  readonly hostUserID: UserID
+  readonly hostUserID: UserID | null
 
   /**
    * The ID of this network, equivalent to the InstanceID of an instance
@@ -104,10 +84,6 @@ export type Network<Ext = unknown> = {
   bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
   onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
 
-  /** @todo maybe we should change the verbiage to 'muted'? does this make sense for video? */
-  pauseTrack: (peerID: PeerID, track: MediaTagType, pause: boolean) => void
-  /** @todo add more abstractions here */
-
   readonly isHosting: boolean
 
   topic: Topic
@@ -116,7 +92,7 @@ export type Network<Ext = unknown> = {
 /** Interface for the Transport. */
 export const createNetwork = <Ext = unknown>(
   id: NetworkID,
-  hostPeerID: PeerID,
+  hostPeerID: PeerID | null,
   topic: Topic,
   extension?: Ext
 ): Network<Ext> => {
@@ -145,21 +121,14 @@ export const createNetwork = <Ext = unknown>(
         for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
       }
     },
-    pauseTrack(peerID, track, pause) {
-      // noop
-    },
     ...extension,
     peers: {},
     peerIndexToPeerID: {},
     peerIDToPeerIndex: {},
-    peerIndexCount: 0,
     users: {},
-    userIndexToUserID: {},
-    userIDToUserIndex: {},
-    userIndexCount: 0,
     hostPeerID,
     get hostUserID() {
-      return network.peers[network.hostPeerID]?.userId
+      return network.hostPeerID && (network.peers[network.hostPeerID]?.userId as UserID | undefined)
     },
     id,
     ready: false,

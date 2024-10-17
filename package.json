@@ -49,7 +49,7 @@
     "create-root-package-json": "ts-node --swc scripts/create-root-package-json",
     "create-project": "ts-node --swc scripts/create-project",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
-    "dev": "npm run dev-docker && concurrently -n agones,server,client,taskserver -c '#CEB793,#FF9800,#7E2D40,#B2B4B2' npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver",
+    "dev": "P2P_INSTANCE_ENABLED=\"$(node scripts/get_env.js P2P_INSTANCE_ENABLED true)\"; npm run dev-docker && if test $P2P_INSTANCE_ENABLED = \"true\" ; then concurrently -n server,client -c '#FF9800,#7E2D40' 'cd packages/server && npm run dev-api-server' npm:dev-client ; else concurrently -n agones,server,client -c '#CEB793,#FF9800,#7E2D40' npm:dev-agones-silent npm:dev-server npm:dev-client ; fi",
     "dev-noclient": "npm run dev-docker && concurrently -n agones,server,taskserver npm:dev-agones-silent npm:dev-server npm:dev-taskserver",
     "dev-agones": "cd scripts && ./start-agones.sh",
     "dev-agones-silent": "npm run dev-agones &> /dev/null",
