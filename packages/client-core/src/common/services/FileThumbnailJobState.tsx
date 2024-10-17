@@ -507,7 +507,7 @@ const ThumbnailJobReactor = () => {
     const skyboxEntity = state.skyboxEntity.value
 
     const sceneID = getModelSceneID(modelEntity)
-    if (!sceneState.value[sceneID]) return
+    if (fileType === 'model' && !sceneState.value[sceneID]) return
 
     try {
       const cameraEntity = state.cameraEntity.value
