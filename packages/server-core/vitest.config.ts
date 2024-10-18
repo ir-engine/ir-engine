@@ -32,8 +32,8 @@ export default defineConfig({
     environment: 'node',
     passWithNoTests: true,
     isolate: true,
-    fileParallelism: false,
+    fileParallelism: true,
     testTimeout: 60 * 1000,
-    maxConcurrency: 5
+    maxConcurrency: 1
   }
 })
