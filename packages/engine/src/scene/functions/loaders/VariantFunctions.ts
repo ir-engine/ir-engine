@@ -1,33 +1,22 @@
 import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 
-import {
-  ComponentType,
-  getComponent,
-  getMutableComponent,
-  getOptionalMutableComponent,
-  hasComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { ComponentType, getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getState, State } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { addOBCPlugin } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import {
   addObjectToGroup,
   GroupComponent,
   removeObjectFromGroup
 } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getGLTFAsync } from '../../../assets/functions/resourceLoaderHooks'
 import { InstancingComponent } from '../../components/InstancingComponent'
-import { ModelComponent } from '../../components/ModelComponent'
-import { distanceBased, Heuristic, VariantComponent, VariantLevel } from '../../components/VariantComponent'
+import { Heuristic, VariantComponent, VariantLevel } from '../../components/VariantComponent'
 import getFirstMesh from '../../util/meshUtils'
 
 /*
@@ -55,46 +44,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export function updateModelVariant(
-  entity: Entity,
-  variantComponent: State<ComponentType<typeof VariantComponent>>,
-  modelComponent: State<ComponentType<typeof ModelComponent>>
-) {
-  if (variantComponent.heuristic.value === Heuristic.DEVICE) {
-    const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
-    //get model src to mobile variant src
-    const levelIndex = variantComponent.levels.findIndex((level) => level.metadata['device'] === targetDevice)
-    if (levelIndex < 0) return
-    const deviceVariant = variantComponent.levels[levelIndex]
-    const modelRelativePath = STATIC_ASSET_REGEX.exec(modelComponent.src.value)?.[3]
-    const deviceRelativePath = deviceVariant ? STATIC_ASSET_REGEX.exec(deviceVariant.src.value)?.[3] : ''
-    if (deviceVariant && modelRelativePath !== deviceRelativePath) {
-      variantComponent.currentLevel.set(levelIndex)
-    }
-  } else if (distanceBased(variantComponent.value as ComponentType<typeof VariantComponent>)) {
-    const distance = DistanceFromCameraComponent.squaredDistance[entity]
-    for (let i = 0; i < variantComponent.levels.length; i++) {
-      const level = variantComponent.levels[i].value
-      if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
-      const minDistance = Math.pow(level.metadata['minDistance'], 2)
-      const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
-      const useLevel = minDistance <= distance && distance <= maxDistance
-      if (useLevel && level.src) {
-        if (variantComponent.heuristic.value === Heuristic.BUDGET) {
-          if (i >= variantComponent.budgetLevel.value) variantComponent.currentLevel.set(i)
-          else variantComponent.currentLevel.set(variantComponent.budgetLevel.value)
-        } else variantComponent.currentLevel.set(i)
-        break
-      }
-    }
-  } else if (
-    variantComponent.heuristic.value === Heuristic.BUDGET &&
-    variantComponent.budgetLevel.value != variantComponent.currentLevel.value
-  ) {
-    variantComponent.currentLevel.set(variantComponent.budgetLevel.value)
-  }
-}
-
 function getMeshVariant(entity: Entity, variantComponent: ComponentType<typeof VariantComponent>): string | null {
   if (variantComponent.heuristic === Heuristic.DEVICE) {
     const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
@@ -104,37 +53,6 @@ function getMeshVariant(entity: Entity, variantComponent: ComponentType<typeof V
   }
 
   return null
-}
-
-export function updateVariant(entity?: Entity) {
-  if (!entity || getState(EngineState).isEditing) return null
-  const variantComponent = getOptionalMutableComponent(entity, VariantComponent)
-  if (!variantComponent) return null
-
-  const modelComponent = getOptionalMutableComponent(entity, ModelComponent)
-  if (modelComponent) updateModelVariant(entity, variantComponent, modelComponent)
-}
-
-/**
- * Handles setting LOD level for variant components of models based on performance offset
- * @param entity
- * @param performanceOffset
- */
-export function setModelVariantLOD(entity: Entity, performanceOffset: number) {
-  const variantComponent = getMutableComponent(entity, VariantComponent)
-  if (variantComponent.heuristic.value === Heuristic.BUDGET)
-    variantComponent.budgetLevel.set(Math.min(performanceOffset, variantComponent.levels.length - 1))
-}
-
-/**
- * Handles setting model src for model component based on variant component
- * @param entity
- */
-export function setModelVariant(entity: Entity) {
-  const variantComponent = getMutableComponent(entity, VariantComponent)
-  const modelComponent = getMutableComponent(entity, ModelComponent)
-
-  updateModelVariant(entity, variantComponent, modelComponent)
 }
 
 export async function setMeshVariant(entity: Entity) {

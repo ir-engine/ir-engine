@@ -23,18 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { SkinnedMesh } from 'three'
+import { GLTF } from '@gltf-transform/core'
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-
-export const SkinnedMeshComponent = defineComponent({
-  name: 'SkinnedMeshComponent',
-
-  schema: S.Type<SkinnedMesh>(),
-
-  onSet: (entity, component, mesh: SkinnedMesh) => {
-    if (!mesh || !mesh.isSkinnedMesh) throw new Error('SkinnedMeshComponent: Invalid skinned mesh')
-    component.set(mesh)
+export function nodeIsChild(index: number, nodes: GLTF.INode[]) {
+  for (const node of nodes) {
+    if (node.children && node.children.includes(index)) return true
   }
-})
+
+  return false
+}

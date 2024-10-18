@@ -111,7 +111,7 @@ export const S = {
     }) as TStringSchema,
 
   /**
-   * Schema that infers as a enum,requires that the enum to infer as be passed in
+   * Schema that infers as a enum, requires that the enum to infer as be passed in
    */
   Enum: <T extends Record<string, string | number>>(
     item: T,
@@ -276,22 +276,22 @@ export const S = {
   ) => S.Func([], S.Void(), init, options),
 
   /**
-   * Schemas wrapped in this schema may be null and will default to null if not default value is provided
+   * Schemas wrapped in this schema may be null, will default to null if not default value is provided
    */
   Nullable: <T extends Schema, Initial>(
     schema: T,
     init?: Initial,
     options?: TUnionSchema<[T, TNullSchema]>['options']
-  ) => S.Union([schema, S.Null()], init ?? null, options),
+  ) => S.Union([S.Null(), schema], init ?? null, options),
 
   /**
-   * Schemas wrapped in this schema are optional values that can be undefined
+   * Schemas wrapped in this schema are optional values that can be undefined, will default to undefined if not default value is provided
    */
   Optional: <T extends Schema, Initial>(
     schema: T,
     init?: Initial,
     options?: TUnionSchema<[T, TUndefinedSchema]>['options']
-  ) => S.Union([schema, S.Undefined()], init ?? null, options),
+  ) => S.Union([S.Undefined(), schema], init ?? null, options),
 
   /**
    *

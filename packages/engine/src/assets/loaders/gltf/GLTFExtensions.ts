@@ -35,6 +35,7 @@ import {
   InstancedBufferAttribute,
   InstancedMesh,
   LinearSRGBColorSpace,
+  Loader,
   Matrix4,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
@@ -53,28 +54,28 @@ import { assignExtrasToUserData } from './GLTFLoaderFunctions'
 import { GLTFParser } from './GLTFParser'
 
 export const EXTENSIONS = {
-  KHR_BINARY_GLTF: 'KHR_binary_glTF',
-  KHR_DRACO_MESH_COMPRESSION: 'KHR_draco_mesh_compression',
-  KHR_LIGHTS_PUNCTUAL: 'KHR_lights_punctual',
-  KHR_MATERIALS_CLEARCOAT: 'KHR_materials_clearcoat',
-  KHR_MATERIALS_IOR: 'KHR_materials_ior',
-  KHR_MATERIALS_SHEEN: 'KHR_materials_sheen',
-  KHR_MATERIALS_SPECULAR: 'KHR_materials_specular',
-  KHR_MATERIALS_TRANSMISSION: 'KHR_materials_transmission',
-  KHR_MATERIALS_IRIDESCENCE: 'KHR_materials_iridescence',
-  KHR_MATERIALS_ANISOTROPY: 'KHR_materials_anisotropy',
-  KHR_MATERIALS_UNLIT: 'KHR_materials_unlit',
-  KHR_MATERIALS_VOLUME: 'KHR_materials_volume',
-  KHR_TEXTURE_BASISU: 'KHR_texture_basisu',
-  KHR_TEXTURE_TRANSFORM: 'KHR_texture_transform',
-  KHR_MESH_QUANTIZATION: 'KHR_mesh_quantization',
-  KHR_MATERIALS_EMISSIVE_STRENGTH: 'KHR_materials_emissive_strength',
-  EXT_MATERIALS_BUMP: 'EXT_materials_bump',
-  EXT_TEXTURE_WEBP: 'EXT_texture_webp',
-  EXT_TEXTURE_AVIF: 'EXT_texture_avif',
-  EXT_MESHOPT_COMPRESSION: 'EXT_meshopt_compression',
-  EXT_MESH_GPU_INSTANCING: 'EXT_mesh_gpu_instancing',
-  EE_MATERIAL: 'EE_material'
+  KHR_BINARY_GLTF: 'KHR_binary_glTF' as const,
+  KHR_DRACO_MESH_COMPRESSION: 'KHR_draco_mesh_compression' as const,
+  KHR_LIGHTS_PUNCTUAL: 'KHR_lights_punctual' as const,
+  KHR_MATERIALS_CLEARCOAT: 'KHR_materials_clearcoat' as const,
+  KHR_MATERIALS_IOR: 'KHR_materials_ior' as const,
+  KHR_MATERIALS_SHEEN: 'KHR_materials_sheen' as const,
+  KHR_MATERIALS_SPECULAR: 'KHR_materials_specular' as const,
+  KHR_MATERIALS_TRANSMISSION: 'KHR_materials_transmission' as const,
+  KHR_MATERIALS_IRIDESCENCE: 'KHR_materials_iridescence' as const,
+  KHR_MATERIALS_ANISOTROPY: 'KHR_materials_anisotropy' as const,
+  KHR_MATERIALS_UNLIT: 'KHR_materials_unlit' as const,
+  KHR_MATERIALS_VOLUME: 'KHR_materials_volume' as const,
+  KHR_TEXTURE_BASISU: 'KHR_texture_basisu' as const,
+  KHR_TEXTURE_TRANSFORM: 'KHR_texture_transform' as const,
+  KHR_MESH_QUANTIZATION: 'KHR_mesh_quantization' as const,
+  KHR_MATERIALS_EMISSIVE_STRENGTH: 'KHR_materials_emissive_strength' as const,
+  EXT_MATERIALS_BUMP: 'EXT_materials_bump' as const,
+  EXT_TEXTURE_WEBP: 'EXT_texture_webp' as const,
+  EXT_TEXTURE_AVIF: 'EXT_texture_avif' as const,
+  EXT_MESHOPT_COMPRESSION: 'EXT_meshopt_compression' as const,
+  EXT_MESH_GPU_INSTANCING: 'EXT_mesh_gpu_instancing' as const,
+  EE_MATERIAL: 'EE_material' as const
 }
 
 /**
@@ -846,7 +847,7 @@ export class GLTFTextureWebPExtension {
     // @ts-ignore -- TODO type extensions
     const source = json.images[extension.source]
 
-    let loader = parser.textureLoader
+    let loader = parser.textureLoader as Loader
     if (source.uri) {
       const handler = parser.options.manager.getHandler(source.uri)
       if (handler !== null) loader = handler
@@ -913,7 +914,7 @@ export class GLTFTextureAVIFExtension {
     // @ts-ignore -- TODO type extensions
     const source = json.images[extension.source]
 
-    let loader = parser.textureLoader
+    let loader = parser.textureLoader as Loader
     if (source.uri) {
       const handler = parser.options.manager.getHandler(source.uri)
       if (handler !== null) loader = handler

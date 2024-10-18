@@ -131,10 +131,15 @@ export const FileExtToAssetExt = (fileExt: string): AssetExt | undefined => {
   return <AssetExt>fileExt
 }
 
+const dataURLStart = 'data:image'
 export const FileToAssetExt = (file: string): AssetExt | undefined => {
   if (isURL(file)) {
     const url = new URL(file)
     file = url.pathname.split('/').pop() as string
+  }
+  // Check if image data url
+  else if (file.startsWith(dataURLStart)) {
+    return file.startsWith('/png', dataURLStart.length) ? AssetExt.PNG : AssetExt.JPEG
   }
   const ext = file.split('.').pop()
   return ext ? FileExtToAssetExt(ext) : undefined

@@ -29,7 +29,8 @@ import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { ModelComponent } from '../../scene/components/ModelComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export const AssetPreviewCameraComponent = defineComponent({
   name: 'AssetPreviewCameraComponent',
@@ -41,14 +42,13 @@ export const AssetPreviewCameraComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const previewCameraComponent = useComponent(entity, AssetPreviewCameraComponent)
-    const modelComponent = useComponent(previewCameraComponent.targetModelEntity.value, ModelComponent)
+    const childMeshes = useChildrenWithComponents(previewCameraComponent.targetModelEntity.value, [MeshComponent])
     const cameraOrbitComponent = useComponent(entity, CameraOrbitComponent)
 
     useEffect(() => {
-      if (!modelComponent.scene.value) return
       cameraOrbitComponent.focusedEntities.set([previewCameraComponent.targetModelEntity.value])
       cameraOrbitComponent.refocus.set(true)
-    }, [modelComponent.scene, cameraOrbitComponent])
+    }, [childMeshes, cameraOrbitComponent])
 
     return null
   }
