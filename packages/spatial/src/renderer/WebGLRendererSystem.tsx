@@ -36,7 +36,6 @@ import {
   Scene,
   SRGBColorSpace,
   Texture,
-  WebGL1Renderer,
   WebGLRenderer,
   WebGLRendererParameters
 } from 'three'
@@ -75,7 +74,6 @@ import { changeRenderMode } from './functions/changeRenderMode'
 import { HighlightState } from './HighlightState'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
-import WebGL from './THREE.WebGL'
 
 declare module 'postprocessing' {
   interface EffectComposer {
@@ -102,7 +100,6 @@ export const RendererComponent = defineComponent({
       renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
       effects: S.Record(S.String(), EffectSchema),
 
-      supportWebGL2: S.Bool(false),
       canvas: S.Nullable(S.Type<HTMLCanvasElement>()),
 
       renderer: S.Nullable(S.Type<WebGLRenderer>()),
@@ -132,11 +129,6 @@ export const RendererComponent = defineComponent({
    * see https://github.com/ir-engine/ir-engine/issues/9308
    */
   activeRender: false,
-
-  onSet(entity, component, json) {
-    if (json?.canvas) component.canvas.set(json.canvas)
-    if (json?.scenes) component.scenes.set(json.scenes)
-  },
 
   reactor: () => {
     const entity = useEntityContext()
@@ -201,17 +193,17 @@ export const RendererComponent = defineComponent({
     }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
 
     useEffect(() => {
-      rendererComponent.supportWebGL2.set(WebGL.isWebGL2Available())
-
       const canvas = rendererComponent.canvas.value as HTMLCanvasElement
-      const context = rendererComponent.supportWebGL2.value ? canvas.getContext('webgl2')! : canvas.getContext('webgl')!
+      const context = canvas.getContext('webgl2')
 
       rendererComponent.renderContext.set(context)
     }, [])
 
     useEffect(() => {
-      const canvas = rendererComponent.canvas.value as HTMLCanvasElement
-      const context = rendererComponent.renderContext.value as WebGLRenderingContext | WebGL2RenderingContext
+      const context = rendererComponent.renderContext.get(NO_PROXY) as WebGLRenderingContext | WebGL2RenderingContext
+      if (!context) return
+      
+      const canvas = rendererComponent.canvas.get(NO_PROXY) as HTMLCanvasElement
 
       const options: WebGLRendererParameters = {
         precision: 'highp',
@@ -227,7 +219,7 @@ export const RendererComponent = defineComponent({
         multiviewStereo: true
       }
 
-      const renderer = rendererComponent.supportWebGL2.value ? new WebGLRenderer(options) : new WebGL1Renderer(options)
+      const renderer = new WebGLRenderer(options)
       rendererComponent.renderer.set(renderer)
       renderer.outputColorSpace = SRGBColorSpace
 
