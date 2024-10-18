@@ -163,10 +163,11 @@ const ViewModeSettings = () => {
               <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
             </div>
             <div>
-              {availableTableColumns.map((column) => (
+              {availableTableColumns.map((column, index) => (
                 <InputGroup
                   label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
                   dataTestId={`files-panel-view-mode-list-options-column-${column}`}
+                  key={index}
                 >
                   <BooleanInput
                     value={viewModeSettings.list.selectedTableColumns[column].value}
