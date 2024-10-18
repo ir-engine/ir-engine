@@ -637,14 +637,14 @@ describe('EditorControlFunctions', () => {
       const childEntity = UUIDComponent.getEntityByUUID(childUUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
-      EditorControlFunctions.reparentObject([childEntity], null, rootEntity)
+      EditorControlFunctions.reparentObject([childEntity], null, null, rootEntity)
 
       applyIncomingActions()
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
       assert.equal(newSnapshot.scenes![0].nodes![0], 0)
       assert.equal(newSnapshot.scenes![0].nodes![1], 1)
-      assert(!newSnapshot.nodes![0].children)
+      assert.equal(newSnapshot.nodes![0].children?.length!, 0)
     })
 
     it('should reparent an object to another object', () => {
@@ -682,7 +682,7 @@ describe('EditorControlFunctions', () => {
       const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
-      EditorControlFunctions.reparentObject([node2Entity], null, nodeEntity)
+      EditorControlFunctions.reparentObject([node2Entity], null, null, nodeEntity)
 
       applyIncomingActions()
 
@@ -728,13 +728,13 @@ describe('EditorControlFunctions', () => {
       const childEntity = UUIDComponent.getEntityByUUID(childUUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
-      EditorControlFunctions.reparentObject([childEntity], nodeEntity, rootEntity)
+      EditorControlFunctions.reparentObject([childEntity], nodeEntity, null, rootEntity)
 
       applyIncomingActions()
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert.equal(newSnapshot.scenes![0].nodes![0], 1)
-      assert.equal(newSnapshot.scenes![0].nodes![1], 0)
+      assert.equal(newSnapshot.nodes![0].name, 'child')
+      assert.equal(newSnapshot.nodes![1].name, 'node')
       assert(!newSnapshot.nodes![0].children)
     })
 
@@ -782,7 +782,7 @@ describe('EditorControlFunctions', () => {
       const childEntity = UUIDComponent.getEntityByUUID(childUUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
-      EditorControlFunctions.reparentObject([node2Entity], childEntity, nodeEntity)
+      EditorControlFunctions.reparentObject([node2Entity], childEntity, null, nodeEntity)
 
       applyIncomingActions()
 
