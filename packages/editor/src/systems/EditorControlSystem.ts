@@ -364,11 +364,10 @@ const execute = () => {
   }
 
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
-    const urlParams = new URLSearchParams(window.location.search)
     if (
       hasComponent(clickStartEntity, SourceComponent) &&
       !getState(ClickPlacementState).placementEntity &&
-      !(urlParams.get('wizardEnabled') === 'true')
+      getMutableState(EditorHelperState).gizmoEnabled.value
     ) {
       const selectedEntities = SelectionState.getSelectedEntities()
 
