@@ -362,8 +362,13 @@ const execute = () => {
       clickStartEntity = capturingEntity
     }
   }
+
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
-    if (hasComponent(clickStartEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
+    if (
+      hasComponent(clickStartEntity, SourceComponent) &&
+      !getState(ClickPlacementState).placementEntity &&
+      getMutableState(EditorHelperState).gizmoEnabled.value
+    ) {
       const selectedEntities = SelectionState.getSelectedEntities()
 
       //only update selection if the selection actually changed (prevents unnecessarily creating new transform gizmos in edit mode)

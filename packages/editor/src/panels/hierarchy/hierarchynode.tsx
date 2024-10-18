@@ -248,7 +248,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
       getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
       // Deselect material entity since we've just clicked on a hierarchy node
       getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-      if ((event.ctrlKey && usesCtrlKey()) || (event.metaKey && !usesCtrlKey())) {
+      if (usesCtrlKey() ? event.ctrlKey : event.metaKey) {
         if (entity === rootEntity) return
         EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
       } else if (event.shiftKey && firstSelectedEntity.value) {

@@ -42,12 +42,12 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@ir-engine/spatial'
 
+import ComponentDropdown from '../../ComponentDropdown'
 import BooleanInput from '../../input/Boolean'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import Vector3Input from '../../input/Vector3'
-import PropertyGroup from '../group'
 
 const position = new Vector3()
 const rotation = new Quaternion()
@@ -100,10 +100,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup
+    <ComponentDropdown
       name={t('editor:properties.transform.title')}
       description={t('editor:properties.transform.description')}
-      icon={<TransformPropertyGroup.iconComponent />}
+      Icon={TransformPropertyGroup.iconComponent}
     >
       <InputGroup
         name="Dynamically Load Children"
@@ -151,7 +151,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           onRelease={onRelease}
         />
       </InputGroup>
-    </PropertyGroup>
+    </ComponentDropdown>
   )
 }
 
