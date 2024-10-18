@@ -31,7 +31,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     passWithNoTests: true,
-    isolate: process.env.GITHUB_ACTIONS ? false : true,
+    isolate: true,
     fileParallelism: false,
     testTimeout: 60 * 1000,
     maxConcurrency: 1
