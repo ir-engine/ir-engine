@@ -160,11 +160,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioElement.id = `${peerID}_audio`
     audioElement.autoplay = true
     audioElement.setAttribute('playsinline', 'true')
-    if (isSelf) {
-      audioElement.muted = true
-    } else {
-      audioElement.volume = volume
-    }
+    audioElement.muted = audioStreamPaused || isSelf
+    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
 
     audioElement.srcObject = audioMediaStream
 
@@ -186,6 +183,11 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       newHark.stop()
     }
   }, [audioMediaStream])
+
+  useEffect(() => {
+    audioElement.muted = audioStreamPaused || isSelf
+    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
+  }, [audioStreamPaused])
 
   useEffect(() => {
     if (!videoMediaStream) return

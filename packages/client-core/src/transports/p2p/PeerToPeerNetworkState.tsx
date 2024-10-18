@@ -509,7 +509,7 @@ const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: Pee
   const isPiP = peerMediaStream?.value?.videoQuality === 'largest'
 
   useEffect(() => {
-    if (!stream) return
+    if (!stream || isAudio) return
 
     const { maxResolution } = clientSetting.mediaSettings.video
 
