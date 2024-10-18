@@ -116,7 +116,6 @@ export const MaterialDefinitionComponent = defineComponent({
       getParserOptions(entity),
       component.get(NO_PROXY) as ComponentType<typeof MaterialDefinitionComponent>
     )
-
     useLayoutEffect(() => {
       if (!entity || !material) return
       const uuid = getComponent(entity, UUIDComponent)
@@ -967,6 +966,7 @@ export const EEMaterialComponent = defineComponent({
       )
 
       const reactor = startReactor(() => {
+        const material = materialStateComponent.material.value as Material
         for (const [k, v] of Object.entries(component.args.value)) {
           if (v.type === 'texture') {
             if (v.contents) {
@@ -977,7 +977,6 @@ export const EEMaterialComponent = defineComponent({
                 resultProperties[k] = texture
                 delete texturePromises[k]
                 if (Object.keys(texturePromises).length === 0) {
-                  const material = materialStateComponent.material.value as Material
                   material.setValues(resultProperties)
                   material.needsUpdate = true
                   reactor.stop()
@@ -990,15 +989,13 @@ export const EEMaterialComponent = defineComponent({
             }
           } else if (v.type === 'color') {
             useEffect(() => {
-              if (v.contents !== null && !(v.contents as Color)?.isColor) {
-                resultProperties[k] = new Color(v.contents)
-              } else {
-                resultProperties[k] = v.contents
-              }
+              resultProperties[k] = new Color(v.contents)
+              material.setValues(resultProperties)
             }, [])
           } else {
             useEffect(() => {
               resultProperties[k] = v.contents
+              material.setValues(resultProperties)
             }, [])
           }
         }
