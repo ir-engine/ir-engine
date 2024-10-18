@@ -31,6 +31,7 @@ import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/material
 import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
 import createGLTFExporter from './createGLTFExporter'
 
+/**@todo stop using three's exporter when we start serializing ecs material data */
 export default async function exportMaterialsGLTF(
   materialEntities: Entity[],
   options: GLTFExporterOptions

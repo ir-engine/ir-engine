@@ -104,7 +104,24 @@ export async function addMediaNode(
       // const lineEnd = raycaster.ray.origin.clone().add(raycaster.ray.direction.clone().multiplyScalar(1000))
       // const lineGeometry = new BufferGeometry().setFromPoints([lineStart, lineEnd])
       // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
-      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      // startReactor(() => {
+      //   const assetEntity = useMutableState(GLTFAssetState)[url].value
+      //   const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
+
+      //   useEffect(() => {
+      //     if(!assetEntity) {
+      //       GLTFAssetState.loadScene(url, v4())
+      //       return
+      //     }
+
+      //     if(progress?.value === 100) {
+      //       const material = getChildrenWithComponents(assetEntity, [MaterialStateComponent])[0]
+      //       console.log(assetEntity, material)
+      //     }
+      //   }, [progress])
+
+      //   return null
+      // })
       GLTFAssetState.loadScene(url, v4())
       /**@todo material support */
       // gltfLoader.load(url, (gltf) => {
