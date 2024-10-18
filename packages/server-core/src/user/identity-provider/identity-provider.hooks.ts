@@ -45,6 +45,7 @@ import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
 import { Paginated } from '@feathersjs/feathers'
+import { API } from '@ir-engine/common'
 import {
   projectPath,
   projectPermissionPath,
@@ -294,6 +295,31 @@ async function createAccessToken(context: HookContext<IdentityProviderService>) 
   }
 }
 
+async function checkUserPermissions(context: HookContext): Promise<void> {
+  // Fetch user scopes
+  const userId = context.params.user.id
+  const scopes = (await API.instance.service(scopePath).find({
+    query: {
+      $select: ['type'],
+      userId: userId,
+      paginate: false
+    }
+  })) as any as { type: string }[]
+
+  // Check for editor:write scope and any admin scope
+  const hasEditorWriteScope = scopes.some((scope) => scope.type === 'editor:write')
+  const hasAdminScope = scopes.some((scope) => scope.type.startsWith('admin:'))
+
+  // Check if the user is allowed to use $like
+  if (!hasEditorWriteScope && !hasAdminScope) {
+    const { query } = context.params
+
+    if (query && query?.email?.$like) {
+      throw new Forbidden('Not enough privileges: You do not have permission') // Respond with HTTP 403 Forbidden
+    }
+  }
+}
+
 export default {
   around: {
     all: [
@@ -307,7 +333,7 @@ export default {
       schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
+    find: [iff(isProvider('external'), checkUserPermissions, setLoggedinUserInQuery('userId'))],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
       iff(
