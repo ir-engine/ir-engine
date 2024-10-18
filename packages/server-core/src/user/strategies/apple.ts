@@ -80,8 +80,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
         name: '' as UserName,
         isGuest: false,
         inviteCode: code,
-        avatarId: avatars.data[random(avatars.data.length - 1)].id,
-        scopes: []
+        avatarId: avatars.data[random(avatars.data.length - 1)].id
       })
       entity.userId = newUser.id
       await this.app.service(identityProviderPath).patch(entity.id, {

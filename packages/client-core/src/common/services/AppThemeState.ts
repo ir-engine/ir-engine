@@ -27,8 +27,6 @@ import { defaultThemeSettings, getCurrentTheme } from '@ir-engine/common/src/con
 import { ClientThemeOptionsType } from '@ir-engine/common/src/schema.type.module'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
-import { AuthState } from '../../user/services/AuthService'
-
 /** @deprected this is the thene for mui pages, it will be replaced with ThemeService / ThemeState */
 export const AppThemeState = defineState({
   name: 'AppThemeState',
@@ -45,29 +43,18 @@ export const AppThemeState = defineState({
   }
 })
 
-export const useAppThemeName = (): string => {
+export const useAppThemeName = (themeModes: Record<string, string>): string => {
   const themeState = useMutableState(AppThemeState)
-  const authState = useMutableState(AuthState)
 
   if (themeState.mode.value === 'custom' && themeState.customThemeName.value) return themeState.customThemeName.value
 
-  return getCurrentTheme(authState.user?.userSetting?.value?.themeModes)
+  return getCurrentTheme(themeModes)
 }
 
-export const getAppThemeName = (): string => {
-  const themeState = getMutableState(AppThemeState)
-  const authState = getMutableState(AuthState)
-
-  if (themeState.mode.value === 'custom' && themeState.customThemeName.value) return themeState.customThemeName.value
-
-  return getCurrentTheme(authState.user?.userSetting?.value?.themeModes)
-}
-
-export const getAppTheme = () => {
+export const getAppTheme = (themeModes: Record<string, string>) => {
   const themeState = getState(AppThemeState)
   if (themeState.mode === 'custom' && themeState.customTheme) return themeState.customTheme
 
-  const authState = getState(AuthState)
-  const theme = getCurrentTheme(authState.user?.userSetting?.themeModes)
+  const theme = getCurrentTheme(themeModes)
   return defaultThemeSettings[theme]
 }

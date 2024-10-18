@@ -66,8 +66,7 @@ describe('channel service', () => {
       name: 'user' as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const channel = await app.service(channelPath).create({}, { user })
@@ -112,8 +111,7 @@ describe('channel service', () => {
       name: 'user' as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
@@ -161,8 +159,7 @@ describe('channel service', () => {
       name: 'user' as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
@@ -190,8 +187,7 @@ describe('channel service', () => {
       name: 'user' as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
