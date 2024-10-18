@@ -78,7 +78,7 @@ export default function ComponentDropdown({
         </button>
       </div>
       {!isMinimized && <div className="text-center text-xs leading-[18px] text-[#D3D5D9]">{description}</div>}
-      <div className="mt-4">{children}</div>
+      <div className={twMerge('mt-4', isMinimized && 'hidden')}>{children}</div>
     </div>
   )
 }

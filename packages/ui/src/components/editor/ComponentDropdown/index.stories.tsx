@@ -67,7 +67,11 @@ const ImageLinkRenderer = (args: ComponentDropdownProps) => {
     return <button onClick={() => updateArgs({ closed: false })}>click to show component again</button>
   }
   return (
-    <ComponentDropdown {...args} children={<div className="h-20" />} onClose={() => updateArgs({ closed: true })} />
+    <ComponentDropdown
+      {...args}
+      children={<div className="h-20 bg-sky-800" />}
+      onClose={() => updateArgs({ closed: true })}
+    />
   )
 }
 
