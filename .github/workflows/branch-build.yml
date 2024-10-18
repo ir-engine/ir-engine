@@ -152,3 +152,5 @@ jobs:
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: cd packages/${{ matrix.package }} && npm run test
         timeout-minutes: 20
+        env:
+          GITHUB_ACTIONS: true
