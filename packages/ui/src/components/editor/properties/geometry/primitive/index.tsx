@@ -30,6 +30,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { GeometryTypeEnum } from '@ir-engine/engine/src/scene/constants/GeometryTypeEnum'
@@ -38,7 +39,6 @@ import { Geometry } from '@ir-engine/spatial/src/common/constants/Geometry'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
-import NodeEditor from '../../nodeEditor'
 import ParameterInput from '../../parameter'
 
 /**
@@ -129,7 +129,7 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.primitiveGeometry.name')}
       description={t('editor:properties.primitiveGeometry.description')}
-      icon={<PrimitiveGeometryNodeEditor.iconComponent />}
+      Icon={PrimitiveGeometryNodeEditor.iconComponent}
     >
       <InputGroup name="Geometry Type" label={t('editor:properties.primitiveGeometry.lbl-geometryType')}>
         <SelectInput
