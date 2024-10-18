@@ -45,7 +45,6 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     const parent = lastRef.value as HTMLElement
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
-    const originalParent = canvas.parentElement
 
     parent.appendChild(canvas)
 
@@ -58,7 +57,6 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     return () => {
       observer.disconnect()
       parent.removeChild(canvas)
-      originalParent?.appendChild(canvas)
     }
   }, [lastRef.value])
 
