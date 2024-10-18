@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions.ts'
 import {
   FilesState,
   FilesViewModeSettings,
@@ -248,9 +249,9 @@ export default function FileItem({ file }: { file: FileDataType }) {
     event.stopPropagation()
     if (!files) return
 
-    if (event.ctrlKey || event.metaKey) {
+    if (usesCtrlKey() ? event.ctrlKey : event.metaKey) {
       selectedFiles.set((prevSelectedFiles) =>
-        prevSelectedFiles.some((file) => file.key === file.key)
+        prevSelectedFiles.includes(file)
           ? prevSelectedFiles.filter((prevFile) => prevFile.key !== file.key)
           : [...prevSelectedFiles, file]
       )
