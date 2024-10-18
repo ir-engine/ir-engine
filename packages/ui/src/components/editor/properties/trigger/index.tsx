@@ -59,7 +59,7 @@ type TargetOptionType = { label: string; value: string; callbacks: SelectOptions
 
 const TriggerProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const targets = useHookstate<TargetOptionType[]>([{ label: 'Self', value: '', callbacks: [] }])
+  const targets = useHookstate<TargetOptionType[]>([{ label: '', value: '', callbacks: [] }])
 
   const triggerComponent = useComponent(props.entity, TriggerComponent)
   const hasRigidbody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
@@ -75,13 +75,8 @@ const TriggerProperties: EditorComponentType = (props) => {
     }
 
     const options = [] as TargetOptionType[]
-    options.push({
-      label: 'Self',
-      value: '',
-      callbacks: []
-    })
     for (const entity of callbackQuery()) {
-      if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
+      if (!hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
@@ -90,7 +85,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       })
     }
     targets.set(options)
-  }, [])
+  }, [JSON.stringify(callbackQuery)])
 
   return (
     <NodeEditor
