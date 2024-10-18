@@ -31,7 +31,7 @@ import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeState, SelectedFilesState } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
-import { BrowserContextMenu } from './contextmenu'
+import { FileContextMenu } from './contextmenu'
 import FileItem, { TableWrapper } from './fileitem'
 import { CurrentFilesQueryProvider, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 import FilesLoaders from './loaders'
@@ -54,7 +54,19 @@ function Browser() {
   const FileItems = () => (
     <>
       {files.map((file) => (
-        <FileItem file={file} key={file.key} data-testid="files-panel-file-item" />
+        <FileItem
+          file={file}
+          onContextMenu={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
+              selectedFiles.set([file])
+            }
+            setAnchorEvent(event)
+          }}
+          key={file.key}
+          data-testid="files-panel-file-item"
+        />
       ))}
     </>
   )
@@ -66,6 +78,7 @@ function Browser() {
       onContextMenu={(event) => {
         event.preventDefault()
         event.stopPropagation()
+        selectedFiles.set([])
         setAnchorEvent(event)
       }}
     >
@@ -87,7 +100,7 @@ function Browser() {
           )}
         </div>
       </div>
-      <BrowserContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />
+      <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />
     </div>
   )
 }
