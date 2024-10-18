@@ -39,13 +39,14 @@ import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/compo
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { FilesState } from '@ir-engine/editor/src/services/FilesState'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { recursiveHipsLookup } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import { getState, useState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useState } from '@ir-engine/hyperflux'
 import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import Accordion from '../../../../primitives/tailwind/Accordion'
 import Button from '../../../../primitives/tailwind/Button'
@@ -112,6 +113,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       commitProperty(ModelComponent, 'src')(nuPath)
       ResourceLoaderManager.updateResource(nuPath)
       exporting.set(false)
+
+      const filesState = getMutableState(FilesState)
+      filesState.refresh.set(filesState.refresh.value + 1) //trigger a brwoser refresh
     })
   }
 
