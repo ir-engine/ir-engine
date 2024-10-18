@@ -74,9 +74,8 @@ export const SkyboxComponent = defineComponent({
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
-
-    const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
     const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
+    const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
 
     useImmediateEffect(() => {
       if (!skyboxState.cubemapPath.value)

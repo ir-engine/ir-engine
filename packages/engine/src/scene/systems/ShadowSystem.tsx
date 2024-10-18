@@ -82,10 +82,10 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { TransformSystem } from '@ir-engine/spatial'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { useHasModelOrIndependentMesh } from '../../gltf/GLTFComponent'

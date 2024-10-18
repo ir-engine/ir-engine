@@ -112,7 +112,8 @@ export const GLTFComponent = defineComponent({
   },
 
   useSceneLoaded(entity: Entity) {
-    const gltfComponent = useComponent(entity, GLTFComponent)
+    const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+    if (!gltfComponent) return false
     const dependencies = gltfComponent.dependencies
     const progress = gltfComponent.progress.value
     return !!(dependencies.value && !dependencies.keys?.length) && progress === 100
@@ -320,7 +321,7 @@ export const loadGltfFile = (
 
     if (typeof data === 'string') {
       json = JSON.parse(data)
-    } else if (data instanceof ArrayBuffer) {
+    } else if ('byteLength' in data) {
       const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
 
       if (magic === BINARY_EXTENSION_HEADER_MAGIC) {

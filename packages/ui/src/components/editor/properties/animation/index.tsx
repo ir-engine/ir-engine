@@ -30,19 +30,19 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
+import { getHips } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
 import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
+import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { useState } from '@ir-engine/hyperflux'
 import { getCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { FaStreetView } from 'react-icons/fa'
-
-import { getHips } from '@ir-engine/engine/src/avatar/AvatarBoneMatching'
-import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaStreetView } from 'react-icons/fa'
+import { LoopOnce, LoopPingPong, LoopRepeat } from 'three'
 import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
@@ -124,6 +124,23 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           />
         </InputGroup>
       )}
+      <InputGroup name="Paused" label={t('editor:properties.loopAnimation.lbl-paused')}>
+        <BooleanInput
+          value={loopAnimationComponent.paused.value}
+          onChange={commitProperty(LoopAnimationComponent, 'paused')}
+        />
+      </InputGroup>
+      <InputGroup name="Loop" label={t('editor:properties.loopAnimation.lbl-loop')}>
+        <SelectInput
+          options={[
+            { label: 'Once', value: LoopOnce },
+            { label: 'Repeat', value: LoopRepeat },
+            { label: 'Ping Pong', value: LoopPingPong }
+          ]}
+          value={loopAnimationComponent.loop.value}
+          onChange={commitProperty(LoopAnimationComponent, 'loop')}
+        />
+      </InputGroup>
     </NodeEditor>
   )
 }

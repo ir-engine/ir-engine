@@ -254,35 +254,44 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
   }
 
   const dropItem = (item: FileDataType | DnDFileType | DragItemType, monitor: DropTargetMonitor): void => {
-    let parentNode: Entity | undefined = undefined
-    let beforeNode: Entity | undefined = undefined
+    let parentNode: Entity | undefined
+    let beforeNode: Entity = UndefinedEntity
+    let afterNode: Entity = UndefinedEntity
 
     if (node) {
-      if (place === 'Before') {
-        const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-        parentNode = entityTreeComponent?.parentEntity
-        beforeNode = node.entity
-      } else if (place === 'After') {
-        const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-        parentNode = entityTreeComponent?.parentEntity
-        const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-        if (
-          parentTreeComponent &&
-          !node.lastChild &&
-          parentNode &&
-          parentTreeComponent?.children.length > node.childIndex + 1
-        ) {
-          beforeNode = parentTreeComponent.children[node.childIndex + 1]
-        }
-      } else {
-        parentNode = node.entity
+      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity
+      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+
+      switch (place) {
+        case 'Before': // we want to place before this node
+          beforeNode = node.entity
+          if (!parentTreeComponent || !parentNode) break
+          if (0 > node.childIndex - 1) break // nothing to place after it, as node index is the first child
+          afterNode = UndefinedEntity
+          break
+        case 'After': // we want to place after this node
+          afterNode = node.entity
+          if (!parentTreeComponent || !parentNode) break
+          if (node.lastChild) break // if it is last child, nothing to place before it
+          if (parentTreeComponent?.children.length < node.childIndex + 1) break //node index is last child
+          beforeNode = UndefinedEntity
+          break
+        default: //case 'on'
+          parentNode = node.entity
       }
+    }
+
+    if (!parentNode) {
+      console.warn('parent is not defined')
+      return
     }
 
     if ('files' in item) {
       const dndItem: any = monitor.getItem()
       const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
 
+      //uploading files then adding as media to the editor
       onUpload(entries).then((assets) => {
         if (!assets) return
         for (const asset of assets) {
@@ -311,7 +320,8 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
         ? ((item as DragItemType).value as Entity[])
         : [(item as DragItemType).value as Entity],
       beforeNode,
-      parentNode
+      afterNode,
+      parentNode === null ? undefined : parentNode
     )
   }
 

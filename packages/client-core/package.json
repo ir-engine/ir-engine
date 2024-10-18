@@ -17,7 +17,7 @@
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --config .mocharc.js"
+    "test": "cross-env TEST=true vitest run"
   },
   "resolutions": {
     "@types/react": "18.2.0",
@@ -86,7 +86,6 @@
     "@types/three": "0.158.0",
     "css-modules-require-hook": "4.2.3",
     "esbuild": "0.17.12",
-    "mocha": "10.2.0",
     "react-dom": "18.2.0",
     "rimraf": "4.4.0",
     "sass": "1.59.3",

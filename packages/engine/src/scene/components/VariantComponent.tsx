@@ -36,6 +36,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { Entity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
@@ -115,6 +116,20 @@ export const VariantComponent = defineComponent({
 
       setComponent(entity, GLTFComponent, { src: src })
     }, [variantComponent.currentLevel, variantComponent.levels])
+
+    useEffect(() => {
+      const levels = variantComponent.levels.length
+      for (let level = 0; level < levels; level++) {
+        setCallback(entity, `variantLevel${level}`, () => {
+          variantComponent.currentLevel.set(level)
+        })
+      }
+      return () => {
+        for (let level = 0; level < levels; level++) {
+          removeCallback(entity, `variantLevel${level}`)
+        }
+      }
+    }, [variantComponent.levels.length])
 
     return null
   }

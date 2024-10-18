@@ -40,7 +40,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import './mui.styles.scss' /** @todo Remove when MUI is removed */
 import './styles.scss'
 
-const AppPage = (props: { children: React.ReactNode }) => {
+const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element }) => {
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
 
@@ -54,13 +54,15 @@ const AppPage = (props: { children: React.ReactNode }) => {
   useSearchParamState()
 
   if (!isLoggedIn) {
-    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
+    return (
+      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
+    )
   }
 
   return (
     <>
       <NotificationSnackbar />
-      <LoadWebappInjection>{props.children}</LoadWebappInjection>
+      <LoadWebappInjection fallback={props.fallback}>{props.children}</LoadWebappInjection>
       <InviteToast />
     </>
   )

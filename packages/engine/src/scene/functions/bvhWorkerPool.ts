@@ -37,12 +37,13 @@ const createWorker = () => {
   } else {
     const path = require('path')
     const workerPath = path.resolve(__dirname, './generateBVHAsync.register.js')
+    console.log({ workerPath })
     return new Worker(workerPath, { type: 'module' })
   }
 }
 
-const workerPool = new WorkerPool(1)
-workerPool.setWorkerCreator(createWorker)
+export const bvhWorkerPool = new WorkerPool(1)
+bvhWorkerPool.setWorkerCreator(createWorker)
 
 export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = {} as any) {
   if (
@@ -64,7 +65,7 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
     transferrables.push(index as ArrayLike<number>)
   }
 
-  const response = await workerPool.postMessage<BVHWorkerResponse>(
+  const response = await bvhWorkerPool.postMessage<BVHWorkerResponse>(
     {
       index,
       position: pos,

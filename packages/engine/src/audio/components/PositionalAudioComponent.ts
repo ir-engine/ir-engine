@@ -65,7 +65,7 @@ export const PositionalAudioComponent = defineComponent({
     refDistance: S.Number(1),
     maxDistance: S.Number(40),
     coneInnerAngle: S.Number(360),
-    coneOuterAngle: S.Number(0),
+    coneOuterAngle: S.Number(360),
     coneOuterGain: S.Number(0)
   }),
 
@@ -77,20 +77,15 @@ export const PositionalAudioComponent = defineComponent({
 
     useEffect(() => {
       if (debugEnabled.value) {
-        if (!mediaElement || !mediaElement.element.value) return
-        const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
-        if (!audioNodes) return
         const name = getOptionalComponent(entity, NameComponent)
         setComponent(entity, PositionalAudioHelperComponent, {
-          audio: audioNodes,
           name: name ? `${name}-positional-audio-helper` : undefined
         })
       }
-
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)
       }
-    }, [debugEnabled, mediaElement?.element])
+    }, [debugEnabled, mediaElement?.element, audio.maxDistance, audio.coneInnerAngle, audio.coneOuterAngle])
 
     useEffect(() => {
       if (!mediaElement?.element.value) return

@@ -29,14 +29,13 @@ import { PresentationSystemGroup, UndefinedEntity } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import {
   MaterialPrototypeDefinition,
-  MaterialPrototypeDefinitions
+  MaterialPrototypeDefinitions,
+  MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   createAndAssignMaterial,
   createMaterialPrototype
 } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { MeshBasicMaterial } from 'three'
 
 const reactor = () => {
