@@ -254,7 +254,7 @@ describe('PostProcessingComponent', () => {
       return destroyEngine()
     })
 
-    it.only('should add and remove effects correctly', async () => {
+    it('should add and remove effects correctly', async () => {
       const effectKey = 'NoiseEffect'
       noiseAddToEffectRegistry()
 
