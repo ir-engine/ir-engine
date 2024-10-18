@@ -460,4 +460,4 @@ export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
   }
 }
 
-export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTag' })
+export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTagComponent' })
