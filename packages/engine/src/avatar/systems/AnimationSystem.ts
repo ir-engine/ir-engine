@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, getOptionalMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -33,7 +33,6 @@ import { TweenComponent } from '@ir-engine/spatial/src/transform/components/Twee
 
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { AnimationComponent } from '.././components/AnimationComponent'
-import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
@@ -50,9 +49,9 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
-    const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
-    animationActionComponent?._action.value &&
-      animationActionComponent?.time.set(animationActionComponent._action.value.time)
+    //const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
+    // animationActionComponent?._action.value &&
+    //   animationActionComponent?.time.set(animationActionComponent._action.value.time)
   }
 }
 

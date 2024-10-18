@@ -34,6 +34,7 @@ import {
   createEntity,
   generateEntityUUID,
   getOptionalComponent,
+  removeEntity,
   setComponent,
   UndefinedEntity,
   useOptionalComponent,
@@ -54,6 +55,7 @@ import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/Anim
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { AnimationClip } from 'three'
 import styles from './index.module.scss'
@@ -70,6 +72,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const { sceneEntity, cameraEntity } = useRender3DPanelSystem(panelRef)
+  const loaded = GLTFComponent.useSceneLoaded(sceneEntity)
+  const errors = ErrorComponent.useComponentErrors(sceneEntity, GLTFComponent)
 
   useEffect(() => {
     if (!avatarUrl) return
@@ -84,6 +88,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(sceneEntity, AvatarComponent)
     setComponent(sceneEntity, GLTFComponent, { src: avatarUrl })
     setComponent(sceneEntity, AvatarRigComponent)
+
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
     if (getChildrenWithComponents(sceneEntity, [AmbientLightComponent]).length) return
@@ -93,7 +98,21 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(lightEntity, VisibleComponent)
     setComponent(lightEntity, NameComponent, 'Ambient Light')
     setComponent(lightEntity, EntityTreeComponent, { parentEntity: sceneEntity })
+
+    return () => {
+      removeEntity(lightEntity)
+    }
   }, [avatarUrl])
+
+  useEffect(() => {
+    if (!loaded) return
+    if (onAvatarLoaded) onAvatarLoaded()
+  }, [loaded])
+
+  useEffect(() => {
+    if (!errors) return
+    if (onAvatarError) onAvatarError(errors.value['LOADING_ERROR'])
+  }, [errors])
 
   useEffect(() => {
     const animationComponent = getOptionalComponent(sceneEntity, AnimationComponent)

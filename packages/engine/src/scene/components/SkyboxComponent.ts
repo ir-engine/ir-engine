@@ -74,7 +74,7 @@ export const SkyboxComponent = defineComponent({
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
-
+    const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
     const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
 
@@ -111,6 +111,7 @@ export const SkyboxComponent = defineComponent({
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
+        cubemapTexture.set(texture)
         texture.mapping = CubeReflectionMapping
         cubemapTexture.set(texture)
         setComponent(entity, BackgroundComponent, texture)

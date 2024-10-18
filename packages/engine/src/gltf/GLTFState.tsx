@@ -72,21 +72,20 @@ import {
   useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
-
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
@@ -274,7 +273,7 @@ export const GLTFSnapshotState = defineState({
 
   cloneCurrentSnapshot: (source: string) => {
     const state = getState(GLTFSnapshotState)[source]
-    return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
+    return structuredClone({ source, data: state.snapshots[state.index] }) as {
       data: GLTF.IGLTF
       source: string
     }
@@ -371,7 +370,6 @@ export const EditorTopic = 'editor' as Topic
 
 const ChildGLTFReactor = (props: { source: string }) => {
   const source = props.source
-
   const index = useMutableState(GLTFSnapshotState)[source].index
   const entity = useMutableState(GLTFSourceState)[source].value
 
@@ -381,7 +379,6 @@ const ChildGLTFReactor = (props: { source: string }) => {
       getMutableState(GLTFNodeState)[source].set(none)
     }
   }, [])
-  const parentUUID = useOptionalComponent(entity, UUIDComponent)?.value
 
   useLayoutEffect(() => {
     const index = getState(GLTFSnapshotState)[source].index
@@ -397,6 +394,7 @@ const ChildGLTFReactor = (props: { source: string }) => {
     getMutableState(GLTFNodeState)[source].set(nodesDictionary)
   }, [index])
 
+  const parentUUID = useOptionalComponent(entity, UUIDComponent)?.value
   const nodeState = useHookstate(getMutableState(GLTFNodeState))[source]
   const documentState = useMutableState(GLTFDocumentState)[source]
   const physicsWorld = Physics.useWorld(entity)

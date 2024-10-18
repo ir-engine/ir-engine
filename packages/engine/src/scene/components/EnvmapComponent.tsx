@@ -111,9 +111,16 @@ export const EnvmapComponent = defineComponent({
     const probeQuery = useQuery([ReflectionProbeComponent])
 
     useEffect(() => {
+      if (!mesh) return
+      return () => {
+        updateEnvMap(mesh.value as Mesh, null)
+      }
+    }, [])
+
+    useEffect(() => {
       if (!mesh?.value) return
       updateEnvMapIntensity(mesh.value as Mesh, component.envMapIntensity.value)
-    }, [material, mesh, component.envMapIntensity])
+    }, [mesh, component.envMapIntensity])
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Skybox) return

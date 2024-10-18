@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Intersection, Raycaster, Vector2 } from 'three'
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { generateEntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -68,6 +69,17 @@ export async function addMediaNode(
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
   console.log(contentType)
+
+  const pathArray = url.split('/')
+  const lastIndex = pathArray.length - 1
+  const fileNameWithExt = pathArray[lastIndex]
+  const fileNameArray = fileNameWithExt.split('.')
+  let name: string | undefined = undefined
+  try {
+    name = decodeURI(fileNameArray[0])
+  } catch (err) {
+    NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  }
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
@@ -142,7 +154,8 @@ export async function addMediaNode(
           ...extraComponentJson
         ],
         parent!,
-        before
+        before,
+        name
       )
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
@@ -153,13 +166,15 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before
+      before,
+      name
     )
   } else if (contentType.startsWith('image/')) {
     EditorControlFunctions.createObjectFromSceneElement(
       [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
       parent!,
-      before
+      before,
+      name
     )
   } else if (contentType.startsWith('audio/')) {
     EditorControlFunctions.createObjectFromSceneElement(
@@ -169,7 +184,8 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before
+      before,
+      name
     )
   } else if (url.includes('.uvol')) {
     EditorControlFunctions.createObjectFromSceneElement(
@@ -179,7 +195,8 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before
+      before,
+      name
     )
   }
 }
