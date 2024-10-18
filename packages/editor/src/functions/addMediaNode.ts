@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Intersection, Raycaster, Vector2 } from 'three'
+import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
@@ -45,9 +45,11 @@ import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/Volu
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { assignMaterial, createMaterialEntity } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { v4 } from 'uuid'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -103,7 +105,9 @@ export async function addMediaNode(
       // const lineStart = raycaster.ray.origin
       // const lineEnd = raycaster.ray.origin.clone().add(raycaster.ray.direction.clone().multiplyScalar(1000))
       // const lineGeometry = new BufferGeometry().setFromPoints([lineStart, lineEnd])
+
       // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
+
       // startReactor(() => {
       //   const assetEntity = useMutableState(GLTFAssetState)[url].value
       //   const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
@@ -124,24 +128,25 @@ export async function addMediaNode(
       // })
       GLTFAssetState.loadScene(url, v4())
       /**@todo material support */
-      // gltfLoader.load(url, (gltf) => {
-      //   const material = iterateObject3D(
-      //     gltf.scene,
-      //     (mesh: Mesh) => mesh.material as Material,
-      //     (mesh: Mesh) => mesh?.isMesh
-      //   )[0]
-      //   if (!material) return
-      //   const materialEntity = createMaterialEntity(materal)
-      //   let foundTarget = false
-      //   for (const intersection of intersections) {
-      //     iterateObject3D(intersection.object, (mesh: Mesh) => {
-      //       if (!mesh?.isMesh || !mesh.visible) return
-      //       assignMaterial(mesh.entity, materialEntity)
-      //       foundTarget = true
-      //     })
-      //     if (foundTarget) break
-      //   }
-      // })
+      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      gltfLoader.load(url, (gltf) => {
+        const material = iterateObject3D(
+          gltf.scene,
+          (mesh: Mesh) => mesh.material as Material,
+          (mesh: Mesh) => mesh?.isMesh
+        )[0]
+        if (!material) return
+        const materialEntity = createMaterialEntity(material)
+        let foundTarget = false
+        for (const intersection of intersections) {
+          iterateObject3D(intersection.object, (mesh: Mesh) => {
+            if (!mesh?.isMesh || !mesh.visible) return
+            assignMaterial(mesh.entity, materialEntity)
+            foundTarget = true
+          })
+          if (foundTarget) break
+        }
+      })
     } else if (contentType.startsWith('model/lookdev')) {
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
