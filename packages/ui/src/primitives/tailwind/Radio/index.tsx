@@ -32,11 +32,11 @@ export interface RadioProps {
   name?: string
   onChange?: (event: React.FormEvent<HTMLInputElement>) => void
   value?: string
-  defaultChecked?: boolean
+  checked?: boolean
   description?: string
 }
 
-const RadioRoot = ({ disabled, label, name, onChange, value, description, defaultChecked }: RadioProps) => {
+const RadioRoot = ({ disabled, label, name, onChange, value, description, checked }: RadioProps) => {
   const radioId = useId()
   return (
     <div className="flex flex-col">
@@ -47,24 +47,25 @@ const RadioRoot = ({ disabled, label, name, onChange, value, description, defaul
             type="radio"
             name={name}
             disabled={disabled}
-            className="
-            focus:ring-primary-blue
-            peer col-start-1
-            row-start-1 h-4
-            w-4 shrink-0 appearance-none rounded-full border-[1.5px]
-            border-blue-500 focus:outline-none focus:ring-[0.5px] focus:ring-offset-0
-            disabled:border-gray-400
-          "
+            className={twMerge(
+              'peer col-start-1 row-start-1 h-4 w-4',
+              'shrink-0 appearance-none rounded-full',
+              'bg-[#141619] hover:bg-[#191B1F] disabled:bg-[#191B1F]',
+              'ring-1 ring-offset-0',
+              !checked && 'ring-[#212226] hover:ring-[#9CA0AA] focus:ring-[#375DAF]',
+              checked && 'ring-[#375DAF]',
+              'disabled:ring-[#42454D]'
+            )}
             onChange={onChange}
-            defaultChecked={defaultChecked}
+            checked={checked}
             value={value}
           />
           <div
             className={twMerge(
               'pointer-events-none',
               'col-start-1 row-start-1',
-              'h-2 w-2 rounded-full peer-checked:bg-blue-500',
-              'peer-checked:peer-disabled:bg-gray-400'
+              'h-2 w-2 rounded-full peer-checked:bg-[#5F7DBF]',
+              'peer-checked:peer-disabled:bg-[#42454D]'
             )}
           />
         </div>
@@ -96,7 +97,7 @@ type OptionValueType = string | number
 
 const Radio = <T extends OptionValueType>({
   disabled,
-  name,
+  name = 'radio-button-group',
   onChange,
   options,
   horizontal,
@@ -104,19 +105,18 @@ const Radio = <T extends OptionValueType>({
   value
 }: RadioGroupProps<T>) => {
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => onChange(event.currentTarget.value as T)
-  const defaultName = 'radio-button-group'
   return (
-    <div className={twMerge(`grid gap-6 ${horizontal ? 'grid-flow-col' : ''}`, className)}>
-      {options.map(({ label: optionLabel, value: valueOption, description }, index) => (
+    <div className={twMerge('grid gap-6', horizontal && 'grid-flow-col', className)}>
+      {options.map(({ label: optionLabel, value: valueOption, description }) => (
         <div key={valueOption} className="flex items-center gap-2">
           <RadioRoot
-            name={name || defaultName}
+            name={name}
             disabled={disabled}
             label={optionLabel}
             onChange={handleChange}
             value={valueOption}
             description={description}
-            defaultChecked={value === valueOption}
+            checked={value === valueOption}
           />
         </div>
       ))}
