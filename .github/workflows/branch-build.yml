@@ -135,8 +135,6 @@ jobs:
         package:
           - server-core
           - instanceserver
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
     defaults:
       run:
         shell: bash
@@ -145,14 +143,11 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
-      - run: rm -rf packages/client
-      - run: rm -rf packages/client-core
-      - run: rm -rf packages/editor
-      - run: rm -rf packages/ui
+      - run: rm -rf packages/client packages/client-core packages/editor packages/ui
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
-      - run: cd packages/${{ matrix.package }} && npm run test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+      - run: cd packages/${{ matrix.package }} && npm run test
         timeout-minutes: 20
         env:
           GITHUB_ACTIONS: true
