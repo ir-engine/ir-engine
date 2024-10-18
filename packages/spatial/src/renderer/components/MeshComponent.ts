@@ -37,6 +37,7 @@ import {
 import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs'
+import { useResource } from '../../resources/resourceHooks'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
@@ -49,13 +50,13 @@ export const MeshComponent = defineComponent({
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
     // Needs reworked since the material and geometry can already be a state value through the GLTF loader
-    // const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
-    // const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
-    // const [materialResource] = useResource<Material | Material[]>(
-    //   meshComponent.material.value as Material | Material[],
-    //   entity,
-    //   !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
-    // )
+    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
+    const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
+    const [materialResource] = useResource<Material | Material[]>(
+      meshComponent.material.value as Material | Material[],
+      entity,
+      !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
+    )
 
     useEffect(() => {
       const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null
@@ -68,14 +69,21 @@ export const MeshComponent = defineComponent({
     }, [meshComponent.geometry.boundingBox])
 
     useEffect(() => {
-      const mesh = meshComponent.value
+      const material = meshComponent.material.value
 
-      if (Array.isArray(mesh.material)) {
-        mesh.material.forEach((material) => (material.needsUpdate = true))
+      if (Array.isArray(material)) {
+        material.forEach((material) => (material.needsUpdate = true))
       } else {
-        ;(mesh.material as Material).needsUpdate = true
+        ;(material as Material).needsUpdate = true
       }
+
+      if (material !== materialResource.value) materialResource.set(material)
     }, [meshComponent.material])
+
+    useEffect(() => {
+      const geometry = meshComponent.geometry.value
+      if (geometry !== geometryResource.value) geometryResource.set(geometry)
+    }, [meshComponent.geometry])
 
     return null
   }
