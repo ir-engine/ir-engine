@@ -268,7 +268,6 @@ describe('PostProcessingComponent', () => {
       setComponent(rootEntity, RendererComponent)
       await act(() => rerender(<></>))
 
-
       // @ts-ignore Allow access to the EffectPass.effects private field
       const before = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
       assert.equal(Boolean(before.find((el) => el.name == effectKey)), true, effectKey + ' should be turned on')

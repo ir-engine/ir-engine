@@ -27,7 +27,7 @@ import './patchNodeForWebXREmulator'
 
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
-import { Entity, getMutableComponent, setComponent } from '@ir-engine/ecs'
+import { Entity, setComponent } from '@ir-engine/ecs'
 import { EffectComposer, Pass, RenderPass } from 'postprocessing'
 import { WebGLRenderTarget } from 'three'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'

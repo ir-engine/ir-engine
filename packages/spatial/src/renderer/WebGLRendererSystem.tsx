@@ -202,7 +202,7 @@ export const RendererComponent = defineComponent({
     useEffect(() => {
       const context = rendererComponent.renderContext.get(NO_PROXY) as WebGLRenderingContext | WebGL2RenderingContext
       if (!context) return
-      
+
       const canvas = rendererComponent.canvas.get(NO_PROXY) as HTMLCanvasElement
 
       const options: WebGLRendererParameters = {
