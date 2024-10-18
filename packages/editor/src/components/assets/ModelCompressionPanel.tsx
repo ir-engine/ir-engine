@@ -202,14 +202,19 @@ export default function ModelCompressionPanel({
       })
     }
 
-    const heuristic = Heuristic.BUDGET
-    await createLODVariants(srcURL, fileLODs, heuristic, exportCombined, (progress, status, numerator, denominator) => {
-      const caption = t(progressCaptions[status]!, {
-        numerator: numerator + 1,
-        denominator
-      })
-      compressionProgress.set({ progress, caption })
-    })
+    await createLODVariants(
+      srcURL,
+      fileLODs,
+      Heuristic.DISTANCE,
+      exportCombined,
+      (progress, status, numerator, denominator) => {
+        const caption = t(progressCaptions[status]!, {
+          numerator: numerator + 1,
+          denominator
+        })
+        compressionProgress.set({ progress, caption })
+      }
+    )
   }
 
   const deletePreset = (event: React.MouseEvent, idx: number) => {
