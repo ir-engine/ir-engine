@@ -23,26 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
-// import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
-import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { TransformGizmoSystem } from './systems/TransformGizmoSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { CameraGizmoComponent } from '../classes/gizmo/camera/CameraGizmoComponent'
+import { controlUpdate, gizmoUpdate } from '../functions/cameraGizmoHelper'
 
-export {
-  CameraGizmoSystem,
-  ClickPlacementSystem,
-  EditorControlSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  RenderInfoSystem,
-  // EditorInstanceNetworkingSystem,
-  TransformGizmoSystem,
-  UploadRequestSystem
+export const cameraGizmoQuery = defineQuery([CameraGizmoComponent])
+
+const execute = () => {
+  for (const cameraGizmoEntity of cameraGizmoQuery()) {
+    const cameraGizmoComponent = getComponent(cameraGizmoEntity, CameraGizmoComponent)
+    if (!cameraGizmoComponent.enabled || !cameraGizmoComponent.visualEntity) return
+    gizmoUpdate(cameraGizmoEntity)
+    controlUpdate(cameraGizmoEntity)
+  }
 }
+
+export const CameraGizmoSystem = defineSystem({
+  uuid: 'ee.editor.CameraGizmoSystem',
+  insert: { with: AnimationSystemGroup },
+  execute
+})
