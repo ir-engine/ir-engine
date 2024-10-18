@@ -85,8 +85,8 @@ describe('CameraSystem', async () => {
       Engine.instance.store.userID = userId
       const network: Network = NetworkState.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId)
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId)
       const objNetId = 3 as NetworkId
 
       const { rerender, unmount } = render(tag)
@@ -96,7 +96,7 @@ describe('CameraSystem', async () => {
         CameraActions.spawnCamera({
           parentUUID: getComponent(viewerEntity, UUIDComponent),
           entityUUID: CameraUUID,
-          ownerID: network.hostUserID, // from  host
+          ownerID: network.hostUserID!, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID

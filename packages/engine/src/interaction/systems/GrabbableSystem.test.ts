@@ -128,7 +128,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     NetworkState.worldNetwork.hostPeerID = hostUserId
     const hostIndex = 0
 
-    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork, hostUserId, hostIndex, hostUserId, hostIndex)
+    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork, hostUserId, hostIndex, hostUserId)
 
     const userId = 'user id' as UserID
     Engine.instance.store.userID = userId
@@ -141,7 +141,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     // network mock stuff
     // initially the object is owned by server
     setComponent(grabbableEntity, NetworkObjectComponent, {
-      ownerId: NetworkState.worldNetwork.hostUserID,
+      ownerId: NetworkState.worldNetwork.hostUserID!,
       authorityPeerID: Engine.instance.store.peerID,
       networkId: 0 as NetworkId
     })

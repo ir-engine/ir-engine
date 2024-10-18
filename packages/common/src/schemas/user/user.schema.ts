@@ -32,7 +32,6 @@ import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 import { UserID } from '@ir-engine/hyperflux'
 import { USERNAME_MAX_LENGTH } from '../../constants/UserConstants'
 import { TypedString } from '../../types/TypeboxUtils'
-import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { ScopeType } from '../scope/scope.schema'
 import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
@@ -79,7 +78,6 @@ export const userSchema = Type.Object(
     locationAdmins: Type.Array(Type.Ref(locationAdminSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
     scopes: Type.Array(Type.Ref(userScopeSchema)),
-    instanceAttendance: Type.Array(Type.Ref(instanceAttendanceSchema)),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

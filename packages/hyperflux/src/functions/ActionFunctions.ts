@@ -49,7 +49,7 @@ export type Action = {
   type: string | string[]
 } & ActionOptions
 
-export type ActionRecipients = PeerID | PeerID[] | 'all' | 'others'
+export type ActionRecipients = PeerID | PeerID[] | 'all' | null | undefined
 
 export type ActionCacheOptions =
   | boolean
@@ -485,7 +485,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
-      HyperFlux.store.logger('hyperflux:action').info(`[Action]: ${action.type} %o`, action)
+      // HyperFlux.store.logger('hyperflux:action').info(`[Action]: ${action.type} %o`, action)
     } catch (err) {
       console.log('error in logging action', action)
     }

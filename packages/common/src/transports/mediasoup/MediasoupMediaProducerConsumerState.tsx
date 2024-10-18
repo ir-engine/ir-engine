@@ -326,6 +326,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
       const matchingConsumer = state.value[networkID]
         ? Object.values(state.value[networkID].consumers).find((consumer) => consumer.producerID === action.producerID)
         : null
+      /**@todo move this line to the reactor */
       if (matchingConsumer) state[networkID].consumers[matchingConsumer.consumerID].producerPaused.set(action.paused)
       if (!state.value[networkID]?.producers[action.producerID]) return
 

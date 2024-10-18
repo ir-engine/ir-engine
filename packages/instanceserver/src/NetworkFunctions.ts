@@ -29,11 +29,14 @@ import { Spark } from 'primus'
 import { API } from '@ir-engine/common'
 import {
   identityProviderPath,
+  InstanceAttendanceData,
+  instanceAttendancePath,
   instanceAuthorizedUserPath,
   instancePath,
   InstanceType,
   InviteCode,
   inviteCodeLookupPath,
+  locationPath,
   messagePath,
   UserID,
   userKickPath,
@@ -199,7 +202,7 @@ export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: 
   return client?.userId
 }
 
-export const handleConnectingPeer = (
+export const handleConnectingPeer = async (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
@@ -208,13 +211,25 @@ export const handleConnectingPeer = (
 ) => {
   const userId = user.id
 
-  // Create a new client object
-  // and add to the dictionary
-  const existingUser = Object.values(network.peers).find((client) => client.userId === userId)
-  const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
-  const peerIndex = network.peerIndexCount++
+  const app = API.instance as Application
 
-  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
+  const instanceServerState = getState(InstanceServerState)
+
+  const headers = spark.headers
+
+  const newInstanceAttendance: InstanceAttendanceData = {
+    instanceId: instanceServerState.instance.id,
+    isChannel: instanceServerState.isMediaInstance,
+    userId: userId,
+    peerId: peerID
+  }
+  if (!instanceServerState.isMediaInstance) {
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
+    newInstanceAttendance.sceneId = location.sceneId
+  }
+  const instanceAttendance = await app.service(instanceAttendancePath).create(newInstanceAttendance)
+
+  NetworkPeerFunctions.createPeer(network, peerID, instanceAttendance.peerIndex, userId)
 
   const onMessage = (message: any) => {
     network.onMessage(peerID, message)
@@ -251,12 +266,11 @@ export const handleConnectingPeer = (
       return cloneDeep(action)
     })
 
-  const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 
   return {
     routerRtpCapabilities: network.routers[0].rtpCapabilities,
-    peerIndex: network.peerIDToPeerIndex[peerID]!,
+    peerIndex: instanceAttendance.peerIndex,
     cachedActions,
     hostPeerID: network.hostPeerID
   } as Omit<AuthTask, 'status'>
@@ -277,13 +291,18 @@ const getUserSpawnFromInvite = async (
 
     if (inviteCodeLookups.length > 0) {
       const inviterUser = inviteCodeLookups[0]
+      /** @todo we can probably do this for loop in the query itself */
       const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []
-      const userInstanceAttendance = user.instanceAttendance || []
+      const userInstanceAttendance = await API.instance.service(instanceAttendancePath).find({
+        query: {
+          userId: user.id
+        }
+      })
       let bothOnSameInstance = false
       for (const instanceAttendance of inviterUserInstanceAttendance) {
         if (
           !instanceAttendance.isChannel &&
-          userInstanceAttendance.find(
+          userInstanceAttendance.data.find(
             (userAttendance) => !userAttendance.isChannel && userAttendance.id === instanceAttendance.id
           )
         )

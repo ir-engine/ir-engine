@@ -83,9 +83,9 @@ describe('SpectateSystem', async () => {
       Engine.instance.store.userID = userId
       const network: Network = NetworkState.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
-      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId, 2)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId)
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId)
+      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId)
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
@@ -121,9 +121,9 @@ describe('SpectateSystem', async () => {
       Engine.instance.store.userID = userId
       const network: Network = NetworkState.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
-      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId, 2)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId)
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId)
+      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId)
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
