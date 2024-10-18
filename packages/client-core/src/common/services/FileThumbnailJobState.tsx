@@ -30,16 +30,17 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import {
+  Entity,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
+  generateEntityUUID,
   getComponent,
   removeEntity,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import {
   NO_PROXY,
@@ -47,6 +48,7 @@ import {
   getMutableState,
   startReactor,
   useHookstate,
+  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatial'
@@ -68,6 +70,7 @@ import { Color, Euler, Material, MathUtils, Mesh, Quaternion, SphereGeometry, Te
 
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
+import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
@@ -216,29 +219,258 @@ const stripSearchFromURL = (url: string): string => {
 
 export const extensionCanHaveThumbnail = (ext: string): boolean => extensionThumbnailTypeMap.has(ext)
 
-const RenderVideoThumbnail = (src: string) => {
+const tryCatch = (fn: (...args: any[]) => void, onError: (err) => void) => {
+  try {
+    fn()
+  } catch (e) {
+    onError(e)
+  }
+}
+
+const useRenderEntities = (src: string): [Entity, Entity, Entity] => {
+  const entityState = useHookstate(UndefinedEntity)
+  const lightEntityState = useHookstate(UndefinedEntity)
+  const skyboxEntityState = useHookstate(UndefinedEntity)
+
+  useImmediateEffect(() => {
+    const entity = createEntity()
+    const lightEntity = createEntity()
+    const skyboxEntity = createEntity()
+
+    setComponent(entity, NameComponent, 'thumbnail job asset ' + src)
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, VisibleComponent)
+    setComponent(entity, ShadowComponent, { cast: true, receive: true })
+    setComponent(entity, BoundingBoxComponent)
+
+    setComponent(lightEntity, TransformComponent, { rotation: new Quaternion().setFromEuler(new Euler(-4, -0.5, 0)) })
+    setComponent(lightEntity, NameComponent, 'thumbnail job light for ' + src)
+    setComponent(lightEntity, VisibleComponent)
+    setComponent(lightEntity, DirectionalLightComponent, { intensity: 1, color: new Color(0xffffff) })
+
+    setComponent(skyboxEntity, NameComponent, 'thumbnail job skybox for ' + src)
+    setComponent(skyboxEntity, VisibleComponent)
+    //setComponent(skyboxEntity, SkyboxComponent)
+
+    entityState.set(entity)
+    lightEntityState.set(lightEntity)
+    skyboxEntityState.set(skyboxEntity)
+
+    return () => {
+      removeEntity(entity)
+      removeEntity(lightEntity)
+      removeEntity(skyboxEntity)
+    }
+  }, [src])
+
+  return [entityState.value, lightEntityState.value, skyboxEntityState.value]
+}
+
+type RenderThumbnailProps = {
+  src: string
+  project: string
+  id: string
+  onError: (err) => void
+}
+
+const renderThumbnail = (entity: Entity, lightEntity: Entity, skyboxEntity: Entity, props: RenderThumbnailProps) => {
+  const { src, project, id, onError } = props
+
+  let canvasContainer = document.getElementById('thumbnail-camera-container')
+  if (!canvasContainer) {
+    canvasContainer = document.createElement('div')
+    canvasContainer.id = 'thumbnail-camera-container'
+    canvasContainer.style.width = '256px'
+    canvasContainer.style.height = '256px'
+    document.body.append(canvasContainer)
+  }
+  const thumbnailCanvas = document.createElement('canvas')
+  thumbnailCanvas.width = 256
+  thumbnailCanvas.height = 256
+  canvasContainer.appendChild(thumbnailCanvas)
+
+  const cameraEntity = createEntity()
+  setComponent(cameraEntity, CameraComponent)
+  setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
+  initializeEngineRenderer(cameraEntity)
+  setComponent(cameraEntity, VisibleComponent, true)
+
+  tryCatch(() => {
+    setCameraFocusOnBox(entity, cameraEntity)
+    const camera = getComponent(cameraEntity, CameraComponent)
+    const viewCamera = camera.cameras[0]
+
+    viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+    setComponent(cameraEntity, RendererComponent, { scenes: [entity, lightEntity, skyboxEntity] })
+
+    const renderer = getComponent(cameraEntity, RendererComponent)
+    const { scene, canvas, scenes } = renderer
+    const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
+    const { background, children } = getSceneParameters(entitiesToRender)
+    scene.children = children
+    scene.background = background
+    render(renderer, renderer.scene, getComponent(cameraEntity, CameraComponent), 0, false)
+
+    function cleanup() {
+      removeEntity(cameraEntity)
+      thumbnailCanvas.remove()
+      const jobState = getMutableState(FileThumbnailJobState)
+      jobState.set(jobState.get(NO_PROXY).slice(1))
+    }
+
+    canvas!.toBlob((blob: Blob) => {
+      tryCatch(
+        () => uploadThumbnail(src, project, id, blob).then(cleanup),
+        (err) => {
+          cleanup()
+          onError(err)
+        }
+      )
+    })
+  }, onError)
+
+  // try {
+  // } catch (e) {
+  //   console.error('failed to generate model thumbnail for', src)
+  //   console.error(e)
+  //   jobState.set(jobState.get(NO_PROXY).slice(1))
+  // }
+}
+
+const RenderVideoThumbnail = (props: RenderThumbnailProps) => {
+  const { src, project, id, onError } = props
+  const jobState = useMutableState(FileThumbnailJobState)
+
+  useEffect(() => {
+    if (!src) return
+
+    tryCatch(() => {
+      const video = document.createElement('video')
+      video.src = src
+      video.crossOrigin = 'anonymous'
+      seekVideo(video, 1)
+        .then(() => drawToCanvas(video))
+        .then(getCanvasBlob)
+        .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
+        .then(() => video.remove())
+        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+    }, onError)
+  }, [src])
+  return null
+}
+
+const RenderImageThumbnail = (props: RenderThumbnailProps) => {
+  const { src, project, id, onError } = props
+  const jobState = useMutableState(FileThumbnailJobState)
+
+  useEffect(() => {
+    if (!src) return
+
+    tryCatch(() => {
+      const image = new Image()
+      image.crossOrigin = 'anonymous'
+      image.src = src
+      image
+        .decode()
+        .then(() => drawToCanvas(image))
+        .then(getCanvasBlob)
+        .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
+        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+    }, onError)
+  }, [src])
+  return null
+}
+
+const RenderModelThumbnail = (props: RenderThumbnailProps) => {
+  const { src, project, id, onError } = props
+  const jobState = useMutableState(FileThumbnailJobState)
+  const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
+  const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
+
+  useEffect(() => {
+    if (!entity || !lightEntity || !skyboxEntity) return
+    setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
+  }, [entity, lightEntity, skyboxEntity])
+
+  useEffect(() => {
+    if (!errors) return
+    onError(errors)
+  }, [errors])
+
+  return null
+}
+
+const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
+  const { src, project, id, onError } = props
+  const jobState = useMutableState(FileThumbnailJobState)
   const [texture, error] = useTexture(src)
 
+  useEffect(() => {
+    if (!texture) return
+
+    tryCatch(() => {
+      const image = new Image()
+      image.crossOrigin = 'anonymous'
+
+      createReadableTexture(texture, { url: true })
+        .then((result) => {
+          image.src = result as string
+          return image.decode()
+        })
+        .then(() => drawToCanvas(image))
+        .then(getCanvasBlob)
+        .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
+        .then(() => image.remove())
+        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+    }, onError)
+  }, [texture])
+
+  useEffect(() => {
+    if (!error) return
+    onError(error)
+  }, [error])
   return null
 }
 
-const RenderImageThumbnail = (src: string) => {
+const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
+  const { src, project, id, onError } = props
+  const jobState = useMutableState(FileThumbnailJobState)
+  const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
+
+  useEffect(() => {
+    if (!entity || !lightEntity || !skyboxEntity) return
+
+    loadMaterialGLTF(src, (material) => {
+      if (!material) {
+        onError(`Failed to load material for thumbnail with source: ${src}`)
+      } else {
+        const sphere = new Mesh(new SphereGeometry(1), material)
+        if (Object.hasOwn(sphere.material, 'flatShading')) {
+          ;(sphere.material as Material & { flatShading: boolean }).flatShading = false
+        }
+        addObjectToGroup(entity, sphere)
+        setComponent(entity, MeshComponent, sphere)
+      }
+    })
+  }, [entity, lightEntity, skyboxEntity])
   return null
 }
 
-const RenderModelThumbnail = (src: string) => {
-  return null
-}
+const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
+  const { src, project, id, onError } = props
+  const jobState = useMutableState(FileThumbnailJobState)
+  const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
+  const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
 
-const RenderTextureThumbnail = (src: string) => {
-  return null
-}
+  useEffect(() => {
+    if (!entity || !lightEntity || !skyboxEntity) return
+    setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
+  }, [entity, lightEntity, skyboxEntity])
 
-const RenderMaterialThumbnail = (src: string) => {
-  return null
-}
-
-const RenderLookDevThumbnail = (src: string) => {
+  useEffect(() => {
+    if (!errors) return
+    onError(errors)
+  }, [errors])
   return null
 }
 
@@ -313,71 +545,6 @@ const ThumbnailJobReactor = () => {
       cleanupState()
     }
   }, [jobState.length])
-
-  // Load and render image
-  useEffect(() => {
-    if (src === '') return
-    if (fileType !== 'image') return
-    if (loadPromiseState.promised || loadPromiseState.value != null) return
-    tryCatch(() => {
-      const image = new Image()
-      image.crossOrigin = 'anonymous'
-      image.src = src
-      loadPromiseState.set(
-        image
-          .decode()
-          .then(() => drawToCanvas(image))
-          .then(getCanvasBlob)
-          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
-          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
-      )
-    })
-  }, [fileType, id])
-
-  // Load and render video
-  useEffect(() => {
-    if (src === '') return
-    if (fileType !== 'video') return
-    if (loadPromiseState.value != null) return
-    tryCatch(() => {
-      const video = document.createElement('video')
-      video.src = src
-      video.crossOrigin = 'anonymous'
-      loadPromiseState.set(
-        seekVideo(video, 1)
-          .then(() => drawToCanvas(video))
-          .then(getCanvasBlob)
-          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
-          .then(() => video.remove())
-          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
-      )
-    })
-  }, [fileType, id])
-
-  // Load and render texture
-  useEffect(() => {
-    if (src === '') return
-    if (fileType !== 'texture') return
-    if (loadPromiseState.value != null) return
-    if (!tex) return
-    tryCatch(() => {
-      const image = new Image()
-      image.crossOrigin = 'anonymous'
-
-      loadPromiseState.set(
-        createReadableTexture(tex, { url: true })
-          .then((result) => {
-            image.src = result as string
-            return image.decode()
-          })
-          .then(() => drawToCanvas(image))
-          .then(getCanvasBlob)
-          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
-          .then(() => image.remove())
-          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
-      )
-    })
-  }, [fileType, tex, id])
 
   // Load models, materails, lookDev
   useEffect(() => {
