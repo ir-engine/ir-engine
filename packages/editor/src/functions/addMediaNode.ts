@@ -25,30 +25,37 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
 
-import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { assignMaterial, createMaterialEntity } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { removeEntityNodeRecursively } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useEffect } from 'react'
+import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -68,17 +75,6 @@ export async function addMediaNode(
 ): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-
-  const pathArray = url.split('/')
-  const lastIndex = pathArray.length - 1
-  const fileNameWithExt = pathArray[lastIndex]
-  const fileNameArray = fileNameWithExt.split('.')
-  let name: string | undefined = undefined
-  try {
-    name = decodeURI(fileNameArray[0])
-  } catch (err) {
-    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-  }
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
@@ -126,25 +122,54 @@ export async function addMediaNode(
         })
       )
     } else if (contentType.startsWith('model/lookdev')) {
-      const gltfLoader = getState(AssetLoaderState).gltfLoader
-      return await new Promise((resolve) =>
-        gltfLoader.load(url, (gltf) => {
-          const componentJson = gltf.scene.children[0].userData.componentJson
-          EditorControlFunctions.overwriteLookdevObject(
-            [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-            componentJson,
-            parent!,
-            before
-          )
-          resolve(null)
-        })
-      )
+      const sceneID = getComponent(getState(EditorState).rootEntity, SourceComponent)
+      const gltfSnapshotStatet = getMutableState(GLTFSnapshotState)
+      const snapshotst = gltfSnapshotStatet[sceneID].snapshots
+      const length = snapshotst.length
+      let reactor
+      reactor = startReactor(() => {
+        const loadingEntity = useHookstate<Entity>(UndefinedEntity)
+        const documentState = useHookstate(getMutableState(GLTFDocumentState))
+        const gltfSnapshotState = getMutableState(GLTFSnapshotState)
+        const snapshots = gltfSnapshotState[sceneID].snapshots
+        useEffect(() => {
+          const spinnerEntity = createLoadingSpinner('lookdev loading spinner', getState(EditorState).rootEntity)
+          console.log('spinner entity', spinnerEntity)
+          loadingEntity.set(spinnerEntity)
+          console.log('adding spinner')
+          const gltfLoader = getState(AssetLoaderState).gltfLoader
+
+          gltfLoader.load(url, (gltf) => {
+            let componentJson = [] as ComponentJsonType[]
+
+            gltf.scene.children.forEach((child) => {
+              componentJson.push(child.userData.componentJson)
+            })
+
+            const mergedComponentJsonArray = componentJson.flat()
+            EditorControlFunctions.overwriteLookdevObject(
+              [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+              mergedComponentJsonArray,
+              parent!,
+              before
+            )
+          })
+        }, [])
+        useEffect(() => {
+          if (loadingEntity.value !== UndefinedEntity && snapshots.length !== length) {
+            removeEntityNodeRecursively(loadingEntity.value)
+            loadingEntity.set(UndefinedEntity)
+            if (reactor) reactor.stop()
+          }
+        }, [snapshots.length])
+        return null
+      })
+      return null
     } else if (contentType.startsWith('model/prefab')) {
       const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
         parent!,
-        before,
-        name
+        before
       )
       const reactor = startReactor(() => {
         const entity = UUIDComponent.useEntityByUUID(entityUUID)
@@ -169,9 +194,27 @@ export async function addMediaNode(
           ...extraComponentJson
         ],
         parent!,
-        before,
-        name
+        before
       )
+
+      const reactor = startReactor(() => {
+        const entity = UUIDComponent.useEntityByUUID(entityUUID)
+        const modelComponent = useOptionalComponent(entity, ModelComponent)
+
+        useImmediateEffect(() => {
+          if (!modelComponent) return
+          const pathArray = url.split('/')
+          const lastIndex = pathArray.length - 1
+          const fileNameWithExt = pathArray[lastIndex]
+          const fileNameArray = fileNameWithExt.split('.')
+          const name = decodeURI(fileNameArray[0])
+          setComponent(entity, NameComponent, name)
+
+          reactor.stop()
+        }, [modelComponent])
+
+        return null
+      })
 
       return entityUUID
     }
@@ -183,16 +226,14 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before,
-      name
+      before
     )
     return entityUUID
   } else if (contentType.startsWith('image/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
       parent!,
-      before,
-      name
+      before
     )
     return entityUUID
   } else if (contentType.startsWith('audio/')) {
@@ -203,8 +244,7 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before,
-      name
+      before
     )
     return entityUUID
   } else if (url.includes('.uvol')) {
@@ -215,8 +255,7 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before,
-      name
+      before
     )
     return entityUUID
   } else {
