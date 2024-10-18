@@ -30,6 +30,7 @@ import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
 import { HighlightSystem } from './systems/HighlightSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
+import { ModelLoadingSpinnerSystem } from './systems/ModelLoadingSpinnerSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
 import { TransformGizmoSystem } from './systems/TransformGizmoSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
@@ -40,6 +41,7 @@ export {
   EditorControlSystem,
   HighlightSystem,
   ModelHandlingSystem,
+  ModelLoadingSpinnerSystem,
   ObjectGridSnapSystem,
   RenderInfoSystem,
   // EditorInstanceNetworkingSystem,
