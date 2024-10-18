@@ -44,11 +44,10 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { SkinnedMeshComponent } from './SkinnedMeshComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export type MaterialMap = {
   entity: Entity

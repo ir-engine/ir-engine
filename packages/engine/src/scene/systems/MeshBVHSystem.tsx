@@ -129,7 +129,7 @@ const MeshBVHReactor = () => {
     if (!mesh) return
     const abortController = new AbortController()
     if (ValidMeshForBVH(mesh)) {
-      generateMeshBVH(mesh!, abortController.signal).then(() => {
+      generateMeshBVH(mesh!, abortController.signal, { indirect: true }).then(() => {
         if (abortController.signal.aborted) return
       })
     }

@@ -68,11 +68,12 @@ import {
 } from './GLTFExtensions'
 import { GLTFParser } from './GLTFParser'
 import { KTX2Loader } from './KTX2Loader'
+import { MeshoptDecoder } from './meshopt_decoder'
 
 export class GLTFLoader extends Loader {
   dracoLoader = null as null | DRACOLoader
   ktx2Loader = null as null | KTX2Loader
-  meshoptDecoder = null
+  meshoptDecoder = null as null | MeshoptDecoder
 
   pluginCallbacks = [] as any[]
 

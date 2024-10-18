@@ -29,6 +29,7 @@ import { Component } from '@ir-engine/ecs'
 import { VisualScriptComponent } from '@ir-engine/engine'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
@@ -38,7 +39,6 @@ import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapCo
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
@@ -78,7 +78,7 @@ export const ComponentShelfCategoriesState = defineState({
   initial: () => {
     return {
       Files: [
-        ModelComponent,
+        GLTFComponent,
         VolumetricComponent,
         NewVolumetricComponent,
         PositionalAudioComponent,
