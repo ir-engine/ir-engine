@@ -162,8 +162,6 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
 }
 
 export default (app: Application): void => {
-  if (!config.instanceserver.p2pEnabled) return
-
   app.use(instanceSignalingPath, {
     /** Notify server peer has joined */
     create: async (data, params) => peerJoin(app, data, params!),
