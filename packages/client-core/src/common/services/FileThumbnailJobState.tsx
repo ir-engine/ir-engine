@@ -41,8 +41,6 @@ import {
 } from '@ir-engine/ecs'
 import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import {
   NO_PROXY,
   defineState,
@@ -79,6 +77,7 @@ import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/Gro
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -217,6 +216,32 @@ const stripSearchFromURL = (url: string): string => {
 
 export const extensionCanHaveThumbnail = (ext: string): boolean => extensionThumbnailTypeMap.has(ext)
 
+const RenderVideoThumbnail = (src: string) => {
+  const [texture, error] = useTexture(src)
+
+  return null
+}
+
+const RenderImageThumbnail = (src: string) => {
+  return null
+}
+
+const RenderModelThumbnail = (src: string) => {
+  return null
+}
+
+const RenderTextureThumbnail = (src: string) => {
+  return null
+}
+
+const RenderMaterialThumbnail = (src: string) => {
+  return null
+}
+
+const RenderLookDevThumbnail = (src: string) => {
+  return null
+}
+
 const ThumbnailJobReactor = () => {
   const jobState = useHookstate(getMutableState(FileThumbnailJobState))
   const currentJob = useHookstate(null as ThumbnailJob | null)
@@ -241,7 +266,6 @@ const ThumbnailJobReactor = () => {
   })
   const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
   const sceneState = useHookstate(getMutableState(GLTFDocumentState)) // for model rendering
-  const [tex] = useTexture(fileType === 'texture' ? src : '') // for texture loading
   const lightComponent = useOptionalComponent(state.lightEntity.value, DirectionalLightComponent)
   const errorComponent = useOptionalComponent(state.modelEntity.value, ErrorComponent)
 
@@ -382,7 +406,7 @@ const ThumbnailJobReactor = () => {
     //setComponent(skyboxEntity, SkyboxComponent)
 
     if (fileType === 'model') {
-      setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
+      setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
     } else if (fileType === 'material') {
       if (materialLoaded.value) {
         materialLoaded.set(false)
@@ -401,7 +425,7 @@ const ThumbnailJobReactor = () => {
         }
       })
     } else if (fileType === 'lookDev') {
-      setComponent(entity, ModelComponent, { src, cameraOcclusion: false })
+      setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
 
       if (skyboxLoaded.value) {
         skyboxLoaded.set(false)
@@ -410,21 +434,19 @@ const ThumbnailJobReactor = () => {
       //addMediaNode(src, skyboxEntity)
 
       const reactor = startReactor(() => {
-        const modelComponent = useOptionalComponent(entity, ModelComponent)
-
+        const gltfComponent = useOptionalComponent(entity, GLTFComponent)
         const gltfState = useMutableState(GLTFDocumentState)
-        const sceneId = getModelSceneID(entity)
+        const sceneId = GLTFComponent.useInstanceID(entity)
+        const gltfLoaded = GLTFComponent.useSceneLoaded(entity)
 
         useEffect(() => {
-          if (!gltfState[sceneId].value) {
+          if (!gltfState[sceneId].value || !gltfLoaded) {
             return
           }
 
-          if (!modelComponent?.scene.value) {
-            return
-          }
+          const skyboxEntities = getChildrenWithComponents(entity, [SkyboxComponent])
 
-          const componentJson = modelComponent.scene.value.children[0].userData.componentJson
+          const componentJson = gltfComponent.scene.value.children[0].userData.componentJson
           componentJson.forEach((component) => {
             if (component.name == SkyboxComponent.jsonID) {
               setComponent(skyboxEntity, SkyboxComponent, component.props)
@@ -450,7 +472,7 @@ const ThumbnailJobReactor = () => {
           })
 
           reactor.stop()
-        }, [gltfState[sceneId]])
+        }, [gltfLoaded, gltfState[sceneId]])
 
         return null
       })
