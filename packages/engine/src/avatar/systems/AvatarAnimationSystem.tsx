@@ -143,9 +143,7 @@ const execute = () => {
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarComponent = getComponent(entity, AvatarComponent)
-    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-    avatarAnimationComponent.deltaAccumulator = elapsedSeconds
     const rawRig = rigComponent.rawRig
     const normalizedRig = rigComponent.normalizedRig
 
