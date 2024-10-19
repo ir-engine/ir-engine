@@ -31,7 +31,6 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import {
   Entity,
-  EntityUUID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
@@ -41,12 +40,10 @@ import {
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import {
   NO_PROXY,
   defineState,
   getMutableState,
-  startReactor,
   useHookstate,
   useImmediateEffect,
   useMutableState
@@ -66,7 +63,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import React, { useEffect } from 'react'
-import { Color, Euler, Material, MathUtils, Mesh, Quaternion, SphereGeometry, Texture } from 'three'
+import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
@@ -80,7 +77,7 @@ import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/Gro
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -152,6 +149,14 @@ export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: [] as ThumbnailJob[],
   reactor: () => <ThumbnailJobReactor />,
+  removeCurrentJob: () => {
+    const jobState = getMutableState(FileThumbnailJobState)
+    jobState.set((prev) => {
+      prev.splice(0, 1)
+      return prev
+    })
+    console.log('Thumbnail jobs left: ' + jobState.length)
+  },
   useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
     const resourceQuery = useFind(staticResourcePath, {
       query: {
@@ -314,13 +319,16 @@ const renderThumbnail = (entity: Entity, lightEntity: Entity, skyboxEntity: Enti
     function cleanup() {
       removeEntity(cameraEntity)
       thumbnailCanvas.remove()
-      const jobState = getMutableState(FileThumbnailJobState)
-      jobState.set(jobState.get(NO_PROXY).slice(1))
     }
 
     canvas!.toBlob((blob: Blob) => {
       tryCatch(
-        () => uploadThumbnail(src, project, id, blob).then(cleanup),
+        () =>
+          uploadThumbnail(src, project, id, blob).then(() => {
+            cleanup()
+            const jobState = getMutableState(FileThumbnailJobState)
+            FileThumbnailJobState.removeCurrentJob()
+          }),
         (err) => {
           cleanup()
           onError(err)
@@ -333,7 +341,7 @@ const renderThumbnail = (entity: Entity, lightEntity: Entity, skyboxEntity: Enti
   // } catch (e) {
   //   console.error('failed to generate model thumbnail for', src)
   //   console.error(e)
-  //   jobState.set(jobState.get(NO_PROXY).slice(1))
+  //   FileThumbnailJobState.removeCurrentJob()
   // }
 }
 
@@ -353,7 +361,7 @@ const RenderVideoThumbnail = (props: RenderThumbnailProps) => {
         .then(getCanvasBlob)
         .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
         .then(() => video.remove())
-        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+        .then(() => FileThumbnailJobState.removeCurrentJob())
     }, onError)
   }, [src])
   return null
@@ -375,7 +383,7 @@ const RenderImageThumbnail = (props: RenderThumbnailProps) => {
         .then(() => drawToCanvas(image))
         .then(getCanvasBlob)
         .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
-        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+        .then(() => FileThumbnailJobState.removeCurrentJob())
     }, onError)
   }, [src])
   return null
@@ -383,14 +391,19 @@ const RenderImageThumbnail = (props: RenderThumbnailProps) => {
 
 const RenderModelThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const jobState = useMutableState(FileThumbnailJobState)
   const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
+  const loaded = GLTFComponent.useSceneLoaded(entity)
 
   useEffect(() => {
     if (!entity || !lightEntity || !skyboxEntity) return
     setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
   }, [entity, lightEntity, skyboxEntity])
+
+  useEffect(() => {
+    if (!loaded) return
+    renderThumbnail(entity, lightEntity, skyboxEntity, props)
+  }, [loaded])
 
   useEffect(() => {
     if (!errors) return
@@ -421,7 +434,7 @@ const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
         .then(getCanvasBlob)
         .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob), onError))
         .then(() => image.remove())
-        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+        .then(() => FileThumbnailJobState.removeCurrentJob())
     }, onError)
   }, [texture])
 
@@ -434,7 +447,6 @@ const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
 
 const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const jobState = useMutableState(FileThumbnailJobState)
   const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
 
   useEffect(() => {
@@ -450,6 +462,7 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
         }
         addObjectToGroup(entity, sphere)
         setComponent(entity, MeshComponent, sphere)
+        renderThumbnail(entity, lightEntity, skyboxEntity, props)
       }
     })
   }, [entity, lightEntity, skyboxEntity])
@@ -458,14 +471,20 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
 
 const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const jobState = useMutableState(FileThumbnailJobState)
   const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
+  const lookdevSkybox = useChildWithComponents(entity, [SkyboxComponent])
+  const backgroundComponent = useOptionalComponent(lookdevSkybox, BackgroundComponent)
 
   useEffect(() => {
     if (!entity || !lightEntity || !skyboxEntity) return
     setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
   }, [entity, lightEntity, skyboxEntity])
+
+  useEffect(() => {
+    if (!backgroundComponent) return
+    renderThumbnail(entity, lightEntity, skyboxEntity, props)
+  }, [backgroundComponent])
 
   useEffect(() => {
     if (!errors) return
@@ -489,52 +508,10 @@ const ThumbnailJobReactor = () => {
   }
   const fileType = extensionThumbnailTypeMap.get(extension)
 
-  const state = useHookstate({
-    cameraEntity: UndefinedEntity,
-    modelEntity: UndefinedEntity,
-    lightEntity: UndefinedEntity,
-    skyboxEntity: UndefinedEntity,
-    thumbnailCanvas: null as HTMLCanvasElement | null
-  })
-  const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
-  const sceneState = useHookstate(getMutableState(GLTFDocumentState)) // for model rendering
-  const lightComponent = useOptionalComponent(state.lightEntity.value, DirectionalLightComponent)
-  const errorComponent = useOptionalComponent(state.modelEntity.value, ErrorComponent)
-
-  const materialLoaded = useHookstate(false)
-  const skyboxLoaded = useHookstate(false)
-
-  const tryCatch = (fn: any) => {
-    try {
-      fn()
-    } catch (e) {
-      console.error('failed to generate thumbnail for', src)
-      console.error(e)
-      jobState.set(jobState.get(NO_PROXY).slice(1))
-    }
-  }
-
-  function cleanupState() {
-    if (state.cameraEntity.value) {
-      removeEntity(state.cameraEntity.value)
-      state.cameraEntity.set(UndefinedEntity)
-    }
-    if (state.modelEntity.value) {
-      removeEntity(state.modelEntity.value)
-      state.modelEntity.set(UndefinedEntity)
-    }
-    if (state.lightEntity.value) {
-      removeEntity(state.lightEntity.value)
-      state.lightEntity.set(UndefinedEntity)
-    }
-    if (state.skyboxEntity.value) {
-      removeEntity(state.skyboxEntity.value)
-      state.skyboxEntity.set(UndefinedEntity)
-    }
-    if (state.thumbnailCanvas.get(NO_PROXY)) {
-      state.thumbnailCanvas.get(NO_PROXY)?.remove()
-      state.thumbnailCanvas.set(null)
-    }
+  const onError = (err) => {
+    console.error('failed to generate thumbnail for', src)
+    console.error(err)
+    FileThumbnailJobState.removeCurrentJob()
   }
 
   useEffect(() => {
@@ -542,208 +519,28 @@ const ThumbnailJobReactor = () => {
       const newJob = jobState[0].get(NO_PROXY)
       currentJob.set(JSON.parse(JSON.stringify(newJob)))
     } else {
-      cleanupState()
+      currentJob.set(null)
     }
   }, [jobState.length])
 
-  // Load models, materails, lookDev
-  useEffect(() => {
-    if (src === '' || (fileType !== 'model' && fileType !== 'material' && fileType !== 'lookDev')) {
-      cleanupState()
-      return
-    }
-
-    const entity = createEntity()
-    setComponent(entity, NameComponent, 'thumbnail job asset ' + src)
-    const uuid = MathUtils.generateUUID() as EntityUUID
-    setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, VisibleComponent)
-    setComponent(entity, ShadowComponent, { cast: true, receive: true })
-    setComponent(entity, BoundingBoxComponent)
-
-    const lightEntity = createEntity()
-    setComponent(lightEntity, TransformComponent, { rotation: new Quaternion().setFromEuler(new Euler(-4, -0.5, 0)) })
-    setComponent(lightEntity, NameComponent, 'thumbnail job light for ' + src)
-    setComponent(lightEntity, VisibleComponent)
-    setComponent(lightEntity, DirectionalLightComponent, { intensity: 1, color: new Color(0xffffff) })
-
-    const skyboxEntity = createEntity()
-    setComponent(skyboxEntity, NameComponent, 'thumbnail job skybox for ' + src)
-    setComponent(skyboxEntity, VisibleComponent)
-    //setComponent(skyboxEntity, SkyboxComponent)
-
-    if (fileType === 'model') {
-      setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
-    } else if (fileType === 'material') {
-      if (materialLoaded.value) {
-        materialLoaded.set(false)
-      }
-      loadMaterialGLTF(src, (material) => {
-        if (!material) {
-          console.error('Failed to load material for thumbnail', src)
-        } else {
-          const sphere = new Mesh(new SphereGeometry(1), material)
-          if (Object.hasOwn(sphere.material, 'flatShading')) {
-            ;(sphere.material as Material & { flatShading: boolean }).flatShading = false
-          }
-          addObjectToGroup(entity, sphere)
-          setComponent(entity, MeshComponent, sphere)
-          materialLoaded.set(true)
-        }
-      })
-    } else if (fileType === 'lookDev') {
-      setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
-
-      if (skyboxLoaded.value) {
-        skyboxLoaded.set(false)
-      }
-
-      //addMediaNode(src, skyboxEntity)
-
-      const reactor = startReactor(() => {
-        const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-        const gltfState = useMutableState(GLTFDocumentState)
-        const sceneId = GLTFComponent.useInstanceID(entity)
-        const gltfLoaded = GLTFComponent.useSceneLoaded(entity)
-
-        useEffect(() => {
-          if (!gltfState[sceneId].value || !gltfLoaded) {
-            return
-          }
-
-          const skyboxEntities = getChildrenWithComponents(entity, [SkyboxComponent])
-
-          const componentJson = gltfComponent.scene.value.children[0].userData.componentJson
-          componentJson.forEach((component) => {
-            if (component.name == SkyboxComponent.jsonID) {
-              setComponent(skyboxEntity, SkyboxComponent, component.props)
-              const test = getComponent(skyboxEntity, SkyboxComponent)
-              SkyboxComponent.reactorMap.get(skyboxEntity)?.run()
-
-              const subReactor = startReactor(() => {
-                const backgroundComponent = useOptionalComponent(skyboxEntity, BackgroundComponent)
-
-                useEffect(() => {
-                  if (!backgroundComponent?.value) {
-                    return
-                  }
-                  const texture = getComponent(skyboxEntity, BackgroundComponent) as Texture
-                  skyboxLoaded.set(true)
-                  subReactor.stop()
-                  reactor.stop()
-                }, [backgroundComponent?.value])
-
-                return null
-              })
-            }
-          })
-
-          reactor.stop()
-        }, [gltfLoaded, gltfState[sceneId]])
-
+  const renderThumbnailForType = (type: ThumbnailFileType) => {
+    switch (type) {
+      case 'video':
+        return <RenderVideoThumbnail src={src} project={project} id={id} onError={onError} />
+      case 'image':
+        return <RenderImageThumbnail src={src} project={project} id={id} onError={onError} />
+      case 'model':
+        return <RenderModelThumbnail src={src} project={project} id={id} onError={onError} />
+      case 'texture':
+        return <RenderTextureThumbnail src={src} project={project} id={id} onError={onError} />
+      case 'material':
+        return <RenderMaterialThumbnail src={src} project={project} id={id} onError={onError} />
+      case 'lookDev':
+        return <RenderLookDevThumbnail src={src} project={project} id={id} onError={onError} />
+      default:
         return null
-      })
     }
+  }
 
-    if (!state.cameraEntity.value) {
-      let canvasContainer = document.getElementById('thumbnail-camera-container')
-      if (!canvasContainer) {
-        canvasContainer = document.createElement('div')
-        canvasContainer.id = 'thumbnail-camera-container'
-        canvasContainer.style.width = '256px'
-        canvasContainer.style.height = '256px'
-        document.body.append(canvasContainer)
-      }
-      const thumbnailCanvas = document.createElement('canvas')
-      thumbnailCanvas.width = 256
-      thumbnailCanvas.height = 256
-      canvasContainer.appendChild(thumbnailCanvas)
-      state.thumbnailCanvas.set(thumbnailCanvas)
-
-      const cameraEntity = createEntity()
-      setComponent(cameraEntity, CameraComponent)
-      setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
-      initializeEngineRenderer(cameraEntity)
-      setComponent(cameraEntity, VisibleComponent, true)
-      state.cameraEntity.set(cameraEntity)
-    }
-
-    state.modelEntity.set(entity)
-    state.lightEntity.set(lightEntity)
-    state.skyboxEntity.set(skyboxEntity)
-  }, [fileType, id])
-
-  // Render model to canvas
-  useEffect(() => {
-    if (errorComponent?.keys.includes(ModelComponent.name)) {
-      console.error('failed to load model for thumbnail', src)
-      jobState.set(jobState.get(NO_PROXY).slice(1))
-      return
-    }
-    if (src === '') return
-    if (
-      (fileType !== 'model' && fileType !== 'material' && fileType !== 'lookDev') ||
-      !state.cameraEntity.value ||
-      !state.modelEntity.value ||
-      !lightComponent?.light.value
-    )
-      return
-
-    if (fileType === 'material' && !materialLoaded.value) return
-    if (fileType === 'lookDev' && !skyboxLoaded.value) return
-
-    const modelEntity = state.modelEntity.value
-    const lightEntity = state.lightEntity.value
-    const skyboxEntity = state.skyboxEntity.value
-
-    const sceneID = GLTFComponent.getInstanceID(modelEntity)
-    if (!sceneState.value[sceneID]) return
-
-    try {
-      const cameraEntity = state.cameraEntity.value
-      setCameraFocusOnBox(modelEntity, cameraEntity)
-      const camera = getComponent(cameraEntity, CameraComponent)
-      const viewCamera = camera.cameras[0]
-
-      viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-      setComponent(cameraEntity, RendererComponent, { scenes: [modelEntity, lightEntity, skyboxEntity] })
-
-      const renderer = getComponent(cameraEntity, RendererComponent)
-      const { scene, canvas, scenes } = renderer
-      const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
-      const { background, children } = getSceneParameters(entitiesToRender)
-      scene.children = children
-      scene.background = background
-      render(renderer, renderer.scene, getComponent(cameraEntity, CameraComponent), 0, false)
-      function cleanup() {
-        jobState.set(jobState.get(NO_PROXY).slice(1))
-        materialLoaded.set(false)
-        skyboxLoaded.set(false)
-      }
-      canvas!.toBlob((blob: Blob) => {
-        try {
-          uploadThumbnail(src, project, id, blob).then(cleanup)
-        } catch (e) {
-          console.error('failed to upload model thumbnail for', src)
-          console.error(e)
-          cleanup()
-        }
-      })
-    } catch (e) {
-      console.error('failed to generate model thumbnail for', src)
-      console.error(e)
-      jobState.set(jobState.get(NO_PROXY).slice(1))
-    }
-  }, [
-    state.cameraEntity,
-    state.modelEntity,
-    state.skyboxEntity,
-    lightComponent?.light,
-    sceneState.keys,
-    errorComponent?.keys,
-    materialLoaded,
-    skyboxLoaded
-  ])
-
-  return null
+  return fileType && currentJob.value ? <>{renderThumbnailForType(fileType)}</> : null
 }
