@@ -144,14 +144,26 @@ const TriggerProperties: EditorComponentType = (props) => {
                 commitProperties(TriggerComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
               }}
             />
-            <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
+            <InputGroup
+              name="Target"
+              label={t('editor:properties.triggerVolume.lbl-target')}
+              info={t('editor:properties.triggerVolume.info-target')}
+            >
               <NodeInput
                 value={trigger.target.value ?? ('' as EntityUUID)}
                 onRelease={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
                 disabled={props.multiEdit}
               />
             </InputGroup>
-            <InputGroup name="On Enter" label={t('editor:properties.triggerVolume.lbl-onenter')}>
+            <InputGroup
+              name="On Enter"
+              label={t('editor:properties.triggerVolume.lbl-onenter')}
+              info={t(
+                props.multiEdit || !target
+                  ? 'editor:properties.triggerVolume.info-disabled-callback'
+                  : 'editor:properties.triggerVolume.info-onenter'
+              )}
+            >
               {targetOption?.callbacks.length ? (
                 <SelectInput
                   value={trigger.onEnter.value!}
@@ -170,7 +182,15 @@ const TriggerProperties: EditorComponentType = (props) => {
               )}
             </InputGroup>
 
-            <InputGroup name="On Exit" label={t('editor:properties.triggerVolume.lbl-onexit')}>
+            <InputGroup
+              name="On Exit"
+              label={t('editor:properties.triggerVolume.lbl-onexit')}
+              info={t(
+                props.multiEdit || !target
+                  ? 'editor:properties.triggerVolume.info-disabled-callback'
+                  : 'editor:properties.triggerVolume.info-onexit'
+              )}
+            >
               {targetOption?.callbacks.length ? (
                 <SelectInput
                   value={trigger.onExit.value!}
