@@ -92,7 +92,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   })
 
   setComponent(entity, AvatarAnimationComponent, {
-    rootYRatio: 1,
     locomotion: new Vector3()
   })
 

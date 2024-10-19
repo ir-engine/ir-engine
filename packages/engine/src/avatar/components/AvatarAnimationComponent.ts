@@ -82,14 +82,8 @@ export const AvatarAnimationComponent = defineComponent({
       blendStrength: S.Number(0),
       layer: S.Number(0)
     }),
-    /** ratio between original and target skeleton's root.position.y */
-    rootYRatio: S.Number(1),
     /** The input vector for 2D locomotion blending space */
-    locomotion: S.Vec3(),
-    /** Time since the last update */
-    deltaAccumulator: S.Number(0),
-    /** Tells us if we are suspended in midair */
-    isGrounded: S.Bool(true)
+    locomotion: S.Vec3()
   })
 })
 
