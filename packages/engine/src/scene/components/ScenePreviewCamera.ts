@@ -86,7 +86,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     )
 
     useLayoutEffect(() => {
-      if(!engineCameraTransform) return
+      if (!engineCameraTransform) return
       engineCameraTransform.position.value.copy(previewCameraTransform.position.value)
       engineCameraTransform.rotation.value.copy(previewCameraTransform.rotation.value)
     }, [previewCameraTransform])
