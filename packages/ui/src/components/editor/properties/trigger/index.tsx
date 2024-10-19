@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, getComponent, hasComponent, useComponent, useQuery } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -53,8 +53,6 @@ import NodeInput from '../../input/Node'
 import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
 
-const callbackQuery = defineQuery([CallbackComponent])
-
 type TargetOptionType = { label: string; value: string; callbacks: SelectOptionsType[] }
 
 const TriggerProperties: EditorComponentType = (props) => {
@@ -63,6 +61,8 @@ const TriggerProperties: EditorComponentType = (props) => {
 
   const triggerComponent = useComponent(props.entity, TriggerComponent)
   const hasRigidbody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
+
+  const callbackQuery = useQuery([CallbackComponent])
 
   useEffect(() => {
     if (!hasComponent(props.entity, ColliderComponent)) {
@@ -75,7 +75,7 @@ const TriggerProperties: EditorComponentType = (props) => {
     }
 
     const options = [] as TargetOptionType[]
-    for (const entity of callbackQuery()) {
+    for (const entity of callbackQuery) {
       if (!hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
@@ -85,7 +85,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       })
     }
     targets.set(options)
-  }, [JSON.stringify(callbackQuery)])
+  }, [callbackQuery])
 
   return (
     <NodeEditor
