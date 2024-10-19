@@ -113,7 +113,7 @@ export const LoopAnimationComponent = defineComponent({
 
     useEffect(() => {
       if (!loopAnimationComponent.useVRM.value && hasComponent(entity, AvatarRigComponent))
-        removeComponent(entity, LoopAnimationComponent)
+        removeComponent(entity, AvatarRigComponent)
       else if (loopAnimationComponent.useVRM.value && !hasComponent(entity, AvatarRigComponent)) {
         setComponent(entity, AvatarRigComponent)
       }
