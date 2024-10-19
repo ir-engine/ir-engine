@@ -58,7 +58,6 @@ import {
   RendererComponent,
   getNestedVisibleChildren,
   getSceneParameters,
-  initializeEngineRenderer,
   render
 } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -474,7 +473,6 @@ const ThumbnailJobReactor = () => {
       const cameraEntity = createEntity()
       setComponent(cameraEntity, CameraComponent)
       setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
-      initializeEngineRenderer(cameraEntity)
       setComponent(cameraEntity, VisibleComponent, true)
       state.cameraEntity.set(cameraEntity)
     }
@@ -508,7 +506,7 @@ const ThumbnailJobReactor = () => {
     const skyboxEntity = state.skyboxEntity.value
 
     const sceneID = GLTFComponent.getInstanceID(modelEntity)
-    if (!sceneState.value[sceneID]) return
+    if (fileType === 'model' && !sceneState.value[sceneID]) return
 
     try {
       const cameraEntity = state.cameraEntity.value
