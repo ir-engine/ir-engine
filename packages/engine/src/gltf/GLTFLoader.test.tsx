@@ -73,6 +73,7 @@ import { GLTFDocumentState, GLTFNode, GLTFNodeState } from './GLTFDocumentState'
 import { getNodeUUID } from './GLTFState'
 import { KHRUnlitExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 const CDN_URL = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0'
 const duck_gltf = CDN_URL + '/Duck/glTF/Duck.gltf'
@@ -133,7 +134,7 @@ describe('GLTF Loader', () => {
     return destroyEngine()
   })
 
-  it('can load a mesh', (done) => {
+  it('can load a mesh', () => new Promise<void>(done => {
     const entity = setupEntity()
 
     const root = startReactor(() => {
@@ -196,7 +197,7 @@ describe('GLTF Loader', () => {
         }, {})
       )
     })
-  })
+  }))
 
   const assertMaterial = (materialDef: ComponentType<typeof MaterialDefinitionComponent>, material: GLTF.IMaterial) => {
     for (const key in material) {
@@ -204,7 +205,7 @@ describe('GLTF Loader', () => {
     }
   }
 
-  it('can load a material', (done) => {
+  it('can load a material', () => new Promise<void>(done => {
     const entity = setupEntity()
 
     const root = startReactor(() => {
@@ -267,9 +268,9 @@ describe('GLTF Loader', () => {
         }, {})
       )
     })
-  })
+  }))
 
-  it('can load a draco geometry', (done) => {
+  it('can load a draco geometry', () => new Promise<void>(done => {
     const entity = setupEntity()
 
     const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
@@ -340,9 +341,9 @@ describe('GLTF Loader', () => {
         }, {})
       )
     })
-  })
+  }))
 
-  it('can load an unlit material', (done) => {
+  it('can load an unlit material', () => new Promise<void>(done => {
     const entity = setupEntity()
 
     let loaded = 0
@@ -416,7 +417,7 @@ describe('GLTF Loader', () => {
         }, {})
       )
     })
-  })
+  }))
 
   it('can load an texture for a material', async () => {
     const entity = setupEntity()
