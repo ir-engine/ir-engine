@@ -33,6 +33,8 @@ import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-en
 import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { FilesState } from '../services/FilesState'
 
 enum FileType {
   THREE_D = '3D',
@@ -138,6 +140,9 @@ export const inputFileWithAddToScene = ({
             newFiles.push(newFile)
           }
           await handleUploadFiles(projectName, directoryPath, newFiles)
+
+          const filesState = getMutableState(FilesState)
+          filesState.refresh.set(filesState.refresh.value + 1) //trigger a brwoser refresh
         }
         resolve(null)
       } catch (err) {

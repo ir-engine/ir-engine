@@ -34,7 +34,7 @@ import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { FiDownload, FiGrid, FiRefreshCcw } from 'react-icons/fi'
@@ -199,6 +199,10 @@ export default function FilesToolbar() {
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/assets/')
 
   const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
+
+  useEffect(() => {
+    refreshDirectory()
+  }, [filesState.refresh.value])
 
   const UnsupportedFileModal = ({ message }) => {
     return (
