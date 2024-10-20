@@ -35,6 +35,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
@@ -361,10 +362,11 @@ const AnimationReactor = () => {
   const locomotionAnimationState = useHookstate(
     getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
   )
+  const animationComponent = useOptionalComponent(locomotionAnimationState.value, AnimationComponent)
   useEffect(() => {
-    if (!locomotionAnimationState?.value) return
+    if (!animationComponent) return
     setAvatarSpeedFromRootMotion()
-  }, [locomotionAnimationState])
+  }, [animationComponent])
 
   return null
 }
