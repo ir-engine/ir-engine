@@ -23,21 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { CameraGizmoComponent } from '../classes/gizmo/camera/CameraGizmoComponent'
+import { controlUpdate, gizmoUpdate } from '../functions/cameraGizmoHelper'
 
-const argTypes = {}
+export const cameraGizmoQuery = defineQuery([CameraGizmoComponent])
 
-export default {
-  title: 'Editor/Properties/NodeEditor',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'NodeEditor',
-    jest: 'nodeEditor.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+const execute = () => {
+  for (const cameraGizmoEntity of cameraGizmoQuery()) {
+    const cameraGizmoComponent = getComponent(cameraGizmoEntity, CameraGizmoComponent)
+    if (!cameraGizmoComponent.enabled || !cameraGizmoComponent.visualEntity) return
+    gizmoUpdate(cameraGizmoEntity)
+    controlUpdate(cameraGizmoEntity)
+  }
 }
-export const Default = { args: {} }
+
+export const CameraGizmoSystem = defineSystem({
+  uuid: 'ee.editor.CameraGizmoSystem',
+  insert: { with: AnimationSystemGroup },
+  execute
+})

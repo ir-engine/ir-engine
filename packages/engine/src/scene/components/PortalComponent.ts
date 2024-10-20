@@ -48,13 +48,12 @@ import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/Trig
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { enableObjectLayer } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
@@ -142,18 +141,22 @@ export const PortalComponent = defineComponent({
       }
     }, [debugEnabled])
 
+    const [portalGeometry] = useResource<SphereGeometry>(new SphereGeometry(1, 32, 32), entity)
+    const [portalMesh] = useDisposable(
+      Mesh<SphereGeometry, MeshBasicMaterial>,
+      entity,
+      portalGeometry.value as SphereGeometry,
+      new MeshBasicMaterial({ side: BackSide })
+    )
+
     useEffect(() => {
       if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
-
-      const portalMesh = new Mesh(new SphereGeometry(1, 32, 32), new MeshBasicMaterial({ side: BackSide }))
-      enableObjectLayer(portalMesh, ObjectLayers.Camera, true)
       portalComponent.mesh.set(portalMesh)
       addObjectToGroup(entity, portalMesh)
-
       return () => {
         removeObjectFromGroup(entity, portalMesh)
       }
-    }, [portalComponent.previewType])
+    }, [portalComponent.previewType.value])
 
     /** @todo - reimplement once spawn points are refactored */
     // const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)
