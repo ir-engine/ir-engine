@@ -30,7 +30,7 @@ import {
   projectPublishQueryValidator,
   ProjectPublishType
 } from '@ir-engine/common/src/schemas/projects/project-publish.schema'
-import { disallow, discard, iff } from 'feathers-hooks-common'
+import { disallow } from 'feathers-hooks-common'
 
 import { BadRequest } from '@feathersjs/errors'
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
@@ -40,9 +40,9 @@ import { ProjectData, projectPath } from '@ir-engine/common/src/schemas/projects
 import { locationPath, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { HookContext } from '../../../declarations'
-import persistData from '../../hooks/persist-data'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { projectDataResolver } from '../project/project.resolvers'
+import { startProjectPublish } from './project-publish-helper'
 import { ProjectPublishService } from './project-publish.class'
 import {
   projectPublishDataResolver,
@@ -77,6 +77,22 @@ const updateProjectReferences = (data: any, oldProject: string, newProject: stri
     }
   }
   return data
+}
+
+/**
+ * Remove account
+ * @param context
+ */
+const publishProject = async (context: HookContext) => {
+  await startProjectPublish(
+    context.app,
+    context.data.projectId,
+    context.result.id,
+    context.params.user.id || '',
+    context.data.updatedAt,
+    context.data.locations,
+    false
+  )
 }
 
 /**
@@ -300,11 +316,11 @@ export default {
     get: [],
     create: [
       schemaHooks.validateData(projectPublishDataValidator),
-      schemaHooks.resolveData(projectPublishDataResolver),
-      populateProjectInContext,
-      iff(verifyAssetsOnly, copyPublishedFiles, updateProjectFiles),
-      persistData,
-      discard('locations')
+      schemaHooks.resolveData(projectPublishDataResolver)
+      // populateProjectInContext,
+      // iff(verifyAssetsOnly, copyPublishedFiles, updateProjectFiles),
+      // persistData,
+      // discard('locations')
     ],
     update: [disallow()],
     patch: [
@@ -318,7 +334,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [createProjectCopy, createLocations, updateProjectEntry],
+    create: [publishProject], //createProjectCopy, createLocations, updateProjectEntry],
     update: [],
     patch: [],
     remove: []
