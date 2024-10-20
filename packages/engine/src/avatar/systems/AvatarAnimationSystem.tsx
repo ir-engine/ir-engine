@@ -64,6 +64,7 @@ import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
+import { setAvatarSpeedFromRootMotion } from '../functions/avatarFunctions'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -356,6 +357,15 @@ const AnimationReactor = () => {
       i++
     }
   }, [loadedAnimations])
+
+  const locomotionAnimationState = useHookstate(
+    getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
+  )
+  useEffect(() => {
+    if (!locomotionAnimationState?.value) return
+    setAvatarSpeedFromRootMotion()
+  }, [locomotionAnimationState])
+
   return null
 }
 
