@@ -45,7 +45,9 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/assets_apartment-CubemapBake.png-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "assets/apartment.glb": {
     "type": "asset",
@@ -66,7 +68,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_01.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -84,7 +86,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_02.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -102,7 +104,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_03.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -113,14 +115,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_04.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/avatars/female_04.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -129,14 +131,14 @@
     ]
   },
   "assets/avatars/female_05.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/avatars/female_05.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -145,14 +147,14 @@
     ]
   },
   "assets/avatars/female_06.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/avatars/female_06.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -170,7 +172,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_01.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -188,7 +190,7 @@
     "dependencies": []
   },
   "assets/avatars/male_02.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -208,7 +210,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_03.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -219,14 +221,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_04.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/avatars/male_04.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -311,6 +313,15 @@
     "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsgalaxyTexture.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
+  "assets/generic_midday_02.png": {
+    "type": "asset",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/assets_generic_midday_02.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
   "assets/keycard.glb": {
     "type": "asset",
     "tags": [
@@ -325,7 +336,9 @@
     "tags": [
       "Model"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/assets_platform.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "assets/portal_frame.glb": {
     "type": "asset",
@@ -616,21 +629,27 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_apartment-New-EnvMap-Bake.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/apartment-Portal.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_apartment-Portal.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/apartment.envmap.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_apartment.envmap.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/apartment.gltf": {
     "type": "scene",
@@ -645,14 +664,18 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_apartment.loadingscreen.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/default.envmap.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_default.envmap.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/default.gltf": {
     "type": "scene",
@@ -667,35 +690,45 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_default.loadingscreen.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station-Portal-- Sky Station Exterior.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station-Portal---Sky-Station-Exterior.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station-Portal-- Sky Station Interior.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station-Portal---Sky-Station-Interior.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station-Portal-- to Apartment.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station-Portal---to-Apartment.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station.envmap.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station.envmap.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station.gltf": {
     "type": "scene",
@@ -710,6 +743,8 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station.loadingscreen.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   }
 }
