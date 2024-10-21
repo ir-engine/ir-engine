@@ -23,20 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdDeblur } from 'react-icons/md'
 
-import { getOptionalMutableComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { loadResource } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import { Heuristic, VariantComponent, VariantLevel } from '@ir-engine/engine/src/scene/components/VariantComponent'
-import { State, getState, useHookstate } from '@ir-engine/hyperflux'
+import {
+  Devices,
+  Heuristic,
+  VariantComponent,
+  VariantLevel
+} from '@ir-engine/engine/src/scene/components/VariantComponent'
+import { State, getState } from '@ir-engine/hyperflux'
 import {
   ResourceManager,
   ResourceState,
@@ -44,7 +46,6 @@ import {
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 import Button from '../../../../primitives/tailwind/Button'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
@@ -93,34 +94,6 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
   const { t } = useTranslation()
   const entity = props.entity
   const variantComponent = useComponent(entity, VariantComponent)
-  const previewIndex = useHookstate(0)
-
-  const setPreview = (index: number) => {
-    previewIndex.set(index)
-    const modelComponent = getOptionalMutableComponent(entity, ModelComponent)
-    if (!modelComponent) return
-    modelComponent.src.set(variantComponent.levels[index].src.value)
-  }
-
-  const updateLevelsForBudget = () => {
-    const levels = variantComponent.levels.value
-    const srcSet = new Set<string>()
-    for (const level of levels) {
-      srcSet.add(level.src)
-    }
-
-    if (srcSet.size !== levels.length) {
-      const newLevels: VariantLevel[] = [...srcSet].map((src) => {
-        return {
-          src: src,
-          metadata: {}
-        }
-      })
-      commitProperties(VariantComponent, { levels: newLevels, heuristic: Heuristic.BUDGET }, [entity])
-    } else {
-      commitProperty(VariantComponent, 'heuristic')(Heuristic.BUDGET)
-    }
-  }
 
   return (
     <NodeEditor
@@ -133,16 +106,11 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
         <InputGroup name="lodHeuristic" label={t('editor:properties.variant.heuristic')}>
           <SelectInput
             value={variantComponent.heuristic.value}
-            onChange={(value: Heuristic) => {
-              if (value === Heuristic.BUDGET) updateLevelsForBudget()
-              else commitProperty(VariantComponent, 'heuristic')(value)
-            }}
+            onChange={commitProperty(VariantComponent, 'heuristic')}
             options={[
               { value: Heuristic.DISTANCE, label: t('editor:properties.variant.heuristic-distance') },
-              { value: Heuristic.SCENE_SCALE, label: t('editor:properties.variant.heuristic-sceneScale') },
               { value: Heuristic.MANUAL, label: t('editor:properties.variant.heuristic-manual') },
-              { value: Heuristic.DEVICE, label: t('editor:properties.variant.heuristic-device') },
-              { value: Heuristic.BUDGET, label: t('editor:properties.variant.heuristic-budget') }
+              { value: Heuristic.DEVICE, label: t('editor:properties.variant.heuristic-device') }
             ]}
           />
         </InputGroup>
@@ -163,17 +131,9 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
               )
             }
           >
-            Add Variant
+            {t('editor:properties.variant.add-variant')}
           </Button>
         </div>
-        {variantComponent.heuristic.value === Heuristic.BUDGET && (
-          <InputGroup name="Cast Shadow" label={t('editor:properties.variant.useDistance')}>
-            <BooleanInput
-              value={variantComponent.useDistance.value}
-              onChange={commitProperty(VariantComponent, `useDistance` as any)}
-            />
-          </InputGroup>
-        )}
         <PaginatedList
           options={{ countPerPage: 6 }}
           list={variantComponent.levels}
@@ -193,9 +153,9 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                         value={level.metadata['device'].value}
                         onChange={commitProperty(VariantComponent, `levels.${index}.metadata.device` as any)}
                         options={[
-                          { value: 'MOBILE', label: t('editor:properties.variant.device-mobile') },
-                          { value: 'DESKTOP', label: t('editor:properties.variant.device-desktop') },
-                          { value: 'XR', label: t('editor:properties.variant.device-xr') }
+                          { value: Devices.MOBILE, label: t('editor:properties.variant.device-mobile') },
+                          { value: Devices.DESKTOP, label: t('editor:properties.variant.device-desktop') },
+                          { value: Devices.XR, label: t('editor:properties.variant.device-xr') }
                         ]}
                       />
                     </InputGroup>
@@ -217,18 +177,6 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                     </InputGroup>
                   </>
                 )}
-                {variantComponent.heuristic.value === Heuristic.BUDGET && (
-                  <BudgetVariantNodeEditor
-                    entity={entity}
-                    level={level}
-                    index={index}
-                    useDistance={variantComponent.useDistance.value}
-                    preview={index == previewIndex.value}
-                    onPreview={() => {
-                      setPreview(index)
-                    }}
-                  />
-                )}
                 <div className="flex flex-1 justify-center align-middle">
                   <Button
                     variant="outline"
@@ -239,7 +187,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                       })
                     }
                   >
-                    Remove
+                    {t('editor:properties.variant.remove-variant')}
                   </Button>
                 </div>
               </div>
@@ -248,76 +196,6 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
         />
       </div>
     </NodeEditor>
-  )
-}
-
-export const BudgetVariantNodeEditor = (props: {
-  entity: Entity
-  level: State<VariantLevel>
-  index: number
-  useDistance: boolean
-  preview: boolean
-  onPreview: (boolean) => void
-}) => {
-  const { t } = useTranslation()
-  const { level, index, useDistance, preview, onPreview } = props
-  const src = level.src.value
-  const lastSrc = useHookstate(src)
-
-  useEffect(() => {
-    if (src === lastSrc.value && level.metadata['vertexCount'].value !== undefined) return
-    lastSrc.set(src)
-
-    const assetType = AssetLoader.getAssetType(src)
-    if (assetType !== AssetExt.GLB && assetType !== AssetExt.GLTF) return
-
-    const controller = new AbortController()
-    buildBudgetVariantMetadata(level.value, controller.signal, (maxTextureSize: number, vertexCount: number) => {
-      level.metadata.merge({
-        maxTextureSize: maxTextureSize,
-        vertexCount: vertexCount
-      })
-    })
-
-    return () => {
-      controller.abort()
-    }
-  }, [src])
-
-  return (
-    <>
-      {level.metadata['maxTextureSize'].value !== undefined && (
-        <div className="flex flex-col items-center">{`${t('editor:properties.variant.textureSize')} ${
-          level.metadata['maxTextureSize'].value
-        }`}</div>
-      )}
-      {level.metadata['vertexCount'].value !== undefined && (
-        <div className="flex flex-col items-center">{`${t('editor:properties.variant.vertexCount')} ${
-          level.metadata['vertexCount'].value
-        }`}</div>
-      )}
-
-      <InputGroup name="Cast Shadow" label={t('editor:properties.variant.preview')}>
-        <BooleanInput value={preview} onChange={onPreview} />
-      </InputGroup>
-
-      {useDistance && (
-        <>
-          <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
-            <NumericInput
-              value={level.metadata['minDistance'].value}
-              onChange={commitProperty(VariantComponent, `levels.${index}.metadata.minDistance` as any)}
-            />
-          </InputGroup>
-          <InputGroup name="maxDistance" label={t('editor:properties.variant.maxDistance')}>
-            <NumericInput
-              value={level.metadata['maxDistance'].value}
-              onChange={commitProperty(VariantComponent, `levels.${index}.metadata.maxDistance` as any)}
-            />
-          </InputGroup>
-        </>
-      )}
-    </>
   )
 }
 

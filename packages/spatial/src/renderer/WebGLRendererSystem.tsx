@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../threejsPatches'
-
 import { NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {

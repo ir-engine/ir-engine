@@ -24,10 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { isClient } from '@ir-engine/hyperflux'
-import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { ImageLoader, LoadingManager, Texture } from 'three'
+import { firefoxVersion, iOS, isFirefox, isSafari } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { ImageBitmapLoader, ImageLoader, LoadingManager, Texture } from 'three'
 import { Loader } from '../base/Loader'
 
+const useImageLoader = typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)
 const iOSMaxResolution = 1024
 
 /** @todo make this accessible for performance scaling */
@@ -73,11 +74,13 @@ const getScaledTextureURI = async (src: string, maxResolution: number): Promise<
 
 class TextureLoader extends Loader<Texture> {
   maxResolution: number | undefined
+  autoDetectBitmap: boolean | undefined
 
-  constructor(maxResolution?: number, manager?: LoadingManager) {
+  constructor(manager?: LoadingManager, autoDetectBitmap?: boolean, maxResolution?: number) {
     super(manager)
     if (maxResolution) this.maxResolution = maxResolution
     else if (iOS) this.maxResolution = iOSMaxResolution
+    this.autoDetectBitmap = autoDetectBitmap
   }
 
   override async load(
@@ -92,17 +95,21 @@ class TextureLoader extends Loader<Texture> {
       ;[url, canvas] = await getScaledTextureURI(url, this.maxResolution)
     }
 
-    const texture = new Texture()
     if (!isClient) {
-      onLoad(texture)
+      onLoad(new Texture())
       return
     }
 
-    const loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
+    // Use an ImageBitmapLoader if imageBitmaps are supported. Moves much of the
+    // expensive work of uploading a texture to the GPU off the main thread.
+    let loader: ImageLoader | ImageBitmapLoader
+    if (useImageLoader || !this.autoDetectBitmap)
+      loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
+    else loader = new ImageBitmapLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
     loader.load(
       url,
-      (image) => {
-        texture.image = image
+      (image: HTMLImageElement | ImageBitmap) => {
+        const texture = new Texture(image)
         texture.needsUpdate = true
         if (canvas) canvas.remove()
         onLoad(texture)

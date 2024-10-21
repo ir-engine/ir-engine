@@ -25,15 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect, useLayoutEffect } from 'react'
 
-import { EntityUUID, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, getOptionalComponent, removeComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { AvatarColliderComponent } from '@ir-engine/engine/src/avatar/components/AvatarControllerComponent'
-import { loadAvatarModelAsset, unloadAvatarForUser } from '@ir-engine/engine/src/avatar/functions/avatarFunctions'
 import { spawnAvatarReceptor } from '@ir-engine/engine/src/avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { defineState, getMutableState, isClient, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { WorldNetworkAction } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 export const AvatarState = defineState({
   name: 'ee.engine.avatar.AvatarState',
@@ -86,11 +86,11 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
     if (!isClient) return
     if (!entity || !avatarURL.value) return
 
-    loadAvatarModelAsset(entity, avatarURL.value)
+    setComponent(entity, GLTFComponent, { src: avatarURL.value })
 
     return () => {
       if (!entityExists(entity)) return
-      unloadAvatarForUser(entity)
+      removeComponent(entity, GLTFComponent)
     }
   }, [avatarURL.value, entity])
 

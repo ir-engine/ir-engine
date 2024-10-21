@@ -69,6 +69,7 @@ import { Color, Euler, Material, MathUtils, Mesh, Quaternion, SphereGeometry, Te
 
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
@@ -515,7 +516,7 @@ const ThumbnailJobReactor = () => {
     const lightEntity = state.lightEntity.value
     const skyboxEntity = state.skyboxEntity.value
 
-    const sceneID = getModelSceneID(modelEntity)
+    const sceneID = GLTFComponent.getInstanceID(modelEntity)
     if (fileType === 'model' && !sceneState.value[sceneID]) return
 
     try {

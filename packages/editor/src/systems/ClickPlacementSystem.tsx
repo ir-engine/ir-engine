@@ -46,7 +46,6 @@ import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComp
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { entityJSONToGLTFNode } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
-import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { toEntityJson } from '@ir-engine/engine/src/scene/functions/serializeWorld'
 import {
   NO_PROXY,
@@ -172,7 +171,7 @@ const PlacementModelReactor = (props: { placementEntity: Entity }) => {
 
   useEffect(() => {
     if (!placementModel) return
-    const sceneID = getModelSceneID(props.placementEntity)
+    const sceneID = GLTFComponent.getInstanceID(props.placementEntity)
     if (!sceneState.scenes[sceneID]) return
     iterateEntityNode(props.placementEntity, (entity) => {
       const mesh = getOptionalComponent(entity, MeshComponent)

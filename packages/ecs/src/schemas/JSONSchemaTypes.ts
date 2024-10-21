@@ -125,8 +125,16 @@ export type TPropertyKeySchema = TStringSchema | TNumberSchema
 export type TPropertyKey = string | number
 export type TProperties = Record<TPropertyKey, Schema>
 
+type ObjectOptionalKeys<T extends TProperties> = {
+  [K in keyof T]: undefined extends Static<T[K]> ? K : never
+}[keyof T]
+
+type ObjectNonOptionalKeys<T extends TProperties> = Exclude<keyof T, ObjectOptionalKeys<T>>
+
 type ObjectStatic<T extends TProperties> = {
-  [K in keyof T]: Static<T[K]>
+  [K in ObjectNonOptionalKeys<T>]: Static<T[K]>
+} & {
+  [K in ObjectOptionalKeys<T>]?: Static<T[K]>
 }
 export interface TObjectSchema<T extends TProperties> extends Schema {
   [Kind]: 'Object'
