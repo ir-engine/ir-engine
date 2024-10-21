@@ -28,9 +28,10 @@ import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import ImageUrlFallback from './image-url-fallback.png'
 
-export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'onChange'> {
+export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'onChange' | 'onBlur'> {
   variant?: 'lg' | 'md' | 'sm' | 'full'
   onChange?: (value: string) => void
+  onBlur?: (value: string) => void
 }
 
 const containerVariants = {
@@ -47,7 +48,15 @@ const imageVariants = {
   sm: 'h-[119px] w-[174px]'
 }
 
-export default function ImageLink({ src, onChange, variant = 'full', ...props }: ImageLinkProps) {
+/**
+ * component for displaying an image in the properties panel, provided an `src`
+ *
+ * props are passed to `<img />`
+ *
+ * @param props.onChange callback to display an input and receive the new value on each keystroke
+ * @param props.onBlur callback to display an input and receive the new value when the input loses focus
+ */
+export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...props }: ImageLinkProps) {
   const { t } = useTranslation()
   const imageRef = useRef<HTMLImageElement>(null)
 
@@ -80,20 +89,22 @@ export default function ImageLink({ src, onChange, variant = 'full', ...props }:
         ref={imageRef}
         {...props}
       />
-      {onChange && (
+      {(onChange || onBlur) && (
         <>
           <button
-            className={twMerge('text-right text-sm text-[#AFBEDF]')}
+            className="text-right text-sm text-[#AFBEDF]"
             onClick={() => {
-              onChange('')
+              onChange?.('')
+              onBlur?.('')
             }}
           >
             {t('common:components.clear')}
           </button>
           <input
             value={src}
-            onChange={(event) => onChange(event.target.value)}
-            className={twMerge('w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]')}
+            onChange={(event) => onChange?.(event.target.value)}
+            onBlur={(event) => onBlur?.(event.target.value)}
+            className="w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]"
           />
         </>
       )}

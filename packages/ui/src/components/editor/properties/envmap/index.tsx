@@ -46,9 +46,9 @@ import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
+import ImageLink from '../../ImageLink'
 import FolderInput from '../../input/Folder'
 import InputGroup from '../../input/Group'
-import ImagePreviewInput from '../../input/Image/Preview'
 import SelectInput from '../../input/Select'
 
 /**
@@ -135,9 +135,9 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               <FolderInput value={envmapComponent.envMapSourceURL.value} onRelease={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
-              <ImagePreviewInput
-                value={envmapComponent.envMapSourceURL.value}
-                onRelease={commitProperty(EnvmapComponent, 'envMapSourceURL')}
+              <ImageLink
+                src={envmapComponent.envMapSourceURL.value}
+                onBlur={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (
