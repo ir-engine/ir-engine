@@ -39,9 +39,9 @@ import AvatarPreview from '../../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-import { isAvaturn, SupportedSdks } from './AvatarCreatorMenu'
+import styles from '../index.module.scss'
+import { SupportedSdks, isAvaturn } from './AvatarCreatorMenu'
 import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
 
 enum LoadingState {
