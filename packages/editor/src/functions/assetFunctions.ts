@@ -155,6 +155,7 @@ export const inputFileWithAddToScene = ({
           await handleUploadFiles(projectName, directoryPath, newFiles)
         }
         resolve(null)
+        API.instance.service(fileBrowserPath).emit('created')
       } catch (err) {
         reject(err)
       } finally {

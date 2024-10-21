@@ -37,6 +37,7 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { NO_PROXY, getState } from '@ir-engine/hyperflux'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
@@ -51,7 +52,6 @@ import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import Vector2Input from '../../input/Vector2'
 import Vector3Input from '../../input/Vector3'
-import NodeEditor from '../nodeEditor'
 
 enum PropertyTypes {
   BlendFunction,
@@ -288,7 +288,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
-      icon={<PostProcessingSettingsEditor.iconComponent />}
+      Icon={PostProcessingSettingsEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
