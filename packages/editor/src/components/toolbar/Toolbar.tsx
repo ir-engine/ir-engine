@@ -89,7 +89,7 @@ const onClickNewScene = async () => {
   }
 }
 
-const onCloseProject = async () => {
+export const onCloseProject = async () => {
   if (!(await confirmSceneSaveIfModified())) return
 
   const editorState = getMutableState(EditorState)
