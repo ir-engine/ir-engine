@@ -138,7 +138,7 @@ export const MediaIconsBox = () => {
   }
 
   return (
-    <section className={`${styles.drawerBox} ${topShelfStyle}`}>
+    <section className={`${styles.drawerBox} ${topShelfStyle}`} style={{ pointerEvents: 'auto' }}>
       {networkState.config.media.value && !mediaNetworkState?.ready?.value && (
         <div className={styles.loader}>
           <CircularProgress />
@@ -164,6 +164,7 @@ export const MediaIconsBox = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />}
+          type="solid"
         />
       ) : null}
       {videoEnabled && hasVideoDevice && mediaNetworkReady && mediaNetworkState?.ready.value ? (
@@ -179,6 +180,7 @@ export const MediaIconsBox = () => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
+            type="solid"
           />
           {isCamVideoEnabled && numVideoDevices > 1 && (
             <IconButtonWithTooltip
@@ -189,6 +191,7 @@ export const MediaIconsBox = () => {
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               icon={<Icon type={'FlipCameraAndroid'} />}
+              type="solid"
             />
           )}
           {motionCaptureEnabled && (
@@ -206,6 +209,7 @@ export const MediaIconsBox = () => {
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               icon={<Icon type={'Accessibility'} />}
+              type="solid"
             />
           )}
         </>
@@ -224,6 +228,7 @@ export const MediaIconsBox = () => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type="ScreenShare" />}
+            type="solid"
           />
         </>
       ) : null}
@@ -238,6 +243,7 @@ export const MediaIconsBox = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<VrIcon />}
+          type="solid"
         />
       )}
       {supportsAR && xrEnabled && (
@@ -251,6 +257,7 @@ export const MediaIconsBox = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type="ViewInAr" />}
+          type="solid"
         />
       )}
       {spectating && (
