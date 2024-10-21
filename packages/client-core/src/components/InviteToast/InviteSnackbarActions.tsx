@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { InviteType } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import { first } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { InviteService, InviteState } from '../../social/services/InviteService'
@@ -38,7 +37,7 @@ type Props = {
 const InviteSnackbarActions = ({ closeSnackbar }: Props) => {
   const { t } = useTranslation()
   const inviteState = useMutableState(InviteState)
-  const newestInvite: InviteType = first(inviteState.receivedInvites.invites)?.value as InviteType
+  const newestInvite = inviteState.receivedInvites.invites[0]?.value as InviteType
 
   const handleAccept = () => {
     InviteService.acceptInvite(newestInvite)
