@@ -23,21 +23,47 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { useArgs } from '@storybook/preview-api'
+import React from 'react'
+import { ArgTypes } from 'storybook/internal/types'
+import ImageLink, { ImageLinkProps } from './index'
 
-const argTypes = {}
+const argTypes: ArgTypes = {
+  src: {
+    control: 'text'
+  },
+  variant: {
+    control: 'inline-radio',
+    options: ['sm', 'md', 'lg', 'full']
+  },
+  previewOnly: {
+    control: 'boolean'
+  }
+}
 
 export default {
-  title: 'Editor/Input/Image',
-  component: Component,
+  title: 'Components/Editor/ImageLink',
+  component: ImageLink,
   parameters: {
-    componentSubtitle: 'ImageInput',
-    jest: 'Image.test.tsx',
+    componentSubtitle: 'ImageLink',
     design: {
       type: 'figma',
-      url: ''
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2370-20234&node-type=frame&t=dEsGEixZxXD7JCWh-0'
     }
   },
-  argTypes
+  argTypes,
+  args: {
+    src: '',
+    variant: 'md'
+  }
 }
-export const Default = { args: Component }
+
+const ImageLinkRenderer = (args: ImageLinkProps & { previewOnly: boolean }) => {
+  const [_currentArgs, updateArgs] = useArgs<{ src: string }>()
+  return <ImageLink {...args} onChange={args.previewOnly ? undefined : (value) => updateArgs({ src: value })} />
+}
+
+export const Default = {
+  name: 'Default',
+  render: ImageLinkRenderer
+}

@@ -31,9 +31,11 @@ import { Preview } from '@storybook/react'
 import React, { useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import { I18nextProvider } from 'react-i18next'
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
+import i18n from './i18n'
 
 const ThemeProvider = () => {
   useThemeProvider()
@@ -44,17 +46,19 @@ const ThemeProvider = () => {
 export const decorators = [
   (Story: any) => (
     <Engine>
-      <DndProvider backend={HTML5Backend}>
-        <ThemeProvider />
-        <MetaTags>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
-            rel="stylesheet"
-            type="text/css"
-          />
-        </MetaTags>
-        <Story />
-      </DndProvider>
+      <I18nextProvider i18n={i18n}>
+        <DndProvider backend={HTML5Backend}>
+          <ThemeProvider />
+          <MetaTags>
+            <link
+              href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
+              rel="stylesheet"
+              type="text/css"
+            />
+          </MetaTags>
+          <Story />
+        </DndProvider>
+      </I18nextProvider>
     </Engine>
   )
 ]

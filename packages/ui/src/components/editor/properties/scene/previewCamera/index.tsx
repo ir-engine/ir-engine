@@ -47,7 +47,7 @@ import {
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { Scene } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
-import ImagePreviewInput from '../../../input/Image/Preview'
+import ImageLink from '../../../ImageLink'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
@@ -108,7 +108,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.sceneCamera.description')}
       Icon={ScenePreviewCameraNodeEditor.iconComponent}
     >
-      <ImagePreviewInput value={bufferUrl} />
+      <ImageLink src={bufferUrl} />
       <div className="flex h-auto flex-col items-center">
         <Button
           onClick={() => {
