@@ -51,26 +51,21 @@ import {
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
-import { AnimationState } from '../AnimationManager'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
-import { preloadedAnimations } from '../animation/Util'
-import {
-  setAvatarAnimations,
-  setAvatarSpeedFromRootMotion,
-  setupAvatarForUser,
-  setupAvatarProportions
-} from '../functions/avatarFunctions'
+import { setAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
@@ -82,14 +77,8 @@ export const AvatarAnimationComponent = defineComponent({
       blendStrength: S.Number(0),
       layer: S.Number(0)
     }),
-    /** ratio between original and target skeleton's root.position.y */
-    rootYRatio: S.Number(1),
     /** The input vector for 2D locomotion blending space */
-    locomotion: S.Vec3(),
-    /** Time since the last update */
-    deltaAccumulator: S.Number(0),
-    /** Tells us if we are suspended in midair */
-    isGrounded: S.Bool(true)
+    locomotion: S.Vec3()
   })
 })
 
@@ -120,23 +109,18 @@ export const AvatarRigComponent = defineComponent({
     const entity = useEntityContext()
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-    const locomotionAnimationState = useHookstate(
-      getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
-    )
 
     useEffect(() => {
       if (gltfComponent?.progress?.value !== 100) return
-      console.log('Creating VRM')
-      const vrm = createVRM(entity)
-      setupAvatarProportions(entity, vrm)
-      rigComponent.vrm.set(vrm)
-    }, [gltfComponent?.progress?.value, gltfComponent?.src.value])
 
-    useEffect(() => {
-      if (!rigComponent.value || !rigComponent.value.vrm) return
-      const rig = getComponent(entity, AvatarRigComponent)
       try {
-        setupAvatarForUser(entity, rig.vrm)
+        const vrm = createVRM(entity)
+        setObjectLayers(vrm.scene, ObjectLayers.Avatar)
+        setupAvatarProportions(entity, vrm)
+        rigComponent.vrm.set(vrm)
+        rigComponent.normalizedRig.set(vrm.humanoid.normalizedHumanBones)
+        rigComponent.rawRig.set(vrm.humanoid.rawHumanBones)
+        setupAvatarForUser(entity)
         setAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
@@ -145,12 +129,7 @@ export const AvatarRigComponent = defineComponent({
           removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
         }
       }
-    }, [rigComponent.vrm])
-
-    useEffect(() => {
-      if (!locomotionAnimationState?.value) return
-      setAvatarSpeedFromRootMotion()
-    }, [locomotionAnimationState])
+    }, [gltfComponent?.progress?.value, gltfComponent?.src.value])
 
     return null
   },

@@ -38,8 +38,6 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -173,19 +171,11 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   }
 }
 
-/**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
- * successfully loaded.
+/**
+ * @deprecated
+ * @todo - move this logic elsewhere
  */
-export const setupAvatarForUser = (entity: Entity, model: VRM) => {
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-
-  setComponent(entity, AvatarRigComponent, {
-    normalizedRig: model.humanoid.normalizedHumanBones,
-    rawRig: model.humanoid.rawHumanBones
-  })
-
-  setObjectLayers(model.scene, ObjectLayers.Avatar)
-
+export const setupAvatarForUser = (entity: Entity) => {
   const loadingEffect = getState(AnimationState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 
   removeComponent(entity, AvatarPendingComponent)
@@ -199,6 +189,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     })
   }
 
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (entity === selfAvatarEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 

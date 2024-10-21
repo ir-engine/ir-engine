@@ -35,6 +35,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
@@ -64,6 +65,7 @@ import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
+import { setAvatarSpeedFromRootMotion } from '../functions/avatarFunctions'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -143,9 +145,7 @@ const execute = () => {
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarComponent = getComponent(entity, AvatarComponent)
-    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-    avatarAnimationComponent.deltaAccumulator = elapsedSeconds
     const rawRig = rigComponent.rawRig
     const normalizedRig = rigComponent.normalizedRig
 
@@ -358,6 +358,16 @@ const AnimationReactor = () => {
       i++
     }
   }, [loadedAnimations])
+
+  const locomotionAnimationState = useHookstate(
+    getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
+  )
+  const animationComponent = useOptionalComponent(locomotionAnimationState.value, AnimationComponent)
+  useEffect(() => {
+    if (!animationComponent) return
+    setAvatarSpeedFromRootMotion()
+  }, [animationComponent])
+
   return null
 }
 

@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { t } from 'i18next'
 import React from 'react'
 import { MdOutlineViewInAr } from 'react-icons/md'
 import InputGroup from '../../../input/Group'
 import ModelInput from '../../../input/Model'
-import NodeEditor from '../../nodeEditor'
 
 const GLTFNodeEditor: EditorComponentType = (props) => {
   const gltfComponent = useComponent(props.entity, GLTFComponent)
@@ -42,7 +42,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.model.title')}
       description={t('editor:properties.model.description')}
-      icon={<GLTFNodeEditor.iconComponent />}
+      Icon={GLTFNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
