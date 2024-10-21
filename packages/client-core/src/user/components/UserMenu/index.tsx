@@ -29,10 +29,11 @@ import React from 'react'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWithTooltip'
 
+import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { AppState } from '../../../common/services/AppService'
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
-import styles from './index.module.scss'
 import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
+import styles from './index.module.scss'
 
 export const UserMenu = () => {
   const popupMenuState = useMutableState(PopupMenuState)
@@ -76,6 +77,7 @@ export const UserMenu = () => {
             </div>
           </section>
           {Panel && <Panel {...popupMenu.params} />}
+          <PopupMenu />
         </>
       </ClickAwayListener>
     </div>
