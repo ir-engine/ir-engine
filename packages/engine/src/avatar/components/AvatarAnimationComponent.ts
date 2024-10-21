@@ -142,7 +142,7 @@ const _rightHandPos = new Vector3(),
 export default function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getState(GLTFDocumentState)[documentID]
-  console.log(gltf)
+  // console.log(gltf)
   if (!hasComponent(rootEntity, Object3DComponent)) {
     const obj3d = new Group()
     setComponent(rootEntity, Object3DComponent, obj3d)
@@ -151,21 +151,21 @@ export default function createVRM(rootEntity: Entity) {
   }
 
   if (gltf.extensions?.VRM || gltf.extensions?.VRMC_vrm) {
-    console.log('Creating VRM from VRM extension')
+    // console.log('Creating VRM from VRM extension')
     const vrmExtensionDefinition = (gltf.extensions!.VRM as V0VRM.VRM) ?? (gltf.extensions.VRMC_vrm as V0VRM.VRM)
     const humanBonesArray = Array.isArray(vrmExtensionDefinition.humanoid?.humanBones)
       ? vrmExtensionDefinition.humanoid?.humanBones
       : Object.values(vrmExtensionDefinition.humanoid!.humanBones!)
-    console.log(humanBonesArray)
+    // console.log(humanBonesArray)
     const bones = humanBonesArray.reduce((bones, bone) => {
-      console.log(bone)
+      // console.log(bone)
       const nodeID = `${documentID}-${bone.node}` as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(nodeID)
       bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
       return bones
     }, {} as VRMHumanBones)
-    console.log(bones)
-    console.log(vrmExtensionDefinition)
+    // console.log(bones)
+    // console.log(vrmExtensionDefinition)
 
     /**hacky, @todo test with vrm1 */
     iterateEntityNode(rootEntity, (entity) => {
