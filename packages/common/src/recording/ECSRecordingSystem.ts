@@ -627,18 +627,18 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               const peerIDs = Object.keys(schema.peers) as PeerID[]
 
               // todo, this is a hack
-              for (const peerID of peerIDs) {
-                if (network.peers[peerID]) continue
-                activePlayback.peerIDs!.push(peerID)
-                NetworkPeerFunctions.createPeer(
-                  network,
-                  peerID,
-                  network.peerIndexCount++,
-                  entityID as any as UserID,
-                  network.userIndexCount++
-                )
-                updatePeers(network)
-              }
+              /** @todo rewrite */
+              // for (const peerID of peerIDs) {
+              //   if (network.peers[peerID]) continue
+              //   activePlayback.peerIDs!.push(peerID)
+              //   NetworkPeerFunctions.createPeer(
+              //     network,
+              //     peerID,
+              //     network.peerIndexCount++,
+              //     entityID as any as UserID
+              //   )
+              //   updatePeers(network)
+              // }
             }
 
             if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {

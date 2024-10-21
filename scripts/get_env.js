@@ -23,28 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NetworkID, PeerID } from '@ir-engine/hyperflux'
-import { MediaTagType } from '@ir-engine/network'
-import { ChannelID, LocationID, RoomCode } from '../schema.type.module'
 
-export type NetworkConnectionParams = {
-  token: string
-  peerID: PeerID
-  locationId?: LocationID
-  instanceID?: NetworkID
-  channelId?: ChannelID
-  roomCode?: RoomCode
-  /** Address and port are used by ingress to route traffic */
-  address?: string
-  port?: string
-}
+const appRootPath = require('app-root-path')
+const dotenv = require('dotenv')
+dotenv.config({
+  path: appRootPath.path + '/.env.local'
+})
+const args = process.argv.slice(2)
 
-export type TransportDirection = 'send' | 'receive'
+// first arg is the env variable name, second arg is the value to compare
 
-export type MediaStreamAppData = {
-  mediaTag: MediaTagType
-  peerID: PeerID
-  direction: TransportDirection
-  channelId: ChannelID
-  clientDirection?: 'recv' | 'send'
-}
+const val = process.env[args[0]] === args[1] ? 'true' : 'false'
+
+// log the value to the console
+console.log(val)

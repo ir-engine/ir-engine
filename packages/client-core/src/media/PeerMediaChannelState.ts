@@ -52,8 +52,8 @@ export const createPeerMediaChannels = (peerID: PeerID) => {
     cam: {
       videoMediaStream: null,
       audioMediaStream: null,
-      videoStreamPaused: false,
       videoQuality: 'smallest',
+      videoStreamPaused: false,
       audioStreamPaused: false,
       videoElement: document.createElement('video'),
       audioElement: document.createElement('audio')

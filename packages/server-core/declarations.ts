@@ -32,6 +32,7 @@ import Primus from 'primus'
 import '@feathersjs/transport-commons'
 
 import { ServiceTypes } from '@ir-engine/common/declarations'
+import { NetworkConnectionParams } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
 import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 
 export type PrimusType = Primus & {
@@ -52,7 +53,11 @@ declare module '@feathersjs/feathers' {
   interface ServiceOptions {
     docs?: ServiceSwaggerOptions
   }
+  interface RealTimeConnection {
+    socketQuery?: NetworkConnectionParams
+  }
   interface Params {
+    socketQuery?: NetworkConnectionParams
     user?: UserType
     isInternal?: boolean
     forwarded?: {
@@ -68,6 +73,7 @@ declare module '@feathersjs/feathers' {
  */
 declare module '@feathersjs/knex' {
   interface KnexAdapterParams {
+    socketQuery?: NetworkConnectionParams
     user?: UserType
     isInternal?: boolean
     forwarded?: {

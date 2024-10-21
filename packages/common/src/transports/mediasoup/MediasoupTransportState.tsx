@@ -138,7 +138,7 @@ export const MediasoupTransportState = defineState({
       state[networkID].merge({
         [action.transportID]: {
           /** Mediasoup is always client-server, so the peerID is always the host for clients */
-          peerID: isClient ? network.hostPeerID : action.peerID,
+          peerID: isClient ? network.hostPeerID! : action.peerID,
           transportID: action.transportID,
           direction: action.direction,
           connected: false,
