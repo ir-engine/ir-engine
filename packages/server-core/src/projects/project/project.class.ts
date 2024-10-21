@@ -174,7 +174,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     }
 
     // projects now take the form <orgname/projectname>
-    const locallyInstalledProjects = fs
+    let locallyInstalledProjects = fs
       .readdirSync(projectsRootFolder, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
@@ -219,8 +219,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     /** if a project was removed locally, remove it from the db */
     if (config.fsProjectSyncEnabled)
-      for (const { name, id } of data) {
-        if (!locallyInstalledProjects.includes(name)) {
+      for (const { name, id, isPublishedVersion } of data) {
+        if (!locallyInstalledProjects.includes(name) && !isPublishedVersion) {
           await deleteProjectFilesInStorageProvider(this.app, name)
           logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
           await super._remove(id)
