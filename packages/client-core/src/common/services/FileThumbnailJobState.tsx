@@ -40,14 +40,7 @@ import {
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import {
-  NO_PROXY,
-  defineState,
-  getMutableState,
-  useHookstate,
-  useImmediateEffect,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -155,7 +148,6 @@ export const FileThumbnailJobState = defineState({
       prev.splice(0, 1)
       return prev
     })
-    console.log('Thumbnail jobs left: ' + jobState.length)
   },
   useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
     const resourceQuery = useFind(staticResourcePath, {
@@ -326,7 +318,6 @@ const renderThumbnail = (entity: Entity, lightEntity: Entity, skyboxEntity: Enti
         () =>
           uploadThumbnail(src, project, id, blob).then(() => {
             cleanup()
-            const jobState = getMutableState(FileThumbnailJobState)
             FileThumbnailJobState.removeCurrentJob()
           }),
         (err) => {
@@ -336,18 +327,10 @@ const renderThumbnail = (entity: Entity, lightEntity: Entity, skyboxEntity: Enti
       )
     })
   }, onError)
-
-  // try {
-  // } catch (e) {
-  //   console.error('failed to generate model thumbnail for', src)
-  //   console.error(e)
-  //   FileThumbnailJobState.removeCurrentJob()
-  // }
 }
 
 const RenderVideoThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const jobState = useMutableState(FileThumbnailJobState)
 
   useEffect(() => {
     if (!src) return
@@ -369,7 +352,6 @@ const RenderVideoThumbnail = (props: RenderThumbnailProps) => {
 
 const RenderImageThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const jobState = useMutableState(FileThumbnailJobState)
 
   useEffect(() => {
     if (!src) return
@@ -396,7 +378,6 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
   const loaded = GLTFComponent.useSceneLoaded(entity)
 
   useEffect(() => {
-    if (!entity || !lightEntity || !skyboxEntity) return
     setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
   }, [entity, lightEntity, skyboxEntity])
 
@@ -415,7 +396,6 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
 
 const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const jobState = useMutableState(FileThumbnailJobState)
   const [texture, error] = useTexture(src)
 
   useEffect(() => {
@@ -490,6 +470,7 @@ const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
     if (!errors) return
     onError(errors)
   }, [errors])
+
   return null
 }
 

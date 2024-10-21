@@ -75,7 +75,6 @@ import {
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -397,9 +396,10 @@ const ChildGLTFReactor = (props: { source: string }) => {
   const parentUUID = useOptionalComponent(entity, UUIDComponent)?.value
   const nodeState = useHookstate(getMutableState(GLTFNodeState))[source]
   const documentState = useMutableState(GLTFDocumentState)[source]
-  const physicsWorld = Physics.useWorld(entity)
+  // const physicsWorld = Physics.useWorld(entity)
 
-  if (!physicsWorld || !documentState.value || !nodeState.value || !parentUUID) return null
+  // if (!physicsWorld || !documentState.value || !nodeState.value || !parentUUID) return null
+  if (!documentState.value || !nodeState.value || !parentUUID) return null
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
