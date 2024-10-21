@@ -29,13 +29,13 @@ import { useTranslation } from 'react-i18next'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import MaterialEditor from '@ir-engine/editor/src/panels/properties/materialeditor'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { GiMeshBall } from 'react-icons/gi'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { Material } from 'three'
 import Accordion from '../../../../primitives/tailwind/Accordion'
-import NodeEditor from '../nodeEditor'
 import GeometryEditor from './geometryEditor'
 
 const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
@@ -46,7 +46,7 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
     <NodeEditor
       name={t('editor:properties.mesh.name')}
       description={t('editor:properties.mesh.description')}
-      icon={<MeshNodeEditor.iconComponent />}
+      Icon={MeshNodeEditor.iconComponent}
       {...props}
     >
       <Accordion
