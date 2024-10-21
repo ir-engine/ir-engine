@@ -30,11 +30,11 @@ import { HemisphereLightComponent } from '@ir-engine/spatial/src/renderer/compon
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { PiSunHorizon } from 'react-icons/pi'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
-import NodeEditor from '../../nodeEditor'
 
 /**
  * HemisphereLightNodeEditor used to provide property customization view for Hemisphere Light.
@@ -49,7 +49,7 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.hemisphere.name')}
       description={t('editor:properties.hemisphere.description')}
-      icon={<HemisphereLightNodeEditor.iconComponent />}
+      Icon={HemisphereLightNodeEditor.iconComponent}
     >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
         <ColorInput

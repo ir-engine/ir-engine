@@ -35,6 +35,7 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
@@ -44,7 +45,6 @@ import Slider from '../../../../../primitives/tailwind/Slider'
 import InputGroup from '../../../input/Group'
 import NumericScrubber from '../../../input/Numeric/Scrubber'
 import SelectInput from '../../../input/Select'
-import NodeEditor from '../../nodeEditor'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.
@@ -66,7 +66,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.audio.name')}
       description={t('editor:properties.audio.description')}
-      icon={<PositionalAudioNodeEditor.iconComponent />}
+      Icon={PositionalAudioNodeEditor.iconComponent}
     >
       <InputGroup
         name="Distance Model"
