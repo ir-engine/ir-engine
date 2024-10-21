@@ -30,7 +30,7 @@ import { InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 
 import { useMutableState } from '@ir-engine/hyperflux'
 
-import { first, isNil } from 'lodash'
+import { isNil } from 'lodash'
 import { NotificationService } from '../../common/services/NotificationService'
 import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
@@ -39,7 +39,7 @@ const InviteToast = () => {
   const { t } = useTranslation()
   const inviteState = useMutableState(InviteState)
   const authState = useMutableState(AuthState)
-  const newestInvite: InviteType = first(inviteState.receivedInvites.invites)?.value as InviteType
+  const newestInvite = inviteState.receivedInvites.invites[0]?.value as InviteType
 
   useEffect(() => {
     if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
