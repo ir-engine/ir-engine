@@ -522,6 +522,15 @@
     ],
     "dependencies": []
   },
+  "assets/rings.glb": {
+    "type": "asset",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/assets_rings.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
   "assets/sample_etc1s.ktx2": {
     "type": "asset",
     "tags": [
