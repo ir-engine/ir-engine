@@ -206,7 +206,8 @@
     "continueAsGuest": "Continue as guest"
   },
   "invite": {
-    "accept": "Accept",
-    "decline": "Decline"
+    "inviteMessage": "{{inviteType}} invite from {{userName}}",
+    "decline": "Decline",
+    "accept": "Accept"
   }
 }
