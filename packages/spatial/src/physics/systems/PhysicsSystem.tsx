@@ -112,7 +112,7 @@ const PhysicsSceneReactor = () => {
     return () => {
       Physics.destroyWorld(uuid)
     }
-  }, [uuid, scene.active])
+  }, [uuid, scene.active.value])
   return null
 }
 
