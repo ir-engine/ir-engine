@@ -28,7 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { EntityUUID, defineQuery } from '@ir-engine/ecs'
+import { EntityUUID } from '@ir-engine/ecs'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
@@ -39,20 +39,17 @@ import {
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import { getMutableState, useState } from '@ir-engine/hyperflux'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { useState } from '@ir-engine/hyperflux'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import ComponentDropdown from '../../../ComponentDropdown'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import ImagePreviewInput from '../../../input/Image/Preview'
 import NodeInput from '../../../input/Node'
 import NumericInput from '../../../input/Numeric'
-import PropertyGroup from '../../group'
-
-const cameraQuery = defineQuery([CameraComponent])
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -80,10 +77,10 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
 
   return (
-    <PropertyGroup
+    <ComponentDropdown
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
-      icon={<SceneSettingsEditor.iconComponent />}
+      Icon={SceneSettingsEditor.iconComponent}
     >
       <InputGroup
         name="Spectate Entity"
@@ -209,7 +206,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SceneSettingsComponent, 'sceneKillHeight')}
         />
       </InputGroup>
-    </PropertyGroup>
+    </ComponentDropdown>
   )
 }
 

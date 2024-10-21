@@ -29,9 +29,7 @@ import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { TransformGizmoControlledComponent } from '@ir-engine/editor/src/classes/TransformGizmoControlledComponent'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { transformGizmoControlledQuery } from '@ir-engine/editor/src/systems/GizmoSystem'
 import { VisualScriptActions, visualScriptQuery } from '@ir-engine/engine'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
@@ -46,6 +44,8 @@ import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
+import { TransformGizmoControlledComponent } from '../../../classes/gizmo/transform/TransformGizmoControlledComponent'
+import { transformGizmoControlledQuery } from '../../../systems/TransformGizmoSystem'
 
 /**
  * Returns true if we stopped play mode, false if we were not in play mode

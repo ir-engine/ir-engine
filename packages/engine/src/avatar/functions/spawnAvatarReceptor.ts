@@ -51,7 +51,7 @@ import {
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
@@ -104,7 +104,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   createAvatarCollider(entity)
 
-  if (ownerID === Engine.instance.userID) {
+  if (ownerID === Engine.instance.store.userID) {
     createAvatarController(entity)
   }
 

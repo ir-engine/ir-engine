@@ -33,6 +33,7 @@ import { MdCameraswitch } from 'react-icons/md'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
@@ -40,7 +41,6 @@ import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
 import { Vector3Scrubber } from '../../../input/Vector3'
-import NodeEditor from '../../nodeEditor'
 
 /**
  * SplineTrackNodeEditor adds rotation editing to splines.
@@ -73,7 +73,7 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       description={t('editor:properties.splinetrack.description')}
-      icon={<SplineTrackNodeEditor.iconComponent />}
+      Icon={SplineTrackNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Spline" label={t('editor:properties.splinetrack.lbl-spline')}>
