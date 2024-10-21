@@ -60,18 +60,13 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-export default function AddEditLocationModal(props: {
-  action: string
-  location?: LocationType
-  sceneID?: string | null
-}) {
+export default function AddEditLocationModal(props: { location?: LocationType; sceneID?: string | null }) {
   const { t } = useTranslation()
 
   const locationID = useHookstate(props.location?.id || null)
 
   const params = {
     query: {
-      action: props.action,
       id: locationID.value
     }
   }
@@ -299,17 +294,20 @@ export default function AddEditLocationModal(props: {
             />
             <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
             <div className="flex flex-col gap-2">
-              <ImagePreviewInput
-                label="Current Thumbnail"
-                value={sceneThumbnailState.thumbnailURL.value ?? ''}
-                previewOnly={true}
-              />
-              <ImagePreviewInput
-                label="Previous Thumbnail"
-                value={sceneThumbnailState.oldThumbnailURL.value ?? ''}
-                previewOnly={true}
-              />
-
+              <div className="flex flex-row justify-between gap-2">
+                <ImagePreviewInput
+                  label={sceneThumbnailState.thumbnailURL.value ? 'Current Thumbnail' : ''}
+                  value={sceneThumbnailState.thumbnailURL.value ?? ''}
+                  previewOnly={true}
+                  labelClassname="text-sm"
+                />
+                <ImagePreviewInput
+                  label={sceneThumbnailState.oldThumbnailURL.value ? 'Previous Thumbnail' : ''}
+                  value={sceneThumbnailState.oldThumbnailURL.value ?? ''}
+                  previewOnly={true}
+                  labelClassname="text-sm"
+                />
+              </div>
               <div className="flex flex-row gap-2 ">
                 <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
                   {t('editor:properties.sceneSettings.generate')}
@@ -327,17 +325,19 @@ export default function AddEditLocationModal(props: {
             </div>
             <div>{t('editor:properties.sceneSettings.lbl-loading')}</div>
             <div className="flex flex-col gap-2">
-              <ImagePreviewInput
-                label="Current Loading Screen"
-                value={sceneThumbnailState.loadingScreenURL.value ?? ''}
-                previewOnly={true}
-              />
-              <ImagePreviewInput
-                label="Previous Loading Screen"
-                value={sceneThumbnailState.oldLoadingScreenURL.value ?? ''}
-                previewOnly={true}
-              />
-
+              <div className="flex flex-row justify-between gap-2">
+                <ImagePreviewInput
+                  label={sceneThumbnailState.loadingScreenURL.value ? 'Current Loading Screen' : ''}
+                  value={sceneThumbnailState.loadingScreenURL.value ?? ''}
+                  labelClassname=""
+                  previewOnly={true}
+                />
+                <ImagePreviewInput
+                  label={sceneThumbnailState.oldLoadingScreenURL.value ? 'Previous Loading Screen' : ''}
+                  value={sceneThumbnailState.oldLoadingScreenURL.value ?? ''}
+                  previewOnly={true}
+                />
+              </div>
               <div className="flex flex-row gap-2">
                 <Button onClick={SceneThumbnailState.createLoadingScreen} className="w-full">
                   {t('editor:properties.sceneSettings.generate')}

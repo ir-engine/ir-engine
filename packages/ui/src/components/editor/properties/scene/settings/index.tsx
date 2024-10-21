@@ -39,7 +39,7 @@ import {
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import { useState } from '@ir-engine/hyperflux'
+import { getMutableState, useState } from '@ir-engine/hyperflux'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
