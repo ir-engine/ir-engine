@@ -34,7 +34,10 @@ const argTypes: ArgTypes = {
   },
   variant: {
     control: 'inline-radio',
-    options: ['sm', 'md', 'lg']
+    options: ['sm', 'md', 'lg', 'full']
+  },
+  previewOnly: {
+    control: 'boolean'
   }
 }
 
@@ -55,9 +58,9 @@ export default {
   }
 }
 
-const ImageLinkRenderer = (args: ImageLinkProps) => {
+const ImageLinkRenderer = (args: ImageLinkProps & { previewOnly: boolean }) => {
   const [_currentArgs, updateArgs] = useArgs<{ src: string }>()
-  return <ImageLink {...args} onChange={(value) => updateArgs({ src: value })} />
+  return <ImageLink {...args} onChange={args.previewOnly ? undefined : (value) => updateArgs({ src: value })} />
 }
 
 export const Default = {

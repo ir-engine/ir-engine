@@ -29,23 +29,25 @@ import { twMerge } from 'tailwind-merge'
 import ImageUrlFallback from './image-url-fallback.png'
 
 export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'onChange'> {
-  variant?: 'lg' | 'md' | 'sm'
-  onChange: (value: string) => void
+  variant?: 'lg' | 'md' | 'sm' | 'full'
+  onChange?: (value: string) => void
 }
 
 const containerVariants = {
+  full: 'h-[405px] w-full p-4 gap-y-2',
   lg: 'h-[405px] w-[330px] p-4 gap-y-2',
   md: 'h-[280px] w-[280px] p-2 gap-y-1',
   sm: 'h-[190px] w-[190px] p-2 gap-y-1'
 }
 
 const imageVariants = {
-  lg: 'max-h-[310px] max-w-[297px]',
-  md: 'max-h-[210px] max-w-[264px]',
-  sm: 'max-h-[119px] max-w-[174px]'
+  full: 'h-[310px] w-full',
+  lg: 'h-[310px] w-[297px]',
+  md: 'h-[210px] w-[264px]',
+  sm: 'h-[119px] w-[174px]'
 }
 
-export default function ImageLink({ src, onChange, variant = 'md', ...props }: ImageLinkProps) {
+export default function ImageLink({ src, onChange, variant = 'full', ...props }: ImageLinkProps) {
   const { t } = useTranslation()
   const imageRef = useRef<HTMLImageElement>(null)
 
@@ -72,20 +74,29 @@ export default function ImageLink({ src, onChange, variant = 'md', ...props }: I
 
   return (
     <div className={twMerge('flex flex-col rounded-[10px] bg-[#191B1F]', containerVariants[variant])}>
-      <img src={src} className={twMerge('mx-auto rounded', imageVariants[variant])} ref={imageRef} {...props} />
-      <button
-        className={twMerge('text-right text-sm text-[#AFBEDF]')}
-        onClick={() => {
-          onChange('')
-        }}
-      >
-        {t('common:components.clear')}
-      </button>
-      <input
-        value={src}
-        onChange={(event) => onChange(event.target.value)}
-        className={twMerge('w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]')}
+      <img
+        src={src}
+        className={twMerge('mx-auto rounded', imageVariants[variant], !onChange && 'h-[370px]')}
+        ref={imageRef}
+        {...props}
       />
+      {onChange && (
+        <>
+          <button
+            className={twMerge('text-right text-sm text-[#AFBEDF]')}
+            onClick={() => {
+              onChange('')
+            }}
+          >
+            {t('common:components.clear')}
+          </button>
+          <input
+            value={src}
+            onChange={(event) => onChange(event.target.value)}
+            className={twMerge('w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]')}
+          />
+        </>
+      )}
     </div>
   )
 }
