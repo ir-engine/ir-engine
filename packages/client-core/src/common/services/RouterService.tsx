@@ -87,7 +87,7 @@ export const useSearchParamState = () => {
   /** Create a nested reactor to react to state changes */
   useEffect(() => {
     const SubReactor = (props: { keyID: string }) => {
-      const value = useHookstate(getMutableState(SearchParamState)[props.keyID]).value
+      const value = useHookstate(SearchParamState[props.keyID]).value
 
       useEffect(() => {
         const location = new URL(window.location as any)

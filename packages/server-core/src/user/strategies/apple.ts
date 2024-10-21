@@ -29,8 +29,11 @@ import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avata
 import { random } from 'lodash'
 
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import moment from 'moment/moment'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { RedirectConfig } from '../../types/OauthStrategies'
@@ -57,13 +60,14 @@ export class AppleStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
-    return {
+    const returned = {
       ...baseData,
       accountIdentifier: profile.email ? profile.email : profile.sub,
       type: 'apple',
-      userId,
-      email: profile.email
+      userId
     }
+    if (profile.email) returned.email = profile.email
+    return returned
   }
 
   async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
@@ -118,7 +122,38 @@ export class AppleStrategy extends CustomOAuthStrategy {
     if (!existingEntity) {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service(identityProviderPath).remove(entity.id)
+      if (entity.type === 'guest' && profile.email) {
+        const profileEmail = profile.email
+        const existingIdentityProviders = await this.app.service(identityProviderPath).find({
+          query: {
+            $or: [
+              {
+                email: profileEmail
+              },
+              {
+                token: profileEmail
+              }
+            ],
+            id: {
+              $ne: newIP.id
+            }
+          }
+        })
+        if (existingIdentityProviders.total > 0) {
+          const loginToken = await this.app.service(loginTokenPath).create({
+            identityProviderId: newIP.id,
+            associateUserId: existingIdentityProviders.data[0].userId,
+            expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+          })
+          return {
+            ...entity,
+            associateEmail: profileEmail,
+            loginToken: loginToken.token,
+            promptForConnection: true
+          }
+        }
+      }
+      await this.app.service(identityProviderPath).remove(entity.id)
       await this.userLoginEntry(newIP, params)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {
@@ -144,15 +179,28 @@ export class AppleStrategy extends CustomOAuthStrategy {
       return redirectDomain + `?error=${err}`
     }
 
-    const loginType = params.query?.userId ? 'connection' : 'login'
-    let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
-    if (redirectPath) {
-      redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+    if (data[identityProviderPath]?.promptForConnection) {
+      let redirectUrl = `${redirectDomain}?promptForConnection=true&associateEmail=${data[identityProviderPath].associateEmail}&loginToken=${data[identityProviderPath].loginToken}`
+      if (redirectPath) {
+        redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+      }
+      if (redirectInstanceId) {
+        redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
+      }
+
+      return redirectUrl
+    } else {
+      const loginType = params.query?.userId ? 'connection' : 'login'
+      let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
+      if (redirectPath) {
+        redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+      }
+      if (redirectInstanceId) {
+        redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
+      }
+
+      return redirectUrl
     }
-    if (redirectInstanceId) {
-      redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
-    }
-    return redirectUrl
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
@@ -165,7 +213,26 @@ export class AppleStrategy extends CustomOAuthStrategy {
             authentication.error
         )
     }
-    return super.authenticate(authentication, originalParams)
+    const entity: string = this.configuration.entity
+    const { provider, ...params } = originalParams
+    const profile = await super.getProfile(authentication, params)
+    const existingEntity = (await super.findEntity(profile, params)) || (await super.getCurrentEntity(params))
+
+    const authEntity = !existingEntity
+      ? await this.createEntity(profile, params)
+      : await this.updateEntity(existingEntity, profile, params)
+
+    const fetchedEntity = await super.getEntity(authEntity, originalParams)
+    if (authEntity.promptForConnection) {
+      fetchedEntity.promptForConnection = authEntity.promptForConnection
+      fetchedEntity.associateEmail = authEntity.associateEmail
+      fetchedEntity.loginToken = authEntity.loginToken
+    }
+
+    return {
+      authentication: { strategy: this.name! },
+      [entity]: fetchedEntity
+    }
   }
 }
 export default AppleStrategy
