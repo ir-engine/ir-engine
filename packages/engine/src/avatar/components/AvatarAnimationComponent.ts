@@ -65,7 +65,7 @@ import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
-import { setAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
+import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
@@ -120,7 +120,6 @@ export const AvatarRigComponent = defineComponent({
         rigComponent.vrm.set(vrm)
         rigComponent.normalizedRig.set(vrm.humanoid.normalizedHumanBones)
         rigComponent.rawRig.set(vrm.humanoid.rawHumanBones)
-        setupAvatarForUser(entity)
         setAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)

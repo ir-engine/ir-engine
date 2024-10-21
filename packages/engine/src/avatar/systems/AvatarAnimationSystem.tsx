@@ -68,8 +68,8 @@ import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { setAvatarSpeedFromRootMotion } from '../functions/avatarFunctions'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
-import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -318,18 +318,18 @@ const execute = () => {
 }
 
 const Reactor = () => {
-  const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
+  const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
+  const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
   useEffect(() => {
-    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-    if (!selfAvatarEntity) {
+    if (!selfAvatarLoaded) {
       XRState.setTrackingSpace()
       return
     }
     const eyeHeight = getComponent(selfAvatarEntity, AvatarComponent).eyeHeight
     getMutableState(XRState).userEyeHeight.set(eyeHeight)
     XRState.setTrackingSpace()
-  }, [userReady])
+  }, [selfAvatarLoaded])
 
   return null
 }

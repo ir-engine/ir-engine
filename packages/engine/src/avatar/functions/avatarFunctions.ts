@@ -26,35 +26,26 @@ Infinite Reality Engine. All Rights Reserved.
 import { VRM, VRMHumanBone, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
 
-// import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
-import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationState } from '../AnimationManager'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { preloadedAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
-import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
-import { LocalAvatarState } from '../state/AvatarState'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -63,54 +54,6 @@ declare module '@pixiv/three-vrm/types/VRM' {
       retargeted?: boolean
     }
   }
-}
-/** Checks if the asset is a VRM. If not, attempt to use
- *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
-// export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
-//   const scene = model.scene ?? model // FBX assets do not have 'scene' property
-//   if (!scene) return null!
-//   let foundModel = model
-//   //sometimes, for some exporters, the vrm object is stored in the userData
-//   if (model.userData?.vrm instanceof VRM) {
-//     if (model.userData.vrmMeta.metaVersion > 0) return model.userData.vrm
-//     foundModel = model.userData.vrm
-//   }
-
-//   //vrm0 is an instance of the vrm object
-//   if (foundModel instanceof VRM) {
-//     const bones = foundModel.humanoid.rawHumanBones
-//     foundModel.humanoid.normalizedHumanBonesRoot.removeFromParent()
-//     bones.hips.node.rotateY(Math.PI)
-//     const humanoid = new VRMHumanoid(bones)
-//     const vrm = new VRM({
-//       ...foundModel,
-//       humanoid,
-//       scene: foundModel.scene,
-//       meta: { name: foundModel.scene.children[0].name } as VRM1Meta
-//     })
-//     if (!vrm.userData) vrm.userData = {}
-//     return vrm
-//   }
-
-//   return avatarBoneMatching(foundModel)
-// }
-
-/**tries to load avatar model asset if an avatar is not already pending */
-export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
-  if (!avatarURL) return
-  //check if the url to the file is an avaturn url to infer the file type
-  const pendingComponent = getOptionalComponent(entity, AvatarPendingComponent)
-  if (pendingComponent && pendingComponent.url === avatarURL) return
-
-  setComponent(entity, AvatarPendingComponent, { url: avatarURL })
-  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
-
-  setComponent(entity, ModelComponent, { src: avatarURL, cameraOcclusion: false, convertToVRM: true })
-}
-
-export const unloadAvatarForUser = async (entity: Entity) => {
-  setComponent(entity, ModelComponent, { src: '' })
-  removeComponent(entity, AvatarPendingComponent)
 }
 
 const hipsPos = new Vector3(),
@@ -169,28 +112,6 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
       local: new Matrix4().copy(rig[bone]!.node.matrix)
     }
   }
-}
-
-/**
- * @deprecated
- * @todo - move this logic elsewhere
- */
-export const setupAvatarForUser = (entity: Entity) => {
-  const loadingEffect = getState(AnimationState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
-
-  removeComponent(entity, AvatarPendingComponent)
-
-  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
-
-  if (isClient && loadingEffect) {
-    const avatarHeight = getComponent(entity, AvatarComponent).avatarHeight
-    setComponent(entity, AvatarDissolveComponent, {
-      height: avatarHeight
-    })
-  }
-
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  if (entity === selfAvatarEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 
 export const setAvatarAnimations = (entity: Entity) => {
