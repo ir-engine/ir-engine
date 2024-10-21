@@ -36,6 +36,7 @@ import {
   AuthenticationSettingType
 } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
 
+import { scopePath, ScopeType } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import refreshApiPods from '../../hooks/refresh-api-pods'
@@ -57,11 +58,15 @@ import {
  */
 const mapSettingsAdmin = async (context: HookContext<AuthenticationSettingService>) => {
   const loggedInUser = context.params!.user!
-  if (
-    context.result &&
-    !context.params!.isInternal &&
-    (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
-  ) {
+  const scopes = loggedInUser
+    ? await context.app.service(scopePath).find({
+        query: {
+          userId: loggedInUser.id,
+          type: 'admin:admin' as ScopeType
+        }
+      })
+    : undefined
+  if (context.result && !context.params!.isInternal && (!scopes || scopes.total === 0)) {
     const auth: AuthenticationSettingType[] = context.result['data'] ? context.result['data'] : context.result
     const data = auth.map((el) => {
       return {

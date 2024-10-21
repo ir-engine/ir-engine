@@ -23,13 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Application, HookContext } from '@feathersjs/feathers/lib/declarations'
+import { HookContext } from '@feathersjs/feathers/lib/declarations'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 import { disallow } from 'feathers-hooks-common'
 import { sign } from 'jsonwebtoken'
+import { Application } from '../../../declarations'
 
-const getZendeskToken = (context: HookContext<Application>) => {
-  const { email } = context.params.user.identityProviders.find((ip) => ip.email)
+const getZendeskToken = async (context: HookContext<Application>) => {
+  const identityProviders = await context.app
+    .service(identityProviderPath)
+    .find({ query: { userId: context.params.user.id } })
+
+  const { email } = identityProviders.data.find((ip) => ip.email!)!
 
   context.result = sign(
     {

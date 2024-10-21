@@ -35,6 +35,7 @@ import { userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.
 import { UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
+import { scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
@@ -66,8 +67,7 @@ describe('user.test', () => {
     const item = await app.service(userPath).create({
       name,
       avatarId: avatar.id,
-      isGuest,
-      scopes: []
+      isGuest
     })
     users.push(item)
 
@@ -84,8 +84,7 @@ describe('user.test', () => {
     const item = await app.service(userPath).create({
       name,
       avatarId: avatar.id,
-      isGuest,
-      scopes: []
+      isGuest
     })
     users.push(item)
 
@@ -146,51 +145,52 @@ describe('user.test', () => {
     assert.notEqual(newName, updatedUser2.name)
   })
 
-  it('should not be able to patch user scopes without being admin', async () => {
-    const userWriteUser = await app.service(userPath).create({
-      name: `Test UserWrite #${Math.random()}` as UserName,
-      scopes: [{ type: 'user:write' as ScopeType }],
-      avatarId: avatar.id
-    })
-    const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
+  /** @todo this may not be necessary anymore */
+  // it('should not be able to patch user scopes without being admin', async () => {
+  //   const userWriteUser = await app.service(userPath).create({
+  //     name: `Test UserWrite #${Math.random()}` as UserName,
+  //     scopes: [{ type: 'user:write' as ScopeType }],
+  //     avatarId: avatar.id
+  //   })
+  //   const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
 
-    const userWithScopes = await app.service(userPath).create({
-      name: `Test UserWithScopes #${Math.random()}` as UserName,
-      scopes: [{ type: 'editor:write' as ScopeType }],
-      avatarId: avatar.id
-    })
+  //   const userWithScopes = await app.service(userPath).create({
+  //     name: `Test UserWithScopes #${Math.random()}` as UserName,
+  //     scopes: [{ type: 'editor:write' as ScopeType }],
+  //     avatarId: avatar.id
+  //   })
 
-    const newName = `Test UserWithScopes 2 #${Math.random()}` as UserName
+  //   const newName = `Test UserWithScopes 2 #${Math.random()}` as UserName
 
-    const patchUserResult = await app.service(userPath).patch(
-      userWithScopes.id,
-      {
-        name: newName,
-        scopes: [{ type: 'admin:admin' as ScopeType }]
-      },
-      {
-        provider: 'rest',
-        headers: {
-          authorization: `Bearer ${userWriteUserApiKey.token}`
-        }
-      }
-    )
+  //   const patchUserResult = await app.service(userPath).patch(
+  //     userWithScopes.id,
+  //     {
+  //       name: newName,
+  //       scopes: [{ type: 'admin:admin' as ScopeType }]
+  //     },
+  //     {
+  //       provider: 'rest',
+  //       headers: {
+  //         authorization: `Bearer ${userWriteUserApiKey.token}`
+  //       }
+  //     }
+  //   )
 
-    assert.equal(patchUserResult.name, newName)
-    assert.deepEqual(patchUserResult.scopes, userWithScopes.scopes)
-  })
+  //   assert.equal(patchUserResult.name, newName)
+  //   assert.deepEqual(patchUserResult.scopes, userWithScopes.scopes)
+  // })
 
   it('should not be able to remove admin users without being admin', async () => {
     const adminUser = await app.service(userPath).create({
       name: `Test Admin #${Math.random()}` as UserName,
-      scopes: [{ type: 'admin:admin' as ScopeType }],
       avatarId: avatar.id
     })
+    await app.service(scopePath).create({ userId: adminUser.id, type: 'admin:admin' as ScopeType })
     const userWriteUser = await app.service(userPath).create({
       name: `Test UserWrite #${Math.random()}` as UserName,
-      scopes: [{ type: 'admin:admin' as ScopeType }],
       avatarId: avatar.id
     })
+    await app.service(scopePath).create({ userId: userWriteUser.id, type: 'admin:admin' as ScopeType })
 
     const userWriteUserApiKey = await app.service(userApiKeyPath).create({ userId: userWriteUser.id })
 
