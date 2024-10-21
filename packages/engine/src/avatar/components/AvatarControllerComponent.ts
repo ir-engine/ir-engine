@@ -101,11 +101,9 @@ export const AvatarControllerComponent = defineComponent({
     useEffect(() => {
       if (!gltfComponent) return
 
-      if (gltfComponent.progress.value !== 100) return
-
-      AvatarControllerComponent.captureMovement(entity, entity)
-
-      return () => {
+      if (gltfComponent.progress.value !== 100) {
+        AvatarControllerComponent.captureMovement(entity, entity)
+      } else {
         AvatarControllerComponent.releaseMovement(entity, entity)
       }
     }, [gltfComponent?.progress?.value])
