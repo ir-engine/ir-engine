@@ -32,8 +32,8 @@ import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWi
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { AppState } from '../../../common/services/AppService'
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
-import styles from './index.module.scss'
 import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
+import styles from './index.module.scss'
 
 export const UserMenu = () => {
   const popupMenuState = useMutableState(PopupMenuState)
