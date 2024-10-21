@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { ImgHTMLAttributes, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import ImageUrlFallback from './image-url-fallback.png'
 
@@ -45,6 +46,7 @@ const imageVariants = {
 }
 
 export default function ImageLink({ src, onChange, variant = 'md', ...props }: ImageLinkProps) {
+  const { t } = useTranslation()
   const imageRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export default function ImageLink({ src, onChange, variant = 'md', ...props }: I
           onChange('')
         }}
       >
-        Clear
+        {t('common:components.clear')}
       </button>
       <input
         value={src}
