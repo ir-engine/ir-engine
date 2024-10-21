@@ -27,11 +27,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdDeblur } from 'react-icons/md'
 
-import { getOptionalMutableComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { loadResource } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import {
   Devices,
   Heuristic,
@@ -51,7 +51,6 @@ import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import PaginatedList from '../../layout/PaginatedList'
-import NodeEditor from '../nodeEditor'
 
 const buildBudgetVariantMetadata = (
   level: VariantLevel,
@@ -96,18 +95,11 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
   const entity = props.entity
   const variantComponent = useComponent(entity, VariantComponent)
 
-  const setPreview = (index: number) => {
-    variantComponent.currentLevel.set(index)
-    const modelComponent = getOptionalMutableComponent(entity, ModelComponent)
-    if (!modelComponent) return
-    modelComponent.src.set(variantComponent.levels[index].src.value)
-  }
-
   return (
     <NodeEditor
       name={t('editor:properties.variant.name')}
       description={t('editor:properties.variant.description')}
-      icon={<VariantNodeEditor.iconComponent />}
+      Icon={VariantNodeEditor.iconComponent}
       {...props}
     >
       <div className="m-4 flex flex-col rounded-lg bg-theme-primary p-4">

@@ -33,7 +33,7 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
@@ -59,7 +59,6 @@ import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToG
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { createLoadingSpinner } from '../functions/spatialLoadingSpinner'
 import { SourceComponent } from './SourceComponent'
 
 /**
@@ -92,26 +91,7 @@ function ModelReactor() {
 
   const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
-  const loadedSrc = useHookstate('')
-  const loadingEntity = useHookstate<Entity>(UndefinedEntity)
-
-  const createLoadingGeo = () => {
-    if (loadedSrc.value === modelComponent.src.value) return
-    if (loadingEntity.value) return
-    const spinnerEntity = createLoadingSpinner(`loading ${modelComponent.src.value}`, entity)
-    loadingEntity.set(spinnerEntity)
-  }
-
-  const removeLoadingGeo = () => {
-    loadedSrc.set(modelComponent.src.value)
-    if (!loadingEntity.value) return
-    removeEntityNodeRecursively(loadingEntity.value)
-    loadingEntity.set(UndefinedEntity)
-  }
-
   useEffect(() => {
-    createLoadingGeo()
-
     if (modelComponent.src.value) return
     addError(entity, ModelComponent, 'INVALID_SOURCE', 'No source provided')
     return () => {
@@ -127,7 +107,6 @@ function ModelReactor() {
 
   useEffect(() => {
     if (!error) return
-    removeLoadingGeo()
     console.error(error)
     addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
     return () => {
@@ -219,8 +198,6 @@ function ModelReactor() {
         animations: scene.animations
       })
     }
-
-    removeLoadingGeo()
 
     return () => {
       getMutableState(GLTFSourceState)[uuid].set(none)

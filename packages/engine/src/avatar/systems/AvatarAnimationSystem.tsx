@@ -35,6 +35,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
@@ -54,6 +55,7 @@ import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
@@ -64,9 +66,9 @@ import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
+import { setAvatarSpeedFromRootMotion } from '../functions/avatarFunctions'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
-import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
@@ -143,9 +145,7 @@ const execute = () => {
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarComponent = getComponent(entity, AvatarComponent)
-    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-    avatarAnimationComponent.deltaAccumulator = elapsedSeconds
     const rawRig = rigComponent.rawRig
     const normalizedRig = rigComponent.normalizedRig
 
@@ -318,18 +318,18 @@ const execute = () => {
 }
 
 const Reactor = () => {
-  const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
+  const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
+  const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
   useEffect(() => {
-    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-    if (!selfAvatarEntity) {
+    if (!selfAvatarLoaded) {
       XRState.setTrackingSpace()
       return
     }
     const eyeHeight = getComponent(selfAvatarEntity, AvatarComponent).eyeHeight
     getMutableState(XRState).userEyeHeight.set(eyeHeight)
     XRState.setTrackingSpace()
-  }, [userReady])
+  }, [selfAvatarLoaded])
 
   return null
 }
@@ -358,6 +358,16 @@ const AnimationReactor = () => {
       i++
     }
   }, [loadedAnimations])
+
+  const locomotionAnimationState = useHookstate(
+    getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
+  )
+  const animationComponent = useOptionalComponent(locomotionAnimationState.value, AnimationComponent)
+  useEffect(() => {
+    if (!animationComponent) return
+    setAvatarSpeedFromRootMotion()
+  }, [animationComponent])
+
   return null
 }
 

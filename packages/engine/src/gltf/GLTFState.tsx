@@ -35,6 +35,7 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
+  MeshStandardMaterial,
   Quaternion,
   Skeleton,
   SkinnedMesh,
@@ -976,7 +977,7 @@ const PrimitiveReactor = (props: {
     const mesh =
       typeof node.skin !== 'undefined'
         ? new SkinnedMesh(finalGeometry as BufferGeometry)
-        : new Mesh(finalGeometry as BufferGeometry, [])
+        : new Mesh(finalGeometry as BufferGeometry, new MeshStandardMaterial())
 
     if (typeof node.skin !== 'undefined') {
       ;(mesh as SkinnedMesh).skeleton = new Skeleton()

@@ -25,22 +25,33 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { Entity, EntityUUID, Static, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-
-import { Entity, Static } from '@ir-engine/ecs'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { addOBCPlugin } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import React from 'react'
+import { InstancedMesh, Material } from 'three'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { InstancingComponent } from './InstancingComponent'
 
 export type VariantLevel = {
   src: string
@@ -105,6 +116,8 @@ export const VariantComponent = defineComponent({
     const entity = useEntityContext()
     const variantComponent = useComponent(entity, VariantComponent)
 
+    const instancingComponent = useOptionalComponent(entity, InstancingComponent)
+
     useEffect(() => {
       if (!variantComponent.levels.length) return
 
@@ -124,14 +137,14 @@ export const VariantComponent = defineComponent({
     }, [variantComponent.heuristic.value, variantComponent.levels])
 
     useEffect(() => {
-      if (!variantComponent.levels.length) return
+      if (!variantComponent.levels.length || instancingComponent) return
 
       const currentLevel = variantComponent.currentLevel.value
       const src = variantComponent.levels[currentLevel].src.value
       if (!src) return
 
       setComponent(entity, GLTFComponent, { src: src })
-    }, [variantComponent.currentLevel, variantComponent.levels])
+    }, [instancingComponent, variantComponent.currentLevel, variantComponent.levels])
 
     useEffect(() => {
       const levels = variantComponent.levels.length
@@ -147,6 +160,126 @@ export const VariantComponent = defineComponent({
       }
     }, [variantComponent.levels.length])
 
-    return null
+    if (!instancingComponent) return null
+
+    return <InstancingVariantReactor entity={entity} />
   }
 })
+
+const InstancingVariantReactor = (props: { entity: Entity }) => {
+  const variantComponent = useComponent(props.entity, VariantComponent)
+
+  return (
+    <>
+      {variantComponent.levels.map((level, index) => (
+        <VariantInstanceLoadReactor entity={props.entity} level={index} key={index} />
+      ))}
+    </>
+  )
+}
+
+const VariantInstanceLoadReactor = (props: { entity: Entity; level: number }) => {
+  const variantComponent = useComponent(props.entity, VariantComponent)
+
+  const level = variantComponent.levels[props.level].value
+
+  const modelEntity = useHookstate(() => {
+    const entity = createEntity()
+    setComponent(
+      entity,
+      UUIDComponent,
+      (getComponent(props.entity, UUIDComponent) + '-LOD-' + props.level) as EntityUUID
+    )
+    setComponent(entity, NameComponent, getComponent(props.entity, NameComponent) + ' LOD ' + props.level)
+    setComponent(entity, TransformComponent)
+    setComponent(entity, EntityTreeComponent, { parentEntity: props.entity })
+    setComponent(entity, VisibleComponent)
+    setComponent(entity, GLTFComponent, { src: level.src })
+    return entity
+  }).value
+
+  useEffect(() => {
+    return () => {
+      removeEntity(modelEntity)
+    }
+  }, [])
+
+  const childMeshEntities = useChildrenWithComponents(modelEntity, [MeshComponent])
+
+  return (
+    <>
+      {childMeshEntities.map((meshEntity) => (
+        <ChildMeshReactor
+          variantEntity={props.entity}
+          modelEntity={modelEntity}
+          meshEntity={meshEntity}
+          level={props.level}
+          key={meshEntity}
+        />
+      ))}
+    </>
+  )
+}
+
+const ChildMeshReactor = (props: { variantEntity: Entity; modelEntity: Entity; meshEntity: Entity; level: number }) => {
+  useEffect(() => {
+    const level = getComponent(props.variantEntity, VariantComponent).levels[props.level]
+
+    const minDistance = level.metadata['minDistance']
+    const maxDistance = level.metadata['maxDistance']
+    const mesh = getComponent(props.meshEntity, MeshComponent)
+
+    // debug
+    // mesh.material = new MeshStandardMaterial({
+    //   color: props.level === 0 ? 0xff0000 : props.level === 1 ? 0x00ff00 : 0x0000ff
+    // })
+
+    const instancingComponent = getComponent(props.variantEntity, InstancingComponent)
+
+    //convert to instanced mesh, using existing instance matrix
+    const instancedMesh =
+      mesh instanceof InstancedMesh
+        ? mesh
+        : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
+    instancedMesh.instanceMatrix = instancingComponent.instanceMatrix
+    instancedMesh.frustumCulled = false
+
+    //add distance culling shader plugin
+    const materials: Material[] = Array.isArray(instancedMesh.material)
+      ? instancedMesh.material
+      : [instancedMesh.material]
+    for (const material of materials) {
+      addOBCPlugin(material, {
+        id: 'lod-culling',
+        priority: 1,
+        compile: (shader, renderer) => {
+          shader.fragmentShader = shader.fragmentShader.replace(
+            'uniform float opacity;',
+            `uniform float opacity;
+uniform float maxDistance;
+uniform float minDistance;`
+          )
+
+          // Calculate the camera distance from the geometry
+          // Discard fragments outside the minDistance and maxDistance range
+          shader.fragmentShader = shader.fragmentShader.replace(
+            'void main() {',
+            `void main() {
+  float cameraDistance = length(vViewPosition);
+  if (cameraDistance <= minDistance || cameraDistance >= maxDistance) {
+    discard;
+  }`
+          )
+          material.shader.uniforms.minDistance = { value: minDistance }
+          material.shader.uniforms.maxDistance = { value: maxDistance }
+        }
+      })
+    }
+
+    /** @todo rather than this, update the mesh component */
+    removeObjectFromGroup(props.meshEntity, mesh)
+    addObjectToGroup(props.meshEntity, instancedMesh)
+  }, [])
+
+  return null
+}

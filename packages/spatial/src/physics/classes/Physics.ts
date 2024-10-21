@@ -293,6 +293,10 @@ const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
   }
 
   rigidbody.setBodyType(typeEnum, false)
+
+  /** @todo turns out this is a react/rapier bug when it comes to changing the rigidbody type. This is the best workaround I could find*/
+  rigidbody.setEnabled(false)
+  rigidbody.setEnabled(true)
 }
 
 function setRigidbodyPose(

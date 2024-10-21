@@ -48,7 +48,6 @@ import {
   RendererComponent,
   getNestedVisibleChildren,
   getSceneParameters,
-  initializeEngineRenderer,
   render
 } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -289,7 +288,6 @@ const renderThumbnail = (entity: Entity, lightEntity: Entity, skyboxEntity: Enti
   const cameraEntity = createEntity()
   setComponent(cameraEntity, CameraComponent)
   setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
-  initializeEngineRenderer(cameraEntity)
   setComponent(cameraEntity, VisibleComponent, true)
 
   tryCatch(() => {
