@@ -123,3 +123,52 @@
   justify-content: center;
   align-items: center;
 }
+
+.avatarPreview {
+  position: relative;
+  background: transparent;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  box-shadow: 
+    10rem 5rem 0 rgb(255 255 255 / 80%),
+    15rem 8rem 0 rgb(255 255 255 / 50%),
+    18rem 10rem 0 rgb(255 255 255 / 70%),
+    12rem 12rem 0 rgb(255 255 255 / 90%),
+    5rem 13rem 0 rgb(255 255 255 / 40%),
+    25rem 6rem 2px rgb(255 255 255 / 80%),
+    30rem 10rem 3px rgb(255 255 255 / 60%),
+    35rem 12rem 2px rgb(255 255 255 / 90%),
+    40rem 14rem 3px rgb(255 255 255 / 50%),
+    45rem 15rem 2px rgb(255 255 255 / 70%),
+    8rem 6rem 0 rgb(255 255 255 / 70%),
+    20rem 4rem 2px rgb(255 255 255 / 80%),
+    28rem 7rem 0 rgb(255 255 255 / 50%),
+    33rem 9rem 1px rgb(255 255 255 / 90%),
+    38rem 13rem 2px rgb(255 255 255 / 60%);
+
+  @keyframes twinkling {
+    0% {
+      opacity: 0.6;
+    }
+
+    50% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0.6;
+    }
+  }
+
+  animation: twinkling 5s alternate infinite; 
+}
+

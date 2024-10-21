@@ -37,8 +37,10 @@ import { NetworkState } from '@ir-engine/network'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
+import AvatarCreatorMenu2 from './components/UserMenu/menus/AvatarCreatorMenu2'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
+import AvatarSelectMenu2 from './components/UserMenu/menus/AvatarSelectMenu2'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
@@ -65,6 +67,7 @@ export const UserMenus = {
   ReadyPlayer: 'user.ReadyPlayer',
   Avaturn: 'user.Avaturn',
   AvatarSelect: 'user.AvatarSelect',
+  AvatarSelect2: 'user.AvatarSelect2',
   AvatarModify: 'user.AvatarModify',
   Share: 'user.Share',
   Emote: 'user.Emote'
@@ -92,6 +95,7 @@ const reactor = () => {
       [UserMenus.Settings]: SettingMenu,
       [UserMenus.Settings2]: SettingMenu2,
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
+      [UserMenus.AvatarSelect2]: AvatarSelectMenu2,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
       [UserMenus.Share]: ShareMenu
     })
@@ -107,6 +111,7 @@ const reactor = () => {
         [UserMenus.Settings]: none,
         [UserMenus.Settings2]: none,
         [UserMenus.AvatarSelect]: none,
+        [UserMenus.AvatarSelect2]: none,
         [UserMenus.AvatarModify]: none,
         [UserMenus.Share]: none
       })
@@ -143,22 +148,22 @@ const reactor = () => {
   }, [emotesEnabled])
 
   useEffect(() => {
-    if (!avaturnEnabled) return
+    if (!rpmEnabled) return
 
     const popupMenuState = getMutableState(PopupMenuState)
 
     popupMenuState.menus.merge({
-      [UserMenus.ReadyPlayer]: AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe)
+      [UserMenus.ReadyPlayer]: AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
     })
     return () => {
       popupMenuState.menus.merge({
         [UserMenus.ReadyPlayer]: none
       })
     }
-  }, [avaturnEnabled])
+  }, [rpmEnabled])
 
   useEffect(() => {
-    if (!rpmEnabled) return
+    if (!avaturnEnabled) return
 
     const popupMenuState = getMutableState(PopupMenuState)
 
@@ -170,7 +175,7 @@ const reactor = () => {
         [UserMenus.Avaturn]: none
       })
     }
-  }, [rpmEnabled])
+  }, [avaturnEnabled])
 
   useEffect(() => {
     const popupMenuState = getMutableState(PopupMenuState)
