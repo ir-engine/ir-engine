@@ -36,8 +36,8 @@ import { FiInfo } from 'react-icons/fi'
 import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
-import { isSupportedBrowser } from '../functions/browserCheck'
 import { isSupportedDevice } from '../functions/deviceCheck'
+import { useBrowserCheck } from '../hooks/useBrowserCheck'
 import { EditorState } from '../services/EditorServices'
 import { ProjectPage } from './ProjectPage'
 
@@ -60,10 +60,8 @@ export const useStudioEditor = () => {
 export const EditorPage = () => {
   const { t } = useTranslation()
   const [params] = useSearchParams()
-  const { scenePath, projectName, acknowledgedUnsupportedBrowser, acknowledgedUnsupportedDevice } = useHookstate(
-    getMutableState(EditorState)
-  )
-  const supportedBrowser = useHookstate(isSupportedBrowser)
+  const { scenePath, projectName, acknowledgedUnsupportedDevice } = useHookstate(getMutableState(EditorState))
+  const { supportedBrowser, acknowledgedUnsupportedBrowser } = useBrowserCheck()
   const supportedDevice = useHookstate(isSupportedDevice)
 
   useImmediateEffect(() => {

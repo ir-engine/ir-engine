@@ -36,6 +36,7 @@ import LocationPage from '@ir-engine/client-core/src/world/Location'
 import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
+import { useBrowserCheck } from '@ir-engine/editor/src/hooks/useBrowserCheck'
 import '../mui.styles.scss' /** @todo Remove when MUI is removed */
 import '../styles.scss'
 
@@ -50,6 +51,7 @@ const LocationRoutes = () => {
   }, [])
 
   useEngineCanvas(ref)
+  useBrowserCheck()
 
   const projectsLoaded = useEngineInjection()
 
