@@ -40,7 +40,7 @@ import {
   useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { AssetPreviewCameraComponent } from '@ir-engine/engine/src/camera/components/AssetPreviewCameraComponent'
+import { AssetPreviewCameraComponent } from '@ir-engine/spatial/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
 import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
