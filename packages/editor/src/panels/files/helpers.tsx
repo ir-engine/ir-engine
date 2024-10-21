@@ -279,14 +279,17 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
 }
 
 export function fileConsistsOfContentType(files: readonly FileDataType[], contentType: string): boolean {
-  return files.every((file) => {
-    if (file.isFolder) {
-      return contentType.startsWith('image')
-    } else {
-      const guessedType: string = CommonKnownContentTypes[file.type]
-      return guessedType?.startsWith(contentType)
-    }
-  })
+  return (
+    files.length > 0 &&
+    files.every((file) => {
+      if (file.isFolder) {
+        return contentType.startsWith('image')
+      } else {
+        const guessedType: string = CommonKnownContentTypes[file.type]
+        return guessedType?.startsWith(contentType)
+      }
+    })
+  )
 }
 
 export const canDropOnFileBrowser = (folderName: string) =>
