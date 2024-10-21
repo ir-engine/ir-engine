@@ -30,7 +30,6 @@ import { InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 
 import { useMutableState } from '@ir-engine/hyperflux'
 
-import { isNil } from 'lodash'
 import { NotificationService } from '../../common/services/NotificationService'
 import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
@@ -47,7 +46,7 @@ const InviteToast = () => {
   }, [inviteState.receivedUpdateNeeded.value, authState.isLoggedIn.value])
 
   useEffect(() => {
-    if (!isNil(newestInvite?.inviteType)) {
+    if (newestInvite.inviteType) {
       NotificationService.dispatchNotify(
         t('social:invite.inviteMessage', {
           inviteType: newestInvite?.inviteType.replace('-', ' '),
