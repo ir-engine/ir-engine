@@ -138,7 +138,10 @@ export const MediaIconsBox = () => {
   }
 
   return (
-    <section className={`${styles.drawerBox} ${topShelfStyle}`} style={{ pointerEvents: 'auto' }}>
+    <section
+      className={`${styles.drawerBox} ${topShelfStyle} flex items-center justify-center gap-2`}
+      style={{ pointerEvents: 'auto' }}
+    >
       {networkState.config.media.value && !mediaNetworkState?.ready?.value && (
         <div className={styles.loader}>
           <CircularProgress />
@@ -159,12 +162,12 @@ export const MediaIconsBox = () => {
         <IconButtonWithTooltip
           id="UserAudio"
           title={t('user:menu.toggleMute')}
-          className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={MediaStreamState.toggleMicrophonePaused}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />}
           type="solid"
+          sizePx={50}
         />
       ) : null}
       {videoEnabled && hasVideoDevice && mediaNetworkReady && mediaNetworkState?.ready.value ? (
@@ -172,7 +175,6 @@ export const MediaIconsBox = () => {
           <IconButtonWithTooltip
             id="UserVideo"
             title={t('user:menu.toggleVideo')}
-            className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
             onClick={() => {
               MediaStreamState.toggleWebcamPaused()
               logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
@@ -181,24 +183,24 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />}
             type="solid"
+            sizePx={50}
           />
           {isCamVideoEnabled && numVideoDevices > 1 && (
             <IconButtonWithTooltip
               id="FlipVideo"
               title={t('user:menu.cycleCamera')}
-              className={styles.iconContainer}
               onClick={MediaStreamService.cycleCamera}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               icon={<Icon type={'FlipCameraAndroid'} />}
               type="solid"
+              sizePx={50}
             />
           )}
           {motionCaptureEnabled && (
             <IconButtonWithTooltip
               id="UserPoseTracking"
               title={t('user:menu.poseTracking')}
-              className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
               onClick={() => {
                 window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
                 logger.info({
@@ -210,6 +212,7 @@ export const MediaIconsBox = () => {
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               icon={<Icon type={'Accessibility'} />}
               type="solid"
+              sizePx={50}
             />
           )}
         </>
@@ -223,12 +226,12 @@ export const MediaIconsBox = () => {
           <IconButtonWithTooltip
             id="UserScreenSharing"
             title={t('user:menu.shareScreen')}
-            className={styles.iconContainer + ' ' + (isScreenVideoEnabled ? styles.on : '')}
             onClick={MediaStreamState.toggleScreenshare}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type="ScreenShare" />}
             type="solid"
+            sizePx={50}
           />
         </>
       ) : null}
@@ -236,7 +239,6 @@ export const MediaIconsBox = () => {
         <IconButtonWithTooltip
           id="UserVR"
           title={t('user:menu.enterVR')}
-          className={styles.iconContainer + ' ' + (xrMode === 'immersive-vr' ? styles.on : '')}
           onClick={() => {
             xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-vr' })
           }}
@@ -244,13 +246,13 @@ export const MediaIconsBox = () => {
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<VrIcon />}
           type="solid"
+          sizePx={50}
         />
       )}
       {supportsAR && xrEnabled && (
         <IconButtonWithTooltip
           id="UserAR"
           title={t('user:menu.enterAR')}
-          className={styles.iconContainer + ' ' + (xrMode === 'immersive-ar' ? styles.on : '')}
           onClick={() => {
             xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-ar' })
           }}
@@ -258,6 +260,7 @@ export const MediaIconsBox = () => {
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type="ViewInAr" />}
           type="solid"
+          sizePx={50}
         />
       )}
       {spectating && (
