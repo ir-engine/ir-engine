@@ -52,7 +52,7 @@ const Text = ({
   fontWeight = 'normal',
   className,
   children,
-  component = 'p',
+  component = 'span',
   theme = 'primary',
   ...props
 }: TextProps): JSX.Element => {
