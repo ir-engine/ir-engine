@@ -62,6 +62,7 @@
     "connectingToMedia": "Connecting to media...",
     "entering": "Entering world...",
     "loading": "Loading...",
+    "loadingDynamic": "Loading {{name}}",
     "objectRemaining": "{{count}} object remaining",
     "objectRemainingPlural": "{{count}} objects remaining",
     "loadingObjects": "Loading Objects",
