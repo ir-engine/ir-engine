@@ -34,7 +34,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { NO_PROXY, NO_PROXY_STEALTH, State, useImmediateEffect } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs'
 import { useResource } from '../../resources/resourceHooks'
@@ -49,18 +49,7 @@ export const MeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
-    // Needs reworked since the material and geometry can already be a state value through the GLTF loader
-    const [meshResource] = useResource(meshComponent.get(NO_PROXY_STEALTH), entity, meshComponent.uuid.get(NO_PROXY))
-    const [geometryResource] = useResource(
-      meshComponent.geometry.get(NO_PROXY_STEALTH),
-      entity,
-      meshComponent.geometry.uuid.value
-    )
-    const [materialResource] = useResource<Material | Material[]>(
-      meshComponent.material.get(NO_PROXY_STEALTH) as Material | Material[],
-      entity,
-      !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
-    )
+    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
 
     useEffect(() => {
       const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null
@@ -80,14 +69,12 @@ export const MeshComponent = defineComponent({
       } else {
         ;(material as Material).needsUpdate = true
       }
-
-      if (material !== materialResource.value) materialResource.set(material)
     }, [meshComponent.material])
 
     useEffect(() => {
-      const geometry = meshComponent.geometry.value
-      if (geometry !== geometryResource.value) geometryResource.set(geometry)
-    }, [meshComponent.geometry])
+      const mesh = meshComponent.value
+      if (mesh !== meshResource.value) meshResource.set(mesh)
+    }, [meshComponent])
 
     return null
   }
