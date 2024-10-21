@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, getComponent, hasComponent, useComponent, useQuery } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -53,16 +53,16 @@ import NodeInput from '../../input/Node'
 import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
 
-const callbackQuery = defineQuery([CallbackComponent])
-
 type TargetOptionType = { label: string; value: string; callbacks: SelectOptionsType[] }
 
 const TriggerProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const targets = useHookstate<TargetOptionType[]>([{ label: 'Self', value: '', callbacks: [] }])
+  const targets = useHookstate<TargetOptionType[]>([{ label: '', value: '', callbacks: [] }])
 
   const triggerComponent = useComponent(props.entity, TriggerComponent)
   const hasRigidbody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
+
+  const callbackQuery = useQuery([CallbackComponent])
 
   useEffect(() => {
     if (!hasComponent(props.entity, ColliderComponent)) {
@@ -75,13 +75,8 @@ const TriggerProperties: EditorComponentType = (props) => {
     }
 
     const options = [] as TargetOptionType[]
-    options.push({
-      label: 'Self',
-      value: '',
-      callbacks: []
-    })
-    for (const entity of callbackQuery()) {
-      if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
+    for (const entity of callbackQuery) {
+      if (!hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
@@ -90,7 +85,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       })
     }
     targets.set(options)
-  }, [])
+  }, [callbackQuery])
 
   return (
     <NodeEditor
@@ -149,14 +144,26 @@ const TriggerProperties: EditorComponentType = (props) => {
                 commitProperties(TriggerComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
               }}
             />
-            <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
+            <InputGroup
+              name="Target"
+              label={t('editor:properties.triggerVolume.lbl-target')}
+              info={t('editor:properties.triggerVolume.info-target')}
+            >
               <NodeInput
                 value={trigger.target.value ?? ('' as EntityUUID)}
                 onRelease={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
                 disabled={props.multiEdit}
               />
             </InputGroup>
-            <InputGroup name="On Enter" label={t('editor:properties.triggerVolume.lbl-onenter')}>
+            <InputGroup
+              name="On Enter"
+              label={t('editor:properties.triggerVolume.lbl-onenter')}
+              info={t(
+                props.multiEdit || !target
+                  ? 'editor:properties.triggerVolume.info-disabled-callback'
+                  : 'editor:properties.triggerVolume.info-onenter'
+              )}
+            >
               {targetOption?.callbacks.length ? (
                 <SelectInput
                   value={trigger.onEnter.value!}
@@ -175,7 +182,15 @@ const TriggerProperties: EditorComponentType = (props) => {
               )}
             </InputGroup>
 
-            <InputGroup name="On Exit" label={t('editor:properties.triggerVolume.lbl-onexit')}>
+            <InputGroup
+              name="On Exit"
+              label={t('editor:properties.triggerVolume.lbl-onexit')}
+              info={t(
+                props.multiEdit || !target
+                  ? 'editor:properties.triggerVolume.info-disabled-callback'
+                  : 'editor:properties.triggerVolume.info-onexit'
+              )}
+            >
               {targetOption?.callbacks.length ? (
                 <SelectInput
                   value={trigger.onExit.value!}
