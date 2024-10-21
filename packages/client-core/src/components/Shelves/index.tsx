@@ -62,24 +62,26 @@ export const Shelves = () => {
   return (
     <div style={{ pointerEvents: 'auto' }}>
       <IconButtonWithTooltip
-        className={`${showTopShelf ? styles.btn : styles.smBtn} ${showTopShelf ? styles.rotate : styles.rotateBack}`}
-        tooltipClassName={styles.topIcon}
+        type="solid"
         title={showTopShelf ? t('user:menu.hide') : t('user:menu.show')}
+        icon={<Icon type={showTopShelf ? 'KeyboardDoubleArrowUp' : 'KeyboardDoubleArrowDown'} />}
+        sizePx={50}
+        className={`${showTopShelf ? styles.rotate : styles.rotateBack}`}
+        tooltipClassName={styles.topIcon}
         onClick={handleShowMediaIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        icon={<Icon type={showTopShelf ? 'KeyboardDoubleArrowUp' : 'KeyboardDoubleArrowDown'} />}
       />
       <IconButtonWithTooltip
-        className={`${showBottomShelf ? styles.btn : styles.smBtn} ${
-          showBottomShelf ? styles.rotate : styles.rotateBack
-        } `}
-        tooltipClassName={styles.bottomIcon}
+        type="solid"
         title={showBottomShelf ? t('user:menu.hide') : t('user:menu.show')}
+        icon={<Icon type={showBottomShelf ? 'KeyboardDoubleArrowDown' : 'KeyboardDoubleArrowUp'} />}
+        sizePx={50}
+        className={`${showBottomShelf ? styles.rotate : styles.rotateBack}`}
+        tooltipClassName={styles.bottomIcon}
         onClick={handleShowBottomIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        icon={<Icon type={showBottomShelf ? 'KeyboardDoubleArrowDown' : 'KeyboardDoubleArrowUp'} />}
       />
     </div>
   )
