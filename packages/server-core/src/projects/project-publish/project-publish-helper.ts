@@ -175,8 +175,8 @@ async function publishProject(
 }
 
 const copyPublishedFiles = async (app: Application, project: ProjectType, updatedAt: string) => {
-  const oldProject = project.name.split('/')[1]
-  const oldPath = `projects/${project.name.split('/')[0]}/`
+  const oldProject = project.name
+  const oldPath = `projects/`
 
   await app.service(fileBrowserPath).update(null, {
     oldProject: oldProject,
@@ -317,7 +317,7 @@ const createLocations = async (
   })) as any as StaticResourceType[]
 
   locations.map((location) => {
-    location.sceneId = scenes.find((scene) => scene.key === location.sceneId)!.id
+    location.sceneId = scenes.find((scene) => scene.key.split('/').pop()!.replace('.gltf', '') === location.name)!.id
   })
 
   await app.service(locationPath).create(locations)

@@ -103,14 +103,15 @@ export default function ProjectTable(props: { search: string }) {
 
   const publishProject = async (project: ProjectType) => {
     isPublishing.set(true)
-    const projectScenes = await ProjectService.getProjectScenes(project.id)
+    const projectScenes = await ProjectService.getProjectScenes(project.name)
 
     const locations: LocationData[] = []
-    projectScenes.forEach((scene) => {
+
+    for (const scene of projectScenes) {
       const locationData: LocationData = {
-        name: scene.key.split('/')[1].replace('.gltf', ''),
+        name: scene.key.split('/').pop()!.replace('.gltf', ''),
         sceneId: scene.id,
-        maxUsersPerInstance: 20,
+        maxUsersPerInstance: 10,
         locationSetting: {
           locationId: '' as LocationID,
           locationType: 'public',
@@ -123,7 +124,7 @@ export default function ProjectTable(props: { search: string }) {
         isFeatured: false
       }
       locations.push(locationData)
-    })
+    }
 
     const projectPublishData: ProjectPublishData = {
       projectId: project.id,
@@ -230,9 +231,9 @@ export default function ProjectTable(props: { search: string }) {
           startIcon={<HiOutlineClock />}
           size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
-          onClick={() => publishProject}
+          onClick={() => publishProject(project)}
         >
-          {isPublishing ? 'publishing' : 'Publish Project'}
+          {isPublishing.value ? 'publishing' : 'Publish Project'}
         </Button>
         <Button
           startIcon={<HiOutlineClock />}

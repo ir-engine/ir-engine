@@ -153,11 +153,10 @@ export const ProjectService = {
         query: {
           project: projectName,
           type: 'scene'
-        },
-        paginate: false
+        }
       })
 
-      return scenes
+      return scenes.data
     } catch (err) {
       logger.error(err, 'Error getting project scenes')
       throw err

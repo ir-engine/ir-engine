@@ -30,7 +30,7 @@ import {
   projectPublishQueryValidator,
   ProjectPublishType
 } from '@ir-engine/common/src/schemas/projects/project-publish.schema'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, discard } from 'feathers-hooks-common'
 
 import { BadRequest } from '@feathersjs/errors'
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
@@ -40,6 +40,7 @@ import { ProjectData, projectPath } from '@ir-engine/common/src/schemas/projects
 import { locationPath, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { HookContext } from '../../../declarations'
+import persistData from '../../hooks/persist-data'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { projectDataResolver } from '../project/project.resolvers'
 import { startProjectPublish } from './project-publish-helper'
@@ -90,7 +91,7 @@ const publishProject = async (context: HookContext) => {
     context.result.id,
     context.params.user.id || '',
     context.data.updatedAt,
-    context.data.locations,
+    context.actualData.locations,
     false
   )
 }
@@ -316,11 +317,11 @@ export default {
     get: [],
     create: [
       schemaHooks.validateData(projectPublishDataValidator),
-      schemaHooks.resolveData(projectPublishDataResolver)
+      schemaHooks.resolveData(projectPublishDataResolver),
       // populateProjectInContext,
       // iff(verifyAssetsOnly, copyPublishedFiles, updateProjectFiles),
-      // persistData,
-      // discard('locations')
+      persistData,
+      discard('locations')
     ],
     update: [disallow()],
     patch: [
