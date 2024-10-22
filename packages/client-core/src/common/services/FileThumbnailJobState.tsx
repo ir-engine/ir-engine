@@ -69,7 +69,10 @@ import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/Gro
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  useChildWithComponents,
+  useChildrenWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -223,15 +226,18 @@ const tryCatch = (fn: (...args: any[]) => void, onError: (err) => void) => {
   }
 }
 
-const useRenderEntities = (src: string): [Entity, Entity, Entity] => {
+const useRenderEntities = (src: string): [Entity, Entity, Entity, Entity] => {
   const entityState = useHookstate(UndefinedEntity)
   const lightEntityState = useHookstate(UndefinedEntity)
   const skyboxEntityState = useHookstate(UndefinedEntity)
+  const cameraEntityState = useHookstate(UndefinedEntity)
+  const renderer = useOptionalComponent(cameraEntityState.value, RendererComponent)?.renderer.value
 
   useImmediateEffect(() => {
     const entity = createEntity()
     const lightEntity = createEntity()
     const skyboxEntity = createEntity()
+    const cameraEntity = createEntity()
 
     setComponent(entity, NameComponent, 'thumbnail job asset ' + src)
     setComponent(entity, UUIDComponent, generateEntityUUID())
@@ -248,18 +254,40 @@ const useRenderEntities = (src: string): [Entity, Entity, Entity] => {
     setComponent(skyboxEntity, VisibleComponent)
     //setComponent(skyboxEntity, SkyboxComponent)
 
+    let canvasContainer = document.getElementById('thumbnail-camera-container')
+    if (!canvasContainer) {
+      canvasContainer = document.createElement('div')
+      canvasContainer.id = 'thumbnail-camera-container'
+      canvasContainer.style.width = '256px'
+      canvasContainer.style.height = '256px'
+      document.body.append(canvasContainer)
+    }
+    const thumbnailCanvas = document.createElement('canvas')
+    thumbnailCanvas.width = 256
+    thumbnailCanvas.height = 256
+    canvasContainer.appendChild(thumbnailCanvas)
+
+    setComponent(cameraEntity, CameraComponent)
+    setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
+    setComponent(cameraEntity, VisibleComponent, true)
+
     entityState.set(entity)
     lightEntityState.set(lightEntity)
     skyboxEntityState.set(skyboxEntity)
+    cameraEntityState.set(cameraEntity)
 
     return () => {
       removeEntity(entity)
       removeEntity(lightEntity)
       removeEntity(skyboxEntity)
+      removeEntity(cameraEntity)
+      thumbnailCanvas.remove()
     }
   }, [src])
 
-  return [entityState.value, lightEntityState.value, skyboxEntityState.value]
+  return renderer
+    ? [entityState.value, lightEntityState.value, skyboxEntityState.value, cameraEntityState.value]
+    : [UndefinedEntity, UndefinedEntity, UndefinedEntity, UndefinedEntity]
 }
 
 type RenderThumbnailProps = {
@@ -269,26 +297,14 @@ type RenderThumbnailProps = {
   onError: (err) => void
 }
 
-const renderThumbnail = (entity: Entity, lightEntity: Entity, skyboxEntity: Entity, props: RenderThumbnailProps) => {
+const renderThumbnail = (
+  entity: Entity,
+  lightEntity: Entity,
+  skyboxEntity: Entity,
+  cameraEntity: Entity,
+  props: RenderThumbnailProps
+) => {
   const { src, project, id, onError } = props
-
-  let canvasContainer = document.getElementById('thumbnail-camera-container')
-  if (!canvasContainer) {
-    canvasContainer = document.createElement('div')
-    canvasContainer.id = 'thumbnail-camera-container'
-    canvasContainer.style.width = '256px'
-    canvasContainer.style.height = '256px'
-    document.body.append(canvasContainer)
-  }
-  const thumbnailCanvas = document.createElement('canvas')
-  thumbnailCanvas.width = 256
-  thumbnailCanvas.height = 256
-  canvasContainer.appendChild(thumbnailCanvas)
-
-  const cameraEntity = createEntity()
-  setComponent(cameraEntity, CameraComponent)
-  setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
-  setComponent(cameraEntity, VisibleComponent, true)
 
   tryCatch(() => {
     setCameraFocusOnBox(entity, cameraEntity)
@@ -306,20 +322,13 @@ const renderThumbnail = (entity: Entity, lightEntity: Entity, skyboxEntity: Enti
     scene.background = background
     render(renderer, renderer.scene, getComponent(cameraEntity, CameraComponent), 0, false)
 
-    function cleanup() {
-      removeEntity(cameraEntity)
-      thumbnailCanvas.remove()
-    }
-
     canvas!.toBlob((blob: Blob) => {
       tryCatch(
         () =>
           uploadThumbnail(src, project, id, blob).then(() => {
-            cleanup()
             FileThumbnailJobState.removeCurrentJob()
           }),
         (err) => {
-          cleanup()
           onError(err)
         }
       )
@@ -371,18 +380,20 @@ const RenderImageThumbnail = (props: RenderThumbnailProps) => {
 
 const RenderModelThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
+  const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
   const loaded = GLTFComponent.useSceneLoaded(entity)
+  const meshes = useChildrenWithComponents(entity, [MeshComponent])
 
   useEffect(() => {
+    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity) return
     setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
-  }, [entity, lightEntity, skyboxEntity])
+  }, [entity, lightEntity, skyboxEntity, cameraEntity])
 
   useEffect(() => {
-    if (!loaded) return
-    renderThumbnail(entity, lightEntity, skyboxEntity, props)
-  }, [loaded])
+    if (!loaded || !meshes.length) return
+    renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
+  }, [loaded, meshes.length])
 
   useEffect(() => {
     if (!errors) return
@@ -425,10 +436,10 @@ const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
 
 const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
+  const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
 
   useEffect(() => {
-    if (!entity || !lightEntity || !skyboxEntity) return
+    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity) return
 
     loadMaterialGLTF(src, (material) => {
       if (!material) {
@@ -440,28 +451,28 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
         }
         addObjectToGroup(entity, sphere)
         setComponent(entity, MeshComponent, sphere)
-        renderThumbnail(entity, lightEntity, skyboxEntity, props)
+        renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
       }
     })
-  }, [entity, lightEntity, skyboxEntity])
+  }, [entity, lightEntity, skyboxEntity, cameraEntity])
   return null
 }
 
 const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
-  const [entity, lightEntity, skyboxEntity] = useRenderEntities(src)
+  const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
   const lookdevSkybox = useChildWithComponents(entity, [SkyboxComponent])
   const backgroundComponent = useOptionalComponent(lookdevSkybox, BackgroundComponent)
 
   useEffect(() => {
-    if (!entity || !lightEntity || !skyboxEntity) return
+    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity) return
     setComponent(entity, GLTFComponent, { src, cameraOcclusion: false })
-  }, [entity, lightEntity, skyboxEntity])
+  }, [entity, lightEntity, skyboxEntity, cameraEntity])
 
   useEffect(() => {
     if (!backgroundComponent) return
-    renderThumbnail(entity, lightEntity, skyboxEntity, props)
+    renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
   }, [backgroundComponent])
 
   useEffect(() => {

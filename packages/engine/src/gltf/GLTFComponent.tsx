@@ -113,14 +113,23 @@ export const GLTFComponent = defineComponent({
 
   useSceneLoaded(entity: Entity) {
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-    if (!gltfComponent) return false
+    const instanceID = GLTFComponent.useInstanceID(entity)
+    const document = useMutableState(GLTFDocumentState)[instanceID].value
+    if (!gltfComponent || !document) return false
+
     const dependencies = gltfComponent.dependencies
     const progress = gltfComponent.progress.value
     return !!(dependencies.value && !dependencies.keys?.length) && progress === 100
   },
 
   isSceneLoaded(entity: Entity) {
-    const gltfComponent = getComponent(entity, GLTFComponent)
+    const gltfComponent = getOptionalComponent(entity, GLTFComponent)
+    if (!gltfComponent) return false
+
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const document = getState(GLTFDocumentState)[instanceID]
+    if (!document) return false
+
     const dependencies = gltfComponent.dependencies
     const progress = gltfComponent.progress
     return !!(dependencies && !Object.keys(dependencies).length) && progress === 100
