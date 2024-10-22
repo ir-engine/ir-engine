@@ -433,8 +433,6 @@ const metabase = {
   secretKey: process.env.METABASE_SECRET_KEY,
   crashDashboardId: process.env.METABASE_CRASH_DASHBOARD_ID,
   expiration: process.env.METABASE_EXPIRATION,
-  projectDashboardId: process.env.METABASE_PROJECT_DASHBOARD_ID,
-  accountDashboardId: process.env.METABASE_ACCOUNT_DASHBOARD_ID,
   environment: process.env.METABASE_ENVIRONMENT
 }
 

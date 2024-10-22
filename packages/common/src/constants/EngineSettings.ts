@@ -42,8 +42,6 @@ export const EngineSettings = {
     SecretKey: 'secretKey',
     CrashDashboardId: 'crashDashboardId',
     Expiration: 'expiration',
-    ProjectDashboardId: 'projectDashboardId',
-    AccountDashboardId: 'accountDashboardId',
     Environment: 'environment'
   },
   Redis: {
