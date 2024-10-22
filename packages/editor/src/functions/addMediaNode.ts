@@ -29,23 +29,20 @@ import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
@@ -53,7 +50,6 @@ import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/component
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { assignMaterial, createMaterialEntity } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { removeEntityNodeRecursively } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -121,30 +117,15 @@ export async function addMediaNode(
         })
       )
     } else if (contentType.startsWith('model/lookdev')) {
-      const sceneID = getComponent(getState(EditorState).rootEntity, SourceComponent)
-      const gltfSnapshotStatet = getMutableState(GLTFSnapshotState)
-      const snapshotst = gltfSnapshotStatet[sceneID].snapshots
-      const length = snapshotst.length
-      let reactor
-      reactor = startReactor(() => {
-        const loadingEntity = useHookstate<Entity>(UndefinedEntity)
-        const documentState = useHookstate(getMutableState(GLTFDocumentState))
-        const gltfSnapshotState = getMutableState(GLTFSnapshotState)
-        const snapshots = gltfSnapshotState[sceneID].snapshots
-        useEffect(() => {
-          const spinnerEntity = createLoadingSpinner('lookdev loading spinner', getState(EditorState).rootEntity)
-          console.log('spinner entity', spinnerEntity)
-          loadingEntity.set(spinnerEntity)
-          console.log('adding spinner')
-          const gltfLoader = getState(AssetLoaderState).gltfLoader
-
-          gltfLoader.load(url, (gltf) => {
+      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      const spinnerEntity = createLoadingSpinner('lookdev loading spinner', getState(EditorState).rootEntity)
+      return await new Promise((resolve) =>
+        gltfLoader.load(url, (gltf) => {
+          try {
             let componentJson = [] as ComponentJsonType[]
-
             gltf.scene.children.forEach((child) => {
               componentJson.push(child.userData.componentJson)
             })
-
             const mergedComponentJsonArray = componentJson.flat()
             EditorControlFunctions.overwriteLookdevObject(
               [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
@@ -152,18 +133,13 @@ export async function addMediaNode(
               parent!,
               before
             )
-          })
-        }, [])
-        useEffect(() => {
-          if (loadingEntity.value !== UndefinedEntity && snapshots.length !== length) {
-            removeEntityNodeRecursively(loadingEntity.value)
-            loadingEntity.set(UndefinedEntity)
-            if (reactor) reactor.stop()
+            removeEntityNodeRecursively(spinnerEntity)
+            resolve(null)
+          } catch (error) {
+            removeEntityNodeRecursively(spinnerEntity)
           }
-        }, [snapshots.length])
-        return null
-      })
-      return null
+        })
+      )
     } else if (contentType.startsWith('model/prefab')) {
       const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
