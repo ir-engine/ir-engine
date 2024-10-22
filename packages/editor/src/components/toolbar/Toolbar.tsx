@@ -46,6 +46,7 @@ import { RxHamburgerMenu } from 'react-icons/rx'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
+import { EditorHelperState } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { UIAddonsState } from '../../services/UIAddonsState'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
@@ -90,7 +91,9 @@ const onClickNewScene = async () => {
 }
 
 export const onCloseProject = async () => {
-  if (!(await confirmSceneSaveIfModified())) return
+  if (getMutableState(EditorHelperState).gizmoEnabled.value) {
+    if (!(await confirmSceneSaveIfModified())) return
+  }
 
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})
