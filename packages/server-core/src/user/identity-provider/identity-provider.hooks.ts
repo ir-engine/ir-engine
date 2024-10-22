@@ -45,7 +45,6 @@ import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
 import { Paginated } from '@feathersjs/feathers'
-import { API } from '@ir-engine/common'
 import {
   projectPath,
   projectPermissionPath,
@@ -298,7 +297,7 @@ async function createAccessToken(context: HookContext<IdentityProviderService>) 
 async function checkUserPermissions(context: HookContext): Promise<void> {
   // Fetch user scopes
   const userId = context.params.user.id
-  const scopes = (await API.instance.service(scopePath).find({
+  const scopes = (await context.app.service(scopePath).find({
     query: {
       $select: ['type'],
       userId: userId,
