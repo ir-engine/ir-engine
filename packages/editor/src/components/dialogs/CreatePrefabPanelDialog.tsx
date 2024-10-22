@@ -62,7 +62,7 @@ import { SelectionState } from '../../services/SelectionServices'
 export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
-  const prefabTag = useHookstate<string[]>([])
+  const prefabTag = useHookstate<string[]>(['prefab'])
   const { t } = useTranslation()
   const isOverwriteModalVisible = useHookstate(false)
   const isOverwriteConfirmed = useHookstate(false)
