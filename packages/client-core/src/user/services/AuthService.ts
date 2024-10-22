@@ -718,7 +718,7 @@ export const AuthService = {
       const result = await API.instance.service(identityProviderPath).find({
         query: {
           $select: ['id', 'email'],
-          email: email.toLowerCase(),
+          accountIdentifier: email.toLowerCase(),
           $limit: 1
         }
       })
