@@ -399,7 +399,6 @@ const ChildGLTFReactor = (props: { source: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[source]
   // const physicsWorld = Physics.useWorld(entity)
 
-  // if (!physicsWorld || !documentState.value || !nodeState.value || !parentUUID) return null
   if (!documentState.value || !nodeState.value || !parentUUID) return null
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />

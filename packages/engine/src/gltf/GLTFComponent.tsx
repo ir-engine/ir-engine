@@ -50,7 +50,10 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  getAncestorWithComponents,
+  useAncestorWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useGLTFResource } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
@@ -60,6 +63,7 @@ import {
 } from '../assets/loaders/gltf/GLTFExtensions'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
+import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
@@ -105,6 +109,8 @@ export const GLTFComponent = defineComponent({
     extensions: S.NonSerialized(S.Record(S.String(), S.Any(), {})),
     dependencies: S.NonSerialized(S.Optional(S.Type<ComponentDependencies>()))
   }),
+
+  errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
   useDependenciesLoaded(entity: Entity) {
     const dependencies = useComponent(entity, GLTFComponent).dependencies
@@ -258,7 +264,12 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
 
   useEffect(() => {
     if (!errors) return
-    console.error(`GLTFComponent:ComponentReactor Component ${component.name} errored during loading`)
+    addError(
+      entity,
+      GLTFComponent,
+      'LOADING_ERROR',
+      `GLTFComponent:ComponentReactor Component ${component.name} errored during loading`
+    )
     removeGLTFDependency()
   }, [errors])
 
@@ -289,6 +300,15 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
   const entries = Object.entries(dependencies)
 
   console.log(props.dependencies)
+  useEffect(() => {
+    return () => {
+      const ancestor = getAncestorWithComponents(gltfComponentEntity, [SceneComponent])
+      const scene = getMutableComponent(ancestor, SceneComponent)
+      scene.active.set(true)
+      removeError(gltfComponentEntity, GLTFComponent, 'INVALID_SOURCE')
+      removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
+    }
+  }, [])
 
   return (
     <>
@@ -304,10 +324,6 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
       })}
     </>
   )
-}
-
-const onError = (error: ErrorEvent) => {
-  // console.error(error)
 }
 
 const onProgress: (event: ProgressEvent) => void = (event) => {
@@ -378,10 +394,17 @@ const useGLTFDocument = (url: string, entity: Entity) => {
   }, [])
 
   useEffect(() => {
-    if (!url) return
+    if (!url) {
+      addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
+      return
+    }
 
     const abortController = new AbortController()
     const signal = abortController.signal
+
+    const onError = (error: ErrorEvent) => {
+      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
+    }
 
     loadGltfFile(
       url,
