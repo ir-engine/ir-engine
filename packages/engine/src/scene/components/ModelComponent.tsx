@@ -211,6 +211,7 @@ function ModelReactor() {
         animations: scene.animations
       })
     }
+
     return () => {
       getMutableState(GLTFSourceState)[uuid].set(none)
 

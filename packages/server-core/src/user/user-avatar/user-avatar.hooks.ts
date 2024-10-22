@@ -29,11 +29,14 @@ import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import {
   userAvatarDataValidator,
   userAvatarPatchValidator,
-  userAvatarQueryValidator
+  userAvatarQueryValidator,
+  UserAvatarType
 } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
+import { HookContext } from '@feathersjs/feathers'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
+import { UserAvatarService } from './user-avatar.class'
 import {
   userAvatarDataResolver,
   userAvatarExternalResolver,
@@ -41,6 +44,20 @@ import {
   userAvatarQueryResolver,
   userAvatarResolver
 } from './user-avatar.resolvers'
+
+const ifNoEntry = async (context: HookContext<UserAvatarService>) => {
+  const data = (Array.isArray(context.data) ? context.data : [context.data]) as UserAvatarType[]
+
+  for (const item of data) {
+    const entry = await context.service.find({
+      userId: context.params.query.userId
+    })
+    if (entry.total === 0) {
+      await context.service.create({ userId: context.params.query.userId, avatarId: item.avatarId })
+    }
+  }
+  return
+}
 
 export default {
   around: {
@@ -65,6 +82,7 @@ export default {
           [setLoggedinUserInQuery('userId')]
         )
       ),
+      ifNoEntry,
       schemaHooks.validateData(userAvatarPatchValidator),
       schemaHooks.resolveData(userAvatarPatchResolver)
     ],

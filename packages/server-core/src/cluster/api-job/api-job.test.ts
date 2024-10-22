@@ -23,7 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
@@ -34,11 +37,11 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 describe('api job service', () => {
   let app: Application
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })
@@ -63,7 +66,7 @@ describe('api job service', () => {
   })
 
   it('gets the job', async () => {
-    assert.doesNotThrow(async () => await app.service(apiJobPath).get(jobId))
+    await assert.doesNotReject(async () => await app.service(apiJobPath).get(jobId))
   })
 
   it('finds multiple jobs', async () => {

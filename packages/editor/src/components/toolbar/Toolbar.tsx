@@ -89,7 +89,7 @@ const onClickNewScene = async () => {
   }
 }
 
-const onCloseProject = async () => {
+export const onCloseProject = async () => {
   if (!(await confirmSceneSaveIfModified())) return
 
   const editorState = getMutableState(EditorState)
@@ -153,7 +153,7 @@ export default function Toolbar() {
   const hasLocationWriteScope = useUserHasAccessHook('location:write')
   const permission = useProjectPermissions(projectName.value!)
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
-  const locationQuery = useFind(locationPath, { query: { sceneId: sceneAssetID.value } })
+  const locationQuery = useFind(locationPath, { query: { action: 'studio', sceneId: sceneAssetID.value } })
   const currentLocation = locationQuery.data[0]
 
   return (
@@ -196,7 +196,7 @@ export default function Toolbar() {
                 disabled={!hasPublishAccess}
                 onClick={() =>
                   PopoverState.showPopupover(
-                    <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+                    <AddEditLocationModal action="studio" sceneID={sceneAssetID.value} location={currentLocation} />
                   )
                 }
                 className="py-1 text-base"

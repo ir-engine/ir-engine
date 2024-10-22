@@ -92,9 +92,9 @@ const MeshReactor = () => {
 
   useEffect(() => {
     if (materialComponent) return
-    const material = meshComponent.material.value as Material
-    if (!isArray(material)) createAndSourceMaterial(material)
-    else for (const mat of material) createAndSourceMaterial(mat)
+    const material = meshComponent.material.value as any as Material | Material[]
+    if (isArray(material)) for (const mat of material as Material[]) createAndSourceMaterial(mat)
+    else createAndSourceMaterial(material as Material)
   }, [])
   return null
 }
