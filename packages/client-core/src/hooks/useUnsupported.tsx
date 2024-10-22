@@ -27,9 +27,9 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { isSupportedBrowser } from '@ir-engine/editor/src/functions/browserCheck'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { UnsupportedBrowser } from '@theinfinitereality/irpro-multitenancy/components/common/modals/UnsupportedBrowser'
-import { UnsupportedDevice } from '@theinfinitereality/irpro-multitenancy/components/common/modals/UnsupportedDevice'
 import React, { useEffect } from 'react'
+import { UnsupportedBrowser } from '../components/modals/UnsupportedBrowser'
+import { UnsupportedDevice } from '../components/modals/UnsupportedDevice'
 
 type UnsupportedType = {
   supportedDevice
