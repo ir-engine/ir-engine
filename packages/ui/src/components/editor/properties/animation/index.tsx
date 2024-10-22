@@ -37,7 +37,6 @@ import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/Avat
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { useState } from '@ir-engine/hyperflux'
 import { getCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import React, { useEffect } from 'react'
@@ -62,7 +61,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const avatarRigComponent = useOptionalComponent(entity, AvatarRigComponent)
   const animationComponent = useOptionalComponent(entity, AnimationComponent)
 
-  const errors = getEntityErrors(props.entity, ModelComponent)
+  const errors = getEntityErrors(props.entity, GLTFComponent)
 
   const canConvert = getHips(entity)
 
