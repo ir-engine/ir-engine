@@ -47,7 +47,7 @@ jobs:
       - name: Move root package.json
         run: mv package.json package.json.altered
       - name: Install dependencies for running bump-project-versions
-        run: npm install cross-env@7.0.3 vite-node@2.1.1 cli@1.0.1 app-root-path@3.0.0
+        run: npm install cross-env@7.0.3 ts-node@10.9.2 cli@1.0.1 app-root-path@3.0.0
       - name: Move root package.json back
         run: mv package.json.altered package.json
       - name: Bump default and template project version

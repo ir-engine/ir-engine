@@ -31,10 +31,10 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { MdIntegrationInstructions } from 'react-icons/md'
 
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { VisualScriptComponent } from '@ir-engine/engine'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '../../../input/Group'
-import { NodeEditor } from '../../nodeEditor'
 
 export const VisualScriptNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -46,7 +46,7 @@ export const VisualScriptNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.visualScript.name')}
       description={t('editor:properties.visualScript.description')}
-      icon={<VisualScriptNodeEditor.iconComponent />}
+      Icon={VisualScriptNodeEditor.iconComponent}
     >
       <InputGroup
         name={t('editor:properties.visualScript.lbl-disabled')}

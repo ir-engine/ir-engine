@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GetGPUTier, getGPUTier } from 'detect-gpu'
-import { debounce } from 'lodash-es'
+import { debounce } from 'lodash'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import { Camera, MathUtils, Scene } from 'three'
@@ -139,7 +139,6 @@ export const PerformanceState = defineState({
     gpuTier: 3 as PerformanceTier,
     cpuTier: 3 as PerformanceTier,
 
-    supportWebGL2: true,
     targetFPS: 60 as TargetFPS,
 
     gpu: 'unknown',
@@ -288,8 +287,8 @@ const timeRenderFrameGPU = (callback: (number) => void = () => {}): (() => void)
     }
   }
 
-  const { renderContext, supportWebGL2 } = getState(PerformanceState)
-  if (renderContext && supportWebGL2) {
+  const { renderContext } = getState(PerformanceState)
+  if (renderContext) {
     const gl = renderContext
     const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
 
@@ -443,7 +442,6 @@ const buildPerformanceState = async (
     device: gpuTier.device || 'unknown',
     gpuTier: tier as PerformanceTier,
     targetFPS: gpuTier.isMobile ? 30 : 60,
-    supportWebGL2: renderer.supportWebGL2,
     renderContext: gl,
     maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
     max3DTextureSize: gl.getParameter(gl.MAX_3D_TEXTURE_SIZE),

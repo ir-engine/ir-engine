@@ -254,7 +254,7 @@ export const createFeathersKoaApp = async (
   app.configure(authentication)
 
   // Set up our services (see `services/index.js`)
-  app.configure(services)
+  await services(app)
 
   // Store headers across internal service calls
   app.hooks({

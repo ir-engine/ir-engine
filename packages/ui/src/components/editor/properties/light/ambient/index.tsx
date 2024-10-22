@@ -28,12 +28,12 @@ import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { AmbientLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/AmbientLightComponent'
 import { HiOutlineSun } from 'react-icons/hi2'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
-import NodeEditor from '../../nodeEditor'
 
 /**
  * AmbientLightNodeEditor component used to customize the ambient light element on the scene
@@ -49,7 +49,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.ambientLight.name')}
       description={t('editor:properties.ambientLight.description')}
-      icon={<AmbientLightNodeEditor.iconComponent />}
+      Icon={AmbientLightNodeEditor.iconComponent}
     >
       <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
         <ColorInput

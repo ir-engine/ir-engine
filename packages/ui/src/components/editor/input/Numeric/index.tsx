@@ -34,6 +34,7 @@ import { twMerge } from 'tailwind-merge'
 import Text from '../../../../primitives/tailwind/Text'
 
 function toPrecisionString(value: number, precision?: number) {
+  if (value === 0) return '0.00'
   if (precision && precision <= 1) {
     const numDigits = Math.abs(Math.log10(precision))
     const minimumFractionDigits = Math.min(numDigits, 2)
@@ -98,15 +99,7 @@ const NumericInput = ({
       onChange(roundedValue)
     }
 
-    tempValue.set(
-      Number(
-        roundedValue.toLocaleString('fullwide', {
-          useGrouping: false,
-          minimumFractionDigits: 0,
-          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
-        })
-      )
-    )
+    tempValue.set(Number(toPrecisionString(roundedValue, precision)))
     focused.set(focus)
   }
 
@@ -140,15 +133,7 @@ const NumericInput = ({
   }
 
   const handleFocus = () => {
-    tempValue.set(
-      Number(
-        value.toLocaleString('fullwide', {
-          useGrouping: false,
-          minimumFractionDigits: 0,
-          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
-        })
-      )
-    )
+    tempValue.set(Number(toPrecisionString(value, displayPrecision)))
     focused.set(true)
   }
 

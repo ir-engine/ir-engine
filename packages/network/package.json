@@ -1,7 +1,6 @@
 {
   "name": "@ir-engine/network",
   "version": "1.6.0",
-  "type": "module",
   "main": "index.ts",
   "publishConfig": {
     "access": "public"

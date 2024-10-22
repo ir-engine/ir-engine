@@ -42,7 +42,6 @@ import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComp
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
@@ -90,7 +89,6 @@ export const ComponentShelfCategoriesState = defineState({
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
         SpawnPointComponent,
-        PortalComponent,
         LinkComponent,
         MountPointComponent,
         InteractableComponent,

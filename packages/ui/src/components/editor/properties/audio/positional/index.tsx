@@ -28,8 +28,14 @@ import { useTranslation } from 'react-i18next'
 import { PiSpeakerLowLight } from 'react-icons/pi'
 
 import { hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import {
+  EditorComponentType,
+  commitProperties,
+  commitProperty,
+  updateProperty
+} from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
@@ -37,9 +43,8 @@ import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComp
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import InputGroup from '../../../input/Group'
-import NumericInput from '../../../input/Numeric'
+import NumericScrubber from '../../../input/Numeric/Scrubber'
 import SelectInput from '../../../input/Select'
-import NodeEditor from '../../nodeEditor'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.
@@ -61,7 +66,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.audio.name')}
       description={t('editor:properties.audio.description')}
-      icon={<PositionalAudioNodeEditor.iconComponent />}
+      Icon={PositionalAudioNodeEditor.iconComponent}
     >
       <InputGroup
         name="Distance Model"
@@ -82,7 +87,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           label={t('editor:properties.audio.lbl-rolloffFactor')}
           info={t('editor:properties.audio.info-rolloffFactor')}
         >
-          <NumericInput
+          <NumericScrubber
             min={0}
             max={1}
             smallStep={0.001}
@@ -99,7 +104,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           label={t('editor:properties.audio.lbl-rolloffFactor')}
           info={t('editor:properties.audio.info-rfInfinity')}
         >
-          <NumericInput
+          <NumericScrubber
             min={0}
             smallStep={0.1}
             mediumStep={1}
@@ -110,22 +115,26 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           />
         </InputGroup>
       )}
-      <InputGroup
-        name="Ref Distance"
-        label={t('editor:properties.audio.lbl-refDistance')}
-        info={t('editor:properties.audio.info-refDistance')}
-      >
-        <NumericInput
-          min={0}
-          smallStep={0.1}
-          mediumStep={1}
-          largeStep={10}
-          value={audioComponent.refDistance.value}
-          onChange={updateProperty(PositionalAudioComponent, 'refDistance')}
-          onRelease={commitProperty(PositionalAudioComponent, 'refDistance')}
-          unit="m"
-        />
-      </InputGroup>
+
+      {/*Ref Distance should always be 1 for our scale of 1m to keep the rest of the units/behavior correct
+      , exposing this to the user is just likely to cause confusion/issues*/}
+
+      {/*<InputGroup*/}
+      {/*  name="Ref Distance"*/}
+      {/*  label={t('editor:properties.audio.lbl-refDistance')}*/}
+      {/*  info={t('editor:properties.audio.info-refDistance')}*/}
+      {/*>*/}
+      {/*  <NumericScrubber*/}
+      {/*    min={0}*/}
+      {/*    smallStep={0.1}*/}
+      {/*    mediumStep={1}*/}
+      {/*    largeStep={10}*/}
+      {/*    value={audioComponent.refDistance.value}*/}
+      {/*    onChange={updateProperty(PositionalAudioComponent, 'refDistance')}*/}
+      {/*    onRelease={commitProperty(PositionalAudioComponent, 'refDistance')}*/}
+      {/*    unit="m"*/}
+      {/*  />*/}
+      {/*</InputGroup>*/}
       <InputGroup
         name="Max Distance"
         disabled={audioComponent.distanceModel.value !== DistanceModel.Linear}
@@ -136,10 +145,9 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
             : t('editor:properties.audio.info-maxDistance')
         }
       >
-        <NumericInput
+        <NumericScrubber
           min={0.00001}
           disabled={audioComponent.distanceModel.value !== DistanceModel.Linear}
-          style={audioComponent.distanceModel.value !== DistanceModel.Linear ? { backgroundColor: '#FF0000' } : {}}
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
@@ -154,15 +162,25 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.audio.lbl-coneInnerAngle')}
         info={t('editor:properties.audio.info-coneInnerAngle')}
       >
-        <NumericInput
+        <NumericScrubber
           min={0}
           max={360}
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
           value={audioComponent.coneInnerAngle.value}
-          onChange={updateProperty(PositionalAudioComponent, 'coneInnerAngle')}
-          onRelease={commitProperty(PositionalAudioComponent, 'coneInnerAngle')}
+          onChange={(value) =>
+            updateConeAngle(
+              value,
+              true,
+              false,
+              audioComponent.coneInnerAngle.value,
+              audioComponent.coneOuterAngle.value
+            )
+          }
+          onRelease={(value) =>
+            updateConeAngle(value, true, true, audioComponent.coneInnerAngle.value, audioComponent.coneOuterAngle.value)
+          }
           unit="°"
         />
       </InputGroup>
@@ -171,15 +189,31 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.audio.lbl-coneOuterAngle')}
         info={t('editor:properties.audio.info-coneOuterAngle')}
       >
-        <NumericInput
+        <NumericScrubber
           min={0}
           max={360}
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
           value={audioComponent.coneOuterAngle.value}
-          onChange={updateProperty(PositionalAudioComponent, 'coneOuterAngle')}
-          onRelease={commitProperty(PositionalAudioComponent, 'coneOuterAngle')}
+          onChange={(value) =>
+            updateConeAngle(
+              value,
+              false,
+              false,
+              audioComponent.coneInnerAngle.value,
+              audioComponent.coneOuterAngle.value
+            )
+          }
+          onRelease={(value) =>
+            updateConeAngle(
+              value,
+              false,
+              true,
+              audioComponent.coneInnerAngle.value,
+              audioComponent.coneOuterAngle.value
+            )
+          }
           unit="°"
         />
       </InputGroup>
@@ -200,6 +234,35 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
     </NodeEditor>
   )
+}
+
+function updateConeAngle(value: number, isInner: boolean, commit: boolean, innerValue: number, outerValue: number) {
+  if (isInner) {
+    if (commit) {
+      commitProperties(PositionalAudioComponent, {
+        coneInnerAngle: value,
+        coneOuterAngle: value > outerValue ? value : undefined
+      } as any)
+    } else {
+      updateProperty(PositionalAudioComponent, 'coneInnerAngle')(value)
+      if (value > outerValue) {
+        updateProperty(PositionalAudioComponent, 'coneOuterAngle')(value)
+      }
+    }
+  } else {
+    //outer
+    if (commit) {
+      commitProperties(PositionalAudioComponent, {
+        coneOuterAngle: value,
+        coneInnerAngle: value < innerValue ? value : undefined
+      } as any)
+    } else {
+      updateProperty(PositionalAudioComponent, 'coneOuterAngle')(value)
+      if (value < innerValue) {
+        updateProperty(PositionalAudioComponent, 'coneInnerAngle')(value)
+      }
+    }
+  }
 }
 
 PositionalAudioNodeEditor.iconComponent = PiSpeakerLowLight

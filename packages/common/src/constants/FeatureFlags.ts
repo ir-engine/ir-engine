@@ -41,7 +41,8 @@ export const FeatureFlags = {
     },
     Panel: {
       Script: 'ir.editor.panel.script',
-      VisualScript: 'ir.editor.panel.visualScript'
+      VisualScript: 'ir.editor.panel.visualScript',
+      Portal: 'ir.editor.panel.portal'
     },
     UI: {
       TransformPivot: 'ir.editor.ui.transformPivot',
