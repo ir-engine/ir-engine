@@ -45,6 +45,7 @@ import { getState } from '@ir-engine/hyperflux'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import { MdVideocam } from 'react-icons/md'
 
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { Button } from '@mui/material'
 import { Scrubber } from 'react-scrubber'
 import 'react-scrubber/lib/scrubber.css'
@@ -52,7 +53,6 @@ import Slider from '../../../../primitives/tailwind/Slider'
 import ArrayInputGroup from '../../input/Array'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 const PlayModeOptions = [
   {
@@ -213,7 +213,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
-      icon={<VolumetricNodeEditor.iconComponent />}
+      Icon={VolumetricNodeEditor.iconComponent}
     >
       <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
         <BooleanInput
