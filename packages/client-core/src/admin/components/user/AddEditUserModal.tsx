@@ -89,7 +89,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
     }
 
     if (!avatarOptions.find((av) => av.value === user.avatarId)) {
-      avatarOptions.push({ label: user.avatar.name || user.avatarId, value: user.avatarId })
+      avatarOptions.push({ label: user.avatar?.name || user.avatarId, value: user.avatarId })
     }
   }
 
