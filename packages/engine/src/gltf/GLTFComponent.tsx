@@ -50,7 +50,10 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  getAncestorWithComponents,
+  useAncestorWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useGLTFResource } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
@@ -280,6 +283,13 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
   const entries = Object.entries(dependencies)
 
   console.log(props.dependencies)
+  useEffect(() => {
+    return () => {
+      const ancestor = getAncestorWithComponents(gltfComponentEntity, [SceneComponent])
+      const scene = getMutableComponent(ancestor, SceneComponent)
+      scene.active.set(true)
+    }
+  }, [])
 
   return (
     <>
