@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useUnsupported } from '@ir-engine/client-core/src/hooks/useUnsupported'
 import '@ir-engine/engine/src/EngineModule'
 import { getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { useUnsupported } from '@theinfinitereality/irpro-multitenancy/components/hooks/useUnsupported'
 import React, { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
