@@ -48,6 +48,7 @@ import {
   UserSettingPatch,
   UserSettingType,
   UserType,
+  avatarPath,
   generateTokenPath,
   identityProviderPath,
   loginPath,
@@ -383,9 +384,30 @@ export const AuthService = {
           user.userSetting = settingsRes.data[0]
         }
       }
+      if (!user.avatarId) {
+        const avatars = await client.service(avatarPath).find({
+          query: {
+            isPublic: true
+          }
+        })
+
+        if (avatars.data.length > 0) {
+          const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
+
+          await client
+            .service(userAvatarPath)
+            .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
+
+          user.avatarId = randomReplacementAvatar.id
+          user.avatar = randomReplacementAvatar
+        } else {
+          throw new Error('No avatars found in database')
+        }
+      }
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
+      console.error(err)
     }
   },
 

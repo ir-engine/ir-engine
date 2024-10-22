@@ -41,8 +41,9 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
   if (forceRefresh || prepareDb) {
     logger.info('Seeding or preparing database')
 
+    const seeds = await knexSeeds()
     const knexClient = app.get('knexClient')
-    for (const seedFile of knexSeeds) {
+    for (const seedFile of seeds) {
       logger.info('Seeding', seedFile)
       await seedFile.seed(knexClient)
       logger.info('Finished seeding', seedFile)

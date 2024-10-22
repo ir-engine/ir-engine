@@ -30,8 +30,8 @@ import { MdScatterPlot } from 'react-icons/md'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
-import NodeEditor from '../nodeEditor'
 
 export const InstancingNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const { t } = useTranslation()
@@ -43,7 +43,7 @@ export const InstancingNodeEditor: EditorComponentType = (props: { entity: Entit
     <NodeEditor
       name={t('editor:properties.instancing.name')}
       description={t('editor:properties.instancing.description')}
-      icon={<InstancingNodeEditor.iconComponent />}
+      Icon={InstancingNodeEditor.iconComponent}
       {...props}
     ></NodeEditor>
   )
