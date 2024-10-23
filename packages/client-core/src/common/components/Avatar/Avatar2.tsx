@@ -33,7 +33,6 @@ import { handleSoundEffect } from '../../utils'
 
 interface Props {
   alt?: string
-  className?: string
   id?: string
   imageSrc?: string
   isSelected?: boolean
@@ -45,18 +44,7 @@ interface Props {
   onClick?: () => void
 }
 
-const Avatar = ({
-  alt,
-  className,
-  imageSrc,
-  isSelected,
-  name,
-  showChangeButton,
-  type,
-  size,
-  onChange,
-  onClick
-}: Props) => {
+const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size, onChange, onClick }: Props) => {
   const { t } = useTranslation()
   const handleChange = (e: MouseEvent) => {
     e.stopPropagation()
@@ -71,7 +59,6 @@ const Avatar = ({
         onPointerEnter={handleSoundEffect}
         className={twMerge(
           'relative box-border flex h-32 max-h-[149px] min-h-32 max-w-[410px] cursor-pointer items-start gap-3 rounded-lg bg-[#191B1F] p-3',
-          className,
           isSelected ? 'border-2 border-blue-primary' : 'border border-[#42454D] hover:border hover:border-blue-primary'
         )}
       >
@@ -93,7 +80,7 @@ const Avatar = ({
     )
   } else if (type === 'thumbnail') {
     return (
-      <div className={twMerge('flex rounded-full', className)}>
+      <div className="flex rounded-full">
         <img
           style={{
             height: 'auto',
@@ -115,7 +102,7 @@ const Avatar = ({
   }
 
   return (
-    <div className={twMerge('flex rounded-full', className)}>
+    <div className="flex rounded-full">
       <img
         style={{
           height: 'auto',
