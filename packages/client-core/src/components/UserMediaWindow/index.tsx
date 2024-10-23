@@ -155,7 +155,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [videoElement, audioElement, harkListener?.value])
 
   useEffect(() => {
-    if (!audioMediaStream) return
+    if (!audioMediaStream || !audioMediaStream.getAudioTracks().length) return
 
     audioElement.id = `${peerID}_audio`
     audioElement.autoplay = true
