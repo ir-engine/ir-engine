@@ -38,7 +38,6 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
@@ -106,7 +105,6 @@ import LinkNodeEditor from '@ir-engine/ui/src/components/editor/properties/link'
 import LookAtNodeEditor from '@ir-engine/ui/src/components/editor/properties/lookAt'
 import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
 import MeshNodeEditor from '@ir-engine/ui/src/components/editor/properties/mesh'
-import ModelNodeEditor from '@ir-engine/ui/src/components/editor/properties/model'
 import MountPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/mountPoint'
 import ParticleSystemNodeEditor from '@ir-engine/ui/src/components/editor/properties/particle'
 import PortalNodeEditor from '@ir-engine/ui/src/components/editor/properties/portal'
@@ -154,7 +152,6 @@ export const ComponentEditorsState = defineState({
       [SDFComponent.name]: SDFEditor,
       [GroundPlaneComponent.name]: GroundPlaneNodeEditor,
       [MeshComponent.name]: MeshNodeEditor,
-      [ModelComponent.name]: ModelNodeEditor,
       [GLTFComponent.name]: GLTFNodeEditor,
       [ShadowComponent.name]: ShadowNodeEditor,
       [LoopAnimationComponent.name]: LoopAnimationNodeEditor,

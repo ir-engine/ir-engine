@@ -31,7 +31,6 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { nodeIsChild } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
@@ -127,7 +126,7 @@ function buildHierarchyTree(
   array.push(item)
 
   if (hasComponent(entity, GLTFComponent) && showModelChildren) {
-    const scene = hasComponent(entity, GLTFComponent) ? GLTFComponent.getInstanceID(entity) : getModelSceneID(entity)
+    const scene = GLTFComponent.getInstanceID(entity)
     const snapshotState = getState(GLTFSnapshotState)
     const snapshots = snapshotState[scene]
     if (snapshots) {

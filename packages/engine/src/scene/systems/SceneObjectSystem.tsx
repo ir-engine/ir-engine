@@ -43,7 +43,6 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  serializeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -74,7 +73,6 @@ import {
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { KHRUnlitExtensionComponent } from '../../gltf/MaterialDefinitionComponent'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
