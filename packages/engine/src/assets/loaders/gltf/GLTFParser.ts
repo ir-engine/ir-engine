@@ -64,7 +64,6 @@ import {
   SkinnedMesh,
   SRGBColorSpace,
   Texture,
-  TextureLoader,
   TriangleFanDrawMode,
   TriangleStripDrawMode,
   Vector2,
@@ -74,6 +73,7 @@ import {
 import { toTrianglesDrawMode } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 
 import { FileLoader } from '../base/FileLoader'
+import { TextureLoader } from '../texture/TextureLoader'
 import {
   ALPHA_MODES,
   INTERPOLATION,
@@ -98,7 +98,7 @@ import {
 } from './GLTFLoaderFunctions'
 import { KTX2Loader } from './KTX2Loader'
 
-function getImageURIMimeType(uri) {
+export function getImageURIMimeType(uri) {
   if (uri.search(/\.jpe?g($|\?)/i) > 0 || uri.search(/^data\:image\/jpeg/) === 0) return 'image/jpeg'
   if (uri.search(/\.webp($|\?)/i) > 0 || uri.search(/^data\:image\/webp/) === 0) return 'image/webp'
 
@@ -123,10 +123,12 @@ declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
   }
 }
 
-type GLTFParserOptions = {
-  crossOrigin: 'anonymous' | string
+export type GLTFParserOptions = {
+  body: null | ArrayBuffer
+  documentID: string
+  document: GLTF.IGLTF
   ktx2Loader: KTX2Loader
-  manager: LoadingManager | any
+  manager: LoadingManager
   meshoptDecoder: any
   path: string
   requestHeader: Record<string, any>
@@ -186,34 +188,11 @@ export class GLTFParser {
     // Track node names, to ensure no duplicates
     this.nodeNamesUsed = {}
 
-    // Use an ImageBitmapLoader if imageBitmaps are supported. Moves much of the
-    // expensive work of uploading a texture to the GPU off the main thread.
-
-    let isSafari = false
-    let isFirefox = false
-    let firefoxVersion = -1 as any // ???
-
-    if (typeof navigator !== 'undefined') {
-      isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
-      isFirefox = navigator.userAgent.indexOf('Firefox') > -1
-      firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
-    }
-
-    if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
-      this.textureLoader = new TextureLoader(this.options.manager)
-    } else {
-      this.textureLoader = new ImageBitmapLoader(this.options.manager)
-    }
-
-    this.textureLoader.setCrossOrigin(this.options.crossOrigin)
+    this.textureLoader = new TextureLoader(this.options.manager)
     this.textureLoader.setRequestHeader(this.options.requestHeader)
 
     this.fileLoader = new FileLoader(this.options.manager)
     this.fileLoader.setResponseType('arraybuffer')
-
-    if (this.options.crossOrigin === 'use-credentials') {
-      this.fileLoader.setWithCredentials(true)
-    }
   }
 
   setExtensions(extensions) {
@@ -688,7 +667,7 @@ export class GLTFParser {
 
     if (sourceDef.uri) {
       const handler = options.manager.getHandler(sourceDef.uri)
-      if (handler !== null) loader = handler
+      if (handler !== null) loader = handler as any
     }
 
     return this.loadTextureImage(textureIndex, sourceIndex, loader)
@@ -780,16 +759,16 @@ export class GLTFParser {
     const promise = Promise.resolve(sourceURI)
       .then(function (sourceURI) {
         return new Promise<any>(function (resolve, reject) {
-          let onLoad = resolve
+          const onLoad = resolve
 
-          if (loader.isImageBitmapLoader === true) {
-            onLoad = function (imageBitmap) {
-              const texture = new Texture(imageBitmap)
-              texture.needsUpdate = true
-
-              resolve(texture)
-            }
-          }
+          // Off loaded to TextureLoader
+          // if (loader.isImageBitmapLoader === true) {
+          //   onLoad = function (imageBitmap) {
+          //     const texture = new Texture(imageBitmap)
+          //     texture.needsUpdate = true
+          //     resolve(texture)
+          //   }
+          // }
 
           loader.load(LoaderUtils.resolveURL(sourceURI, options.path), onLoad, undefined, reject)
         })
@@ -1767,7 +1746,7 @@ export class GLTFParser {
 
 /* GLTFREGISTRY */
 
-class GLTFRegistry {
+export class GLTFRegistry {
   objects = {}
 
   get(key) {

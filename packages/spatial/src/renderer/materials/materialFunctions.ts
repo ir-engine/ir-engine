@@ -78,6 +78,13 @@ export const extractDefaults = (defaultArgs: PrototypeArgument) => {
   )
 }
 
+export const extractValues = (defaultArgs: PrototypeArgument, material: Material) => {
+  return formatMaterialArgs(
+    Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, material[k]])),
+    defaultArgs
+  )
+}
+
 export const formatMaterialArgs = (args: any, defaultArgs?: PrototypeArgument) => {
   if (!args) return args
   return Object.fromEntries(

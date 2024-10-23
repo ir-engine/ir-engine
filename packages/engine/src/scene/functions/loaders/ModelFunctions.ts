@@ -27,12 +27,7 @@ import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -51,13 +46,6 @@ export function getModelSceneID(entity: Entity): string {
     return ''
   }
   return getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src
-}
-
-export function useModelSceneID(entity: Entity): string {
-  const uuid = useOptionalComponent(entity, UUIDComponent)?.value
-  const model = useOptionalComponent(entity, ModelComponent)?.value
-  if (!uuid || !model) return ''
-  return uuid + '-' + model.src
 }
 
 export function getModelResources(entity: Entity, defaultParms: ModelTransformParameters): ResourceTransforms {

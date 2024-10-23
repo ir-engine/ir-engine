@@ -45,7 +45,7 @@ const createWorker = () => {
 export const bvhWorkerPool = new WorkerPool(1)
 bvhWorkerPool.setWorkerCreator(createWorker)
 
-export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = {}) {
+export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = {} as any) {
   if (
     !mesh.isMesh ||
     (mesh as InstancedMesh).isInstancedMesh ||
@@ -80,9 +80,10 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
     return console.error(error)
   } else {
     // MeshBVH uses generated index instead of default geometry index
-    geometry.setIndex(new BufferAttribute(serialized.index as any, 1))
 
-    const bvh = MeshBVH.deserialize(serialized, geometry)
+    //geometry.setIndex(new BufferAttribute(serialized.index as any, 1))
+
+    const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
     const boundsOptions = Object.assign(
       {
         setBoundingBox: true

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { AnimationClip, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   defineQuery,
@@ -34,18 +34,12 @@ import {
   Entity,
   getComponent,
   getOptionalComponent,
-  hasComponent
+  hasComponent,
+  useOptionalComponent,
+  useQuery
 } from '@ir-engine/ecs'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  NO_PROXY,
-  none,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
-import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
+import { defineState, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
+import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
@@ -57,26 +51,24 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModul
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import React from 'react'
-import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
-import { AnimationComponent } from '../components/AnimationComponent'
+import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
-import { retargetAnimationClip } from '../functions/retargetMixamoRig'
+import { setAvatarSpeedFromRootMotion } from '../functions/avatarFunctions'
+import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
-import { IKSerialization } from '../IKSerialization'
-import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
@@ -98,6 +90,7 @@ export const AvatarAnimationState = defineState({
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const avatarComponentQuery = defineQuery([AvatarComponent, RigidBodyComponent, AvatarAnimationComponent])
+const avatarRigQuery = defineQuery([AvatarRigComponent])
 
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
@@ -152,9 +145,7 @@ const execute = () => {
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarComponent = getComponent(entity, AvatarComponent)
-    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-    avatarAnimationComponent.deltaAccumulator = elapsedSeconds
     const rawRig = rigComponent.rawRig
     const normalizedRig = rigComponent.normalizedRig
 
@@ -321,56 +312,61 @@ const execute = () => {
     if (hasComponent(entity, XRLeftHandComponent)) {
       applyHandRotationFK(rigComponent.vrm, 'left', getComponent(entity, XRLeftHandComponent).rotations)
     }
-
-    updateVRMRetargeting(rigComponent.vrm, entity)
   }
+
+  for (const entity of avatarRigQuery()) updateVRMRetargeting(entity)
 }
 
 const Reactor = () => {
-  /**loads animation bundles. assumes the bundle is a glb */
-  const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
-  const [gltfs] = useBatchGLTF(
-    animations.map((animationFile) => {
-      return `${
-        getState(DomainConfigState).cloudDomain
-      }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
-    })
-  )
-  const manager = useMutableState(AnimationState)
+  const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
+  const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
   useEffect(() => {
-    const assets = gltfs.get(NO_PROXY)
-    if (assets.length !== animations.length) return
-    for (let i = 0; i < assets.length; i++) {
-      const asset = assets[i] as GLTF | null
-      if (asset && !manager.loadedAnimations[animations[i]].value) {
-        // delete unneeded geometry data to save memory
-        asset.scene.traverse((node) => {
-          delete (node as any).geometry
-          delete (node as any).material
-        })
-        for (let i = 0; i < asset.animations.length; i++) {
-          retargetAnimationClip(asset.animations[i], asset.scene)
-        }
-        //ensure animations are always placed in the scene
-        asset.scene.animations = asset.animations
-        manager.loadedAnimations[animations[i]].set(asset)
-      }
-    }
-  }, [gltfs])
-
-  const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
-
-  useEffect(() => {
-    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-    if (!selfAvatarEntity) {
+    if (!selfAvatarLoaded) {
       XRState.setTrackingSpace()
       return
     }
     const eyeHeight = getComponent(selfAvatarEntity, AvatarComponent).eyeHeight
     getMutableState(XRState).userEyeHeight.set(eyeHeight)
     XRState.setTrackingSpace()
-  }, [userReady])
+  }, [selfAvatarLoaded])
+
+  return null
+}
+
+const AnimationReactor = () => {
+  const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
+
+  const loadedAnimations = useLoadAnimationFromBatchGLTF(
+    animations.map((animationFile) => {
+      return `${
+        getState(DomainConfigState).cloudDomain
+      }/projects/ir-engine/default-project/assets/animations/${animationFile}.glb`
+    }),
+    true
+  )
+
+  useEffect(() => {
+    if (!loadedAnimations.value) return
+    let i = 0
+    for (const loadedAnimationEntity of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
+      for (const animation of loadedAnimationEntity[0]!) {
+        retargetAnimationClip(animation, loadedAnimationEntity[1])
+        bindAnimationClipFromMixamo(animation)
+      }
+      getMutableState(AnimationState).loadedAnimations[animations[i]].set(loadedAnimationEntity[1]!)
+      i++
+    }
+  }, [loadedAnimations])
+
+  const locomotionAnimationState = useHookstate(
+    getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
+  )
+  const animationComponent = useOptionalComponent(locomotionAnimationState.value, AnimationComponent)
+  useEffect(() => {
+    if (!animationComponent) return
+    setAvatarSpeedFromRootMotion()
+  }, [animationComponent])
 
   return null
 }
@@ -380,21 +376,13 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
-    useEffect(() => {
-      const networkState = getMutableState(NetworkState)
-
-      networkState.networkSchema[IKSerialization.ID].set({
-        read: IKSerialization.readBlendWeight,
-        write: IKSerialization.writeBlendWeight
-      })
-
-      return () => {
-        networkState.networkSchema[IKSerialization.ID].set(none)
-      }
-    }, [])
-
-    if (!useMutableState(EngineState).viewerEntity.value) return null
-    return <Reactor />
+    if (!isClient || !useQuery([RendererComponent]).length) return null
+    return (
+      <>
+        <Reactor />
+        <AnimationReactor />
+      </>
+    )
   }
 })
 

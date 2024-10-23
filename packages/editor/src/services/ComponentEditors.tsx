@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { VisualScriptComponent } from '@ir-engine/engine'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
@@ -37,7 +38,6 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
@@ -89,6 +89,7 @@ import EnvMapBakeNodeEditor from '@ir-engine/ui/src/components/editor/properties
 import EnvMapEditor from '@ir-engine/ui/src/components/editor/properties/envmap'
 import FogSettingsEditor from '@ir-engine/ui/src/components/editor/properties/fog'
 import PrimitiveGeometryNodeEditor from '@ir-engine/ui/src/components/editor/properties/geometry/primitive'
+import GLTFNodeEditor from '@ir-engine/ui/src/components/editor/properties/gltf/loader'
 import GrabbableComponentNodeEditor from '@ir-engine/ui/src/components/editor/properties/grab'
 import GroundPlaneNodeEditor from '@ir-engine/ui/src/components/editor/properties/groundPlane'
 import ImageNodeEditor from '@ir-engine/ui/src/components/editor/properties/image'
@@ -104,7 +105,6 @@ import LinkNodeEditor from '@ir-engine/ui/src/components/editor/properties/link'
 import LookAtNodeEditor from '@ir-engine/ui/src/components/editor/properties/lookAt'
 import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
 import MeshNodeEditor from '@ir-engine/ui/src/components/editor/properties/mesh'
-import ModelNodeEditor from '@ir-engine/ui/src/components/editor/properties/model'
 import MountPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/mountPoint'
 import ParticleSystemNodeEditor from '@ir-engine/ui/src/components/editor/properties/particle'
 import PortalNodeEditor from '@ir-engine/ui/src/components/editor/properties/portal'
@@ -152,7 +152,7 @@ export const ComponentEditorsState = defineState({
       [SDFComponent.name]: SDFEditor,
       [GroundPlaneComponent.name]: GroundPlaneNodeEditor,
       [MeshComponent.name]: MeshNodeEditor,
-      [ModelComponent.name]: ModelNodeEditor,
+      [GLTFComponent.name]: GLTFNodeEditor,
       [ShadowComponent.name]: ShadowNodeEditor,
       [LoopAnimationComponent.name]: LoopAnimationNodeEditor,
       [ParticleSystemComponent.name]: ParticleSystemNodeEditor,

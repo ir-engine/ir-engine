@@ -44,6 +44,7 @@ import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { ObjOrFunction } from './resourceHooks'
 
 export interface DisposableObject {
   uuid: string
@@ -70,6 +71,7 @@ export enum ResourceType {
   Material = 'Material',
   Object3D = 'Object3D',
   Audio = 'Audio',
+  File = 'File',
   Unknown = 'Unknown'
   // ECSData = 'ECSData',
 }
@@ -84,6 +86,7 @@ export type ResourceAssetType =
   | Mesh
   | DisposableObject
   | AudioBuffer
+  | ArrayBuffer
 
 type BaseMetadata = {
   size?: number
@@ -243,6 +246,7 @@ const resourceCallbacks = {
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
+      if (!asset.image) return
       asset.wrapS = RepeatWrapping
       asset.wrapT = RepeatWrapping
       asset.onUpdate = () => {
@@ -259,22 +263,16 @@ const resourceCallbacks = {
         resource.metadata.size.set(size)
         // Non compressed texture size
       } else {
-        if (asset.image) {
-          const height = asset.image.height
-          const width = asset.image.width
-          const size = width * height * 4
-          resource.metadata.size.set(size)
-        } else {
-          resource.metadata.size.set(0)
-        }
+        const height = asset.image.height
+        const width = asset.image.width
+        const size = width * height * 4
+        resource.metadata.size.set(size)
       }
-
       if ((asset as CompressedTexture).isCompressedTexture) {
         const id = resource.id.value
         if (id.endsWith('ktx2')) asset.source.data.src = id
       }
-
-      resource.metadata.merge({ textureWidth: asset.image ? asset.image.width : 0 })
+      resource.metadata.merge({ textureWidth: asset.image.width })
       resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
@@ -284,7 +282,7 @@ const resourceCallbacks = {
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
-      asset.dispose()
+      asset.dispose?.()
       const size = resource.metadata.size.value
       if (size) resourceState.totalBufferCount.set(resourceState.totalBufferCount.value - size)
     }
@@ -374,6 +372,13 @@ const resourceCallbacks = {
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: AudioBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
+  },
+  [ResourceType.File]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (asset: ArrayBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: ArrayBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
   },
   [ResourceType.Unknown]: {
     onStart: (resource: State<Resource>) => {},
@@ -598,10 +603,11 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
   }
 }
 
-const addResource = <T extends object>(res: NonNullable<T> | (() => NonNullable<T>), id: string, entity: Entity): T => {
+const addResource = <T>(res: ObjOrFunction<T>, id: string, entity: Entity): T => {
+  const obj = (res instanceof Function ? res() : res) as unknown as ResourceAssetType
+  if (!obj) return obj
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const obj = (typeof res === 'function' ? res() : res) as unknown as ResourceAssetType
   const resourceType = getResourceType(obj)
   const callbacks = resourceCallbacks[resourceType]
 

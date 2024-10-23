@@ -1,0 +1,49 @@
+{
+  "asset": {
+    "generator": "IREngine.SceneExporter",
+    "version": "2.0"
+  },
+  "nodes": [
+    {
+      "name": "Model Variants",
+      "extensions": {
+        "EE_uuid": "13e161b8-fa44-482a-a2c0-c10f9c173860",
+        "EE_visible": true,
+        "EE_variant": {
+          "levels": [
+            {
+              "src": "",
+              "metadata": {
+                "minDistance": 0,
+                "maxDistance": 5
+              }
+            },
+            {
+              "src": "",
+              "metadata": {
+                "minDistance": 5,
+                "maxDistance": 10
+              }
+            },
+            {
+              "src": "",
+              "metadata": {
+                "minDistance": 10,
+                "maxDistance": 15
+              }
+            }
+          ],
+          "heuristic": "DISTANCE"
+        }
+      },
+      "children": []
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [0]
+    }
+  ],
+  "extensionsUsed": ["EE_uuid", "EE_visible", "EE_variant"]
+}

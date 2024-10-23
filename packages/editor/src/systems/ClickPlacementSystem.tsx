@@ -42,11 +42,9 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { entityJSONToGLTFNode } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
-import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { toEntityJson } from '@ir-engine/engine/src/scene/functions/serializeWorld'
 import {
   NO_PROXY,
@@ -115,20 +113,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   const clickState = useState(getMutableState(ClickPlacementState))
   const editorState = useState(getMutableState(EditorHelperState))
   const sceneLoaded = GLTFComponent.useSceneLoaded(parentEntity)
-  const errors = ErrorComponent.useComponentErrors(clickState.placementEntity.value, ModelComponent)
-
-  // const renderers = defineQuery([RendererComponent])
-
-  // useEffect(() => {
-  //   const placementMode = editorState.placementMode.value
-  //   const renderer = getComponent(renderers()[0], RendererComponent)
-  //   const canvas = renderer.canvas
-  //   if (placementMode === PlacementMode.CLICK) {
-  //     canvas.addEventListener('click', clickListener)
-  //   } else {
-  //     canvas.removeEventListener('click', clickListener)
-  //   }
-  // }, [editorState.placementMode])
+  const errors = ErrorComponent.useComponentErrors(clickState.placementEntity.value, GLTFComponent)
 
   useEffect(() => {
     if (!sceneLoaded) return
@@ -145,20 +130,27 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
       clickState.placementEntity.set(UndefinedEntity)
       SelectionState.updateSelection(selectedEntities)
     }
-  }, [editorState.placementMode, sceneLoaded])
+  }, [editorState.placementMode.value, sceneLoaded])
 
   useEffect(() => {
     if (!clickState.placementEntity.value) return
     const assetURL = clickState.selectedAsset.get(NO_PROXY)
     const placementEntity = clickState.placementEntity.value
-    if (getComponent(placementEntity, ModelComponent)?.src === assetURL) return
+    if (getComponent(placementEntity, GLTFComponent)?.src === assetURL) return
     updatePlacementEntitySnapshot(placementEntity)
-  }, [clickState.selectedAsset, clickState.placementEntity])
+  }, [clickState.selectedAsset.value, clickState.placementEntity.value])
 
   useEffect(() => {
-    if (!errors || !errors.value) return
+    if (
+      !errors?.value ||
+      !clickState.selectedAsset.value ||
+      !clickState.placementEntity.value ||
+      !getComponent(clickState.placementEntity.value, GLTFComponent)?.src ||
+      getComponent(clickState.placementEntity.value, GLTFComponent)?.src === clickState.selectedAsset.value
+    )
+      return
     ClickPlacementState.assetError()
-  }, [errors])
+  }, [errors, clickState.selectedAsset.value])
 
   return (
     <PlacementModelReactor key={clickState.placementEntity.value} placementEntity={clickState.placementEntity.value} />
@@ -168,11 +160,11 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
 const PlacementModelReactor = (props: { placementEntity: Entity }) => {
   const clickState = useState(getMutableState(ClickPlacementState))
   const sceneState = useHookstate(getMutableState(GLTFDocumentState))
-  const placementModel = useOptionalComponent(props.placementEntity, ModelComponent)
+  const placementModel = useOptionalComponent(props.placementEntity, GLTFComponent)
 
   useEffect(() => {
-    if (!placementModel) return
-    const sceneID = getModelSceneID(props.placementEntity)
+    if (placementModel?.progress?.value !== 100) return
+    const sceneID = GLTFComponent.getInstanceID(props.placementEntity)
     if (!sceneState.scenes[sceneID]) return
     iterateEntityNode(props.placementEntity, (entity) => {
       const mesh = getOptionalComponent(entity, MeshComponent)
@@ -181,7 +173,7 @@ const PlacementModelReactor = (props: { placementEntity: Entity }) => {
       clickState.materialCache.set((prev) => [...prev, [mesh, material]])
       mesh.material = new HolographicMaterial({})
     })
-  }, [placementModel?.scene, sceneState.scenes.keys])
+  }, [placementModel?.progress?.value === 100, sceneState.scenes.keys])
 
   return null
 }
@@ -194,8 +186,8 @@ const getParentEntity = () => {
 
 const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
   const selectedAsset = getState(ClickPlacementState).selectedAsset
-  if (selectedAsset) setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
-  else removeComponent(placementEntity, ModelComponent)
+  if (selectedAsset) setComponent(placementEntity, GLTFComponent, { src: selectedAsset })
+  else removeComponent(placementEntity, GLTFComponent)
 
   const sceneID = getComponent(placementEntity, SourceComponent)
   const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
@@ -211,7 +203,7 @@ const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
 }
 
 const createPlacementEntitySnapshot = (placementEntity: Entity) => {
-  setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
+  setComponent(placementEntity, GLTFComponent, { src: getState(ClickPlacementState).selectedAsset })
   const sceneID = getComponent(placementEntity, SourceComponent)
   const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   const uuid = getComponent(placementEntity, UUIDComponent)
@@ -282,7 +274,7 @@ export const ClickPlacementSystem = defineSystem({
     const sceneObjects: any[] = []
     const candidates = objectLayerQuery()
     for (const entity of candidates) {
-      const obj = getComponent(entity, GroupComponent)?.[0]
+      const obj = getOptionalComponent(entity, GroupComponent)?.[0]
       !!obj && sceneObjects.push(obj)
     }
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])

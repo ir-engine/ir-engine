@@ -50,8 +50,8 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
-import { BoneComponent } from '../../avatar/components/BoneComponent'
-import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'

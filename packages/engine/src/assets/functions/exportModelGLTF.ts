@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import createGLTFExporter from './createGLTFExporter'
 
