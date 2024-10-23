@@ -30,6 +30,8 @@ import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SceneComplexity, SceneComplexityWeights } from '@ir-engine/engine/src/scene/constants/SceneConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
+import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { useQuery } from '@ir-engine/ecs'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { RenderInfoState, SceneComplexityParams } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
@@ -61,6 +63,8 @@ export const RenderMonitorSystem = defineSystem({
     const resourceState = useHookstate(getMutableState(ResourceState))
     const lightQuery = useQuery([LightTagComponent, VisibleComponent, SourceComponent])
 
+    const [sceneNotifEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.SceneComplexityNotification])
+
     useEffect(() => {
       const params = {
         vertices: resourceState.totalVertexCount.value,
@@ -83,6 +87,8 @@ export const RenderMonitorSystem = defineSystem({
 
     useEffect(() => {
       // these thresholds are to be adjusted  based on experimentation
+      if (!sceneNotifEnabled) return
+
       let warning = t('editor:warnings.sceneComplexity', { sceneComplexity: SceneComplexity.VeryHeavy.label })
       if (renderInfoState.info.sceneComplexity.value < SceneComplexity.VeryLight.value) return
       if (renderInfoState.info.sceneComplexity.value < SceneComplexity.Light.value) return
