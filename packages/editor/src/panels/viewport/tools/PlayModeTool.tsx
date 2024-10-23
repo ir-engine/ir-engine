@@ -102,7 +102,7 @@ const PlayModeTool: React.FC = () => {
     return () => {
       onStopPlayMode()
     }
-  }, [isEditing])
+  }, [isEditing.value])
 
   return (
     <div id="preview" className="flex items-center">

@@ -735,6 +735,14 @@ export function useOptionalComponent<C extends Component>(
   return componentState.promised ? undefined : componentState
 }
 
+/**
+ * Clear assertion of whether a component exists on an entity
+ * - helpful to ensure that react triggers a re-render only when a component is added or removed
+ */
+export function useHasComponent<C extends Component>(entity: Entity, component: C): boolean {
+  return typeof useOptionalComponent(entity, component) !== 'undefined'
+}
+
 export const getComponentCountOfType = <C extends Component>(component: C): number => {
   const query = defineQuery([component])
   const length = query().length

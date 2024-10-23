@@ -45,6 +45,7 @@ import {
   removeComponent,
   serializeComponent,
   setComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -225,7 +226,7 @@ const ModelEntityReactor = () => {
 }
 
 const useIsUnlit = (entity: Entity) => {
-  let isUnlit = !!useOptionalComponent(entity, KHRUnlitExtensionComponent)
+  let isUnlit = !!useHasComponent(entity, KHRUnlitExtensionComponent)
   const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
 
   if (materialInstanceUUIDs) {

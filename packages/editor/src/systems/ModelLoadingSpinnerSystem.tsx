@@ -30,6 +30,7 @@ import {
   UndefinedEntity,
   defineSystem,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -47,7 +48,7 @@ import { EditorState } from '../services/EditorServices'
 const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
   const gltfComponent = useComponent(entity, GLTFComponent)
-  const errors = !!useOptionalComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
+  const errors = !!useHasComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
 
   const loadingEntity = useHookstate<Entity>(UndefinedEntity)
 

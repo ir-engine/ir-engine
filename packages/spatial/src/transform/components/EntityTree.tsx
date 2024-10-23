@@ -36,6 +36,7 @@ import {
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -410,7 +411,7 @@ export function useAncestorWithComponents(
     let unmounted = false
     const ParentSubReactor = React.memo((props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
+      const matchesQuery = components.every((component) => useHasComponent(props.entity, component))
       useEffect(() => {
         if (!unmounted) forceUpdate()
       }, [tree?.parentEntity?.value, matchesQuery])
@@ -437,52 +438,10 @@ export function useAncestorWithComponents(
 }
 
 /**
- * Returns the closest child of an entity that has a component
+ * Returns the children of an entity that have the specified components
  * @param rootEntity
  * @param components
  */
-export function useChildWithComponents(rootEntity: Entity, components: ComponentType<any>[]) {
-  const result = useHookstate(UndefinedEntity)
-  const componentsString = components.map((component) => component.name).join()
-  useLayoutEffect(() => {
-    let unmounted = false
-    const ChildSubReactor = (props: { entity: Entity }) => {
-      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
-
-      useLayoutEffect(() => {
-        if (!matchesQuery) return
-        result.set(props.entity)
-        return () => {
-          if (!unmounted) result.set(UndefinedEntity)
-        }
-      }, [tree?.children?.value, matchesQuery])
-
-      if (matchesQuery) return null
-
-      if (!tree?.children?.value) return null
-
-      return (
-        <>
-          {tree.children.value.map((e) => (
-            <ChildSubReactor key={e} entity={e} />
-          ))}
-        </>
-      )
-    }
-
-    const root = startReactor(function useQueryReactor() {
-      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
-    })
-    return () => {
-      unmounted = true
-      root.stop()
-    }
-  }, [rootEntity, componentsString])
-
-  return result.value
-}
-
 export function useChildrenWithComponents(rootEntity: Entity, components: ComponentType<any>[]): Entity[] {
   const children = useHookstate([] as Entity[])
   const componentsString = components.map((component) => component.name).join()
@@ -490,7 +449,7 @@ export function useChildrenWithComponents(rootEntity: Entity, components: Compon
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
+      const matchesQuery = components.every((component) => !!useHasComponent(props.entity, component))
 
       useLayoutEffect(() => {
         if (!matchesQuery) return

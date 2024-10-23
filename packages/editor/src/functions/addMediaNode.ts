@@ -51,7 +51,7 @@ import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/component
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { assignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { iterateEntityNode, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { iterateEntityNode, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { v4 } from 'uuid'
 import { EditorControlFunctions } from './EditorControlFunctions'
@@ -114,7 +114,7 @@ export async function addMediaNode(
       startReactor(() => {
         const assetEntity = useMutableState(GLTFAssetState)[url].value
         const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
-        const material = useChildWithComponents(assetEntity, [MaterialStateComponent])
+        const [material] = useChildrenWithComponents(assetEntity, [MaterialStateComponent])
 
         useEffect(() => {
           if (!assetEntity) {
