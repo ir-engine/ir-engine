@@ -26,14 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useArgs } from '@storybook/preview-api'
 import React from 'react'
 import { HiMiniRocketLaunch } from 'react-icons/hi2'
-import { ArgTypes } from 'storybook/internal/types'
 import DropdownList, { DropdownItem, DropdownItemProps, DropdownListProps } from './index'
-
-const argTypes: ArgTypes = {
-  secondaryText: {
-    control: 'text'
-  }
-}
 
 export default {
   title: 'Components/Editor/DropdownList',
@@ -44,8 +37,7 @@ export default {
       type: 'figma',
       url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2511-3503&node-type=frame&t=B0cD28zTLRN51Vxd-0'
     }
-  },
-  argTypes
+  }
 }
 
 const DropdownItemRenderer = (args: DropdownItemProps) => {
@@ -68,6 +60,12 @@ export const Default = {
   args: {
     items: Array.from({ length: 4 }).map((_, index) => ({ title: `Account settings ${index}`, value: index })),
     value: 2
+  },
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: ['sm', 'md', 'lg']
+    }
   }
 }
 
@@ -76,5 +74,10 @@ export const DropdownItemStory = {
   render: DropdownItemRenderer,
   args: {
     title: 'Account settings'
+  },
+  argTypes: {
+    secondaryText: {
+      control: 'text'
+    }
   }
 }
