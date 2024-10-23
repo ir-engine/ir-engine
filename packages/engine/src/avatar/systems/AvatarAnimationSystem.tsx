@@ -55,6 +55,7 @@ import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
@@ -69,7 +70,6 @@ import { setAvatarSpeedFromRootMotion } from '../functions/avatarFunctions'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AnimationSystem } from './AnimationSystem'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
