@@ -314,7 +314,7 @@ const execute = () => {
     }
   }
 
-  for (const entity of avatarRigQuery()) updateVRMRetargeting(getComponent(entity, AvatarRigComponent).vrm, entity)
+  for (const entity of avatarRigQuery()) updateVRMRetargeting(entity)
 }
 
 const Reactor = () => {
