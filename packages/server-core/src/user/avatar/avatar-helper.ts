@@ -156,6 +156,8 @@ export const uploadAvatarStaticResource = async (
   const isFromDomain = !!data.path
   const folderName = isFromDomain ? data.path! : staticResourceKey
 
+  delete params?.provider
+
   const modelKey = path.join(folderName, `${name}.${data.avatarFileType ?? 'glb'}`)
   const thumbnailKey = path.join(folderName, `${name}.png`)
 
