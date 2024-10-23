@@ -42,7 +42,9 @@ export function useRendererEntity(entity: Entity) {
     const ParentSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
       const renderers = useQuery([RendererComponent])
-      const matchesQuery = renderers.find((r) => getComponent(r, RendererComponent).scenes.includes(props.entity))
+      const matchesQuery = renderers.find((r) =>
+        Object.values(getComponent(r, RendererComponent).scenes).includes(props.entity)
+      )
 
       useLayoutEffect(() => {
         if (!matchesQuery) return

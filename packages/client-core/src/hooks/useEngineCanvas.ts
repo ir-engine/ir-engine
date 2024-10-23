@@ -87,12 +87,11 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     const rendererComponent = getOptionalMutableComponent(viewerEntity, RendererComponent)
     if (!rendererComponent) return
 
-    rendererComponent.scenes.merge([originEntity])
+    rendererComponent.scenes.originEntity.set(originEntity)
 
     return () => {
       if (!hasComponent(viewerEntity, RendererComponent)) return
-      const index = rendererComponent.scenes.value.indexOf(originEntity)
-      rendererComponent.scenes[index].set(none)
+      rendererComponent.scenes.originEntity.set(none)
     }
   }, [viewerEntity, originEntity])
 
@@ -102,12 +101,11 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     const rendererComponent = getOptionalMutableComponent(viewerEntity, RendererComponent)
     if (!rendererComponent) return
 
-    rendererComponent.scenes.merge([localFloorEntity])
+    rendererComponent.scenes.localFloorEntity.set(localFloorEntity)
 
     return () => {
       if (!hasComponent(viewerEntity, RendererComponent)) return
-      const index = rendererComponent.scenes.value.indexOf(localFloorEntity)
-      rendererComponent.scenes[index].set(none)
+      rendererComponent.scenes.localFloorEntity.set(none)
     }
   }, [viewerEntity, localFloorEntity])
 }

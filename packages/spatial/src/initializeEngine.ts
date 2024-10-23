@@ -62,7 +62,7 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
   camera.layers.enable(ObjectLayers.UVOL)
 
   if (canvas) {
-    setComponent(viewerEntity, RendererComponent, { canvas, scenes: [viewerEntity] })
+    setComponent(viewerEntity, RendererComponent, { canvas, scenes: { viewerEntity } })
     PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
   }
 

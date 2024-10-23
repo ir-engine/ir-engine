@@ -105,7 +105,7 @@ export const RendererComponent = defineComponent({
       renderer: S.Nullable(S.Type<WebGLRenderer>()),
       effectComposer: S.Nullable(S.Type<EffectComposer>()),
 
-      scenes: S.Array(S.Entity()),
+      scenes: S.Record(S.String(), S.Entity()),
       scene: S.Class(() => new Scene()),
 
       /** @todo deprecate and replace with engine implementation */
@@ -403,7 +403,7 @@ const execute = () => {
     const renderer = getComponent(entity, RendererComponent)
     const _scene = renderer.scene!
 
-    const entitiesToRender = renderer.scenes.map(getNestedVisibleChildren).flat()
+    const entitiesToRender = Object.values(renderer.scenes).map(getNestedVisibleChildren).flat()
     const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
     _scene.children = children
 

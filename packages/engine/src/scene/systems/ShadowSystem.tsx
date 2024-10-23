@@ -240,7 +240,7 @@ function _CSMReactor() {
    *   considering multi-scene support and spatial volumes.
    *   note: use index 0 (origin entity), index 1 is local floor entity,
    */
-  const renderSettingsEntity = useChildWithComponents(renderer.scenes[0], [RenderSettingsComponent])
+  const renderSettingsEntity = useChildWithComponents(renderer.scenes.originEntity, [RenderSettingsComponent])
   const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
 
