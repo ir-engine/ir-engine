@@ -35,6 +35,7 @@ import {
   getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
+  useHasComponent,
   useOptionalComponent,
   useQuery,
   UUIDComponent
@@ -122,7 +123,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   }, [spawnAvatar.value])
 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
-  const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
+  const errorWithAvatar = !!useHasComponent(selfAvatarEntity, ErrorComponent)
 
   const userAvatarMutation = useMutation(userAvatarPath)
 

@@ -54,7 +54,7 @@ import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/re
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
@@ -200,7 +200,7 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
 }
 
 const SceneSettingsReactor = (props: { sceneEntity: Entity }) => {
-  const sceneSettingsEntity = useChildWithComponents(props.sceneEntity, [SceneSettingsComponent])
+  const [sceneSettingsEntity] = useChildrenWithComponents(props.sceneEntity, [SceneSettingsComponent])
   if (!sceneSettingsEntity) return null
   return <SceneSettingsChildReactor entity={sceneSettingsEntity} key={sceneSettingsEntity} />
 }

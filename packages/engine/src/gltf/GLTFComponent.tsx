@@ -38,6 +38,7 @@ import {
   hasComponent,
   useComponent,
   useEntityContext,
+  useHasComponent,
   useOptionalComponent,
   useQuery,
   UUIDComponent
@@ -481,8 +482,8 @@ export const parseBinaryData = (data) => {
  * @returns {boolean}
  */
 export const useHasModelOrIndependentMesh = (entity: Entity) => {
-  const hasModel = !!useOptionalComponent(entity, GLTFComponent)
+  const hasModel = !!useHasComponent(entity, GLTFComponent)
   const isChildOfModel = !!useAncestorWithComponents(entity, [GLTFComponent, SceneComponent])
-  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
+  const hasMesh = !!useHasComponent(entity, MeshComponent)
   return hasModel || (hasMesh && !isChildOfModel)
 }
