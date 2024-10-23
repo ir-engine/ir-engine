@@ -35,6 +35,7 @@ import config from '@ir-engine/common/src/config'
 import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ScriptComponent } from '@ir-engine/engine'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
@@ -42,7 +43,6 @@ import { getState } from '@ir-engine/hyperflux'
 import { uniqueId } from 'lodash'
 import InputGroup from '../../input/Group'
 import ScriptInput from '../../input/Script'
-import { NodeEditor } from '../nodeEditor'
 
 export const fetchCode = async (url) => {
   const response = await fetch(url)
@@ -92,7 +92,7 @@ export const ScriptNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.script.name')}
       description={t('editor:properties.script.description')}
-      icon={<ScriptNodeEditor.iconComponent />}
+      Icon={ScriptNodeEditor.iconComponent}
     >
       <InputGroup
         name={t('editor:properties.script.lbl-scriptPath')}
