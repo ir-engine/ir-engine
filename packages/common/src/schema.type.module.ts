@@ -75,7 +75,6 @@ export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
-export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/mailchimp-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
@@ -222,8 +221,6 @@ export const awsSettingPath = 'aws-setting'
 export const emailSettingPath = 'email-setting'
 
 export const featureFlagSettingPath = 'feature-flag-setting'
-
-export const instanceServerSettingPath = 'instance-server-setting'
 
 export const clientSettingPath = 'client-setting'
 

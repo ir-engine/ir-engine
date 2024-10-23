@@ -64,6 +64,7 @@ export default (app: Application): void => {
       'task-server': appConfig.taskserver,
       coil: appConfig.coil,
       chargebee: appConfig.chargebee,
+      'instance-server': appConfig.instanceserver,
       zendesk: appConfig.zendesk,
       redis: appConfig.redis
     }
