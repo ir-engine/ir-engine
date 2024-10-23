@@ -23,14 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useArgs } from '@storybook/preview-api'
 import React from 'react'
 import { HiMiniRocketLaunch } from 'react-icons/hi2'
-import DropdownList, { DropdownListItem, DropdownListItemProps, DropdownListProps } from './index'
+import { DropdownItem, DropdownItemProps } from './index'
 
 export default {
   title: 'Components/Editor/DropdownList',
-  component: DropdownList,
   parameters: {
     componentSubtitle: 'Dropdown',
     design: {
@@ -40,33 +38,13 @@ export default {
   }
 }
 
-const DropdownItemRenderer = (args: DropdownListItemProps) => {
+const DropdownItemRenderer = (args: DropdownItemProps) => {
   let Icon: (() => JSX.Element) | undefined = undefined
   if (!args.Icon) {
     Icon = HiMiniRocketLaunch as () => JSX.Element
     delete args.Icon
   }
-  return <DropdownListItem Icon={Icon} {...args} />
-}
-
-const DropdownListRenderer = (args: DropdownListProps) => {
-  const [currentArgs, updateArgs] = useArgs<{ value: number }>()
-  return <DropdownList {...args} value={currentArgs.value} onSelect={(value) => updateArgs({ value })} />
-}
-
-export const Default = {
-  name: 'Dropdown List',
-  render: DropdownListRenderer,
-  args: {
-    items: Array.from({ length: 4 }).map((_, index) => ({ title: `Account settings ${index}`, value: index })),
-    value: 2
-  },
-  argTypes: {
-    variant: {
-      control: 'select',
-      options: ['sm', 'md', 'lg']
-    }
-  }
+  return <DropdownItem Icon={Icon} {...args} />
 }
 
 export const DropdownItemStory = {

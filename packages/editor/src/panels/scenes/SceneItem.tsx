@@ -28,7 +28,7 @@ import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { DropdownListItem } from '@ir-engine/ui'
+import { DropdownItem } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -118,7 +118,7 @@ export default function SceneItem({
             }
           >
             <div className="w-[180px]" tabIndex={0}>
-              <DropdownListItem
+              <DropdownItem
                 className="rounded-t-lg"
                 title={t('editor:hierarchy.lbl-rename')}
                 onClick={() =>
@@ -133,7 +133,7 @@ export default function SceneItem({
                 }
                 data-testid="scene-rename-button"
               />
-              <DropdownListItem
+              <DropdownItem
                 className="rounded-b-lg"
                 title={t('editor:hierarchy.lbl-delete')}
                 onClick={() =>

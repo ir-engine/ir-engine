@@ -34,7 +34,7 @@ import { useFind } from '@ir-engine/common'
 import { locationPath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { DropdownListItem } from '@ir-engine/ui'
+import { DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -214,7 +214,7 @@ export default function Toolbar() {
       >
         <div className="w-[180px]" tabIndex={0}>
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
-            <DropdownListItem
+            <DropdownItem
               className={twMerge(index === 0 && 'rounded-t-lg', index === toolbarMenu.length - 1 && 'rounded-b-lg')}
               title={name}
               secondaryText={hotkey}

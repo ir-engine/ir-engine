@@ -23,5 +23,5 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export { default as DropdownList, DropdownListItem } from './primitives/tailwind/Dropdown'
-export type { DropdownListItemProps, DropdownListProps } from './primitives/tailwind/Dropdown'
+export { DropdownItem } from './primitives/tailwind/Dropdown'
+export type { DropdownItemProps } from './primitives/tailwind/Dropdown'

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { DropdownListItem } from '@ir-engine/ui'
+import { DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -69,7 +69,7 @@ export default function HierarchyTreeContextMenu() {
   return (
     <ContextMenu anchorEvent={anchorEvent} open={!!entity} onClose={() => setMenu()}>
       <div className="w-[220px]" data-testid="hierarchy-panel-scene-item-context-menu">
-        <DropdownListItem
+        <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-rename-button"
           onClick={() => {
             setMenu()
@@ -78,45 +78,45 @@ export default function HierarchyTreeContextMenu() {
           secondaryText={cmdOrCtrlString + ' + r'}
           title={t('editor:hierarchy.lbl-rename')}
         />
-        <DropdownListItem
+        <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-duplicate-button"
           onClick={onDuplicateNode}
           secondaryText={cmdOrCtrlString + ' + d'}
           title={t('editor:hierarchy.lbl-duplicate')}
         />
-        <DropdownListItem
+        <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-group-button"
           onClick={onGroupNodes}
           secondaryText={cmdOrCtrlString + ' + g'}
           title={t('editor:hierarchy.lbl-group')}
         />
-        <DropdownListItem
+        <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-copy-button"
           onClick={onCopyNode}
           secondaryText={cmdOrCtrlString + ' + c'}
           title={t('editor:hierarchy.lbl-copy')}
         />
-        <DropdownListItem
+        <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-paste-button"
           onClick={onPasteNode}
           secondaryText={cmdOrCtrlString + ' + v'}
           title={t('editor:hierarchy.lbl-paste')}
         />
-        <DropdownListItem
+        <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-delete-button"
           onClick={onDeleteNode}
           title={t('editor:hierarchy.lbl-delete')}
         />
         {!node?.isLeaf && (
           <>
-            <DropdownListItem
+            <DropdownItem
               onClick={() => {
                 setMenu()
                 expandChildren(entity)
               }}
               title={t('editor:hierarchy.lbl-expandAll')}
             />
-            <DropdownListItem
+            <DropdownItem
               onClick={() => {
                 setMenu()
                 collapseChildren(entity)
@@ -125,7 +125,7 @@ export default function HierarchyTreeContextMenu() {
             />
           </>
         )}
-        <DropdownListItem
+        <DropdownItem
           onClick={() => {
             setMenu()
             PopoverState.showPopupover(<CreatePrefabPanel entity={entity} />)

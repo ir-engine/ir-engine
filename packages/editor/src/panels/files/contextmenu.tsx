@@ -28,7 +28,7 @@ import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { DropdownListItem } from '@ir-engine/ui'
+import { DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -64,7 +64,7 @@ function PasteFileButton({
     : filesState.selectedDirectory.value
 
   return (
-    <DropdownListItem
+    <DropdownItem
       data-testid="files-panel-context-menu-paste-asset-button"
       disabled={!hasClipboardFiles}
       onClick={async () => {
@@ -108,7 +108,7 @@ export function FileContextMenu({
         {/* Place Object, Place Object At Origin */}
         {hasFiles && (
           <>
-            <DropdownListItem
+            <DropdownItem
               title={t('editor:layout.assetGrid.placeObject')}
               onClick={() => {
                 const vec3 = new Vector3()
@@ -124,7 +124,7 @@ export function FileContextMenu({
               }}
               data-testid="files-panel-file-item-context-menu-place-object-button"
             />
-            <DropdownListItem
+            <DropdownItem
               title={t('editor:layout.assetGrid.placeObjectAtOrigin')}
               data-testid="files-panel-file-item-context-menu-place-object-at-origin-button"
               onClick={() => {
@@ -140,7 +140,7 @@ export function FileContextMenu({
         )}
         {/* Copy URL */}
         {hasSelection && (
-          <DropdownListItem
+          <DropdownItem
             data-testid="files-panel-file-item-context-menu-copy-url-button"
             onClick={() => {
               if (navigator.clipboard) {
@@ -153,7 +153,7 @@ export function FileContextMenu({
         )}
         {/* Open In New Tab */}
         {hasFiles && (
-          <DropdownListItem
+          <DropdownItem
             data-testid="files-panel-file-item-context-menu-open-in-new-tab-button"
             onClick={() => {
               selectedFiles.filter((file) => !file.isFolder).forEach((file) => window.open(file.url.value))
@@ -163,7 +163,7 @@ export function FileContextMenu({
           />
         )}
         {/* Add New Folder */}
-        <DropdownListItem
+        <DropdownItem
           onClick={createNewFolder}
           data-testid="files-panel-file-item-context-menu-add-new-folder-button"
           title={t('editor:layout.filebrowser.addNewFolder')}
@@ -171,7 +171,7 @@ export function FileContextMenu({
         {hasSelection && (
           <>
             {/* Cut Asset */}
-            <DropdownListItem
+            <DropdownItem
               data-testid="files-panel-file-item-context-menu-cut-asset-button"
               onClick={() => {
                 filesState.clipboardFiles.set({
@@ -182,7 +182,7 @@ export function FileContextMenu({
               title={t('editor:layout.filebrowser.cutAsset')}
             />
             {/* Copy Asset */}
-            <DropdownListItem
+            <DropdownItem
               data-testid="files-panel-file-item-context-menu-copy-asset-button"
               onClick={() => {
                 filesState.clipboardFiles.set({
@@ -199,7 +199,7 @@ export function FileContextMenu({
         <PasteFileButton setAnchorEvent={setAnchorEvent} />
         {/* Rename Asset */}
         {selectedFiles.length === 1 && (
-          <DropdownListItem
+          <DropdownItem
             data-testid="files-panel-file-item-context-menu-rename-asset-button"
             onClick={() => {
               PopoverState.showPopupover(
@@ -212,7 +212,7 @@ export function FileContextMenu({
         )}
         {/* Delete Asset */}
         {hasSelection && (
-          <DropdownListItem
+          <DropdownItem
             data-testid="files-panel-file-item-context-menu-delete-asset-button"
             onClick={() => {
               PopoverState.showPopupover(
@@ -231,7 +231,7 @@ export function FileContextMenu({
         )}
         {/* Compress */}
         {hasFiles && fileConsistsOfContentType(selectedFiles.value, 'model') && (
-          <DropdownListItem
+          <DropdownItem
             onClick={() => {
               if (fileConsistsOfContentType(selectedFiles.value, 'model')) {
                 PopoverState.showPopupover(
@@ -244,7 +244,7 @@ export function FileContextMenu({
           />
         )}
         {hasFiles && fileConsistsOfContentType(selectedFiles.value, 'image') && (
-          <DropdownListItem
+          <DropdownItem
             onClick={() => {
               if (fileConsistsOfContentType(selectedFiles.value, 'image')) {
                 PopoverState.showPopupover(
@@ -259,7 +259,7 @@ export function FileContextMenu({
 
         {/* View Asset Properties */}
         {hasSelection && (
-          <DropdownListItem
+          <DropdownItem
             data-testid="files-panel-file-item-context-menu-view-asset-properties-button"
             onClick={() => {
               PopoverState.showPopupover(<FilePropertiesModal />)
