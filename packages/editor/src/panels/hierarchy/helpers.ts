@@ -88,7 +88,7 @@ export const pasteNodes = (entity?: Entity) => {
   CopyPasteFunctions.getPastedEntities()
     .then((nodeComponentJSONs) => {
       nodeComponentJSONs.forEach((componentJSONs) => {
-        EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, getSelectedEntities(entity)[0])
+        EditorControlFunctions.createObjectFromSceneElement(componentJSONs, entity, getSelectedEntities(entity)[0])
       })
     })
     .catch(() => {
