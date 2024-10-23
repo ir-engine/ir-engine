@@ -55,8 +55,10 @@ const mediaQuery = defineQuery([MediaComponent])
 export const createMediaControlsUI = (entity: Entity) => {
   const ui = createMediaControlsView(entity)
 
+  const mediaTransform = getComponent(entity, TransformComponent)
   setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
   setComponent(ui.entity, NameComponent, 'mediacontrols-ui-' + entity)
+  setComponent(ui.entity, TransformComponent, { rotation: mediaTransform.rotation })
 
   ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
     const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
