@@ -44,6 +44,7 @@ export const FeatureFlags = {
       Portal: 'ir.editor.panel.portal'
     },
     UI: {
+      SceneComplexityNotification: 'ir.editor.ui.SceneComplexityNotification',
       TransformPivot: 'ir.editor.ui.transformPivot',
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
