@@ -30,14 +30,18 @@ import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import config from '@ir-engine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constants/AvatarConstants'
 
+import multiLogger from '@ir-engine/common/src/logger'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { IoArrowBackOutline } from 'react-icons/io5'
 import AvatarPreview from '../../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
+import { UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -59,6 +63,8 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
   const avatarUrl = useHookstate('')
   const loading = useHookstate(LoadingState.LoadingCreator)
   const error = useHookstate('')
+
+  const logger = multiLogger.child({ component: 'client-core:AvatarCreatorMenu' })
 
   const getSdkUrl = () => {
     switch (selectedSdk) {
@@ -82,16 +88,16 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     rpmIframe.src = getSdkUrl() as string
   }, [])
 
-  const handleReadyPlayerMeMessageEvent = async (event: MessageEvent) => {
-    const parse = (event: MessageEvent) => {
-      try {
-        return JSON.parse(event.data)
-      } catch (error) {
-        return event.data
-      }
+  const parseMessage = (event: MessageEvent) => {
+    try {
+      return JSON.parse(event.data)
+    } catch (error) {
+      return event.data
     }
+  }
 
-    const message = typeof event.data === 'string' ? parse(event) : event.data
+  const handleReadyPlayerMeMessageEvent = async (event: MessageEvent) => {
+    const message = typeof event.data === 'string' ? parseMessage(event) : event.data
 
     if (message.source !== 'readyplayerme') {
       return
@@ -122,7 +128,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
         avatarUrl.set(message.data.url)
         selectedBlob.set(data)
       } catch (error) {
-        console.error(error)
+        logger.error(error)
         error.set(t('user:usermenu.avatar.selectValidFile'))
         loading.set(LoadingState.None)
       }
@@ -130,20 +136,13 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
   }
 
   const handleAvaturnMessageEvent = async (event: MessageEvent) => {
-    const response = event.data
-    let json
-    try {
-      json = JSON.parse(response)
-    } catch (error) {
-      console.log('Error parsing the event data.')
-      return
-    }
+    const message = typeof event.data === 'string' ? parseMessage(event) : event.data
 
-    if (json.source !== 'avaturn') return // always check the source its always 'avaturn'
+    if (message.source !== 'avaturn') return // always check the source its always 'avaturn'
 
     // Get avatar GLB URL
-    if (json.eventName === 'v2.avatar.exported') {
-      const url = json.data.url
+    if (message.eventName === 'v2.avatar.exported') {
+      const url = message.data.url
       const avatarIdRegexExec = AVATAR_ID_REGEX.exec(url)
       if (url && url.toString().toLowerCase().startsWith('http')) {
         loading.set(LoadingState.Downloading)
@@ -157,7 +156,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
           avatarUrl.set(url)
           selectedBlob.set(data)
         } catch (error) {
-          console.error(error)
+          logger.error(error)
           error.set(t('user:usermenu.avatar.selectValidFile'))
           loading.set(LoadingState.None)
         }
@@ -209,24 +208,40 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     PopupMenuServices.showPopupMenu()
   }
 
+  const loadingMessages = {
+    [LoadingState.Downloading]: t('user:avatar.downloading'),
+    [LoadingState.LoadingPreview]: t('user:avatar.loadingPreview'),
+    [LoadingState.Uploading]: t('user:avatar.packagingAvatar'),
+    default: t(`user:avatar.loading${selectedSdk}`)
+  }
+
+  const loadingTitle = loadingMessages[loading.value] || loadingMessages.default
+
   const avatarPreviewLoaded = loading.value === LoadingState.None && selectedBlob.value
 
   return (
     <div className="fixed top-0  z-[35] flex h-[100vh] w-full bg-[rgba(0,0,0,0.75)]">
       <Modal
         id="select-avatar-modal"
-        className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
-        title={
-          loading.value !== LoadingState.Uploading
-            ? t('user:avatar.titleCustomizeAvatar')
-            : t('user:avatar.savingAvatar', { avatar: avatarName.value })
-        }
-        onClose={() => PopupMenuServices.showPopupMenu()}
+        className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
         showCloseButton={false}
         hideFooter={true}
-        hideHeaderCloseButton={true}
         rawChildren={
           <div className="flex h-full w-full flex-1 flex-col">
+            <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+              <Button
+                fullWidth={false}
+                data-testid="edit-avatar-button"
+                className=" h-6 w-6 self-center bg-transparent"
+                startIcon={<IoArrowBackOutline size={16} />}
+                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
+              />
+              <Text className="col-start-2  place-self-center self-center">
+                {loading.value !== LoadingState.Uploading
+                  ? t('user:avatar.titleCustomizeAvatar')
+                  : t('user:avatar.savingAvatar', { avatar: avatarName.value })}
+              </Text>
+            </div>
             <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-10 py-2">
               {loading.value === LoadingState.LoadingCreator && (
                 <iframe
@@ -242,8 +257,10 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
                 />
               )}
               {loading.value !== LoadingState.LoadingCreator && avatarUrl && (
-                <div className={`${styles.avatarPreview} col-start-2 bg-gradient-to-b from-[#162941] to-[#114352]`}>
-                  <div className={`${styles.stars}`}></div>
+                <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+                  <div
+                    className={`${styles.stars} absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent`}
+                  ></div>
                   <AvatarPreview
                     avatarUrl={avatarUrl.value}
                     fill
@@ -270,15 +287,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
                 <LoadingView
                   className="mr-2 h-6 max-h-6 w-6 justify-between"
                   containerClassName="flex-row"
-                  title={
-                    loading.value === LoadingState.Downloading
-                      ? t('user:avatar.downloading')
-                      : loading.value === LoadingState.LoadingPreview
-                      ? t('user:avatar.loadingPreview')
-                      : loading.value === LoadingState.Uploading
-                      ? t('user:avatar.packagingAvatar')
-                      : t(`user:avatar.loading${selectedSdk}`)
-                  }
+                  title={loadingTitle}
                 />
               </div>
             )}
@@ -306,7 +315,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
                 onClick={uploadAvatar}
                 className="ml-2 w-full max-w-[20%] place-self-center text-sm"
               >
-                {t('user:avatar.finishedEditing')}
+                {t('user:avatar.finishEditing')}
               </Button>
             </div>
           </div>

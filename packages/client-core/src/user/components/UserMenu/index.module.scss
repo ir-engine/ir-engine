@@ -124,20 +124,8 @@
   align-items: center;
 }
 
-.avatarPreview {
-  position: relative;
-  background: transparent;
-  overflow: hidden;
-  border-radius: 8px;
-}
 
 .stars {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 2px;
-  background: transparent;
   box-shadow: 
     10rem 5rem 0 rgb(255 255 255 / 80%),
     15rem 8rem 0 rgb(255 255 255 / 50%),
@@ -154,21 +142,5 @@
     28rem 7rem 0 rgb(255 255 255 / 50%),
     33rem 9rem 1px rgb(255 255 255 / 90%),
     38rem 13rem 2px rgb(255 255 255 / 60%);
-
-  @keyframes twinkling {
-    0% {
-      opacity: 0.6;
-    }
-
-    50% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0.6;
-    }
-  }
-
-  animation: twinkling 5s alternate infinite; 
 }
 

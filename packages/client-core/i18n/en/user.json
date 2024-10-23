@@ -381,7 +381,7 @@
     "enterThumbnailUrl": "Enter Thumbnail URL",
     "avatarName": "Avatar Name",
     "done": "Done",
-    "finishedEditing": "Finished Editing",
+    "finishEditing": "Finish Editing",
     "discardAvatarChanges": "Discard Your Avatar?",
     "InputAvatarName": "Enter an Avatar Name",
     "savingAvatar": "Saving {{avatar}}",

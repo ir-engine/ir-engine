@@ -130,7 +130,7 @@ const AvatarMenu2 = () => {
     <div className="fixed top-0 z-[35] flex h-[100vh] w-full bg-[rgba(0,0,0,0.75)]">
       <Modal
         id="select-avatar-modal"
-        className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
+        className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
         title={t('user:avatar.titleSelectAvatar')}
         onClose={() => PopupMenuServices.showPopupMenu()}
         showCloseButton={false}
@@ -140,8 +140,10 @@ const AvatarMenu2 = () => {
         rawChildren={
           <div className="flex h-full w-full flex-1 flex-col">
             <div className="grid h-full w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
-              <div className={`${styles.avatarPreview} bg-gradient-to-b from-[#162941] to-[#114352]`}>
-                <div className={`${styles.stars}`}></div>
+              <div className="relative rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+                <div
+                  className={`${styles.stars} absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent`}
+                ></div>
                 <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
               </div>
               <div className="grid h-full w-full grid-flow-row grid-rows-[3rem,1fr]">
@@ -188,7 +190,6 @@ const AvatarMenu2 = () => {
                           onChange={() =>
                             PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })
                           }
-                          className="max-h-[149px] max-w-[410px]"
                         />
                       </div>
                     ))}
@@ -224,7 +225,7 @@ const AvatarMenu2 = () => {
                 onClick={handleConfirmAvatar}
                 className="ml-2 w-full max-w-[20%] place-self-center text-sm"
               >
-                {t('user:avatar.finishedEditing')}
+                {t('user:avatar.finishEditing')}
               </Button>
             </div>
           </div>

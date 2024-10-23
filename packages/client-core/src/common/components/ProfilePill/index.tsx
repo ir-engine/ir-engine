@@ -53,12 +53,12 @@ const ProfilePill = () => {
           </div>
 
           <div className="cursor-pointer pr-2">
-            <MdOutlineKeyboardArrowDown size="1.2em" />
+            <MdOutlineKeyboardArrowDown className="h-4 w-4" />
           </div>
         </button>
       }
     >
-      <div className="flex w-80 min-w-fit max-w-[30wv]  -translate-x-1/2 flex-col gap-1 truncate rounded-lg bg-neutral-900 p-6 shadow-lg">
+      <div className="flex w-80 min-w-fit max-w-[30wv]  -translate-x-1/2 flex-col gap-1 truncate rounded-lg bg-[#141619] p-6 shadow-lg">
         <div className="flex items-center gap-6">
           <div className="relative h-14 w-14">
             <img className="rounded-full" src={avatarThumbnail} />
@@ -82,9 +82,7 @@ const ProfilePill = () => {
             <span className="text-base text-[#B2B5BD]">{email}</span>
           </div>
         </div>
-        <div className="pb-1 pt-4">
-          <hr className="border border-[#212226]" />
-        </div>
+        <div className="mb-1 mt-4 w-full border border-[#212226]" />
       </div>
     </Popup>
   )

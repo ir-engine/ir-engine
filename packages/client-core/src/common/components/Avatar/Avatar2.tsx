@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import React from 'react'
+import React, { MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiEdit2 } from 'react-icons/fi'
 import { twMerge } from 'tailwind-merge'
@@ -58,7 +58,7 @@ const Avatar = ({
   onClick
 }: Props) => {
   const { t } = useTranslation()
-  const handleChange = (e) => {
+  const handleChange = (e: MouseEvent) => {
     e.stopPropagation()
     onChange && onChange()
   }
@@ -70,7 +70,7 @@ const Avatar = ({
         onPointerUp={handleSoundEffect}
         onPointerEnter={handleSoundEffect}
         className={twMerge(
-          'relative box-border flex h-32 min-h-32 cursor-pointer items-start gap-3 rounded-lg bg-[#191B1F] p-3',
+          'relative box-border flex h-32 max-h-[149px] min-h-32 max-w-[410px] cursor-pointer items-start gap-3 rounded-lg bg-[#191B1F] p-3',
           className,
           isSelected ? 'border-2 border-blue-primary' : 'border border-[#42454D] hover:border hover:border-blue-primary'
         )}
@@ -83,7 +83,7 @@ const Avatar = ({
             fullWidth={false}
             variant="secondary"
             data-testid="edit-avatar-button"
-            className="absolute bottom-3 left-[4.25rem] h-8 w-10 border-blue-900 border-opacity-65 text-white"
+            className="absolute bottom-3 left-[4.25rem] h-8 w-10 border-[#162546] border-opacity-65 text-white"
             startIcon={<FiEdit2 size={16} />}
             onClick={handleChange}
           />

@@ -39,7 +39,6 @@ import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
 import AvatarCreatorMenu2 from './components/UserMenu/menus/AvatarCreatorMenu2'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
-import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import AvatarSelectMenu2 from './components/UserMenu/menus/AvatarSelectMenu2'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
@@ -94,7 +93,6 @@ const reactor = () => {
       [UserMenus.Profile]: ProfileMenu,
       [UserMenus.Settings]: SettingMenu,
       [UserMenus.Settings2]: SettingMenu2,
-      [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarSelect2]: AvatarSelectMenu2,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
       [UserMenus.Share]: ShareMenu
