@@ -2,131 +2,113 @@
 set -e
 set -x
 
-if [ -z "$SERVER_HOST" ]
-then
+if [ -z "$SERVER_HOST" ]; then
   SERVER_HOST=localhost
 else
   SERVER_HOST=$SERVER_HOST
 fi
 
-if [ -z "$SERVER_PORT" ]
-then
+if [ -z "$SERVER_PORT" ]; then
   SERVER_PORT=3030
 else
   SERVER_PORT=$SERVER_PRT
 fi
 
-if [ -z "$MYSQL_HOST" ]
-then
+if [ -z "$MYSQL_HOST" ]; then
   MYSQL_HOST=host.docker.internal
 else
   MYSQL_HOST=$MYSQL_HOST
 fi
 
-if [ -z "$MYSQL_PORT" ]
-then
+if [ -z "$MYSQL_PORT" ]; then
   MYSQL_PORT=3304
 else
   MYSQL_PORT=$MYSQL_PORT
 fi
 
-if [ -z "$MYSQL_USER" ]
-then
+if [ -z "$MYSQL_USER" ]; then
   MYSQL_USER=server
 else
   MYSQL_USER=$MYSQL_USER
 fi
 
-if [ -z "$MYSQL_PASSWORD" ]
-then
+if [ -z "$MYSQL_PASSWORD" ]; then
   MYSQL_PASSWORD=password
 else
   MYSQL_PASSWORD=$MYSQL_PASSWORD
 fi
 
-if [ -z "$MYSQL_DATABASE" ]
-then
+if [ -z "$MYSQL_DATABASE" ]; then
   MYSQL_DATABASE=ir-engine
 else
   MYSQL_DATABASE=$MYSQL_DATABASE
 fi
 
-if [ -z "$VITE_APP_HOST" ]
-then
+if [ -z "$VITE_APP_HOST" ]; then
   VITE_APP_HOST=local.ir-engine.org
 else
   VITE_APP_HOST=$VITE_APP_HOST
 fi
 
-if [ -z "$VITE_SERVER_HOST" ]
-then
+if [ -z "$VITE_SERVER_HOST" ]; then
   VITE_SERVER_HOST=api-local.ir-engine.org
 else
   VITE_SERVER_HOST=$VITE_SERVER_HOST
 fi
 
-if [ -z "$VITE_FILE_SERVER" ]
-then
+if [ -z "$VITE_FILE_SERVER" ]; then
   VITE_FILE_SERVER=https://localhost:9000/ir-engine-minikube-static-resources
 else
   VITE_FILE_SERVER=$VITE_FILE_SERVER
 fi
 
-if [ -z "$VITE_MEDIATOR_SERVER" ]
-then
+if [ -z "$VITE_MEDIATOR_SERVER" ]; then
   VITE_MEDIATOR_SERVER=https://authn.io
 else
   VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER
 fi
 
-if [ -z "$VITE_INSTANCESERVER_HOST" ]
-then
+if [ -z "$VITE_INSTANCESERVER_HOST" ]; then
   VITE_INSTANCESERVER_HOST=instanceserver-local.ir-engine.org
 else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
 
-if [ -z "$VITE_LOGIN_WITH_WALLET" ]
-then
+if [ -z "$VITE_LOGIN_WITH_WALLET" ]; then
   VITE_LOGIN_WITH_WALLET=false
 else
   VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET
 fi
 
-if [ -z "$VITE_8TH_WALL" ]
-then
+if [ -z "$VITE_8TH_WALL" ]; then
   VITE_8TH_WALL=null
 else
   VITE_8TH_WALL=$VITE_8TH_WALL
 fi
 
-if [ -z "$VITE_AVATURN_URL" ]
-then
+if [ -z "$VITE_AVATURN_URL" ]; then
   VITE_AVATURN_URL=null
 else
   VITE_AVATURN_URL=$VITE_AVATURN_URL
 fi
 
-if [ -z "$VITE_AVATURN_API" ]
-then
+if [ -z "$VITE_AVATURN_API" ]; then
   VITE_AVATURN_API=null
 else
   VITE_AVATURN_API=$VITE_AVATURN_API
 fi
 
-if [ -z "$VITE_AVATURN_URL" ]; then
-  VITE_TERMS_OF_SERVICE_ADDRESS=https://www.ir.world/terms-of-service
+if [ -z "$VITE_TERMS_OF_SERVICE_ADDRESS" ]; then
+  VITE_TERMS_OF_SERVICE_ADDRESS=https://www.theinfinitereality.com/terms-of-service
 else
   VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS
 fi
 
-if [ -z "$NODE_ENV" ]
-then
+if [ -z "$NODE_ENV" ]; then
   NODE_ENV=development
 else
   NODE_ENV=$NODE_ENV
 fi
-
 
 # ./generate-certs.sh
 
