@@ -27,7 +27,7 @@ import React from 'react'
 import { HiCheck } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 
-export interface DropdownItemProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface DropdownListItemProps extends Pick<React.HTMLAttributes<HTMLDivElement>, 'onClick' | 'onKeyUp'> {
   /**text shown on the left end */
   title: string
   Icon?: ({ className }: { className?: string }) => JSX.Element
@@ -38,7 +38,7 @@ export interface DropdownItemProps extends React.HTMLAttributes<HTMLDivElement> 
   className?: string
 }
 
-export function DropdownItem({
+export function DropdownListItem({
   title,
   disabled,
   Icon,
@@ -46,7 +46,7 @@ export function DropdownItem({
   secondaryText,
   className,
   ...props
-}: DropdownItemProps) {
+}: DropdownListItemProps) {
   return (
     <div
       tabIndex={0}
@@ -81,22 +81,22 @@ const variants = {
 
 export interface DropdownListProps {
   variant?: keyof typeof variants
-  items: (Omit<DropdownItemProps, 'className'> & { value: any })[]
+  items: (Omit<DropdownListItemProps, 'className'> & { value: any })[]
   /**should be equal to one of the values in `items` */
-  value: any
-  onChange: (value: any) => void
+  value?: any
+  onSelect: (value: any) => void
 }
 
-export default function DropdownList({ variant = 'md', items, value, onChange }: DropdownListProps) {
+export default function DropdownList({ variant = 'sm', items, value, onSelect }: DropdownListProps) {
   return (
-    <div className={variants[variant]}>
+    <div tabIndex={0} className={variants[variant]}>
       {items.map((item, index) => (
-        <DropdownItem
+        <DropdownListItem
           className={twMerge(index === 0 && 'rounded-t-lg', index === items.length - 1 && 'rounded-b-lg')}
           key={index + item.title}
           selected={value === item.value}
-          onClick={() => onChange(item.value)}
-          onKeyUp={(event) => ['Enter', ' '].includes(event.key) && onChange(item.value)}
+          onClick={() => onSelect(item.value)}
+          onKeyUp={(event) => ['Enter', ' '].includes(event.key) && onSelect(item.value)}
           {...item}
         />
       ))}

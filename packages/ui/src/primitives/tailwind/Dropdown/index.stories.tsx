@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useArgs } from '@storybook/preview-api'
 import React from 'react'
 import { HiMiniRocketLaunch } from 'react-icons/hi2'
-import DropdownList, { DropdownItem, DropdownItemProps, DropdownListProps } from './index'
+import DropdownList, { DropdownListItem, DropdownListItemProps, DropdownListProps } from './index'
 
 export default {
   title: 'Components/Editor/DropdownList',
@@ -40,18 +40,18 @@ export default {
   }
 }
 
-const DropdownItemRenderer = (args: DropdownItemProps) => {
+const DropdownItemRenderer = (args: DropdownListItemProps) => {
   let Icon: (() => JSX.Element) | undefined = undefined
   if (!args.Icon) {
     Icon = HiMiniRocketLaunch as () => JSX.Element
     delete args.Icon
   }
-  return <DropdownItem Icon={Icon} {...args} />
+  return <DropdownListItem Icon={Icon} {...args} />
 }
 
 const DropdownListRenderer = (args: DropdownListProps) => {
   const [currentArgs, updateArgs] = useArgs<{ value: number }>()
-  return <DropdownList {...args} value={currentArgs.value} onChange={(value) => updateArgs({ value })} />
+  return <DropdownList {...args} value={currentArgs.value} onSelect={(value) => updateArgs({ value })} />
 }
 
 export const Default = {
