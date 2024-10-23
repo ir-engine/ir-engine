@@ -41,9 +41,14 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Mesh, Object3D } from 'three'
+import {
+  enableObjectLayer,
+  ObjectLayerComponents
+} from '../../../../../spatial/src/renderer/components/ObjectLayerComponent'
 import {
   gizmoRotate,
   gizmoScale,
@@ -55,7 +60,7 @@ import {
   pickerScale,
   pickerTranslate,
   setupGizmo
-} from '../constants/GizmoPresets'
+} from '../../../constants/GizmoPresets'
 
 const useTranslateRotateScaleEntities = () => {
   const translate = useHookstate(createEntity)
@@ -135,6 +140,7 @@ export const TransformGizmoVisualComponent = defineComponent({
         setComponent(gizmo[mode], TransformGizmoTagComponent)
         setComponent(gizmo[mode], VisibleComponent)
         setComponent(gizmo[mode], EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+        setComponent(gizmo[mode], ObjectLayerComponents[ObjectLayers.TransformGizmo])
 
         visualComponent.gizmo[mode].set(gizmo[mode])
 
@@ -143,6 +149,7 @@ export const TransformGizmoVisualComponent = defineComponent({
         setComponent(helper[mode], TransformGizmoTagComponent)
         setComponent(helper[mode], VisibleComponent)
         setComponent(helper[mode], EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+        setComponent(helper[mode], ObjectLayerComponents[ObjectLayers.TransformGizmo])
 
         visualComponent.helper[mode].set(helper[mode])
 
@@ -152,6 +159,8 @@ export const TransformGizmoVisualComponent = defineComponent({
         setComponent(picker[mode], TransformGizmoTagComponent)
         setComponent(picker[mode], VisibleComponent)
         setComponent(picker[mode], EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+        setComponent(picker[mode], ObjectLayerComponents[ObjectLayers.TransformGizmo])
+        enableObjectLayer(pickerObject[mode], ObjectLayers.TransformGizmo, true)
 
         visualComponent.picker[mode].set(picker[mode])
 
