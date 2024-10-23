@@ -240,24 +240,6 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
     else removeComponent(props.entity, ShadowComponent)
   }, [isVisible, isMesh, shadowComponent?.cast, shadowComponent?.receive])
 
-  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
-  useEffect(() => {
-    if (!isMesh || !isVisible) return
-    if (envmapComponent)
-      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
-    else removeComponent(props.entity, EnvmapComponent)
-  }, [
-    isVisible,
-    isMesh,
-    envmapComponent,
-    envmapComponent?.envMapIntensity,
-    envmapComponent?.envmap,
-    envmapComponent?.envMapSourceColor,
-    envmapComponent?.envMapSourceURL,
-    envmapComponent?.envMapTextureType,
-    envmapComponent?.envMapSourceEntityUUID
-  ])
-
   useEffect(() => {
     if (!isModelColliders || !isMesh) return
 
