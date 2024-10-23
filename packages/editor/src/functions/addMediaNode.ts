@@ -153,7 +153,7 @@ export async function addMediaNode(
     } else if (contentType.startsWith('model/prefab')) {
       loadGltfFile(url, (gltf) => {
         if (gltf.nodes)
-          gltf.nodes.every((node) => {
+          gltf.nodes.forEach((node) => {
             if (node.extensions && node.extensions[UUIDComponent.jsonID])
               node.extensions[UUIDComponent.jsonID] = generateEntityUUID()
           })

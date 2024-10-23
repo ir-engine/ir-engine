@@ -29,7 +29,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs'
 import { NO_PROXY, State, useDidMount, useHookstate } from '@ir-engine/hyperflux'
 
-import { DisposableObject, ResourceManager } from './ResourceState'
+import { DisposableObject, ResourceAssetType, ResourceManager } from './ResourceState'
 
 /**
  *
@@ -130,6 +130,28 @@ export function useResource<TObj>(
   useDidMount(() => {
     unload()
     ResourceManager.addResource(resourceState.value, uniqueID.value, entity)
+  }, [resourceState])
+
+  return [resourceState, unload]
+}
+
+export function useReferencedResource<Asset>(
+  resource: ObjOrFunction<Asset>,
+  assetKey: string,
+  onUnload?: () => void
+): [State<Asset>, () => void] {
+  const resourceState = useHookstate<Asset>(resource)
+
+  const unload = () => {
+    const resourceValue = resourceState.value as ResourceAssetType
+    if (resourceValue) ResourceManager.removeReferencedAsset(assetKey, resourceValue)
+    if (onUnload) onUnload()
+  }
+
+  useEffect(() => {
+    const resourceValue = resourceState.value as ResourceAssetType
+    if (resourceValue) ResourceManager.addReferencedAsset(assetKey, resourceValue)
+    return unload
   }, [resourceState])
 
   return [resourceState, unload]

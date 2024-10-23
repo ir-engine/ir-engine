@@ -36,7 +36,6 @@ import {
 import { AssetLoader } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 
-// This is most likely a temporary function that will be removed
 export const setGLTFResource = (url: string, entity: Entity, status: ResourceStatus) => {
   const resourceType = ResourceType.GLTF
   const resourceState = getMutableState(ResourceState)
