@@ -205,7 +205,7 @@ export const EnvmapComponent = defineComponent({
         const childMesh = getComponent(childEntity, MeshComponent)
         updateEnvMapIntensity(childMesh, component.envMapIntensity.value)
       }
-    }, [childrenMesh, component.envmap.value])
+    }, [childrenMesh, component.envMapIntensity.value])
 
     useEffect(() => {
       const envmap = component.envmap.value
