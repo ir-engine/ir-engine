@@ -121,7 +121,7 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
           fullWidth={false}
           variant="secondary"
           data-testid="edit-avatar-button"
-          className="h-8 w-10 border-blue-900 border-opacity-65 text-white"
+          className="h-8 w-10 border-[#162546] border-opacity-65 text-white"
           startIcon={<FiEdit2 size={16} />}
           onClick={handleChange}
         />
