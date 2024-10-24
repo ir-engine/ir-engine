@@ -42,7 +42,6 @@
     "@mui/icons-material": "5.15.15",
     "@mui/material": "5.11.13",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
-    "@sooro-io/react-gtm-module": "^3.0.0",
     "app-root-path": "3.1.0",
     "classnames": "2.3.2",
     "cli": "1.0.1",
