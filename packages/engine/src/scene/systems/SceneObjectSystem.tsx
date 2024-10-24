@@ -43,7 +43,6 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  serializeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -74,7 +73,6 @@ import {
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { KHRUnlitExtensionComponent } from '../../gltf/MaterialDefinitionComponent'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
@@ -254,25 +252,6 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
       setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
   }, [isVisible, isMesh, isUnlit, shadowComponent?.cast, shadowComponent?.receive])
-
-  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
-  useEffect(() => {
-    if (!isMesh || !isVisible) return
-    if (envmapComponent && !isUnlit)
-      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
-    else removeComponent(props.entity, EnvmapComponent)
-  }, [
-    isVisible,
-    isMesh,
-    isUnlit,
-    envmapComponent,
-    envmapComponent?.envMapIntensity,
-    envmapComponent?.envmap,
-    envmapComponent?.envMapSourceColor,
-    envmapComponent?.envMapSourceURL,
-    envmapComponent?.envMapTextureType,
-    envmapComponent?.envMapSourceEntityUUID
-  ])
 
   useEffect(() => {
     if (!isModelColliders || !isMesh) return

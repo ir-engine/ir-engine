@@ -23,20 +23,82 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import config from '@ir-engine/common/src/config'
 import { useComponent } from '@ir-engine/ecs'
+import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
+import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { t } from 'i18next'
-import React from 'react'
+import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
+import React, { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import { MdOutlineViewInAr } from 'react-icons/md'
+import Accordion from '../../../../../primitives/tailwind/Accordion'
+import Button from '../../../../../primitives/tailwind/Button'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import ModelInput from '../../../input/Model'
+import SelectInput from '../../../input/Select'
+import StringInput from '../../../input/String'
 
 const GLTFNodeEditor: EditorComponentType = (props) => {
+  const { t } = useTranslation()
   const gltfComponent = useComponent(props.entity, GLTFComponent)
+  const exporting = useHookstate(false)
+  const editorState = getState(EditorState)
+  const projectState = getState(ProjectState)
+  const loadedProjects = useHookstate(() => projectState.projects.map((project) => project.name))
 
-  // const errors = getEntityErrors(props.entity, GLTFComponent)
+  const errors = ErrorComponent.useComponentErrors(props.entity, GLTFComponent)?.value
+  const srcProject = useHookstate(() => {
+    const match = STATIC_ASSET_REGEX.exec(gltfComponent.src.value)
+    if (!match?.length) return editorState.projectName!
+    const [_, orgName, projectName] = match
+    return `${orgName}/${projectName}`
+  })
+
+  const getRelativePath = useCallback(() => {
+    const relativePath = STATIC_ASSET_REGEX.exec(gltfComponent.src.value)?.[3]
+    if (!relativePath) {
+      return 'assets/new-model'
+    } else {
+      //return relativePath without file extension
+      return relativePath.replace(/\.[^.]*$/, '')
+    }
+  }, [gltfComponent.src.value])
+
+  const getExportExtension = useCallback(() => {
+    if (!gltfComponent.src.value) return 'gltf'
+    else return gltfComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
+  }, [gltfComponent.src.value])
+
+  const srcPath = useHookstate(getRelativePath())
+
+  const exportType = useHookstate(getExportExtension())
+
+  const onExportModel = () => {
+    if (exporting.value) {
+      console.warn('already exporting')
+      return
+    }
+    exporting.set(true)
+    const fileName = `${srcPath.value}.${exportType.value}`
+    exportRelativeGLTF(props.entity, srcProject.value, fileName).then(() => {
+      const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
+      commitProperty(GLTFComponent, 'src')(nuPath)
+      ResourceLoaderManager.updateResource(nuPath)
+      exporting.set(false)
+    })
+  }
 
   return (
     <NodeEditor
@@ -52,9 +114,66 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
             commitProperty(GLTFComponent, 'src')(src)
           }}
         />
-        {/* {errors?.LOADING_ERROR ||
-          (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))} */}
+        {errors?.LOADING_ERROR ||
+          (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
+
+      <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
+        <BooleanInput
+          value={gltfComponent.cameraOcclusion.value}
+          onChange={commitProperty(GLTFComponent, 'cameraOcclusion')}
+        />
+      </InputGroup>
+      <Accordion
+        className="space-y-4 p-4"
+        title={t('editor:properties.model.lbl-export')}
+        expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+        shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+        titleClassName="text-gray-300"
+        titleFontSize="base"
+      >
+        {!exporting.value && (
+          <>
+            <InputGroup name="Export Project" label="Project">
+              <SelectInput
+                value={srcProject.value}
+                options={
+                  loadedProjects.value.map((project) => ({
+                    label: project,
+                    value: project
+                  })) ?? []
+                }
+                onChange={(val) => srcProject.set(val as string)}
+              />
+            </InputGroup>
+            <InputGroup name="File Path" label="File Path">
+              <StringInput value={srcPath.value} onChange={srcPath.set} />
+            </InputGroup>
+            <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
+              <SelectInput
+                options={[
+                  {
+                    label: 'glB',
+                    value: 'glb'
+                  },
+                  {
+                    label: 'glTF',
+                    value: 'gltf'
+                  }
+                ]}
+                value={exportType.value}
+                onChange={(val) => exportType.set(val as string)}
+              />
+            </InputGroup>
+            <Button className="self-end" onClick={onExportModel}>
+              {t('editor:properties.model.saveChanges')}
+            </Button>
+          </>
+        )}
+        {exporting.value && (
+          <LoadingView fullSpace className="mb-2 flex h-[20%] w-[20%] justify-center" title=" Exporting..." />
+        )}
+      </Accordion>
     </NodeEditor>
   )
 }
