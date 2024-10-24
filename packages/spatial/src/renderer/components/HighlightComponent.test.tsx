@@ -22,6 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
+import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 
 import {
   Engine,
@@ -46,9 +47,9 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { BoxGeometry, MathUtils, Mesh } from 'three'
-import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { EngineState } from '../../EngineState'
-import { destroySpatialEngine } from '../../initializeEngine'
+import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../RendererModule'
 import { RendererState } from '../RendererState'
@@ -91,6 +92,7 @@ describe('HighlightSystem', () => {
     })
 
     afterEach(() => {
+      destroySpatialViewer()
       destroySpatialEngine()
       return destroyEngine()
     })

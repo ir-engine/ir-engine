@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
@@ -30,10 +31,9 @@ import {
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { convertFileExtensionToLowercase } from '../panels/files/helpers'
 
 enum FileType {
   THREE_D = '3D',
@@ -44,15 +44,15 @@ enum FileType {
 }
 
 const unsupportedFileMessage = {
-  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a .gltf or a .glb.',
-  [FileType.IMAGE]: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
-  [FileType.AUDIO]: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
-  [FileType.VIDEO]: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.',
-  [FileType.UNKNOWN]: 'Unsupported File Type! Please upload a valid 3D, Image, Audio, or Video file.'
+  [FileType.THREE_D]: 'Please upload either a .gltf or a .glb.',
+  [FileType.IMAGE]: 'Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
+  [FileType.AUDIO]: 'Please upload a .mp3, .mpeg, .m4a, or .wav.',
+  [FileType.VIDEO]: 'Please upload a .mp4, .mkv, or .avi.',
+  [FileType.UNKNOWN]: 'Please upload a valid 3D, Image, Audio, or Video file.'
 }
 
 const supportedFiles = {
-  [FileType.THREE_D]: new Set(['.gltf', '.glb']),
+  [FileType.THREE_D]: new Set(['.gltf', '.glb', '.bin']),
   [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
   [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
@@ -73,24 +73,43 @@ function findMimeType(file): FileType {
   return fileType
 }
 
-function isValidFileType(file): boolean {
+function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   const mimeType: FileType = findMimeType(file)
   const fileName = file.name
   const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase()
 
   for (const [type, extensions] of Object.entries(supportedFiles)) {
     if (extensions.has(extension)) {
-      return true
+      return {
+        isValid: true
+      }
     }
   }
 
-  throw new Error(unsupportedFileMessage[mimeType])
+  return {
+    isValid: false,
+    errorMessage: unsupportedFileMessage[mimeType]
+  }
+}
+
+function sanitizeFiles(files) {
+  const newFiles: File[] = []
+  for (const file of files) {
+    const newFile = cleanFileNameFile(file)
+    const { isValid, errorMessage } = isValidFileType(newFile)
+    if (!isValid) {
+      NotificationService.dispatchNotify(`${file.name} is not supported. ${errorMessage}`, { variant: 'warning' })
+    }
+    newFiles.push(newFile)
+  }
+
+  return newFiles
 }
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   return Promise.all(
     Array.from(files).map((file) => {
-      file = convertFileExtensionToLowercase(file)
+      file = cleanFileNameFile(file)
       const fileDirectory = file.webkitRelativePath || file.name
       return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
@@ -132,20 +151,11 @@ export const inputFileWithAddToScene = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles: File[] = []
-          for (let i = 0; i < el.files.length; i++) {
-            isValidFileType(el.files[i])
-            let fileName = el.files[i].name
-            if (fileName.length > 64) {
-              fileName = fileName.slice(0, 64)
-            } else if (fileName.length < 4) {
-              fileName = fileName + '0000'
-            }
-            newFiles.push(new File([el.files[i]], fileName, { type: el.files[i].type }))
-          }
-          await handleUploadFiles(projectName, directoryPath, el.files)
+          const newFiles = sanitizeFiles(el.files)
+          await handleUploadFiles(projectName, directoryPath, newFiles)
         }
         resolve(null)
+        API.instance.service(fileBrowserPath).emit('created')
       } catch (err) {
         reject(err)
       } finally {
@@ -223,7 +233,7 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const name = processFileName(file.name)
+    const name = cleanFileNameString(file.name)
     const path = `assets${directory}/` + name
 
     promises.push(

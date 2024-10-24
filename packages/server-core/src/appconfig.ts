@@ -25,9 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import appRootPath from 'app-root-path'
 import chargebeeInst from 'chargebee'
-import dotenv from 'dotenv-flow'
+import fs from 'fs'
 import path from 'path'
+import { register } from 'trace-unhandled'
 import url from 'url'
+
+// ensure logger is loaded first - it loads the dotenv config
+import multiLogger from './ServerLogger'
 
 import { oembedPath } from '@ir-engine/common/src/schemas/media/oembed.schema'
 import { allowedDomainsPath } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
@@ -40,7 +44,6 @@ import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { createHash } from 'crypto'
-import multiLogger from './ServerLogger'
 import {
   APPLE_SCOPES,
   DISCORD_SCOPES,
@@ -55,7 +58,6 @@ const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
 if (!testEnabled) {
-  const { register } = require('trace-unhandled')
   register()
 
   // ensure process fails properly
@@ -90,18 +92,10 @@ if (!testEnabled) {
   })
 }
 
-if (!kubernetesEnabled) {
-  dotenv.config({
-    path: appRootPath.path,
-    node_env: 'local'
-  })
-}
-
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-  const fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
     const fromEnvPath = appRootPath.path + '/.env.local.default'
     const toEnvPath = appRootPath.path + '/.env.local'
@@ -428,6 +422,13 @@ const zendesk = {
   secret: process.env.ZENDESK_SECRET,
   kid: process.env.ZENDESK_KID
 }
+const metabase = {
+  siteUrl: process.env.METABASE_SITE_URL,
+  secretKey: process.env.METABASE_SECRET_KEY,
+  crashDashboardId: process.env.METABASE_CRASH_DASHBOARD_ID,
+  expiration: process.env.METABASE_EXPIRATION,
+  environment: process.env.METABASE_ENVIRONMENT
+}
 
 const mailchimp = {
   key: process.env.MAILCHIMP_KEY,
@@ -469,7 +470,8 @@ const config = {
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
   fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true,
   zendesk,
-  mailchimp
+  mailchimp,
+  metabase
 }
 
 chargebeeInst.configure({

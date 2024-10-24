@@ -58,37 +58,21 @@ import {
   RendererComponent,
   getNestedVisibleChildren,
   getSceneParameters,
-  initializeEngineRenderer,
   render
 } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import {
-  BoundingBoxComponent,
-  updateBoundingBox
-} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import React, { useEffect } from 'react'
-import {
-  Color,
-  Euler,
-  Material,
-  MathUtils,
-  Matrix4,
-  Mesh,
-  Quaternion,
-  Sphere,
-  SphereGeometry,
-  Texture,
-  Vector3
-} from 'three'
+import { Color, Euler, Material, MathUtils, Mesh, Quaternion, SphereGeometry, Texture } from 'three'
 
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
+import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -268,7 +252,7 @@ const ThumbnailJobReactor = () => {
     } catch (e) {
       console.error('failed to generate thumbnail for', src)
       console.error(e)
-      jobState.set(jobState.get(NO_PROXY).slice(1))
+      endJob()
     }
   }
 
@@ -295,6 +279,10 @@ const ThumbnailJobReactor = () => {
     }
   }
 
+  function endJob() {
+    jobState.set(jobState.get(NO_PROXY).slice(1))
+  }
+
   useEffect(() => {
     if (jobState.length > 0) {
       const newJob = jobState[0].get(NO_PROXY)
@@ -318,8 +306,7 @@ const ThumbnailJobReactor = () => {
           .decode()
           .then(() => drawToCanvas(image))
           .then(getCanvasBlob)
-          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
-          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob).then(endJob)))
       )
     })
   }, [fileType, id])
@@ -337,9 +324,13 @@ const ThumbnailJobReactor = () => {
         seekVideo(video, 1)
           .then(() => drawToCanvas(video))
           .then(getCanvasBlob)
-          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
-          .then(() => video.remove())
-          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+          .then((blob) => {
+            tryCatch(() =>
+              uploadThumbnail(src, project, id, blob)
+                .then(() => video.remove())
+                .then(endJob)
+            )
+          })
       )
     })
   }, [fileType, id])
@@ -362,9 +353,13 @@ const ThumbnailJobReactor = () => {
           })
           .then(() => drawToCanvas(image))
           .then(getCanvasBlob)
-          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
-          .then(() => image.remove())
-          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+          .then((blob) =>
+            tryCatch(() =>
+              uploadThumbnail(src, project, id, blob)
+                .then(() => image.remove())
+                .then(endJob)
+            )
+          )
       )
     })
   }, [fileType, tex, id])
@@ -488,7 +483,6 @@ const ThumbnailJobReactor = () => {
       const cameraEntity = createEntity()
       setComponent(cameraEntity, CameraComponent)
       setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
-      initializeEngineRenderer(cameraEntity)
       setComponent(cameraEntity, VisibleComponent, true)
       state.cameraEntity.set(cameraEntity)
     }
@@ -502,7 +496,7 @@ const ThumbnailJobReactor = () => {
   useEffect(() => {
     if (errorComponent?.keys.includes(ModelComponent.name)) {
       console.error('failed to load model for thumbnail', src)
-      jobState.set(jobState.get(NO_PROXY).slice(1))
+      endJob()
       return
     }
     if (src === '') return
@@ -522,67 +516,13 @@ const ThumbnailJobReactor = () => {
     const skyboxEntity = state.skyboxEntity.value
 
     const sceneID = getModelSceneID(modelEntity)
-    if (!sceneState.value[sceneID]) return
+    if (fileType === 'model' && !sceneState.value[sceneID]) return
 
     try {
-      updateBoundingBox(modelEntity)
-
-      const bbox = getComponent(modelEntity, BoundingBoxComponent).box
-      // const length = bbox.getSize(new Vector3(0, 0, 0)).length()
-      // const normalizedSize = new Vector3().setScalar(length / 2)
-
-      //const canvas = document.getElementById('preview-canvas') as HTMLCanvasElement
-      // Create the camera entity
       const cameraEntity = state.cameraEntity.value
-      setComponent(cameraEntity, NameComponent, 'thumbnail job camera for ' + src)
-
-      // Assuming bbox is already defined
-      // const size = bbox.getSize(new Vector3())
-      const center = bbox.getCenter(new Vector3())
-
-      // Calculate the bounding sphere radius
-      const boundingSphere = bbox.getBoundingSphere(new Sphere())
-      const radius = boundingSphere.radius
-
+      setCameraFocusOnBox(modelEntity, cameraEntity)
       const camera = getComponent(cameraEntity, CameraComponent)
-      const fov = camera.fov * (Math.PI / 180) // convert vertical fov to radians
-
-      // Calculate the camera direction vector with the desired angle offsets
-      const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
-      const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
-
-      const direction = new Vector3(
-        Math.sin(angleY) * Math.cos(angleX),
-        Math.sin(angleX),
-        Math.cos(angleY) * Math.cos(angleX)
-      ).normalize()
-
-      // Calculate the distance from the camera to the bounding sphere such that it fully frames the content
-      const distance = radius / Math.sin(fov / 2)
-
-      // Calculate the camera position
-      const cameraPosition = direction.multiplyScalar(distance).add(center)
-
-      // Set the camera transform component
-      setComponent(cameraEntity, TransformComponent, { position: cameraPosition })
-      computeTransformMatrix(cameraEntity)
-
-      // Calculate the quaternion rotation to look at the center
-      const lookAtMatrix = new Matrix4()
-      lookAtMatrix.lookAt(cameraPosition, center, new Vector3(0, 1, 0))
-      const targetRotation = new Quaternion().setFromRotationMatrix(lookAtMatrix)
-
-      // Apply the rotation to the camera's TransfortexturemComponent
-      setComponent(cameraEntity, TransformComponent, { rotation: targetRotation })
-      computeTransformMatrix(cameraEntity)
-      camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
-
-      // Update the view camera matrices
       const viewCamera = camera.cameras[0]
-      viewCamera.matrixWorld.copy(camera.matrixWorld)
-      viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
-      viewCamera.projectionMatrix.copy(camera.projectionMatrix)
-      viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
 
       viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
       setComponent(cameraEntity, RendererComponent, { scenes: [modelEntity, lightEntity, skyboxEntity] })
@@ -595,7 +535,7 @@ const ThumbnailJobReactor = () => {
       scene.background = background
       render(renderer, renderer.scene, getComponent(cameraEntity, CameraComponent), 0, false)
       function cleanup() {
-        jobState.set(jobState.get(NO_PROXY).slice(1))
+        endJob()
         materialLoaded.set(false)
         skyboxLoaded.set(false)
       }
@@ -611,7 +551,7 @@ const ThumbnailJobReactor = () => {
     } catch (e) {
       console.error('failed to generate model thumbnail for', src)
       console.error(e)
-      jobState.set(jobState.get(NO_PROXY).slice(1))
+      endJob()
     }
   }, [
     state.cameraEntity,

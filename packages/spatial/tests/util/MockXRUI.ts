@@ -25,7 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, setComponent } from '@ir-engine/ecs'
 import { Bounds, Edges, WebContainer3D, WebLayerManager } from '@ir-engine/xrui'
+import { IDBKeyRange, indexedDB } from 'fake-indexeddb'
 import { XRUIComponent } from '../../src/xrui/components/XRUIComponent'
+
+globalThis.indexedDB = indexedDB
+globalThis.IDBKeyRange = IDBKeyRange
 
 /**
  * @why

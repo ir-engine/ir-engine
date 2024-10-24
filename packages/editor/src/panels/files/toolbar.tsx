@@ -142,7 +142,7 @@ const ViewModeSettings = () => {
           />
         </InputGroup>
       ) : (
-        <>
+        <div className="flex flex-col items-center">
           <InputGroup
             label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
             dataTestId="files-panel-view-options-list-font-size-value-input-group"
@@ -151,21 +151,23 @@ const ViewModeSettings = () => {
               min={10}
               max={100}
               step={0.5}
+              width={100}
               value={viewModeSettings.list.fontSize.value}
               onChange={viewModeSettings.list.fontSize.set}
               onRelease={viewModeSettings.list.fontSize.set}
             />
           </InputGroup>
 
-          <div>
+          <div className="w-full">
             <div className="mt-1 flex flex-auto text-white">
               <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
             </div>
-            <div className="flex-col">
-              {availableTableColumns.map((column) => (
+            <div>
+              {availableTableColumns.map((column, index) => (
                 <InputGroup
                   label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
                   dataTestId={`files-panel-view-mode-list-options-column-${column}`}
+                  key={index}
                 >
                   <BooleanInput
                     value={viewModeSettings.list.selectedTableColumns[column].value}
@@ -175,7 +177,7 @@ const ViewModeSettings = () => {
               ))}
             </div>
           </div>
-        </>
+        </div>
       )}
     </Popup>
   )

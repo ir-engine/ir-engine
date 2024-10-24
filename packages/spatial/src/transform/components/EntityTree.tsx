@@ -406,7 +406,7 @@ export function useAncestorWithComponents(
   const componentsString = components.map((component) => component.name).join()
 
   // hook into reactive changes up the tree to trigger a re-render of the parent when necessary
-  useEffect(() => {
+  useImmediateEffect(() => {
     let unmounted = false
     const ParentSubReactor = React.memo((props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
@@ -437,6 +437,19 @@ export function useAncestorWithComponents(
 }
 
 /**
+ * internal
+ */
+const _useHasAllComponents = (entity: Entity, components: ComponentType<any>[]) => {
+  let result = true
+  for (const component of components) {
+    if (!useOptionalComponent(entity, component)) {
+      result = false
+    }
+  }
+  return result
+}
+
+/**
  * Returns the closest child of an entity that has a component
  * @param rootEntity
  * @param components
@@ -448,7 +461,7 @@ export function useChildWithComponents(rootEntity: Entity, components: Component
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
+      const matchesQuery = _useHasAllComponents(props.entity, components)
 
       useLayoutEffect(() => {
         if (!matchesQuery) return
@@ -490,7 +503,7 @@ export function useChildrenWithComponents(rootEntity: Entity, components: Compon
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
+      const matchesQuery = _useHasAllComponents(props.entity, components)
 
       useLayoutEffect(() => {
         if (!matchesQuery) return

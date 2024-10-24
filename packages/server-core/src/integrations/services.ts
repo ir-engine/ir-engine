@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import MetabaseSetting from './metabase/metabase-setting/metabase-setting'
 import MetabaseUrl from './metabase/metabase-url/metabase-url'
 import ZendeskAuthentication from './zendesk/zendesk'
 
-export default [ZendeskAuthentication, MetabaseSetting, MetabaseUrl]
+export default [ZendeskAuthentication, MetabaseUrl]

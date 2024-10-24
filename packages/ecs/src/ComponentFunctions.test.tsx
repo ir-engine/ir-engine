@@ -27,6 +27,7 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import sinon from 'sinon'
 import { DirectionalLight, Matrix4, Vector3 } from 'three'
@@ -860,5 +861,5 @@ describe('ComponentFunctions Hooks', async () => {
   }) // useOptionalComponent : Isolated Test Cases
 
   // TODO
-  describe('defineQuery', () => {})
+  // describe('defineQuery', () => {})
 })
