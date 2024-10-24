@@ -27,5 +27,5 @@
     "types": ["@types/node"]
   },
   "exclude": ["./src/**/*.test.tsx"],
-  "include": ["../../__global.d.ts", "../server-core/src", "../client-core/src", "./src", "./index.ts"]
+  "include": ["../../__global.d.ts", "../server-core/src", "../client-core/src", "./src", "./index.ts", "./editor.ts", "scripts/build-icons.ts"]
 }

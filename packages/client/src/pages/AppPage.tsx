@@ -32,7 +32,6 @@ import { initGA, logPageView } from '@ir-engine/client-core/src/common/analytics
 import { NotificationSnackbar } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useSearchParamState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
-import InviteToast from '@ir-engine/client-core/src/components/InviteToast'
 import { LoadWebappInjection } from '@ir-engine/client-core/src/components/LoadWebappInjection'
 import { useAuthenticated } from '@ir-engine/client-core/src/user/services/AuthService'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -63,7 +62,6 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element }) =
     <>
       <NotificationSnackbar />
       <LoadWebappInjection fallback={props.fallback}>{props.children}</LoadWebappInjection>
-      <InviteToast />
     </>
   )
 }

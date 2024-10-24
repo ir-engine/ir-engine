@@ -47,12 +47,12 @@ import { imageDataToBlob } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import { GiPortal } from 'react-icons/gi'
 import Button from '../../../../primitives/tailwind/Button'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
-import ImagePreviewInput from '../../input/Image/Preview'
 import SelectInput from '../../input/Select'
 import StringInput, { ControlledStringInput } from '../../input/String'
 import Vector3Input from '../../input/Vector3'
@@ -198,10 +198,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           </div>
         </div>
       </InputGroup>
-      <ImagePreviewInput
-        previewOnly={true}
-        value={state.previewImageURL.value ?? portalComponent.previewImageURL.value}
-      />
+      <ImageLink src={state.previewImageURL.value ?? portalComponent.previewImageURL.value} />
       <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')} className="w-auto">
         <Vector3Input
           value={portalComponent.spawnPosition.value}
