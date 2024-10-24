@@ -458,7 +458,7 @@ const disposeMaterial = (asset: Material | Material[]) => {
   const dispose = (material: Material) => {
     if ((material as DisposableObject).disposed) return
     for (const [_, val] of Object.entries(material) as [string, Texture][]) {
-      if (val && val.isTexture) {
+      if (isTexture(val)) {
         unload(val.uuid, UndefinedEntity)
       }
     }
@@ -478,6 +478,10 @@ const disposeObj = (obj: Object3D, sceneID?: string) => {
   if (typeof disposable.dispose === 'function') disposable.dispose()
 }
 //#endregion
+
+const isTexture = (val: any): val is Texture => {
+  return val && typeof val === 'object' && 'isTexture' in val
+}
 
 const onItemLoadedFor = <T extends ResourceAssetType>(
   url: string,
@@ -595,8 +599,8 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
     case ResourceType.Material: {
       const material = asset as Material
       onItemLoadedFor(assetKey, resourceType, material.uuid, material)
-      for (const [_, val] of Object.entries(material) as [string, Texture][]) {
-        if (val && val.isTexture) {
+      for (const [_, val] of Object.entries(material) as [string, any][]) {
+        if (isTexture(val)) {
           addReferencedAsset(assetKey, val, ResourceType.Texture)
         }
       }
@@ -640,8 +644,8 @@ const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resou
     case ResourceType.Material: {
       const material = asset as Material
       removeResource(material.uuid)
-      for (const [_, val] of Object.entries(material) as [string, Texture][]) {
-        if (val && val.isTexture) {
+      for (const [_, val] of Object.entries(material) as [string, any][]) {
+        if (isTexture(val)) {
           removeReferencedAsset(assetKey, val, ResourceType.Texture)
         }
       }

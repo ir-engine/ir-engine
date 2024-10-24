@@ -422,7 +422,7 @@ export function MediaReactor() {
   )
 
   const rendererState = useMutableState(RendererState)
-  const [audioHelperTexture] = useTexture(rendererState.value ? AUDIO_TEXTURE_PATH : '', entity)
+  const [audioHelperTexture] = useTexture(rendererState.nodeHelperVisibility.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
     if (rendererState.nodeHelperVisibility.value && audioHelperTexture) {
