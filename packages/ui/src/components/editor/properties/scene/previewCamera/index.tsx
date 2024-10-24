@@ -45,9 +45,9 @@ import {
   getSceneParameters
 } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { Scene } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
-import ImageLink from '../../../ImageLink'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.

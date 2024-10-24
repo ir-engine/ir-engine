@@ -32,8 +32,8 @@ import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components
 
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
-import ImageLink from '../../ImageLink'
 import InputGroup from '../../input/Group'
 
 /**

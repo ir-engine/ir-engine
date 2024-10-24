@@ -42,11 +42,11 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
-import ImageLink from '../../ImageLink'
 import FolderInput from '../../input/Folder'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'

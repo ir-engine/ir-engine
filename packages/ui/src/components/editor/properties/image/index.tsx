@@ -32,8 +32,8 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { LuImage } from 'react-icons/lu'
-import ImageLink from '../../ImageLink'
 import InputGroup from '../../input/Group'
 import ImageSourceProperties from './sourceProperties'
 
