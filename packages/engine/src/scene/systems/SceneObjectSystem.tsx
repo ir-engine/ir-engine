@@ -43,7 +43,6 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  serializeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -74,7 +73,6 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
