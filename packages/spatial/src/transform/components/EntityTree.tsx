@@ -40,7 +40,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useEffect, useLayoutEffect } from 'react'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -338,54 +338,6 @@ export function getNestedChildren(entity: Entity, predicate?: (e: Entity) => boo
 }
 
 /**
- *
- * @param entity
- * @returns
- */
-export function useTreeQuery(entity: Entity) {
-  const result = useHookstate({} as Record<Entity, boolean>)
-
-  /** @todo - maybe optimize this to a registry of some sort, deduplicate for useTreeQuery calls for the same entity? */
-  /** @todo - benchmark this... */
-  useLayoutEffect(() => {
-    let unmounted = false
-    const TreeSubReactor = (props: { entity: Entity }) => {
-      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-
-      useLayoutEffect(() => {
-        if (!tree) return
-        result[props.entity].set(true)
-        return () => {
-          if (!unmounted)
-            // this is kind of a hack? we can put TreeSubReactor back in module scope if we can somehow detect that the useTreeQuery has unmounted and avoid hookstate 106
-            result[props.entity].set(none)
-        }
-      }, [tree])
-
-      if (!tree) return null
-
-      return (
-        <>
-          {tree.children.value.map((e) => (
-            <TreeSubReactor key={e} entity={e} />
-          ))}
-        </>
-      )
-    }
-
-    const root = startReactor(function useQueryReactor() {
-      return <TreeSubReactor entity={entity} />
-    })
-    return () => {
-      unmounted = true
-      root.stop()
-    }
-  }, [entity])
-
-  return result.keys.map(Number) as Entity[]
-}
-
-/**
  * Returns the closest ancestor of an entity that has a component
  * @param entity
  * @param components
@@ -559,11 +511,6 @@ export function getChildrenWithComponents(rootEntity: Entity, components: Compon
 
   return children
 }
-
-/** @todo make a query component for useTreeQuery */
-// export function TreeQueryReactor (props: { Components: QueryComponents; ChildEntityReactor: FC; props?: any }) {
-
-// }
 
 export function haveCommonAncestor(entity1: Entity, entity2: Entity): boolean {
   const entity1Ancestors: Entity[] = []
