@@ -25,14 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, setComponent } from '@ir-engine/ecs'
 import { Bounds, Edges, WebContainer3D, WebLayerManager } from '@ir-engine/xrui'
-import crypto from 'crypto'
 import { IDBKeyRange, indexedDB } from 'fake-indexeddb'
 import { XRUIComponent } from '../../src/xrui/components/XRUIComponent'
-
-globalThis.crypto = {
-  subtle: crypto.webcrypto.subtle,
-  getRandomValues: crypto.randomFillSync
-} as Crypto
 
 globalThis.indexedDB = indexedDB
 globalThis.IDBKeyRange = IDBKeyRange

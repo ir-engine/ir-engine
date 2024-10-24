@@ -66,7 +66,7 @@ export const download = async (projectName: string, storageProviderName?: string
         const fileResult = await storageProvider.getObject(filePath)
         if (fileResult.Body.length === 0) {
           logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
-          return
+          if (filePath[filePath.length - 1] === '/') return
         }
         writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
       })
