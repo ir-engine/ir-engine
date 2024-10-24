@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { Entity, UndefinedEntity } from '@ir-engine/ecs'
+import { Entity, entityExists, UndefinedEntity } from '@ir-engine/ecs'
 import { NO_PROXY, State, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { ResourceAssetType, ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 
@@ -102,6 +102,7 @@ function useLoader<T extends ResourceAssetType>(
           `resourceHooks:useLoader Component loading ${resourceType} at url ${url} for entity ${entity} was unmounted`
         )
 
+      if (entity && entityExists(entity)) ResourcePendingComponent.removeResource(entity, _url)
       ResourceManager.unload(_url, entity, uuid.value)
       value.set(null)
       progress.set(null)
