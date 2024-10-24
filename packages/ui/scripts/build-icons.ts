@@ -35,11 +35,8 @@ function transformName(name: string) {
 async function run() {
   const dirExists = await fs
     .opendir('./src/icons/files')
-    .then((dir) => {
-      const result = !!dir.readSync()
-      dir.closeSync()
-      return result
-    })
+    .then((dir) => dir.close())
+    .then(() => true)
     .catch(() => false)
 
   if (dirExists) {
@@ -53,13 +50,18 @@ async function run() {
 
   const transformPromises = Object.values(iconaJson).map(async (iconEntry) => {
     const componentName = transformName(iconEntry.name)
+    const correctedSVG = iconEntry.svg.replace(/stroke=\"#\w{6}\"/gi, "stroke='currentColor'")
     const reactComponent = await transform(
-      iconEntry.svg,
+      correctedSVG,
       {
         icon: true,
         dimensions: true,
         typescript: true,
         ref: true,
+        svgProps: {
+          role: 'img',
+          stroke: 'currentColor'
+        },
         plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx']
       },
       { componentName }

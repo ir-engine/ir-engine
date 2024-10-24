@@ -96,7 +96,7 @@ const IconRenderer = () => {
             <div key={iconName} className="flex h-full flex-col items-center justify-between rounded-lg border p-4">
               <div className="flex flex-grow flex-col items-center">
                 <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                  <IconComponent className="h-8 w-8" />
+                  <IconComponent className="h-8 w-8 text-black" />
                 </div>
                 <p
                   className="mb-2 cursor-copy text-center text-sm font-medium"
