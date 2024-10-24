@@ -44,7 +44,6 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { FileDataType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
-import { FileContextMenu } from './contextmenu'
 import { FileIcon } from './fileicon'
 import {
   FILES_PAGE_LIMIT,
@@ -115,7 +114,7 @@ function TableView({ file, onClick, onDoubleClick, isSelected, drag, drop, isOve
     staticResourceModifiedDates.set(modifiedDates)
   }, [staticResourceData.status])
 
-  const thumbnailURL = file.thumbnailURL
+  const thumbnailURL = file?.thumbnailURL
 
   const tableColumns = {
     name: (
@@ -124,17 +123,17 @@ function TableView({ file, onClick, onDoubleClick, isSelected, drag, drop, isOve
         style={{ fontSize: `${fontSize}px` }}
       >
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
-        <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
-        {file.fullName}
+        <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file?.type} isFolder={file?.isFolder} />
+        {file?.fullName}
       </span>
     ),
-    type: file.type.toUpperCase(),
-    dateModified: staticResourceModifiedDates.value[file.key] || '',
-    size: file.size
+    type: file?.type.toUpperCase(),
+    dateModified: staticResourceModifiedDates.value[file?.key] || '',
+    size: file?.size
   }
   return (
     <tr
-      key={file.key}
+      key={file?.key}
       ref={(ref) => drag(drop(ref))}
       className={twMerge(
         'h-9 rounded text-[#a3a3a3] hover:bg-[#212226]',
@@ -159,7 +158,7 @@ function TableView({ file, onClick, onDoubleClick, isSelected, drag, drop, isOve
 
 function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver, onContextMenu }: DisplayTypeProps) {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const thumbnailURL = file.thumbnailURL
+  const thumbnailURL = file?.thumbnailURL
 
   return (
     <div
@@ -172,7 +171,7 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
           'flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center',
           isSelected && 'rounded bg-[#212226]'
         )}
-        onDoubleClick={file.isFolder ? onDoubleClick : undefined}
+        onDoubleClick={file?.isFolder ? onDoubleClick : undefined}
         data-testid="files-panel-file-item"
         onClick={onClick}
       >
@@ -184,17 +183,17 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
             fontSize: iconSize
           }}
         >
-          <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} color="text-[#375DAF]" />
+          <FileIcon thumbnailURL={thumbnailURL} type={file?.type} isFolder={file?.isFolder} color="text-[#375DAF]" />
         </div>
 
-        <Tooltip content={file.fullName}>
+        <Tooltip content={file?.fullName}>
           <Text
             theme="secondary"
             fontSize="sm"
             className="mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap"
             data-testid="files-panel-file-item-name"
           >
-            {file.fullName}
+            {file?.fullName}
           </Text>
         </Tooltip>
       </div>
@@ -202,10 +201,15 @@ function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver
   )
 }
 
-export default function FileItem({ file }: { file: FileDataType }) {
+export default function FileItem({
+  file,
+  onContextMenu
+}: {
+  file: FileDataType
+  onContextMenu: React.MouseEventHandler
+}) {
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const isListView = filesViewMode.value === 'list'
-  const [anchorEvent, setAnchorEvent] = React.useState<undefined | React.MouseEvent>(undefined)
   const filesState = useMutableState(FilesState)
   const { changeDirectoryByPath, files } = useCurrentFiles()
   const dropOnFileBrowser = useFileBrowserDrop()
@@ -237,13 +241,6 @@ export default function FileItem({ file }: { file: FileDataType }) {
       isOver: monitor.canDrop() && monitor.isOver()
     })
   })
-
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setAnchorEvent(event)
-    if (selectedFiles.length <= 1) selectedFiles.set([file])
-  }
 
   const handleSelectedFiles = (event: React.MouseEvent) => {
     event.stopPropagation()
@@ -294,13 +291,8 @@ export default function FileItem({ file }: { file: FileDataType }) {
     drag,
     drop,
     isOver,
-    onContextMenu: handleContextMenu
+    onContextMenu
   }
 
-  return (
-    <>
-      {isListView ? <TableView {...commonProps} /> : <GridView {...commonProps} />}
-      <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} file={file} />
-    </>
-  )
+  return isListView ? <TableView {...commonProps} /> : <GridView {...commonProps} />
 }

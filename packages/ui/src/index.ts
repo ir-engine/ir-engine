@@ -23,19 +23,5 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
-
-import {
-  MetabaseSettingData,
-  MetabaseSettingPatch,
-  MetabaseSettingQuery,
-  MetabaseSettingType
-} from '@ir-engine/common/src/schemas/integrations/metabase/metabase-setting.schema'
-
-export interface MetabaseSettingParams extends KnexAdapterParams<MetabaseSettingQuery> {}
-
-export class MetabaseSettingService<
-  T = MetabaseSettingType,
-  ServiceParams extends Params = MetabaseSettingParams
-> extends KnexService<MetabaseSettingType, MetabaseSettingData, MetabaseSettingParams, MetabaseSettingPatch> {}
+export { DropdownItem } from './primitives/tailwind/Dropdown'
+export type { DropdownItemProps } from './primitives/tailwind/Dropdown'

@@ -136,6 +136,7 @@ const Menu = ({
 
   return (
     <MUIDialog
+      disablePortal
       sx={{ pointerEvents: 'all', ...sx }}
       open={open}
       maxWidth={maxWidth}

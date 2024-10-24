@@ -23,37 +23,40 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  metabaseSettingMethods,
-  metabaseSettingPath
-} from '@ir-engine/common/src/schemas/integrations/metabase/metabase-setting.schema'
-import { Application } from '@ir-engine/server-core/declarations'
-import { MetabaseSettingService } from './metabase-setting.class'
-import metabaseSettingDocs from './metabase-setting.docs'
-import hooks from './metabase-setting.hooks'
+import React from 'react'
+import { HiMiniRocketLaunch } from 'react-icons/hi2'
+import { DropdownItem, DropdownItemProps } from './index'
 
-declare module '@ir-engine/common/declarations' {
-  interface ServiceTypes {
-    [metabaseSettingPath]: MetabaseSettingService
+export default {
+  title: 'Components/Editor/DropdownList',
+  parameters: {
+    componentSubtitle: 'Dropdown',
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2511-3503&node-type=frame&t=B0cD28zTLRN51Vxd-0'
+    }
   }
 }
 
-export default (app: Application): void => {
-  const options = {
-    name: metabaseSettingPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
+const DropdownItemRenderer = (args: DropdownItemProps) => {
+  let Icon: (() => JSX.Element) | undefined = undefined
+  if (!args.Icon) {
+    Icon = HiMiniRocketLaunch as () => JSX.Element
+    delete args.Icon
   }
+  return <DropdownItem Icon={Icon} {...args} />
+}
 
-  app.use(metabaseSettingPath, new MetabaseSettingService(options), {
-    // A list of all methods this service exposes externally
-    methods: metabaseSettingMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: metabaseSettingDocs
-  })
-
-  const service = app.service(metabaseSettingPath)
-  service.hooks(hooks)
+export const DropdownItemStory = {
+  name: 'Dropdown Item',
+  render: DropdownItemRenderer,
+  args: {
+    title: 'Account settings',
+    selected: false
+  },
+  argTypes: {
+    secondaryText: {
+      control: 'text'
+    }
+  }
 }
