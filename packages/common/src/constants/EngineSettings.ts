@@ -37,13 +37,6 @@ export const EngineSettings = {
     ApiKey: 'apiKey',
     Url: 'url'
   },
-  MailChimp: {
-    Key: 'key',
-    Server: 'server',
-    AudienceId: 'audienceId',
-    DefaultTags: 'defaultTags',
-    GroupId: 'groupId'
-  },
   Metabase: {
     SiteUrl: 'siteUrl',
     SecretKey: 'secretKey',
