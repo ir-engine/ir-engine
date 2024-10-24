@@ -187,10 +187,12 @@ export function MediaReactor() {
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
+  const rendererAvailable = RendererComponent.useRendererAvailable(Engine.instance.viewerEntity)
 
   if (!isClient) return null
 
   useEffect(() => {
+    if (!rendererAvailable) return
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
     const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
@@ -253,7 +255,7 @@ export function MediaReactor() {
       removeCallback(entity, StandardCallbacks.PAUSE)
       removeCallback(entity, StandardCallbacks.RESET)
     }
-  }, [])
+  }, [rendererAvailable])
 
   useEffect(
     function updatePlay() {
@@ -422,7 +424,7 @@ export function MediaReactor() {
   )
 
   const rendererState = useMutableState(RendererState)
-  const [audioHelperTexture] = useTexture(rendererState.value ? AUDIO_TEXTURE_PATH : '', entity)
+  const [audioHelperTexture] = useTexture(rendererState.nodeHelperVisibility.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
     if (rendererState.nodeHelperVisibility.value && audioHelperTexture) {
