@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { useHookstate } from '@ir-engine/hyperflux'
+import { twMerge } from 'tailwind-merge'
 import ImageInput from '..'
 import InputGroup from '../../Group'
 import { StringInputProps } from '../../String'
@@ -44,16 +45,21 @@ export default function ImagePreviewInput({
   value,
   onRelease,
   label,
+  labelClassname,
   previewOnly,
   ...rest
-}: StringInputProps & { label?: string; previewOnly?: boolean }) {
+}: StringInputProps & { label?: string; labelClassname?: string; previewOnly?: boolean }) {
   const isValidImage = useHookstate(false)
   useEffect(() => {
     checkImage(value).then((valid) => isValidImage.set(valid))
   }, [value])
   return (
     <ImageContainer>
-      {label && <div className="self-stretch text-[8px] font-normal leading-3 text-neutral-200">{label}</div>}
+      {label && (
+        <div className={twMerge(labelClassname, 'text-s self-stretch font-normal leading-3 text-neutral-200')}>
+          {label}
+        </div>
+      )}
       <div className="flex flex-col items-start justify-start gap-1 rounded-t-md bg-[#1A1A1A] p-1">
         {isValidImage.value && (
           <div className="h-[274px] w-[305px]">

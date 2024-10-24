@@ -52,6 +52,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { EditorState } from '../services/EditorServices'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -182,7 +183,7 @@ export async function takeScreenshot(
       const entity = createEntity()
       setComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
-      const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      const { position, rotation } = getComponent(getState(EngineState).viewerEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
@@ -193,15 +194,18 @@ export async function takeScreenshot(
   }
 
   const prevAspect = scenePreviewCamera.aspect
+  const prevLayers = scenePreviewCamera.layers
   const prevLayersMask = scenePreviewCamera.layers.mask
+
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const rendererComponent = getComponent(getState(EngineState).viewerEntity, RendererComponent)
   const renderer = rendererComponent.renderer!
+
   const renderContext = rendererComponent.renderContext!
   const effectComposer = rendererComponent.effectComposer!
 
@@ -233,16 +237,16 @@ export async function takeScreenshot(
 
     // set up effect composer
     effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    effectComposer.setSize(width, height, false)
     renderer.setPixelRatio(1)
+    effectComposer.setSize(width, height, false)
   })
 
   effectComposer.render()
-
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 
   // restore
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+  camera.layers = prevLayers
   camera.layers.mask = prevLayersMask
   effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
@@ -263,24 +267,28 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent), false).then(
-    (blob) => {
-      if (!blob) return
+  takeScreenshot(
+    1920 * 4,
+    1080 * 4,
+    'png',
+    getComponent(getState(EngineState).viewerEntity, CameraComponent),
+    false
+  ).then((blob) => {
+    if (!blob) return
 
-      const blobUrl = URL.createObjectURL(blob)
+    const blobUrl = URL.createObjectURL(blob)
 
-      const link = document.createElement('a')
+    const link = document.createElement('a')
 
-      const editorState = getState(EditorState)
+    const editorState = getState(EditorState)
 
-      link.href = blobUrl
-      link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
+    link.href = blobUrl
+    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
 
-      document.body.appendChild(link)
+    document.body.appendChild(link)
 
-      link.click()
+    link.click()
 
-      document.body.removeChild(link)
-    }
-  )
+    document.body.removeChild(link)
+  })
 }
