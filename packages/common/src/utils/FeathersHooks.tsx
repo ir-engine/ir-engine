@@ -127,7 +127,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   const queryId = `${method.substring(0, 1)}:${hashObject(queryParams)}` as QueryHash
 
   const fetch = () => {
-    if (method === 'get' && !args) {
+    if (method === 'get' && (!args || args[0] == null || args[0] === '')) {
       state[serviceName][queryId].merge({
         status: 'error',
         error: 'Get method requires an id or query object'

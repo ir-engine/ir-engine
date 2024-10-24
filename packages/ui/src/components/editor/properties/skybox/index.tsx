@@ -38,6 +38,7 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
 import FolderInput from '../../input/Folder'
@@ -45,7 +46,6 @@ import InputGroup from '../../input/Group'
 import ImageInput from '../../input/Image'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -218,7 +218,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.skybox.name')}
       description={t('editor:properties.skybox.description')}
-      icon={<SkyboxNodeEditor.iconComponent />}
+      Icon={SkyboxNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>

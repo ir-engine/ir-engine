@@ -38,13 +38,12 @@ import {
 import {
   defineComponent,
   getComponent,
-  hasComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
-import { CallbackComponent, StandardCallbacks, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
@@ -74,7 +73,7 @@ export const LoopAnimationComponent = defineComponent({
     timeScale: S.Number(1),
     blendMode: AnimationBlendMode,
     loop: AnimationActionLoopStyles,
-    repetitions: S.Number(Infinity),
+    repetitions: S.NonSerialized(S.Number(Infinity)), //No longer serializable for now. We don't expose in editor anyway
     clampWhenFinished: S.Bool(false),
     zeroSlopeAtStart: S.Bool(true),
     zeroSlopeAtEnd: S.Bool(true),
@@ -118,12 +117,12 @@ export const LoopAnimationComponent = defineComponent({
     }, [loopAnimationComponent.activeClipIndex, modelComponent?.asset, animComponent?.animations])
 
     useEffect(() => {
-      if (animationAction?.isRunning()) {
+      if (!animationAction) return
+      if (animationAction.isRunning()) {
         animationAction.paused = loopAnimationComponent.paused.value
-      } else if (!animationAction?.isRunning() && !loopAnimationComponent.paused.value) {
-        animationAction?.getMixer().stopAllAction()
-        animationAction?.reset()
-        animationAction?.play()
+      } else if (!animationAction.isRunning() && !loopAnimationComponent.paused.value) {
+        animationAction.paused = false
+        animationAction.play()
       }
     }, [loopAnimationComponent._action, loopAnimationComponent.paused])
 
@@ -155,19 +154,35 @@ export const LoopAnimationComponent = defineComponent({
       animationAction.setEffectiveTimeScale(loopAnimationComponent.timeScale.value)
     }, [loopAnimationComponent._action, loopAnimationComponent.weight, loopAnimationComponent.timeScale])
 
+    useEffect(() => {
+      if (!animationAction) return
+      animationAction.time = loopAnimationComponent.time.value
+    }, [loopAnimationComponent.time])
+
     /**
      * Callback functions
      */
     useEffect(() => {
-      if (hasComponent(entity, CallbackComponent)) return
       const play = () => {
         loopAnimationComponent.paused.set(false)
       }
       const pause = () => {
         loopAnimationComponent.paused.set(true)
       }
+      const stop = () => {
+        loopAnimationComponent.paused.set(true)
+        loopAnimationComponent.time.set(0)
+        loopAnimationComponent._action.value?.stop()
+      }
       setCallback(entity, StandardCallbacks.PLAY, play)
       setCallback(entity, StandardCallbacks.PAUSE, pause)
+      setCallback(entity, StandardCallbacks.STOP, stop)
+
+      return () => {
+        removeCallback(entity, StandardCallbacks.PLAY)
+        removeCallback(entity, StandardCallbacks.PAUSE)
+        removeCallback(entity, StandardCallbacks.STOP)
+      }
     }, [])
 
     /**
@@ -199,6 +214,26 @@ export const LoopAnimationComponent = defineComponent({
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
     }, [gltf, animComponent, modelComponent?.asset])
+
+    useEffect(() => {
+      if (!animComponent?.animations) return
+      const animations = animComponent.animations.value
+      if (animations.length === 0) return
+      const callbackNames: string[] = []
+      for (let i = 0; i < animations.length; i++) {
+        const clip = animations[i] as AnimationClip
+        const callbackName = `Switch to Animation ${clip.name}`
+        setCallback(entity, callbackName, () => {
+          loopAnimationComponent.activeClipIndex.set(i)
+        })
+        callbackNames.push(callbackName)
+      }
+      return () => {
+        for (const name of callbackNames) {
+          removeCallback(entity, name)
+        }
+      }
+    }, [animComponent?.animations])
 
     return null
   }

@@ -39,6 +39,7 @@ import assert from 'assert'
 import { useEffect } from 'react'
 import sinon from 'sinon'
 import { Vector2 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { CameraPointerHash, InputPointerComponent, InputPointerState } from './InputPointerComponent'
 
 const InputPointerComponentDefaults = {

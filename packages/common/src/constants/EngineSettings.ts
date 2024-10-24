@@ -44,6 +44,13 @@ export const EngineSettings = {
     DefaultTags: 'defaultTags',
     GroupId: 'groupId'
   },
+  Metabase: {
+    SiteUrl: 'siteUrl',
+    SecretKey: 'secretKey',
+    CrashDashboardId: 'crashDashboardId',
+    Expiration: 'expiration',
+    Environment: 'environment'
+  },
   Redis: {
     Address: 'address',
     Password: 'password',

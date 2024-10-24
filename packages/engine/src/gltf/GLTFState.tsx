@@ -39,7 +39,7 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -55,16 +55,15 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
@@ -249,7 +248,7 @@ export const GLTFSnapshotState = defineState({
 
   cloneCurrentSnapshot: (source: string) => {
     const state = getState(GLTFSnapshotState)[source]
-    return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
+    return structuredClone({ source, data: state.snapshots[state.index] }) as {
       data: GLTF.IGLTF
       source: string
     }
@@ -370,7 +369,8 @@ const ChildGLTFReactor = (props: { source: string }) => {
   }, [index])
 
   const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
-  const parentUUID = useComponent(entity, UUIDComponent).value
+  const parentUUID = useOptionalComponent(entity, UUIDComponent)?.value
+  if (!entity || !parentUUID) return null
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
@@ -381,7 +381,7 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   return (
     <>
       {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
-        <ParentNodeReactor
+        <NodeReactor
           key={uuid}
           childIndex={childIndex}
           nodeIndex={nodeIndex}
@@ -391,19 +391,6 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
       ))}
     </>
   )
-}
-
-const ParentNodeReactor = (props: {
-  nodeIndex: number
-  childIndex: number
-  parentUUID: EntityUUID
-  documentID: string
-}) => {
-  const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
-  const physicsWorld = Physics.useWorld(parentEntity)
-  if (!parentEntity || !physicsWorld) return null
-
-  return <NodeReactor {...props} />
 }
 
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {

@@ -24,10 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-const fs = require('fs')
-const appRootPath = require('app-root-path')
-const cli = require('cli')
-const path = require('path')
+import fs from 'fs'
+import appRootPath from 'app-root-path'
+import cli from 'cli'
+import path from 'path'
 
 cli.enable('status')
 
@@ -36,9 +36,9 @@ cli.main(async () => {
     const serverPackageJSONPath = path.join(appRootPath.path, 'packages/server-core/package.json')
     const defaultProjectJSONPath = path.join(
       appRootPath.path,
-      'packages/projects/ir-engine/default-project/manifest.json'
+      'packages/projects/default-project/manifest.json'
     )
-    const templateProjectJSONPath = path.join(appRootPath.path, 'packages/projects/template-project/mainfest.json')
+    const templateProjectJSONPath = path.join(appRootPath.path, 'packages/projects/template-project/manifest.json')
     const serverPackageJSON = JSON.parse(fs.readFileSync(serverPackageJSONPath, { encoding: 'utf-8' }))
     const defaultProjectJSON = JSON.parse(fs.readFileSync(defaultProjectJSONPath, { encoding: 'utf-8' }))
     const templateProjectJSON = JSON.parse(fs.readFileSync(templateProjectJSONPath, { encoding: 'utf-8' }))

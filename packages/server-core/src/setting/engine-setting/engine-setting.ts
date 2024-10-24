@@ -66,6 +66,7 @@ export default (app: Application): void => {
       chargebee: appConfig.chargebee,
       zendesk: appConfig.zendesk,
       mailchimp: appConfig.mailchimp,
+      metabase: appConfig.metabase,
       redis: appConfig.redis
     }
 

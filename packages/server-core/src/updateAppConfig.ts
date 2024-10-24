@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// ensure logger is loaded first - it loads the dotenv config
+import logger from './ServerLogger'
+
 import knex from 'knex'
 
 import {
@@ -45,7 +48,6 @@ import {
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
 import { createHash } from 'crypto'
-import logger from './ServerLogger'
 import appConfig from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'

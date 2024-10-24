@@ -30,8 +30,10 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, none } from '@ir-engine/hyperflux'
 
+import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { NetworkState } from '@ir-engine/network'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
@@ -78,6 +80,8 @@ const reactor = () => {
     FeatureFlags.Client.Menu.ReadyPlayerMe
   ])
 
+  const worldHostId = useHookstate(getMutableState(NetworkState).hostIds.world).value
+
   useEffect(() => {
     const FaceRetouchingNatural = lazy(() => import('@mui/icons-material/FaceRetouchingNatural'))
     const Send = lazy(() => import('@mui/icons-material/Send'))
@@ -94,7 +98,7 @@ const reactor = () => {
 
     popupMenuState.hotbar.merge({
       [UserMenus.Profile]: { icon: <FaceRetouchingNatural />, tooltip: t('user:menu.settings') },
-      [UserMenus.Share]: { icon: <Send />, tooltip: t('user:menu.sendLocation') }
+      [UserMenus.Share]: { icon: <Send />, tooltip: t('user:menu.sendLocation'), disabled: true }
     })
 
     return () => {
@@ -167,6 +171,12 @@ const reactor = () => {
       })
     }
   }, [rpmEnabled])
+
+  useEffect(() => {
+    const popupMenuState = getMutableState(PopupMenuState)
+
+    if (worldHostId) popupMenuState.hotbar[UserMenus.Share].disabled.set(false)
+  }, [worldHostId])
 
   return null
 }
