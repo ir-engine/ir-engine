@@ -42,6 +42,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { PopoverState } from '../../../../common/services/PopoverState'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthService, AuthState } from '../../../services/AuthService'
@@ -131,14 +132,12 @@ const AvatarMenu2 = () => {
       <Modal
         id="select-avatar-modal"
         className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
-        title={t('user:avatar.titleSelectAvatar')}
-        onClose={() => PopupMenuServices.showPopupMenu()}
-        showCloseButton={false}
-        onSubmit={handleConfirmAvatar}
         hideFooter={true}
-        hideHeaderCloseButton={true}
         rawChildren={
           <div className="flex h-full w-full flex-1 flex-col">
+            <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+              <Text className="col-start-2  place-self-center self-center">{t('user:avatar.titleSelectAvatar')}</Text>
+            </div>
             <div className="grid h-full w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
               <div className="relative rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
                 <div

@@ -41,7 +41,6 @@ export interface ModalProps {
   children?: ReactNode
   submitLoading?: boolean
   showCloseButton?: boolean
-  hideHeaderCloseButton?: boolean
   closeButtonDisabled?: boolean
   submitButtonDisabled?: boolean
   closeButtonText?: string
@@ -52,27 +51,23 @@ export interface ModalProps {
 
 export const ModalHeader = ({
   title,
-  onClose,
-  hideHeaderCloseButton
+  onClose
 }: {
   closeIcon?: boolean
   title?: string
   onClose?: (isHeader: boolean) => void
-  hideHeaderCloseButton?: boolean
 }) => {
   // sticky top-0 z-10 bg-theme-surface-main
   return (
     <div className="relative flex items-center justify-center border-b border-b-theme-primary px-6 py-5">
       {title && <Text data-testid="modal-title-text">{title}</Text>}
-      {!hideHeaderCloseButton && (
-        <Button
-          variant="outline"
-          className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
-          data-testid="modal-close-button"
-          startIcon={<MdClose />}
-          onClick={() => onClose && onClose(true)}
-        />
-      )}
+      <Button
+        variant="outline"
+        className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+        data-testid="modal-close-button"
+        startIcon={<MdClose />}
+        onClick={() => onClose && onClose(true)}
+      />
     </div>
   )
 }
@@ -140,14 +135,13 @@ const Modal = ({
   submitButtonText,
   closeButtonDisabled,
   submitButtonDisabled,
-  showCloseButton = true,
-  hideHeaderCloseButton
+  showCloseButton = true
 }: ModalProps) => {
   const twClassName = twMerge('relative z-50 w-full bg-theme-surface-main', className)
   return (
     <div data-test-id={id} className={twClassName}>
       <div className="relative rounded-lg shadow">
-        {onClose && <ModalHeader title={title} onClose={onClose} hideHeaderCloseButton={hideHeaderCloseButton} />}
+        {onClose && <ModalHeader title={title} onClose={onClose} />}
         {rawChildren}
         {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
 
