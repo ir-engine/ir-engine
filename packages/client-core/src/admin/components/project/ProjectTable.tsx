@@ -39,17 +39,18 @@ import {
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
-import { useFind, useSearch } from '@ir-engine/common'
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
-import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
+import { LocationData, LocationID, ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
-import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { ProjectPublishData, projectPublishPath } from '@ir-engine/common/src/schemas/projects/project-publish.schema'
+import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import DataTable from '../../common/Table'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
@@ -63,6 +64,8 @@ const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 export default function ProjectTable(props: { search: string }) {
   const { t } = useTranslation()
   const activeProjectId = useHookstate<string | null>(null)
+  const isPublishing = useHookstate<boolean>(false)
+  const projectPublishMutation = useMutation(projectPublishPath)
   const projectQuery = useFind(projectPath, {
     query: {
       allowed: true,
@@ -96,6 +99,41 @@ export default function ProjectTable(props: { search: string }) {
   const handleVisibilityChange = async (project: ProjectType) => {
     await ProjectService.setVisibility(project.id, project.visibility === 'private' ? 'public' : 'private')
     projectQuery.refetch()
+  }
+
+  const publishProject = async (project: ProjectType) => {
+    isPublishing.set(true)
+    const projectScenes = await ProjectService.getProjectScenes(project.name)
+
+    const locations: LocationData[] = []
+
+    for (const scene of projectScenes) {
+      const locationData: LocationData = {
+        name: scene.key.split('/').pop()!.replace('.gltf', ''),
+        sceneId: scene.id,
+        maxUsersPerInstance: 10,
+        locationSetting: {
+          locationId: '' as LocationID,
+          locationType: 'public',
+          audioEnabled: true,
+          screenSharingEnabled: true,
+          faceStreamingEnabled: false,
+          videoEnabled: true
+        },
+        isLobby: false,
+        isFeatured: false
+      }
+      locations.push(locationData)
+    }
+
+    const projectPublishData: ProjectPublishData = {
+      projectId: project.id,
+      updatedAt: toDateTimeSql(new Date()),
+      locations: locations
+    }
+
+    await projectPublishMutation.create(projectPublishData)
+    isPublishing.set(false)
   }
 
   const RowActions = ({ project }: { project: ProjectType }) => {
@@ -188,6 +226,14 @@ export default function ProjectTable(props: { search: string }) {
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
         >
           {t('admin:components.common.view')}
+        </Button>
+        <Button
+          startIcon={<HiOutlineClock />}
+          size="small"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          onClick={() => publishProject(project)}
+        >
+          {isPublishing.value ? 'publishing' : 'Publish Project'}
         </Button>
         <Button
           startIcon={<HiOutlineClock />}

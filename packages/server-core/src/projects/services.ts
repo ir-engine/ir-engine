@@ -35,6 +35,7 @@ import ProjectGithubPush from './project-github-push/project-github-push'
 import ProjectHistory from './project-history/project-history'
 import ProjectInvalidate from './project-invalidate/project-invalidate'
 import ProjectPermission from './project-permission/project-permission'
+import ProjectPublish from './project-publish/project-publish'
 import Project from './project/project'
 import Projects from './projects/projects'
 
@@ -49,6 +50,7 @@ export default [
   ProjectBuilderTags,
   ProjectBranches,
   ProjectCommits,
+  ProjectPublish,
   ProjectDestinationCheck,
   ProjectCheckUnfetchedCommit,
   ProjectCheckSourceDestinationMatch,
