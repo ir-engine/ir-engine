@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Q_IDENTITY } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Euler, Quaternion, MathUtils as _Math } from 'three'
 import NumericInput from '../Numeric'
 import { Vector3Scrubber } from '../Vector3'
@@ -39,71 +39,49 @@ const { RAD2DEG, DEG2RAD } = _Math
 type EulerInputProps = {
   quaternion: Quaternion
   onChange?: (quat: Quaternion) => any
-  onRelease?: (euler: Euler) => void
   unit?: string
 }
 
 const tempEuler = new Euler() // we need the persistance, the hookstate doesnt register the dynamically allocated euler and quat value otherwise, thus we cannot assign new variable to the same
-const tempQuat = new Quaternion()
 export const EulerInput = (props: EulerInputProps) => {
-  const quaternion = useHookstate(props.quaternion)
-  const euler = useHookstate(tempEuler.setFromQuaternion(props.quaternion, 'YXZ'))
+  tempEuler.setFromQuaternion(props.quaternion, 'YXZ')
+  const angle = useHookstate({
+    x: tempEuler.x * RAD2DEG,
+    y: tempEuler.y * RAD2DEG,
+    z: tempEuler.z * RAD2DEG
+  })
 
-  useEffect(() => {
-    euler.set(tempEuler.setFromQuaternion(quaternion.value, 'YXZ'))
-  }, [props.quaternion])
+  const onSetEuler = (angleCoordinate: 'x' | 'y' | 'z') => (angleInDegree: number) => {
+    const multiplier = Math.ceil(Math.abs(angleInDegree) / 360)
+    angleInDegree += multiplier * 360
+    angleInDegree %= 360
 
-  const onSetEuler = (component: keyof typeof euler) => (value: number) => {
-    const radVal = value * DEG2RAD
-    euler[component].value !== radVal &&
-      (euler[component].set(radVal),
-      quaternion.set(tempQuat.setFromEuler(euler.value)),
-      props.onChange?.(quaternion.value))
+    angle[angleCoordinate].set(Math.round(angleInDegree * 1000) / 1000)
+
+    const euler = new Euler(angle.x.value * DEG2RAD, angle.y.value * DEG2RAD, angle.z.value * DEG2RAD, 'YXZ')
+    const quaternion = new Quaternion().setFromEuler(euler)
+    props.onChange?.(quaternion)
   }
 
   return (
     <div className="flex flex-wrap justify-end gap-1.5">
       <NumericInput
-        value={euler.value.x * RAD2DEG}
+        value={angle.x.value}
         onChange={onSetEuler('x')}
-        onRelease={() => props.onRelease?.(euler.value)}
         unit={props.unit}
-        prefix={
-          <Vector3Scrubber
-            value={euler.value.x * RAD2DEG}
-            onChange={onSetEuler('x')}
-            axis="x"
-            onRelease={() => props.onRelease?.(euler.value)}
-          />
-        }
+        prefix={<Vector3Scrubber value={angle.x.value} onChange={onSetEuler('x')} axis="x" />}
       />
       <NumericInput
-        value={euler.value.y * RAD2DEG}
+        value={angle.y.value}
         onChange={onSetEuler('y')}
-        onRelease={() => props.onRelease?.(euler.value)}
         unit={props.unit}
-        prefix={
-          <Vector3Scrubber
-            value={euler.value.y * RAD2DEG}
-            onChange={onSetEuler('y')}
-            axis="y"
-            onRelease={() => props.onRelease?.(euler.value)}
-          />
-        }
+        prefix={<Vector3Scrubber value={angle.y.value} onChange={onSetEuler('y')} axis="y" />}
       />
       <NumericInput
-        value={euler.value.z * RAD2DEG}
+        value={angle.z.value}
         onChange={onSetEuler('z')}
-        onRelease={() => props.onRelease?.(euler.value)}
         unit={props.unit}
-        prefix={
-          <Vector3Scrubber
-            value={euler.value.z * RAD2DEG}
-            onChange={onSetEuler('z')}
-            axis="z"
-            onRelease={() => props.onRelease?.(euler.value)}
-          />
-        }
+        prefix={<Vector3Scrubber value={angle.z.value} onChange={onSetEuler('z')} axis="z" />}
       />
     </div>
   )
