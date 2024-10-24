@@ -71,7 +71,7 @@ export default function Seeker({ currentSeconds, totalSeconds, onChange, isPause
   }, [])
 
   return (
-    <div ref={parentRef} className="group flex flex-nowrap items-center gap-2 bg-[#141619] px-2 py-1">
+    <div ref={parentRef} className="group flex flex-nowrap items-center gap-x-2 bg-[#141619] px-2 py-1">
       <button className="text-[#42454D] group-hover:text-[#9CA0AA]" onClick={onPlayButtonClick}>
         {isPaused ? <MdPauseCircleOutline /> : <MdPlayCircleOutline />}
       </button>
@@ -111,7 +111,7 @@ export default function Seeker({ currentSeconds, totalSeconds, onChange, isPause
           group-hover:[&::-webkit-slider-thumb]:bg-[#879ECF]
         "
       />
-      <span ref={textRef} className="ml-auto mr-0 w-24 text-sm text-[#B2B5BD] group-hover:text-[#F5F5F5]">
+      <span ref={textRef} className="whitespace-nowrap text-sm text-[#B2B5BD] group-hover:text-[#F5F5F5]">
         {getFormattedTime(currentSeconds)} / {getFormattedTime(totalSeconds)}
       </span>
     </div>
