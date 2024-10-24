@@ -52,8 +52,7 @@ import {
   PresentationSystemGroup,
   QueryReactor,
   useComponent,
-  useEntityContext,
-  useOptionalComponent
+  useEntityContext
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
@@ -117,11 +116,6 @@ export const RendererComponent = defineComponent({
       csmHelper: S.Nullable(S.Type<CSMHelper>())
     })
   ),
-
-  useRendererAvailable(entity: Entity) {
-    const hasRenderer = !!useOptionalComponent(entity, RendererComponent)?.renderer
-    return hasRenderer
-  },
 
   onInit(initial) {
     initial.scene.matrixAutoUpdate = false
