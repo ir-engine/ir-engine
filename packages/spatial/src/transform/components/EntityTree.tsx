@@ -463,8 +463,8 @@ export function useAncestorWithComponents(
 
     const root = startEntity
       ? startReactor(function useQueryReactor() {
-        return <ParentSubReactor entity={startEntity} key={startEntity} />
-      })
+          return <ParentSubReactor entity={startEntity} key={startEntity} />
+        })
       : null
 
     return () => {
