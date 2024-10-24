@@ -69,8 +69,6 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           info={t('editor:properties.image.info-alphaCutoff')}
         >
           <InputSlider
-            //icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-            //label={t('user:usermenu.setting.lbl-volume')}
             max={1}
             min={0}
             step={0.01}
