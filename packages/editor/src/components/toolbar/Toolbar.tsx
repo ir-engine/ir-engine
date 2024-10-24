@@ -34,15 +34,16 @@ import { useFind } from '@ir-engine/common'
 import { locationPath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import { SidebarButton } from '@ir-engine/ui/src/components/tailwind/SidebarButton'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { RxHamburgerMenu } from 'react-icons/rx'
+import { twMerge } from 'tailwind-merge'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
@@ -211,23 +212,17 @@ export default function Toolbar() {
         anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
         onClose={() => anchorEvent.set(null)}
       >
-        <div className="flex w-fit min-w-44 flex-col gap-1 truncate rounded-lg bg-neutral-900 shadow-lg">
+        <div className="w-[180px]" tabIndex={0}>
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
-            <div key={index}>
-              <SidebarButton
-                className="px-4 py-2.5 text-left font-light text-theme-input"
-                textContainerClassName="text-xs"
-                size="small"
-                fullWidth
-                onClick={() => {
-                  action()
-                  anchorEvent.set(null)
-                }}
-                endIcon={hotkey}
-              >
-                {name}
-              </SidebarButton>
-            </div>
+            <DropdownItem
+              className={twMerge(index === 0 && 'rounded-t-lg', index === toolbarMenu.length - 1 && 'rounded-b-lg')}
+              title={name}
+              secondaryText={hotkey}
+              onClick={() => {
+                action()
+                anchorEvent.set(null)
+              }}
+            />
           ))}
         </div>
       </ContextMenu>
