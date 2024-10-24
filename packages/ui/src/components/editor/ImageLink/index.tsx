@@ -85,7 +85,11 @@ export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...
     <div className={twMerge('flex flex-col rounded-[10px] bg-[#191B1F]', containerVariants[variant])}>
       <img
         src={src}
-        className={twMerge('mx-auto rounded', imageVariants[variant], !onChange && 'h-[370px]')}
+        className={twMerge(
+          'mx-auto rounded',
+          imageVariants[variant],
+          !onChange && !onBlur && variant === 'full' && 'h-[370px]'
+        )}
         ref={imageRef}
         {...props}
       />
