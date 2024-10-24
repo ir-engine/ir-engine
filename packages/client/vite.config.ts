@@ -30,7 +30,7 @@ import fs, { readFileSync, writeFileSync } from 'fs'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
-import viteCompression from 'vite-plugin-compression'
+import viteCompression from 'vite-plugin-compression2'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
@@ -339,9 +339,9 @@ export default defineConfig(async () => {
         rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`
       }),
       viteCompression({
-        filter: /\.(js|mjs|json|css)$/i,
+        include: /\.(js|mjs|json|css)$/i,
         algorithm: 'brotliCompress',
-        deleteOriginFile: true
+        deleteOriginalAssets: true
       }),
       viteCommonjs({
         include: ['use-sync-external-store']
