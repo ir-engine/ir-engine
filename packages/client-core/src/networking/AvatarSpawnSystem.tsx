@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchParamFromURL'
 import { spawnLocalAvatarInWorld } from '@ir-engine/common/src/world/receiveJoinWorld'
@@ -42,7 +42,14 @@ import {
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate,
+  useImmediateEffect,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 
@@ -69,12 +76,12 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
   const avatarsQuery = useFind(avatarPath)
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     const sceneSettingsSpectateEntity = getOptionalComponent(settingsQuery[0], SceneSettingsComponent)?.spectateEntity
     spectateEntity.set(sceneSettingsSpectateEntity ?? (getSearchParamFromURL('spectate') as EntityUUID))
-  }, [settingsQuery, searchParams])
+  }, [settingsQuery[0], searchParams.value['spectate']])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     if (spectateEntity.value === null) return
     dispatchAction(
       SpectateActions.spectateEntity({
@@ -86,13 +93,13 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     return () => {
       dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
     }
-  }, [spectateEntity.value])
+  }, [spectateEntity])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     spawnAvatar.set(gltfLoaded && spectateEntity.value === null)
   }, [gltfLoaded, spectateEntity.value])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     if (!spawnAvatar.value) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
@@ -134,13 +141,13 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
   const userAvatar = useGet(avatarPath, userAvatarQuery.data?.[0]?.avatarId)
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     if (!errorWithAvatar || !avatarsQuery.data.length) return
     const randomAvatar = avatarsQuery.data[Math.floor(Math.random() * avatarsQuery.data.length)]
     userAvatarMutation.patch(null, { avatarId: randomAvatar.id }, { query: { userId: Engine.instance.store.userID } })
   }, [errorWithAvatar])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     if (!userAvatar.data) return
     dispatchAction(
       AvatarNetworkAction.setAvatarURL({
