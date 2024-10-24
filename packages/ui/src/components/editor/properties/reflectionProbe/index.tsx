@@ -32,9 +32,9 @@ import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components
 
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
 import InputGroup from '../../input/Group'
-import ImagePreviewInput from '../../input/Image/Preview'
 
 /**
  * ReflectionProbeEditor provides the editor view for reflection probe property customization.
@@ -57,9 +57,9 @@ export const ReflectionProbeEditor: EditorComponentType = (props) => {
     >
       <div>
         <InputGroup name="Texture URL" label={t('editor:properties.reflectionProbe.src')}>
-          <ImagePreviewInput
-            value={reflectionProbeComponent.src.value}
-            onRelease={commitProperty(ReflectionProbeComponent, 'src')}
+          <ImageLink
+            src={reflectionProbeComponent.src.value}
+            onBlur={commitProperty(ReflectionProbeComponent, 'src')}
           />
           {errors?.LOADING_ERROR && (
             <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.scene.error-url')}</div>
