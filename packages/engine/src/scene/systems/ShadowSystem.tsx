@@ -231,7 +231,6 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
 function RenderSettingsQueryReactor() {
   const entity = useEntityContext()
   const rendererEntity = useRendererEntity(entity)
-  const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
   /**
    * @todo Currently we only have support for CSM for the core renderer, since we need to add proper multi-scene support via spatial volumes.
@@ -239,7 +238,7 @@ function RenderSettingsQueryReactor() {
   const viewerEntity = useHookstate(getMutableState(EngineState).viewerEntity).value
 
   if (!rendererEntity || rendererEntity !== viewerEntity) return null
-  if ((isEditor && renderMode === RenderModes.UNLIT) || renderMode === RenderModes.LIT) return null
+  if (renderMode === RenderModes.UNLIT || renderMode === RenderModes.LIT) return null
 
   return <CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={entity} />
 }

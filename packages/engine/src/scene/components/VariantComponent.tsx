@@ -265,5 +265,27 @@ uniform float minDistance;`
     addObjectToGroup(props.meshEntity, instancedMesh)
   }, [])
 
+  const level = useComponent(props.variantEntity, VariantComponent).levels[props.level].value
+
+  useEffect(() => {
+    const mesh = getComponent(props.meshEntity, MeshComponent)
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+
+    for (const material of materials) {
+      if (!material.shader) continue
+      material.shader.uniforms.minDistance.value = level.metadata['minDistance']
+    }
+  }, [level.metadata['minDistance']])
+
+  useEffect(() => {
+    const mesh = getComponent(props.meshEntity, MeshComponent)
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+
+    for (const material of materials) {
+      if (!material.shader) continue
+      material.shader.uniforms.maxDistance.value = level.metadata['maxDistance']
+    }
+  }, [level.metadata['minDistance']])
+
   return null
 }
