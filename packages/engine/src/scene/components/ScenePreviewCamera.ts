@@ -44,6 +44,7 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
@@ -55,15 +56,15 @@ export const ScenePreviewCameraComponent = defineComponent({
 
   reactor: function () {
     if (!isClient) return null
-
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useOptionalComponent(Engine.instance.cameraEntity, TransformComponent)
+    const isEditing = useHookstate(getMutableState(EngineState).isEditing).value
 
     useLayoutEffect(() => {
-      if (!engineCameraTransform) return
+      if (!engineCameraTransform || isEditing) return
 
       const transform = getComponent(entity, TransformComponent)
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
