@@ -54,7 +54,7 @@ import {
 } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode, useTreeQuery } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { iterateEntityNode, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix, updateGroupChildren } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
@@ -157,7 +157,7 @@ export const OldColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, OldColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
-    const tree = useTreeQuery(entity)
+    const tree = useChildWithComponents(entity, [MeshComponent])
 
     useLayoutEffect(() => {
       setComponent(entity, InputComponent)
