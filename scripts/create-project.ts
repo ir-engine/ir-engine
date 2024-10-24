@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '@ir-engine/server-core/src/patchEngineNode'
+
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
@@ -88,7 +90,7 @@ cli.main(async () => {
 
     const packageJsonPath = path.resolve(projectFolder, 'package.json')
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString())
-    packageJson.name = name
+    packageJson.name = '@' + name
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
     const packageManifestPath = path.resolve(projectFolder, 'manifest.json')

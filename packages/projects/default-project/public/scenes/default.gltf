@@ -376,9 +376,9 @@
         "EE_visible": true,
         "EE_skybox": {
           "backgroundColor": 3026478,
-          "equirectangularPath": "",
+          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.png?hash=96ae3d",
           "cubemapPath": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
-          "backgroundType": 0,
+          "backgroundType": 2,
           "skyboxProps": {
             "turbidity": 10,
             "rayleigh": 1,

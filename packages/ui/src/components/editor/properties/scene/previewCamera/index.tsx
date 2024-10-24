@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { debounce } from 'lodash-es'
+import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineCamera } from 'react-icons/hi'
@@ -35,6 +35,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { previewScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -44,10 +45,9 @@ import {
   getSceneParameters
 } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { Scene } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
-import ImagePreviewInput from '../../../input/Image/Preview'
-import NodeEditor from '../../nodeEditor'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
@@ -106,9 +106,9 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.sceneCamera.name')}
       description={t('editor:properties.sceneCamera.description')}
-      icon={<ScenePreviewCameraNodeEditor.iconComponent />}
+      Icon={ScenePreviewCameraNodeEditor.iconComponent}
     >
-      <ImagePreviewInput value={bufferUrl} />
+      <ImageLink src={bufferUrl} />
       <div className="flex h-auto flex-col items-center">
         <Button
           onClick={() => {
