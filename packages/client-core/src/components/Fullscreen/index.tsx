@@ -66,13 +66,14 @@ export const Fullscreen = () => {
   }
 
   return (
-    <div className={styles.fullScreen}>
+    <div className={styles.fullScreen} style={{ pointerEvents: 'auto' }}>
       {fullScreenActive ? (
         <IconButtonWithTooltip
           title={t('user:menu.exitFullScreen')}
-          className={`${styles.btn} ${bottomShelfStyle}`}
-          background="white"
+          type="solid"
+          className={`${bottomShelfStyle}`}
           onClick={() => setFullscreen(false)}
+          sizePx={50}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type="FullscreenExit" />}
@@ -80,9 +81,10 @@ export const Fullscreen = () => {
       ) : (
         <IconButtonWithTooltip
           title={t('user:menu.enterFullScreen')}
-          className={`${styles.btn} ${bottomShelfStyle}`}
-          background="white"
+          className={`${bottomShelfStyle}`}
+          type="solid"
           onClick={() => setFullscreen(true)}
+          sizePx={50}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type="ZoomOutMap" />}

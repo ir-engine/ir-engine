@@ -104,12 +104,15 @@ const execute = () => {
 const PhysicsSceneReactor = () => {
   const entity = useEntityContext()
   const uuid = useComponent(entity, UUIDComponent).value
+  const scene = useComponent(entity, SceneComponent)
+
   useEffect(() => {
+    if (!scene.active.value) return
     Physics.createWorld(uuid)
     return () => {
       Physics.destroyWorld(uuid)
     }
-  }, [uuid])
+  }, [uuid, scene.active.value])
   return null
 }
 
