@@ -100,7 +100,7 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
         type="range"
         style={{
           width: width + 'px',
-          background: `linear-gradient(to right, #214AA6 ${gradientPercent}%, #191B1F ${gradientPercent}%)`
+          background: `linear-gradient(to right, #375DAF ${gradientPercent}%, #191B1F ${gradientPercent}%)`
         }}
         className="h-8 min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#191B1F] focus:outline-none
           disabled:pointer-events-none disabled:opacity-50
