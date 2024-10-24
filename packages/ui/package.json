@@ -21,10 +21,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "lib/ui.umd.js",
-  "module": "lib/ui.es.js",
-  "types": "lib/index.d.ts",
-  "npmClient": "npm",
+  "main": "src/index.ts",
   "scripts": {
     "check-errors": "tsc --noemit",
     "test:generate-output": "jest --json --outputFile=./tests/jest-test-results.json || true",
