@@ -71,21 +71,27 @@ export const EulerInput = (props: EulerInputProps) => {
         onChange={onSetEuler('x')}
         onRelease={props.onRelease}
         unit={props.unit}
-        prefix={<Vector3Scrubber value={angle.x.value} onChange={onSetEuler('x')} axis="x" />}
+        prefix={
+          <Vector3Scrubber value={angle.x.value} onChange={onSetEuler('x')} onRelease={props.onRelease} axis="x" />
+        }
       />
       <NumericInput
         value={angle.y.value}
         onChange={onSetEuler('y')}
         onRelease={props.onRelease}
         unit={props.unit}
-        prefix={<Vector3Scrubber value={angle.y.value} onChange={onSetEuler('y')} axis="y" />}
+        prefix={
+          <Vector3Scrubber value={angle.y.value} onChange={onSetEuler('y')} onRelease={props.onRelease} axis="y" />
+        }
       />
       <NumericInput
         value={angle.z.value}
         onChange={onSetEuler('z')}
         onRelease={props.onRelease}
         unit={props.unit}
-        prefix={<Vector3Scrubber value={angle.z.value} onChange={onSetEuler('z')} axis="z" />}
+        prefix={
+          <Vector3Scrubber value={angle.z.value} onChange={onSetEuler('z')} onRelease={props.onRelease} axis="z" />
+        }
       />
     </div>
   )
