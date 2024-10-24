@@ -61,6 +61,7 @@ import { HierarchyPanelTab } from '../panels/hierarchy'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
+import { ScriptPanelTab } from '../panels/script'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
 import { EditorWarningState } from '../services/EditorWarningServices'
@@ -103,9 +104,12 @@ const onEditorError = (error) => {
   )
 }
 
-const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
-  flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
+const defaultLayout = (flags: { visualScriptPanelEnabled: boolean; scriptPanelEnabled: boolean }): LayoutData => {
+  const bottomLeftPanelTabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  const topLeftPanelTabs = [ViewportPanelTab]
+
+  if (flags.visualScriptPanelEnabled) bottomLeftPanelTabs.push(VisualScriptPanelTab)
+  if (flags.scriptPanelEnabled) topLeftPanelTabs.push(ScriptPanelTab)
 
   return {
     dockbox: {
@@ -116,10 +120,10 @@ const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData
           size: 8,
           children: [
             {
-              tabs: [ViewportPanelTab]
+              tabs: topLeftPanelTabs
             },
             {
-              tabs: tabs
+              tabs: bottomLeftPanelTabs
             }
           ]
         },
@@ -211,7 +215,16 @@ const EditorContainer = () => {
   const { initialized, isWidgetVisible, openChat } = useZendesk()
   const { t } = useTranslation()
 
-  const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+  const [visualScriptPanelEnabled, scriptPanelEnabled] = useFeatureFlags([
+    FeatureFlags.Studio.Panel.VisualScript,
+    FeatureFlags.Studio.Panel.Script
+  ])
+
+  useEffect(() => {
+    if (dockPanelRef.current) {
+      dockPanelRef.current.loadLayout(defaultLayout({ visualScriptPanelEnabled, scriptPanelEnabled }))
+    }
+  }, [visualScriptPanelEnabled, scriptPanelEnabled])
 
   useEffect(() => {
     return () => {
@@ -256,8 +269,8 @@ const EditorContainer = () => {
               <DockContainer>
                 <DockLayout
                   ref={dockPanelRef}
-                  defaultLayout={defaultLayout({ visualScriptPanelEnabled })}
-                  style={{ position: 'absolute', left: 5, top: 50, right: 5, bottom: 5 }}
+                  defaultLayout={defaultLayout({ visualScriptPanelEnabled, scriptPanelEnabled })}
+                  style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
                 />
               </DockContainer>
             </div>

@@ -35,7 +35,7 @@ import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/comp
 import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@ir-engine/visual-script'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { GLTFComponent } from '../../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
 export enum VisualScriptDomain {
@@ -67,7 +67,6 @@ export const VisualScriptComponent = defineComponent({
     }
   },
 
-  // we make reactor for each component handle the engine
   reactor: () => {
     const entity = useEntityContext()
     const visualScript = useComponent(entity, VisualScriptComponent)

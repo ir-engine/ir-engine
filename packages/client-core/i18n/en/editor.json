@@ -1137,6 +1137,24 @@
       "lbl-performerURL": "Performer URL",
       "lbl-asset": "Asset",
       "assets": "Assets"
+    },
+    "visualScript":{
+      "name": "Visual Script",
+      "description": "Adds a visual script to the entity",
+      "lbl-disabled": "Disable Visual Script",
+      "lbl-run": "Play Visual Script"
+    },
+    "script":{
+      "name": "Script",
+      "description": " adds a script to the entity",
+      "lbl-scriptPath": "Script path",
+      "error":{
+        "invalid-location":"Cannot find script",
+        "invalid-type":"Script is not of valid type", 
+        "invalid-format":"Url format is invalid",
+        "invalid-schema":"Url schema is invalid"
+
+      }
     }
   },
   "projects": {
@@ -1214,6 +1232,17 @@
       "makeTemplate": "Make into template"
     }
   },
+  "script":{
+    "panel": {
+      "title": "Script",
+      "addScript": "Add Script",
+
+      "link": "Script is linked to scene, Press to unlink",
+      "unLink": "Script is not linked to scene, Press to link",
+      "save": "Save  Changes",
+      "discard" : "Discard Changes"
+    }
+  },
   "layout": {
     "assetGrid": {
       "loading": "Loading...",
@@ -1260,6 +1289,7 @@
       "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
+      "open" : "Open",
       "tab-name": "Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
@@ -1537,7 +1567,8 @@
   },
   "tabs": {
     "scene-assets": "Assets",
-    "project-assets": "Project Assets"
+    "project-assets": "Project Assets",
+    "file-browser": "Files"
   },
   "generatingThumbnails": {
     "title": "Generating Thumbnails",

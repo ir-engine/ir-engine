@@ -38,6 +38,7 @@ import ModelCompressionPanel from '../../components/assets/ModelCompressionPanel
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { FilesState, SelectedFilesState } from '../../services/FilesState'
+import { ScriptService } from '../../services/ScriptService'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { fileConsistsOfContentType, useCurrentFiles } from './helpers'
 import DeleteFileModal from './modals/DeleteFileModal'
@@ -153,39 +154,42 @@ export function FileContextMenu({
             </Button>
           </>
         )}
+        {/* Open Script file*/}
+        {hasFiles && fileConsistsOfContentType(selectedFiles.value, 'application/') && (
+          <Button
+            variant="outline"
+            size="small"
+            fullWidth
+            disabled={!fileConsistsOfContentType(selectedFiles.value, 'application/')}
+            onClick={() => {
+              if (fileConsistsOfContentType(selectedFiles.value, 'application/')) {
+                selectedFiles.value.forEach((selectedFile) => {
+                  ScriptService.addScript(selectedFile.url)
+                })
+              }
+            }}
+          >
+            {t('editor:layout.filebrowser.open')}
+          </Button>
+        )}
         {/* Copy URL */}
         {hasSelection && (
           <Button
             variant="outline"
             size="small"
             fullWidth
-            data-testid="files-panel-file-item-context-menu-copy-url-button"
+            disabled={!fileConsistsOfContentType(selectedFiles.value, 'application/')}
             onClick={() => {
-              if (navigator.clipboard) {
-                navigator.clipboard.writeText(selectedFiles.map((file) => file.url.value).join(' '))
+              if (fileConsistsOfContentType(selectedFiles.value, 'application/')) {
+                selectedFiles.value.forEach((selectedFile) => {
+                  ScriptService.addScript(selectedFile.url)
+                })
               }
-              setAnchorEvent(undefined)
             }}
           >
-            {t('editor:layout.assetGrid.copyURL')}
+            {t('editor:layout.filebrowser.open')}
           </Button>
         )}
-        {/* Open In New Tab */}
-        {hasFiles && (
-          <Button
-            variant="outline"
-            size="small"
-            fullWidth
-            data-testid="files-panel-file-item-context-menu-open-in-new-tab-button"
-            onClick={() => {
-              selectedFiles.filter((file) => !file.isFolder).forEach((file) => window.open(file.url.value))
-              setAnchorEvent(undefined)
-            }}
-          >
-            {t('editor:layout.assetGrid.openInNewTab')}
-          </Button>
-        )}
-        {/* Add New Folder */}
         <Button
           variant="outline"
           size="small"

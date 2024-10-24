@@ -42,7 +42,6 @@ import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComp
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
@@ -123,9 +122,10 @@ export const ComponentShelfCategoriesState = defineState({
     } as Record<string, Component[]>
   },
   reactor: () => {
-    const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
-    const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
-
+    const [visualScriptPanelEnabled, scriptPanelEnabled] = useFeatureFlags([
+      FeatureFlags.Studio.Panel.VisualScript,
+      FeatureFlags.Studio.Panel.Script
+    ])
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
       if (visualScriptPanelEnabled) {
@@ -137,16 +137,15 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [visualScriptPanelEnabled])
-
-    useEffect(() => {
-      if (portalEnabled) {
-        cShelfState.Interaction.merge([PortalComponent])
+    /*useEffect(() => {
+      if (scriptPanelEnabled) {
+        cShelfState.Scripting.merge([ScriptComponent])
         return () => {
-          cShelfState.Interaction.set((curr) => {
-            return curr.splice(curr.findIndex((item) => item.name == PortalComponent.name))
+          cShelfState.Scripting.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == ScriptComponent.name))
           })
         }
       }
-    }, [portalEnabled])
+    }, [scriptPanelEnabled])*/
   }
 })
