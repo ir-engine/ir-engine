@@ -18,7 +18,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import Fuse from 'fuse.js'
+import React, { useEffect, useRef, useState } from 'react'
 import * as Icons from '.'
 import CopyText from '../primitives/tailwind/CopyText'
 
@@ -33,19 +34,49 @@ export default {
   }
 }
 
+interface FuseSearchItem {
+  iconName: string
+  index: number
+}
+
+const allIcons = Object.entries(Icons).filter(([iconName]) => {
+  const parsedIconName = iconName
+    .replaceAll('-', '_')
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('')
+    .toLowerCase()
+  if (iconName.toLowerCase().includes(parsedIconName)) return true
+  return false
+})
+
 const IconRenderer = () => {
   const [searchedIconName, setSearchedIconName] = useState('')
+  const fuseRef = useRef<Fuse<FuseSearchItem> | null>(null)
+  const [iconsList, setIconsList] = useState(allIcons)
 
-  const iconsList = Object.entries(Icons).filter(([iconName]) => {
-    const searchedName = searchedIconName
-      .replaceAll('-', '_')
-      .split('_')
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join('')
-      .toLowerCase()
-    if (iconName.toLowerCase().includes(searchedName)) return true
-    return false
-  })
+  useEffect(() => {
+    const iconsListFuse = allIcons.map(([iconName, _], index) => {
+      return {
+        iconName,
+        index
+      }
+    })
+    fuseRef.current = new Fuse(iconsListFuse, {
+      keys: ['iconName']
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!fuseRef.current || searchedIconName === '') {
+      setIconsList(allIcons)
+      return
+    }
+
+    const searchResult = fuseRef.current.search(searchedIconName)
+    const _iconsList = searchResult.map(({ item }) => allIcons[item.index])
+    setIconsList(_iconsList)
+  }, [searchedIconName])
 
   return (
     <>
