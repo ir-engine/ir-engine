@@ -38,6 +38,7 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, Color, ColorRepresentation, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertColorEqual, assertColorNotEqual } from '../../../../tests/util/mathAssertions'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
@@ -57,18 +58,6 @@ const HemisphereLightComponentDefaults: HemisphereLightComponentData = {
   skyColor: 0xffffff,
   groundColor: 0xffffff,
   intensity: 1
-}
-
-function getColorHex(c: ColorRepresentation) {
-  return new Color(c).getHex()
-}
-
-export function assertColorEqual(l: ColorRepresentation, r: ColorRepresentation) {
-  assert.equal(getColorHex(l), getColorHex(r))
-}
-
-export function assertColorNotEqual(l: ColorRepresentation, r: ColorRepresentation) {
-  assert.notEqual(getColorHex(l), getColorHex(r))
 }
 
 function assertHemisphereLightComponentEq(A: HemisphereLightComponentData, B: HemisphereLightComponentData): void {
@@ -276,4 +265,4 @@ describe('HemisphereLightComponent', () => {
       assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
     })
   }) //:: reactor
-})
+}) //:: HemisphereLightComponent

@@ -45,6 +45,8 @@ import {
 import React from 'react'
 import { Vector3 } from 'three'
 import {
+  assertArrayAllNotEq,
+  assertArrayEqual,
   assertFloatApproxEq,
   assertFloatApproxNotEq,
   assertVecAllApproxNotEq,
@@ -82,19 +84,6 @@ const RigidBodyComponentDefaults = {
   linearVelocity: 3,
   angularVelocity: 3,
   targetKinematicLerpMultiplier: 0
-}
-
-export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
-  assert.equal(A.length, B.length, err + ': Their length is not the same')
-  for (let id = 0; id < A.length && id < B.length; id++) {
-    assert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same`)
-  }
-}
-
-export function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
-  for (let id = 0; id < A.length && id < B.length; id++) {
-    assert.notDeepEqual(A[id], B[id], err)
-  }
 }
 
 export function assertRigidBodyComponentEqual(data, expected = RigidBodyComponentDefaults) {
@@ -413,7 +402,7 @@ describe('RigidBodyComponent', () => {
 
       // Locked
       const AllLocked = [false, false, false] as [boolean, boolean, boolean]
-      assertArrayNotEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked) // Should still be the default
+      assertArrayAllNotEq(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked) // Should still be the default
       setComponent(testEntity, RigidBodyComponent, { enabledRotations: AllLocked })
       assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked)
       reactor.run()

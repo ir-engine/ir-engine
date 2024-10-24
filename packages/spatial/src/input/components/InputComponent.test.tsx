@@ -52,9 +52,13 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Raycaster } from 'three'
+import {
+  assertArrayEqual,
+  assertArrayHasDuplicates,
+  assertArrayHasNoDuplicates
+} from '../../../tests/util/mathAssertions'
 import { EngineState } from '../../EngineState'
 import { initializeSpatialEngine } from '../../initializeEngine'
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { EntityTreeComponent, isAncestor } from '../../transform/components/EntityTree'
 import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
@@ -85,19 +89,6 @@ function assertInputComponentEq(A: InputComponentData, B: InputComponentData): v
   assert.equal(A.highlight, B.highlight)
   assert.equal(A.grow, B.grow)
   assertArrayEqual(A.inputSources, B.inputSources)
-}
-
-/** @description Returns whethere or not the given `@param arr` has duplicate values. */
-export function arrayHasDuplicates(arr: any[]): boolean {
-  return new Set(arr).size !== arr.length
-}
-
-export function assertArrayHasDuplicates(arr: any[]) {
-  assert.ok(arrayHasDuplicates(arr))
-}
-
-export function assertArrayHasNoDuplicates(arr: any[]) {
-  assert.ok(!arrayHasDuplicates(arr))
 }
 
 /** @description Alias to create a dummy entity with an InputComponent. Used for syntax ergonomics. */

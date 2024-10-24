@@ -40,6 +40,7 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, ColorRepresentation, MeshBasicMaterial, PointLight } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertColorEqual, assertColorNotEqual } from '../../../../tests/util/mathAssertions'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
@@ -47,7 +48,6 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { RendererState } from '../../RendererState'
 import { GroupComponent } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
-import { assertColorEqual, assertColorNotEqual } from './HemisphereLightComponent.test'
 import { LightTagComponent } from './LightTagComponent'
 import { PointLightComponent } from './PointLightComponent'
 
@@ -427,4 +427,4 @@ describe('PointLightComponent', () => {
       assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
     })
   }) //:: reactor
-})
+}) //:: PointLightComponent

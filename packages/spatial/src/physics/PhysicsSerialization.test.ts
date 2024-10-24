@@ -431,7 +431,7 @@ describe('PhysicsSerialization', () => {
         // Run and Check the result
         readUint8(view) // Read changeMask
         const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, Vector3.length)
+        assertVecApproxEq(result, Expected, 3)
       })
     }) //:: writeBodyPosition
 
@@ -462,7 +462,7 @@ describe('PhysicsSerialization', () => {
         // Run and Check the result
         readUint8(view) // Read changeMask
         const result = new Quaternion(readFloat64(view), readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, Quaternion.length)
+        assertVecApproxEq(result, Expected, 4)
       })
     }) //:: writeBodyRotation
 
@@ -492,7 +492,7 @@ describe('PhysicsSerialization', () => {
         // Run and Check the result
         readUint8(view) // Read changeMask
         const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, Vector3.length)
+        assertVecApproxEq(result, Expected, 3)
       })
     }) //:: writeBodyLinearVelocity
 
@@ -522,7 +522,7 @@ describe('PhysicsSerialization', () => {
         // Run and Check the result
         readUint8(view) // Read changeMask
         const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, Vector3.length)
+        assertVecApproxEq(result, Expected, 3)
       })
     }) //:: writeBodyAngularVelocity
 
@@ -570,7 +570,6 @@ describe('PhysicsSerialization', () => {
         // Sanity check before running
         assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
         // Run and Check the result
-        // Rigidbody rotations are set to identity on init, so first write is always a change
         writeRigidBody(cursor, testEntity)
         const result = writeRigidBody(cursor, testEntity)
         assert.equal(result, null)
