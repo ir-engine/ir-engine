@@ -138,7 +138,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')} className="w-auto">
-        <EulerInput quaternion={rotation} onChange={onChangeRotation} unit="°" />
+        <EulerInput quaternion={rotation} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')} className="w-auto">
         <Vector3Input
