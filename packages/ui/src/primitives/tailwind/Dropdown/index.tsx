@@ -55,7 +55,7 @@ export function DropdownItem({
         'flex items-center',
         !disabled && 'hover:text-[#F5F5F5] focus:text-[#F5F5F5]',
         !disabled && selected && 'bg-[#191B1F] text-[#375DAF]',
-        disabled && 'bg-[#191B1F] text-[#42454D]',
+        disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D]',
         className
       )}
       {...props}
@@ -65,7 +65,7 @@ export function DropdownItem({
         {title}
       </span>
       {secondaryText && <span className="ml-auto">{secondaryText}</span>}
-      {!secondaryText && selected && <HiCheck className="ml-auto h-3 w-3" />}
+      {!secondaryText && selected && <HiCheck className="ml-auto h-3 w-3 stroke-2" />}
     </div>
   )
 }
