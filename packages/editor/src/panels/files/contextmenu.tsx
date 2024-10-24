@@ -100,7 +100,7 @@ export function FileContextMenu({
   const filesState = useMutableState(FilesState)
 
   const hasSelection = selectedFiles.length > 0
-  const hasFiles = selectedFiles.some((file) => !file.isFolder)
+  const hasFiles = selectedFiles.some((file) => !file.isFolder.value)
 
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>

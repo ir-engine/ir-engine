@@ -43,14 +43,15 @@ export function useRendererEntity(entity: Entity) {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
       const renderers = useQuery([RendererComponent])
       const matchesQuery = renderers.find((r) => getComponent(r, RendererComponent).scenes.includes(props.entity))
+      const hasRenderer = !!useOptionalComponent(matchesQuery ?? UndefinedEntity, RendererComponent)?.renderer
 
       useLayoutEffect(() => {
-        if (!matchesQuery) return
+        if (!matchesQuery || !hasRenderer) return
         result.set(matchesQuery)
         return () => {
           if (!unmounted) result.set(UndefinedEntity)
         }
-      }, [tree?.parentEntity?.value, matchesQuery])
+      }, [tree?.parentEntity?.value, matchesQuery, hasRenderer])
 
       if (matchesQuery) return null
 

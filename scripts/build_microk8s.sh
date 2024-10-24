@@ -125,8 +125,8 @@ else
   VITE_ZENDESK_AUTHENTICATION_ENABLED=$VITE_ZENDESK_AUTHENTICATION_ENABLED
 fi
 
-if [ -z "$VITE_AVATURN_URL" ]; then
-  VITE_TERMS_OF_SERVICE_ADDRESS=https://www.ir.world/terms-of-service
+if [ -z "$VITE_TERMS_OF_SERVICE_ADDRESS" ]; then
+  VITE_TERMS_OF_SERVICE_ADDRESS=https://www.theinfinitereality.com/terms-of-service
 else
   VITE_TERMS_OF_SERVICE_ADDRESS=$VITE_TERMS_OF_SERVICE_ADDRESS
 fi
