@@ -44,7 +44,6 @@ export type PeersUpdateType = {
   peerID: PeerID
   peerIndex: number
   userID: UserID
-  userIndex: number
 }
 
 export type PeerTransport = {
@@ -55,7 +54,6 @@ export type PeerTransport = {
 
 export interface NetworkPeer {
   userId: UserID
-  userIndex: number
   peerID: PeerID
   peerIndex: number
   transport?: PeerTransport // todo change this to socket and create a socket transport abstraction

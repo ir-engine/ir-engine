@@ -136,7 +136,11 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
 
     setComponent(entity, NetworkObjectComponent, {
       ownerId:
-        ownerID === SceneUser ? (isWorldNetworkConnected ? worldNetwork.hostUserID : Engine.instance.userID) : ownerID,
+        ownerID === SceneUser
+          ? isWorldNetworkConnected
+            ? worldNetwork.hostUserID ?? ('' as UserID) // TODO: this is kind of a hack for p2p
+            : Engine.instance.store.userID
+          : ownerID,
       ownerPeer: state.ownerPeer.value,
       authorityPeerID: state.authorityPeerId.value,
       networkId: state.networkId.value

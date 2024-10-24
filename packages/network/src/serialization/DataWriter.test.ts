@@ -451,12 +451,9 @@ describe('DataWriter', () => {
     const network = NetworkState.worldNetwork as Network
 
     const userID = 'userId' as unknown as UserID & PeerID
-    const userIndex = 0
     const peerIndex = 0
     network.peerIDToPeerIndex[peerID] = peerIndex
     network.peerIndexToPeerID[peerIndex] = peerID
-    network.userIDToUserIndex[userID] = userIndex
-    network.userIndexToUserID[userIndex] = userID
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
@@ -545,12 +542,9 @@ describe('DataWriter', () => {
     const network = NetworkState.worldNetwork as Network
 
     const userID = 'userId' as unknown as UserID & PeerID
-    const userIndex = 0
     const peerIndex = 0
     network.peerIDToPeerIndex[peerID] = peerIndex
     network.peerIndexToPeerID[peerIndex] = peerID
-    network.userIDToUserIndex[userID] = userIndex
-    network.userIndexToUserID[userIndex] = userID
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId

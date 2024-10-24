@@ -28,7 +28,9 @@ import { defineState, getMutableState, getState, useMutableState } from '@ir-eng
 import { VideoConstants } from '@ir-engine/network'
 
 import config from '@ir-engine/common/src/config'
+import { Engine } from '@ir-engine/ecs'
 import { useEffect } from 'react'
+import { createPeerMediaChannels, PeerMediaChannelState, removePeerMediaChannels } from './PeerMediaChannelState'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreamState' })
 
@@ -48,6 +50,8 @@ export const MediaStreamState = defineState({
     webcamMediaStream: null as MediaStream | null,
     /** Audio stream for streaming data. */
     microphoneMediaStream: null as MediaStream | null,
+    /** Audio stream for streaming data. */
+    microphoneDestinationNode: null as MediaStreamAudioDestinationNode | null,
     /** Audio Gain to be applied on media stream. */
     microphoneGainNode: null as GainNode | null,
     /** Local screen container. */
@@ -79,6 +83,32 @@ export const MediaStreamState = defineState({
 
   reactor: () => {
     const state = useMutableState(MediaStreamState)
+
+    useEffect(() => {
+      createPeerMediaChannels(Engine.instance.store.peerID)
+      return () => {
+        removePeerMediaChannels(Engine.instance.store.peerID)
+      }
+    }, [])
+
+    const peerMediaChannelState = useMutableState(PeerMediaChannelState)[Engine.instance.store.peerID]
+
+    useEffect(() => {
+      const microphoneEnabled = state.microphoneEnabled.value
+      peerMediaChannelState.cam.audioMediaStream.set(microphoneEnabled ? state.microphoneMediaStream.value : null)
+    }, [state.microphoneMediaStream.value, state.microphoneEnabled.value])
+
+    useEffect(() => {
+      const webcamEnabled = state.webcamEnabled.value
+      peerMediaChannelState.cam.videoMediaStream.set(webcamEnabled ? state.webcamMediaStream.value : null)
+    }, [state.value.webcamMediaStream, state.webcamEnabled.value])
+
+    useEffect(() => {
+      const videoStreamPaused = state.screenshareEnabled.value
+      const audioStreamPaused = videoStreamPaused && state.screenShareAudioPaused.value
+      peerMediaChannelState.screen.videoMediaStream.set(videoStreamPaused ? state.screenshareMediaStream.value : null)
+      peerMediaChannelState.screen.audioMediaStream.set(audioStreamPaused ? state.screenshareMediaStream.value : null)
+    }, [state.screenshareMediaStream.value, state.screenshareEnabled.value, state.screenShareAudioPaused.value])
 
     useEffect(() => {
       navigator.mediaDevices.enumerateDevices().then((devices) => {
@@ -136,6 +166,18 @@ export const MediaStreamState = defineState({
             audioStream.getAudioTracks().forEach((track) => track.stop())
             return
           }
+
+          //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
+          //This Gain is saved on MediaStreamState so it can be accessed from the user's component and controlled.
+          const audioTrack = audioStream.getAudioTracks()[0]
+          const ctx = new AudioContext()
+          const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]))
+          const dst = ctx.createMediaStreamDestination()
+          const gainNode = ctx.createGain()
+          gainNode.gain.value = 1
+          ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
+          state.microphoneGainNode.set(gainNode)
+          state.microphoneDestinationNode.set(dst)
           state.microphoneMediaStream.set(audioStream)
         })
         .catch((err) => {
@@ -149,6 +191,8 @@ export const MediaStreamState = defineState({
 
         stream.getAudioTracks().forEach((track) => track.stop())
         state.microphoneMediaStream.set(null)
+        state.microphoneGainNode.set(null)
+        state.microphoneDestinationNode.set(null)
       }
     }, [state.microphoneEnabled.value])
 

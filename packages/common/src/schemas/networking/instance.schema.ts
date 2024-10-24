@@ -77,7 +77,7 @@ export interface InstanceType extends Static<typeof instanceSchema> {}
 export const instanceDataSchema = Type.Partial(
   Type.Pick(
     instanceSchema,
-    ['roomCode', 'ipAddress', 'channelId', 'podName', 'currentUsers', 'ended', 'assigned', 'locationId', 'assignedAt'],
+    ['roomCode', 'ipAddress', 'channelId', 'podName', 'ended', 'assigned', 'locationId', 'assignedAt'],
     {
       $id: 'InstanceData'
     }
@@ -86,9 +86,15 @@ export const instanceDataSchema = Type.Partial(
 export interface InstanceData extends Static<typeof instanceDataSchema> {}
 
 // Schema for updating existing entries
-export const instancePatchSchema = Type.Partial(instanceSchema, {
-  $id: 'InstancePatch'
-})
+export const instancePatchSchema = Type.Partial(
+  Type.Pick(
+    instanceSchema,
+    ['roomCode', 'ipAddress', 'channelId', 'podName', 'ended', 'assigned', 'locationId', 'assignedAt'],
+    {
+      $id: 'InstancePatch'
+    }
+  )
+)
 export interface InstancePatch extends Static<typeof instancePatchSchema> {}
 
 // Schema for allowed query properties
@@ -120,7 +126,11 @@ export const instanceQuerySchema = Type.Intersect(
     }),
     // Add additional query properties here
     Type.Object(
-      { action: Type.Optional(Type.String()), search: Type.Optional(Type.String()) },
+      {
+        paginate: Type.Optional(Type.Boolean()),
+        action: Type.Optional(Type.String()),
+        search: Type.Optional(Type.String())
+      },
       { additionalProperties: false }
     )
   ],

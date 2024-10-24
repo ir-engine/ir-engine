@@ -114,7 +114,6 @@ export const UserSeed: UserType = {
   identityProviders: [],
   locationAdmins: [],
   locationBans: [],
-  instanceAttendance: [],
   lastLogin: {
     id: '',
     ipAddress: '',

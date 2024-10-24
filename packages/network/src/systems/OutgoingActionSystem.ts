@@ -37,8 +37,7 @@ export const updatePeers = (network: Network) => {
     return {
       peerID: peer.peerID,
       peerIndex: peer.peerIndex,
-      userID: peer.userId,
-      userIndex: peer.userIndex
+      userID: peer.userId
     }
   }) as Array<PeersUpdateType>
   const action = NetworkActions.updatePeers({

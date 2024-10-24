@@ -90,17 +90,6 @@ const MicrophoneReactor = () => {
     const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
     const channelId = currentChannelInstanceConnection.channelId
 
-    //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
-    //This Gain is saved on MediaStreamState so it can be accessed from the user's component and controlled.
-    const audioTrack = audioStream.getAudioTracks()[0]
-    const ctx = new AudioContext()
-    const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]))
-    const dst = ctx.createMediaStreamDestination()
-    const gainNode = ctx.createGain()
-    gainNode.gain.value = 1
-    ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
-    mediaStreamState.microphoneGainNode.set(gainNode)
-
     const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
     const codecOptions = { ...VideoConstants.CAM_AUDIO_CODEC_OPTIONS }
@@ -111,7 +100,7 @@ const MicrophoneReactor = () => {
 
     transport
       .produce({
-        track: dst.stream!.getAudioTracks()[0],
+        track: mediaStreamState.microphoneDestinationNode.value!.stream!.getAudioTracks()[0],
         codecOptions,
         appData: { mediaTag: webcamAudioDataChannelType, channelId: channelId }
       })
@@ -335,16 +324,6 @@ const ScreenshareReactor = () => {
 
       if (mediasoupSelfProducerState.screenVideoProducer.value) {
         dispatchAction(
-          MediasoupMediaProducerActions.producerPaused({
-            producerID: mediasoupSelfProducerState.screenVideoProducer.value.id,
-            globalMute: false,
-            paused: true,
-            $network: network.id,
-            $topic: network.topic
-          })
-        )
-        mediasoupSelfProducerState.screenVideoProducer.value.pause()
-        dispatchAction(
           MediasoupMediaProducerActions.producerClosed({
             producerID: mediasoupSelfProducerState.screenVideoProducer.value.id,
             $network: network.id,
@@ -356,15 +335,6 @@ const ScreenshareReactor = () => {
       }
 
       if (mediasoupSelfProducerState.screenAudioProducer.value) {
-        dispatchAction(
-          MediasoupMediaProducerActions.producerPaused({
-            producerID: mediasoupSelfProducerState.screenAudioProducer.value.id,
-            globalMute: false,
-            paused: true,
-            $network: network.id,
-            $topic: network.topic
-          })
-        )
         dispatchAction(
           MediasoupMediaProducerActions.producerClosed({
             producerID: mediasoupSelfProducerState.screenAudioProducer.value.id,
@@ -395,6 +365,11 @@ const ScreenshareReactor = () => {
 }
 
 const reactor = () => {
+  const mediaNetworkState = useMediaNetwork()
+
+  /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
+  if (!mediaNetworkState?.hostPeerID?.value) return null
+
   return (
     <>
       <WebcamReactor />

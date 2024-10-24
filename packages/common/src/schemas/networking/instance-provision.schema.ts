@@ -33,7 +33,7 @@ import { dataValidator } from '../validators'
 
 export const instanceProvisionPath = 'instance-provision'
 
-export const instanceProvisionMethods = ['find', 'create'] as const
+export const instanceProvisionMethods = ['find'] as const
 
 // Main data model schema
 export const instanceProvisionSchema = Type.Object(
@@ -41,8 +41,9 @@ export const instanceProvisionSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    ipAddress: Type.String(),
-    port: Type.String(),
+    ipAddress: Type.Optional(Type.String()),
+    p2p: Type.Optional(Type.Boolean()),
+    port: Type.Optional(Type.String()),
     roomCode: TypedString<RoomCode>(),
     podName: Type.Optional(Type.String())
   },

@@ -461,14 +461,11 @@ describe('DataReader', () => {
     const networkId = 5678 as NetworkId
     const userId = '0' as UserID
     const peerId = '0' as PeerID
-    const userIndex = 0
     const peerIndex = 0
 
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = NetworkState.worldNetwork as Network
-    network.userIndexToUserID[userIndex] = userId
-    network.userIDToUserIndex[userId] = userIndex
     network.peerIndexToPeerID[peerIndex] = peerId
     network.peerIDToPeerIndex[peerId] = peerIndex
 
@@ -530,14 +527,11 @@ describe('DataReader', () => {
     const userID = 'user id' as UserID
     const peerID = 'peer id' as PeerID
     Engine.instance.store.userID = userID
-    const userIndex = 0
     const peerIndex = 0
 
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = NetworkState.worldNetwork as Network
-    network.userIndexToUserID[userIndex] = userID
-    network.userIDToUserIndex[userID] = userIndex
     network.peerIndexToPeerID[peerIndex] = peerID
     network.peerIDToPeerIndex[peerID] = peerIndex
 
@@ -609,12 +603,9 @@ describe('DataReader', () => {
     const userID = 'user Id' as UserID
     const peerID = 'peer ID' as PeerID
     Engine.instance.store.userID = userID
-    const userIndex = 0
     const peerIndex = 0
 
     const network = NetworkState.worldNetwork as Network
-    network.userIndexToUserID[userIndex] = userID
-    network.userIDToUserIndex[userID] = userIndex
     network.peerIndexToPeerID[peerIndex] = peerID
     network.peerIDToPeerIndex[peerID] = peerIndex
 
@@ -676,15 +667,12 @@ describe('DataReader', () => {
     const peerID2 = 'peer id 2' as PeerID
 
     Engine.instance.store.userID = userID
-    const userIndex = 0
     const peerIndex = 0
     const peer2Index = 1
 
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = NetworkState.worldNetwork as Network
-    network.userIndexToUserID[userIndex] = userID
-    network.userIDToUserIndex[userID] = userIndex
     network.peerIndexToPeerID[peerIndex] = peerID
     network.peerIDToPeerIndex[peerID] = peerIndex
     network.peerIndexToPeerID[peer2Index] = peerID2
@@ -778,7 +766,6 @@ describe('DataReader', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userIndex = entity
       const peerIndex = entity
 
       setComponent(entity, TransformComponent)
@@ -791,8 +778,6 @@ describe('DataReader', () => {
         authorityPeerID: peerID,
         ownerId: userId
       })
-      network.userIndexToUserID[userIndex] = userId
-      network.userIDToUserIndex[userId] = userIndex
       network.peerIndexToPeerID[peerIndex] = peerID
       network.peerIDToPeerIndex[peerID] = peerIndex
     })
@@ -825,12 +810,10 @@ describe('DataReader', () => {
     Engine.instance.store.userID = 'userId' as UserID
     const userId = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
-    const userIndex = 0
     const peerIndex = 0
-    network.userIDToUserIndex[userId] = userIndex
-    network.userIndexToUserID[userIndex] = userId
     network.peerIDToPeerIndex[peerID] = peerIndex
     network.peerIndexToPeerID[peerIndex] = peerID
+    network.peers[peerID] = { userId, peerIndex, peerID }
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -873,8 +856,8 @@ describe('DataReader', () => {
       // read networkId
       strictEqual(readUint32(readView), entities[i])
 
-      // read owner index
-      strictEqual(readUint32(readView), userIndex)
+      // read peerIndex
+      strictEqual(readUint32(readView), peerIndex)
 
       // read writeEntity changeMask (only reading TransformComponent)
       strictEqual(readUint8(readView), 0b01)
@@ -955,7 +938,6 @@ describe('DataReader', () => {
     entities.forEach((entity) => {
       const networkID = entity as unknown as NetworkId
       const userID = entity as unknown as UserID & PeerID
-      const userIndex = entity
       const peerIndex = entity
       setComponent(entity, TransformComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -967,8 +949,6 @@ describe('DataReader', () => {
         authorityPeerID: peerID,
         ownerId: userID
       })
-      network.userIDToUserIndex[userID] = userIndex
-      network.userIndexToUserID[userIndex] = userID
       network.peerIDToPeerIndex[peerID] = peerIndex
       network.peerIndexToPeerID[peerIndex] = peerID
     })
@@ -1038,12 +1018,9 @@ describe('DataReader', () => {
     const [x, y, z, w] = [0, 0, 0, 0]
 
     const userID = 'userId' as unknown as UserID & PeerID
-    const userIndex = 0
     const peerIndex = 0
     network.peerIDToPeerIndex[peerID] = peerIndex
     network.peerIndexToPeerID[peerIndex] = peerID
-    network.userIDToUserIndex[userID] = userIndex
-    network.userIndexToUserID[userIndex] = userID
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId

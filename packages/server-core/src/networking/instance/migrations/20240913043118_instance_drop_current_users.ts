@@ -23,28 +23,42 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NetworkID, PeerID } from '@ir-engine/hyperflux'
-import { MediaTagType } from '@ir-engine/network'
-import { ChannelID, LocationID, RoomCode } from '../schema.type.module'
+import type { Knex } from 'knex'
 
-export type NetworkConnectionParams = {
-  token: string
-  peerID: PeerID
-  locationId?: LocationID
-  instanceID?: NetworkID
-  channelId?: ChannelID
-  roomCode?: RoomCode
-  /** Address and port are used by ingress to route traffic */
-  address?: string
-  port?: string
+const instanceTableName = 'instance'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const projectColumnExists = await knex.schema.hasColumn(instanceTableName, 'currentUsers')
+
+  if (projectColumnExists === true) {
+    await knex.schema.alterTable(instanceTableName, async (table) => {
+      table.dropColumn('currentUsers')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export type TransportDirection = 'send' | 'receive'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export type MediaStreamAppData = {
-  mediaTag: MediaTagType
-  peerID: PeerID
-  direction: TransportDirection
-  channelId: ChannelID
-  clientDirection?: 'recv' | 'send'
+  const projectColumnExists = await knex.schema.hasColumn(instanceTableName, 'currentUsers')
+
+  if (projectColumnExists === false) {
+    await knex.schema.alterTable(instanceTableName, async (table) => {
+      table.integer('currentUsers', 11).defaultTo(0)
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

@@ -172,6 +172,14 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const dataChannelRegistry = useMutableState(DataChannelRegistryState)
   const dataProducerConsumerState = useMutableState(MediasoupDataProducerConsumerState)[props.networkID]
+
+  useMutableState(MediasoupTransportState).value[props.networkID]
+  const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
+  const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
+
+  const ready = !!recvTransport && !!sendTransport
+  if (!ready) return null
+
   return (
     <>
       {dataChannelRegistry.keys.map((dataChannelType) => (
@@ -197,9 +205,12 @@ const reactor = () => {
 
   return (
     <>
-      {networkIDs.map((id: InstanceID) => (
-        <NetworkReactor key={id} networkID={id} />
-      ))}
+      {networkIDs
+        .filter((networkID: InstanceID) => getState(NetworkState).networks[networkID].hostPeerID)
+
+        .map((id: InstanceID) => (
+          <NetworkReactor key={id} networkID={id} />
+        ))}
     </>
   )
 }

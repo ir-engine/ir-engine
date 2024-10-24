@@ -191,6 +191,8 @@ export const recordingResourceUploadPath = 'recording-resource-upload'
 
 export const instanceAttendancePath = 'instance-attendance'
 
+export const instanceSignalingPath = 'instance-signaling'
+
 export const fileBrowserPath = 'file-browser'
 
 export const fileBrowserUploadPath = 'file-browser-upload'

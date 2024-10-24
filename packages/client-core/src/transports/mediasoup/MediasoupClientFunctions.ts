@@ -71,7 +71,6 @@ import {
 } from '@ir-engine/hyperflux'
 import {
   DataChannelType,
-  MediaTagType,
   NetworkActions,
   NetworkPeerFunctions,
   NetworkState,
@@ -89,10 +88,7 @@ import {
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupDataProducerConsumerState'
-import {
-  MediasoupMediaProducerActions,
-  MediasoupMediaProducerConsumerState
-} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
+import { MediasoupMediaProducerActions } from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
@@ -157,20 +153,8 @@ export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Top
     mediasoupDevice,
     primus,
     heartbeat: setInterval(() => {
-      network.messageToPeer(network.hostPeerID, [])
-    }, 1000),
-    pauseTrack: (peerID: PeerID, track: MediaTagType, pause: boolean) => {
-      const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-        network.id,
-        peerID,
-        track
-      ) as ConsumerExtension
-      if (pause) {
-        MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
-      } else {
-        MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
-      }
-    }
+      network.messageToPeer(network.hostPeerID!, [])
+    }, 1000)
   })
 
   return network
@@ -202,6 +186,7 @@ export const connectToInstance = (
     const token = authState.authUser.accessToken
 
     const query: NetworkConnectionParams = {
+      peerID: Engine.instance.store.peerID,
       instanceID,
       locationId: locationID,
       channelId: channelID,
@@ -426,9 +411,8 @@ export const connectToNetwork = async (
   const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
 
   network.primus.on('data', (message) => {
-    if (!message) return
-    console.log('MESSAGE', message)
-    network.onMessage(network.hostPeerID, message)
+    if (!message || !Array.isArray(message)) return console.warn('Invalid message', message)
+    network.onMessage(network.hostPeerID!, message)
   })
 
   const message = (data) => {
@@ -449,7 +433,7 @@ export const connectToNetwork = async (
   }
 
   // we can assume that the host peer is always first to connect
-  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID, 0)
+  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID)
   network.peers[hostPeerID].transport = {
     message,
     buffer
