@@ -78,7 +78,11 @@ export const SkyboxComponent = defineComponent({
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
 
     useImmediateEffect(() => {
-      if (!skyboxState.cubemapPath.value)
+      if (!skyboxState.equirectangularPath.value || skyboxState.equirectangularPath.value === '')
+        skyboxState.equirectangularPath.set(
+          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/generic_midday_02.png`
+        )
+      if (!skyboxState.cubemapPath.value || skyboxState.cubemapPath.value === '')
         skyboxState.cubemapPath.set(
           `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
         )
