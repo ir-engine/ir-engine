@@ -41,6 +41,7 @@ import { twMerge } from 'tailwind-merge'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
+import './assetPanel.css'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
 import { useAssetsQuery } from './hooks'
 
