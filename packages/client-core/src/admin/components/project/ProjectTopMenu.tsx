@@ -35,7 +35,8 @@ import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-en
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind } from '@ir-engine/common'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import UpdateEngineModal from './UpdateEngineModal'
@@ -81,9 +82,8 @@ export default function ProjectTopMenu() {
     }
   }
 
-  const authState = useMutableState(AuthState)
-  const user = authState.user
-  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const githubProvider = identityProvidersQuery.data.find((ip) => ip.type === 'github')
 
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()

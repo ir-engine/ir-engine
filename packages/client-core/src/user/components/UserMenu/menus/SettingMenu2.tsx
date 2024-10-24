@@ -26,12 +26,19 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { useFind } from '@ir-engine/common'
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
+import { API, useFind } from '@ir-engine/common'
 import { defaultThemeModes, defaultThemeSettings } from '@ir-engine/common/src/constants/DefaultThemeSettings'
 import multiLogger from '@ir-engine/common/src/logger'
-import { UserSettingPatch, clientSettingPath } from '@ir-engine/common/src/schema.type.module'
+import {
+  ScopeType,
+  UserSettingPatch,
+  clientSettingPath,
+  scopePath,
+  userSettingPath
+} from '@ir-engine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
+import { Engine } from '@ir-engine/ecs'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
@@ -51,7 +58,6 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Menu from '../../../../common/components/Menu'
 import { clientContextParams } from '../../../../util/ClientContextState'
 import { UserMenus } from '../../../UserUISystem'
-import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
@@ -104,12 +110,26 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
   const handOptions = ['left', 'right']
   const selectedTab = useHookstate('general')
 
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSettings = clientSettingQuery.data[0]
-  const userSettings = selfUser.userSetting.value
+  const clientSettings = useFind(clientSettingPath).data[0]
+  const userSettings = useFind(userSettingPath).data[0]
 
-  const hasAdminAccess = userHasAccess('admin:admin')
-  const hasEditorAccess = userHasAccess('editor:write')
+  const adminScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'admin:admin' as ScopeType
+    }
+  })
+
+  const hasAdminAccess = adminScopeQuery.data.length > 0
+
+  const editorScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'editor:write' as ScopeType
+    }
+  })
+
+  const hasEditorAccess = editorScopeQuery.data.length > 0
   const themeSettings = { ...defaultThemeSettings, ...clientSettings?.themeSettings }
   const themeModes = {
     client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
@@ -121,12 +141,15 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
     if (!userSettings) return
 
     const settings: UserSettingPatch = { themeModes: { ...themeModes, [mode]: event } }
-    AuthService.updateUserSettings(userSettings.id, settings).then(() =>
-      logger.info({
-        event_name: `change_${name}_theme`,
-        event_value: event
-      })
-    )
+    API.instance
+      .service(userSettingPath)
+      .patch(userSettings.id, settings)
+      .then(() =>
+        logger.info({
+          event_name: `change_${name}_theme`,
+          event_value: event
+        })
+      )
   }
 
   useLayoutEffect(() => {

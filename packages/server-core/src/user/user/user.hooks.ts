@@ -43,6 +43,7 @@ import {
 } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
+import { userLoginPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -73,16 +74,6 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
   const hasUserWriteScope = await checkScope(loggedInUser, 'user', 'write')
 
   if (hasAdminScope && hasUserWriteScope) {
-    return
-  } else if (hasUserWriteScope) {
-    // do not allow user:write scope to change other users' scopes
-    if (Array.isArray(context.data)) {
-      context.data.forEach((userPatchData) => {
-        delete userPatchData.scopes
-      })
-    } else {
-      delete context.data?.scopes
-    }
     return
   }
 
@@ -142,47 +133,6 @@ const removeApiKey = async (context: HookContext<UserService>) => {
         userId: context.id as UserID
       }
     })
-  }
-}
-
-/**
- * Removes existing scopes of user
- * @param context
- */
-const removeUserScopes = async (context: HookContext<UserService>) => {
-  const data = Array.isArray(context.data) ? context.data : [context.data]
-
-  for (const item of data) {
-    if (item?.scopes) {
-      await context.app.service(scopePath).remove(null, {
-        query: {
-          userId: context.id as UserID
-        }
-      })
-    }
-  }
-}
-
-/**
- * Adds new scopes to user
- * @param useActualData
- */
-const addUserScopes = (useActualData = false) => {
-  return async (context: HookContext<UserService>) => {
-    const dataKey = useActualData ? 'actualData' : 'data'
-    const data: UserType[] = Array.isArray(context[dataKey]) ? context[dataKey] : [context[dataKey]]
-
-    for (const item of data) {
-      if (item?.scopes) {
-        const scopeData = item.scopes.map((el) => {
-          return {
-            ...el,
-            userId: useActualData ? item.id : (context.id as UserID)
-          }
-        })
-        if (scopeData.length > 0) await context.app.service(scopePath).create(scopeData)
-      }
-    }
   }
 }
 
@@ -314,6 +264,22 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
   }
 }
 
+const addLastLogin = async (context: HookContext<UserService>) => {
+  const results = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+
+  for (const item of results) {
+    const user = item as UserType
+    const lastLogin = await context.app.service(userLoginPath).find({
+      query: {
+        userId: user.id,
+        $sort: { createdAt: -1 },
+        $limit: 1
+      }
+    })
+    user.lastLogin = lastLogin.data[0]
+  }
+}
+
 export default createSkippableHooks(
   {
     around: {
@@ -338,7 +304,10 @@ export default createSkippableHooks(
         schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
         persistData,
-        discard('scopes', 'avatarId')
+        discard(
+          // 'scopes',
+          'avatarId'
+        )
       ],
       update: [disallow()],
       patch: [
@@ -347,8 +316,8 @@ export default createSkippableHooks(
         schemaHooks.resolveData(userPatchResolver),
         persistData,
         disallowNonId,
-        removeUserScopes,
-        addUserScopes(false),
+        // removeUserScopes,
+        // addUserScopes(false),
         discard('scopes', 'avatarId')
       ],
       remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
@@ -356,9 +325,15 @@ export default createSkippableHooks(
 
     after: {
       all: [],
-      find: [],
+      find: [iff(isProvider('external'), verifyScope('admin', 'admin'), addLastLogin)],
       get: [],
-      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode, addUpdateUserAvatar],
+      create: [
+        addUserSettings,
+        // addUserScopes(true),
+        addApiKey,
+        updateInviteCode,
+        addUpdateUserAvatar
+      ],
       update: [],
       patch: [updateInviteCode, addUpdateUserAvatar],
       remove: []

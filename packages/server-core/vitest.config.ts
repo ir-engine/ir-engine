@@ -33,6 +33,7 @@ export default defineConfig({
     passWithNoTests: true,
     isolate: true,
     fileParallelism: false,
+    hookTimeout: 60 * 1000,
     testTimeout: 60 * 1000,
     maxConcurrency: 1
   }
