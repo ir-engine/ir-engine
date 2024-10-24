@@ -220,11 +220,11 @@ export default function FilePropertiesModal() {
         >
           {t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
         </Button>
-        <div className="thumbnail-uploader">
+        <div className="mt-1 rounded-md bg-blue-primary px-4 py-1 text-base">
           {/* Use a label to trigger the file input click, no ref needed */}
-          <label className="mt-2 cursor-pointer text-xs">
+          <label className="mt-1 cursor-pointer text-xs">
             <input
-              type={t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
+              type="file"
               accept="image/*"
               onChange={handleUploadThumbnail} // Directly attach the handler here
               className="hidden"
