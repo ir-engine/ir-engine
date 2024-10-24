@@ -31,9 +31,9 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '../../input/Group'
-import NodeEditor from '../nodeEditor'
 
 /**
  * ShadowProperties used to create editor view for the properties of ModelNode.
@@ -46,7 +46,7 @@ export const ShadowNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.shadow.name')}
       component={ShadowComponent}
       description={t('editor:properties.shadow.description')}
-      icon={<ShadowNodeEditor.iconComponent />}
+      Icon={ShadowNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Cast Shadow" label={t('editor:properties.shadow.lbl-castShadow')}>

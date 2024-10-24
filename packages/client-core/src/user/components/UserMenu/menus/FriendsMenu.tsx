@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 

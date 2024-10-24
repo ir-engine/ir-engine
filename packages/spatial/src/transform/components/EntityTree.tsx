@@ -463,8 +463,8 @@ export function useAncestorWithComponents(
 
     const root = startEntity
       ? startReactor(function useQueryReactor() {
-          return <ParentSubReactor entity={startEntity} key={startEntity} />
-        })
+        return <ParentSubReactor entity={startEntity} key={startEntity} />
+      })
       : null
 
     return () => {
@@ -477,6 +477,7 @@ export function useAncestorWithComponents(
 }
 
 /**
+ * @internal
  * @description
  * React Hook that returns the closest child {@link Entity} of `@param rootEntity` that has all of the `@param components`
  *
@@ -484,6 +485,21 @@ export function useAncestorWithComponents(
  * @param components The list of Components that the child must have in order to be considered a match.
  * @returns The closest child {@link Entity} of `@param rootEntity` that matched the conditions.
  * */
+const _useHasAllComponents = (entity: Entity, components: ComponentType<any>[]) => {
+  let result = true
+  for (const component of components) {
+    if (!useOptionalComponent(entity, component)) {
+      result = false
+    }
+  }
+  return result
+}
+
+/**
+ * Returns the closest child of an entity that has a component
+ * @param rootEntity
+ * @param components
+ */
 export function useChildWithComponents(rootEntity: Entity, components: ComponentType<any>[]) {
   const result = useHookstate(UndefinedEntity)
   const componentsString = components.map((component) => component.name).join()
@@ -491,7 +507,7 @@ export function useChildWithComponents(rootEntity: Entity, components: Component
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
+      const matchesQuery = _useHasAllComponents(props.entity, components)
 
       useLayoutEffect(() => {
         if (!matchesQuery) return
@@ -533,7 +549,7 @@ export function useChildrenWithComponents(rootEntity: Entity, components: Compon
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
+      const matchesQuery = _useHasAllComponents(props.entity, components)
 
       useLayoutEffect(() => {
         if (!matchesQuery) return
