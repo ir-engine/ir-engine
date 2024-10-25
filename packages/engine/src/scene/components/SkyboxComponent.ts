@@ -54,12 +54,8 @@ export const SkyboxComponent = defineComponent({
 
   schema: S.Object({
     backgroundColor: S.Color(0x000000),
-    equirectangularPath: S.String(
-      `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sky_skybox.jpg`
-    ),
-    cubemapPath: S.String(
-      `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
-    ),
+    equirectangularPath: S.String(''),
+    cubemapPath: S.String(''),
     backgroundType: S.Number(1),
     sky: S.Nullable(S.Type<Sky>()),
     skyboxProps: S.Object({
@@ -78,6 +74,19 @@ export const SkyboxComponent = defineComponent({
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
+
+    useImmediateEffect(() => {
+      if (skyboxState.equirectangularPath.value === '')
+        skyboxState.equirectangularPath.set(
+          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sky_skybox.jpg`
+        )
+
+      if (skyboxState.cubemapPath.value === '')
+        skyboxState.cubemapPath.set(
+          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
+        )
+    }, [])
+
     const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
 
