@@ -162,6 +162,12 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
+  const clickState = useMutableState(ClickPlacementState)
+  let isSelected = clickState.selectedAsset.value === resource.url
+  useEffect(() => {
+    isSelected = clickState.selectedAsset.value === resource.url
+  }, [clickState.selectedAsset])
+
   return (
     <div
       key={resource.id}
@@ -172,7 +178,10 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
         event.stopPropagation()
         anchorEvent.set(event)
       }}
-      className={'mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center' + 'resource-file'}
+      className={twMerge(
+        'resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center',
+        isSelected && 'rounded bg-[#212226]'
+      )}
       data-testid="assets-panel-resource-file"
     >
       <div
