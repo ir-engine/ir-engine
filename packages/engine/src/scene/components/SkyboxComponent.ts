@@ -54,8 +54,12 @@ export const SkyboxComponent = defineComponent({
 
   schema: S.Object({
     backgroundColor: S.Color(0x000000),
-    equirectangularPath: S.String(''),
-    cubemapPath: S.String(''),
+    equirectangularPath: S.String(
+      `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sky_skybox.jpg`
+    ),
+    cubemapPath: S.String(
+      `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
+    ),
     backgroundType: S.Number(1),
     sky: S.Nullable(S.Type<Sky>()),
     skyboxProps: S.Object({
@@ -78,10 +82,6 @@ export const SkyboxComponent = defineComponent({
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
 
     useImmediateEffect(() => {
-      if (!skyboxState.cubemapPath.value)
-        skyboxState.cubemapPath.set(
-          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
-        )
       return () => {
         if (entityExists(entity) && hasComponent(entity, BackgroundComponent))
           removeComponent(entity, BackgroundComponent)
