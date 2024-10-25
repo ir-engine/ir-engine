@@ -28,23 +28,19 @@ import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
 import { SiAudiomack } from 'react-icons/si'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
-import NodeEditor from '../../nodeEditor'
 
 export const AudioAnalysisEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const audioAnalysisComponent = useComponent(props.entity, AudioAnalysisComponent)
 
   return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.audioAnalysis.name')}
-      icon={<AudioAnalysisEditor.iconComponent />}
-    >
+    <NodeEditor {...props} name={t('editor:properties.audioAnalysis.name')} Icon={AudioAnalysisEditor.iconComponent}>
       <InputGroup name="Bass" label={t('editor:properties.audioAnalysis.lbl-bassEnabled')}>
         <BooleanInput
           value={audioAnalysisComponent.bassEnabled.value}

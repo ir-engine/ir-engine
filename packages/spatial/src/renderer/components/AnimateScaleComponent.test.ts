@@ -34,6 +34,7 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../initializeEngine'
 import { TransformComponent } from '../RendererModule'

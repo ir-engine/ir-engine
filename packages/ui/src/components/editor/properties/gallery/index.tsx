@@ -21,9 +21,13 @@ Original Code is the Infinite Reality Engine team.
 
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
+/*
+CPAL-1.0 License
+...
 */
 
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsPlusSquare } from 'react-icons/bs'
@@ -32,12 +36,9 @@ import { Quaternion, Vector3 } from 'three'
 import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
 import StringInput from '../../input/String'
-import NodeEditor from '../nodeEditor'
 
 export const GalleryNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-
-  //const spawnComponent = useComponent(props.entity, SpawnPointComponent)
   const elements = ['hello', 'bye', 'thanks'] // temp use
 
   return (
@@ -45,7 +46,7 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.gallery.name')}
       description={t('editor:properties.gallery.description')}
-      icon={<GalleryNodeEditor.iconComponent />}
+      Icon={GalleryNodeEditor.iconComponent}
     >
       <div className="flex w-full items-center gap-2 py-1">
         <Text fontSize="xs" className="ml-14 w-full">
@@ -56,11 +57,7 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
             className="text-white"
             onClick={() => {
               const elem = { position: new Vector3(), quaternion: new Quaternion() }
-              const newElements = [
-                //...elements.get(NO_PROXY),
-                ...elements,
-                elem
-              ]
+              const newElements = [...elements, elem]
               //commitProperty(, 'elements')(newElements)
             }}
           />

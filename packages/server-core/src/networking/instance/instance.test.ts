@@ -23,8 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { InstanceID, instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { LocationID, LocationType, RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'
@@ -39,8 +42,8 @@ const params = { isInternal: true } as any
 describe('instance.test', () => {
   let app: Application
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
 
     testLocation = await createTestLocation(app, params)
@@ -58,7 +61,7 @@ describe('instance.test', () => {
     }
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

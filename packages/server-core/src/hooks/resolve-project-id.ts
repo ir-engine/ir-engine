@@ -44,6 +44,7 @@ export default () => {
       query: { name: projectName, $limit: 1 }
     })) as Paginated<ProjectType>
 
+    console.log(projectResult.data)
     if (projectResult.data.length === 0) {
       throw new BadRequest(`No project named ${projectName} exists`)
     }

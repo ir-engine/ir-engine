@@ -44,7 +44,6 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState, isClient, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -60,6 +59,7 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 import { WebLayer3D } from '@ir-engine/xrui'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
@@ -67,11 +67,12 @@ import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
-import { inFrustum, InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
+import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
 import { InteractiveModalState } from '../ui/InteractiveModalView'
 
 /**

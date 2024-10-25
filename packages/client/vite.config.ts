@@ -27,7 +27,7 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs, { readFileSync, writeFileSync } from 'fs'
-import lodash from 'lodash'
+import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
@@ -42,8 +42,6 @@ import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
 import { getEngineSetting } from './scripts/getEngineSettings'
-
-const { isArray, mergeWith } = lodash
 
 const parseModuleName = (moduleName: string) => {
   // // chunk medisoup-client
@@ -117,13 +115,6 @@ const merge = (src, dest) =>
       return b.concat(a)
     }
   })
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import('ts-node').then((tsnode) => {
-  tsnode.register({
-    project: './tsconfig.json'
-  })
-})
 
 const getProjectConfigExtensions = async (config: UserConfig) => {
   const projects = fs.existsSync(path.resolve(__dirname, '../projects/projects'))

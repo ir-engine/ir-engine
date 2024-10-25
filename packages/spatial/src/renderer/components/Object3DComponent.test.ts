@@ -34,6 +34,7 @@ import {
 } from '@ir-engine/ecs'
 import assert from 'assert'
 import { BoxGeometry, Mesh, Object3D } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { NameComponent } from '../../common/NameComponent'
 import { Object3DComponent } from './Object3DComponent'
 

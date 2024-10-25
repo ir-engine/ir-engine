@@ -22,12 +22,13 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
-import { useHookstate } from '@hookstate/core'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
+import { useHookstate } from '@ir-engine/hyperflux'
+import { DropdownItem } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -36,8 +37,6 @@ import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsThreeDotsVertical } from 'react-icons/bs'
-import { LuTrash } from 'react-icons/lu'
-import { MdOutlineEdit } from 'react-icons/md'
 
 type SceneItemProps = {
   scene: StaticResourceType
@@ -118,51 +117,37 @@ export default function SceneItem({
               />
             }
           >
-            <ul className="fixed z-10 block w-max translate-x-5 rounded-lg bg-theme-primary px-4 py-3 pr-10">
-              <li className="h-8">
-                <Button
-                  variant="transparent"
-                  size="medium"
-                  className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
-                  startIcon={<MdOutlineEdit />}
-                  data-testid="scene-rename-button"
-                  onClick={() => {
-                    isOptionsPopupOpen.set(false)
-                    PopoverState.showPopupover(
-                      <RenameSceneModal
-                        sceneName={sceneName}
-                        scene={scene}
-                        onRenameScene={onRenameScene}
-                        refetchProjectsData={refetchProjectsData}
-                      />
-                    )
-                  }}
-                >
-                  {t('editor:hierarchy.lbl-rename')}
-                </Button>
-              </li>
-              <li className="h-8">
-                <Button
-                  variant="transparent"
-                  size="medium"
-                  className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
-                  startIcon={<LuTrash />}
-                  data-testid="scene-delete-button"
-                  onClick={() => {
-                    isOptionsPopupOpen.set(false)
-                    PopoverState.showPopupover(
-                      <ConfirmDialog
-                        title={t('editor:hierarchy.lbl-deleteScene')}
-                        text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
-                        onSubmit={async () => deleteSelectedScene(scene)}
-                      />
-                    )
-                  }}
-                >
-                  {t('editor:hierarchy.lbl-delete')}
-                </Button>
-              </li>
-            </ul>
+            <div className="w-[180px]" tabIndex={0}>
+              <DropdownItem
+                className="rounded-t-lg"
+                title={t('editor:hierarchy.lbl-rename')}
+                onClick={() =>
+                  PopoverState.showPopupover(
+                    <RenameSceneModal
+                      sceneName={sceneName}
+                      scene={scene}
+                      onRenameScene={onRenameScene}
+                      refetchProjectsData={refetchProjectsData}
+                    />
+                  )
+                }
+                data-testid="scene-rename-button"
+              />
+              <DropdownItem
+                className="rounded-b-lg"
+                title={t('editor:hierarchy.lbl-delete')}
+                onClick={() =>
+                  PopoverState.showPopupover(
+                    <ConfirmDialog
+                      title={t('editor:hierarchy.lbl-deleteScene')}
+                      text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
+                      onSubmit={async () => deleteSelectedScene(scene)}
+                    />
+                  )
+                }
+                data-testid="scene-delete-button"
+              />
+            </div>
           </Popup>
         </div>
       </div>
