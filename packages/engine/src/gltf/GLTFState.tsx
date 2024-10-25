@@ -77,6 +77,7 @@ import {
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -432,10 +433,14 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
 
     const obj3d = getComponent(rootEntity, Object3DComponent)
     obj3d.animations = animationState.get(NO_PROXY) as AnimationClip[]
-    setComponent(rootEntity, AnimationComponent, {
-      mixer: new AnimationMixer(obj3d),
-      animations: obj3d.animations
-    })
+    if (!hasComponent(rootEntity, AnimationComponent)) {
+      setComponent(rootEntity, AnimationComponent, {
+        mixer: new AnimationMixer(obj3d),
+        animations: obj3d.animations
+      })
+    } else {
+      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
+    }
 
     return () => {
       if (entityExists(rootEntity)) {
@@ -779,6 +784,28 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
   const nodes = documentState.nodes!.get(NO_PROXY)!
   const node = nodes[props.nodeIndex]!
   const extension = node.extensions![props.extension]
+
+  const extras = node.extras
+  /**@todo detect component use through extras until we have better tooling
+   * for artists to define colliders and other components using ecs extensions in Blender
+   */
+  useEffect(() => {
+    if (!extras) return
+    const data = [...Object.entries(extras)]
+    for (const [key, value] of data) {
+      const parts = key.split('.')
+      if (parts.length > 1) {
+        if (parts[0] === 'xrengine') {
+          if (ComponentJSONIDMap.has(parts[1])) {
+            const Component = ComponentJSONIDMap.get(parts[1])
+            if (!Component) return console.warn('no component found for extension', parts[1])
+            setComponent(props.entity, Component)
+            if (Component === ColliderComponent) removeComponent(props.entity, VisibleComponent)
+          }
+        }
+      }
+    }
+  }, [extras])
 
   useEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)

@@ -142,6 +142,16 @@ const _rightHandPos = new Vector3(),
 export default function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getState(GLTFDocumentState)[documentID]
+
+  //formats an object of human bones to be used in the VRM constructor
+  const formatHumanBones = (humanBones: { [key: string]: { node: number } }) => {
+    const bones = [] as V0VRM.HumanoidBone[]
+    for (const bone in humanBones) {
+      bones.push({ bone: bone as V0VRM.HumanoidBoneName, node: humanBones[bone].node })
+    }
+    return bones
+  }
+
   // console.log(gltf)
   if (!hasComponent(rootEntity, Object3DComponent)) {
     const obj3d = new Group()
@@ -155,16 +165,18 @@ export default function createVRM(rootEntity: Entity) {
     const vrmExtensionDefinition = (gltf.extensions!.VRM as V0VRM.VRM) ?? (gltf.extensions.VRMC_vrm as V0VRM.VRM)
     const humanBonesArray = Array.isArray(vrmExtensionDefinition.humanoid?.humanBones)
       ? vrmExtensionDefinition.humanoid?.humanBones
-      : Object.values(vrmExtensionDefinition.humanoid!.humanBones!)
-    // console.log(humanBonesArray)
+      : formatHumanBones(vrmExtensionDefinition.humanoid!.humanBones as any)
+    console.log(humanBonesArray)
+    console.log(vrmExtensionDefinition.humanoid?.humanBones)
     const bones = humanBonesArray.reduce((bones, bone) => {
       // console.log(bone)
       const nodeID = `${documentID}-${bone.node}` as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(nodeID)
       bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
+      console.log(bone.bone, bones[bone.bone!])
       return bones
     }, {} as VRMHumanBones)
-    // console.log(bones)
+    console.log(bones)
     // console.log(vrmExtensionDefinition)
 
     /**hacky, @todo test with vrm1 */
@@ -172,7 +184,7 @@ export default function createVRM(rootEntity: Entity) {
       const bone = getOptionalComponent(entity, BoneComponent)
       bone?.matrixWorld.identity()
       bone?.quaternion.set(0, 0, 0, 1)
-      if (entity !== bones.hips.node.parent!.entity) bone?.matrixWorld.makeRotationY(Math.PI)
+      if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
     })
     bones.hips.node.rotateY(Math.PI)
 
