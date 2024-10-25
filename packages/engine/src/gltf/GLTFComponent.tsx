@@ -444,7 +444,7 @@ export const loadGltfFile = (
       json = migrateSceneJSONToGLTF(json)
     }
 
-    onLoad(json, body)
+    onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
   }
 
   const loader = new FileLoader()
@@ -490,7 +490,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
         dispatchAction(
           GLTFSnapshotAction.createSnapshot({
             source,
-            data: parseStorageProviderURLs(JSON.parse(JSON.stringify(gltf)))
+            data: gltf
           })
         )
       },
