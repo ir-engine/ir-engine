@@ -20,7 +20,7 @@
         "EE_visible": true,
         "EE_skybox": {
           "backgroundColor": 0,
-          "equirectangularPath": "",
+          "equirectangularPath": "__$project$__/projects/ir-engine/default-project/assets/generic_midday_02.png",
           "cubemapPath": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
           "backgroundType": 1,
           "skyboxProps": {
