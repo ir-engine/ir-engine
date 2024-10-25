@@ -36,6 +36,7 @@ import {
   Matrix4,
   Mesh,
   MeshStandardMaterial,
+  Object3D,
   Quaternion,
   Skeleton,
   SkinnedMesh,
@@ -84,6 +85,7 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
@@ -886,6 +888,12 @@ const SkinnedMeshReactor = (props: { nodeIndex: number; documentID: string; enti
 
     const skeleton = new Skeleton(bones, boneInverses)
     skinnedMeshComponent.skeleton.set(skeleton)
+
+    const url = options.url
+    ResourceManager.addReferencedAsset(url, skeleton as unknown as Object3D, ResourceType.Object3D)
+    return () => {
+      ResourceManager.removeReferencedAsset(url, skeleton as unknown as Object3D, ResourceType.Object3D)
+    }
   }, [jointEntityLoadedState, inverseBindMatrices, !!skinnedMeshComponent])
 
   return (
@@ -984,12 +992,14 @@ const PrimitiveReactor = (props: {
     }
 
     setComponent(props.entity, MeshComponent, mesh)
-
     addObjectToGroup(props.entity, mesh)
     proxifyParentChildRelationships(mesh)
-
     mesh.name = node.name ?? 'Node-' + props.nodeIndex
+
+    const url = options.url
+    ResourceManager.addReferencedAsset(url, mesh, ResourceType.Mesh)
     return () => {
+      ResourceManager.removeReferencedAsset(url, mesh, ResourceType.Mesh)
       if (entityExists(props.entity)) {
         removeComponent(props.entity, SkinnedMeshComponent)
         removeComponent(props.entity, MeshComponent)

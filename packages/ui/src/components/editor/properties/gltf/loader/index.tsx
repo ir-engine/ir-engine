@@ -33,7 +33,6 @@ import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEdito
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
@@ -95,7 +94,6 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
     exportRelativeGLTF(props.entity, srcProject.value, fileName).then(() => {
       const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
       commitProperty(GLTFComponent, 'src')(nuPath)
-      ResourceLoaderManager.updateResource(nuPath)
       exporting.set(false)
     })
   }

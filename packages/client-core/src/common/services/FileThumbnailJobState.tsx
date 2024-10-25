@@ -67,12 +67,9 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import {
-  useChildWithComponents,
-  useChildrenWithComponents
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -244,6 +241,7 @@ const useRenderEntities = (src: string): [Entity, Entity, Entity, Entity] => {
     setComponent(entity, VisibleComponent)
     setComponent(entity, ShadowComponent, { cast: true, receive: true })
     setComponent(entity, BoundingBoxComponent)
+    setComponent(entity, SceneComponent)
 
     setComponent(lightEntity, TransformComponent, { rotation: new Quaternion().setFromEuler(new Euler(-4, -0.5, 0)) })
     setComponent(lightEntity, NameComponent, 'thumbnail job light for ' + src)
@@ -383,7 +381,6 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
   const loaded = GLTFComponent.useSceneLoaded(entity)
-  const meshes = useChildrenWithComponents(entity, [MeshComponent])
 
   useEffect(() => {
     if (!entity || !lightEntity || !skyboxEntity || !cameraEntity) return
@@ -391,9 +388,9 @@ const RenderModelThumbnail = (props: RenderThumbnailProps) => {
   }, [entity, lightEntity, skyboxEntity, cameraEntity])
 
   useEffect(() => {
-    if (!loaded || !meshes.length) return
+    if (!loaded) return
     renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
-  }, [loaded, meshes.length])
+  }, [loaded])
 
   useEffect(() => {
     if (!errors) return
