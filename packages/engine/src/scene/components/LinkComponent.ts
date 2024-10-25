@@ -46,11 +46,7 @@ const linkLogic = (linkEntity: Entity, xrState) => {
   //   getMutableState(LinkState).location.set(linkComponent.location)
   // }
   xrState && xrState.session?.end()
-  if (linkComponent.newTab) {
-    typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
-  } else {
-    typeof window === 'object' && window && (window.location.href = linkComponent.url)
-  }
+  typeof window === 'object' && window && linkComponent.newTab ? window.open(linkComponent.url, '_blank') : (window.location.href = linkComponent.url)
 }
 const linkCallback = (linkEntity: Entity) => {
   const buttons = InputComponent.getMergedButtons(linkEntity)
