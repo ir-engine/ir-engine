@@ -44,7 +44,6 @@ import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunc
 import { UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
-import styles from '../index.module.scss'
 import { SupportedSdks, isAvaturn } from './AvatarCreatorMenu'
 import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
 
@@ -258,9 +257,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
               )}
               {loading.value !== LoadingState.LoadingCreator && avatarUrl && (
                 <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
-                  <div
-                    className={`${styles.stars} absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent`}
-                  ></div>
+                  <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
                   <AvatarPreview
                     avatarUrl={avatarUrl.value}
                     fill

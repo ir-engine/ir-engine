@@ -47,7 +47,6 @@ import { PopoverState } from '../../../../common/services/PopoverState'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
-import styles from '../index.module.scss'
 import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
 
 const AVATAR_PAGE_LIMIT = 100
@@ -140,9 +139,7 @@ const AvatarMenu2 = () => {
             </div>
             <div className="grid h-full w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
               <div className="relative rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
-                <div
-                  className={`${styles.stars} absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent`}
-                ></div>
+                <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
                 <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
               </div>
               <div className="grid h-full w-full grid-flow-row grid-rows-[3rem,1fr]">
