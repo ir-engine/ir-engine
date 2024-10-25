@@ -39,7 +39,8 @@ import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/Buf
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { MaterialPrototypeComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import { useReferencedResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { useEffect } from 'react'
 import {
   AnimationClip,
@@ -141,7 +142,7 @@ const useLoadPrimitives = (options: GLTFParserOptions, nodeIndex: number) => {
 }
 
 const useLoadPrimitive = (options: GLTFParserOptions, nodeIndex: number, primitiveIndex: number) => {
-  const [result] = useResource(() => null as null | BufferGeometry)
+  const [result] = useReferencedResource(() => null as null | BufferGeometry, options.url)
 
   const json = options.document
   const node = json.nodes![nodeIndex]!
@@ -481,7 +482,7 @@ const useLoadMaterial = (
   options: GLTFParserOptions,
   materialDef: ComponentType<typeof MaterialDefinitionComponent>
 ) => {
-  const [result] = useResource(() => null as null | MeshStandardMaterial | MeshBasicMaterial)
+  const [result] = useReferencedResource(() => null as null | MeshStandardMaterial | MeshBasicMaterial, options.url)
 
   useEffect(() => {
     /** @todo refactor this into a proper registry, rather than prototype definition entities */
@@ -939,7 +940,7 @@ const useLoadImageSource = (
   useEffect(() => {
     if (!loadedTexture) return
 
-    let resultTexture
+    let resultTexture: Texture
     if (isClient) {
       if (loadedTexture instanceof ImageBitmap) {
         resultTexture = new Texture(loadedTexture as ImageBitmap)
@@ -952,6 +953,11 @@ const useLoadImageSource = (
     }
 
     result.set(resultTexture)
+    const url = options.url
+    ResourceManager.addReferencedAsset(url, resultTexture, ResourceType.Texture)
+    return () => {
+      ResourceManager.removeReferencedAsset(url, resultTexture, ResourceType.Texture)
+    }
   }, [loadedTexture])
 
   useEffect(() => {

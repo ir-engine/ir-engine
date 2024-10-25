@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, Static, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -70,12 +70,28 @@ export enum Devices {
   XR = 'XR'
 }
 
+const distanceMetadataSchema = S.Object({
+  minDistance: S.Optional(S.Number()),
+  maxDistance: S.Optional(S.Number())
+})
+
+const deviceMetadataSchema = S.Object({
+  device: S.Optional(S.Enum(Devices))
+})
+
+export type VariantMetadata = Static<typeof distanceMetadataSchema> | Static<typeof deviceMetadataSchema>
+
 export const VariantComponent = defineComponent({
   name: 'EE_variant',
   jsonID: 'EE_variant',
 
   schema: S.Object({
-    levels: S.Array(S.Object({ src: S.String(), metadata: S.Record(S.String(), S.Any()) })),
+    levels: S.Array(
+      S.Object({
+        src: S.String(),
+        metadata: S.Union([distanceMetadataSchema, deviceMetadataSchema])
+      })
+    ),
     heuristic: S.Enum(Heuristic, Heuristic.MANUAL),
     currentLevel: S.NonSerialized(S.Number(0))
   }),

@@ -548,7 +548,7 @@ export function getChildrenWithComponents(rootEntity: Entity, components: Compon
   const children = [] as Entity[]
 
   const tree = getOptionalComponent(rootEntity, EntityTreeComponent)
-  if (!tree?.children) return [] as Entity[]
+  if (!tree?.children) return children
 
   const results = tree.children.filter((childEntity) => hasComponents(childEntity, components))
   children.push(...results)
@@ -558,6 +558,22 @@ export function getChildrenWithComponents(rootEntity: Entity, components: Compon
   }
 
   return children
+}
+
+export function getChildWithComponents(rootEntity: Entity, components: ComponentType<any>[]): Entity {
+  const tree = getOptionalComponent(rootEntity, EntityTreeComponent)
+  if (!tree?.children) return UndefinedEntity
+
+  for (const childEntity of tree.children) {
+    if (hasComponents(childEntity, components)) return childEntity
+  }
+
+  for (const childEntity of tree.children) {
+    const found = getChildWithComponents(childEntity, components)
+    if (found) return found
+  }
+
+  return UndefinedEntity
 }
 
 /** @todo make a query component for useTreeQuery */

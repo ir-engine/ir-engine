@@ -287,8 +287,8 @@ export const RendererComponent = defineComponent({
         canvas.removeEventListener('webglcontextlost', handleWebGLContextLost)
         // canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
 
-        rendererComponent.value.renderer?.dispose()
-        rendererComponent.value.effectComposer?.dispose()
+        renderer.dispose()
+        composer.dispose()
       }
     }, [rendererComponent.renderContext.value])
 

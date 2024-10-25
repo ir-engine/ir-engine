@@ -69,9 +69,9 @@ type LineSegmentComponentData = {
   name: string
   geometry: BufferGeometry
   material: Material
-  color: ColorRepresentation | undefined
+  color?: ColorRepresentation
   layerMask: number
-  entity: undefined | Entity
+  entity?: Entity
 }
 
 const LineSegmentComponentDefaults = {
