@@ -74,14 +74,23 @@ export const SkyboxComponent = defineComponent({
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
+
+    useImmediateEffect(() => {
+      if (skyboxState.equirectangularPath.value === '')
+        skyboxState.equirectangularPath.set(
+          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sky_skybox.jpg`
+        )
+
+      if (skyboxState.cubemapPath.value === '')
+        skyboxState.cubemapPath.set(
+          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
+        )
+    }, [])
+
     const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
 
     useImmediateEffect(() => {
-      if (!skyboxState.cubemapPath.value)
-        skyboxState.cubemapPath.set(
-          `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/skyboxsun25deg/`
-        )
       return () => {
         if (entityExists(entity) && hasComponent(entity, BackgroundComponent))
           removeComponent(entity, BackgroundComponent)
