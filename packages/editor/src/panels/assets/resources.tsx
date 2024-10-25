@@ -33,7 +33,7 @@ import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -200,31 +200,111 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   )
 }
 
-function ResourceItems() {
+function MiniNavBar() {
   const { t } = useTranslation()
-  const { resources } = useAssetsQuery()
+  const { resources, staticResourcesPagination } = useAssetsQuery()
+  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
 
+  // split into packets of page sizes and render them
   return (
     <>
-      {resources.length === 0 && (
-        <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
-          {t('editor:layout.scene-assets.no-search-results')}
-        </div>
-      )}
-      {resources.length > 0 && (
-        <>
-          <div
-            id="asset-items"
-            className="relative mt-auto flex h-full w-full flex-wrap gap-2"
-            data-testid="assets-panel-resource-items"
-          >
-            {resources.map((resource) => (
-              <ResourceFile key={resource.id} resource={resource as StaticResourceType} />
-            ))}
+      {resources.length > 0 &&
+        Array.from({ length: pages }, (_, i) => (
+          <div className="flex w-8 flex-col gap-4">
+            <div className="mt-4 flex h-2.5 w-8 flex-row border-t-[0.5px] border-solid pt-1 text-[smaller] text-gray-500"></div>
           </div>
-        </>
-      )}
+        ))}
     </>
+  )
+}
+function ResourceItems() {
+  const { t } = useTranslation()
+  const { resources, staticResourcesPagination } = useAssetsQuery()
+  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
+
+  const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null) // Track the hovered index
+
+  const handleScrollToPage = (pageIndex: number) => {
+    if (pageRefs.current[pageIndex]) {
+      pageRefs.current[pageIndex]!.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+  return (
+    <div className="relative flex">
+      {/* Main Content */}
+      <div className="relative w-[95%]">
+        {' '}
+        {/* Added padding on the right to avoid overlap */}
+        {resources.length === 0 && (
+          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
+            {t('editor:layout.scene-assets.no-search-results')}
+          </div>
+        )}
+        {resources.length > 0 &&
+          Array.from({ length: pages }, (_, i) => (
+            <div
+              key={i}
+              ref={(el) => (pageRefs.current[i] = el)} // Attach ref to each page
+              className="flex w-full flex-col gap-2"
+            >
+              <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid pt-1 text-[smaller] text-gray-500">
+                {i > 0 && (
+                  <Button
+                    className="text-grey-500 mr-auto text-xs"
+                    size="small"
+                    variant="transparent"
+                    onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
+                  >
+                    {'Previous'}
+                  </Button>
+                )}
+                <span className="ml-auto">
+                  {i * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()) + 1} -{' '}
+                  {Math.min(
+                    (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
+                    staticResourcesPagination.total.value
+                  )}{' '}
+                  of {staticResourcesPagination.total.value}
+                </span>
+              </div>
+              <div
+                id="asset-items"
+                className="relative mt-auto flex w-full flex-wrap gap-2"
+                data-testid="assets-panel-resource-items"
+              >
+                {resources
+                  .slice(
+                    i * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
+                    (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch())
+                  )
+                  .map((resource) => (
+                    <ResourceFile key={resource.id} resource={resource as StaticResourceType} />
+                  ))}
+              </div>
+            </div>
+          ))}
+      </div>
+
+      {/* Sticky Mini Navbar */}
+      <div className="relative">
+        <div className="fixed flex w-6 flex-col items-end justify-start gap-2 py-2 ">
+          {' '}
+          {/* Sticky positioning */}
+          {Array.from({ length: pages }, (_, i) => (
+            <div
+              key={i}
+              className={`py-.5 h-0.5 w-[50%] transition-all duration-300
+                ${hoveredIndex === i - 1 || hoveredIndex === i + 1 ? 'bg-gray-700' : 'bg-gray-400'}
+                relative cursor-pointer hover:w-[100%] hover:translate-x-[-0%] hover:transform hover:bg-white`}
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
+              onClick={() => handleScrollToPage(i)}
+            ></div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -232,7 +312,7 @@ export default function Resources() {
   const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
 
   return (
-    <div id="asset-panel" className="flex h-full w-full flex-col overflow-auto">
+    <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto">
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
         onScrollBottom={() => {
@@ -240,7 +320,10 @@ export default function Resources() {
           refetchResources()
         }}
       >
-        <div className="mt-auto flex h-full w-full flex-wrap gap-2" data-testid="assets-panel-resource-items-container">
+        <div
+          className="relative mt-auto flex h-full w-full flex-wrap gap-2"
+          data-testid="assets-panel-resource-items-container"
+        >
           <ResourceItems />
         </div>
         {resourcesLoading && <LoadingView spinnerOnly className="h-6 w-6" />}
