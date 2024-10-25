@@ -73,9 +73,8 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   }, [errors])
 
   useEffect(() => {
-    if (!modelComponent.scene.value) return
     removeLoadingGeo()
-  }, [modelComponent.scene.value])
+  }, [modelComponent.scene])
 
   return null
 }
