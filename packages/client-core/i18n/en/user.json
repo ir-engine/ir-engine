@@ -6,7 +6,9 @@
     "saving": "Saving",
     "upload": "Upload",
     "discardChanges": "Discard Changes",
-    "confirmDiscardChange": "Changes you made may not be saved."
+    "confirmDiscardChange": "Changes you made may not be saved.",
+    "changesLostAlert": "If you proceed all your changes will be lost.",
+    "discard": "Discard"
   },
   "auth": {
     "confirmEmail": {
@@ -325,9 +327,10 @@
   },
   "avatar": {
     "titleEditAvatar": "Edit Avatar",
-    "titleSelectAvatar": "Select Avatar",
+    "titleSelectAvatar": "Select Your Avatar",
     "titleUploadAvatar": "Upload Avatar",
     "titleSelectThumbnail": "Select Thumbnail",
+    "titleCustomizeAvatar": "Customize Your Avatar",
     "lbl-browse": "Browse",
     "lbl-thumbnail": "Thumbnail",
     "lbl-upload": "Upload",
@@ -376,7 +379,13 @@
     "thumbnail": "Thumbnail",
     "enterAvatarUrl": "Enter Avatar URL",
     "enterThumbnailUrl": "Enter Thumbnail URL",
-    "avatarName": "Avatar Name"
+    "avatarName": "Avatar Name",
+    "done": "Done",
+    "finishEditing": "Finish Editing",
+    "discardAvatarChanges": "Discard Your Avatar?",
+    "InputAvatarName": "Enter an Avatar Name",
+    "savingAvatar": "Saving {{avatar}}",
+    "packagingAvatar": "Packaging & adding avatar to your Account..."
   },
   "menu": {
     "settings": "Profile",
