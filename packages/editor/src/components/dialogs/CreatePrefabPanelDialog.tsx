@@ -245,7 +245,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     <>
       {!isOverwriteModalVisible.value && !isOverwriteConfirmed.value && (
         <Modal
-          title="Create Prefab"
+          title={isExportLookDev ? 'Create Lookdev Prefab' : 'Create Prefab'}
           onSubmit={onExportPrefab}
           className="w-[50vw] max-w-2xl"
           onClose={PopoverState.hidePopupover}
@@ -261,45 +261,48 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
             label="Name"
             maxLength={64}
           />
-
-          <Button
-            size="small"
-            variant="outline"
-            className="text-left text-xs"
-            onClick={() => {
-              prefabTag.set([...(prefabTag.value ?? []), ''])
-            }}
-          >
-            {t('editor:layout.filebrowser.fileProperties.addTag')}
-          </Button>
-          <div>
-            {(prefabTag.value ?? []).map((tag, index) => (
-              <div className="ml-4 flex items-end">
-                <Input
-                  key={index}
-                  label={t('editor:layout.filebrowser.fileProperties.tag')}
-                  onChange={(event) => {
-                    const tags = [...prefabTag.value]
-                    tags[index] = event.target.value
-                    prefabTag.set(tags)
-                  }}
-                  value={prefabTag.value[index]}
-                  endComponent={
-                    <Button
-                      onClick={() => {
-                        prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
+          {!isExportLookDev && (
+            <div>
+              <Button
+                size="small"
+                variant="outline"
+                className="text-left text-xs"
+                onClick={() => {
+                  prefabTag.set([...(prefabTag.value ?? []), ''])
+                }}
+              >
+                {t('editor:layout.filebrowser.fileProperties.addTag')}
+              </Button>
+              <div>
+                {(prefabTag.value ?? []).map((tag, index) => (
+                  <div className="ml-4 flex items-end">
+                    <Input
+                      key={index}
+                      label={t('editor:layout.filebrowser.fileProperties.tag')}
+                      onChange={(event) => {
+                        const tags = [...prefabTag.value]
+                        tags[index] = event.target.value
+                        prefabTag.set(tags)
                       }}
-                      size="small"
-                      variant="outline"
-                      className="text-left text-xs"
-                    >
-                      x
-                    </Button>
-                  }
-                />
+                      value={prefabTag.value[index]}
+                      endComponent={
+                        <Button
+                          onClick={() => {
+                            prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
+                          }}
+                          size="small"
+                          variant="outline"
+                          className="text-left text-xs"
+                        >
+                          x
+                        </Button>
+                      }
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </Modal>
       )}
       {/* Overwrite Confirmation Modal */}
