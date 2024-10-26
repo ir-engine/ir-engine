@@ -33,11 +33,14 @@ import { UserMenus } from '../../../user/UserUISystem'
 import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
+import { useFind } from '@ir-engine/common'
 
 const ProfilePill = () => {
   const user = getMutableState(AuthState).user
   const avatarThumbnail = useUserAvatarThumbnail(user.value.id)
-  const email = user.value.identityProviders.find((ip) => ip.type === 'email')?.accountIdentifier
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const email = identityProvidersQuery.data.find((ip) => ip.type === 'email')?.accountIdentifier
   const popUpOpened = useHookstate(false)
   return (
     <Popup
