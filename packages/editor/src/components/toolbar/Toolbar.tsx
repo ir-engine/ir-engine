@@ -30,7 +30,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
 import { useFind } from '@ir-engine/common'
-import { ScopeType, identityProviderPath, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
+import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
