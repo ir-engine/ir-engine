@@ -20,7 +20,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Id, NullableId } from '@feathersjs/feathers'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { ScopeType, UserType, scopePath, userLoginPath, userPath } from '@ir-engine/common/src/schema.type.module'
+import {
+  ScopeType,
+  UserType,
+  scopePath,
+  userAvatarPath,
+  userLoginPath,
+  userPath
+} from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -114,6 +121,12 @@ export default function UserTable({
           $limit: 1
         }
       })
+      const userAvatarQuery = useFind(userAvatarPath, {
+        query: {
+          userId: row.id
+        }
+      })
+      const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
       return {
         select: (
           <Checkbox
@@ -132,7 +145,7 @@ export default function UserTable({
             </Tooltip>
           </div>
         ),
-        avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
+        avatar: <AvatarImage src={userAvatar?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin:
           login.data.length > 0 ? (

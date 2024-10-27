@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { MethodNotAllowed } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { random } from 'lodash'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
@@ -43,7 +44,7 @@ import {
 } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
-import { userLoginPath } from '@ir-engine/common/src/schema.type.module'
+import { avatarPath, staticResourcePath, userLoginPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -85,7 +86,6 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
   const process = (item: UserType) => {
     const data = {} as UserPatch
     // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
-    if (typeof item.avatarId !== 'undefined') data.avatarId = item.avatarId
     if (typeof item.name !== 'undefined') data.name = item.name
     if (typeof item.acceptedTOS !== 'undefined') data.acceptedTOS = item.acceptedTOS
 
@@ -164,8 +164,29 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
     data[0].id = context.id as UserID
   }
 
+  const avatars = await context.app
+    .service(avatarPath)
+    .find({ isInternal: true, query: { isPublic: true, skipUser: true, $limit: 1000 } })
+
+  let selectedAvatarId
+  while (selectedAvatarId == null) {
+    const randomId = random(avatars.data.length - 1)
+    const selectedAvatar = avatars.data[randomId]
+    try {
+      await Promise.all([
+        context.app.service(staticResourcePath).get(selectedAvatar.modelResourceId),
+        context.app.service(staticResourcePath).get(selectedAvatar.thumbnailResourceId)
+      ])
+      selectedAvatarId = selectedAvatar.id
+    } catch (err) {
+      console.log('error in getting resources')
+      avatars.data.splice(randomId, 1)
+      if (avatars.data.length < 1) throw new Error('All avatars are missing static resources')
+    }
+  }
+
   for (const item of data) {
-    if (item?.avatarId) {
+    if (selectedAvatarId) {
       const existingUserAvatar = await context.app.service(userAvatarPath).find({
         query: {
           userId: item.id
@@ -173,10 +194,10 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
       })
 
       if (existingUserAvatar.data.length === 0) {
-        await context.app.service(userAvatarPath).create({ userId: item.id, avatarId: item.avatarId })
-      } else if (existingUserAvatar.data[0].avatarId !== item.avatarId) {
+        await context.app.service(userAvatarPath).create({ userId: item.id, avatarId: selectedAvatarId })
+      } else if (existingUserAvatar.data[0].avatarId !== selectedAvatarId) {
         await context.app.service(userAvatarPath).patch(existingUserAvatar.data[0].id, {
-          avatarId: item.avatarId
+          avatarId: selectedAvatarId
         })
       }
     }
@@ -303,11 +324,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('user', 'write')),
         schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
-        persistData,
-        discard(
-          // 'scopes',
-          'avatarId'
-        )
+        persistData
       ],
       update: [disallow()],
       patch: [
@@ -315,10 +332,7 @@ export default createSkippableHooks(
         schemaHooks.validateData(userPatchValidator),
         schemaHooks.resolveData(userPatchResolver),
         persistData,
-        disallowNonId,
-        // removeUserScopes,
-        // addUserScopes(false),
-        discard('scopes', 'avatarId')
+        disallowNonId
       ],
       remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
     },

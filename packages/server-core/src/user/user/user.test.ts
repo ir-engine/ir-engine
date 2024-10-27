@@ -66,13 +66,11 @@ describe('user.test', () => {
 
     const item = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
       isGuest
     })
     users.push(item)
 
     assert.equal(item.name, name)
-    assert.equal(item.avatarId, avatar.id)
     assert.equal(item.isGuest, isGuest)
     assert.ok(item.id)
   })
@@ -83,13 +81,11 @@ describe('user.test', () => {
 
     const item = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
       isGuest
     })
     users.push(item)
 
     assert.equal(item.name, name)
-    assert.equal(item.avatarId, avatar.id)
     assert.equal(item.isGuest, isGuest)
     assert.ok(item.id)
   })
@@ -182,13 +178,11 @@ describe('user.test', () => {
 
   it('should not be able to remove admin users without being admin', async () => {
     const adminUser = await app.service(userPath).create({
-      name: `Test Admin #${Math.random()}` as UserName,
-      avatarId: avatar.id
+      name: `Test Admin #${Math.random()}` as UserName
     })
     await app.service(scopePath).create({ userId: adminUser.id, type: 'admin:admin' as ScopeType })
     const userWriteUser = await app.service(userPath).create({
-      name: `Test UserWrite #${Math.random()}` as UserName,
-      avatarId: avatar.id
+      name: `Test UserWrite #${Math.random()}` as UserName
     })
     await app.service(scopePath).create({ userId: userWriteUser.id, type: 'admin:admin' as ScopeType })
 

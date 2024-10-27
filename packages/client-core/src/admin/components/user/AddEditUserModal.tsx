@@ -29,7 +29,8 @@ import {
   avatarPath,
   identityProviderPath,
   scopePath,
-  scopeTypePath
+  scopeTypePath,
+  userAvatarPath
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -62,6 +63,12 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       paginate: false
     }
   })
+  const userAvatarQuery = useFind(userAvatarPath, {
+    query: {
+      userId: user?.id
+    }
+  })
+  const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
   const avatarOptions: SelectOptionsType[] =
     avatarsQuery.status === 'success'
       ? [
@@ -91,8 +98,8 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       }
     }
 
-    if ((!avatarOptions.find((av) => av.value === user.avatarId) && user.avatar) || user.avatarId) {
-      avatarOptions.push({ label: user.avatar?.name || user.avatarId, value: user.avatarId })
+    if (!avatarOptions.find((av) => av.value === userAvatar?.avatarId) && userAvatar?.avatarId) {
+      avatarOptions.push({ label: userAvatar.avatar.name || userAvatar.avatarId, value: userAvatar.avatarId })
     }
   }
 
@@ -102,7 +109,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(user?.name || '')
-  const avatarId = useHookstate(user?.avatarId || '')
+  const avatarId = useHookstate(userAvatar?.avatarId || '')
   const scopes = useHookstate<Array<{ type: ScopeType }>>([])
 
   useEffect(() => {
@@ -153,10 +160,8 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
   }
 
   useEffect(() => {
-    if (avatarsQuery.data && user) {
-      avatarId.set(user?.avatarId)
-    }
-  }, [avatarsQuery.data, user])
+    if (userAvatar) avatarId.set(userAvatar.avatarId)
+  }, [userAvatar])
 
   return (
     <Modal

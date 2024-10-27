@@ -65,7 +65,6 @@ describe('project-check-unfetched-commit.test', () => {
 
     const testUser = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
       isGuest: false
     })
 

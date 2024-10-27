@@ -35,7 +35,6 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
-  AvatarID,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -80,19 +79,6 @@ export const UserSeed: UserType = {
   id: '' as UserID,
   name: '' as UserName,
   isGuest: true,
-  avatarId: '' as AvatarID,
-  avatar: {
-    id: '' as AvatarID,
-    name: '',
-    isPublic: true,
-    userId: '' as UserID,
-    modelResourceId: '',
-    thumbnailResourceId: '',
-    identifierName: '',
-    project: '',
-    createdAt: '',
-    updatedAt: ''
-  },
   acceptedTOS: false,
   createdAt: '',
   updatedAt: ''
@@ -341,7 +327,8 @@ export const AuthService = {
       if (settingsRes.total === 0) {
         await client.service(userSettingPath).create({ userId: userId })
       }
-      if (!user.avatarId) {
+      const avatar = await client.service(userAvatarPath).find({ query: { userId } })
+      if (!avatar.data[0]) {
         const avatars = await client.service(avatarPath).find({
           query: {
             isPublic: true
@@ -354,9 +341,6 @@ export const AuthService = {
           await client
             .service(userAvatarPath)
             .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
-
-          user.avatarId = randomReplacementAvatar.id
-          user.avatar = randomReplacementAvatar
         } else {
           throw new Error('No avatars found in database')
         }

@@ -34,7 +34,6 @@ import { USERNAME_MAX_LENGTH } from '../../constants/UserConstants'
 import { TypedString } from '../../types/TypeboxUtils'
 import { ScopeType } from '../scope/scope.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { avatarDataSchema, AvatarID } from './avatar.schema'
 import { userLoginSchema } from './user-login.schema'
 
 export type { UserID }
@@ -65,8 +64,8 @@ export const userSchema = Type.Object(
     acceptedTOS: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
-    avatarId: TypedString<AvatarID>(),
-    avatar: Type.Ref(avatarDataSchema),
+    // avatarId: TypedString<AvatarID>(),
+    // avatar: Type.Ref(avatarDataSchema),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -76,7 +75,7 @@ export const userSchema = Type.Object(
 export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
-export const userDataSchema = Type.Partial(Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId']), {
+export const userDataSchema = Type.Partial(Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode']), {
   $id: 'UserData'
 })
 export interface UserData extends Static<typeof userDataSchema> {}
@@ -90,14 +89,7 @@ export interface UserPatch extends Static<typeof userPatchSchema> {}
 export interface UserPublicPatch extends Pick<UserType, 'name' | 'id'> {}
 
 // Schema for allowed query properties
-export const userQueryProperties = Type.Pick(userSchema, [
-  'id',
-  'name',
-  'isGuest',
-  'inviteCode',
-  'createdAt'
-  // 'scopes'   Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
-])
+export const userQueryProperties = Type.Pick(userSchema, ['id', 'name', 'isGuest', 'inviteCode', 'createdAt'])
 export const userQuerySchema = Type.Intersect(
   [
     querySyntax(userQueryProperties, {

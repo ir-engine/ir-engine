@@ -27,8 +27,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
-import { userAvatarPath, UserAvatarType } from '@ir-engine/common/src/schemas/user/user-avatar.schema'
 import { InviteCode, UserID, UserName, UserQuery, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
@@ -37,16 +35,6 @@ import { isDev } from '@ir-engine/common/src/config'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
-  avatarId: virtual(async (user, context) => {
-    const userAvatars = (await context.app.service(userAvatarPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as UserAvatarType[]
-
-    return userAvatars.length > 0 ? userAvatars[0].avatarId : undefined
-  }),
   acceptedTOS: virtual(async (user, context) => {
     if (isDev) return true
     return !!user.acceptedTOS
@@ -56,15 +44,6 @@ export const userResolver = resolve<UserType, HookContext>({
 })
 
 export const userExternalResolver = resolve<UserType, HookContext>({
-  avatar: virtual(async (user, context) => {
-    if (context.params?.actualQuery?.skipAvatar) return {}
-    if (context.event !== 'removed' && user.avatarId)
-      try {
-        return await context.app.service(avatarPath).get(user.avatarId, { query: { skipUser: true } })
-      } catch (err) {
-        return {}
-      }
-  }),
   // https://stackoverflow.com/a/56523892/2077741
   isGuest: async (value, user) => !!user.isGuest
 })
@@ -79,9 +58,9 @@ export const userDataResolver = resolve<UserType, HookContext>({
   inviteCode: async (inviteCode, _, context) => {
     return inviteCode || ((await getFreeInviteCode(context.app)) as InviteCode)
   },
-  avatarId: async (avatarId) => {
-    return avatarId || undefined
-  },
+  // avatarId: async (avatarId) => {
+  //   return avatarId || undefined
+  // },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })

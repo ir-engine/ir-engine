@@ -74,7 +74,6 @@ describe('project-destination-check.test', () => {
 
     const testUser = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
       isGuest: false
     })
     await app.service(scopePath).create({ userId: testUser.id, type: 'projects:read' as ScopeType })

@@ -31,7 +31,6 @@ import assert from 'assert'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
-import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { InviteCode, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -67,7 +66,6 @@ describe('verify-scope', () => {
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode
     })
 
@@ -89,7 +87,6 @@ describe('verify-scope', () => {
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode
     })
 
@@ -116,7 +113,6 @@ describe('verify-scope', () => {
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode
     })
 
@@ -143,7 +139,6 @@ describe('verify-scope', () => {
     let user = await app.service(userPath).create({
       name,
       isGuest,
-      avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode
     })
 

@@ -37,7 +37,6 @@ import {
 } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
-import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserID, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
@@ -87,25 +86,21 @@ describe('project-permission.test', () => {
     user1 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode
     })
     user2 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode
     })
     user3 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode
     })
     user4 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode
     })
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
