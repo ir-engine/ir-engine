@@ -48,7 +48,7 @@ export const useUnsupported = ({ device = false, browser = false }: Props): Unsu
       PopoverState.showPopupover(<UnsupportedDevice />)
       return
     }
-    if (supportedBrowser.value && browser) {
+    if (!supportedBrowser.value && browser) {
       PopoverState.showPopupover(<UnsupportedBrowser />)
       return
     }
