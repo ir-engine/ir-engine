@@ -162,11 +162,7 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const clickState = useMutableState(ClickPlacementState)
-  let isSelected = clickState.selectedAsset.value === resource.url
-  useEffect(() => {
-    isSelected = clickState.selectedAsset.value === resource.url
-  }, [clickState.selectedAsset])
+  const isSelected = useMutableState(ClickPlacementState).selectedAsset.value === resource.url
 
   return (
     <div
