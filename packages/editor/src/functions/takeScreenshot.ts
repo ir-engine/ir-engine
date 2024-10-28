@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   ArrayCamera,
-  Camera,
   ClampToEdgeWrapping,
   LinearFilter,
   PerspectiveCamera,
@@ -52,6 +51,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { EditorState } from '../services/EditorServices'
 
@@ -64,7 +64,7 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
   return tmpCanvas
 }
 
-const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
+const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent, SourceComponent])
 
 const ktx2Encoder = new KTX2Encoder()
 
@@ -93,6 +93,7 @@ export async function previewScreenshot(
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
+    console.log('DEBUG', scenePreviewCamera)
     if (!scenePreviewCamera) {
       const entity = createEntity()
       setComponent(entity, ScenePreviewCameraComponent)
@@ -196,12 +197,14 @@ export async function takeScreenshot(
   const prevAspect = scenePreviewCamera.aspect
   const prevLayers = scenePreviewCamera.layers
   const prevLayersMask = scenePreviewCamera.layers.mask
+  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
 
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
+  camera.layers.set(ObjectLayers.Scene)
 
   const rendererComponent = getComponent(getState(EngineState).viewerEntity, RendererComponent)
   const renderer = rendererComponent.renderer!
@@ -236,7 +239,7 @@ export async function takeScreenshot(
     }, 10000)
 
     // set up effect composer
-    effectComposer.setMainCamera(scenePreviewCamera as Camera)
+    effectComposer.setMainCamera(scenePreviewCamera as PerspectiveCamera)
     renderer.setPixelRatio(1)
     effectComposer.setSize(width, height, false)
   })
@@ -244,17 +247,17 @@ export async function takeScreenshot(
   effectComposer.render()
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 
+  // Restoring previous state
+  scenePreviewCamera.layers = prevLayers
+  scenePreviewCamera.layers.mask = prevLayersMask
+  scenePreviewCamera.aspect = prevAspect
+  scenePreviewCamera.updateProjectionMatrix()
+
   // restore
-  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
-  camera.layers = prevLayers
-  camera.layers.mask = prevLayersMask
+  camera.layers.enableAll()
   effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
   effectComposer.setSize(originalSize.width, originalSize.height, false)
-
-  // Restoring previous state
-  scenePreviewCamera.aspect = prevAspect
-  scenePreviewCamera.updateProjectionMatrix()
 
   const imageBlob = await getCanvasBlob(
     canvas,

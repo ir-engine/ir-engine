@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent } from '@ir-engine/ecs'
 import {
   blurAndScaleImageData,
   convertImageDataToKTX2Blob,
@@ -31,8 +30,6 @@ import {
 } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { commitProperty } from '../components/properties/Util'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -53,12 +50,7 @@ export const SceneThumbnailState = defineState({
     resolution: 2048
   }),
   createThumbnail: async () => {
-    const thumbnailBlob = await takeScreenshot(
-      512,
-      320,
-      'jpeg',
-      getComponent(getState(EngineState).viewerEntity, CameraComponent)
-    )
+    const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
     if (!thumbnailBlob) return
     const sceneName = getState(EditorState).sceneName!.split('.').slice(0, -1).join('.')
     const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
