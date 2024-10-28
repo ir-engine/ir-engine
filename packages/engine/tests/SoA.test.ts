@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'

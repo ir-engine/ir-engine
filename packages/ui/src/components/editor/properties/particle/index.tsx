@@ -56,6 +56,7 @@ import { State } from '@ir-engine/hyperflux'
 import { HiSparkles } from 'react-icons/hi'
 
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
 import BooleanInput from '../../input/Boolean'
@@ -67,7 +68,6 @@ import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import PaginatedList from '../../layout/PaginatedList'
-import NodeEditor from '../nodeEditor'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -180,7 +180,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.particle-system.name')}
       description={t('editor:properties.particle-system.description')}
-      icon={<ParticleSystemNodeEditor.iconComponent />}
+      Icon={ParticleSystemNodeEditor.iconComponent}
     >
       <InputGroup name="Looping" label={t('editor:properties.particle-system.looping')}>
         <BooleanInput value={particleSystem.systemParameters.looping} onChange={onSetSystemParm('looping')} />

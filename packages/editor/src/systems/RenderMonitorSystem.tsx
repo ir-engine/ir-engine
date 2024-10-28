@@ -32,21 +32,12 @@ import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { useQuery } from '@ir-engine/ecs'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { RenderInfoState } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
+import { RenderInfoState, SceneComplexityParams } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { LightTagComponent } from '@ir-engine/spatial/src/renderer/components/lights/LightTagComponent'
-import { ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 import { useTranslation } from 'react-i18next'
 import { EditorWarningState } from '../services/EditorWarningServices'
-
-type SceneComplexityParams = {
-  vertices: number
-  triangles: number
-  texturesMB: number
-  lights: number
-  drawCalls: number
-  shaderComplexity: number
-}
 
 function calculateSceneComplexity(params: SceneComplexityParams): number {
   const complexity =
@@ -60,35 +51,11 @@ function calculateSceneComplexity(params: SceneComplexityParams): number {
   return complexity
 }
 
-// count number of lines in vertex and fragment shaders
-function getShaderComplexity(resources: Record<string, any>): number {
-  const countLines = (code?: string): number => (code || '').split('\n').length
-  const totalComplexity = Object.values(resources)
-    .filter(
-      (resource) =>
-        resource.type === ResourceType.Material &&
-        (resource.asset?.isShaderMaterial || resource.asset?.isMeshStandardMaterial)
-    )
-    .map((resource) => resource.asset)
-    .reduce(
-      (total, material) => {
-        total.vertexInstructions += countLines(material.vertexShader)
-        total.fragmentInstructions += countLines(material.fragmentShader)
-        return total
-      },
-      { vertexInstructions: 0, fragmentInstructions: 0 }
-    )
-
-  return totalComplexity.vertexInstructions + totalComplexity.fragmentInstructions
-}
-
 export const RenderMonitorSystem = defineSystem({
   uuid: 'ee.editor.RenderMonitorSystem',
   insert: { after: PresentationSystemGroup },
   reactor: () => {
     const { t } = useTranslation()
-
-    const sceneComplexityScore = useHookstate(0)
 
     const renderInfoState = useHookstate(getMutableState(RenderInfoState))
     const resourceState = useHookstate(getMutableState(ResourceState))
@@ -98,36 +65,36 @@ export const RenderMonitorSystem = defineSystem({
       const params = {
         vertices: resourceState.totalVertexCount.value,
         triangles: renderInfoState.info.triangles.value,
-        texturesMB: resourceState.totalBufferCount.value / (1024 * 1024),
+        texturesMB: renderInfoState.info.texturesMB.value,
         drawCalls: renderInfoState.info.calls.value,
-        shaderComplexity: getShaderComplexity(resourceState.resources.value),
+        shaderComplexity: renderInfoState.info.shaderComplexity.value,
         lights: lightQuery.length
       }
 
-      sceneComplexityScore.set(calculateSceneComplexity(params))
+      renderInfoState.info.sceneComplexity.set(calculateSceneComplexity(params))
     }, [
       resourceState.totalVertexCount,
-      resourceState.totalBufferCount,
       renderInfoState.info.triangles.value,
+      renderInfoState.info.texturesMB.value,
       renderInfoState.info.calls.value,
-      renderInfoState.info.programs.value,
+      renderInfoState.info.shaderComplexity.value,
       lightQuery
     ])
 
     useEffect(() => {
       // these thresholds are to be adjusted  based on experimentation
       let warning = t('editor:warnings.sceneComplexity', { sceneComplexity: SceneComplexity.VeryHeavy.label })
-      if (sceneComplexityScore.value < SceneComplexity.VeryLight.value) return
-      if (sceneComplexityScore.value < SceneComplexity.Light.value) return
-      if (sceneComplexityScore.value < SceneComplexity.Medium.value) return
-      if (sceneComplexityScore.value < SceneComplexity.Heavy.value)
+      if (renderInfoState.info.sceneComplexity.value < SceneComplexity.VeryLight.value) return
+      if (renderInfoState.info.sceneComplexity.value < SceneComplexity.Light.value) return
+      if (renderInfoState.info.sceneComplexity.value < SceneComplexity.Medium.value) return
+      if (renderInfoState.info.sceneComplexity.value < SceneComplexity.Heavy.value)
         warning = t('editor:warnings.sceneComplexity', { sceneComplexity: SceneComplexity.Heavy.label })
       getMutableState(EditorWarningState).warning.set(warning)
 
       return () => {
         getMutableState(EditorWarningState).warning.set(null)
       }
-    }, [sceneComplexityScore])
+    }, [renderInfoState.info.sceneComplexity.value])
 
     return null
   }

@@ -246,6 +246,7 @@ const restrictProtectedQuery = async (context: HookContext<LocationService>) => 
     'id',
     'name',
     'slugifiedName',
+    '$or',
     '$like',
     '$limit',
     '$sort',

@@ -37,7 +37,9 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     const fileName = fullFileName.substring(lastSlashIndex + 1)
 
     // Find the last period in the filename (the start of the extension)
-    const lastDotIndex = fileName.lastIndexOf('.')
+    const _lastDotIndex = fileName.lastIndexOf('.')
+    const hasExtension = _lastDotIndex !== -1
+    const lastDotIndex = hasExtension ? _lastDotIndex : fileName.length
 
     // Split the name into the part before and after the dot
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
@@ -48,7 +50,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
       if (nameWithoutExtension.length > 1024) nameWithoutExtension = nameWithoutExtension.slice(0, 1024)
     } else {
       // Truncate or concat the name if it is too long or too short
-      if (nameWithoutExtension.length > 1024) {
+      if (nameWithoutExtension.length > 64) {
         nameWithoutExtension = nameWithoutExtension.slice(0, 64)
       } else if (nameWithoutExtension.length < 4) {
         //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
@@ -57,7 +59,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     }
 
     // Combine the name with the lowercase extension
-    const newFileName = lastDotIndex === -1 ? `${nameWithoutExtension}` : `${nameWithoutExtension}.${extension}`
+    const newFileName = hasExtension ? `${nameWithoutExtension}.${extension}` : `${nameWithoutExtension}`
 
     return filePath ? filePath + '/' + newFileName : newFileName
   } catch (e) {

@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { EntityUUID, UUIDComponent, useQuery } from '@ir-engine/ecs'
 import { ComponentType, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { GLTFNodeState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
@@ -51,7 +52,6 @@ import Slider from '../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 const ToneMappingOptions = [
   {
@@ -145,7 +145,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
-      icon={<RenderSettingsEditor.iconComponent />}
+      Icon={RenderSettingsEditor.iconComponent}
     >
       <InputGroup
         name="Primary Light"
