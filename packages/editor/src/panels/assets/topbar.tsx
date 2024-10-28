@@ -25,11 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
-import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import { Slider } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -59,12 +58,10 @@ const ViewModeSettings = () => {
         </Tooltip>
       }
     >
-      <div className="flex flex-col">
-        <InputGroup
-          label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-          dataTestId="assets-panel-view-options-input-group"
-        >
+      <div className="flex flex-col justify-end">
+        <div className="w-3/5">
           <Slider
+            label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
             min={10}
             max={100}
             step={0.5}
@@ -72,7 +69,7 @@ const ViewModeSettings = () => {
             onChange={viewModeSettings.list.fontSize.set}
             onRelease={viewModeSettings.list.fontSize.set}
           />
-        </InputGroup>
+        </div>
       </div>
     </Popup>
   )
