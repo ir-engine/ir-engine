@@ -185,7 +185,6 @@ export function ImageReactor() {
 
   useEffect(
     function updateGeometry() {
-      console.log('updating geometry')
       if (!mesh.material.map.value) return
 
       const flippedTexture = mesh.material.map.value.flipY
