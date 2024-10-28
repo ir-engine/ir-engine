@@ -23,14 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import React from 'react'
-import FileBrowserInput from '../FileBrowser'
-import { StringInputProps } from '../String'
+import getClientCoreI18nConfigs from '@ir-engine/client-core/src/i18n'
+import { getI18nConfigs } from '@ir-engine/client-core/src/i18nImporter'
+import i18n from 'i18next'
+import LanguageDetector from 'i18next-browser-languagedetector'
+import { merge } from 'lodash'
+import { initReactI18next } from 'react-i18next'
 
-export function ImageInput({ ...rest }: StringInputProps) {
-  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
-}
+// @ts-ignore
+const clientI18nConfigs = import.meta.glob('../../client-core/i18n/**/*.json', { eager: true })
 
-export default ImageInput
+const modules = merge(clientI18nConfigs, getClientCoreI18nConfigs())
+
+const { namespace, resources } = getI18nConfigs(modules)
+
+i18n.use(LanguageDetector).use(initReactI18next).init({
+  fallbackLng: 'en',
+  ns: namespace,
+  defaultNS: 'translation',
+  lng: 'en',
+  resources
+})
+
+export default i18n

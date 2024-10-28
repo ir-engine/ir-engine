@@ -23,43 +23,42 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import { InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
-
+import { InviteType } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
-
-import { NotificationService } from '../../common/services/NotificationService'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { InviteService, InviteState } from '../../social/services/InviteService'
-import { AuthState } from '../../user/services/AuthService'
 
-const InviteToast = () => {
-  const { t } = useTranslation()
-  const inviteState = useMutableState(InviteState)
-  const authState = useMutableState(AuthState)
-  const newestInvite = inviteState.receivedInvites.invites[0]?.value as InviteType
-
-  useEffect(() => {
-    if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
-      InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
-  }, [inviteState.receivedUpdateNeeded.value, authState.isLoggedIn.value])
-
-  useEffect(() => {
-    if (newestInvite.inviteType) {
-      NotificationService.dispatchNotify(
-        t('social:invite.inviteMessage', {
-          inviteType: newestInvite?.inviteType.replace('-', ' '),
-          userName: newestInvite.user?.name as UserName
-        }),
-        {
-          variant: 'default',
-          persist: true,
-          actionType: 'invite'
-        }
-      )
-    }
-  }, [newestInvite?.inviteType])
+type Props = {
+  closeSnackbar: () => void
 }
 
-export default InviteToast
+const InviteSnackbarActions = ({ closeSnackbar }: Props) => {
+  const { t } = useTranslation()
+  const inviteState = useMutableState(InviteState)
+  const newestInvite = inviteState.receivedInvites.invites[0]?.value as InviteType
+
+  const handleAccept = () => {
+    InviteService.acceptInvite(newestInvite)
+    closeSnackbar()
+  }
+
+  const handleDecline = () => {
+    InviteService.declineInvite(newestInvite)
+    closeSnackbar()
+  }
+
+  return (
+    <div className="flex gap-2">
+      <Button onClick={handleDecline} size="small" variant="outline" className="cursor-pointer">
+        {t('social:invite.decline')}
+      </Button>
+      <Button onClick={handleAccept} size="small" variant="primary" className="cursor-pointer">
+        {t('social:invite.accept')}
+      </Button>
+    </div>
+  )
+}
+
+export default InviteSnackbarActions

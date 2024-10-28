@@ -23,21 +23,5 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
-
-const argTypes = {}
-
-export default {
-  title: 'Editor/Input/ImagePreview',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ImagePreviewInput',
-    jest: 'ImagePreview.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
-}
-export const Default = { args: Component.defaultProps }
+export { default as ImageLink } from './src/components/editor/ImageLink'
+export type { ImageLinkProps } from './src/components/editor/ImageLink'
