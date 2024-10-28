@@ -33,6 +33,7 @@ import {
   FrontSide,
   InterleavedBufferAttribute,
   LinearMipmapLinearFilter,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -107,6 +108,7 @@ export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
   mesh.scale.set(_width, _height, 1)
 }
 
+const scaleMatrix = new Matrix4()
 export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
   if (!mesh.material.map) return
 
@@ -114,11 +116,11 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 
   if (!width || !height) return
 
-  const transform = getComponent(mesh.entity, TransformComponent)
   const ratio = (height || 1) / (width || 1)
-  const _width = Math.min(1.0, 1.0 / ratio) * transform.scale.x
-  const _height = Math.min(1.0, ratio) * transform.scale.y
-  mesh.scale.set(_width, _height, 1)
+  const _width = Math.min(1.0, 1.0 / ratio)
+  const _height = Math.min(1.0, ratio)
+  scaleMatrix.makeScale(_width, _height, 1)
+  mesh.geometry.applyMatrix4(scaleMatrix)
 }
 
 function flipNormals<G extends BufferGeometry>(geometry: G) {
@@ -133,19 +135,21 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
+
+  useImmediateEffect(() => {
+    // we cannot access state in module scope, so we have to set the default value here
+    if (image.source.value === '')
+      image.source.set(
+        `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
+      )
+  }, [])
+
   const [texture, error] = useTexture(image.source.value, entity)
   const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
     entity,
     PLANE_GEO,
     () => new MeshBasicMaterial()
   )
-
-  useImmediateEffect(() => {
-    if (!image.source.value)
-      image.source.set(
-        `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
-      )
-  }, [])
 
   useEffect(() => {
     if (!error) return
@@ -195,7 +199,7 @@ export function ImageReactor() {
           resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
       }
     },
-    [mesh.material.map, image.projection]
+    [mesh.material.map.value, image.projection.value]
   )
 
   useEffect(
