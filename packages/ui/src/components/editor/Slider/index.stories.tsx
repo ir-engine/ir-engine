@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import { useArgs } from '@storybook/preview-api'
+import React from 'react'
 import { ArgTypes } from 'storybook/internal/types'
 import Slider, { SliderProps } from './index'
 
@@ -37,9 +38,8 @@ const argTypes: ArgTypes = {
   step: {
     control: 'number'
   },
-  startingValue: {
-    control: 'number',
-    name: 'Starting Value'
+  value: {
+    control: 'number'
   },
   label: {
     control: 'text'
@@ -66,9 +66,16 @@ export default {
   }
 }
 
-const SliderRenderer = (args: SliderProps & { startingValue: number }) => {
-  const [value, setValue] = useState(args.startingValue)
-  return <Slider {...args} value={value} onChange={(v) => setValue(v)} onRelease={(v) => setValue(v)} />
+const SliderRenderer = (args: SliderProps) => {
+  const [currentArgs, updateArgs] = useArgs<{ value: number }>()
+  return (
+    <Slider
+      {...args}
+      value={currentArgs.value}
+      onChange={(value) => updateArgs({ value })}
+      onRelease={(value) => updateArgs({ value })}
+    />
+  )
 }
 
 export const Default = {

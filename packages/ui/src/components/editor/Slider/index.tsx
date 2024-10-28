@@ -25,9 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect, useId, useRef, useState } from 'react'
 
-export interface SliderProps {
+export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: number
   label: string
+  description?: string
   min?: number
   max?: number
   /**the size by which the slider should increment each step */
@@ -36,7 +37,21 @@ export interface SliderProps {
   onRelease?: (value: number) => void
 }
 
-const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onRelease }: SliderProps) => {
+/**
+ * Slider compoennt for the editor
+ * `...props` are forwarded to the parent HTML Div
+ */
+const Slider = ({
+  value,
+  label,
+  description,
+  min = 0,
+  max = 100,
+  step = 1,
+  onChange,
+  onRelease,
+  ...props
+}: SliderProps) => {
   const id = useId()
   const parentRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
@@ -68,10 +83,12 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
   }, [])
 
   return (
-    <div ref={parentRef} className="group flex flex-nowrap items-center gap-2">
-      <label className="mr-2 text-sm text-[#B2B5BD] group-hover:text-[#D3D5D9]" htmlFor={id}>
-        {label}
-      </label>
+    <div ref={parentRef} className="group/editor-slider flex flex-nowrap items-center gap-2" {...props}>
+      {label && (
+        <label className="mr-2 text-sm text-[#B2B5BD] group-hover/editor-slider:text-[#D3D5D9]" htmlFor={id}>
+          {label}
+        </label>
+      )}
       <input
         id={id}
         min={min}
@@ -86,7 +103,7 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
           }
         }}
         onBlur={() => onRelease?.(value)}
-        className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover:bg-[#191B1F] group-hover:text-[#F5F5F5]"
+        className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover/editor-slider:bg-[#191B1F] group-hover/editor-slider:text-[#F5F5F5]"
         data-testid="slider-text-value-input"
       />
       <input
@@ -113,7 +130,7 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
           [&::-moz-range-thumb]:transition-all
           [&::-moz-range-thumb]:duration-150
           [&::-moz-range-thumb]:ease-in-out
-          group-hover:[&::-moz-range-thumb]:bg-[#AFBEDF]
+          group-hover/editor-slider:[&::-moz-range-thumb]:bg-[#AFBEDF]
           [&::-moz-range-track]:h-full
           [&::-moz-range-track]:w-full
           [&::-moz-range-track]:rounded
@@ -129,7 +146,7 @@ const Slider = ({ value, label, min = 0, max = 100, step = 1, onChange, onReleas
           [&::-webkit-slider-thumb]:transition-all
           [&::-webkit-slider-thumb]:duration-150
           [&::-webkit-slider-thumb]:ease-in-out
-          group-hover:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
+          group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
         "
         data-testid="slider-draggable-value-input"
       />
