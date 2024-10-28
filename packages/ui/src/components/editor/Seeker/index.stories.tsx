@@ -23,12 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import { useArgs } from '@storybook/preview-api'
+import React from 'react'
 import { ArgTypes } from 'storybook/internal/types'
 import Seeker, { SeekerProps } from './index'
 
 const argTypes: ArgTypes = {
-  startingSeconds: {
+  currentSeconds: {
     control: 'number',
     name: 'Starting Seconds'
   },
@@ -61,8 +62,14 @@ export default {
 }
 
 const SeekerRenderer = (args: SeekerProps & { startingSeconds: number }) => {
-  const [currentSeconds, setCurrentSeconds] = useState(args.startingSeconds)
-  return <Seeker {...args} currentSeconds={currentSeconds} onChange={(v) => setCurrentSeconds(v)} />
+  const [currentArgs, updateArgs] = useArgs<{ startingSeconds: number }>()
+  return (
+    <Seeker
+      {...args}
+      currentSeconds={currentArgs.startingSeconds}
+      onChange={(startingSeconds) => updateArgs({ startingSeconds })}
+    />
+  )
 }
 
 export const Default = {

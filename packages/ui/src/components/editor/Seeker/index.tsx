@@ -71,8 +71,8 @@ export default function Seeker({ currentSeconds, totalSeconds, onChange, isPause
   }, [])
 
   return (
-    <div ref={parentRef} className="group flex flex-nowrap items-center gap-x-2 bg-[#141619] px-2 py-1">
-      <button className="text-[#42454D] group-hover:text-[#9CA0AA]" onClick={onPlayButtonClick}>
+    <div ref={parentRef} className="group/editor-seeker flex flex-nowrap items-center gap-x-2 bg-[#141619] px-2 py-1">
+      <button className="text-[#42454D] group-hover/editor-seeker:text-[#9CA0AA]" onClick={onPlayButtonClick}>
         {isPaused ? <MdPauseCircleOutline /> : <MdPlayCircleOutline />}
       </button>
       <input
@@ -88,14 +88,14 @@ export default function Seeker({ currentSeconds, totalSeconds, onChange, isPause
         className="trasition-all h-1 min-w-20 cursor-pointer appearance-none
           overflow-hidden rounded bg-[#42454D] duration-150
           ease-in-out focus:outline-none
-          disabled:pointer-events-none disabled:opacity-50 group-hover:h-2
+          disabled:pointer-events-none disabled:opacity-50 group-hover/editor-seeker:h-2
           [&::-moz-range-progress]:bg-[#375DAF]
           [&::-moz-range-thumb]:h-full
           [&::-moz-range-thumb]:w-2
           [&::-moz-range-thumb]:appearance-none
           [&::-moz-range-thumb]:rounded
           [&::-moz-range-thumb]:bg-[#213869]
-          group-hover:[&::-moz-range-thumb]:bg-[#879ECF]
+          group-hover/editor-seeker:[&::-moz-range-thumb]:bg-[#879ECF]
           [&::-moz-range-track]:h-full
           [&::-moz-range-track]:w-full
           [&::-moz-range-track]:rounded
@@ -108,10 +108,10 @@ export default function Seeker({ currentSeconds, totalSeconds, onChange, isPause
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:rounded
           [&::-webkit-slider-thumb]:bg-[#213869]
-          group-hover:[&::-webkit-slider-thumb]:bg-[#879ECF]
+          group-hover/editor-seeker:[&::-webkit-slider-thumb]:bg-[#879ECF]
         "
       />
-      <span ref={textRef} className="whitespace-nowrap text-sm text-[#B2B5BD] group-hover:text-[#F5F5F5]">
+      <span ref={textRef} className="whitespace-nowrap text-sm text-[#B2B5BD] group-hover/editor-seeker:text-[#F5F5F5]">
         {getFormattedTime(currentSeconds)} / {getFormattedTime(totalSeconds)}
       </span>
     </div>
