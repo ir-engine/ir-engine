@@ -57,7 +57,9 @@ export function ColorInput({
   const inputRef = useRef<HTMLDivElement>(null)
 
   const handleTogglePicker = () => {
-    setIsPickerOpen(!isPickerOpen) // Toggle visibility
+    if (!isPickerOpen) {
+      setIsPickerOpen(true)
+    }
     onRelease && onRelease(color)
   }
 
