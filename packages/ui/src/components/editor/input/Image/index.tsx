@@ -32,5 +32,5 @@ import { StringInputProps } from '../String'
 export function ImageInput({ ...rest }: StringInputProps) {
   return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
 }
-
+ImageInput.defaultProps = {}
 export default ImageInput

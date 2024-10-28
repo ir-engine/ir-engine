@@ -133,19 +133,21 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
+
+  useImmediateEffect(() => {
+    // we cannot access state in module scope, so we have to set the default value here
+    if (image.source.value === '')
+      image.source.set(
+        `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
+      )
+  }, [])
+
   const [texture, error] = useTexture(image.source.value, entity)
   const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
     entity,
     PLANE_GEO,
     () => new MeshBasicMaterial()
   )
-
-  useImmediateEffect(() => {
-    if (!image.source.value)
-      image.source.set(
-        `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
-      )
-  }, [])
 
   useEffect(() => {
     if (!error) return

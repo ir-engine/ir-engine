@@ -43,7 +43,6 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  serializeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -74,7 +73,6 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
@@ -239,24 +237,6 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
     if (shadowComponent) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
   }, [isVisible, isMesh, shadowComponent?.cast, shadowComponent?.receive])
-
-  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
-  useEffect(() => {
-    if (!isMesh || !isVisible) return
-    if (envmapComponent)
-      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
-    else removeComponent(props.entity, EnvmapComponent)
-  }, [
-    isVisible,
-    isMesh,
-    envmapComponent,
-    envmapComponent?.envMapIntensity,
-    envmapComponent?.envmap,
-    envmapComponent?.envMapSourceColor,
-    envmapComponent?.envMapSourceURL,
-    envmapComponent?.envMapTextureType,
-    envmapComponent?.envMapSourceEntityUUID
-  ])
 
   useEffect(() => {
     if (!isModelColliders || !isMesh) return
