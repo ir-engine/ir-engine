@@ -33,8 +33,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineExclamationCircle } from 'react-icons/hi2'
 
-const downloadGoogleLink =
-  'https://www.google.com/chrome/dr/download/?brand=CBFU&ds_kid=43700079286123654&gad_source=1&gclid=CjwKCAjwooq3BhB3EiwAYqYoEkgLBNGFDuKclZQTGAA8Lzq66cvirjjOm7ur0ayMgKvn9y3Fd1spThoCXu0QAvD_BwE&gclsrc=aw.ds'
+const downloadGoogleLink = 'https://www.google.com/chrome/dr/download'
 
 export const UnsupportedBrowser = () => {
   const { t } = useTranslation()
