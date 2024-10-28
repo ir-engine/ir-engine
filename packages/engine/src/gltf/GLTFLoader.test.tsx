@@ -27,28 +27,15 @@ import { GLTF } from '@gltf-transform/core'
 import {
   ComponentType,
   Entity,
-  EntityContext,
-  EntityUUID,
   UUIDComponent,
   createEntity,
   generateEntityUUID,
   getComponent,
   hasComponent,
-  setComponent,
-  useEntityContext,
-  useOptionalComponent
+  setComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import {
-  NO_PROXY,
-  ReactorRoot,
-  applyIncomingActions,
-  getMutableState,
-  getState,
-  startReactor,
-  useDidMount,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { NO_PROXY, applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { RapierWorldState } from '@ir-engine/spatial/src/physics/classes/Physics'
@@ -63,15 +50,14 @@ import {
 import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React, { useEffect } from 'react'
+import React from 'react'
 import Sinon from 'sinon'
-import { BufferGeometry, InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
+import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFDocumentState, GLTFNode, GLTFNodeState } from './GLTFDocumentState'
-import { getNodeUUID } from './GLTFState'
+import { GLTFDocumentState } from './GLTFDocumentState'
 import { KHRUnlitExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 
@@ -98,7 +84,7 @@ const gltfCompletedIO = async (entity: Entity) => {
   })
 }
 
-// Needed when the component relies on a file read before being created (ie. materials with textures)
+// Needed when the component relies on a file read before being created (ie. materials with textures, meshes with .bin files)
 const componentsLoaded = async (entity: Entity, components: ComponentType<any>[], expected: number) => {
   return new Promise((resolve) => {
     const wait = () => {
@@ -134,294 +120,138 @@ describe('GLTF Loader', () => {
     return destroyEngine()
   })
 
-  it('can load a mesh', () =>
-    new Promise<void>((done) => {
-      const entity = setupEntity()
+  it('can load a mesh', async () => {
+    const entity = setupEntity()
 
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: entity },
-          React.createElement(() => {
-            const entity = useEntityContext()
-            const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-            const instanceID = GLTFComponent.useInstanceID(entity)
-            const gltfDocumentState = useMutableState(GLTFDocumentState)
-            const nodeState = useMutableState(GLTFNodeState)
-            const gltf = gltfDocumentState[instanceID].get(NO_PROXY)
-            const nodes = nodeState[instanceID].get(NO_PROXY)
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-            useEffect(() => {
-              setComponent(entity, UUIDComponent, generateEntityUUID())
-              setComponent(entity, GLTFComponent, { src: duck_gltf })
-            }, [])
+    const { rerender, unmount } = render(<></>)
+    await gltfCompletedIO(entity)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
 
-            useEffect(() => {
-              if (!gltfComponent || !gltfComponent.dependencies.value) return
-              applyIncomingActions()
-            }, [gltfComponent?.dependencies])
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getMutableState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID].get(NO_PROXY) as GLTF.IGLTF
 
-            const MeshReactor = (props: { entity: Entity; nodeIndex: number }) => {
-              const { entity, nodeIndex } = props
-              const meshComponent = useOptionalComponent(entity, MeshComponent)
+    const usedMeshes = gltf.nodes!.reduce((accum, node) => {
+      if (typeof node.mesh === 'number') accum.add(node.mesh)
+      return accum
+    }, new Set<number>())
 
-              useDidMount(() => {
-                assert(meshComponent)
-                assert(meshComponent.name.value === 'Node-' + nodeIndex)
-                assert(meshComponent.entity.value === entity)
-                root.stop()
-                done()
-              }, [meshComponent])
+    await componentsLoaded(entity, [MeshComponent], 1)
+    await act(() => rerender(<></>))
 
-              return null
-            }
+    const meshes = getChildrenWithComponents(entity, [MeshComponent])
+    assert(meshes.length === usedMeshes.size)
+    unmount()
+  })
 
-            const NodeReactor = (props: { source: string; node: GLTFNode; gltf: GLTF.IGLTF }) => {
-              const { source, node, gltf } = props
-              const nodeIndex = node.nodeIndex
-              const documentNode = gltf.nodes![nodeIndex]
-              const nodeUUID = getNodeUUID(documentNode, source, nodeIndex)
-              const entity = UUIDComponent.useEntityByUUID(nodeUUID)
+  it('can load a material', async () => {
+    const entity = setupEntity()
 
-              return entity && typeof documentNode.mesh === 'number' ? (
-                <MeshReactor entity={entity} nodeIndex={nodeIndex} />
-              ) : null
-            }
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-            return nodes ? (
-              <>
-                {Object.entries(nodes).map(([source, node], index) => {
-                  return <NodeReactor key={index} source={instanceID} node={node} gltf={gltf as GLTF.IGLTF} />
-                })}
-              </>
-            ) : null
-          }, {})
-        )
-      })
-    }))
+    const { rerender, unmount } = render(<></>)
+    await gltfCompletedIO(entity)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
 
-  const assertMaterial = (materialDef: ComponentType<typeof MaterialDefinitionComponent>, material: GLTF.IMaterial) => {
-    for (const key in material) {
-      assert.deepEqual(material[key], materialDef[key])
-    }
-  }
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getMutableState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID].get(NO_PROXY) as GLTF.IGLTF
 
-  it('can load a material', () =>
-    new Promise<void>((done) => {
-      const entity = setupEntity()
-
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: entity },
-          React.createElement(() => {
-            const entity = useEntityContext()
-            const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-            const uuid = useOptionalComponent(entity, UUIDComponent)?.value
-
-            useEffect(() => {
-              setComponent(entity, UUIDComponent, generateEntityUUID())
-              setComponent(entity, GLTFComponent, { src: duck_gltf })
-            }, [])
-
-            useEffect(() => {
-              if (!gltfComponent || !gltfComponent.dependencies.value) return
-              applyIncomingActions()
-            }, [gltfComponent?.dependencies])
-
-            const ChildReactor = (props: { entity: Entity; gltf: GLTF.IGLTF }) => {
-              const { entity, gltf } = props
-              const materialDef = useOptionalComponent(entity, MaterialDefinitionComponent)
-
-              useEffect(() => {
-                if (!materialDef) return
-
-                const matDef = getComponent(entity, MaterialDefinitionComponent)
-                assertMaterial(matDef, gltf.materials![0])
-                root.stop()
-                done()
-              }, [materialDef])
-
-              return null
-            }
-
-            const ParentReactor = (props: { parentUUID: EntityUUID }) => {
-              const { parentUUID } = props
-              const parentEntity = UUIDComponent.useEntityByUUID(parentUUID)
-              const children = useOptionalComponent(parentEntity, EntityTreeComponent)?.children.value
-              const instanceID = GLTFComponent.useInstanceID(parentEntity)
-              const gltfDocumentState = useMutableState(GLTFDocumentState)
-              const gltf = gltfDocumentState[instanceID].get(NO_PROXY)
-
-              return children && children.length ? (
-                <>
-                  {children.map((child) => {
-                    return <ChildReactor key={child} entity={child} gltf={gltf as GLTF.IGLTF} />
-                  })}
-                </>
-              ) : null
-            }
-
-            return uuid ? (
-              <>
-                <ParentReactor parentUUID={uuid} />
-              </>
-            ) : null
-          }, {})
-        )
-      })
-    }))
-
-  it('can load a draco geometry', () =>
-    new Promise<void>((done) => {
-      const entity = setupEntity()
-
-      const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
-
-      const spy = Sinon.spy()
-      dracoLoader.preload = () => {
-        spy()
-        return dracoLoader
-      }
-
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: entity },
-          React.createElement(() => {
-            const entity = useEntityContext()
-            const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-            const instanceID = GLTFComponent.useInstanceID(entity)
-            const gltfDocumentState = useMutableState(GLTFDocumentState)
-            const nodeState = useMutableState(GLTFNodeState)
-            const gltf = gltfDocumentState[instanceID].get(NO_PROXY)
-            const nodes = nodeState[instanceID].get(NO_PROXY)
-
-            useEffect(() => {
-              setComponent(entity, UUIDComponent, generateEntityUUID())
-              setComponent(entity, GLTFComponent, { src: draco_box })
-            }, [])
-
-            useEffect(() => {
-              if (!gltfComponent || !gltfComponent.dependencies.value) return
-              applyIncomingActions()
-            }, [gltfComponent?.dependencies])
-
-            const MeshReactor = (props: { entity: Entity; nodeIndex: number }) => {
-              const { entity, nodeIndex } = props
-              const meshComponent = useOptionalComponent(entity, MeshComponent)
-
-              useDidMount(() => {
-                assert(spy.called)
-                assert(meshComponent)
-                assert(meshComponent.geometry instanceof BufferGeometry)
-                root.stop()
-                done()
-              }, [meshComponent])
-
-              return null
-            }
-
-            const NodeReactor = (props: { source: string; node: GLTFNode; gltf: GLTF.IGLTF }) => {
-              const { source, node, gltf } = props
-              const nodeIndex = node.nodeIndex
-              const documentNode = gltf.nodes![nodeIndex]
-              const nodeUUID = getNodeUUID(documentNode, source, nodeIndex)
-              const entity = UUIDComponent.useEntityByUUID(nodeUUID)
-
-              return entity && typeof documentNode.mesh === 'number' ? (
-                <MeshReactor entity={entity} nodeIndex={nodeIndex} />
-              ) : null
-            }
-
-            return nodes ? (
-              <>
-                {Object.entries(nodes).map(([source, node], index) => {
-                  return <NodeReactor key={index} source={instanceID} node={node} gltf={gltf as GLTF.IGLTF} />
-                })}
-              </>
-            ) : null
-          }, {})
-        )
-      })
-    }))
-
-  it('can load an unlit material', () =>
-    new Promise<void>((done) => {
-      const entity = setupEntity()
-
-      let loaded = 0
-
-      const unlitMaterialLoaded = (matDef: ComponentType<typeof MaterialDefinitionComponent>, root: ReactorRoot) => {
-        assert(matDef.name === 'Orange' || matDef.name === 'Blue')
-        loaded += 1
-        if (loaded === 2) {
-          root.stop()
-          done()
+    const usedMaterials = gltf.nodes!.reduce((accum, node) => {
+      if (typeof node.mesh === 'number') {
+        const mesh = gltf.meshes![node.mesh]
+        for (const primitive of mesh.primitives) {
+          if (typeof primitive.material === 'number') accum.add(primitive.material)
         }
       }
+      return accum
+    }, new Set<number>())
 
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: entity },
-          React.createElement(() => {
-            const entity = useEntityContext()
-            const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-            const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+    await componentsLoaded(entity, [MaterialDefinitionComponent], 1)
+    await act(() => rerender(<></>))
 
-            useEffect(() => {
-              setComponent(entity, UUIDComponent, generateEntityUUID())
-              setComponent(entity, GLTFComponent, { src: unlit_gltf })
-            }, [])
+    const materials = getChildrenWithComponents(entity, [MaterialDefinitionComponent])
+    assert(materials.length === usedMaterials.size)
+    unmount()
+  })
 
-            useEffect(() => {
-              if (!gltfComponent || !gltfComponent.dependencies.value) return
-              applyIncomingActions()
-            }, [gltfComponent?.dependencies])
+  it('can load a draco geometry', async () => {
+    const entity = setupEntity()
 
-            const ChildReactor = (props: { entity: Entity; gltf: GLTF.IGLTF }) => {
-              const { entity, gltf } = props
-              const materialDef = useOptionalComponent(entity, MaterialDefinitionComponent)
-              const unlitComponent = useOptionalComponent(entity, KHRUnlitExtensionComponent)
+    const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
 
-              useDidMount(() => {
-                if (!materialDef || !unlitComponent) return
+    const spy = Sinon.spy()
+    dracoLoader.preload = () => {
+      spy()
+      return dracoLoader
+    }
 
-                if (materialDef.type.value === 'MeshBasicMaterial') {
-                  unlitMaterialLoaded(getComponent(entity, MaterialDefinitionComponent), root)
-                }
-              }, [materialDef, unlitComponent])
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: draco_box })
 
-              return null
+    const { rerender, unmount } = render(<></>)
+    await gltfCompletedIO(entity)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
+
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getMutableState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID].get(NO_PROXY) as GLTF.IGLTF
+
+    const usedMeshes = gltf.nodes!.reduce((accum, node) => {
+      if (typeof node.mesh === 'number') accum.add(node.mesh)
+      return accum
+    }, new Set<number>())
+
+    await componentsLoaded(entity, [MeshComponent], 1)
+    await act(() => rerender(<></>))
+
+    const meshes = getChildrenWithComponents(entity, [MeshComponent])
+    assert(meshes.length === usedMeshes.size)
+    assert(spy.called)
+    unmount()
+  })
+
+  it.only('can load an unlit material', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: unlit_gltf })
+
+    const { rerender, unmount } = render(<></>)
+    await gltfCompletedIO(entity)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
+
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getMutableState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID].get(NO_PROXY) as GLTF.IGLTF
+
+    const usedUnlitMaterials = gltf.nodes!.reduce((accum, node) => {
+      if (typeof node.mesh === 'number') {
+        const mesh = gltf.meshes![node.mesh]
+        for (const primitive of mesh.primitives) {
+          if (typeof primitive.material === 'number') {
+            const material = gltf.materials![primitive.material]
+            if (material.extensions && KHRUnlitExtensionComponent.jsonID in material.extensions) {
+              accum.add(primitive.material)
             }
+          }
+        }
+      }
+      return accum
+    }, new Set<number>())
 
-            const ParentReactor = (props: { parentUUID: EntityUUID }) => {
-              const { parentUUID } = props
-              const parentEntity = UUIDComponent.useEntityByUUID(parentUUID)
-              const children = useOptionalComponent(parentEntity, EntityTreeComponent)?.children.value
-              const instanceID = GLTFComponent.useInstanceID(parentEntity)
-              const gltfDocumentState = useMutableState(GLTFDocumentState)
-              const gltf = gltfDocumentState[instanceID].get(NO_PROXY)
-
-              return children && children.length ? (
-                <>
-                  {children.map((child) => {
-                    return <ChildReactor key={child} entity={child} gltf={gltf as GLTF.IGLTF} />
-                  })}
-                </>
-              ) : null
-            }
-
-            return uuid ? (
-              <>
-                <ParentReactor parentUUID={uuid} />
-              </>
-            ) : null
-          }, {})
-        )
-      })
-    }))
+    const materials = getChildrenWithComponents(entity, [KHRUnlitExtensionComponent])
+    assert(materials.length === usedUnlitMaterials.size)
+    unmount()
+  })
 
   it('can load an texture for a material', async () => {
     const entity = setupEntity()

@@ -169,12 +169,11 @@ export const ObjectGridSnapComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
-    const modelComponent = useComponent(entity, GLTFComponent)
-    const modelLoaded = modelComponent.progress.value === 100
+    const gltfLoaded = GLTFComponent.useSceneLoaded(entity)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     useEffect(() => {
-      if (!modelLoaded) return
+      if (!gltfLoaded) return
       const originalPosition = new Vector3()
       const originalRotation = new Quaternion()
       const originalScale = new Vector3()
@@ -219,7 +218,7 @@ export const ObjectGridSnapComponent = defineComponent({
 
       //set bounding box in component
       snapComponent.bbox.set(bbox)
-    }, [modelLoaded])
+    }, [gltfLoaded])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
