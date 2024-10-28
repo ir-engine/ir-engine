@@ -38,7 +38,7 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import ImagePreviewInput from '@ir-engine/ui/src/components/editor/input/Image/Preview'
+import { ImageLink } from '@ir-engine/ui/editor'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -293,20 +293,14 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               disabled={isLoading}
             />
             <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-row justify-between gap-2">
-                <ImagePreviewInput
-                  label={sceneThumbnailState.thumbnailURL.value ? 'Current Thumbnail' : ''}
-                  value={sceneThumbnailState.thumbnailURL.value ?? ''}
-                  previewOnly={true}
-                  labelClassname="text-sm"
-                />
-                <ImagePreviewInput
-                  label={sceneThumbnailState.oldThumbnailURL.value ? 'Previous Thumbnail' : ''}
-                  value={sceneThumbnailState.oldThumbnailURL.value ?? ''}
-                  previewOnly={true}
-                  labelClassname="text-sm"
-                />
+            <div className="flex flex-col ">
+              <div className="flex flex-row justify-around">
+                <div>{'Current Thumbnail'}</div>
+                <div>{'Previous Thumbnail'}</div>
+              </div>
+              <div className="flex flex-row justify-evenly">
+                <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? ''} variant="lg" />
+                <ImageLink src={sceneThumbnailState.oldThumbnailURL.value ?? ''} variant="lg" />
               </div>
               <div className="flex flex-row gap-2 ">
                 <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
@@ -324,19 +318,14 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               </div>
             </div>
             <div>{t('editor:properties.sceneSettings.lbl-loading')}</div>
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-row justify-between gap-2">
-                <ImagePreviewInput
-                  label={sceneThumbnailState.loadingScreenURL.value ? 'Current Loading Screen' : ''}
-                  value={sceneThumbnailState.loadingScreenURL.value ?? ''}
-                  labelClassname=""
-                  previewOnly={true}
-                />
-                <ImagePreviewInput
-                  label={sceneThumbnailState.oldLoadingScreenURL.value ? 'Previous Loading Screen' : ''}
-                  value={sceneThumbnailState.oldLoadingScreenURL.value ?? ''}
-                  previewOnly={true}
-                />
+            <div className="flex flex-col">
+              <div className="flex flex-row justify-around">
+                <div>{'Current Loading Screen'}</div>
+                <div>{'Previous Loading Screen'}</div>
+              </div>
+              <div className="flex flex-row justify-evenly ">
+                <ImageLink src={sceneThumbnailState.loadingScreenURL.value ?? ''} variant="lg" />
+                <ImageLink src={sceneThumbnailState.oldLoadingScreenURL.value ?? ''} variant="lg" />
               </div>
               <div className="flex flex-row gap-2">
                 <Button onClick={SceneThumbnailState.createLoadingScreen} className="w-full">

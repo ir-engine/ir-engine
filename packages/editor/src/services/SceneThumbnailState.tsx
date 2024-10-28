@@ -73,6 +73,7 @@ export const SceneThumbnailState = defineState({
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     if (!sceneThumbnailState.thumbnail.value) return
     sceneThumbnailState.uploadingThumbnail.set(true)
+    const currentThumbnail = sceneThumbnailState.thumbnailURL.value
     const editorState = getState(EditorState)
     const projectName = editorState.projectName!
     const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
@@ -81,6 +82,7 @@ export const SceneThumbnailState = defineState({
     commitProperty(SceneSettingsComponent, 'thumbnailURL', [entity])(savedThumbnailURL)
     sceneThumbnailState.merge({
       thumbnailURL: null,
+      oldThumbnailURL: currentThumbnail,
       thumbnail: null,
       uploadingThumbnail: false
     })
@@ -116,6 +118,7 @@ export const SceneThumbnailState = defineState({
     const projectName = editorState.projectName!
     const envmapFilename = `${sceneName}.envmap.ktx2`
     const loadingScreenFilename = `${sceneName}.loadingscreen.ktx2`
+    const currentLoadingScreen = sceneThumbnailState.loadingScreenURL.value
 
     const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
     const promises = uploadProjectFiles(
@@ -133,6 +136,7 @@ export const SceneThumbnailState = defineState({
 
     sceneThumbnailState.merge({
       loadingScreenURL: null,
+      oldLoadingScreenURL: currentLoadingScreen,
       loadingScreenImageData: null,
       uploadingLoadingScreen: false
     })
