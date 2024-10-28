@@ -39,11 +39,11 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ImageLink } from '@ir-engine/ui/editor'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
 import FolderInput from '../../input/Folder'
 import InputGroup from '../../input/Group'
-import ImageInput from '../../input/Image'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 
@@ -176,7 +176,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   // creating editor view for equirectangular Settings
   const renderEquirectangularSettings = () => (
     <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
-      <ImageInput value={skyboxComponent.equirectangularPath.value} onRelease={onChangeEquirectangularPathOption} />
+      <ImageLink src={skyboxComponent.equirectangularPath.value} onBlur={onChangeEquirectangularPathOption} />
       {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.skybox.error-url')}</div>}
     </InputGroup>
   )

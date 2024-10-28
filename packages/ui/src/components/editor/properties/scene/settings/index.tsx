@@ -40,6 +40,7 @@ import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbna
 
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, useState } from '@ir-engine/hyperflux'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
@@ -47,7 +48,6 @@ import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import ComponentDropdown from '../../../ComponentDropdown'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
-import ImagePreviewInput from '../../../input/Image/Preview'
 import NodeInput from '../../../input/Node'
 import NumericInput from '../../../input/Numeric'
 
@@ -121,9 +121,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         className="w-auto"
       >
         <div>
-          <ImagePreviewInput
-            value={sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value}
-          />
+          <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
 
           <Button onClick={SceneThumbnailState.createThumbnail} className="mt-2 w-full">
             {t('editor:properties.sceneSettings.generate')}
@@ -150,8 +148,8 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         className="w-auto"
       >
         <div>
-          <ImagePreviewInput
-            value={sceneThumbnailState.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value}
+          <ImageLink
+            src={sceneThumbnailState.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value}
           />
           <Button onClick={SceneThumbnailState.createLoadingScreen} className="mt-2 w-full">
             {t('editor:properties.sceneSettings.generate')}
