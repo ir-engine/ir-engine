@@ -295,7 +295,9 @@ async function createAccessToken(context: HookContext<IdentityProviderService>) 
   }
 }
 
-function validateQueryParameters(query) {
+function validateQueryParameters(context: HookContext) {
+  const { query } = context.params
+
   // Check for direct $like usage
   if (query?.accountIdentifier?.$like !== undefined || query?.email?.$like !== undefined) {
     return true
