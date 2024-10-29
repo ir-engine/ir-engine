@@ -22,7 +22,7 @@
     "check-errors": "tsc --noemit",
     "cross-env": "7.0.3",
     "test": "exit 0",
-    "validate": "npm run test --config=../../vitest.client.config.ts",
+    "validate": "npm run test",
     "local-minikube-start": "minikube start",
     "local-minikube-stop": "minikube stop",
     "open-frontend-service-port": "kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504"
