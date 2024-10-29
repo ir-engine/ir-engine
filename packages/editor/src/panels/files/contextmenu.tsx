@@ -124,7 +124,7 @@ export function FileContextMenu({
                 const vec3 = new Vector3()
                 getSpawnPositionAtCenter(vec3)
                 selectedFiles
-                  .filter((file) => !file.isFolder)
+                  .filter((file) => !file.isFolder.value)
                   .map((file) => {
                     addMediaNode(file.url.value, undefined, undefined, [
                       { name: TransformComponent.jsonID, props: { position: vec3 } }
@@ -142,7 +142,7 @@ export function FileContextMenu({
               data-testid="files-panel-file-item-context-menu-place-object-at-origin-button"
               onClick={() => {
                 selectedFiles
-                  .filter((file) => !file.isFolder)
+                  .filter((file) => !file.isFolder.value)
                   .map((file) => {
                     addMediaNode(file.url.value)
                   })
