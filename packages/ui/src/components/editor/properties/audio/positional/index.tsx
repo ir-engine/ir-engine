@@ -40,6 +40,7 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import InputGroup from '../../../input/Group'
@@ -55,7 +56,11 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const audioComponent = useComponent(props.entity, PositionalAudioComponent)
 
   useEffect(() => {
-    if (!hasComponent(props.entity, MediaComponent) && !hasComponent(props.entity, VolumetricComponent)) {
+    if (
+      !hasComponent(props.entity, MediaComponent) &&
+      !hasComponent(props.entity, VolumetricComponent) &&
+      !hasComponent(props.entity, NewVolumetricComponent)
+    ) {
       const nodes = SelectionState.getSelectedEntities()
       EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
     }
