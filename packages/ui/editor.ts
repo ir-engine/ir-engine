@@ -25,3 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 export { default as ImageLink } from './src/components/editor/ImageLink'
 export type { ImageLinkProps } from './src/components/editor/ImageLink'
+export { default as Seeker } from './src/components/editor/Seeker'
+export type { SeekerProps } from './src/components/editor/Seeker'
+export { default as Slider } from './src/components/editor/Slider'
+export type { SliderProps } from './src/components/editor/Slider'
