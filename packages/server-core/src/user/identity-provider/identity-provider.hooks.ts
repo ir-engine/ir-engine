@@ -305,14 +305,14 @@ function validateQueryParameters(context: HookContext) {
 
   // Check for $or conditions
   if (query?.$or) {
-    return query.$or.some(
+    return query.$or.find(
       (condition) => condition.accountIdentifier?.$like !== undefined || condition.email?.$like !== undefined
     )
   }
 
   // Check for $and conditions
   if (query?.$and) {
-    return query.$and.every(
+    return query.$and.find(
       (condition) => condition.accountIdentifier?.$like !== undefined && condition.email?.$like !== undefined
     )
   }
