@@ -35,6 +35,7 @@ import { MountPoint, MountPointComponent } from '@ir-engine/engine/src/scene/com
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import { LuUsers2 } from 'react-icons/lu'
 import { Vector3 } from 'three'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
@@ -55,7 +56,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
     if (!hasComponent(props.entity, InteractableComponent)) {
       const mountPoint = getComponent(props.entity, MountPointComponent)
       EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
-        label: MountPointComponent.mountPointInteractMessages[mountPoint.type],
+        label: t(MountPointComponent.mountPointInteractMessages[mountPoint.type]),
         callbacks: [
           {
             callbackID: MountPointComponent.mountCallbackName,
@@ -85,6 +86,17 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
           value={mountComponent.dismountOffset.get(NO_PROXY)}
           onChange={updateProperty(MountPointComponent, 'dismountOffset')}
           onRelease={commitProperty(MountPointComponent, 'dismountOffset')}
+        />
+      </InputGroup>
+      <InputGroup
+        name="Force Dismount Offset"
+        label={t('editor:properties.mountPoint.lbl-force-dismount')}
+        info={t('editor:properties.mountPoint.lbl-force-dismount-info')}
+      >
+        <BooleanInput
+          value={mountComponent.forceDismountPosition.value}
+          onChange={updateProperty(MountPointComponent, 'forceDismountPosition')}
+          onRelease={commitProperty(MountPointComponent, 'forceDismountPosition')}
         />
       </InputGroup>
     </NodeEditor>

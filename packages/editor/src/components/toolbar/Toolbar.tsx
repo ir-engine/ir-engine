@@ -193,6 +193,7 @@ export default function Toolbar() {
             <div className="p-2">
               <Button
                 rounded="full"
+                data-testid="publish-button"
                 disabled={!hasPublishAccess}
                 onClick={() =>
                   PopoverState.showPopupover(
