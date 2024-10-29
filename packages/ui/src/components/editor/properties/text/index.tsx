@@ -34,6 +34,7 @@ import { PiTextT } from 'react-icons/pi'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import {
   FontMaterialKind,
   TextComponent,
@@ -48,7 +49,6 @@ import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
 import Vector2Input from '../../input/Vector2'
-import NodeEditor from '../nodeEditor'
 import { FontOption, fonts } from './fonts'
 
 /**
@@ -155,7 +155,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.text.name')}
       description={t('editor:properties.text.description')}
-      icon={<TextNodeEditor.iconComponent />}
+      Icon={TextNodeEditor.iconComponent}
     >
       <InputGroup name="TextContents" label="Contents">
         <ControlledStringInput

@@ -30,6 +30,7 @@ import { PiLinkBreak } from 'react-icons/pi'
 import { getComponent, hasComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import {
   InteractableComponent,
   XRUIActivationType
@@ -39,7 +40,6 @@ import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkCompon
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import { ControlledStringInput } from '../../input/String'
-import NodeEditor from '../nodeEditor'
 
 /**
  * LinkNodeEditor component used to provide the editor view to customize link properties.
@@ -72,7 +72,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.linkComp.title')}
       description={t('editor:properties.linkComp.description')}
-      icon={<LinkNodeEditor.iconComponent />}
+      Icon={LinkNodeEditor.iconComponent}
     >
       {errors
         ? Object.entries(errors).map(([err, message]) => (

@@ -45,6 +45,8 @@ import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions
 import { dispatchAction, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
@@ -238,6 +240,14 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
   const { gltfComponentEntity, dependencies } = props
   const entries = Object.entries(dependencies)
 
+  useEffect(() => {
+    return () => {
+      const ancestor = getAncestorWithComponents(gltfComponentEntity, [SceneComponent])
+      const scene = getMutableComponent(ancestor, SceneComponent)
+      scene.active.set(true)
+    }
+  }, [])
+
   return (
     <>
       {entries.map(([uuid, components]) => {
@@ -318,7 +328,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
       dispatchAction(
         GLTFSnapshotAction.createSnapshot({
           source: getComponent(entity, SourceComponent),
-          data: parseStorageProviderURLs(JSON.parse(JSON.stringify(json)))
+          data: parseStorageProviderURLs(structuredClone(json))
         })
       )
     }

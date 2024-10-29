@@ -41,15 +41,15 @@ import {
   updateProperties,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
 import FolderInput from '../../input/Folder'
 import InputGroup from '../../input/Group'
-import ImagePreviewInput from '../../input/Image/Preview'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -92,7 +92,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       component={EnvmapComponent}
       name={t('editor:properties.envmap.name')}
       description={t('editor:properties.envmap.description')}
-      icon={<EnvMapEditor.iconComponent />}
+      Icon={EnvMapEditor.iconComponent}
     >
       <InputGroup name="Envmap Source" label={t('editor:properties.envmap.lbl-source')} className="w-auto">
         <SelectInput
@@ -135,9 +135,9 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               <FolderInput value={envmapComponent.envMapSourceURL.value} onRelease={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
-              <ImagePreviewInput
-                value={envmapComponent.envMapSourceURL.value}
-                onRelease={commitProperty(EnvmapComponent, 'envMapSourceURL')}
+              <ImageLink
+                src={envmapComponent.envMapSourceURL.value}
+                onBlur={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (

@@ -30,6 +30,7 @@ import { HiOutlineVideoCamera } from 'react-icons/hi2'
 import { useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 import Button from '../../../../primitives/tailwind/Button'
@@ -39,7 +40,6 @@ import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 const PlayModeOptions = [
   {
@@ -84,7 +84,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.media.name')}
       description={t('editor:properties.media.description')}
-      icon={<MediaNodeEditor.iconComponent />}
+      Icon={MediaNodeEditor.iconComponent}
     >
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
         <Slider
