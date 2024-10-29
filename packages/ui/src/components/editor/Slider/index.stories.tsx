@@ -23,21 +23,54 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import React, { useState } from 'react'
+import { ArgTypes } from 'storybook/internal/types'
+import Slider, { SliderProps } from './index'
 
-export default {
-  title: 'Primitives/Tailwind/Slider',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'Slider',
-    jest: 'Slider.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
+const argTypes: ArgTypes = {
+  min: {
+    control: 'number'
+  },
+  max: {
+    control: 'number'
+  },
+  step: {
+    control: 'number'
+  },
+  startingValue: {
+    control: 'number'
+  },
+  label: {
+    control: 'text'
   }
 }
 
+export default {
+  title: 'Components/Editor/Slider',
+  component: Slider,
+  parameters: {
+    componentSubtitle: 'Slider',
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=3968-12405&node-type=frame&t=XAGvEGVnphLHTwP3-0'
+    }
+  },
+  argTypes,
+  args: {
+    startingValue: 40,
+    min: 0,
+    max: 100,
+    step: 0.1,
+    label: 'Label'
+  }
+}
+
+const SliderRenderer = (args: SliderProps & { startingValue: number }) => {
+  const [value, setValue] = useState(args.startingValue)
+  return <Slider {...args} value={value} onChange={(value) => setValue(value)} onRelease={(value) => setValue(value)} />
+}
+
 export const Default = {
-  args: {}
+  name: 'Default',
+  render: SliderRenderer
 }

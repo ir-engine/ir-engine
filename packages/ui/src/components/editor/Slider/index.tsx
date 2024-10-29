@@ -23,82 +23,118 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import React, { useEffect, useId, useRef, useState } from 'react'
 
-export interface SliderProps {
-  className?: string
+export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: number
+  label: string
+  description?: string
   min?: number
   max?: number
+  /**the size by which the slider should increment each step */
   step?: number
-  width?: number
-  onChange: (value: number) => void
-  onRelease: (value: number) => void
+  onChange?: (value: number) => void
+  onRelease?: (value: number) => void
 }
 
 /**
- * @param props.width width of the slider in pixels
+ * Slider compoennt for the editor
+ * `...props` are forwarded to the parent HTML Div
  */
-const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, onRelease, className }: SliderProps) => {
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let newValue = parseFloat(event.target.value)
+const Slider = ({
+  value,
+  label,
+  description,
+  min = 0,
+  max = 100,
+  step = 1,
+  onChange,
+  onRelease,
+  ...props
+}: SliderProps) => {
+  const id = useId()
+  const parentRef = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
+
+  const handleInputChange = (value: string) => {
+    const fractionLength = step.toString().split('.')[1]?.length || 0
+    let newValue = parseFloat(value)
     if (isNaN(newValue)) {
       newValue = min
     } else {
       newValue = Math.min(Math.max(newValue, min), max)
     }
-    onChange(newValue)
+    onChange?.(+newValue.toFixed(fractionLength))
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(event.target.value)
-    onChange(newValue)
+    onChange?.(newValue)
   }
 
   const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
 
-  const sliderStyle = {
-    background: `linear-gradient(to right, #214AA6 ${gradientPercent}%, #191B1F ${gradientPercent}%)`
-  }
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (parentRef.current) setWidth(parentRef.current?.offsetWidth)
+    })
+    observer.observe(parentRef.current as Element)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <div className="flex flex-nowrap items-center gap-2">
+    <div ref={parentRef} className="group/editor-slider flex flex-nowrap items-center gap-2" {...props}>
+      {label && (
+        <label className="mr-2 text-sm text-[#B2B5BD] group-hover/editor-slider:text-[#D3D5D9]" htmlFor={id}>
+          {label}
+        </label>
+      )}
       <input
+        id={id}
         min={min}
         max={max}
         value={value}
-        onChange={handleInputChange}
-        onBlur={() => onRelease && onRelease(value)}
-        className="h-8 w-14 rounded bg-neutral-900 text-center text-sm font-normal leading-[21px] text-neutral-400"
+        onChange={(event) => handleInputChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowUp') {
+            handleInputChange(value + step + '')
+          } else if (event.key === 'ArrowDown') {
+            handleInputChange(value - step + '')
+          }
+        }}
+        onBlur={() => onRelease?.(value)}
+        className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover/editor-slider:bg-[#191B1F] group-hover/editor-slider:text-[#F5F5F5]"
         data-testid="slider-text-value-input"
       />
       <input
-        id="slider"
+        id={'slider' + id}
         min={min}
         max={max}
         value={value}
         onChange={handleChange}
-        onPointerUp={() => onRelease && onRelease(value)}
+        onPointerUp={() => onRelease?.(value)}
         step={step}
         type="range"
-        style={sliderStyle}
-        className={twMerge(
-          `w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden rounded bg-[#111113] focus:outline-none
+        style={{
+          width: width + 'px',
+          background: `linear-gradient(to right, #375DAF ${gradientPercent}%, #191B1F ${gradientPercent}%)`
+        }}
+        className="h-8 min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#191B1F] focus:outline-none
           disabled:pointer-events-none disabled:opacity-50
-          [&::-moz-range-progress]:bg-[#214AA6]
+          [&::-moz-range-progress]:bg-[#375DAF]
           [&::-moz-range-thumb]:h-full
           [&::-moz-range-thumb]:w-4
           [&::-moz-range-thumb]:appearance-none
           [&::-moz-range-thumb]:rounded
-          [&::-moz-range-thumb]:bg-[#849ED6]
+          [&::-moz-range-thumb]:bg-[#879ECF]
           [&::-moz-range-thumb]:transition-all
           [&::-moz-range-thumb]:duration-150
           [&::-moz-range-thumb]:ease-in-out
+          group-hover/editor-slider:[&::-moz-range-thumb]:bg-[#AFBEDF]
           [&::-moz-range-track]:h-full
           [&::-moz-range-track]:w-full
           [&::-moz-range-track]:rounded
-          [&::-moz-range-track]:bg-[#111113]
+          [&::-moz-range-track]:bg-[#191B1F]
           [&::-webkit-slider-runnable-track]:h-full
           [&::-webkit-slider-runnable-track]:w-full
           [&::-webkit-slider-runnable-track]:rounded
@@ -106,23 +142,16 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
           [&::-webkit-slider-thumb]:w-4
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:rounded
-          [&::-webkit-slider-thumb]:bg-[#849ED6]
+          [&::-webkit-slider-thumb]:bg-[#879ECF]
           [&::-webkit-slider-thumb]:transition-all
           [&::-webkit-slider-thumb]:duration-150
-          [&::-webkit-slider-thumb]:ease-in-out`,
-          className
-        )}
+          [&::-webkit-slider-thumb]:ease-in-out
+          group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
+        "
         data-testid="slider-draggable-value-input"
       />
     </div>
   )
-}
-
-Slider.defaultProps = {
-  min: 0,
-  max: 100,
-  step: 1,
-  value: 60
 }
 
 export default Slider
