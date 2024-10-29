@@ -37,7 +37,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run",
+    "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts",
     "build": "vite build",
     "build-publish": "npm run build && cd dist && npm publish --access public --dry-run"
   }

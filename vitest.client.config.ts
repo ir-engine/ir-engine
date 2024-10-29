@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -28,6 +29,26 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    passWithNoTests: true
+    passWithNoTests: true,
+    testTimeout: 2 * 60 * 1000,
+    hookTimeout: 2 * 60 * 1000,
+    reporters: ['basic'],
+    coverage: {
+      reporter: ['html'],
+      provider: 'istanbul',
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
+      watermarks: {
+        statements: [80, 95],
+        branches: [80, 95],
+        functions: [80, 95],
+        lines: [80, 95]
+      }
+    },
   }
-})
+});
+

@@ -21,7 +21,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run",
+    "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
