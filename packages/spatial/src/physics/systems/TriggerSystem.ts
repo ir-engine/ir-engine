@@ -36,15 +36,15 @@ import { ColliderHitEvent, CollisionEvents } from '@ir-engine/spatial/src/physic
 import { TriggerComponent } from '../components/TriggerComponent'
 
 export const triggerEnterOrExit = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
-  const triggerComponent = getComponent(hit.shapeSelf.userData.entity, TriggerComponent)
+  const triggerComponent = getOptionalComponent(hit.shapeSelf?.userData.entity ?? triggerEntity, TriggerComponent)
   if (!triggerComponent) return
   for (const trigger of triggerComponent.triggers) {
     if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
     const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
-    if (targetEntity && trigger.onEnter) {
+    if (targetEntity && (trigger.onEnter || trigger.onExit)) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue
-      callbacks.get(hit.type === CollisionEvents.TRIGGER_START ? trigger.onEnter : trigger.onExit!)?.(
+      callbacks.get(hit.type === CollisionEvents.TRIGGER_START ? trigger.onEnter! : trigger.onExit!)?.(
         triggerEntity,
         otherEntity
       )

@@ -127,7 +127,7 @@ describe('TriggerSystem', () => {
   })
 
   describe('triggerEnter', () => {
-    const Hit = {} as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
+    const Hit = { type: CollisionEvents.TRIGGER_START } as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
     describe('for all entity.triggerComponent.triggers ...', () => {
       it('... should only run if trigger.target defines the UUID of a valid entity', () => {
         setComponent(triggerEntity, TriggerComponent, {
@@ -160,7 +160,7 @@ describe('TriggerSystem', () => {
   })
 
   describe('triggerExit', () => {
-    const Hit = {} as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
+    const Hit = { type: CollisionEvents.TRIGGER_END } as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
     describe('for all entity.triggerComponent.triggers ...', () => {
       it('... should only run if trigger.target defines the UUID of a valid entity', () => {
         setComponent(triggerEntity, TriggerComponent, {
@@ -215,6 +215,7 @@ describe('TriggerSystem', () => {
       const beforeExit = ExitStartValue + 1
       assert.equal(enterVal, beforeEnter)
       assert.equal(exitVal, beforeExit)
+      console.log(enterVal, exitVal)
       triggerSystemExecute()
       assert.equal(enterVal, beforeEnter)
       assert.equal(exitVal, beforeExit)
