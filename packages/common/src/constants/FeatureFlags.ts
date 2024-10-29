@@ -40,7 +40,7 @@ export const FeatureFlags = {
       Dereference: 'ir.studio.model.dereference'
     },
     Components: {
-      Volumetric: 'ir.studio.components.volumetric',
+      LegacyVolumetric: 'ir.studio.components.legacyVolumetric',
       NewVolumetric: 'ir.studio.components.newVolumetric'
     },
     Panel: {

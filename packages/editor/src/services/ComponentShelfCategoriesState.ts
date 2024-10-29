@@ -37,6 +37,7 @@ import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvM
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
+import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
@@ -54,7 +55,6 @@ import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/Spaw
 import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
-import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,
@@ -79,7 +79,7 @@ export const ComponentShelfCategoriesState = defineState({
     return {
       Files: [
         ModelComponent,
-        VolumetricComponent,
+        LegacyVolumetricComponent,
         NewVolumetricComponent,
         PositionalAudioComponent,
         AudioAnalysisComponent,
@@ -126,7 +126,7 @@ export const ComponentShelfCategoriesState = defineState({
     const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
     const [grabbleEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Grabble])
 
-    const [volumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.Volumetric])
+    const [legacyVolumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.LegacyVolumetric])
     const [newVolumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.NewVolumetric])
 
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
@@ -164,15 +164,15 @@ export const ComponentShelfCategoriesState = defineState({
     }, [grabbleEnabled])
 
     useEffect(() => {
-      if (volumetricEnabled) {
-        cShelfState.Interaction.merge([VolumetricComponent])
+      if (legacyVolumetricEnabled) {
+        cShelfState.Interaction.merge([LegacyVolumetricComponent])
         return () => {
           cShelfState.Interaction.set((curr) => {
-            return curr.splice(curr.findIndex((item) => item.name == VolumetricComponent.name))
+            return curr.splice(curr.findIndex((item) => item.name == LegacyVolumetricComponent.name))
           })
         }
       }
-    }, [volumetricEnabled])
+    }, [legacyVolumetricEnabled])
 
     useEffect(() => {
       if (newVolumetricEnabled) {

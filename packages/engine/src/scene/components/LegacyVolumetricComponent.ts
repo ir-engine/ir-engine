@@ -50,7 +50,7 @@ import { UVOL2Component } from './UVOL2Component'
 export function handleAutoplay(
   audioContext: AudioContext,
   media: HTMLMediaElement,
-  volumetric: State<ComponentType<typeof VolumetricComponent>>
+  volumetric: State<ComponentType<typeof LegacyVolumetricComponent>>
 ) {
   const attachEventListeners = () => {
     const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas!
@@ -84,9 +84,9 @@ export function handleAutoplay(
     })
 }
 
-export const VolumetricComponent = defineComponent({
-  name: 'Volumetric Component',
-  jsonID: 'EE_volumetric',
+export const LegacyVolumetricComponent = defineComponent({
+  name: 'Legacy Volumetric Component',
+  jsonID: 'IR_volumetric_legacy',
 
   schema: S.Object({
     paths: S.Array(S.String()),
@@ -128,7 +128,7 @@ export function VolumetricReactor() {
   const entity = useEntityContext()
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
-  const volumetric = useComponent(entity, VolumetricComponent)
+  const volumetric = useComponent(entity, LegacyVolumetricComponent)
 
   useEffect(() => {
     setComponent(entity, MediaElementComponent, {

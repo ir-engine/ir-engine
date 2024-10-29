@@ -35,6 +35,7 @@ import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapCo
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
+import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
@@ -58,7 +59,6 @@ import { SplineTrackComponent } from '@ir-engine/engine/src/scene/components/Spl
 import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
-import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import { defineState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,
@@ -129,7 +129,7 @@ import TriggerComponentEditor from '@ir-engine/ui/src/components/editor/properti
 import VariantNodeEditor from '@ir-engine/ui/src/components/editor/properties/variant'
 import VideoNodeEditor from '@ir-engine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/visualScript'
-import VolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric'
+import LegacyVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/legacy'
 import NewVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
 
@@ -170,7 +170,7 @@ export const ComponentEditorsState = defineState({
       [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
       [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
-      [VolumetricComponent.name]: VolumetricNodeEditor,
+      [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,
       [NewVolumetricComponent.name]: NewVolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
       [EnvmapComponent.name]: EnvMapEditor,

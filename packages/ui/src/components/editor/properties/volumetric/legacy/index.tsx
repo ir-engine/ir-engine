@@ -32,7 +32,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -49,10 +49,10 @@ import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEdito
 import { Button } from '@mui/material'
 import { Scrubber } from 'react-scrubber'
 import 'react-scrubber/lib/scrubber.css'
-import Slider from '../../../../primitives/tailwind/Slider'
-import ArrayInputGroup from '../../input/Array'
-import InputGroup from '../../input/Group'
-import SelectInput from '../../input/Select'
+import Slider from '../../../../../primitives/tailwind/Slider'
+import ArrayInputGroup from '../../../input/Array'
+import InputGroup from '../../../input/Group'
+import SelectInput from '../../../input/Select'
 
 const PlayModeOptions = [
   {
@@ -86,10 +86,10 @@ type TextureTargetLabelsType = {
  * @param       {any} props
  * @constructor
  */
-export const VolumetricNodeEditor: EditorComponentType = (props) => {
+export const LegacyVolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
+  const volumetricComponent = useComponent(props.entity, LegacyVolumetricComponent)
 
   const toggle = () => {
     volumetricComponent.paused.set(!volumetricComponent.paused.value)
@@ -213,11 +213,11 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
-      Icon={VolumetricNodeEditor.iconComponent}
+      Icon={LegacyVolumetricNodeEditor.iconComponent}
     >
       <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
         <BooleanInput
-          onChange={commitProperty(VolumetricComponent, 'useLoadingEffect')}
+          onChange={commitProperty(LegacyVolumetricComponent, 'useLoadingEffect')}
           value={volumetricComponent.useLoadingEffect.value}
         />
       </InputGroup>
@@ -228,7 +228,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         info={t('editor:properties.media.info-autoplay')}
       >
         <BooleanInput
-          onChange={commitProperty(VolumetricComponent, 'autoplay')}
+          onChange={commitProperty(LegacyVolumetricComponent, 'autoplay')}
           value={volumetricComponent.autoplay.value}
         />
       </InputGroup>
@@ -239,8 +239,8 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           max={1}
           step={0.01}
           value={volumetricComponent.volume.value}
-          onChange={updateProperty(VolumetricComponent, 'volume')}
-          onRelease={commitProperty(VolumetricComponent, 'volume')}
+          onChange={updateProperty(LegacyVolumetricComponent, 'volume')}
+          onRelease={commitProperty(LegacyVolumetricComponent, 'volume')}
         />
       </InputGroup>
 
@@ -248,9 +248,9 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         name="Source Paths"
         //prefix="Content"
         values={volumetricComponent.paths.value as string[]}
-        //onRelease={commitProperty(VolumetricComponent, 'paths')}
+        //onRelease={commitProperty(LegacyVolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
-        onChange={updateProperty(VolumetricComponent, 'paths')}
+        onChange={updateProperty(LegacyVolumetricComponent, 'paths')}
         //acceptFileTypes={VolumetricFileTypes}
         //acceptDropItems={ItemTypes.Volumetrics}
       />
@@ -277,7 +277,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={PlayModeOptions}
           value={volumetricComponent.playMode.value}
-          onChange={commitProperty(VolumetricComponent, 'playMode')}
+          onChange={commitProperty(LegacyVolumetricComponent, 'playMode')}
         />
         {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
@@ -337,7 +337,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
 
 function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
   const { t } = useTranslation()
-  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
+  const volumetricComponent = useComponent(props.entity, LegacyVolumetricComponent)
   const uvol2Component = useOptionalComponent(props.entity, UVOL2Component)
 
   const [isChanging, setIsChanging] = React.useState(false)
@@ -379,6 +379,6 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = MdVideocam
+LegacyVolumetricNodeEditor.iconComponent = MdVideocam
 
-export default VolumetricNodeEditor
+export default LegacyVolumetricNodeEditor
