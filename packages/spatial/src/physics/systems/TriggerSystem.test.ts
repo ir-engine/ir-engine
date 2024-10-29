@@ -51,7 +51,7 @@ import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
-import { TriggerSystem, triggerEnter, triggerExit } from './TriggerSystem'
+import { TriggerSystem, triggerEnterOrExit } from './TriggerSystem'
 
 describe('TriggerSystem', () => {
   describe('IDs', () => {
@@ -134,7 +134,7 @@ describe('TriggerSystem', () => {
           triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityUUID }]
         })
         assert.equal(enterVal, EnterStartValue)
-        triggerEnter(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.equal(enterVal, EnterStartValue)
       })
 
@@ -147,13 +147,13 @@ describe('TriggerSystem', () => {
           triggers: [{ onEnter: null, onExit: TestOnExitName, target: noEnterEntityUUID }]
         })
         assert.equal(enterVal, EnterStartValue)
-        triggerEnter(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.equal(enterVal, EnterStartValue)
       })
 
       it('... should run the target.CallbackComponent.callbacks[trigger.onEnter] function', () => {
         assert.equal(enterVal, EnterStartValue)
-        triggerEnter(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.notEqual(enterVal, EnterStartValue)
       })
     })
@@ -167,7 +167,7 @@ describe('TriggerSystem', () => {
           triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityUUID }]
         })
         assert.equal(exitVal, ExitStartValue)
-        triggerExit(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.equal(exitVal, ExitStartValue)
       })
 
@@ -180,13 +180,13 @@ describe('TriggerSystem', () => {
           triggers: [{ onEnter: TestOnEnterName, onExit: null, target: noExitEntityUUID }]
         })
         assert.equal(exitVal, ExitStartValue)
-        triggerExit(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.equal(exitVal, ExitStartValue)
       })
 
       it('... should run the target.CallbackComponent.callbacks[trigger.onExit] function', () => {
         assert.equal(exitVal, ExitStartValue)
-        triggerExit(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.notEqual(exitVal, ExitStartValue)
       })
     })
