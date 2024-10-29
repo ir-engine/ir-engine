@@ -39,6 +39,10 @@ export const FeatureFlags = {
     Model: {
       Dereference: 'ir.studio.model.dereference'
     },
+    Components: {
+      Volumetric: 'ir.studio.components.volumetric',
+      NewVolumetric: 'ir.studio.components.newVolumetric'
+    },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript',
       Portal: 'ir.editor.panel.portal',

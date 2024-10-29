@@ -126,6 +126,9 @@ export const ComponentShelfCategoriesState = defineState({
     const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
     const [grabbleEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Grabble])
 
+    const [volumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.Volumetric])
+    const [newVolumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.NewVolumetric])
+
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
       if (visualScriptPanelEnabled) {
@@ -159,5 +162,27 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [grabbleEnabled])
+
+    useEffect(() => {
+      if (volumetricEnabled) {
+        cShelfState.Interaction.merge([VolumetricComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == VolumetricComponent.name))
+          })
+        }
+      }
+    }, [volumetricEnabled])
+
+    useEffect(() => {
+      if (newVolumetricEnabled) {
+        cShelfState.Interaction.merge([NewVolumetricComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == NewVolumetricComponent.name))
+          })
+        }
+      }
+    }, [newVolumetricEnabled])
   }
 })
