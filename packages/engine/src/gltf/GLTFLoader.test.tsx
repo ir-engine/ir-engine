@@ -218,7 +218,7 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
-  it.only('can load an unlit material', async () => {
+  it('can load an unlit material', async () => {
     const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
