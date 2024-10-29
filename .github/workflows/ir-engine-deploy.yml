@@ -24,30 +24,35 @@ jobs:
   remote-dispatch-deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository with limited history
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
       - name: Send Remote Dispatch to Deploy IR-Engine
         run: |
           curl -H "Authorization: token ${{ secrets.IR_ORG_ACCESS_TOKEN }}" \
             -H 'Accept: application/vnd.github.everest-preview+json' \
             ${{ secrets.IR_ENGINE_OPS_API_URL }} \
             -d '{"event_type": "deploy-ir-engine", "client_payload": {"environment": "${{ env.TARGET_BRANCH_NAME }}"}}'
-      - name: Deploy Storybook
+      - name: Detect changes in packages/ui
+        id: check_changes
         run: |
-          if [ "$TARGET_BRANCH_NAME" == "dev" ]; then
-            # Extract modified files from the event payload
-            files=$(jq -r '[.commits[].modified[], .commits[].added[], .commits[].removed[]] | unique | .[]' <<< "${{ toJson(github.event.commits) }}")
-
-            echo "Changed files:"
-            echo "$files"
-
-            if echo "$files" | grep -q 'packages/ui/'; then
-              echo "UI package changes detected."
-              echo "Deploying storybook"
-              curl -L \
-                -X POST \
-                -H "Accept: application/vnd.github+json" \
-                -H "Authorization: Bearer ${{ secrets.STORYBOOK_DOCS_PAT }}" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
-                https://api.github.com/repos/ir-engine/storybook-docs/dispatches \
-                -d '{"event_type":"push"}'
-            fi
+          echo "Checking for changes in packages/ui directory..."
+          if git diff --name-only HEAD~1 HEAD | grep -q 'packages/ui/'; then
+            echo "UI package changes detected."
+            echo "ui_package_changed=true" >> $GITHUB_ENV
+          else
+            echo "No changes detected in UI package."
+            echo "ui_package_changed=false" >> $GITHUB_ENV
           fi
+      - name: Deploy Storybook
+        if: env.TARGET_BRANCH_NAME == 'dev' && env.ui_package_changed == 'true'
+        run: |
+          echo "Deploying storybook"
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.STORYBOOK_DOCS_PAT }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/ir-engine/storybook-docs/dispatches \
+            -d '{"event_type":"push"}'
