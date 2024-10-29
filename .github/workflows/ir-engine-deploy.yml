@@ -33,6 +33,9 @@ jobs:
       - name: Deploy Storybook
         run: |
           if [ "$TARGET_BRANCH_NAME" == "dev" ]; then
+            echo "Changed files:"
+            git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+
             if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q 'packages/ui/'; then
               echo "UI package changes detected."
               echo "Deploying storybook"
