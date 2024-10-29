@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -37,10 +36,11 @@ export default defineConfig({
       reporter: ['html'],
       provider: 'istanbul',
       thresholds: {
+        perFile: true,
         statements: 80,
         branches: 80,
         functions: 80,
-        lines: 80,
+        lines: 80
       },
       watermarks: {
         statements: [80, 95],
@@ -48,7 +48,6 @@ export default defineConfig({
         functions: [80, 95],
         lines: [80, 95]
       }
-    },
+    }
   }
-});
-
+})
