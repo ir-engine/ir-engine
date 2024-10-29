@@ -33,10 +33,13 @@ jobs:
       - name: Deploy Storybook
         run: |
           if [ "$TARGET_BRANCH_NAME" == "dev" ]; then
-            echo "Changed files:"
-            git diff --name-only HEAD~1 HEAD
+            # Extract modified files from the event payload
+            files=$(jq -r '[.commits[].modified[], .commits[].added[], .commits[].removed[]] | unique | .[]' <<< "${{ toJson(github.event.commits) }}")
 
-            if git diff --name-only HEAD~1 HEAD | grep -q 'packages/ui/'; then
+            echo "Changed files:"
+            echo "$files"
+
+            if echo "$files" | grep -q 'packages/ui/'; then
               echo "UI package changes detected."
               echo "Deploying storybook"
               curl -L \
