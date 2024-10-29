@@ -34,9 +34,9 @@ jobs:
         run: |
           if [ "$TARGET_BRANCH_NAME" == "dev" ]; then
             echo "Changed files:"
-            git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+            git diff --name-only HEAD~1 HEAD
 
-            if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q 'packages/ui/'; then
+            if git diff --name-only HEAD~1 HEAD | grep -q 'packages/ui/'; then
               echo "UI package changes detected."
               echo "Deploying storybook"
               curl -L \
