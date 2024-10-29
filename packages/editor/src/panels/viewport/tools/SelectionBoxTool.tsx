@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getComponent, hasComponent, setComponent } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, getComponent, hasComponent } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -43,13 +43,9 @@ import { EditorState } from '../../../services/EditorServices'
 import { SelectionState } from '../../../services/SelectionServices'
 
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { addMesh } from '@ir-engine/engine/src/scene/functions/addMesh'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
-import { proxifyParentChildRelationships } from '@ir-engine/engine/src/scene/functions/loadGLTFModel'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 export const SelectionBoxState = defineState({
   name: 'selectionBox State',
   initial: () => ({
@@ -102,66 +98,42 @@ export default function SelectionBox({
     // width.set(e.clientX - startX)
     // height.set(e.clientY - startY)
     setIsDragging(false)
-    if (getMutableState(SelectionBoxState).selectionBoxEnabled.value) {
+    if (getMutableState(SelectionBoxState).selectionBoxEnabled.value === true) {
       updateSelectionEntity()
     }
   }
   const updateSelectionEntity = () => {
     const viewportRect = viewportRef.current!.getBoundingClientRect()
+    const toolbarRect = toolbarRef.current!.getBoundingClientRect()
     const ndcX1 = (left / viewportRect.width) * 2 - 1
     const ndcX2 = ((left + width.value) / viewportRect.width) * 2 - 1
     const ndcY1 = 1 - (top / viewportRect.height) * 2
     const ndcY2 = 1 - ((top + height.value) / viewportRect.height) * 2
 
     const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
-    const selectedUUIDs = [] as EntityUUID[]
+    let selectedUUIDs = [] as EntityUUID[]
     // convert NDC points to world space (for both near and far planes)
 
-    camera.near = 0.1
-    camera.far = 1000 // typical value for far plane
-    camera.aspect = viewportRect.width / viewportRect.height
-    camera.fov = 60 // or adjust to match your screen view better
+    // camera.near = 0.1
+    // camera.far = 1000 // typical value for far plane
+    // camera.aspect = viewportRect.width / viewportRect.height
+    // camera.fov = 60 // or adjust to match your screen view better
 
-    // Ensure the projection matrix is updated with these settings
-    camera.updateProjectionMatrix()
-    camera.updateProjectionMatrix()
+    // // Ensure the projection matrix is updated with these settings
+    // camera.updateProjectionMatrix()
     const near = camera.near
     const far = camera.far
-    // const p1Near = new Vector3(ndcX1, ndcY1, -1).unproject(camera) // top-left near
-    // const p2Near = new Vector3(ndcX2, ndcY1, -1).unproject(camera) // top-right near
-    // const p3Near = new Vector3(ndcX1, ndcY2, -1).unproject(camera) // bottom-left near
-    // const p4Near = new Vector3(ndcX2, ndcY2, -1).unproject(camera) // bottom-right near
-
-    // const p1Far = new Vector3(ndcX1, ndcY1, 1).unproject(camera) // top-left far
-    // const p2Far = new Vector3(ndcX2, ndcY1, 1).unproject(camera) // top-right far
-    // const p3Far = new Vector3(ndcX1, ndcY2, 1).unproject(camera) // bottom-left far
-    // const p4Far = new Vector3(ndcX2, ndcY2, 1).unproject(camera) // bottom-right far
-
-    // construct the frustum with six planes
-    const nearDistance = camera.near
-    const farDistance = camera.far
-
-    // Helper function to convert screen space to world space at a specific Z distance
-    function screenToWorld(screenX, screenY, distance) {
-      const x = (screenX / viewportRect.width) * 2 - 1
-      const y = 1 - (screenY / viewportRect.height) * 2
-      const vector = new Vector3(x, y, 1)
-      vector.unproject(camera)
-      const direction = vector.sub(camera.position).normalize()
-      return camera.position.clone().add(direction.multiplyScalar(distance))
-    }
-
-    // Calculate the four corners at the near plane
-    const p1Near = screenToWorld(left, top, nearDistance)
-    const p2Near = screenToWorld(left + width.value, top, nearDistance)
-    const p3Near = screenToWorld(left, top + height.value, nearDistance)
-    const p4Near = screenToWorld(left + width.value, top + height.value, nearDistance)
-
-    // Calculate the four corners at the far plane
-    const p1Far = screenToWorld(left, top, farDistance)
-    const p2Far = screenToWorld(left + width.value, top, farDistance)
-    const p3Far = screenToWorld(left, top + height.value, farDistance)
-    const p4Far = screenToWorld(left + width.value, top + height.value, farDistance)
+    const p1Near = new Vector3(ndcX1, ndcY1, -1).unproject(camera) // top-left near
+    const p2Near = new Vector3(ndcX2, ndcY1, -1).unproject(camera) // top-right near
+    const p3Near = new Vector3(ndcX1, ndcY2, -1).unproject(camera) // bottom-left near
+    const p4Near = new Vector3(ndcX2, ndcY2, -1).unproject(camera) // bottom-right near
+    console.log('p1', p1Near)
+    console.log('p4', p4Near)
+    const p1Far = new Vector3(ndcX1, ndcY1, 1).unproject(camera) // top-left far
+    const p2Far = new Vector3(ndcX2, ndcY1, 1).unproject(camera) // top-right far
+    const p3Far = new Vector3(ndcX1, ndcY2, 1).unproject(camera) // bottom-left far
+    const p4Far = new Vector3(ndcX2, ndcY2, 1).unproject(camera) // bottom-right far
+    const nearPlane = new Plane().setFromCoplanarPoints(p1Near, p2Near, p4Near)
     const frustum = new Frustum(
       new Plane().setFromCoplanarPoints(p1Near, p2Near, p4Near), // Near plane
       new Plane().setFromCoplanarPoints(p1Far, p2Far, p4Far), // Far plane
@@ -170,15 +142,7 @@ export default function SelectionBox({
       new Plane().setFromCoplanarPoints(p1Near, p2Near, p2Far), // Top plane
       new Plane().setFromCoplanarPoints(p3Near, p4Near, p4Far) // Bottom plane
     )
-    // const frustumGeometry = new BufferGeometry().setFromPoints([
-    //   // Near plane
-    //   p1Near, p2Near, p2Near, p4Near, p4Near, p3Near, p3Near, p1Near,
-    //   // Far plane
-    //   p1Far, p2Far, p2Far, p4Far, p4Far, p3Far, p3Far, p1Far,
-    //   // Connecting near and far planes
-    //   p1Near, p1Far, p2Near, p2Far, p3Near, p3Far, p4Near, p4Far
-    // ])
-    // Define vertices for the frustum
+
     const vertices = new Float32Array([
       // Near plane (use in a consistent order)
       p1Near.x,
@@ -241,23 +205,17 @@ export default function SelectionBox({
     // Create a material for the lines
     const mesh = new Mesh(frustumGeometry, material)
     const geoEntity = createSceneEntity('frustum', getState(EditorState).rootEntity)
-    setComponent(geoEntity, MeshComponent, mesh)
-    addObjectToGroup(geoEntity, mesh)
-    proxifyParentChildRelationships(mesh)
-    setObjectLayers(mesh, ObjectLayers.Scene)
+    addMesh(geoEntity, mesh)
     const parentEntity = getState(EditorState).rootEntity
     const entities = getComponent(parentEntity, EntityTreeComponent).children
 
     entities.forEach((entity) => {
       if (hasComponent(entity, ModelComponent)) {
         const scene = getComponent(entity, ModelComponent).scene
-        // const scene = getComponent(entity, ModelComponent).scene
-        // const modelComponent = getComponent(entity, ModelComponent).asset?.scene
-        // const [gltf, error] = useGLTF(modelComponent.src, entity)
         if (!scene) return {}
         scene.traverse((mesh: Mesh) => {
           if (mesh.isMesh) {
-            mesh.frustumCulled = true
+            //mesh.frustumCulled = true
             const boundingBox = new Box3().setFromObject(mesh)
             const boxVertices = new Float32Array([
               // Front face (z = min)
@@ -309,79 +267,45 @@ export default function SelectionBox({
               0, 3, 7, 0, 7, 4
             ]
 
-            const boxGeometry = new BufferGeometry()
-            boxGeometry.setAttribute('position', new Float32BufferAttribute(boxVertices, 3))
-            boxGeometry.setIndex(boxIndices)
-            boxGeometry.computeVertexNormals()
-
-            // Define a transparent material for the bounding box
-            const boxMaterial = new MeshStandardMaterial({
-              color: 0xff0000, // Red color
-              side: DoubleSide,
-              opacity: 0.8,
-              transparent: true
-            })
-
-            // Create the mesh
-            const boundingBoxMesh = new Mesh(boxGeometry, boxMaterial)
-
-            // Create a new entity for the bounding box in the scene
-            const boxEntity = createSceneEntity('boundingBox', getState(EditorState).rootEntity)
-
-            // Set the mesh component to the entity
-            setComponent(boxEntity, MeshComponent, boundingBoxMesh)
-
-            // Add the mesh to the group and configure relationships
-            addObjectToGroup(boxEntity, boundingBoxMesh)
-            proxifyParentChildRelationships(boundingBoxMesh)
-
-            // Set the bounding box mesh to render in the appropriate layer
-            setObjectLayers(boundingBoxMesh, ObjectLayers.Scene)
-
-            //console.log(mesh)
-            //const status=frustum.intersectsBox(boundingBox)
-            const tolerance = 0.0001
-            const status = frustum.planes.every((plane) => {
-              return (
-                plane.distanceToPoint(boundingBox.min) < tolerance ||
-                plane.distanceToPoint(boundingBox.max) > -tolerance
-              )
-            })
+            console.log('bounding box min', boundingBox.min)
+            console.log('bounding box max', boundingBox.max)
+            const status = frustum.intersectsBox(boundingBox)
             console.log(status)
             if (status) {
               console.log('intersected', entity)
-              selectedUUIDs.push(getComponent(entity, UUIDComponent))
+              const boxGeometry = new BufferGeometry()
+              boxGeometry.setAttribute('position', new Float32BufferAttribute(boxVertices, 3))
+              boxGeometry.setIndex(boxIndices)
+              boxGeometry.computeVertexNormals()
+
+              // Define a transparent material for the bounding box
+              const boxMaterial = new MeshStandardMaterial({
+                color: 0xff0000, // Red color
+                side: DoubleSide,
+                opacity: 0.8,
+                transparent: true
+              })
+
+              // Create the mesh
+              const boundingBoxMesh = new Mesh(boxGeometry, boxMaterial)
+
+              const boxEntity = createSceneEntity('boundingBox', getState(EditorState).rootEntity)
+
+              addMesh(boxEntity, boundingBoxMesh)
+              const uuid = getComponent(entity, UUIDComponent)
+              if (!selectedUUIDs.includes(uuid)) {
+                selectedUUIDs.push(uuid)
+              }
             }
           }
-          //selectedUUIDs.push(getComponent(entity, UUIDComponent))
         })
       }
     })
 
-    // iterateEntityNode(parentEntity, (entity) => {
-    //   console.log(entity)
-    //   selectedUUIDs.push(getComponent(entity, UUIDComponent))
-    //   if (hasComponent(entity, ModelComponent)) {
-    //     const scene = getComponent(entity, ModelComponent).scene
-    //     const modelComponent = useComponent(entity, ModelComponent)
-    //     const [gltf, error] = useGLTF(modelComponent.src.value, entity)
-    //     const mesh = getFirstMesh(gltf!.scene)
-
-    //     // if (mesh && frustum.intersectsObject(mesh)) {
-    //     //   selectedUUIDs.push(getComponent(entity, UUIDComponent))
-    //     // }
-    //     // if (!scene) return {}
-    //     // scene.traverse((mesh: Mesh) => {
-    //     //   if (!mesh.isMesh) return
-    //     //   if (frustum.intersectsObject(mesh)) {
-    //     //     selectedUUIDs.push(getComponent(entity, UUIDComponent))
-    //     //   }
-    //     // })
-    //   }
-    // })
     console.log('finish', selectedUUIDs)
 
     SelectionState.updateSelection(selectedUUIDs)
+    selectedUUIDs = []
   }
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove as any)
@@ -393,6 +317,7 @@ export default function SelectionBox({
       document.removeEventListener('mousedown', handleMouseDown as any)
     }
   }, [isDragging])
+  useEffect(() => {}, [getMutableState(SelectionBoxState).selectionBoxEnabled])
   return (
     <div className="relative h-full w-full">
       {getMutableState(SelectionBoxState).selectionBoxEnabled.value && isDragging && (
