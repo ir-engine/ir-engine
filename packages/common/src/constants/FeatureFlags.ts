@@ -41,9 +41,11 @@ export const FeatureFlags = {
     },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript',
-      Portal: 'ir.editor.panel.portal'
+      Portal: 'ir.editor.panel.portal',
+      Grabble: 'ir.editor.panel.grabble'
     },
     UI: {
+      SceneComplexityNotification: 'ir.editor.ui.sceneComplexityNotification',
       TransformPivot: 'ir.editor.ui.transformPivot',
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'

@@ -135,7 +135,7 @@ export default function Topbar() {
   const { t } = useTranslation()
   const { search } = useAssetsQuery()
   const { currentCategoryPath, expandedCategories } = useAssetsCategory()
-  const { refetchResources } = useAssetsQuery()
+  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
 
   const handleBack = () => {
     currentCategoryPath.set((path) => path.slice(0, -1))
@@ -147,7 +147,10 @@ export default function Topbar() {
     refetchResources()
   }
 
-  useEffect(() => refetchResources(), [search.query])
+  useEffect(() => {
+    staticResourcesPagination.skip.set(0)
+    refetchResources()
+  }, [search.query])
 
   return (
     <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1" data-testid="assets-panel-top-bar">

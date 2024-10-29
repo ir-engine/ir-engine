@@ -94,7 +94,6 @@ export const ComponentShelfCategoriesState = defineState({
         MountPointComponent,
         InteractableComponent,
         InputComponent,
-        GrabbableComponent,
         ScreenshareTargetComponent
       ],
       Lighting: [
@@ -125,6 +124,7 @@ export const ComponentShelfCategoriesState = defineState({
   reactor: () => {
     const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
     const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
+    const [grabbleEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Grabble])
 
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
@@ -148,5 +148,16 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [portalEnabled])
+
+    useEffect(() => {
+      if (grabbleEnabled) {
+        cShelfState.Interaction.merge([GrabbableComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == GrabbableComponent.name))
+          })
+        }
+      }
+    }, [grabbleEnabled])
   }
 })

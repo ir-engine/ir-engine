@@ -222,14 +222,7 @@ const addInteractableUI = (entity: Entity) => {
   const transition = createTransitionState(0.25)
   transition.setState('OUT')
   InteractableTransitions.set(entity, transition)
-}
-
-const removeInteractableUI = (entity: Entity) => {
-  const interactable = getComponent(entity, InteractableComponent)
-  if (interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
-
-  removeEntity(interactable.uiEntity)
-  getMutableComponent(entity, InteractableComponent).uiEntity.set(UndefinedEntity)
+  return uiEntity
 }
 
 export const InteractableComponent = defineComponent({
@@ -237,14 +230,6 @@ export const InteractableComponent = defineComponent({
   jsonID: 'EE_interactable',
 
   schema: S.Object({
-    //TODO reimpliment the frustum culling for interactables
-
-    //TODO check if highlight works properly on init and with non clickInteract
-    //TODO simplify button logic in inputUpdate
-
-    //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
-
-    //TODO canInteract for grabbed state on grabbable?
     canInteract: S.Bool(false),
     uiInteractable: S.Bool(true),
     uiEntity: S.Entity(),
@@ -283,7 +268,6 @@ export const InteractableComponent = defineComponent({
         removeComponent(entity, DistanceFromCameraComponent)
         removeComponent(entity, DistanceFromLocalClientComponent)
         removeComponent(entity, BoundingBoxComponent)
-        removeInteractableUI(entity)
       }
     }, [])
 
@@ -309,15 +293,16 @@ export const InteractableComponent = defineComponent({
 
     useEffect(() => {
       if (!isEditing.value) {
-        addInteractableUI(entity)
-      }
-      return () => {
-        removeInteractableUI(entity)
+        const uiEntity = addInteractableUI(entity)
+        return () => {
+          if (uiEntity) {
+            removeEntity(uiEntity)
+          }
+        }
       }
     }, [isEditing.value])
 
     useEffect(() => {
-      //const xrUI = getMutableComponent(interactableComponent.uiEntity, XRUIComponent)
       const msg = interactableComponent.label?.value ?? ''
       modalState.interactMessage?.set(msg)
     }, [interactableComponent.label]) //TODO just nuke the whole XRUI and recreate....

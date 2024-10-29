@@ -90,7 +90,7 @@ function getNodeElId(node: HierarchyTreeNodeType) {
 
 function toValidHierarchyNodeName(entity: Entity, name: string): string {
   name = name.trim()
-  if (getComponent(entity, NameComponent) === name) return ''
+  //if (getComponent(entity, NameComponent) === name) return ''
   return name
 }
 
@@ -385,7 +385,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                           [entity],
                           toValidHierarchyNodeName(entity, currentRenameNode.value)
                         )
-                        currentRenameNode.set(getComponent(entity, NameComponent))
+                        const name = getComponent(entity, NameComponent)
+                        currentRenameNode.set(name)
                         renamingNode.clear()
                       }
                     }}
