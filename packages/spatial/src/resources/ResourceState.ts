@@ -571,8 +571,8 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
 
 const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resourceType = ResourceType.Unknown) => {
   if (Array.isArray(asset)) {
-    for (const a of asset) {
-      addReferencedAsset(assetKey, asset, resourceType)
+    for (const assetItem of asset) {
+      addReferencedAsset(assetKey, assetItem, resourceType)
     }
     return
   }
@@ -616,8 +616,8 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
 
 const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resourceType = ResourceType.Unknown) => {
   if (Array.isArray(asset)) {
-    for (const a of asset) {
-      removeReferencedAsset(assetKey, asset, resourceType)
+    for (const assetItem of asset) {
+      removeReferencedAsset(assetKey, assetItem, resourceType)
     }
     return
   }
