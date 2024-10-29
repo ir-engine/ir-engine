@@ -87,8 +87,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
       variant !== 'outlined' ? '' : 'focus-visible:ring-1',
-      startComponent ? 'ps-10' : undefined,
+      startComponent ? 'rounded-l-none ps-10' : undefined,
       endComponent ? 'pe-10' : undefined,
+      errorBorder ? 'border-rose-600' : undefined,
       variant === 'onboarding' ? onboardingVariantStyle : variants[variant],
       className
     )
@@ -106,7 +107,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     )
 
     const containerClass =
-      variant === 'outlined' ? 'bg-theme-surface-main relative h-full w-full' : ' relative h-full w-full'
+      variant === 'outlined' ? 'bg-theme-surface-main relative h-full w-full flex' : ' relative h-full w-full flex'
     const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'
 
     return (
@@ -114,7 +115,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && <Label className={twMerge(`self-stretch ${labelClass}`, labelClassname)}>{label}</Label>}
         <div className={containerClass}>
           {startComponent && (
-            <div className="pointer-events-auto absolute inset-y-0 left-0 start-0 ml-2 flex items-center ps-0">
+            <div className="pointer-events-auto relative inset-y-0 left-0 start-0 flex items-center ps-0">
               {startComponent}
             </div>
           )}
