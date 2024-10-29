@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { random } from 'lodash'
 
 import { isDev } from '@ir-engine/common/src/config'
@@ -54,7 +54,6 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import appConfig from '../../appconfig'
-import isAction from '../../hooks/is-action'
 import persistData from '../../hooks/persist-data'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import verifyScope from '../../hooks/verify-scope'
@@ -296,6 +295,29 @@ async function createAccessToken(context: HookContext<IdentityProviderService>) 
   }
 }
 
+function validateQueryParameters(query) {
+  // Check for direct $like usage
+  if (query?.accountIdentifier?.$like !== undefined || query?.email?.$like !== undefined) {
+    return true
+  }
+
+  // Check for $or conditions
+  if (query?.$or) {
+    return query.$or.some(
+      (condition) => condition.accountIdentifier?.$like !== undefined || condition.email?.$like !== undefined
+    )
+  }
+
+  // Check for $and conditions
+  if (query?.$and) {
+    return query.$and.every(
+      (condition) => condition.accountIdentifier?.$like !== undefined && condition.email?.$like !== undefined
+    )
+  }
+
+  return false
+}
+
 export default {
   around: {
     all: [
@@ -311,20 +333,7 @@ export default {
     ],
     find: [
       iff(isProvider('external'), setLoggedinUserInQuery('userId')),
-      // Combined check for external provider and $like usage with scope verification
-      iff(
-        isProvider('external') &&
-          ((context) =>
-            context.params.query?.accountIdentifier?.$like !== undefined ||
-            context.params.query?.email?.$like !== undefined), // Use iffElse to check for admin action
-        iffElse(
-          isAction('admin'),
-          // If the action is admin, check for admin or super scope
-          verifyScope('admin', 'super'),
-          // If not admin action, check for editor:write scope
-          verifyScope('editor', 'write')
-        )
-      )
+      iff(isProvider('external') && validateQueryParameters, verifyScope('admin', 'admin'))
     ],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
