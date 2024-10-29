@@ -32,6 +32,7 @@ export default defineConfig({
     testTimeout: 2 * 60 * 1000,
     hookTimeout: 2 * 60 * 1000,
     reporters: ['basic'],
+    slowTestThreshold: 1000,
     coverage: {
       reporter: ['html'],
       provider: 'istanbul',
