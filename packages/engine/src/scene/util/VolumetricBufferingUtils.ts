@@ -48,7 +48,7 @@ import {
   TextureTarget,
   TextureType,
   UniformSolveTarget
-} from '../constants/NewUVOLTypes'
+} from '../constants/UVOLTypes'
 import BufferDataContainer from './BufferDataContainer'
 import { getResourceURL, loadDraco, loadGLTF, loadKTX2, rateLimitedCortoLoader } from './VolumetricUtils'
 

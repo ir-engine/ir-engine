@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { ComponentType } from '@ir-engine/ecs'
 import { State } from '@ir-engine/hyperflux'
 import { InterleavedBufferAttribute, NormalMapTypes } from 'three'
-import { NewVolumetricComponent } from '../components/NewVolumetricComponent'
+import { VolumetricComponent } from '../components/VolumetricComponent'
 
 export interface FrameData {
   frameNumber: number
@@ -431,7 +431,7 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
   'astc/ktx2': '.ktx2'
 }
 
-export type Pretrackbufferingcallback = (component: State<ComponentType<typeof NewVolumetricComponent>>) => void
+export type Pretrackbufferingcallback = (component: State<ComponentType<typeof VolumetricComponent>>) => void
 export interface FrameTargetInfo {
   initialBufferLoaded: boolean
   firstFrameLoaded: boolean

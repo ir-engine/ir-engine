@@ -40,7 +40,6 @@ import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkCompon
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
-import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
@@ -59,6 +58,7 @@ import { SplineTrackComponent } from '@ir-engine/engine/src/scene/components/Spl
 import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
+import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import { defineState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,
@@ -129,8 +129,8 @@ import TriggerComponentEditor from '@ir-engine/ui/src/components/editor/properti
 import VariantNodeEditor from '@ir-engine/ui/src/components/editor/properties/variant'
 import VideoNodeEditor from '@ir-engine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/visualScript'
+import VolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric'
 import LegacyVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/legacy'
-import NewVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
 
 export const ComponentEditorsState = defineState({
@@ -171,7 +171,7 @@ export const ComponentEditorsState = defineState({
       [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
       [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,
-      [NewVolumetricComponent.name]: NewVolumetricNodeEditor,
+      [VolumetricComponent.name]: VolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
       [EnvmapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,

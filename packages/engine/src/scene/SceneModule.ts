@@ -42,7 +42,6 @@ import { LegacyVolumetricComponent } from './components/LegacyVolumetricComponen
 import { LinkComponent } from './components/LinkComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MountPointComponent } from './components/MountPointComponent'
-import { NewVolumetricComponent } from './components/NewVolumetricComponent'
 import { OldColliderComponent } from './components/OldColliderComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
@@ -59,6 +58,7 @@ import { SplineTrackComponent } from './components/SplineTrackComponent'
 import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
+import { VolumetricComponent } from './components/VolumetricComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
@@ -102,7 +102,7 @@ export const SceneComponents = [
   VariantComponent,
   VideoComponent,
   LegacyVolumetricComponent,
-  NewVolumetricComponent,
+  VolumetricComponent,
   // WaterComponent,
   LinkComponent,
   TextComponent,

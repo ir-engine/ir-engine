@@ -71,7 +71,6 @@ import { getLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { PlayMode } from '../constants/PlayMode'
 import {
   ASTCTextureTarget,
   AudioFileFormat,
@@ -85,12 +84,13 @@ import {
   UniformSolveTarget,
   UVOL_TYPE
 } from '../constants/LegacyUVOLTypes'
+import { PlayMode } from '../constants/PlayMode'
 import getFirstMesh from '../util/meshUtils'
 import { handleAutoplay, LegacyVolumetricComponent } from './LegacyVolumetricComponent'
 import { MediaElementComponent } from './MediaComponent'
-import { TextureTypeSchema } from './NewVolumetricComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
+import { TextureTypeSchema } from './VolumetricComponent'
 
 export const calculatePriority = (manifest: PlayerManifest) => {
   const geometryTargets = Object.keys(manifest.geometry.targets)

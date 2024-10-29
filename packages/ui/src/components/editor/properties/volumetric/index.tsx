@@ -28,25 +28,25 @@ import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
+import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { MdVideocam } from 'react-icons/md'
 import { Scrubber } from 'react-scrubber'
-import Slider from '../../../../../primitives/tailwind/Slider'
-import InputGroup from '../../../input/Group'
-import SelectInput from '../../../input/Select'
+import Slider from '../../../../primitives/tailwind/Slider'
+import InputGroup from '../../input/Group'
+import SelectInput from '../../input/Select'
 
 interface OptionsType {
   value: number
   label: string
 }
 
-export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
-  const component = useComponent(props.entity, NewVolumetricComponent)
+export const VolumetricNodeEditor: EditorComponentType = (props) => {
+  const component = useComponent(props.entity, VolumetricComponent)
 
   const geometryTargets = useHookstate([] as OptionsType[])
   const textureTargets = useHookstate({} as Partial<Record<TextureType, OptionsType[]>>)
@@ -88,7 +88,7 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
-      Icon={NewVolumetricNodeEditor.iconComponent}
+      Icon={VolumetricNodeEditor.iconComponent}
     >
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
         <Slider
@@ -96,8 +96,8 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
           max={1}
           step={0.01}
           value={component.volume.value}
-          onChange={updateProperty(NewVolumetricComponent, 'volume')}
-          onRelease={commitProperty(NewVolumetricComponent, 'volume')}
+          onChange={updateProperty(VolumetricComponent, 'volume')}
+          onRelease={commitProperty(VolumetricComponent, 'volume')}
         />
       </InputGroup>
 
@@ -144,7 +144,7 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
 }
 
 function TimeScrubber(props: { entity: Entity }) {
-  const component = useComponent(props.entity, NewVolumetricComponent)
+  const component = useComponent(props.entity, VolumetricComponent)
   return (
     <InputGroup name="Current Time" label="Current Time">
       <Scrubber
@@ -162,6 +162,6 @@ function TimeScrubber(props: { entity: Entity }) {
   return null
 }
 
-NewVolumetricNodeEditor.iconComponent = MdVideocam
+VolumetricNodeEditor.iconComponent = MdVideocam
 
-export default NewVolumetricNodeEditor
+export default VolumetricNodeEditor

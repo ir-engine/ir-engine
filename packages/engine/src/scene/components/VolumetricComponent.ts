@@ -74,7 +74,7 @@ import {
   UniformSolveEncodeOptions,
   UniformSolveTarget,
   textureTypeToUniformKey
-} from '../constants/NewUVOLTypes'
+} from '../constants/UVOLTypes'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import BufferDataContainer from '../util/BufferDataContainer'
 import {
@@ -185,12 +185,12 @@ export const TextureTypeSchema = S.LiteralUnion(['normal', 'metallicRoughness', 
 
 /** @todo figure out how get this type to work */
 const PreTrackBufferingCallbackSchema = S.Optional(
-  S.Func([S.Type<State<ComponentType<typeof NewVolumetricComponent>>>()], S.Void())
+  S.Func([S.Type<State<ComponentType<typeof VolumetricComponent>>>()], S.Void())
 )
 
-export const NewVolumetricComponent = defineComponent({
-  name: 'NewVolumetricComponent',
-  jsonID: 'EE_NewVolumetric',
+export const VolumetricComponent = defineComponent({
+  name: 'VolumetricComponent',
+  jsonID: 'IR_volumetric',
 
   schema: S.Object({
     useVideoTextureForBaseColor: S.Bool(false), // legacy for UVOL1
@@ -253,7 +253,7 @@ export const NewVolumetricComponent = defineComponent({
   errors: ['INVALID_TRACK', 'GEOMETRY_ERROR', 'TEXTURE_ERROR', 'UNKNOWN_ERROR'],
 
   canPlayWithoutPause: (entity: Entity) => {
-    const component = getMutableComponent(entity, NewVolumetricComponent)
+    const component = getMutableComponent(entity, VolumetricComponent)
     const manifest = volumeticMutables[entity].manifest
     if (Object.keys(manifest).length === 0) {
       return false
@@ -288,7 +288,7 @@ export const NewVolumetricComponent = defineComponent({
 
     const geometryBufferData = geometryBufferDataContainer.getIntersectionDuration(startTime, geometryEndTime)
     if (geometryBufferData.missingDuration > 0 || geometryBufferData.pendingDuration > 0) {
-      NewVolumetricComponent.adjustGeometryTarget(entity, 1) // lower the target, by signalling that the metric is 1
+      VolumetricComponent.adjustGeometryTarget(entity, 1) // lower the target, by signalling that the metric is 1
       return false
     }
 
@@ -320,7 +320,7 @@ export const NewVolumetricComponent = defineComponent({
 
       const textureBufferData = textureBufferDataContainer.getIntersectionDuration(startTime, endTime)
       if (textureBufferData.missingDuration > 0 || textureBufferData.pendingDuration > 0) {
-        NewVolumetricComponent.adjustTextureTarget(entity, textureType, 1) // lower the target, by signalling that the metric is 1
+        VolumetricComponent.adjustTextureTarget(entity, textureType, 1) // lower the target, by signalling that the metric is 1
         return false
       }
     }
@@ -329,7 +329,7 @@ export const NewVolumetricComponent = defineComponent({
   },
 
   adjustGeometryTarget: (entity: Entity, externalMetric?: number) => {
-    const component = getMutableComponent(entity, NewVolumetricComponent)
+    const component = getMutableComponent(entity, VolumetricComponent)
     if (component.geometry.userTarget.value !== -1) {
       if (component.geometry.currentTarget.value !== component.geometry.userTarget.value) {
         component.geometry.currentTarget.set(component.geometry.userTarget.value)
@@ -365,7 +365,7 @@ export const NewVolumetricComponent = defineComponent({
   },
 
   adjustTextureTarget: (entity: Entity, textureType: TextureType, externalMetric?: number) => {
-    const component = getMutableComponent(entity, NewVolumetricComponent)
+    const component = getMutableComponent(entity, VolumetricComponent)
     const textureInfo = component.texture[textureType].get(NO_PROXY)
     const textureBufferInfo = volumeticMutables[entity].texture[textureType]
 
@@ -406,7 +406,7 @@ export const NewVolumetricComponent = defineComponent({
   },
 
   cleanupTrack: (entity: Entity) => {
-    const component = getMutableComponent(entity, NewVolumetricComponent)
+    const component = getMutableComponent(entity, VolumetricComponent)
 
     console.log('Cleaning up track')
     clearInterval(component.setIntervalId.value)
@@ -462,7 +462,7 @@ export const NewVolumetricComponent = defineComponent({
 
     console.log('Setting track to initial state: ', initialState)
 
-    component.merge(structuredClone(resetState) as ComponentType<typeof NewVolumetricComponent>)
+    component.merge(structuredClone(resetState) as ComponentType<typeof VolumetricComponent>)
 
     volumeticMutables[entity].geometryBufferData = new BufferDataContainer()
 
@@ -473,22 +473,22 @@ export const NewVolumetricComponent = defineComponent({
       element.src = ''
     }
 
-    if (hasComponent(entity, NewVolumetricComponent)) {
-      clearErrors(entity, NewVolumetricComponent)
+    if (hasComponent(entity, VolumetricComponent)) {
+      clearErrors(entity, VolumetricComponent)
     }
   },
 
   onRemove: (entity) => {
-    NewVolumetricComponent.cleanupTrack(entity)
+    VolumetricComponent.cleanupTrack(entity)
   },
 
-  reactor: NewVolumetricComponentReactor
+  reactor: VolumetricComponentReactor
 })
 
-function NewVolumetricComponentReactor() {
+function VolumetricComponentReactor() {
   const entity = useEntityContext()
   const playlistComponent = useOptionalComponent(entity, PlaylistComponent)
-  const component = useComponent(entity, NewVolumetricComponent)
+  const component = useComponent(entity, VolumetricComponent)
   const bufferLoopIntervalId = useRef(-1)
 
   const audioContext = getState(AudioState).audioContext
@@ -531,7 +531,7 @@ function NewVolumetricComponentReactor() {
   }, [component.geometry.initialBufferLoaded, component.textureInfo.initialBufferLoaded])
 
   const bufferLoop = () => {
-    if (!hasComponent(entity, NewVolumetricComponent)) {
+    if (!hasComponent(entity, VolumetricComponent)) {
       clearInterval(bufferLoopIntervalId.current)
       return
     }
@@ -639,7 +639,7 @@ function NewVolumetricComponentReactor() {
   const validateManifest = (manifest: OldManifestSchema | ManifestSchema) => {
     try {
       if (!manifest) {
-        addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Manifest is empty')
+        addError(entity, VolumetricComponent, 'INVALID_TRACK', 'Manifest is empty')
         return false
       }
 
@@ -673,7 +673,7 @@ function NewVolumetricComponentReactor() {
       } else if ((manifest as ManifestSchema).duration !== undefined) {
         const _manifest = manifest as ManifestSchema
         if (_manifest.duration <= 0 || _manifest.duration > 10800) {
-          addError(entity, NewVolumetricComponent, 'INVALID_TRACK', `Invalid duration: ${_manifest.duration}`)
+          addError(entity, VolumetricComponent, 'INVALID_TRACK', `Invalid duration: ${_manifest.duration}`)
           return false
         }
 
@@ -681,7 +681,7 @@ function NewVolumetricComponentReactor() {
         component.time.duration.set(_manifest.duration)
         const geometryTargets = Object.keys(_manifest.geometry.targets)
         if (geometryTargets.length === 0) {
-          addError(entity, NewVolumetricComponent, 'GEOMETRY_ERROR', 'No geometry targets found')
+          addError(entity, VolumetricComponent, 'GEOMETRY_ERROR', 'No geometry targets found')
           return false
         } else {
           geometryTargets.sort((a, b) => {
@@ -706,18 +706,18 @@ function NewVolumetricComponentReactor() {
 
         const geometryType = GeometryFormatToType[_manifest.geometry.targets[geometryTargets[0]].format]
         if (geometryType === undefined) {
-          addError(entity, NewVolumetricComponent, 'GEOMETRY_ERROR', 'Invalid geometry format')
+          addError(entity, VolumetricComponent, 'GEOMETRY_ERROR', 'Invalid geometry format')
           return false
         }
         component.geometryType.set(geometryType)
 
         const textureTypes = Object.keys(_manifest.texture) as TextureType[]
         if (textureTypes.length === 0) {
-          addError(entity, NewVolumetricComponent, 'TEXTURE_ERROR', 'No texture types found')
+          addError(entity, VolumetricComponent, 'TEXTURE_ERROR', 'No texture types found')
           return false
         }
         if (!textureTypes.includes('baseColor')) {
-          addError(entity, NewVolumetricComponent, 'TEXTURE_ERROR', 'No baseColor texture found')
+          addError(entity, VolumetricComponent, 'TEXTURE_ERROR', 'No baseColor texture found')
           return false
         }
 
@@ -729,7 +729,7 @@ function NewVolumetricComponentReactor() {
             if (targetKeys.length === 0) {
               addError(
                 entity,
-                NewVolumetricComponent,
+                VolumetricComponent,
                 'TEXTURE_ERROR',
                 `No texture targets found for type: ${textureType}`
               )
@@ -755,23 +755,18 @@ function NewVolumetricComponentReactor() {
               buffer: new Map()
             }
           } else {
-            addError(
-              entity,
-              NewVolumetricComponent,
-              'TEXTURE_ERROR',
-              `No texture targets found for type: ${textureType}`
-            )
+            addError(entity, VolumetricComponent, 'TEXTURE_ERROR', `No texture targets found for type: ${textureType}`)
             return false
           }
         })
       }
     } catch (err) {
-      addError(entity, NewVolumetricComponent, 'UNKNOWN_ERROR', 'Error in reading the manifest')
+      addError(entity, VolumetricComponent, 'UNKNOWN_ERROR', 'Error in reading the manifest')
       console.error('Error in reading the manifest: ', err)
       return false
     }
 
-    clearErrors(entity, NewVolumetricComponent)
+    clearErrors(entity, VolumetricComponent)
     console.log('Manifest read successfully')
     return manifest
   }
@@ -781,12 +776,12 @@ function NewVolumetricComponentReactor() {
       return
     }
 
-    NewVolumetricComponent.cleanupTrack(entity)
+    VolumetricComponent.cleanupTrack(entity)
     const track = playlistComponent.tracks.value.find(
       (track) => track.uuid === playlistComponent.currentTrackUUID.value
     )
     if (!track || !track.src) {
-      addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Track source is empty')
+      addError(entity, VolumetricComponent, 'INVALID_TRACK', 'Track source is empty')
       return
     }
 
@@ -902,11 +897,11 @@ function NewVolumetricComponentReactor() {
 
               component.time.currentTime.set(currentTimeInMS)
 
-              if (!NewVolumetricComponent.canPlayWithoutPause(entity)) {
+              if (!VolumetricComponent.canPlayWithoutPause(entity)) {
                 if (!element.paused) {
                   element.pause()
                   recheckForBuffersIntervalId = setInterval(() => {
-                    if (NewVolumetricComponent.canPlayWithoutPause(entity) && recheckForBuffersIntervalId !== -1) {
+                    if (VolumetricComponent.canPlayWithoutPause(entity) && recheckForBuffersIntervalId !== -1) {
                       clearInterval(recheckForBuffersIntervalId)
                       recheckForBuffersIntervalId = -1
                       if (!playlistComponent?.paused.value && component.geometry.initialBufferLoaded.value) {
@@ -935,7 +930,7 @@ function NewVolumetricComponentReactor() {
         }
       })
       .catch((err) => {
-        addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Error in loading the manifest')
+        addError(entity, VolumetricComponent, 'INVALID_TRACK', 'Error in loading the manifest')
         console.error(`Error in loading the manifest: ${track.src}: `, err)
       })
   }, [playlistComponent?.currentTrackUUID])
@@ -992,7 +987,7 @@ function NewVolumetricComponentReactor() {
         ? (volumeticMutables[entity].manifest as OldManifestSchema).frameRate
         : undefined
 
-    NewVolumetricComponent.adjustGeometryTarget(entity)
+    VolumetricComponent.adjustGeometryTarget(entity)
     const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
 
     deleteUsedGeometryBuffers({
@@ -1115,7 +1110,7 @@ function NewVolumetricComponentReactor() {
       const textureBufferInfo = volumeticMutables[entity].texture[textureType]
 
       if (textureInfo && textureBufferInfo) {
-        NewVolumetricComponent.adjustTextureTarget(entity, textureType)
+        VolumetricComponent.adjustTextureTarget(entity, textureType)
         deleteUsedTextureBuffers({
           textureBuffer: textureBufferInfo.buffer,
           currentTimeInMS: currentTimeInMS - 500,
@@ -1232,7 +1227,7 @@ function NewVolumetricComponentReactor() {
       updateBufferedUntil(__currentTime)
 
       if (component.checkForEnoughBuffers.value) {
-        if (!NewVolumetricComponent.canPlayWithoutPause(entity)) {
+        if (!VolumetricComponent.canPlayWithoutPause(entity)) {
           if (component.notEnoughBuffers.value) {
             return
           } else {

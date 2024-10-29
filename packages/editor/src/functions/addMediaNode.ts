@@ -38,9 +38,9 @@ import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapCo
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
+import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -208,10 +208,10 @@ export async function addMediaNode(
     )
     return entityUUID
   } else if (url.includes('.uvol')) {
-    // TODO: detect whether to add LegacyVolumetricComponent or NewVolumetricComponent
+    // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
-        { name: NewVolumetricComponent.jsonID },
+        { name: VolumetricComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
