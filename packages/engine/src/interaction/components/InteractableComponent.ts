@@ -225,14 +225,6 @@ const addInteractableUI = (entity: Entity) => {
   return uiEntity
 }
 
-// const removeInteractableUI = (entity: Entity) => {
-//   const interactable = getOptionalComponent(entity, InteractableComponent)
-//   if (!interactable || interactable?.uiEntity == UndefinedEntity) return //null or empty label = no ui
-//
-//   removeEntity(interactable.uiEntity)
-//   getMutableComponent(entity, InteractableComponent).uiEntity.set(UndefinedEntity)
-// }
-
 export const InteractableComponent = defineComponent({
   name: 'InteractableComponent',
   jsonID: 'EE_interactable',
