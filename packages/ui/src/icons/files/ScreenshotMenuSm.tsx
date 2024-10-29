@@ -1,0 +1,23 @@
+import type { SVGProps } from 'react'
+import * as React from 'react'
+import { Ref, forwardRef } from 'react'
+const ScreenshotMenuSm = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    fill="none"
+    viewBox="0 0 16 16"
+    role="img"
+    stroke="currentColor"
+    ref={ref}
+    {...props}
+  >
+    <g stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}>
+      <path d="M1.334 5.584c0-.233 0-.35.01-.448a2 2 0 0 1 1.793-1.793c.098-.01.221-.01.467-.01.095 0 .143 0 .183-.002a1.33 1.33 0 0 0 1.156-.834c.015-.037.03-.08.058-.164s.042-.127.057-.164a1.33 1.33 0 0 1 1.156-.834c.04-.002.085-.002.174-.002h3.225c.09 0 .134 0 .174.002.514.032.964.356 1.156.834.016.037.03.08.058.164s.042.127.057.164c.192.478.642.802 1.156.834.04.002.088.002.183.002.246 0 .37 0 .467.01a2 2 0 0 1 1.794 1.793c.01.098.01.215.01.448V10.8c0 1.12 0 1.68-.219 2.108a2 2 0 0 1-.874.874c-.427.218-.988.218-2.108.218H4.534c-1.12 0-1.68 0-2.108-.218a2 2 0 0 1-.874-.874c-.218-.428-.218-.988-.218-2.108z" />
+      <path d="M8 11a2.667 2.667 0 1 0 0-5.334A2.667 2.667 0 0 0 8 11" />
+    </g>
+  </svg>
+)
+const ForwardRef = forwardRef(ScreenshotMenuSm)
+export default ForwardRef

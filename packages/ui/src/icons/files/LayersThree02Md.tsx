@@ -1,0 +1,33 @@
+import type { SVGProps } from 'react'
+import * as React from 'react'
+import { Ref, forwardRef } from 'react'
+const LayersThree02Md = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    fill="none"
+    viewBox="0 0 20 20"
+    role="img"
+    stroke="currentColor"
+    ref={ref}
+    {...props}
+  >
+    <g clipPath="url(#prefix__a)">
+      <path
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.75}
+        d="M5.834 7.917 1.667 10l8.035 4.018c.11.054.164.082.221.092q.077.015.154 0c.057-.01.112-.038.222-.092L18.334 10l-4.167-2.083m-8.333 4.166-4.167 2.084 8.035 4.017c.11.055.164.082.221.093q.077.015.154 0c.057-.01.112-.038.222-.093l8.035-4.017-4.167-2.084m-12.5-6.25 8.035-4.017a1 1 0 0 1 .221-.093q.077-.015.154 0c.057.01.112.038.222.093l8.035 4.017-8.035 4.018c-.11.055-.165.082-.222.093a.4.4 0 0 1-.154 0c-.057-.011-.111-.038-.22-.093z"
+      />
+    </g>
+    <defs>
+      <clipPath id="prefix__a">
+        <path fill="#fff" d="M0 0h20v20H0z" />
+      </clipPath>
+    </defs>
+  </svg>
+)
+const ForwardRef = forwardRef(LayersThree02Md)
+export default ForwardRef
