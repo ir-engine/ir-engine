@@ -1073,8 +1073,11 @@
     "mountPoint": {
       "name": "Mount point",
       "description": "An object with a pose to define interactable behaviors.",
+      "interact-message-seat": "Press E to Sit",
       "lbl-type": "Type",
-      "lbl-dismount": "Dismount point, offsets this transform"
+      "lbl-dismount": "Dismount point, offsets this transform",
+      "lbl-force-dismount" : "Force Dismount Position",
+      "lbl-force-dismount-info" : "If true, the dismount position will be forced to the specified position (mid-air OK), regardless of raycast result returning a hit within 2m below dismount offset point"
     },
     "text": {
       "name": "3D Text",
