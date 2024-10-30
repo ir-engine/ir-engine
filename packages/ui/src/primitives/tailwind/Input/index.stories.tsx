@@ -104,45 +104,55 @@ const Template: StoryFn<InputProps> = (args) => (
   </div>
 )
 
-export const Default = Template.bind({})
-Default.args = {
-  value: 'ir@infinityreality.com',
-  placeholder: 'Email Address'
+export const Default = {
+  render: Template,
+  args: {
+    value: 'ir@infinityreality.com',
+    placeholder: 'Email Address'
+  }
 }
 
-export const FullWidth = Template.bind({})
-FullWidth.args = {
-  value: 'ir@infinityreality.com',
-  fullWidth: true,
-  placeholder: 'Email Address'
+export const FullWidth = {
+  render: Template,
+  args: {
+    value: 'ir@infinityreality.com',
+    fullWidth: true,
+    placeholder: 'Email Address'
+  }
 }
 
-export const InputWithLeadingIcon = Template.bind({})
-InputWithLeadingIcon.args = {
-  value: 'ir@infinityreality.com',
-  placeholder: 'Email Address',
-  startComponent: <Globe01Sm />
+export const InputWithLeadingIcon = {
+  render: Template,
+  args: {
+    value: 'ir@infinityreality.com',
+    placeholder: 'Email Address',
+    startComponent: <Globe01Sm />
+  }
 }
 
-export const InputWithTrailingIcon = Template.bind({})
-InputWithTrailingIcon.args = {
-  value: 'ir@infinityreality.com',
-  placeholder: 'Email Address',
-  endComponent: (
-    <button>
-      <HelpIconSm />
-    </button>
-  )
+export const InputWithTrailingIcon = {
+  render: Template,
+  args: {
+    value: 'ir@infinityreality.com',
+    placeholder: 'Email Address',
+    endComponent: (
+      <button>
+        <HelpIconSm />
+      </button>
+    )
+  }
 }
 
-export const InputWithBothIcons = Template.bind({})
-InputWithBothIcons.args = {
-  value: 'ir@infinityreality.com',
-  placeholder: 'Email Address',
-  startComponent: <Globe01Sm />,
-  endComponent: (
-    <button>
-      <HelpIconSm />
-    </button>
-  )
+export const InputWithBothIcons = {
+  render: Template,
+  args: {
+    value: 'ir@infinityreality.com',
+    placeholder: 'Email Address',
+    startComponent: <Globe01Sm />,
+    endComponent: (
+      <button>
+        <HelpIconSm />
+      </button>
+    )
+  }
 }
