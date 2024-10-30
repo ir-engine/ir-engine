@@ -92,7 +92,7 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
           disabled && 'text-[#6B6F78]'
         )}
       >
-        <span className="group-hover:text-[#F5F5F5] group-focus:text-[#F5F5F5]">{label}</span>
+        <span className={twMerge(!disabled && 'group-hover:text-[#F5F5F5] group-focus:text-[#F5F5F5]')}>{label}</span>
         <span>{description}</span>
       </div>
     </div>

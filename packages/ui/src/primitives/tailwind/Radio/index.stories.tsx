@@ -48,6 +48,10 @@ const argTypes: ArgTypes = {
     control: 'number',
     name: 'Number of Radios',
     description: 'The number of radios to generate'
+  },
+  variant: {
+    control: 'select',
+    options: ['sm', 'md']
   }
 }
 
@@ -63,9 +67,7 @@ export default {
   },
   argTypes,
   args: {
-    numberOfRadios: 1,
-    label: 'Remember me',
-    description: 'Save my login details for next time'
+    numberOfRadios: 1
   }
 }
 
@@ -84,8 +86,8 @@ const RadioGroupRenderer = ({
   const options =
     numberOfRadios > 1
       ? Array.from({ length: numberOfRadios }, (_, idx) => ({
-          label: `${label} ${idx + 1}`,
-          description: `${description} ${idx + 1}`,
+          label: label && `${label} ${idx + 1}`,
+          description: description && `${description} ${idx + 1}`,
           value: `${idx + 1}`
         }))
       : [{ label, description, value: '1' }]
@@ -111,4 +113,13 @@ const RadioGroupRenderer = ({
 export const Default = {
   name: 'Default',
   render: RadioGroupRenderer
+}
+
+export const WithDescription = {
+  name: 'With Description',
+  render: RadioGroupRenderer,
+  args: {
+    label: 'Remember me',
+    description: 'Save my login details for next time'
+  }
 }
