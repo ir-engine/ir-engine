@@ -333,6 +333,10 @@
       "seektime": "Start Time",
       "lbl-mediaControls": "Media Controls"
     },
+    "media-preview": {
+      "lbl-selected-source": "Source to Preview",
+      "lbl-mediaPreview": "Media Preview"
+    },
     "mesh": {
       "name": "Mesh",
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
