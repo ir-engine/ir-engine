@@ -24,21 +24,18 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { Slider } from '@ir-engine/ui/editor'
 import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { FiDownload, FiGrid, FiRefreshCcw } from 'react-icons/fi'
-import { GoAlert } from 'react-icons/go'
 import { HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
@@ -128,36 +125,36 @@ const ViewModeSettings = () => {
       }
     >
       {filesViewMode.value === 'icons' ? (
-        <InputGroup
-          label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
-          dataTestId="files-panel-view-options-icon-size-value-input-group"
-        >
-          <Slider
-            min={10}
-            max={100}
-            step={0.5}
-            value={viewModeSettings.icons.iconSize.value}
-            onChange={viewModeSettings.icons.iconSize.set}
-            onRelease={viewModeSettings.icons.iconSize.set}
-          />
-        </InputGroup>
-      ) : (
-        <div className="flex flex-col items-center">
-          <InputGroup
-            label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-            dataTestId="files-panel-view-options-list-font-size-value-input-group"
-          >
+        <div className="flex justify-end">
+          <div className="w-3/5">
             <Slider
+              label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
               min={10}
               max={100}
               step={0.5}
-              width={100}
-              value={viewModeSettings.list.fontSize.value}
-              onChange={viewModeSettings.list.fontSize.set}
-              onRelease={viewModeSettings.list.fontSize.set}
+              value={viewModeSettings.icons.iconSize.value}
+              onChange={viewModeSettings.icons.iconSize.set}
+              onRelease={viewModeSettings.icons.iconSize.set}
+              data-testid="files-panel-view-options-icon-size-value-input-group"
             />
-          </InputGroup>
-
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center">
+          <div className="flex justify-end">
+            <div className="w-3/5">
+              <Slider
+                label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+                data-testid="files-panel-view-options-list-font-size-value-input-group"
+                min={10}
+                max={100}
+                step={0.5}
+                value={viewModeSettings.list.fontSize.value}
+                onChange={viewModeSettings.list.fontSize.set}
+                onRelease={viewModeSettings.list.fontSize.set}
+              />
+            </div>
+          </div>
           <div className="w-full">
             <div className="mt-1 flex flex-auto text-white">
               <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
@@ -199,38 +196,6 @@ export default function FilesToolbar() {
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/assets/')
 
   const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
-
-  const UnsupportedFileModal = ({ message }) => {
-    return (
-      <Modal
-        onClose={() => {
-          PopoverState.hidePopupover()
-        }}
-        className="w-[50vw] max-w-2xl"
-        hideFooter
-      >
-        <div className="flex flex-col items-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#191B1F]">
-            <GoAlert className="h-6 w-6 text-[#C33243]" />
-          </div>
-          <div className="flex flex-col items-center gap-3 p-4 px-12 pb-12">
-            <span className="text-center font-bold">{t('editor:unsupportedFile.title')}</span>
-            <span className="text-center">{message}</span>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="primary"
-              onClick={() => {
-                PopoverState.hidePopupover()
-              }}
-            >
-              {t('editor:unsupportedFile.okay')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    )
-  }
 
   return (
     <>

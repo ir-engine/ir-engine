@@ -33,8 +33,8 @@ import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
+import { Slider } from '@ir-engine/ui/editor'
 import Button from '../../../../primitives/tailwind/Button'
-import Slider from '../../../../primitives/tailwind/Slider'
 import ArrayInputGroup from '../../input/Array'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
@@ -86,16 +86,16 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.media.description')}
       Icon={MediaNodeEditor.iconComponent}
     >
-      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
-        <Slider
-          min={0}
-          max={100}
-          step={1}
-          value={media.volume.value}
-          onChange={updateProperty(MediaComponent, 'volume')}
-          onRelease={commitProperty(MediaComponent, 'volume')}
-        />
-      </InputGroup>
+      <Slider
+        min={0}
+        max={100}
+        step={1}
+        value={media.volume.value}
+        onChange={updateProperty(MediaComponent, 'volume')}
+        onRelease={commitProperty(MediaComponent, 'volume')}
+        aria-label="Volume"
+        label={t('editor:properties.media.lbl-volume')}
+      />
 
       <InputGroup name="Start Time" label={t('editor:properties.media.seektime')}>
         <NumericInput
