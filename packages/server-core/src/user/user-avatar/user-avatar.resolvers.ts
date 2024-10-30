@@ -37,12 +37,7 @@ export const userAvatarResolver = resolve<UserAvatarType, HookContext>({
   updatedAt: virtual(async (userAvatar) => fromDateTimeSql(userAvatar.updatedAt))
 })
 
-export const userAvatarExternalResolver = resolve<UserAvatarType, HookContext>({})
-
-export const userAvatarDataResolver = resolve<UserAvatarType, HookContext>({
-  id: async () => {
-    return uuidv4()
-  },
+export const userAvatarExternalResolver = resolve<UserAvatarType, HookContext>({
   avatar: virtual(async (userAvatar, context) => {
     if (context.event !== 'removed' && userAvatar.avatarId)
       try {
@@ -50,7 +45,13 @@ export const userAvatarDataResolver = resolve<UserAvatarType, HookContext>({
       } catch (err) {
         return {}
       }
-  }),
+  })
+})
+
+export const userAvatarDataResolver = resolve<UserAvatarType, HookContext>({
+  id: async () => {
+    return uuidv4()
+  },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })
