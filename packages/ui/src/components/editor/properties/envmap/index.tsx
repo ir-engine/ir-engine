@@ -162,7 +162,8 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         <InputGroup name="EnvMap Intensity" label={t('editor:properties.envmap.lbl-intensity')} className="w-auto">
           <Slider
             min={0}
-            max={20}
+            step={0.01}
+            max={10}
             value={envmapComponent.envMapIntensity.value}
             onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
             onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
