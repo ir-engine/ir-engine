@@ -212,7 +212,8 @@ function VideoReactor() {
 
         void main() {
         #ifdef USE_MAP
-          vec2 mapUv = applyWrapping(vUv * uvScale + uvOffset, wrapS, wrapT);
+          vec2 adjustedUv = vUv * uvScale + uvOffset;
+          vec2 mapUv = applyWrapping(adjustedUv, wrapS, wrapT);
           vec4 color = texture2D(map, mapUv);
           color.rgb = pow(color.rgb, vec3(2.2));
           if (useAlpha) {
@@ -225,7 +226,10 @@ function VideoReactor() {
                 float intensity = color.r * 0.3 + color.g * 0.59 + color.b * 0.11;
                 if (intensity < alphaThreshold) discard;
             }
-          }
+          }          
+          if( adjustedUv.y < 0.0 || adjustedUv.y > 1.0 || adjustedUv.x < 0.0 || adjustedUv.x > 1.0) {
+            color = vec4(0.0, 0.0, 0.0, 1.0);
+          }          
           gl_FragColor = color;
         #else
           gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -266,8 +270,8 @@ function VideoReactor() {
     const uvOffset = new Vector2(0, 0)
     const uvScale = new Vector2(1, 1)
 
-    const containerWidth = video.size.width.value
-    const containerHeight = video.size.height.value
+    const size = video.size.value
+    const [containerWidth, containerHeight] = [size.x, size.y]
     const containerRatio = containerWidth / containerHeight
 
     videoMesh.scale.x = containerWidth

@@ -35,7 +35,8 @@ export const emailDataSchema = Type.Object(
     from: Type.String(),
     to: Type.String(),
     subject: Type.String(),
-    html: Type.String()
+    html: Type.String(),
+    attachments: Type.Optional(Type.Array(Type.Record(Type.String(), Type.Any())))
   },
   { $id: 'EmailData', additionalProperties: false }
 )

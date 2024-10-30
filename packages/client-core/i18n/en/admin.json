@@ -332,7 +332,7 @@
       "count": "Count",
       "kick": "Kick",
       "ban": "Ban",
-      "unban" : "Unban",
+      "unban": "Unban",
       "banned": "Banned till {{duration}}",
       "kickDuration": "Kick Duration",
       "confirmUserBan": "Are you sure you want to ban this user?",
@@ -561,6 +561,7 @@
         "save": "Save",
         "delete": "Delete",
         "add": "Add",
+        "showAssetOnly": "Show Asset Only Projects",
         "noSettingsMessage": "No settings available",
         "duplicateKey": "Duplicate keys cannot exist",
         "keyName": "Key Name",
@@ -750,18 +751,18 @@
       "viewLogs": "View Logs",
       "columns": {
         "migrationsInfo": {
-        "id": "ID",
-        "name": "Name",
-        "batch": "Batch",
-        "migration_time": "Migration Time"
+          "id": "ID",
+          "name": "Name",
+          "batch": "Batch",
+          "migration_time": "Migration Time"
         },
         "apiJobs": {
-        "id": "ID",
-        "name": "Name",
-        "status": "Status",
-        "start_time": "Start Time",
-        "end_time": "End Time",
-        "return_data": "Return Data"
+          "id": "ID",
+          "name": "Name",
+          "status": "Status",
+          "start_time": "Start Time",
+          "end_time": "End Time",
+          "return_data": "Return Data"
         }
       }
     },

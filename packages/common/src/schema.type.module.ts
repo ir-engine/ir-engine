@@ -32,7 +32,6 @@ export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
 export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
-export type * from './schemas/integrations/metabase/metabase-setting.schema'
 export type * from './schemas/integrations/metabase/metabase-url.schema'
 export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
@@ -71,7 +70,6 @@ export type * from './schemas/scope/scope.schema'
 export type * from './schemas/setting/authentication-setting.schema'
 export type * from './schemas/setting/aws-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
-export type * from './schemas/setting/coil-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
@@ -79,9 +77,7 @@ export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/mailchimp-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
-export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
-export type * from './schemas/setting/zendesk-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
 export type * from './schemas/social/invite-code-lookup.schema'
@@ -220,8 +216,6 @@ export const helmBuilderVersionPath = 'helm-builder-version'
 
 export const projectSettingPath = 'project-setting'
 
-export const coilSettingPath = 'coil-setting'
-
 export const awsSettingPath = 'aws-setting'
 
 export const emailSettingPath = 'email-setting'
@@ -232,8 +226,6 @@ export const instanceServerSettingPath = 'instance-server-setting'
 
 export const clientSettingPath = 'client-setting'
 
-export const redisSettingPath = 'redis-setting'
-
 export const matchUserPath = 'match-user'
 
 export const matchInstancePath = 'match-instance'
@@ -243,8 +235,6 @@ export const authenticationSettingPath = 'authentication-setting'
 export const analyticsPath = 'analytics'
 
 export const serverSettingPath = 'server-setting'
-
-export const zendeskSettingPath = 'zendesk-setting'
 
 export const mailchimpSettingPath = 'mailchimp-setting'
 
@@ -305,8 +295,6 @@ export const imageConvertPath = 'image-convert'
 export const zendeskPath = 'zendesk'
 
 export const projectHistoryPath = 'project-history'
-
-export const metabaseSettingPath = 'metabase-setting'
 
 export const metabaseUrlPath = 'metabase-url'
 

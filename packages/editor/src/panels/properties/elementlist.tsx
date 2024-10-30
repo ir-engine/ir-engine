@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Component } from '@ir-engine/ecs/src/ComponentFunctions'
-import { PrefabIcons, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
+import { PrefabIcon, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
@@ -87,6 +87,7 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
     <Button
       fullWidth
       className="w-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
+      data-testid="prefabs-category-item"
       onClick={() => {
         const url = item.url
         if (!url.length) {
@@ -99,8 +100,14 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
       startIcon={<IoMdAddCircle className="h-4 w-4 text-[#B2B5BD]" />}
     >
       <div className="ml-4 w-full">
-        <Text className="mb-1 block text-left text-sm text-[#B2B5BD]">{item.name}</Text>
-        <Text component="p" className="block text-left text-xs text-theme-secondary">
+        <Text className="mb-1 block text-left text-sm text-[#B2B5BD]" data-testid="prefabs-category-item-name">
+          {item.name}
+        </Text>
+        <Text
+          component="p"
+          className="block text-left text-xs text-theme-secondary"
+          data-testid="prefabs-category-item-detail"
+        >
           {item.detail}
         </Text>
       </div>
@@ -117,19 +124,23 @@ const SceneElementListItem = ({
   categoryTitle: string
   selected?: boolean
 }) => {
-  const icon = PrefabIcons[categoryTitle] || PrefabIcons.default
-
   return (
     <button
       className={twMerge(
         'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
-        selected ? 'text-primary border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
+        selected ? 'border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
       )}
+      data-testid="prefabs-category"
       onClick={onClick}
     >
       <div className="flex flex-col items-center justify-center">
-        {icon}
-        <div className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap">{categoryTitle}</div>
+        <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
+        <div
+          className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+          data-testid="prefabs-category-title"
+        >
+          {categoryTitle}
+        </div>
       </div>
     </button>
   )
@@ -160,6 +171,14 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
       shelves[prefab.category] ??= []
       shelves[prefab.category].push(prefab)
     }
+
+    shelves['Empty'] ??= [
+      {
+        name: 'Create',
+        url: '',
+        category: 'Empty'
+      }
+    ]
     return shelves
   }, [prefabState])
 
@@ -188,7 +207,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
   const onClickCategory = (index: number) => {
     const currentIndex = selectedCategories.value.indexOf(index)
     if (currentIndex === -1) {
-      selectedCategories.set([...selectedCategories.value, index])
+      selectedCategories.set([index])
     } else {
       const newSelectedCategories = [...selectedCategories.value]
       newSelectedCategories.splice(currentIndex, 1)
@@ -240,6 +259,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
           value={search.local.value}
           onChange={(val) => onSearch(val)}
           inputRef={inputReference}
+          data-testid="prefabs-search-input"
         />
       </div>
 
@@ -253,20 +273,11 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
               selected={selectedCategories.value.includes(index)}
             />
           ))}
-          {type !== 'components' && (
-            <SceneElementListItem
-              categoryTitle="Empty"
-              onClick={() => {
-                EditorControlFunctions.createObjectFromSceneElement()
-                onSelect()
-              }}
-            />
-          )}
         </div>
       )}
 
       {(isInSearchMode.value || selectedCategories.value.length > 0) && (
-        <ul className="flex w-full flex-col space-y-1 pt-3">
+        <ul className="flex w-full flex-col space-y-1 pt-3" data-testid="prefabs-category-item-list">
           {shelves.flatMap(([_, items], index) =>
             selectedCategories.value.includes(index)
               ? items.map((item: Component | PrefabShelfItem) =>

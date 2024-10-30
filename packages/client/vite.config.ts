@@ -27,7 +27,7 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs, { readFileSync, writeFileSync } from 'fs'
-import lodash from 'lodash'
+import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
@@ -36,13 +36,12 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
 
 import appRootPath from 'app-root-path'
+import { EngineSettings } from '../common/src/constants/EngineSettings'
 import manifest from './manifest.default.json'
 import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
-import { getCoilSetting } from './scripts/getCoilSettings'
-
-const { isArray, mergeWith } = lodash
+import { getEngineSetting } from './scripts/getEngineSettings'
 
 const parseModuleName = (moduleName: string) => {
   // // chunk medisoup-client
@@ -116,13 +115,6 @@ const merge = (src, dest) =>
       return b.concat(a)
     }
   })
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import('ts-node').then((tsnode) => {
-  tsnode.register({
-    project: './tsconfig.json'
-  })
-})
 
 const getProjectConfigExtensions = async (config: UserConfig) => {
   const projects = fs.existsSync(path.resolve(__dirname, '../projects/projects'))
@@ -258,7 +250,7 @@ export default defineConfig(async () => {
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
-  const coilSetting = await getCoilSetting()
+  const coilSetting = await getEngineSetting('coil', [EngineSettings.Coil.PaymentPointer])
 
   resetSWFiles()
 
@@ -343,7 +335,7 @@ export default defineConfig(async () => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting?.paymentPointer || '',
+        paymentPointer: coilSetting?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || '',
         rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`
       }),
       viteCompression({

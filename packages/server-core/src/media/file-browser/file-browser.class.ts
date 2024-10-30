@@ -46,6 +46,7 @@ import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 
 import { BadRequest } from '@feathersjs/errors/lib'
+import { copyFolderRecursiveSync } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
@@ -163,7 +164,7 @@ export class FileBrowserService
       if (resource) {
         file.url = resource.url
         file.thumbnailURL = resource.thumbnailURL
-      }
+      } else file.url = storageProvider.getCachedURL(file.key, params.isInternal)
     }
 
     return {
@@ -285,8 +286,13 @@ export class FileBrowserService
         fs.mkdirSync(dirname, { recursive: true })
       }
       // move or copy the file
-      if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
-      else fs.renameSync(oldNamePath, newNamePath)
+      if (data.isCopy) {
+        if (isDirectory) {
+          copyFolderRecursiveSync(oldNamePath, newNamePath)
+        } else {
+          fs.copyFileSync(oldNamePath, newNamePath)
+        }
+      } else fs.renameSync(oldNamePath, newNamePath)
     }
 
     if (config.server.edgeCachingEnabled) {
@@ -396,7 +402,20 @@ export class FileBrowserService
 
     if (staticResources?.length > 0) {
       await Promise.all(
-        staticResources.map(async (resource) => await this.app.service(staticResourcePath).remove(resource.id))
+        staticResources.map(async (resource) => {
+          await this.app.service(staticResourcePath).remove(resource.id)
+          if (resource.thumbnailKey) {
+            const thumbnail = (await this.app.service(staticResourcePath).find({
+              query: { key: { $like: `%${resource.thumbnailKey}%` }, type: 'thumbnail' },
+              paginate: false
+            })) as any as StaticResourceType[]
+
+            if (thumbnail.length > 0) {
+              await storageProvider.deleteResources([thumbnail[0].key])
+              await this.app.service(staticResourcePath).remove(thumbnail[0].id)
+            }
+          }
+        })
       )
     }
 

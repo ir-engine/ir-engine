@@ -30,6 +30,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 
 import { UserID } from '@ir-engine/hyperflux'
+import { USERNAME_MAX_LENGTH } from '../../constants/UserConstants'
 import { TypedString } from '../../types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { ScopeType } from '../scope/scope.schema'
@@ -64,7 +65,9 @@ export const userSchema = Type.Object(
     id: TypedString<UserID>({
       format: 'uuid'
     }),
-    name: TypedString<UserName>(),
+    name: TypedString<UserName>({
+      maxLength: USERNAME_MAX_LENGTH
+    }),
     acceptedTOS: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),

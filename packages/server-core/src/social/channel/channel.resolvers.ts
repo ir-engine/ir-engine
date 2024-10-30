@@ -24,13 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { Paginated } from '@feathersjs/feathers'
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelQuery, ChannelType } from '@ir-engine/common/src/schemas/social/channel.schema'
-import { messagePath, MessageType } from '@ir-engine/common/src/schemas/social/message.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
@@ -41,28 +39,13 @@ export const channelResolver = resolve<ChannelType, HookContext>({
 
 export const channelExternalResolver = resolve<ChannelType, HookContext>({
   channelUsers: virtual(async (channel, context) => {
-    if (context.method === 'find' && !context.params.query.instanceId) {
+    if ((context.method === 'find' || context.method === 'get') && !context.params.query.instanceId) {
       return (await context.app.service(channelUserPath).find({
         query: {
           channelId: channel.id
         },
         paginate: false
       })) as ChannelUserType[]
-    }
-  }),
-  messages: virtual(async (channel, context) => {
-    if (context.method === 'find' && context.params.user) {
-      const messages = (await context.app.service(messagePath).find({
-        query: {
-          channelId: channel.id,
-          $limit: 20,
-          $sort: {
-            createdAt: -1
-          }
-        }
-      })) as Paginated<MessageType>
-
-      return messages.data
     }
   })
 })

@@ -85,7 +85,7 @@ export default function ErrorPage({ name }: ErrorPageProps) {
               {t('user:oauth.error', { name })}
             </Text>
 
-            <Text className="py-2 opacity-50" fontWeight="medium" fontSize="sm">
+            <Text className="py-2 text-center opacity-50" fontWeight="medium" fontSize="sm">
               {state.error}
             </Text>
 

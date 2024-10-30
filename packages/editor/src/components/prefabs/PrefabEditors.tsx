@@ -19,36 +19,47 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import config from '@ir-engine/common/src/config'
 import { useGLTF } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
-import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import React, { ReactNode } from 'react'
+import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import React from 'react'
 
-import CameraIcon from './icons/camera.svg'
-import ColliderIcon from './icons/collider.svg'
-import AddIcon from './icons/empty.svg'
-import GeoIcon from './icons/geo.svg'
-import ImageIcon from './icons/image.svg'
-import LightingIcon from './icons/lighting.svg'
-import LookDevIcon from './icons/lookdev.svg'
-import TextIcon from './icons/text.svg'
-import VideoIcon from './icons/video.svg'
+import { IoCubeOutline } from 'react-icons/io5'
+import CameraIcon from './icons/camera.svg?react'
+import ColliderIcon from './icons/collider.svg?react'
+import AddIcon from './icons/empty.svg?react'
+import GeoIcon from './icons/geo.svg?react'
+import ImageIcon from './icons/image.svg?react'
+import LightingIcon from './icons/lighting.svg?react'
+import LookDevIcon from './icons/lookdev.svg?react'
+import TextIcon from './icons/text.svg?react'
+import VideoIcon from './icons/video.svg?react'
 
 export type PrefabShelfItem = {
   name: string
   url: string
   category: string
   detail?: string
+  icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>
 }
 
-export const PrefabIcons: Record<string, ReactNode> = {
-  Geo: <img src={GeoIcon} />,
-  Lighting: <img src={LightingIcon} />,
-  Collider: <img src={ColliderIcon} />,
-  Text: <img src={TextIcon} />,
-  Image: <img src={ImageIcon} />,
-  Video: <img src={VideoIcon} />,
-  Lookdev: <img src={LookDevIcon} />,
-  Camera: <img src={CameraIcon} />,
-  default: <img src={AddIcon} />
+export const PrefabIcon = ({ categoryTitle, isSelected }: { categoryTitle: string; isSelected: boolean }) => {
+  const color = isSelected ? '#FFFFFF' : '#9CA0AA'
+  const icons: Record<string, JSX.Element> = {
+    Geo: <GeoIcon stroke={color} />,
+    Lighting: <LightingIcon stroke={color} />,
+    Collider: <ColliderIcon stroke={color} />,
+    Text: <TextIcon stroke={color} />,
+    Image: <ImageIcon stroke={color} />,
+    Video: <VideoIcon stroke={color} />,
+    Lookdev: <LookDevIcon stroke={color} />,
+    Camera: <CameraIcon stroke={color} />,
+    Empty: <AddIcon stroke={color} />,
+    Default: <IoCubeOutline className={`h-5 w-5 text-[${color}]`} />
+  }
+
+  const IconElement = getState(PrefabShelfState).find((item) => item.category == categoryTitle)?.icon
+  if (IconElement) icons[categoryTitle] = <IconElement stroke={color} /> //include external icons
+
+  return icons[categoryTitle] ?? icons.Default
 }
 
 export const PrefabShelfState = defineState({

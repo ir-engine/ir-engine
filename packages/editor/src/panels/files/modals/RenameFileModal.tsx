@@ -67,6 +67,7 @@ export default function RenameFileModal({ projectName, file }: { projectName: st
     >
       <Input
         value={newFileName.value}
+        data-testid="rename-file-input"
         onChange={(event) => newFileName.set(event.target.value)}
         errorBorder={!isValid}
         description={t('editor:dialog.saveNewScene.info-name')}
