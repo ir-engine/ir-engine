@@ -41,7 +41,7 @@ import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
-import Slider from '../../../../../primitives/tailwind/Slider'
+import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '../../../input/Group'
 import NumericScrubber from '../../../input/Numeric/Scrubber'
 import SelectInput from '../../../input/Select'
@@ -217,21 +217,17 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           unit="°"
         />
       </InputGroup>
-      <InputGroup
-        name="Cone Outer Gain"
+      <Slider
+        aria-labelname="Cone Outer Gain"
         label={t('editor:properties.audio.lbl-coreOuterGain')}
-        info={t('editor:properties.audio.info-coreOuterGain')}
-        className="w-auto"
-      >
-        <Slider
-          min={0}
-          max={1}
-          step={0.01}
-          value={audioComponent.coneOuterGain.value}
-          onChange={updateProperty(PositionalAudioComponent, 'coneOuterGain')}
-          onRelease={commitProperty(PositionalAudioComponent, 'coneOuterGain')}
-        />
-      </InputGroup>
+        description={t('editor:properties.audio.info-coreOuterGain')}
+        min={0}
+        max={1}
+        step={0.01}
+        value={audioComponent.coneOuterGain.value}
+        onChange={updateProperty(PositionalAudioComponent, 'coneOuterGain')}
+        onRelease={commitProperty(PositionalAudioComponent, 'coneOuterGain')}
+      />
     </NodeEditor>
   )
 }

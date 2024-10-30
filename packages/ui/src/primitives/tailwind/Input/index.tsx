@@ -111,7 +111,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className={twcontainerClassName}>
-        {label && <Label className={twMerge(`self-stretch ${labelClass}`, labelClassname)}>{label}</Label>}
+        {label && (
+          <Label className={twMerge(`self-stretch ${labelClass}`, labelClassname)} data-testid="input-label">
+            {label}
+          </Label>
+        )}
         <div className={containerClass}>
           {startComponent && (
             <div className="pointer-events-auto absolute inset-y-0 left-0 start-0 ml-2 flex items-center ps-0">
@@ -130,7 +134,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           />
 
           {endComponent && (
-            <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center">{endComponent}</div>
+            <div
+              className="pointer-events-auto absolute inset-y-0 end-0 flex items-center"
+              data-testid="input-end-component-container"
+            >
+              {endComponent}
+            </div>
           )}
         </div>
         {description && (

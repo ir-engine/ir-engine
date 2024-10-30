@@ -21,10 +21,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "lib/ui.umd.js",
-  "module": "lib/ui.es.js",
-  "types": "lib/index.d.ts",
-  "npmClient": "npm",
+  "main": "src/index.ts",
   "scripts": {
     "check-errors": "tsc --noemit",
     "test:generate-output": "jest --json --outputFile=./tests/jest-test-results.json || true",
@@ -34,7 +31,9 @@
     "predeploy": "npm run build:storybook",
     "deploy": "gh-pages -d build/",
     "storybook": "./scripts/start-storybook.sh",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "copy-icona": "./scripts/copy-icona-json.sh",
+    "build-icons": "npx tsx scripts/build-icons.ts"
   },
   "dependencies": {
     "@emotion/react": "11.10.6",
@@ -48,6 +47,7 @@
     "@pixiv/three-vrm": "^2.0.6",
     "@pixiv/types-vrmc-vrm-1.0": "^2.0.6",
     "autoprefixer": "^10.4.14",
+    "fuse.js": "^7.0.0",
     "re-resizable": "^6.9.9",
     "react-icons": "^5.0.1",
     "react-slider": "^2.0.6",
@@ -74,6 +74,9 @@
     "@storybook/react-docgen-typescript-plugin": "^1.0.1",
     "@storybook/react-vite": "^8.0.5",
     "@storybook/test": "^8.0.5",
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "@svgr/plugin-svgo": "^8.1.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@types/enzyme": "^3.10.12",
     "@types/enzyme-adapter-react-16": "^1.0.6",
