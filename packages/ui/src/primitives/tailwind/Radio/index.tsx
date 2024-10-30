@@ -33,9 +33,20 @@ export interface RadioProps {
   value: any
   checked?: boolean
   description?: string
+  variant?: 'sm' | 'md'
 }
 
-export const RadioRoot2 = ({ disabled, label, onClick, value, description, checked }: RadioProps) => {
+const outerCircleVariant = {
+  sm: 'h-4 w-4',
+  md: 'h-5 w-5'
+}
+
+const innerCircleSizeVariant = {
+  sm: 'h-2 w-2',
+  md: 'h-2.5 w-2.5'
+}
+
+export const Radio = ({ disabled, label, onClick, value, description, checked, variant = 'sm' }: RadioProps) => {
   const handleClick = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (disabled) return
@@ -57,7 +68,8 @@ export const RadioRoot2 = ({ disabled, label, onClick, value, description, check
     >
       <div
         className={twMerge(
-          'grid h-4 w-4 cursor-pointer place-items-center rounded-full border',
+          outerCircleVariant[variant],
+          'grid cursor-pointer place-items-center rounded-full border',
           !disabled && 'border-[#212226] group-hover:border-[#9CA0AA] group-focus:border-[#375DAF]',
           !disabled && 'bg-[#141619] group-hover:bg-[#191B1F] group-focus:bg-[#212226]',
           disabled && 'cursor-not-allowed border-[#42454D] bg-[#191B1F]'
@@ -65,7 +77,8 @@ export const RadioRoot2 = ({ disabled, label, onClick, value, description, check
       >
         <div
           className={twMerge(
-            'block h-2 w-2 rounded-full',
+            innerCircleSizeVariant[variant],
+            'block rounded-full',
             !checked && 'hidden',
             !disabled && 'bg-[#5F7DBF] group-hover:bg-[#5F7DBF] group-focus:bg-[#5F7DBF]',
             disabled && 'bg-[#42454D]'
@@ -100,6 +113,7 @@ export interface RadioGroupProps<T> {
   horizontal?: boolean
   /**className for the root div */
   className?: string
+  variant?: RadioProps['variant']
 }
 
 type OptionValueType = string | number
@@ -110,12 +124,14 @@ const RadioGroup = <T extends OptionValueType>({
   options,
   horizontal,
   className,
-  value
+  value,
+  variant
 }: RadioGroupProps<T>) => {
   return (
     <div className={twMerge('grid gap-6', horizontal && 'grid-flow-col', className)}>
       {options.map(({ label: optionLabel, value: valueOption, description }) => (
-        <RadioRoot2
+        <Radio
+          variant={variant}
           key={valueOption}
           disabled={disabled}
           label={optionLabel}
