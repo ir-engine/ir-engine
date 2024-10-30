@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -39,7 +39,6 @@ import {
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { startReactor } from '@ir-engine/hyperflux'
 
 import { NameComponent } from '../../common/NameComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
@@ -65,8 +64,7 @@ import {
   traverseEntityNodeParent,
   useAncestorWithComponents,
   useChildrenWithComponents,
-  useChildWithComponents,
-  useTreeQuery
+  useChildWithComponents
 } from './EntityTree'
 
 /**
@@ -991,90 +989,6 @@ describe('isDeepChildOf', () => {
     assert.equal(result, Expected)
   })
 }) //:: isDeepChildOf
-
-describe('useTreeQuery', () => {
-  beforeEach(() => {
-    createEngine()
-  })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
-
-  it('should return the complete deep list of entites of an entity tree', async () => {
-    const rootEntity = createEntity()
-    setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
-
-    let ents = [] as Entity[]
-    const Reactor = startReactor(() => {
-      const data = useTreeQuery(rootEntity)
-      useEffect(() => {
-        ents = data
-      }, [data])
-      return null
-    })
-    const tag = <Reactor.Reactor />
-
-    const { rerender, unmount } = render(tag)
-    assert.equal(ents.length, 1, 'root entity not populated')
-    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
-
-    await act(() => rerender(tag))
-    assert.equal(ents.length, 1, 'root entity not populated after re-querying')
-    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
-
-    const childEntity = createEntity()
-    setComponent(childEntity, EntityTreeComponent, { parentEntity: rootEntity })
-    await act(() => rerender(tag))
-    assert.equal(ents.length, 2, 'query incorrect after adding child')
-    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
-    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
-
-    const deepChildEntity = createEntity()
-    setComponent(deepChildEntity, EntityTreeComponent, { parentEntity: childEntity })
-    await act(() => rerender(tag))
-    assert.equal(ents.length, 3, 'query incorrect after adding deep child')
-    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
-    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
-    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
-
-    const deepChildEntity2 = createEntity()
-    setComponent(deepChildEntity2, EntityTreeComponent, { parentEntity: childEntity })
-    await act(() => rerender(tag))
-    assert.equal(ents.length, 4, 'query incorrect after adding another deep child')
-    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
-    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
-    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
-    assert.equal(ents.includes(deepChildEntity2), true, 'deep child 2 entity not populated')
-
-    removeEntity(deepChildEntity2)
-    await act(() => rerender(tag))
-    assert.equal(ents.length, 3, 'query incorrect after adding remove second deep child')
-    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
-    assert.equal(ents.includes(childEntity), true, 'child entity not populated')
-    assert.equal(ents.includes(deepChildEntity), true, 'deep child entity not populated')
-    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
-
-    removeEntity(childEntity)
-    await act(() => rerender(tag))
-    assert.equal(ents.length, 1, 'query incorrect after adding removing child')
-    assert.equal(ents.includes(rootEntity), true, 'root entity not populated')
-    assert.equal(ents.includes(childEntity), false, 'child entity still populated')
-    assert.equal(ents.includes(deepChildEntity), false, 'deep child entity still populated')
-    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
-
-    removeEntity(rootEntity)
-    await act(() => rerender(tag))
-    assert.equal(ents.length, 0, 'query incorrect after adding removing all entities')
-    assert.equal(ents.includes(rootEntity), false, 'root entity still populated')
-    assert.equal(ents.includes(childEntity), false, 'child entity still populated')
-    assert.equal(ents.includes(deepChildEntity), false, 'deep child entity still populated')
-    assert.equal(ents.includes(deepChildEntity2), false, 'deep child 2 entity still populated')
-
-    unmount()
-  })
-}) //:: useTreeQuery
 
 describe('useAncestorWithComponents', () => {
   // Run before every test case

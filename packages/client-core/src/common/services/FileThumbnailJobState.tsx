@@ -168,7 +168,9 @@ export const FileThumbnailJobState = defineState({
 
         if (resource.type === 'thumbnail') {
           //set thumbnail's thumbnail as itself
-          API.instance.service(staticResourcePath).patch(resource.id, { thumbnailKey: resource.key })
+          API.instance
+            .service(staticResourcePath)
+            .patch(resource.id, { thumbnailKey: resource.key, project: resource.project })
           continue
         }
 
