@@ -224,18 +224,30 @@ function ResourceItems() {
 
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null) // Track the hovered index
+  const [navBarActivated, setNavBarActivated] = useState<boolean>(false) // Track the hovered index
 
+  const assignNavColor = (index: number) => {
+    if (hoveredIndex === null) return 'gray-400'
+    switch (index) {
+      case hoveredIndex:
+        return 'white'
+      case hoveredIndex - 1:
+      case hoveredIndex + 1:
+        return 'gray-700'
+      default:
+        return 'gray-400'
+    }
+  }
   const handleScrollToPage = (pageIndex: number) => {
     if (pageRefs.current[pageIndex]) {
       pageRefs.current[pageIndex]!.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
+
   return (
     <div className="relative flex">
-      {/* Main Content */}
       <div className="relative w-[95%]">
         {' '}
-        {/* Added padding on the right to avoid overlap */}
         {resources.length === 0 && (
           <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
             {t('editor:layout.scene-assets.no-search-results')}
@@ -243,11 +255,7 @@ function ResourceItems() {
         )}
         {resources.length > 0 &&
           Array.from({ length: pages }, (_, i) => (
-            <div
-              key={i}
-              ref={(el) => (pageRefs.current[i] = el)} // Attach ref to each page
-              className="flex w-full flex-col gap-2"
-            >
+            <div key={i} ref={(el) => (pageRefs.current[i] = el)} className="flex w-full flex-col gap-2">
               <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid pt-1 text-[smaller] text-gray-500">
                 {i > 0 && (
                   <Button
@@ -288,19 +296,46 @@ function ResourceItems() {
 
       {/* Sticky Mini Navbar */}
       <div className="relative">
-        <div className="fixed flex w-6 flex-col items-end justify-start gap-2 py-2 ">
-          {' '}
+        <div
+          id="minimap-nav"
+          className="duration-250 fixed ml-6 mt-1.5 flex w-6 flex-col items-end gap-0 overflow-visible rounded-[4px] p-0.5 text-[10px] uppercase transition-all hover:ml-1 hover:gap-1 hover:p-2"
+          onMouseEnter={() => setNavBarActivated(true)}
+          onMouseLeave={() => setNavBarActivated(false)}
+        >
           {/* Sticky positioning */}
           {Array.from({ length: pages }, (_, i) => (
             <div
               key={i}
-              className={`py-.5 h-0.5 w-[50%] transition-all duration-300
-                ${hoveredIndex === i - 1 || hoveredIndex === i + 1 ? 'bg-gray-700' : 'bg-gray-400'}
-                relative cursor-pointer hover:w-[100%] hover:translate-x-[-0%] hover:transform hover:bg-white`}
+              className={twMerge(
+                'nav-item transition-padding duration-250 flex w-10 flex-row items-center justify-end gap-1 p-0 text-gray-500',
+                navBarActivated ? 'h-auto' : 'h-1.5'
+              )} // hover:cursor-pointer hover:p-[6px] first:pt-[3px] first:pb-0 last:hover:pt-[6px]
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
               onClick={() => handleScrollToPage(i)}
-            ></div>
+            >
+              <span
+                className={twMerge(
+                  'nav-handle duration-250 h-[1px]  w-3 transition-all',
+                  hoveredIndex === i ? 'w-10' : '',
+                  `bg-${assignNavColor(i)}`
+                )}
+              ></span>
+              <span
+                className={twMerge(
+                  'nav-id w-[1em] transition-opacity duration-500 ',
+                  !navBarActivated && 'opacity-0',
+                  `text-${assignNavColor(i)}`
+                )}
+              >
+                {i === 0
+                  ? '▲'
+                  : Math.min(
+                      (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
+                      staticResourcesPagination.total.value
+                    )}
+              </span>
+            </div>
           ))}
         </div>
       </div>
