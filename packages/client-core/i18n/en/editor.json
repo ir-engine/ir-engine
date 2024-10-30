@@ -436,7 +436,9 @@
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-timeScale": "Time Scale",
-      "lbl-animationPack": "Animation Pack (via Mixamo Rig)"
+      "lbl-animationPack": "Animation Pack (via Mixamo Rig)",
+      "lbl-paused": "Paused",
+      "lbl-loop": "Loop"
     },
     "variant": {
       "name": "Variant",
