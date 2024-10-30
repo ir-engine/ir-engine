@@ -67,7 +67,8 @@ export default {
   },
   argTypes,
   args: {
-    numberOfRadios: 1
+    numberOfRadios: 1,
+    variant: 'sm'
   }
 }
 
@@ -77,8 +78,9 @@ const RadioGroupRenderer = ({
   disabled,
   numberOfRadios,
   horizontal,
-  selected
-}: Pick<RadioProps, 'description' | 'label' | 'disabled'> & {
+  selected,
+  variant
+}: Pick<RadioProps, 'description' | 'label' | 'disabled' | 'variant'> & {
   numberOfRadios: number
   horizontal: boolean
   selected: boolean
@@ -101,6 +103,7 @@ const RadioGroupRenderer = ({
 
   return (
     <RadioGroup
+      variant={variant}
       options={options}
       value={value}
       onChange={(v) => setValue(v)}
