@@ -28,7 +28,12 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { helmBuilderVersionPath, helmMainVersionPath, helmSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import {
+  engineSettingPath,
+  helmBuilderVersionPath,
+  helmMainVersionPath
+} from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -44,10 +49,21 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     errorMessage: ''
   })
 
-  const helmSetting = useFind(helmSettingPath).data.at(0)
+  const helmSetting = useFind(engineSettingPath).data.at(0)
   const id = helmSetting?.id
-  const selectedMainVersion = useHookstate(helmSetting?.main)
+  const helmSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'helm',
+      paginate: false
+    }
+  }).data
 
+  const helmMain = helmSettings.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
+  const helmBuilder = helmSettings.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
+
+  const selectedMainVersion = useHookstate(helmMain)
+
+  // @ts-ignore
   const helmMainVersions = useFind(helmMainVersionPath).data
   const mainVersionMenu = helmMainVersions.map((el) => {
     return {
@@ -56,8 +72,9 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     }
   })
 
+  // @ts-ignore
   const helmBuilderVersions = useFind(helmBuilderVersionPath).data
-  const selectedBuilderVersion = useHookstate(helmSetting?.builder)
+  const selectedBuilderVersion = useHookstate(helmBuilder)
   const builderVersionMenu = helmBuilderVersions.map((el) => {
     return {
       value: el as string,
@@ -65,34 +82,35 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     }
   })
 
-  const patchHelmSetting = useMutation(helmSettingPath).patch
+  const patchHelmSetting = useMutation(engineSettingPath).patch
   const handleSubmit = (event) => {
     event.preventDefault()
 
     if (!id || !selectedMainVersion.value || !selectedBuilderVersion.value) return
-
+    // TODO : FIX
     state.loading.set(true)
-    patchHelmSetting(id, { main: selectedMainVersion.value, builder: selectedBuilderVersion.value })
-      .then(() => {
-        state.set({ loading: false, errorMessage: '' })
-      })
-      .catch((e) => {
-        state.set({ loading: false, errorMessage: e.message })
-      })
+
+    // patchHelmSetting(id, { main: selectedMainVersion.value, builder: selectedBuilderVersion.value })
+    //   .then(() => {
+    //     state.set({ loading: false, errorMessage: '' })
+    //   })
+    //   .catch((e) => {
+    //     state.set({ loading: false, errorMessage: e.message })
+    //   })
   }
 
   const handleCancel = () => {
-    selectedMainVersion.set(helmSetting?.main)
-    selectedBuilderVersion.set(helmSetting?.builder)
+    selectedMainVersion.set(helmMain)
+    selectedBuilderVersion.set(helmBuilder)
   }
 
   useEffect(() => {
-    if (helmSetting?.main) selectedMainVersion.set(helmSetting.main)
-  }, [helmSetting?.main])
+    if (helmMain) selectedMainVersion.set(helmMain)
+  }, [helmMain])
 
   useEffect(() => {
-    if (helmSetting?.builder) selectedBuilderVersion.set(helmSetting.builder)
-  }, [helmSetting?.builder])
+    if (helmBuilder) selectedBuilderVersion.set(helmBuilder)
+  }, [helmBuilder])
 
   return (
     <Accordion
