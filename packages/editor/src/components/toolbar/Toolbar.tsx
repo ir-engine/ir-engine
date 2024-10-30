@@ -197,7 +197,7 @@ export default function Toolbar() {
                 disabled={!hasPublishAccess}
                 onClick={() =>
                   PopoverState.showPopupover(
-                    <AddEditLocationModal action="studio" sceneID={sceneAssetID.value} location={currentLocation} />
+                    <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
                   )
                 }
                 className="py-1 text-base"
