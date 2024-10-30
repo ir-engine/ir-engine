@@ -30,7 +30,6 @@ import * as awsSeed from './aws-setting/aws-setting.seed'
 import * as clientSeed from './client-setting/client-setting.seed'
 import * as emailSeed from './email-setting/email-setting.seed'
 import * as engineSeed from './engine-setting/engine-setting.seed'
-import * as helmSeed from './helm-setting/helm-setting.seed'
 import * as instanceServerSeed from './instance-server-setting/instance-server-setting.seed'
 import * as mailchimpSeed from './mailchimp-setting/mailchimp-setting.seed'
 import * as serverSeed from './server-setting/server-setting.seed'
@@ -42,7 +41,6 @@ export const settingSeeds: Array<KnexSeed> = [
   instanceServerSeed,
   emailSeed,
   awsSeed,
-  helmSeed,
   mailchimpSeed,
   engineSeed
 ]
