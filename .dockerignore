@@ -7,8 +7,10 @@ kubectl
 lib/
 packages/client/dist
 readme/
-tests/
-vendor/
+**/*.test.ts
+**/*.test.tsx
+**/tests/
+**/vendor/
 packages/**/node_modules
 package-lock.json
 packages/**/package-lock.json

@@ -262,7 +262,7 @@ describe('hookstate reactivity', () => {
   })
 
   describe('object mutable state reactivity', () => {
-    it('should not re-render a useEffect if object mutable state is set to its current value and proxy is used but .value is not called', async () => {
+    it('should re-render a useEffect if object mutable state is set to its current value and proxy is used but .value is not called', async () => {
       const TestState = defineState({
         name: 'test.state.' + testID++,
         initial: () => ({
