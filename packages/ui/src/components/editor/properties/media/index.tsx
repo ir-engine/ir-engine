@@ -108,7 +108,11 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
+      <InputGroup
+        name="Is Music"
+        label={t('editor:properties.media.lbl-isMusic')}
+        info={t('editor:properties.media.info-isMusic')}
+      >
         <BooleanInput value={media.isMusic.value} onChange={commitProperty(MediaComponent, 'isMusic')} />
       </InputGroup>
 
@@ -156,6 +160,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <div>
           <InputGroup
             name="media-controls"
+            info={t('editor:properties.media.info-mediaControls')}
             label={t('editor:properties.media.lbl-mediaControls')}
             className="mb-2 flex gap-2"
           >
@@ -166,8 +171,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
               {t('editor:properties.media.resettitle')}
             </Button>
           </InputGroup>
-          <hr className={'h-1'} />
-          <MediaPreview resources={media.resources.value} />
+          <MediaPreview resources={media.resources} />
         </div>
       )}
     </NodeEditor>
