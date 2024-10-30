@@ -200,31 +200,11 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   )
 }
 
-function MiniNavBar() {
-  const { t } = useTranslation()
-  const { resources, staticResourcesPagination } = useAssetsQuery()
-  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
-
-  // split into packets of page sizes and render them
-  return (
-    <>
-      {resources.length > 0 &&
-        Array.from({ length: pages }, (_, i) => (
-          <div className="flex w-8 flex-col gap-4">
-            <div className="mt-4 flex h-2.5 w-8 flex-row border-t-[0.5px] border-solid pt-1 text-[smaller] text-gray-500"></div>
-          </div>
-        ))}
-    </>
-  )
-}
-function ResourceItems() {
-  const { t } = useTranslation()
-  const { resources, staticResourcesPagination } = useAssetsQuery()
-  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
-
-  const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
+function SideNavBar({ handleScrollToPage }) {
+  const [navBarActivated, setNavBarActivated] = useState<boolean>(false) // Track the navbar activation
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null) // Track the hovered index
-  const [navBarActivated, setNavBarActivated] = useState<boolean>(false) // Track the hovered index
+  const { resources, staticResourcesPagination } = useAssetsQuery()
+  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
 
   const assignNavColor = (index: number) => {
     if (hoveredIndex === null) return 'gray-400'
@@ -239,6 +219,88 @@ function ResourceItems() {
         return 'gray-400'
     }
   }
+  return (
+    <div className="relative">
+      <div
+        id="minimap-nav"
+        className="duration-250 fixed ml-6 mt-1.5 flex w-6 flex-col items-end gap-0 overflow-visible rounded-[4px] p-0.5 text-[10px] uppercase transition-all hover:ml-1 hover:gap-1 hover:p-2"
+        onMouseEnter={() => setNavBarActivated(true)}
+        onMouseLeave={() => setNavBarActivated(false)}
+      >
+        {/* Sticky positioning */}
+        {Array.from({ length: pages }, (_, i) => (
+          <div
+            key={i}
+            className={twMerge(
+              'nav-item transition-padding duration-250 flex w-10 flex-row items-center justify-end gap-1 p-0 text-gray-500',
+              navBarActivated ? 'h-auto' : 'h-2',
+              'hover:cursor-pointer hover:py-1.5 hover:first:pb-0 hover:first:pt-1.5 hover:last:hover:pt-1.5'
+            )}
+            onMouseEnter={() => setHoveredIndex(i)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            onClick={() => handleScrollToPage(i)}
+          >
+            <span
+              className={twMerge(
+                'nav-handle duration-250 h-[1px] w-3 transition-all',
+                hoveredIndex === i ? 'w-10' : '',
+                `bg-${assignNavColor(i)}`
+              )}
+            ></span>
+            <span
+              className={twMerge(
+                'nav-id w-[1em] transition-opacity duration-500 ',
+                !navBarActivated && 'opacity-0',
+                `text-${assignNavColor(i)}`
+              )}
+            >
+              {i === 0
+                ? '▲'
+                : Math.min(
+                    (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
+                    staticResourcesPagination.total.value
+                  )}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function BottomPaginationNavBar({ handleScrollToPage }) {
+  const { resources, staticResourcesPagination } = useAssetsQuery()
+  const totalPages = Math.ceil(staticResourcesPagination.total.value / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
+  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
+
+  return (
+    <div className="flex h-20 flex-col items-center justify-center">
+      <div className="text-[10px] text-white">
+        Showing <span>{resources.length}</span> of {staticResourcesPagination.total.value}
+      </div>
+      <div className="m-3 flex h-[1px] w-36 flex-row gap-[0.19rem]">
+        {Array.from({ length: totalPages }, (_, i) =>
+          i > pages ? (
+            <div key={i} className="h-[10px] w-1/4 border-t-[1px] border-solid border-gray-700"></div>
+          ) : (
+            <div
+              key={i}
+              className="duration-250 h-[10px] w-1/4 border-t-[1px] border-solid border-gray-400 transition-all hover:border-t-[10px]"
+              onClick={() => handleScrollToPage(i)}
+            ></div>
+          )
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ResourceItems() {
+  const { t } = useTranslation()
+  const { resources, staticResourcesPagination } = useAssetsQuery()
+  const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
+  const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
+
   const handleScrollToPage = (pageIndex: number) => {
     if (pageRefs.current[pageIndex]) {
       pageRefs.current[pageIndex]!.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -247,7 +309,7 @@ function ResourceItems() {
 
   return (
     <div className="relative flex w-full ">
-      <div className="relative w-[95%]">
+      <div className="relative flex w-[95%] flex-col">
         {' '}
         {resources.length === 0 && (
           <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
@@ -293,54 +355,10 @@ function ResourceItems() {
               </div>
             </div>
           ))}
+        <BottomPaginationNavBar handleScrollToPage={handleScrollToPage} />
       </div>
-
       {/* Sticky Mini Navbar */}
-      <div className="relative">
-        <div
-          id="minimap-nav"
-          className="duration-250 fixed ml-6 mt-1.5 flex w-6 flex-col items-end gap-0 overflow-visible rounded-[4px] p-0.5 text-[10px] uppercase transition-all hover:ml-1 hover:gap-1 hover:p-2"
-          onMouseEnter={() => setNavBarActivated(true)}
-          onMouseLeave={() => setNavBarActivated(false)}
-        >
-          {/* Sticky positioning */}
-          {Array.from({ length: pages }, (_, i) => (
-            <div
-              key={i}
-              className={twMerge(
-                'nav-item transition-padding duration-250 flex w-10 flex-row items-center justify-end gap-1 p-0 text-gray-500',
-                navBarActivated ? 'h-auto' : 'h-2',
-                'hover:cursor-pointer hover:py-1.5 hover:first:pb-0 hover:first:pt-1.5 hover:last:hover:pt-1.5'
-              )}
-              onMouseEnter={() => setHoveredIndex(i)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              onClick={() => handleScrollToPage(i)}
-            >
-              <span
-                className={twMerge(
-                  'nav-handle duration-250 h-[1px] w-3 transition-all',
-                  hoveredIndex === i ? 'w-10' : '',
-                  `bg-${assignNavColor(i)}`
-                )}
-              ></span>
-              <span
-                className={twMerge(
-                  'nav-id w-[1em] transition-opacity duration-500 ',
-                  !navBarActivated && 'opacity-0',
-                  `text-${assignNavColor(i)}`
-                )}
-              >
-                {i === 0
-                  ? '▲'
-                  : Math.min(
-                      (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
-                      staticResourcesPagination.total.value
-                    )}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <SideNavBar handleScrollToPage={handleScrollToPage} />
     </div>
   )
 }
