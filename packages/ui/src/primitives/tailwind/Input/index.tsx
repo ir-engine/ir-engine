@@ -91,19 +91,8 @@ const InputBase = (
   }: InputProps,
   ref: React.ForwardedRef<HTMLInputElement>
 ) => {
-  const containerClass = twMerge(
-    'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] transition-colors duration-300',
-    variantSizes[variantSize],
-    'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
-    'has-[:focus]:border-[#375DAF] has-[:focus]:outline-none',
-    'has-[:disabled]:border-[#42454D] has-[:disabled]:bg-[#191B1F]',
-    state === 'success' && 'border-[#10B981]',
-    state === 'error' && 'border-[#C3324B]'
-  )
-
-  const inputClass = twMerge(
+  const inputClass =
     'peer order-2 h-full w-full bg-inherit text-[#9CA0AA] outline-none focus:text-[#F5F5F5] disabled:text-[#6B6F78]'
-  )
   const tempId = useId()
   const inputId = id || tempId
 
@@ -147,7 +136,17 @@ const InputBase = (
           </label>
         )}
 
-        <div className={containerClass}>
+        <div
+          className={twMerge(
+            'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] transition-colors duration-300',
+            variantSizes[variantSize],
+            'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
+            'has-[:focus]:border-[#375DAF] has-[:focus]:outline-none',
+            'has-[:disabled]:border-[#42454D] has-[:disabled]:bg-[#191B1F]',
+            state === 'success' && 'border-[#10B981]',
+            state === 'error' && 'border-[#C3324B]'
+          )}
+        >
           <input spellCheck={false} className={inputClass} ref={ref} id={inputId} {...props} />
           {startComponent && (
             <div className="order-1 flex items-center justify-center text-[#9CA0AA] peer-disabled:text-[#42454D]">

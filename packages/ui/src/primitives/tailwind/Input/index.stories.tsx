@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Globe01Sm, HelpIconSm } from '@ir-engine/ui/src/icons'
 import { ArgTypes, StoryFn } from '@storybook/react'
 import React from 'react'
-import { Globe01Sm, HelpIconSm } from '../../../icons'
 import Input, { InputProps } from './index'
 
 const sizes: InputProps['variantSize'][] = ['xs', 'l', 'xl']
@@ -95,33 +95,32 @@ export default {
 }
 
 const Template: StoryFn<InputProps> = (args) => (
-  <div className="grid h-[50vh] w-full grid-cols-3 divide-x rounded border border-gray-300">
-    {sizes.map((size, index) => (
-      <div key={index} className="col-span-1 flex w-full items-center justify-center p-2">
-        <Input {...args} variantSize={size} />
-      </div>
-    ))}
+  <div className="grid h-[50vh] w-full place-items-center rounded border border-gray-300 p-5">
+    <Input {...args} />
   </div>
 )
 
 export const Default = Template.bind({})
 Default.args = {
   value: 'ir@infinityreality.com',
-  placeholder: 'Email Address'
+  placeholder: 'Email Address',
+  variantSize: 'l'
 }
 
 export const FullWidth = Template.bind({})
 FullWidth.args = {
   value: 'ir@infinityreality.com',
   fullWidth: true,
-  placeholder: 'Email Address'
+  placeholder: 'Email Address',
+  variantSize: 'l'
 }
 
 export const InputWithLeadingIcon = Template.bind({})
 InputWithLeadingIcon.args = {
   value: 'ir@infinityreality.com',
   placeholder: 'Email Address',
-  startComponent: <Globe01Sm />
+  startComponent: <Globe01Sm />,
+  variantSize: 'l'
 }
 
 export const InputWithTrailingIcon = Template.bind({})
@@ -132,7 +131,8 @@ InputWithTrailingIcon.args = {
     <button>
       <HelpIconSm />
     </button>
-  )
+  ),
+  variantSize: 'l'
 }
 
 export const InputWithBothIcons = Template.bind({})
@@ -144,5 +144,6 @@ InputWithBothIcons.args = {
     <button>
       <HelpIconSm />
     </button>
-  )
+  ),
+  variantSize: 'l'
 }
