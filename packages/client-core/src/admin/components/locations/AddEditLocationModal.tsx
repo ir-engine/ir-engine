@@ -210,6 +210,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                 size="medium"
                 variant="transparent"
                 className="w-full cursor-default text-left text-xs"
+                data-testid="publish-panel-copy-link-buttons-group"
                 endIcon={
                   <HiLink
                     className="z-10 h-4 w-4 cursor-pointer"
@@ -233,6 +234,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             <Input
               label={t('admin:components.location.lbl-name')}
               value={name.value}
+              data-testid="publish-panel-location-name"
               onChange={(event) => name.set(event.target.value)}
               error={errors.name.value}
               disabled={isLoading}
@@ -241,6 +243,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               type="number"
               label={t('admin:components.location.lbl-maxuser')}
               value={maxUsers.value}
+              data-testid="publish-panel-location-max-users"
               onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
               error={errors.maxUsers.value}
               disabled={isLoading}
@@ -346,13 +349,18 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
         </div>
 
         <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
-          <Button variant="outline" onClick={() => PopoverState.hidePopupover()}>
+          <Button
+            variant="outline"
+            data-testid="publish-panel-cancel-button"
+            onClick={() => PopoverState.hidePopupover()}
+          >
             {t('common:components.cancel')}
           </Button>
           <div className="ml-auto flex items-center gap-2">
             {location?.id && (
               <Button
                 className="bg-[#162546]"
+                data-testid="publish-panel-unpublish-button"
                 endIcon={unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 disabled={isLoading}
                 onClick={unPublishLocation}
@@ -361,6 +369,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               </Button>
             )}
             <Button
+              data-testid="publish-panel-publish-or-update-button"
               endIcon={publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               disabled={isLoading}
               onClick={handlePublish}
