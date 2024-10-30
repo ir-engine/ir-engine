@@ -37,9 +37,8 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
-import assert from 'assert'
 import { Raycaster } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
@@ -563,8 +562,8 @@ describe('InputSourceComponent', () => {
         // Run and Check the result
         const result = InputSourceComponent.getPreferredInputSource()
         assert.ok(result)
-        assert.equal(result.gamepad?.id, 'emulated-gamepad-' + testEntity)
-        assert.notEqual(result.gamepad?.id, 'emulated-gamepad-' + otherEntity)
+        assert.equal(result!.gamepad?.id, 'emulated-gamepad-' + testEntity)
+        assert.notEqual(result!.gamepad?.id, 'emulated-gamepad-' + otherEntity)
       })
     })
     describe('when offhand is omitted ...', () => {
@@ -580,8 +579,8 @@ describe('InputSourceComponent', () => {
         // Run and Check the result
         const result = InputSourceComponent.getPreferredInputSource()
         assert.ok(result)
-        assert.equal(result.gamepad?.id, 'emulated-gamepad-' + testEntity)
-        assert.notEqual(result.gamepad?.id, 'emulated-gamepad-' + otherEntity)
+        assert.equal(result!.gamepad?.id, 'emulated-gamepad-' + testEntity)
+        assert.notEqual(result!.gamepad?.id, 'emulated-gamepad-' + otherEntity)
       })
     })
 
@@ -602,9 +601,9 @@ describe('InputSourceComponent', () => {
         // Run and Check the result
         const result = InputSourceComponent.getPreferredInputSource()
         assert.ok(result)
-        assert.equal(result.gamepad?.id, 'emulated-gamepad-' + testEntity)
-        assert.notEqual(result.gamepad?.id, 'emulated-gamepad-' + oneEntity)
-        assert.notEqual(result.gamepad?.id, 'emulated-gamepad-' + twoEntity)
+        assert.equal(result!.gamepad?.id, 'emulated-gamepad-' + testEntity)
+        assert.notEqual(result!.gamepad?.id, 'emulated-gamepad-' + oneEntity)
+        assert.notEqual(result!.gamepad?.id, 'emulated-gamepad-' + twoEntity)
       })
     })
   }) // << getPreferredInputSource

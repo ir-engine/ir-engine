@@ -32,8 +32,7 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { InputSinkComponent } from './InputSinkComponent'
 
 const InputSinkComponentDefaults = []

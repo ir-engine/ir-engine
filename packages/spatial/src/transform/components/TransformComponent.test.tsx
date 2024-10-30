@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { TransformComponent } from './TransformComponent'
 
 describe('TransformComponent', () => {
@@ -43,8 +42,8 @@ describe('TransformComponent', () => {
 
     setComponent(entity, TransformComponent)
     const transformComponent = getComponent(entity, TransformComponent)
-    assert(TransformComponent.dirtyTransforms[entity])
+    assert.isTrue(TransformComponent.dirtyTransforms[entity])
     transformComponent.position.x = 12
-    assert(transformComponent.position.x === TransformComponent.position.x[entity])
+    assert.strictEqual(transformComponent.position.x, TransformComponent.position.x[entity])
   })
 })

@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { describe, it } from 'vitest'
+import { assert, describe, it } from 'vitest'
 import { CSS_URL_REGEX } from './generateEmbeddedCSS'
 
 describe('CSS_URL_REGEX', () => {

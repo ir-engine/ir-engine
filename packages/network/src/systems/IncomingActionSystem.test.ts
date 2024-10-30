@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert, { strictEqual } from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -74,14 +73,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
       applyIncomingActions()
 
       /* assert */
-      strictEqual(Engine.instance.store.actions.history.length, 0)
+      assert.strictEqual(Engine.instance.store.actions.history.length, 0)
 
       // fixed tick update
       ecsState.simulationTime.set(2)
       applyIncomingActions()
 
       /* assert */
-      strictEqual(Engine.instance.store.actions.history.length, 1)
+      assert.strictEqual(Engine.instance.store.actions.history.length, 1)
     })
 
     it('should immediately apply incoming action from the past or present', () => {
@@ -102,7 +101,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       applyIncomingActions()
 
       /* assert */
-      strictEqual(Engine.instance.store.actions.history.length, 1)
+      assert.strictEqual(Engine.instance.store.actions.history.length, 1)
     })
   })
 
@@ -126,8 +125,8 @@ describe('IncomingActionSystem Unit Tests', async () => {
       applyIncomingActions()
 
       /* assert */
-      strictEqual(Engine.instance.store.actions.history.length, 1)
-      assert(Engine.instance.store.actions.cached.indexOf(action) !== -1)
+      assert.strictEqual(Engine.instance.store.actions.history.length, 1)
+      assert.notStrictEqual(Engine.instance.store.actions.cached.indexOf(action), -1)
     })
   })
 })

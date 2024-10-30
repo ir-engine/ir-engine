@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../../patchEngineNode'
 
-import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { doesNotReject as assertDoesNotReject } from 'assert' /** @todo Replace with vitest assert. How? */
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -80,7 +80,7 @@ describe('invalidation.test', () => {
   })
 
   it('gets an invalidation', async () => {
-    await assert.doesNotReject(async () => await app.service(invalidationPath).get(createdPath1.id))
+    await assertDoesNotReject(async () => await app.service(invalidationPath).get(createdPath1.id))
     const path1 = await app.service(invalidationPath).get(createdPath1.id)
     assert.notEqual(path1, null)
     assert.equal(path1.path, pathName1)

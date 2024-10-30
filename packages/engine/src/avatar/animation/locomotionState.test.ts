@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
 import sinon from 'sinon'
 import { Vector2, Vector3 } from 'three'
-import { describe, it } from 'vitest'
+import { assert, describe, it } from 'vitest'
 
 import { enterLocomotionState, getLocomotionStateActions, updateLocomotionStateBlendValues } from './locomotionState'
 
@@ -39,8 +38,8 @@ describe('getLocomotionStateActions', () => {
     }
 
     const returnedActions = getLocomotionStateActions(state as any)
-    assert(Array.isArray(returnedActions))
-    assert(returnedActions.length === 3)
+    assert.isArray(returnedActions)
+    assert.strictEqual(returnedActions.length, 3)
   })
 })
 

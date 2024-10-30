@@ -35,9 +35,8 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import assert from 'assert'
 import { Material, Uniform } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { assertArrayEqual } from '../../../../physics/components/RigidBodyComponent.test'
 import { MaterialStateComponent } from '../../MaterialComponent'
 import {

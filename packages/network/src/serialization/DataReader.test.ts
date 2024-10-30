@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert, { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -89,9 +88,9 @@ describe('DataReader', () => {
     const B = 2 ** 1
     const C = 2 ** 2
     const mask = A | C
-    strictEqual(checkBitflag(mask, A), true)
-    strictEqual(checkBitflag(mask, B), false)
-    strictEqual(checkBitflag(mask, C), true)
+    assert.strictEqual(checkBitflag(mask, A), true)
+    assert.strictEqual(checkBitflag(mask, B), false)
+    assert.strictEqual(checkBitflag(mask, C), true)
   })
 
   it('should readComponent', () => {
@@ -114,9 +113,9 @@ describe('DataReader', () => {
 
     readPosition(view, entity)
 
-    strictEqual(TransformComponent.position.x[entity], x)
-    strictEqual(TransformComponent.position.y[entity], y)
-    strictEqual(TransformComponent.position.z[entity], z)
+    assert.strictEqual(TransformComponent.position.x[entity], x)
+    assert.strictEqual(TransformComponent.position.y[entity], y)
+    assert.strictEqual(TransformComponent.position.z[entity], z)
 
     TransformComponent.position.x[entity] = 10.5
     TransformComponent.position.z[entity] = 11.5
@@ -132,9 +131,9 @@ describe('DataReader', () => {
 
     readPosition(view, entity)
 
-    strictEqual(TransformComponent.position.x[entity], 10.5)
-    strictEqual(TransformComponent.position.y[entity], y)
-    strictEqual(TransformComponent.position.z[entity], 11.5)
+    assert.strictEqual(TransformComponent.position.x[entity], 10.5)
+    assert.strictEqual(TransformComponent.position.y[entity], y)
+    assert.strictEqual(TransformComponent.position.z[entity], 11.5)
   })
 
   it('should readComponentProp', () => {
@@ -153,7 +152,7 @@ describe('DataReader', () => {
 
     readComponentProp(view, prop, entity)
 
-    strictEqual(prop[entity], 1.5)
+    assert.strictEqual(prop[entity], 1.5)
   })
 
   it('should readVector3', () => {
@@ -177,9 +176,9 @@ describe('DataReader', () => {
 
     readPosition(view, entity)
 
-    strictEqual(TransformComponent.position.x[entity], x)
-    strictEqual(TransformComponent.position.y[entity], y)
-    strictEqual(TransformComponent.position.z[entity], z)
+    assert.strictEqual(TransformComponent.position.x[entity], x)
+    assert.strictEqual(TransformComponent.position.y[entity], y)
+    assert.strictEqual(TransformComponent.position.z[entity], z)
 
     position.y[entity] = 10.5
 
@@ -187,9 +186,9 @@ describe('DataReader', () => {
 
     writePosition(view, entity)
 
-    strictEqual(TransformComponent.position.x[entity], x)
-    strictEqual(TransformComponent.position.y[entity], 10.5)
-    strictEqual(TransformComponent.position.z[entity], z)
+    assert.strictEqual(TransformComponent.position.x[entity], x)
+    assert.strictEqual(TransformComponent.position.y[entity], 10.5)
+    assert.strictEqual(TransformComponent.position.z[entity], z)
   })
 
   it('should readVector4', () => {
@@ -216,10 +215,10 @@ describe('DataReader', () => {
 
     readRotation(view, entity)
 
-    strictEqual(TransformComponent.rotation.x[entity], x)
-    strictEqual(TransformComponent.rotation.y[entity], y)
-    strictEqual(TransformComponent.rotation.z[entity], z)
-    strictEqual(TransformComponent.rotation.w[entity], w)
+    assert.strictEqual(TransformComponent.rotation.x[entity], x)
+    assert.strictEqual(TransformComponent.rotation.y[entity], y)
+    assert.strictEqual(TransformComponent.rotation.z[entity], z)
+    assert.strictEqual(TransformComponent.rotation.w[entity], w)
 
     rotation.y[entity] = 10.5
     rotation.w[entity] = 11.5
@@ -228,10 +227,10 @@ describe('DataReader', () => {
 
     writeRotation(view, entity)
 
-    strictEqual(TransformComponent.rotation.x[entity], x)
-    strictEqual(TransformComponent.rotation.y[entity], 10.5)
-    strictEqual(TransformComponent.rotation.z[entity], z)
-    strictEqual(TransformComponent.rotation.w[entity], 11.5)
+    assert.strictEqual(TransformComponent.rotation.x[entity], x)
+    assert.strictEqual(TransformComponent.rotation.y[entity], 10.5)
+    assert.strictEqual(TransformComponent.rotation.z[entity], z)
+    assert.strictEqual(TransformComponent.rotation.w[entity], 11.5)
   })
 
   it('should readPosition', () => {
@@ -253,9 +252,9 @@ describe('DataReader', () => {
 
     readPosition(view, entity)
 
-    strictEqual(TransformComponent.position.x[entity], x)
-    strictEqual(TransformComponent.position.y[entity], y)
-    strictEqual(TransformComponent.position.z[entity], z)
+    assert.strictEqual(TransformComponent.position.x[entity], x)
+    assert.strictEqual(TransformComponent.position.y[entity], y)
+    assert.strictEqual(TransformComponent.position.z[entity], z)
 
     position.y[entity] = 10.5
 
@@ -263,9 +262,9 @@ describe('DataReader', () => {
 
     writePosition(view, entity)
 
-    strictEqual(TransformComponent.position.x[entity], x)
-    strictEqual(TransformComponent.position.y[entity], 10.5)
-    strictEqual(TransformComponent.position.z[entity], z)
+    assert.strictEqual(TransformComponent.position.x[entity], x)
+    assert.strictEqual(TransformComponent.position.y[entity], 10.5)
+    assert.strictEqual(TransformComponent.position.z[entity], z)
   })
 
   it('should readCompressedRotation', () => {
@@ -276,7 +275,7 @@ describe('DataReader', () => {
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
-    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+    const d = Math.sqrt(1 - (a * a + b * b + c * c))
 
     const [x, y, z, w] = [a, b, c, d]
     rotation.x[entity] = x
@@ -295,13 +294,13 @@ describe('DataReader', () => {
 
     readRotation(view, entity)
 
-    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float64Array.BYTES_PER_ELEMENT * 4)
+    assert.strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float64Array.BYTES_PER_ELEMENT * 4)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
   })
 
   it('should readCompressedVector3', () => {
@@ -324,12 +323,12 @@ describe('DataReader', () => {
 
     readCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity)
 
-    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
+    assert.strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.y[entity], 1), roundNumberToPlaces(y, 1))
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.z[entity], 1), roundNumberToPlaces(z, 1))
+    assert.strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
+    assert.strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.y[entity], 1), roundNumberToPlaces(y, 1))
+    assert.strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.z[entity], 1), roundNumberToPlaces(z, 1))
   })
 
   it('should readTransform', () => {
@@ -338,7 +337,7 @@ describe('DataReader', () => {
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
-    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+    const d = Math.sqrt(1 - (a * a + b * b + c * c))
 
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
@@ -354,14 +353,14 @@ describe('DataReader', () => {
 
     readTransform(view, entity)
 
-    strictEqual(TransformComponent.position.x[entity], posX)
-    strictEqual(TransformComponent.position.y[entity], posY)
-    strictEqual(TransformComponent.position.z[entity], posZ)
+    assert.strictEqual(TransformComponent.position.x[entity], posX)
+    assert.strictEqual(TransformComponent.position.y[entity], posY)
+    assert.strictEqual(TransformComponent.position.z[entity], posZ)
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
 
     transform.position.x = 0
 
@@ -375,9 +374,9 @@ describe('DataReader', () => {
 
     readTransform(view, entity)
 
-    strictEqual(TransformComponent.position.x[entity], 0)
-    strictEqual(TransformComponent.position.y[entity], posY)
-    strictEqual(TransformComponent.position.z[entity], posZ)
+    assert.strictEqual(TransformComponent.position.x[entity], 0)
+    assert.strictEqual(TransformComponent.position.y[entity], posY)
+    assert.strictEqual(TransformComponent.position.z[entity], posZ)
   })
 
   // it('should readXRHands', () => {
@@ -443,14 +442,14 @@ describe('DataReader', () => {
   //     const handedness = hand.userData.handedness
 
   //     joints.forEach((jointName) => {
-  //       strictEqual(TransformComponent.position.x[entity], posX)
-  //       strictEqual(TransformComponent.position.y[entity], posY)
-  //       strictEqual(TransformComponent.position.z[entity], posZ)
+  //       assert.strictEqual(TransformComponent.position.x[entity], posX)
+  //       assert.strictEqual(TransformComponent.position.y[entity], posY)
+  //       assert.strictEqual(TransformComponent.position.z[entity], posZ)
   //       // Round values to 3 decimal places and compare
-  //       strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-  //       strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-  //       strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-  //       strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+  //       assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+  //       assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+  //       assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+  //       assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   //     })
   //   })
   // })
@@ -474,7 +473,7 @@ describe('DataReader', () => {
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
-    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+    const d = Math.sqrt(1 - (a * a + b * b + c * c))
 
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
@@ -497,14 +496,14 @@ describe('DataReader', () => {
 
     readEntity(view, network, peerId, Object.values(getState(NetworkState).networkSchema))
 
-    strictEqual(TransformComponent.position.x[entity], posX)
-    strictEqual(TransformComponent.position.y[entity], posY)
-    strictEqual(TransformComponent.position.z[entity], posZ)
+    assert.strictEqual(TransformComponent.position.x[entity], posX)
+    assert.strictEqual(TransformComponent.position.y[entity], posY)
+    assert.strictEqual(TransformComponent.position.z[entity], posZ)
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
 
     transform.position.x = 0
 
@@ -518,9 +517,9 @@ describe('DataReader', () => {
 
     readEntity(view, network, peerId, Object.values(getState(NetworkState).networkSchema))
 
-    strictEqual(TransformComponent.position.x[entity], 0)
-    strictEqual(TransformComponent.position.y[entity], posY)
-    strictEqual(TransformComponent.position.z[entity], posZ)
+    assert.strictEqual(TransformComponent.position.x[entity], 0)
+    assert.strictEqual(TransformComponent.position.y[entity], posY)
+    assert.strictEqual(TransformComponent.position.z[entity], posZ)
   })
 
   it('should not readEntity if reading back own data', () => {
@@ -569,16 +568,16 @@ describe('DataReader', () => {
     readEntity(view, network, peerID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as we own this entity
-    strictEqual(TransformComponent.position.x[entity], 0)
-    strictEqual(TransformComponent.position.y[entity], 0)
-    strictEqual(TransformComponent.position.z[entity], 0)
-    strictEqual(TransformComponent.rotation.x[entity], 0)
-    strictEqual(TransformComponent.rotation.y[entity], 0)
-    strictEqual(TransformComponent.rotation.z[entity], 0)
-    strictEqual(TransformComponent.rotation.w[entity], 0)
+    assert.strictEqual(TransformComponent.position.x[entity], 0)
+    assert.strictEqual(TransformComponent.position.y[entity], 0)
+    assert.strictEqual(TransformComponent.position.z[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.x[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.y[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.z[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(
+    assert.strictEqual(
       view.cursor,
       // network id
       Uint32Array.BYTES_PER_ELEMENT +
@@ -637,16 +636,16 @@ describe('DataReader', () => {
     readEntity(view, network, peerID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as entity is not listed in network entities
-    strictEqual(TransformComponent.position.x[entity], 0)
-    strictEqual(TransformComponent.position.y[entity], 0)
-    strictEqual(TransformComponent.position.z[entity], 0)
-    strictEqual(TransformComponent.rotation.x[entity], 0)
-    strictEqual(TransformComponent.rotation.y[entity], 0)
-    strictEqual(TransformComponent.rotation.z[entity], 0)
-    strictEqual(TransformComponent.rotation.w[entity], 0)
+    assert.strictEqual(TransformComponent.position.x[entity], 0)
+    assert.strictEqual(TransformComponent.position.y[entity], 0)
+    assert.strictEqual(TransformComponent.position.z[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.x[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.y[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.z[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(
+    assert.strictEqual(
       view.cursor,
       // network id
       Uint32Array.BYTES_PER_ELEMENT +
@@ -727,16 +726,16 @@ describe('DataReader', () => {
     readEntity(view, network, peerID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as we own this entity
-    strictEqual(TransformComponent.position.x[entity], 0)
-    strictEqual(TransformComponent.position.y[entity], 0)
-    strictEqual(TransformComponent.position.z[entity], 0)
-    strictEqual(TransformComponent.rotation.x[entity], 0)
-    strictEqual(TransformComponent.rotation.y[entity], 0)
-    strictEqual(TransformComponent.rotation.z[entity], 0)
-    strictEqual(TransformComponent.rotation.w[entity], 0)
+    assert.strictEqual(TransformComponent.position.x[entity], 0)
+    assert.strictEqual(TransformComponent.position.y[entity], 0)
+    assert.strictEqual(TransformComponent.position.z[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.x[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.y[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.z[entity], 0)
+    assert.strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(
+    assert.strictEqual(
       view.cursor,
       // network id
       Uint32Array.BYTES_PER_ELEMENT +
@@ -771,7 +770,7 @@ describe('DataReader', () => {
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
-    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+    const d = Math.sqrt(1 - (a * a + b * b + c * c))
 
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
@@ -807,14 +806,14 @@ describe('DataReader', () => {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
 
-      strictEqual(TransformComponent.position.x[entity], posX)
-      strictEqual(TransformComponent.position.y[entity], posY)
-      strictEqual(TransformComponent.position.z[entity], posZ)
+      assert.strictEqual(TransformComponent.position.x[entity], posX)
+      assert.strictEqual(TransformComponent.position.y[entity], posY)
+      assert.strictEqual(TransformComponent.position.z[entity], posZ)
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+      assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+      assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+      assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+      assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 
@@ -839,7 +838,7 @@ describe('DataReader', () => {
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
-    let d = Math.sqrt(1 - (a * a + b * b + c * c))
+    const d = Math.sqrt(1 - (a * a + b * b + c * c))
 
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
@@ -867,40 +866,40 @@ describe('DataReader', () => {
     const _simulationTime = readFloat64(readView)
 
     const count = readUint32(readView)
-    strictEqual(count, entities.length)
+    assert.strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
       // read networkId
-      strictEqual(readUint32(readView), entities[i])
+      assert.strictEqual(readUint32(readView), entities[i])
 
       // read owner index
-      strictEqual(readUint32(readView), userIndex)
+      assert.strictEqual(readUint32(readView), userIndex)
 
       // read writeEntity changeMask (only reading TransformComponent)
-      strictEqual(readUint8(readView), 0b01)
+      assert.strictEqual(readUint8(readView), 0b01)
 
       // read writeTransform changeMask
-      strictEqual(readUint8(readView), 0b11)
+      assert.strictEqual(readUint8(readView), 0b11)
 
       // read writePosition changeMask
-      strictEqual(readUint8(readView), 0b111)
+      assert.strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat64(readView), posX)
-      strictEqual(readFloat64(readView), posY)
-      strictEqual(readFloat64(readView), posZ)
+      assert.strictEqual(readFloat64(readView), posX)
+      assert.strictEqual(readFloat64(readView), posY)
+      assert.strictEqual(readFloat64(readView), posZ)
 
       // read writeRotation changeMask
-      strictEqual(readUint8(readView), 0b1111)
+      assert.strictEqual(readUint8(readView), 0b1111)
 
       // read compressed rotation values
       // readFloat32(readView)
 
       // read rotation values
-      strictEqual(readFloat64(readView), rotX)
-      strictEqual(readFloat64(readView), rotY)
-      strictEqual(readFloat64(readView), rotZ)
-      strictEqual(readFloat64(readView), rotW)
+      assert.strictEqual(readFloat64(readView), rotX)
+      assert.strictEqual(readFloat64(readView), rotY)
+      assert.strictEqual(readFloat64(readView), rotZ)
+      assert.strictEqual(readFloat64(readView), rotW)
     }
 
     for (let i = 0; i < entities.length; i++) {
@@ -926,14 +925,14 @@ describe('DataReader', () => {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
 
-      strictEqual(TransformComponent.position.x[entity], posX)
-      strictEqual(TransformComponent.position.y[entity], posY)
-      strictEqual(TransformComponent.position.z[entity], posZ)
+      assert.strictEqual(TransformComponent.position.x[entity], posX)
+      assert.strictEqual(TransformComponent.position.y[entity], posY)
+      assert.strictEqual(TransformComponent.position.z[entity], posZ)
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+      assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+      assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+      assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+      assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 
@@ -975,7 +974,7 @@ describe('DataReader', () => {
 
     const packet = write(network, peerID, entities)
 
-    strictEqual(packet.byteLength, 0)
+    assert.strictEqual(packet.byteLength, 0)
 
     const readView = createViewCursor(packet)
 
@@ -1019,7 +1018,7 @@ describe('DataReader', () => {
 
   //   const packet = write(network, Engine.instance.userID, peerID, entities)
 
-  //   strictEqual(packet.byteLength, 376)
+  //   assert.strictEqual(packet.byteLength, 376)
   // })
 
   it('should createDataWriter and detect changes', async () => {
@@ -1061,7 +1060,7 @@ describe('DataReader', () => {
 
     let packet = write(network, Engine.instance.store.peerID, entities)
 
-    strictEqual(packet.byteLength, 0)
+    assert.strictEqual(packet.byteLength, 0)
 
     let readView = createViewCursor(packet)
 
@@ -1077,7 +1076,7 @@ describe('DataReader', () => {
 
     packet = write(network, peerID, entities)
 
-    strictEqual(
+    assert.strictEqual(
       packet.byteLength,
       // peer id
       Uint32Array.BYTES_PER_ELEMENT +
@@ -1105,28 +1104,28 @@ describe('DataReader', () => {
     const _simulationTime = readFloat64(readView)
 
     const count = readUint32(readView)
-    strictEqual(count, 1) // only one entity changed
+    assert.strictEqual(count, 1) // only one entity changed
 
     for (let i = 0; i < count; i++) {
       // read networkId
-      strictEqual(readUint32(readView), entities[i])
+      assert.strictEqual(readUint32(readView), entities[i])
 
       // read owner peer index
-      strictEqual(readUint32(readView), peerIndex)
+      assert.strictEqual(readUint32(readView), peerIndex)
 
       // read writeEntity changeMask (only reading TransformComponent)
-      strictEqual(readUint8(readView), 0b01)
+      assert.strictEqual(readUint8(readView), 0b01)
 
       // read writeTransform changeMask
-      strictEqual(readUint8(readView), 0b01) // only position changed
+      assert.strictEqual(readUint8(readView), 0b01) // only position changed
 
       // read writePosition changeMask
-      strictEqual(readUint8(readView), 0b111)
+      assert.strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat64(readView), 1)
-      strictEqual(readFloat64(readView), 1)
-      strictEqual(readFloat64(readView), 1)
+      assert.strictEqual(readFloat64(readView), 1)
+      assert.strictEqual(readFloat64(readView), 1)
+      assert.strictEqual(readFloat64(readView), 1)
 
       // ensure rotation wasn't written and we reached the end of the packet
       assert.throws(() => {

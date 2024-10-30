@@ -24,11 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { render } from '@testing-library/react'
-import assert from 'assert'
 import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
-import { DoneCallback, afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
+import { DoneCallback, afterAll, afterEach, assert, beforeAll, beforeEach, describe, it } from 'vitest'
 
 import { ComponentType, destroyEngine } from '@ir-engine/ecs'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
@@ -93,11 +92,11 @@ describe('PerformanceState', () => {
       renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, '
     })
     const performanceState = getState(PerformanceState)
-    assert(performanceState.max3DTextureSize === 1000)
-    assert(performanceState.maxBufferSize === 54000000000)
-    assert(performanceState.maxIndices === 8000)
-    assert(performanceState.maxTextureSize === 2000)
-    assert(performanceState.maxVerticies === 10000)
+    assert.strictEqual(performanceState.max3DTextureSize, 1000)
+    assert.strictEqual(performanceState.maxBufferSize, 54000000000)
+    assert.strictEqual(performanceState.maxIndices, 8000)
+    assert.strictEqual(performanceState.maxTextureSize, 2000)
+    assert.strictEqual(performanceState.maxVerticies, 10000)
   })
 
   it('Increments performance offset', () =>

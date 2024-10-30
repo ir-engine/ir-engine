@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../../patchEngineNode'
 
-import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { inviteCodeLookupPath } from '@ir-engine/common/src/schemas/social/invite-code-lookup.schema'
 import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'

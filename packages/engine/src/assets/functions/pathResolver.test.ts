@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { describe, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import { STATIC_ASSET_REGEX } from './pathResolver'
 
 describe('STATIC_ASSET_REGEX', () => {
@@ -71,7 +70,7 @@ describe('STATIC_ASSET_REGEX', () => {
       'https://example.com/ir-engine/default-project/assets/animations/emotes.glb'
     ]
     negativeCases.forEach((url) => {
-      assert.doesNotMatch(url, STATIC_ASSET_REGEX, `Expected '${url}' to not match STATIC_ASSET_REGEX`)
+      expect(url).toMatch(STATIC_ASSET_REGEX)
     })
   })
 })

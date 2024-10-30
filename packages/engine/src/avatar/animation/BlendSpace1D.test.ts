@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { describe, it } from 'vitest'
+import { assert, describe, it } from 'vitest'
 
 import { addBlendSpace1DNode, updateBlendSpace1D } from './BlendSpace1D'
 
@@ -41,11 +40,11 @@ describe('addBlendSpace1DNode', () => {
 
     addBlendSpace1DNode(bs1d, action as any, position, data)
 
-    assert(bs1d.nodes.length === 1)
-    assert(bs1d.nodes[0].action === action)
-    assert(bs1d.nodes[0].weight === 0)
-    assert(bs1d.nodes[0].position === position)
-    assert(bs1d.nodes[0].data === data)
+    assert.strictEqual(bs1d.nodes.length, 1)
+    assert.strictEqual(bs1d.nodes[0].action, action)
+    assert.strictEqual(bs1d.nodes[0].weight, 0)
+    assert.strictEqual(bs1d.nodes[0].position, position)
+    assert.strictEqual(bs1d.nodes[0].data, data)
   })
 
   it('Will sort nodes', () => {

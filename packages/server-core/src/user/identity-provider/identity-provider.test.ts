@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../../patchEngineNode'
 
-import assert from 'assert'
+import { rejects as assertRejects } from 'assert' /** @todo Replace with vitest assert. How? */
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -40,7 +40,7 @@ describe('identity-provider.test', () => {
   let userId: UserID
   let accessToken: string
   let app: Application
-  let providers: IdentityProviderType[] = []
+  const providers: IdentityProviderType[] = []
 
   beforeAll(async () => {
     app = await createFeathersKoaApp()
@@ -147,7 +147,7 @@ describe('identity-provider.test', () => {
   })
 
   it('should not be able to remove identity providers by user id', async () => {
-    await assert.rejects(
+    await assertRejects(
       async () =>
         await app.service(identityProviderPath).remove(null, {
           query: {
@@ -202,7 +202,7 @@ describe('identity-provider.test', () => {
     })
 
     console.log('foundIdentityProvider', foundIdentityProvider)
-    await assert.rejects(
+    await assertRejects(
       async () =>
         await app.service(identityProviderPath).remove(foundIdentityProvider.id, {
           provider: 'rest',
@@ -224,7 +224,7 @@ describe('identity-provider.test', () => {
     const type = 'guest'
     const token = uuidv4()
 
-    await assert.rejects(
+    await assertRejects(
       async () =>
         await app.service(identityProviderPath).create({
           type,
@@ -250,7 +250,7 @@ describe('identity-provider.test', () => {
       {}
     )
 
-    await assert.rejects(
+    await assertRejects(
       async () =>
         await app.service(identityProviderPath).create(
           {
@@ -279,7 +279,6 @@ describe('identity-provider.test', () => {
   it('should not be able to make a guest identity provider on an existing user', async () => {
     const type = 'guest'
     const token = uuidv4()
-    let userId2
 
     const foundIdentityProvider = await app.service(identityProviderPath).create(
       {
@@ -290,9 +289,9 @@ describe('identity-provider.test', () => {
       {}
     )
 
-    userId2 = foundIdentityProvider.userId
+    const userId2 = foundIdentityProvider.userId
 
-    await assert.rejects(
+    await assertRejects(
       async () =>
         await app.service(identityProviderPath).create(
           {

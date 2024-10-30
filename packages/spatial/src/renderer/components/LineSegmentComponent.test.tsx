@@ -24,10 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
-import { afterEach, beforeEach, describe, DoneCallback, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, DoneCallback, it } from 'vitest'
 
 import {
   BoxGeometry,

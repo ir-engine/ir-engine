@@ -26,11 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import '@hookstate/core'
 
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
 import { AmbientLight, DirectionalLight } from 'three'
-import { afterEach, beforeEach, describe, DoneCallback, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, DoneCallback, it } from 'vitest'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'

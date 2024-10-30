@@ -27,8 +27,8 @@ import '../patchEngineNode'
 
 import { NotFound } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
-import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { rejects as assertRejects } from 'assert' /** @todo Replace with vitest assert. How? */
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -86,7 +86,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    await assert.rejects(async () => await verifyLocationReadScope(hookContext), NotFound)
+    await assertRejects(async () => await verifyLocationReadScope(hookContext), NotFound)
 
     // cleanup
     await app.service(userPath).remove(user.id!)

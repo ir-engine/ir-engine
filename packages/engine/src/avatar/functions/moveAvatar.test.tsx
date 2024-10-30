@@ -24,10 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, render } from '@testing-library/react'
-import { strictEqual } from 'assert'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -104,8 +103,8 @@ describe('moveAvatar function tests', () => {
     avatar.gamepadWorldMovement.setZ(-1)
 
     // velocity starts at 0
-    strictEqual(velocity.x, 0)
-    strictEqual(velocity.z, 0)
+    assert.strictEqual(velocity.x, 0)
+    assert.strictEqual(velocity.z, 0)
 
     /* run */
     applyGamepadInput(entity)
@@ -142,8 +141,8 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
-    strictEqual(velocity.x, 0)
-    strictEqual(velocity.z, 0)
+    assert.strictEqual(velocity.x, 0)
+    assert.strictEqual(velocity.z, 0)
 
     /* run */
     applyGamepadInput(entity)
@@ -185,8 +184,8 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
-    strictEqual(velocity.x, 0)
-    strictEqual(velocity.z, 0)
+    assert.strictEqual(velocity.x, 0)
+    assert.strictEqual(velocity.z, 0)
 
     /* run */
     applyGamepadInput(entity)
@@ -225,8 +224,8 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
-    strictEqual(velocity.x, 0)
-    strictEqual(velocity.z, 0)
+    assert.strictEqual(velocity.x, 0)
+    assert.strictEqual(velocity.z, 0)
 
     /* run */
     applyGamepadInput(entity)

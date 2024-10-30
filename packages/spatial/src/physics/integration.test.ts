@@ -39,9 +39,8 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import assert from 'assert'
 import { BoxGeometry, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../common/NameComponent'
 import { Axis, Vector3_Zero } from '../common/constants/MathConstants'
@@ -239,7 +238,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
       for (let id = 0; id < childrenCount; ++id) {
         children.push(createEntity())
-        let entity = children[id]
+        const entity = children[id]
         setComponent(entity, NameComponent, 'childEntity-' + id)
         setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? testEntity : children[id - 1] })
         setComponent(entity, TransformComponent)

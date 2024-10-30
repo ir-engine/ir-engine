@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -110,14 +109,14 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     assert(!hasComponent(item, GrabberComponent))
 
-    strictEqual(equippableTransform.position.x, position.x)
-    strictEqual(equippableTransform.position.y, position.y)
-    strictEqual(equippableTransform.position.z, position.z)
+    assert.strictEqual(equippableTransform.position.x, position.x)
+    assert.strictEqual(equippableTransform.position.y, position.y)
+    assert.strictEqual(equippableTransform.position.z, position.z)
 
-    strictEqual(equippableTransform.rotation.x, rotation.x)
-    strictEqual(equippableTransform.rotation.y, rotation.y)
-    strictEqual(equippableTransform.rotation.z, rotation.z)
-    strictEqual(equippableTransform.rotation.w, rotation.w)
+    assert.strictEqual(equippableTransform.rotation.x, rotation.x)
+    assert.strictEqual(equippableTransform.rotation.y, rotation.y)
+    assert.strictEqual(equippableTransform.rotation.z, rotation.z)
+    assert.strictEqual(equippableTransform.rotation.w, rotation.w)
 
     removeComponent(item, GrabbedComponent)
     equippableSystem()

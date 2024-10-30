@@ -27,10 +27,9 @@ import '../../patchEngineNode'
 
 import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
-import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
@@ -106,7 +105,7 @@ describe('route.test', () => {
     const route = installedRoutes.find((route) => route.project === testProject)
 
     assert.ok(route)
-    assert.equal(route.project, testProject)
+    assert.equal(route!.project, testProject)
   })
 
   it('should not be activated by default (the installed project)', async () => {

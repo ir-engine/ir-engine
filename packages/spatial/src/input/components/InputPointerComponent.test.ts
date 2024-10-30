@@ -35,11 +35,11 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getState, startReactor } from '@ir-engine/hyperflux'
-import assert from 'assert'
 import { useEffect } from 'react'
 import sinon from 'sinon'
 import { Vector2 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { CameraPointerHash, InputPointerComponent, InputPointerState } from './InputPointerComponent'
 
 const InputPointerComponentDefaults = {
@@ -233,7 +233,7 @@ describe('InputPointerComponent', () => {
       setComponent(testEntity, InputPointerComponent, Expected)
       // Run and Check after
       const after = InputPointerComponent.getPointersForCamera(Expected.cameraEntity)
-      assert.equal(after, testEntity)
+      assertArrayEqual(after, [testEntity])
     })
   }) // << getPointersForCamera
 

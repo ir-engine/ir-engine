@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
+import { DoneCallback, afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'

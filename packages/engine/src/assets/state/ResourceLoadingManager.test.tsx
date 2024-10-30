@@ -24,9 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import assert from 'assert'
 import { Cache, LoadingManager } from 'three'
-import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
+import { DoneCallback, afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'

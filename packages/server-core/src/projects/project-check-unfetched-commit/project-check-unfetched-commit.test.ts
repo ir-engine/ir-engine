@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../../patchEngineNode'
 
-import assert from 'assert'
 import nock from 'nock'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { projectCheckUnfetchedCommitPath } from '@ir-engine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'

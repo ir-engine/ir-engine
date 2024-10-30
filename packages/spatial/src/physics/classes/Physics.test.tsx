@@ -24,10 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { RigidBodyType, ShapeType, TempContactForceEvent, Vector, World } from '@dimforge/rapier3d-compat'
-import assert from 'assert'
 import sinon from 'sinon'
 import { BoxGeometry, Mesh, Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import {
   getComponent,
@@ -971,13 +970,13 @@ describe('Physics : Rapier->ECS API', () => {
         const testImpulse = new Vector3(1, 2, 3)
         const beforeBody = physicsWorld.Rigidbodies.get(testEntity)
         assert.ok(beforeBody)
-        const before = beforeBody.linvel()
+        const before = beforeBody!.linvel()
         assertVecApproxEq(before, Vector3_Zero, 3)
         Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
         physicsSystemExecute()
         const afterBody = physicsWorld.Rigidbodies.get(testEntity)
         assert.ok(afterBody)
-        const after = afterBody.linvel()
+        const after = afterBody!.linvel()
         assertVecAllApproxNotEq(after, before, 3)
       })
     })
@@ -1982,7 +1981,7 @@ describe('Physics : Rapier->ECS API', () => {
         const expected = physicsWorld.Colliders.get(testEntity)
         assert.ok(result)
         assert.ok(expected)
-        assert.deepEqual(result.handle, expected.handle)
+        assert.deepEqual(result.handle, expected!.handle)
       })
     })
 
@@ -2085,13 +2084,13 @@ describe('Physics : Rapier->ECS API', () => {
         Physics.createCharacterController(physicsWorld, testEntity, {})
         const controller = physicsWorld.Controllers.get(testEntity)
         assert.ok(controller)
-        assertFloatApproxEq(controller.offset(), Default.offset)
-        assertFloatApproxEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
-        assertFloatApproxEq(controller.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
-        assertFloatApproxEq(controller.autostepMaxHeight()!, Default.autoStep.maxHeight)
-        assertFloatApproxEq(controller.autostepMinWidth()!, Default.autoStep.minWidth)
-        assert.equal(controller.autostepEnabled(), Default.autoStep.stepOverDynamic)
-        assert.equal(controller.snapToGroundEnabled(), !!Default.enableSnapToGround)
+        assertFloatApproxEq(controller!.offset(), Default.offset)
+        assertFloatApproxEq(controller!.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
+        assertFloatApproxEq(controller!.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
+        assertFloatApproxEq(controller!.autostepMaxHeight()!, Default.autoStep.maxHeight)
+        assertFloatApproxEq(controller!.autostepMinWidth()!, Default.autoStep.minWidth)
+        assert.equal(controller!.autostepEnabled(), Default.autoStep.stepOverDynamic)
+        assert.equal(controller!.snapToGroundEnabled(), !!Default.enableSnapToGround)
       })
 
       it('should create a the character controller with values different than the defaults when they are specified', () => {
@@ -2106,21 +2105,21 @@ describe('Physics : Rapier->ECS API', () => {
         const controller = physicsWorld.Controllers.get(testEntity)
         assert.ok(controller)
         // Compare against the specified values
-        assertFloatApproxEq(controller.offset(), Expected.offset)
-        assertFloatApproxEq(controller.maxSlopeClimbAngle(), Expected.maxSlopeClimbAngle)
-        assertFloatApproxEq(controller.minSlopeSlideAngle(), Expected.minSlopeSlideAngle)
-        assertFloatApproxEq(controller.autostepMaxHeight()!, Expected.autoStep.maxHeight)
-        assertFloatApproxEq(controller.autostepMinWidth()!, Expected.autoStep.minWidth)
-        assert.equal(controller.autostepIncludesDynamicBodies(), Expected.autoStep.stepOverDynamic)
-        assert.equal(controller.snapToGroundEnabled(), !!Expected.enableSnapToGround)
+        assertFloatApproxEq(controller!.offset(), Expected.offset)
+        assertFloatApproxEq(controller!.maxSlopeClimbAngle(), Expected.maxSlopeClimbAngle)
+        assertFloatApproxEq(controller!.minSlopeSlideAngle(), Expected.minSlopeSlideAngle)
+        assertFloatApproxEq(controller!.autostepMaxHeight()!, Expected.autoStep.maxHeight)
+        assertFloatApproxEq(controller!.autostepMinWidth()!, Expected.autoStep.minWidth)
+        assert.equal(controller!.autostepIncludesDynamicBodies(), Expected.autoStep.stepOverDynamic)
+        assert.equal(controller!.snapToGroundEnabled(), !!Expected.enableSnapToGround)
         // Compare against the defaults
-        assertFloatApproxNotEq(controller.offset(), Default.offset)
-        assertFloatApproxNotEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
-        assertFloatApproxNotEq(controller.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
-        assertFloatApproxNotEq(controller.autostepMaxHeight()!, Default.autoStep.maxHeight)
-        assertFloatApproxNotEq(controller.autostepMinWidth()!, Default.autoStep.minWidth)
-        assert.notEqual(controller.autostepIncludesDynamicBodies(), Default.autoStep.stepOverDynamic)
-        assert.notEqual(controller.snapToGroundEnabled(), !!Default.enableSnapToGround)
+        assertFloatApproxNotEq(controller!.offset(), Default.offset)
+        assertFloatApproxNotEq(controller!.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
+        assertFloatApproxNotEq(controller!.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
+        assertFloatApproxNotEq(controller!.autostepMaxHeight()!, Default.autoStep.maxHeight)
+        assertFloatApproxNotEq(controller!.autostepMinWidth()!, Default.autoStep.minWidth)
+        assert.notEqual(controller!.autostepIncludesDynamicBodies(), Default.autoStep.stepOverDynamic)
+        assert.notEqual(controller!.snapToGroundEnabled(), !!Default.enableSnapToGround)
       })
     })
 
@@ -2507,7 +2506,7 @@ describe('Physics : Rapier->ECS API', () => {
         assert.ok(collider2)
 
         assert.ok(!hasComponent(testEntity1, CollisionComponent))
-        event(collider1.handle, InvalidHandle, true)
+        event(collider1!.handle, InvalidHandle, true)
         assert.ok(!hasComponent(testEntity1, CollisionComponent))
 
         assert.ok(!hasComponent(testEntity2, CollisionComponent))
@@ -2527,13 +2526,13 @@ describe('Physics : Rapier->ECS API', () => {
         assert.ok(collider1)
         assert.ok(collider2)
         // Get the parents from the API
-        const colliderParent1 = collider1.parent()
-        const colliderParent2 = collider2.parent()
+        const colliderParent1 = collider1!.parent()
+        const colliderParent2 = collider2!.parent()
         assert.ok(colliderParent1)
         assert.ok(colliderParent2)
         // Get the entities from parent.userData
-        const entity1 = (colliderParent1.userData as any)['entity']
-        const entity2 = (colliderParent2.userData as any)['entity']
+        const entity1 = (colliderParent1!.userData as any)['entity']
+        const entity2 = (colliderParent2!.userData as any)['entity']
         assert.equal(testEntity1, entity1)
         assert.equal(testEntity2, entity2)
         // Check before
@@ -2541,7 +2540,7 @@ describe('Physics : Rapier->ECS API', () => {
         assert.equal(hasComponent(entity2, CollisionComponent), false)
 
         // Run and Check after
-        event(collider1.handle, collider2.handle, true)
+        event(collider1!.handle, collider2!.handle, true)
         assert.equal(hasComponent(entity1, CollisionComponent), true)
         assert.equal(hasComponent(entity2, CollisionComponent), true)
       })
@@ -2566,13 +2565,13 @@ describe('Physics : Rapier->ECS API', () => {
           // setComponent(testEntity1, TriggerComponent)  // DONT set the trigger component (testEntity1.body.isSensor() is false)
 
           // Run and Check after
-          event(collider1.handle, collider2.handle, Started)
+          event(collider1!.handle, collider2!.handle, Started)
           const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
           const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
           assert.ok(after1)
           assert.ok(after2)
-          assert.equal(after1.type, CollisionEvents.COLLISION_START)
-          assert.equal(after2.type, CollisionEvents.COLLISION_START)
+          assert.equal(after1!.type, CollisionEvents.COLLISION_START)
+          assert.equal(after2!.type, CollisionEvents.COLLISION_START)
         })
 
         it('... should create a CollisionEvents.TRIGGER_START when either one of the colliders is a sensor (aka has a TriggerComponent)', async () => {
@@ -2597,15 +2596,15 @@ describe('Physics : Rapier->ECS API', () => {
           setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
           await act(() => rerender(<></>))
 
-          event(collider1.handle, collider2.handle, Started)
+          event(collider1!.handle, collider2!.handle, Started)
 
           // Run and Check after
           const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
           const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
           assert.ok(after1)
           assert.ok(after2)
-          assert.equal(after1.type, CollisionEvents.TRIGGER_START)
-          assert.equal(after2.type, CollisionEvents.TRIGGER_START)
+          assert.equal(after1!.type, CollisionEvents.TRIGGER_START)
+          assert.equal(after2!.type, CollisionEvents.TRIGGER_START)
         })
 
         it('... should set entity2 in the CollisionComponent of entity1, and entity1 in the CollisionComponent of entity2', () => {
@@ -2624,7 +2623,7 @@ describe('Physics : Rapier->ECS API', () => {
           assert.equal(before2, undefined)
 
           // Run and Check after
-          event(collider1.handle, collider2.handle, true)
+          event(collider1!.handle, collider2!.handle, true)
           const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
           const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
           assert.ok(after1)
@@ -2656,14 +2655,14 @@ describe('Physics : Rapier->ECS API', () => {
           await act(() => rerender(<></>))
 
           // Run and Check after
-          event(collider1.handle, collider2.handle, true) // Run the even twice, so that the entities get each other in their collision components
-          event(collider1.handle, collider2.handle, Started)
+          event(collider1!.handle, collider2!.handle, true) // Run the even twice, so that the entities get each other in their collision components
+          event(collider1!.handle, collider2!.handle, Started)
           const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
           const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
           assert.ok(after1)
           assert.ok(after2)
-          assert.equal(after1.type, CollisionEvents.TRIGGER_END)
-          assert.equal(after2.type, CollisionEvents.TRIGGER_END)
+          assert.equal(after1!.type, CollisionEvents.TRIGGER_END)
+          assert.equal(after2!.type, CollisionEvents.TRIGGER_END)
         })
 
         it('... should create a CollisionEvents.COLLISION_END when neither of the colliders is a sensor', () => {
@@ -2685,14 +2684,14 @@ describe('Physics : Rapier->ECS API', () => {
           // setComponent(testEntity1, TriggerComponent)  // DONT set the trigger component (testEntity1.body.isSensor() is false)
 
           // Run and Check after
-          event(collider1.handle, collider2.handle, true) // Run the even twice, so that the entities get each other in their collision components
-          event(collider1.handle, collider2.handle, Started)
+          event(collider1!.handle, collider2!.handle, true) // Run the even twice, so that the entities get each other in their collision components
+          event(collider1!.handle, collider2!.handle, Started)
           const after1 = getComponent(testEntity1, CollisionComponent).get(testEntity2)
           const after2 = getComponent(testEntity2, CollisionComponent).get(testEntity1)
           assert.ok(after1)
           assert.ok(after2)
-          assert.equal(after1.type, CollisionEvents.COLLISION_END)
-          assert.equal(after2.type, CollisionEvents.COLLISION_END)
+          assert.equal(after1!.type, CollisionEvents.COLLISION_END)
+          assert.equal(after2!.type, CollisionEvents.COLLISION_END)
         })
       })
     }) // << drainCollisionEventQueue

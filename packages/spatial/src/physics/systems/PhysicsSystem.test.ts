@@ -39,9 +39,8 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import assert from 'assert'
 import { Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
@@ -113,14 +112,14 @@ describe('PhysicsSystem', () => {
       // Sanity check before running
       const beforeBody = physicsWorld.Rigidbodies.get(testEntity)
       assert.ok(beforeBody)
-      const before = beforeBody.linvel()
+      const before = beforeBody!.linvel()
       assertVecApproxEq(before, Vector3_Zero, 3)
       // Run and Check after
       Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
       physicsSystemExecute()
       const afterBody = physicsWorld.Rigidbodies.get(testEntity)
       assert.ok(afterBody)
-      const after = afterBody.linvel()
+      const after = afterBody!.linvel()
       assertVecAllApproxNotEq(after, before, 3)
     })
 

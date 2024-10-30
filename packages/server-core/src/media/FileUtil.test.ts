@@ -25,10 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../patchEngineNode'
 
-import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 

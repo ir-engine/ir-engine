@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 import '@hookstate/core' // required for hookstate to override react properly work - see https://github.com/avkonst/hookstate/issues/412
 
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { createHyperStore, disposeStore, hookstate, ReactorReconciler, startReactor, useHookstate } from '..'
 

@@ -34,8 +34,7 @@ import {
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { setVisibleComponent, VisibleComponent } from './VisibleComponent'
 
 const VisibleComponentDefault = true

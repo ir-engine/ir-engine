@@ -24,9 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { render } from '@testing-library/react'
-import assert from 'assert'
 import React, { useEffect } from 'react'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { EntityUUID, hasComponents, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -1026,9 +1025,9 @@ describe('useAncestorWithComponents', () => {
   // test for closest = false (furthst)
   it('returns the further ancestor entity', async () => {
     // Initialize with dummy data for the test
-    let rootEntity = createEntity()
-    let child_1 = createEntity()
-    let child_2 = createEntity()
+    const rootEntity = createEntity()
+    const child_1 = createEntity()
+    const child_2 = createEntity()
     let result = UndefinedEntity
 
     setComponent(rootEntity, EntityTreeComponent)
@@ -1064,9 +1063,9 @@ describe('useAncestorWithComponents', () => {
 
   // test for includeSelf = false
   it('returns the closest ancestor entity excluding self', async () => {
-    let rootEntity = createEntity()
-    let child_1 = createEntity()
-    let child_2 = createEntity()
+    const rootEntity = createEntity()
+    const child_1 = createEntity()
+    const child_2 = createEntity()
     let result = UndefinedEntity
 
     setComponent(rootEntity, EntityTreeComponent)

@@ -24,8 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import './patchEngineNode'
 
-import assert from 'assert'
-import { afterAll, describe, it } from 'vitest'
+import { afterAll, assert, describe, it } from 'vitest'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 

@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../../patchEngineNode'
 
-import assert from 'assert'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
+import { rejects as assertRejects } from 'assert' /** @todo Replace with vitest assert. How? */
+import { afterAll, afterEach, assert, beforeAll, beforeEach, describe, it } from 'vitest'
 
 import { fileBrowserPath } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -163,9 +163,9 @@ describe('file-browser.test', () => {
       const foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
 
       assert.ok(foundFile)
-      assert.equal(foundFile.name, testFileName)
-      assert.equal(foundFile.size, testFileSize)
-      assert.equal(foundFile.key, testFileFullPath)
+      assert.equal(foundFile!.name, testFileName)
+      assert.equal(foundFile!.size, testFileSize)
+      assert.equal(foundFile!.key, testFileFullPath)
     })
 
     it('updates file with new content', async () => {
@@ -312,7 +312,7 @@ describe('file-browser.test', () => {
 
       const storageProvider = getStorageProvider()
       assert.ok(await storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileName3))
-      await assert.rejects(storageProvider.getObject('projects/' + testProjectName2 + '/public/' + testFileName3))
+      await assertRejects(storageProvider.getObject('projects/' + testProjectName2 + '/public/' + testFileName3))
     })
 
     it('moves directory', async () => {
@@ -391,7 +391,7 @@ describe('file-browser.test', () => {
       assert.ok(removeResult)
 
       const storageProvider = getStorageProvider()
-      await assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileFullName))
+      await assertRejects(storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileFullName))
     })
 
     it('removes directory', async () => {
@@ -399,7 +399,7 @@ describe('file-browser.test', () => {
       assert.ok(removeResult)
 
       const storageProvider = getStorageProvider()
-      await assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/'))
+      await assertRejects(storageProvider.getObject('projects/' + testProjectName + '/public/'))
     })
   })
 })

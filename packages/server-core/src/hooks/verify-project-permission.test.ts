@@ -27,7 +27,10 @@ import '../patchEngineNode'
 
 import { BadRequest, Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
-import assert from 'assert'
+import {
+  doesNotReject as assertDoesNotReject,
+  rejects as assertRejects
+} from 'assert' /** @todo Replace with vitest assert. How? */
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
@@ -70,7 +73,7 @@ describe('verify-project-permission', () => {
   it('should fail if user is not authenticated', async () => {
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, {})
-    await assert.rejects(async () => await verifyPermission(hookContext), NotAuthenticated)
+    await assertRejects(async () => await verifyPermission(hookContext), NotAuthenticated)
   })
 
   it('should fail if project id is missing', async () => {
@@ -83,7 +86,7 @@ describe('verify-project-permission', () => {
     })
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user })
-    await assert.rejects(async () => await verifyPermission(hookContext), BadRequest)
+    await assertRejects(async () => await verifyPermission(hookContext), BadRequest)
     // cleanup
     await app.service(userPath).remove(user.id)
   })
@@ -104,7 +107,7 @@ describe('verify-project-permission', () => {
         projectId: uuidv4()
       }
     })
-    await assert.rejects(async () => await verifyPermission(hookContext), NotFound)
+    await assertRejects(async () => await verifyPermission(hookContext), NotFound)
 
     // cleanup
     await app.service(userPath).remove(user.id)
@@ -149,7 +152,7 @@ describe('verify-project-permission', () => {
 
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user, query: { projectId: project.id } })
-    await assert.rejects(async () => await verifyPermission(hookContext), Forbidden)
+    await assertRejects(async () => await verifyPermission(hookContext), Forbidden)
 
     // cleanup
     await app.service(userPath).remove(user.id)
@@ -178,7 +181,7 @@ describe('verify-project-permission', () => {
 
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { user, query: { projectId: project.id } })
-    await assert.doesNotReject(async () => await verifyPermission(hookContext))
+    await assertDoesNotReject(async () => await verifyPermission(hookContext))
 
     // cleanup
     await app.service(userPath).remove(user.id)
@@ -188,6 +191,6 @@ describe('verify-project-permission', () => {
   it('should verify if isInternal', async () => {
     const verifyPermission = verifyProjectPermission(['owner'])
     const hookContext = mockHookContext(app, { isInternal: true })
-    await assert.doesNotReject(() => verifyPermission(hookContext))
+    await assertDoesNotReject(() => verifyPermission(hookContext))
   })
 })

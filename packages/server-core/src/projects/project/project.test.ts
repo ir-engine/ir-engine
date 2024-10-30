@@ -27,12 +27,12 @@ import '../../patchEngineNode'
 
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
-import assert from 'assert'
+import { rejects as assertRejects } from 'assert' /** @todo Replace with vitest assert. How? */
 import fs from 'fs'
 import nock from 'nock'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
@@ -129,7 +129,7 @@ describe('project.test', () => {
         getParams()
       )
 
-      await assert.rejects(
+      await assertRejects(
         async () =>
           await app.service(projectPath).create(
             {

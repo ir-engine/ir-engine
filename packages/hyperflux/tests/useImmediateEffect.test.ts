@@ -24,8 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { renderHook } from '@testing-library/react'
-import assert from 'assert'
-import { describe, it } from 'vitest'
+import { assert, describe, it } from 'vitest'
 import { useImmediateEffect } from '../src/hooks/useImmediateEffect'
 
 describe('useImmediateEffect', () => {

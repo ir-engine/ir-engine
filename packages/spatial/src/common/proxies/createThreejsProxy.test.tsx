@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { createEntity, defineComponent, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
-import assert from 'assert'
 import { Matrix4 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { Mat4Proxy, Vec3Proxy } from './createThreejsProxy'
 
 describe('createThreejsProxy', () => {
@@ -55,19 +54,19 @@ describe('createThreejsProxy', () => {
     const vec3 = Vec3Proxy(transformComponent.position)
 
     vec3.x = 12
-    assert(vec3.x === 12)
-    assert(transformComponent.position.x === 12)
-    assert(TransformComponent.position.x[entity] === 12)
+    assert.strictEqual(vec3.x, 12)
+    assert.strictEqual(transformComponent.position.x, 12)
+    assert.strictEqual(TransformComponent.position.x[entity], 12)
 
     transformComponent.position.x = 13
-    assert((vec3.x as number) === 13)
-    assert((transformComponent.position.x as number) === 13)
-    assert((TransformComponent.position.x[entity] as number) === 13)
+    assert.strictEqual(vec3.x as number, 13)
+    assert.strictEqual(transformComponent.position.x as number, 13)
+    assert.strictEqual(TransformComponent.position.x[entity] as number, 13)
 
     TransformComponent.position.x[entity] = 14
-    assert((vec3.x as number) === 14)
-    assert((transformComponent.position.x as number) === 14)
-    assert((TransformComponent.position.x[entity] as number) === 14)
+    assert.strictEqual(vec3.x as number, 14)
+    assert.strictEqual(transformComponent.position.x as number, 14)
+    assert.strictEqual(TransformComponent.position.x[entity] as number, 14)
   })
 
   it('Creates a Mat4 proxy', () => {

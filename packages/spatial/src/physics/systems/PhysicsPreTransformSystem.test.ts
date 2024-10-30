@@ -37,9 +37,8 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { assertVecAllApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, iterateEntityNode } from '../../transform/components/EntityTree'

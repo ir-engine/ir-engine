@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { AssetExt, AssetType, FileToAssetExt, FileToAssetType } from './AssetType'
 
 describe('AssetType', () => {
@@ -39,9 +38,9 @@ describe('AssetType', () => {
     const badURl = 'https://localhost:3000/test.'
     const badURl2 = '/path/path/'
 
-    assert(FileToAssetExt(jpg) === AssetExt.JPEG)
-    assert(FileToAssetExt(jpeg) === AssetExt.JPEG)
-    assert(!FileToAssetExt(badURl))
+    assert.strictEqual(FileToAssetExt(jpg), AssetExt.JPEG)
+    assert.strictEqual(FileToAssetExt(jpeg), AssetExt.JPEG)
+    assert.isFalse(FileToAssetExt(badURl))
 
     const exts = Object.values(AssetExt)
 

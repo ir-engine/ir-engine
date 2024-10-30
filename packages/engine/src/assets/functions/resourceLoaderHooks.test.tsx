@@ -24,9 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, render, renderHook } from '@testing-library/react'
-import assert from 'assert'
 import React, { useEffect } from 'react'
-import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
+import { DoneCallback, afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'

@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../../patchEngineNode'
 
-import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { inviteTypes } from '@ir-engine/common/src/schemas/social/invite-type.schema'
 import { invitePath, InviteType } from '@ir-engine/common/src/schemas/social/invite.schema'

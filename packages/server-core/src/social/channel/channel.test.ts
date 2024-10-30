@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import '../../patchEngineNode'
 
 import { Paginated } from '@feathersjs/feathers'
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'

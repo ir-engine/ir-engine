@@ -24,10 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
 import React from 'react'
 import { default as Sinon, default as sinon } from 'sinon'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import {
   ComponentMap,
@@ -115,12 +114,12 @@ describe.skip('visual Script', () => {
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
 
     await waitForConsoleLog(successMessage).then((result) => {
-      assert(result.includes(successMessage))
+      assert.isTrue(result.includes(successMessage))
     })
     SystemDefinitions.get(getOnExecuteSystemUUID())!.execute()
 
     await waitForConsoleLog('tick').then((result) => {
-      assert(result.includes('tick'))
+      assert.isTrue(result.includes('tick'))
     })
   })
 

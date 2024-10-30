@@ -27,8 +27,8 @@ import '../patchEngineNode'
 
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers/lib'
-import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { rejects as assertRejects } from 'assert' /** @todo Replace with vitest assert. How? */
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -71,7 +71,7 @@ describe('resolve-project-id', () => {
   it('should fail if project is not found', async () => {
     const resolveProject = resolveProjectId()
     const hookContext = mockHookContext(app, { project: `Test #${Math.random()}` })
-    await assert.rejects(async () => await resolveProject(hookContext), BadRequest)
+    await assertRejects(async () => await resolveProject(hookContext), BadRequest)
   })
 
   it('should find project id by name', async () => {

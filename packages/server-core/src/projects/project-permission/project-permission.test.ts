@@ -27,9 +27,9 @@ import '../../patchEngineNode'
 
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
-import assert from 'assert'
+import { rejects as assertRejects } from 'assert' /** @todo Replace with vitest assert. How? */
 import path from 'path'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import {
   projectPermissionPath,
@@ -240,7 +240,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
+        await assertRejects(async () => {
           await app.service(projectPermissionPath).create(
             {
               projectId: 'abcdefg',
@@ -260,7 +260,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
+        await assertRejects(async () => {
           await app.service(projectPermissionPath).create(
             {
               projectId: project1.id,
@@ -280,7 +280,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
+        await assertRejects(async () => {
           const res = await app.service(projectPermissionPath).create(
             {
               projectId: project1.id,
@@ -300,7 +300,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
+        await assertRejects(async () => {
           await app.service(projectPermissionPath).create(
             {
               projectId: project1.id,
@@ -388,7 +388,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
+        await assertRejects(async () => {
           await app.service(projectPermissionPath).patch(
             project1Permission2.id,
             {
@@ -413,7 +413,7 @@ describe('project-permission.test', () => {
           },
           paginate: false
         })
-        await assert.rejects(async () => {
+        await assertRejects(async () => {
           await app.service(projectPermissionPath).patch(
             project1Permission2.id,
             {
@@ -434,7 +434,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
+        await assertRejects(async () => {
           await app.service(projectPermissionPath).remove(project1Permission2.id, params)
         }, new Forbidden('Missing required project permission'))
       })
@@ -447,7 +447,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
+        await assertRejects(async () => {
           await app.service(projectPermissionPath).remove(project1Permission2.id, params)
         }, new Forbidden('Project permission not found'))
       })

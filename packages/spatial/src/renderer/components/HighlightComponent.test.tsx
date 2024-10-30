@@ -44,10 +44,9 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
 import React from 'react'
 import { BoxGeometry, MathUtils, Mesh } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { EngineState } from '../../EngineState'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
@@ -167,8 +166,8 @@ describe('HighlightSystem', () => {
       const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
         ?.OutlineEffect.selection
       for (const obj of result!) {
-        assert.notEqual(obj.entity, notQueryEntity1)
-        assert.notEqual(obj.entity, notQueryEntity2)
+        assert.notEqual(obj.entity, notQueryEntity1.id)
+        assert.notEqual(obj.entity, notQueryEntity2.id)
       }
     })
 
@@ -196,8 +195,8 @@ describe('HighlightSystem', () => {
       const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
         ?.OutlineEffect.selection
       for (const obj of result!) {
-        assert.notEqual(obj.entity, notQueryEntity1)
-        assert.notEqual(obj.entity, notQueryEntity2)
+        assert.notEqual(obj.entity, notQueryEntity1.id)
+        assert.notEqual(obj.entity, notQueryEntity2.id)
       }
     })
 
@@ -225,8 +224,8 @@ describe('HighlightSystem', () => {
       const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
         ?.OutlineEffect.selection
       for (const obj of result!) {
-        assert.notEqual(obj.entity, notQueryEntity1)
-        assert.notEqual(obj.entity, notQueryEntity2)
+        assert.notEqual(obj.entity, notQueryEntity1.id)
+        assert.notEqual(obj.entity, notQueryEntity2.id)
       }
     })
   })

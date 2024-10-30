@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../../patchEngineNode'
 
-import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { doesNotReject as assertDoesNotReject } from 'assert' /** @todo Replace with vitest assert. How? */
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
@@ -66,7 +66,7 @@ describe('api job service', () => {
   })
 
   it('gets the job', async () => {
-    await assert.doesNotReject(async () => await app.service(apiJobPath).get(jobId))
+    await assertDoesNotReject(async () => await app.service(apiJobPath).get(jobId))
   })
 
   it('finds multiple jobs', async () => {

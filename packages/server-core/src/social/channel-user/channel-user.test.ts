@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import '../../patchEngineNode'
 
 import { Paginated } from '@feathersjs/feathers'
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { rejects as assertRejects } from 'assert' /** @todo Replace with vitest assert. How? */
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'
@@ -163,7 +163,7 @@ describe('channel-user service', () => {
     assert.equal(channelUser.data[1].userId, user2.id)
     assert.equal(channelUser.data[1].isOwner, false)
 
-    await assert.rejects(
+    await assertRejects(
       async () =>
         await app.service(channelUserPath).remove(null, {
           query: {
@@ -198,7 +198,7 @@ describe('channel-user service', () => {
 
     assert.ok(channel.id)
 
-    await assert.rejects(
+    await assertRejects(
       async () =>
         await app.service(channelUserPath).create(
           {

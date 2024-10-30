@@ -30,8 +30,7 @@ import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.sche
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Application } from '@ir-engine/server-core/declarations'
 import { createFeathersKoaApp, tearDownAPI } from '@ir-engine/server-core/src/createApp'
-import assert from 'assert'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 import {
   createEngineSetting,
   findEngineSetting,

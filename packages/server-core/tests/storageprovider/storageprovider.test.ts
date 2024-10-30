@@ -26,13 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import '../../src/patchEngineNode'
 
 import approot from 'app-root-path'
-import assert from 'assert'
 import fs from 'fs-extra'
 import https from 'https'
 import fetch from 'node-fetch'
 import path from 'path/posix'
 import { v4 as uuidv4 } from 'uuid'
-import { afterAll, beforeAll, describe, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, it } from 'vitest'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 

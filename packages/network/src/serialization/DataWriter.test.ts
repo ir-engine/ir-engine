@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -91,12 +90,12 @@ describe('DataWriter', () => {
 
     const testView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
+    assert.strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
-    strictEqual(readUint8(testView), 0b111)
-    strictEqual(readFloat64(testView), x)
-    strictEqual(readFloat64(testView), y)
-    strictEqual(readFloat64(testView), z)
+    assert.strictEqual(readUint8(testView), 0b111)
+    assert.strictEqual(readFloat64(testView), x)
+    assert.strictEqual(readFloat64(testView), y)
+    assert.strictEqual(readFloat64(testView), z)
 
     sliceViewCursor(writeView)
 
@@ -107,11 +106,11 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float64Array.BYTES_PER_ELEMENT)
+    assert.strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float64Array.BYTES_PER_ELEMENT)
 
-    strictEqual(readUint8(readView), 0b101)
-    strictEqual(readFloat64(readView), x + 1)
-    strictEqual(readFloat64(readView), z + 1)
+    assert.strictEqual(readUint8(readView), 0b101)
+    assert.strictEqual(readFloat64(readView), x + 1)
+    assert.strictEqual(readFloat64(readView), z + 1)
   })
 
   it('should writeVector3', () => {
@@ -127,12 +126,12 @@ describe('DataWriter', () => {
 
     const testView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
+    assert.strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
-    strictEqual(readUint8(testView), 0b111)
-    strictEqual(readFloat64(testView), x)
-    strictEqual(readFloat64(testView), y)
-    strictEqual(readFloat64(testView), z)
+    assert.strictEqual(readUint8(testView), 0b111)
+    assert.strictEqual(readFloat64(testView), x)
+    assert.strictEqual(readFloat64(testView), y)
+    assert.strictEqual(readFloat64(testView), z)
 
     sliceViewCursor(writeView)
 
@@ -143,11 +142,11 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float64Array.BYTES_PER_ELEMENT)
+    assert.strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 2 * Float64Array.BYTES_PER_ELEMENT)
 
-    strictEqual(readUint8(readView), 0b101)
-    strictEqual(readFloat64(readView), x + 1)
-    strictEqual(readFloat64(readView), z + 1)
+    assert.strictEqual(readUint8(readView), 0b101)
+    assert.strictEqual(readFloat64(readView), x + 1)
+    assert.strictEqual(readFloat64(readView), z + 1)
   })
 
   it('should writePosition', () => {
@@ -163,12 +162,12 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
+    assert.strictEqual(writeView.cursor, 1 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT)
 
-    strictEqual(readUint8(readView), 0b111)
-    strictEqual(readFloat64(readView), x)
-    strictEqual(readFloat64(readView), y)
-    strictEqual(readFloat64(readView), z)
+    assert.strictEqual(readUint8(readView), 0b111)
+    assert.strictEqual(readFloat64(readView), x)
+    assert.strictEqual(readFloat64(readView), y)
+    assert.strictEqual(readFloat64(readView), z)
   })
 
   it('should writeCompressedRotation', () => {
@@ -191,13 +190,13 @@ describe('DataWriter', () => {
     const readView = createViewCursor(writeView.buffer)
     readCompressedRotation(TransformComponent.rotation)(readView, entity)
 
-    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
+    assert.strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
   })
 
   it('should writeCompressedVector3', () => {
@@ -215,12 +214,12 @@ describe('DataWriter', () => {
     const readView = createViewCursor(writeView.buffer)
     readCompressedVector3(RigidBodyComponent.linearVelocity)(readView, entity)
 
-    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
+    assert.strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values and compare
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.y[entity], 1), roundNumberToPlaces(y, 1))
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.z[entity], 1), roundNumberToPlaces(z, 1))
+    assert.strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
+    assert.strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.y[entity], 1), roundNumberToPlaces(y, 1))
+    assert.strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.z[entity], 1), roundNumberToPlaces(z, 1))
   })
 
   it('should writeTransform', () => {
@@ -244,26 +243,26 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(
+    assert.strictEqual(
       writeView.cursor,
       3 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 4 * Float64Array.BYTES_PER_ELEMENT
     )
 
-    strictEqual(readUint8(readView), 0b11)
+    assert.strictEqual(readUint8(readView), 0b11)
 
-    strictEqual(readUint8(readView), 0b111)
+    assert.strictEqual(readUint8(readView), 0b111)
 
-    strictEqual(readFloat64(readView), posX)
-    strictEqual(readFloat64(readView), posY)
-    strictEqual(readFloat64(readView), posZ)
+    assert.strictEqual(readFloat64(readView), posX)
+    assert.strictEqual(readFloat64(readView), posY)
+    assert.strictEqual(readFloat64(readView), posZ)
 
     readRotation(readView, entity)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   })
 
   // it('should writeXRHands', () => {
@@ -317,7 +316,7 @@ describe('DataWriter', () => {
   //   // 2 - changeMask (uint8) for pos and rot of each joint
   //   const numOfHands = hands.length
   //   const numOfJoints = joints.length
-  //   strictEqual(
+  //   assert.strictEqual(
   //     writeView.cursor,
   //     1 * Uint16Array.BYTES_PER_ELEMENT +
   //       (1 * Uint16Array.BYTES_PER_ELEMENT +
@@ -328,33 +327,33 @@ describe('DataWriter', () => {
   //         numOfHands
   //   )
 
-  //   strictEqual(readUint16(readView), 0b11)
+  //   assert.strictEqual(readUint16(readView), 0b11)
 
   //   hands.forEach((hand) => {
   //     const handedness = hand.userData.handedness
   //     const handednessBitValue = handedness === 'left' ? 0 : 1
 
   //     readUint16(readView)
-  //     // strictEqual(readUint16(readView), 0b111111)
-  //     strictEqual(readUint8(readView), handednessBitValue)
+  //     // assert.strictEqual(readUint16(readView), 0b111111)
+  //     assert.strictEqual(readUint8(readView), handednessBitValue)
 
   //     XRHandBones.forEach((bone) => {
   //       readUint16(readView)
-  //       // strictEqual(readUint16(readView), 0b11)
+  //       // assert.strictEqual(readUint16(readView), 0b11)
 
   //       bone.forEach((joint) => {
-  //         strictEqual(readUint8(readView), 0b111)
-  //         strictEqual(readFloat64(readView), posX)
-  //         strictEqual(readFloat64(readView), posY)
-  //         strictEqual(readFloat64(readView), posZ)
+  //         assert.strictEqual(readUint8(readView), 0b111)
+  //         assert.strictEqual(readFloat64(readView), posX)
+  //         assert.strictEqual(readFloat64(readView), posY)
+  //         assert.strictEqual(readFloat64(readView), posZ)
 
   //         readRotation(readView, entity)
 
   //         // Round values to 3 decimal places and compare
-  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+  //         assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+  //         assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+  //         assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+  //         assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   //       })
   //     })
   //   })
@@ -394,7 +393,7 @@ describe('DataWriter', () => {
 
     const readView = createViewCursor(writeView.buffer)
 
-    strictEqual(
+    assert.strictEqual(
       writeView.cursor,
       2 * Uint32Array.BYTES_PER_ELEMENT +
         4 * Uint8Array.BYTES_PER_ELEMENT +
@@ -403,33 +402,33 @@ describe('DataWriter', () => {
     )
 
     // read networkId
-    strictEqual(readUint32(readView), networkId)
+    assert.strictEqual(readUint32(readView), networkId)
 
     // read owner index
-    strictEqual(readUint32(readView), ownerIndex)
+    assert.strictEqual(readUint32(readView), ownerIndex)
 
     // read writeEntity changeMask (only reading TransformComponent)
-    strictEqual(readUint8(readView), 0b01)
+    assert.strictEqual(readUint8(readView), 0b01)
 
     // read writeTransform changeMask
-    strictEqual(readUint8(readView), 0b11)
+    assert.strictEqual(readUint8(readView), 0b11)
 
     // read writePosition changeMask
-    strictEqual(readUint8(readView), 0b111)
+    assert.strictEqual(readUint8(readView), 0b111)
 
     // read position values
-    strictEqual(readFloat64(readView), posX)
-    strictEqual(readFloat64(readView), posY)
-    strictEqual(readFloat64(readView), posZ)
+    assert.strictEqual(readFloat64(readView), posX)
+    assert.strictEqual(readFloat64(readView), posY)
+    assert.strictEqual(readFloat64(readView), posZ)
 
     // read rotation values
     readRotation(readView, entity)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    assert.strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   })
 
   it('should writeEntities', () => {
@@ -485,43 +484,55 @@ describe('DataWriter', () => {
           3 * Float64Array.BYTES_PER_ELEMENT +
           4 * Float64Array.BYTES_PER_ELEMENT)
 
-    strictEqual(writeView.cursor, 0)
-    strictEqual(packet.byteLength, expectedBytes)
+    assert.strictEqual(writeView.cursor, 0)
+    assert.strictEqual(packet.byteLength, expectedBytes)
 
     const readView = createViewCursor(writeView.buffer)
 
     const count = readUint32(readView)
-    strictEqual(count, entities.length)
+    assert.strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
       // read networkId
-      strictEqual(readUint32(readView), entities[i])
+      assert.strictEqual(readUint32(readView), entities[i])
 
       // read owner index
-      strictEqual(readUint32(readView), peerIndex)
+      assert.strictEqual(readUint32(readView), peerIndex)
 
       // read writeEntity changeMask (only reading TransformComponent)
-      strictEqual(readUint8(readView), 0b01)
+      assert.strictEqual(readUint8(readView), 0b01)
 
       // read writeTransform changeMask
-      strictEqual(readUint8(readView), 0b11)
+      assert.strictEqual(readUint8(readView), 0b11)
 
       // read writePosition changeMask
-      strictEqual(readUint8(readView), 0b111)
+      assert.strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat64(readView), posX)
-      strictEqual(readFloat64(readView), posY)
-      strictEqual(readFloat64(readView), posZ)
+      assert.strictEqual(readFloat64(readView), posX)
+      assert.strictEqual(readFloat64(readView), posY)
+      assert.strictEqual(readFloat64(readView), posZ)
 
       // read rotation values
       readRotation(readView, entities[i])
 
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
+      assert.strictEqual(
+        roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3),
+        roundNumberToPlaces(rotX, 3)
+      )
+      assert.strictEqual(
+        roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3),
+        roundNumberToPlaces(rotY, 3)
+      )
+      assert.strictEqual(
+        roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3),
+        roundNumberToPlaces(rotZ, 3)
+      )
+      assert.strictEqual(
+        roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3),
+        roundNumberToPlaces(rotW, 3)
+      )
     }
   })
 
@@ -581,7 +592,7 @@ describe('DataWriter', () => {
           3 * Float64Array.BYTES_PER_ELEMENT +
           4 * Float64Array.BYTES_PER_ELEMENT)
 
-    strictEqual(packet.byteLength, expectedBytes)
+    assert.strictEqual(packet.byteLength, expectedBytes)
 
     const readView = createViewCursor(packet)
 
@@ -589,37 +600,49 @@ describe('DataWriter', () => {
     const _tick = readFloat64(readView)
 
     const count = readUint32(readView)
-    strictEqual(count, entities.length)
+    assert.strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
       // read networkId
-      strictEqual(readUint32(readView), entities[i])
+      assert.strictEqual(readUint32(readView), entities[i])
 
       // read owner index
-      strictEqual(readUint32(readView), peerIndex)
+      assert.strictEqual(readUint32(readView), peerIndex)
 
       // read writeEntity changeMask (only reading TransformComponent)
-      strictEqual(readUint8(readView), 0b01)
+      assert.strictEqual(readUint8(readView), 0b01)
 
       // read writeTransform changeMask
-      strictEqual(readUint8(readView), 0b11)
+      assert.strictEqual(readUint8(readView), 0b11)
 
       // read writePosition changeMask
-      strictEqual(readUint8(readView), 0b111)
+      assert.strictEqual(readUint8(readView), 0b111)
 
       // read position values
-      strictEqual(readFloat64(readView), posX)
-      strictEqual(readFloat64(readView), posY)
-      strictEqual(readFloat64(readView), posZ)
+      assert.strictEqual(readFloat64(readView), posX)
+      assert.strictEqual(readFloat64(readView), posY)
+      assert.strictEqual(readFloat64(readView), posZ)
 
       // read rotation values
       readRotation(readView, entities[i])
 
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
+      assert.strictEqual(
+        roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3),
+        roundNumberToPlaces(rotX, 3)
+      )
+      assert.strictEqual(
+        roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3),
+        roundNumberToPlaces(rotY, 3)
+      )
+      assert.strictEqual(
+        roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3),
+        roundNumberToPlaces(rotZ, 3)
+      )
+      assert.strictEqual(
+        roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3),
+        roundNumberToPlaces(rotW, 3)
+      )
     }
   })
 })

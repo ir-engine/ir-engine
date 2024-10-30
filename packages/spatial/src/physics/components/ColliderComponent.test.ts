@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import {
   Entity,
@@ -275,14 +274,14 @@ describe('ColliderComponent', () => {
         assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
         const beforeCollider = physicsWorld.Colliders.get(testEntity)
         assert.ok(beforeCollider)
-        const before = beforeCollider.shape
+        const before = beforeCollider!.shape
         assert.equal(getComponent(testEntity, ColliderComponent).shape, ColliderComponentDefaults.shape)
 
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
         assert.notEqual(getComponent(testEntity, ColliderComponent).shape, ColliderComponentDefaults.shape)
         const after1Collider = physicsWorld.Colliders.get(testEntity)!
         const after1 = after1Collider.shape
-        assert.notEqual(beforeCollider.handle, after1Collider.handle)
+        assert.notEqual(beforeCollider!.handle, after1Collider.handle)
         assert.notDeepEqual(after1, before)
 
         removeComponent(testEntity, ColliderComponent)

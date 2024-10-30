@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert, { strictEqual } from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -70,7 +69,7 @@ describe('ViewCursor read/write', () => {
       const view = createViewCursor()
       // eslint-disable-next-line no-prototype-builtins
       assert(view.hasOwnProperty('cursor'))
-      strictEqual(view.cursor, 0)
+      assert.strictEqual(view.cursor, 0)
       // eslint-disable-next-line no-prototype-builtins
       assert(view.hasOwnProperty('shadowMap'))
       assert(view.shadowMap instanceof Map)
@@ -79,8 +78,8 @@ describe('ViewCursor read/write', () => {
     it('should sliceViewCursor', () => {
       const view = createViewCursor()
       writeUint32(view, 32)
-      strictEqual(sliceViewCursor(view).byteLength, 4)
-      strictEqual(view.cursor, 0)
+      assert.strictEqual(sliceViewCursor(view).byteLength, 4)
+      assert.strictEqual(view.cursor, 0)
     })
   })
 
@@ -92,7 +91,7 @@ describe('ViewCursor read/write', () => {
       const val = 1.5
       prop[entity] = val
       writeProp(view, prop, UndefinedEntity)
-      strictEqual(view.getFloat32(0), val)
+      assert.strictEqual(view.getFloat32(0), val)
     })
 
     it('should writePropIfChanged', () => {
@@ -104,47 +103,47 @@ describe('ViewCursor read/write', () => {
       prop[entity] = val
 
       writePropIfChanged(view, prop, UndefinedEntity, false)
-      strictEqual(view.getFloat32(0), val)
+      assert.strictEqual(view.getFloat32(0), val)
 
       writePropIfChanged(view, prop, UndefinedEntity, false)
-      strictEqual(view.getFloat32(4), 0)
+      assert.strictEqual(view.getFloat32(4), 0)
 
       prop[entity]++
 
       writePropIfChanged(view, prop, UndefinedEntity, false)
-      strictEqual(view.getFloat32(4), val + 1)
+      assert.strictEqual(view.getFloat32(4), val + 1)
     })
 
     it('should writeFloat32', () => {
       const view = createViewCursor()
       const val = 1.5
       writeFloat32(view, val)
-      strictEqual(view.cursor, Float32Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getFloat32(0), val)
+      assert.strictEqual(view.cursor, Float32Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getFloat32(0), val)
     })
 
     it('should writeUint32', () => {
       const view = createViewCursor()
       const val = 12345678
       writeUint32(view, val)
-      strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getUint32(0), val)
+      assert.strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getUint32(0), val)
     })
 
     it('should writeUint16', () => {
       const view = createViewCursor()
       const val = 12345
       writeUint16(view, val)
-      strictEqual(view.cursor, Uint16Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getUint16(0), val)
+      assert.strictEqual(view.cursor, Uint16Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getUint16(0), val)
     })
 
     it('should writeUint8', () => {
       const view = createViewCursor()
       const val = 123
       writeUint8(view, val)
-      strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getUint8(0), val)
+      assert.strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getUint8(0), val)
     })
 
     it('should spaceUint32', () => {
@@ -152,8 +151,8 @@ describe('ViewCursor read/write', () => {
       const val = 12345678
       const writeUint32 = spaceUint32(view)
       writeUint32(val)
-      strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getUint32(0), val)
+      assert.strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getUint32(0), val)
     })
 
     it('should spaceUint16', () => {
@@ -161,8 +160,8 @@ describe('ViewCursor read/write', () => {
       const val = 12345
       const writeUint16 = spaceUint16(view)
       writeUint16(val)
-      strictEqual(view.cursor, Uint16Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getUint16(0), val)
+      assert.strictEqual(view.cursor, Uint16Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getUint16(0), val)
     })
 
     it('should spaceUint8', () => {
@@ -170,16 +169,16 @@ describe('ViewCursor read/write', () => {
       const val = 123
       const writeUint8 = spaceUint8(view)
       writeUint8(val)
-      strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getUint8(0), val)
+      assert.strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getUint8(0), val)
     })
 
     it('should writeEntityId', () => {
       const view = createViewCursor()
       const entity = 42 as Entity
       writeEntityId(view, entity)
-      strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getUint32(0), entity)
+      assert.strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getUint32(0), entity)
     })
 
     it('should writeNetworkId', () => {
@@ -188,8 +187,8 @@ describe('ViewCursor read/write', () => {
       const netId = 5678 as NetworkId
       NetworkObjectComponent.networkId[entity] = netId
       writeNetworkId(view, entity)
-      strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
-      strictEqual(view.getUint32(0), netId)
+      assert.strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
+      assert.strictEqual(view.getUint32(0), netId)
     })
   })
 
@@ -199,35 +198,35 @@ describe('ViewCursor read/write', () => {
       const prop = new Float32Array(1)
       const val = 1.5
       view.setFloat32(0, val)
-      strictEqual(readProp(view, prop), val)
+      assert.strictEqual(readProp(view, prop), val)
     })
 
     it('should readFloat32', () => {
       const view = createViewCursor()
       const val = 1.5
       view.setFloat32(0, val)
-      strictEqual(readFloat32(view), val)
+      assert.strictEqual(readFloat32(view), val)
     })
 
     it('should readUint32', () => {
       const view = createViewCursor()
       const val = 12345678
       view.setUint32(0, val)
-      strictEqual(readUint32(view), val)
+      assert.strictEqual(readUint32(view), val)
     })
 
     it('should readUint16', () => {
       const view = createViewCursor()
       const val = 12345
       view.setUint16(0, val)
-      strictEqual(readUint16(view), val)
+      assert.strictEqual(readUint16(view), val)
     })
 
     it('should readUint8', () => {
       const view = createViewCursor()
       const val = 123
       view.setUint8(0, val)
-      strictEqual(readUint8(view), val)
+      assert.strictEqual(readUint8(view), val)
     })
   })
 })

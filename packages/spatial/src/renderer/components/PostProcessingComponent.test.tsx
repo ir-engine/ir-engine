@@ -25,9 +25,8 @@
 
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 
-import assert from 'assert'
 import { MathUtils } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import {
   EntityUUID,
