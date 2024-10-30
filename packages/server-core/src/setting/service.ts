@@ -29,6 +29,7 @@ import ClientSetting from './client-setting/client-setting'
 import Email from './email-setting/email-setting'
 import EngineSetting from './engine-setting/engine-setting'
 import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
+import helmSetting from './helm-setting/helm-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting'
 import MailchimpSetting from './mailchimp-setting/mailchimp-setting'
 import ProjectSetting from './project-setting/project-setting'
@@ -41,6 +42,7 @@ export default [
   ClientSetting,
   InstanceServer,
   Email,
+  helmSetting,
   FeatureFlagSetting,
   Authentication,
   Aws,

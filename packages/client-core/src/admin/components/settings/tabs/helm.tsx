@@ -49,21 +49,18 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     errorMessage: ''
   })
 
-  const helmSetting = useFind(engineSettingPath).data.at(0)
-  const id = helmSetting?.id
   const helmSettings = useFind(engineSettingPath, {
     query: {
       category: 'helm',
       paginate: false
     }
-  }).data
+  })
 
-  const helmMain = helmSettings.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
-  const helmBuilder = helmSettings.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
+  const helmMain = helmSettings.data.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
+  const helmBuilder = helmSettings.data.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
 
   const selectedMainVersion = useHookstate(helmMain)
 
-  // @ts-ignore
   const helmMainVersions = useFind(helmMainVersionPath).data
   const mainVersionMenu = helmMainVersions.map((el) => {
     return {
@@ -72,7 +69,6 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     }
   })
 
-  // @ts-ignore
   const helmBuilderVersions = useFind(helmBuilderVersionPath).data
   const selectedBuilderVersion = useHookstate(helmBuilder)
   const builderVersionMenu = helmBuilderVersions.map((el) => {
@@ -82,21 +78,43 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     }
   })
 
-  const patchHelmSetting = useMutation(engineSettingPath).patch
+  const helmMutation = useMutation(engineSettingPath)
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    if (!id || !selectedMainVersion.value || !selectedBuilderVersion.value) return
-    // TODO : FIX
+    if (!selectedMainVersion.value || !selectedBuilderVersion.value) return
     state.loading.set(true)
 
-    // patchHelmSetting(id, { main: selectedMainVersion.value, builder: selectedBuilderVersion.value })
-    //   .then(() => {
-    //     state.set({ loading: false, errorMessage: '' })
-    //   })
-    //   .catch((e) => {
-    //     state.set({ loading: false, errorMessage: e.message })
-    //   })
+    const setting = {
+      main: selectedMainVersion.value,
+      builder: selectedBuilderVersion.value
+    }
+
+    const operation = Object.values(EngineSettings.Helm).map((key) => {
+      const settingInDb = helmSettings.data.find((el) => el.key === key)
+      if (!settingInDb) {
+        return helmMutation.create({
+          key,
+          category: 'helm',
+          value: setting[key],
+          type: 'private'
+        })
+      }
+      return helmMutation.patch(settingInDb.id, {
+        key,
+        category: 'helm',
+        value: setting[key],
+        type: 'private'
+      })
+    })
+
+    Promise.all(operation)
+      .then(() => {
+        state.set({ loading: false, errorMessage: '' })
+      })
+      .catch((e) => {
+        state.set({ loading: false, errorMessage: e.message })
+      })
   }
 
   const handleCancel = () => {
@@ -105,12 +123,11 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
   }
 
   useEffect(() => {
-    if (helmMain) selectedMainVersion.set(helmMain)
-  }, [helmMain])
-
-  useEffect(() => {
-    if (helmBuilder) selectedBuilderVersion.set(helmBuilder)
-  }, [helmBuilder])
+    if (helmSettings.status == 'success') {
+      selectedMainVersion.set(helmMain)
+      selectedBuilderVersion.set(helmBuilder)
+    }
+  }, [helmSettings.status])
 
   return (
     <Accordion
