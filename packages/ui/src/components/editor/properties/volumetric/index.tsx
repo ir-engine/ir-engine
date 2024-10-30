@@ -45,14 +45,14 @@ import { getState } from '@ir-engine/hyperflux'
 import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
 import { MdVideocam } from 'react-icons/md'
 
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Slider } from '@ir-engine/ui/editor'
 import { Button } from '@mui/material'
 import { Scrubber } from 'react-scrubber'
 import 'react-scrubber/lib/scrubber.css'
-import Slider from '../../../../primitives/tailwind/Slider'
 import ArrayInputGroup from '../../input/Array'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 const PlayModeOptions = [
   {
@@ -213,7 +213,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
-      icon={<VolumetricNodeEditor.iconComponent />}
+      Icon={VolumetricNodeEditor.iconComponent}
     >
       <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
         <BooleanInput
@@ -233,7 +233,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
+      <div className="w-auto">
         <Slider
           min={0}
           max={1}
@@ -241,8 +241,10 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           value={volumetricComponent.volume.value}
           onChange={updateProperty(VolumetricComponent, 'volume')}
           onRelease={commitProperty(VolumetricComponent, 'volume')}
+          aria-label="Volume"
+          label={t('editor:properties.media.lbl-volume')}
         />
-      </InputGroup>
+      </div>
 
       <ArrayInputGroup
         name="Source Paths"
@@ -259,7 +261,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         <VolumetricCurrentTimeScrubber entity={props.entity} />
       )}
 
-      <InputGroup name="Playback Rate" label="Playback Rate" className="w-auto">
+      <div className="w-auto">
         <Slider
           value={volumetricComponent.currentTrackInfo.playbackRate.value}
           min={0.5}
@@ -269,8 +271,10 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
             volumetricComponent.currentTrackInfo.playbackRate.set(value)
           }}
           onRelease={() => {}}
+          aria-label="Playback Rate"
+          label="Playback Rate"
         />
-      </InputGroup>
+      </div>
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput

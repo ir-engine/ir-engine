@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { omit } from 'lodash-es'
+import { omit } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { useEdgesState, useNodesState } from 'reactflow'
 

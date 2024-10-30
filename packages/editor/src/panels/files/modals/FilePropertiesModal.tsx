@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
@@ -111,7 +111,7 @@ export default function FilePropertiesModal() {
           licensing: resourceDigest.licensing.value,
           attribution: resourceDigest.attribution.value,
           description: resourceDigest.description.value,
-          project: projectName
+          project: resource.project
         })
       }
       modifiedFields.set([])
@@ -195,11 +195,6 @@ export default function FilePropertiesModal() {
     }
   }
 
-  const uploadThumbnailRef = useRef<HTMLInputElement>(null)
-  const onClickUploadThumbnail = () => {
-    uploadThumbnailRef.current?.click()
-  }
-
   return (
     <Modal
       title={title}
@@ -225,23 +220,19 @@ export default function FilePropertiesModal() {
         >
           {t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
         </Button>
-        <label className="mt-2 text-xs">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleUploadThumbnail}
-            className="hidden"
-            ref={uploadThumbnailRef}
-          />
-          <Button
-            title={t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
-            className="mt-2 text-xs"
-            data-testid="files-panel-file-item-properties-upload-thumbnail-button"
-            onClick={onClickUploadThumbnail}
-          >
-            {t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
-          </Button>
-        </label>
+        <div className="mt-1 rounded-md bg-blue-primary px-4 py-1 text-base">
+          {/* Use a label to trigger the file input click, no ref needed */}
+          <label className="mt-1 cursor-pointer text-xs">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleUploadThumbnail} // Directly attach the handler here
+              className="hidden"
+            />
+            {/* Style the button to act as a proxy for the hidden input */}
+            <span className="button">{t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}</span>
+          </label>
+        </div>
       </div>
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">

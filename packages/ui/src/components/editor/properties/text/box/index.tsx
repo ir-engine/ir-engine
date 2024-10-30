@@ -28,6 +28,7 @@ import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/
 import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { FaStreetView } from 'react-icons/fa'
 
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import ColorInput from '../../../../../primitives/tailwind/Color'
@@ -35,7 +36,6 @@ import Text from '../../../../../primitives/tailwind/Text'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import StringInput, { ControlledStringInput } from '../../../input/String'
-import NodeEditor from '../../nodeEditor'
 
 const PaddingNumericInput = ({
   value,

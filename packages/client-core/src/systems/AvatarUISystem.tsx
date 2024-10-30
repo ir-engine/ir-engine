@@ -23,18 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
-import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -56,9 +55,11 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
+import { Not } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
+import { XruiNameplateComponent } from '../social/components/XruiNameplateComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
@@ -94,7 +95,7 @@ export const renderAvatarContextMenu = (userId: UserID, contextMenuEntity: Entit
   contextMenuXRUI.quaternion.copy(cameraTransform.rotation)
 }
 
-const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)])
+const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent]) //, Not(NetworkObjectOwnedTag)])
 
 const _vector3 = new Vector3()
 
@@ -279,10 +280,10 @@ const execute = () => {
     AvatarUITransitions.delete(userEntity)
   }
 
-  // const state = getState(AvatarUIContextMenuState)
-  // if (state.id !== '') {
-  //   renderAvatarContextMenu(state.id as UserID, state.ui.entity)
-  // }
+  const state = getState(AvatarUIContextMenuState)
+  if (state.id !== '') {
+    renderAvatarContextMenu(state.id as UserID, state.ui.entity)
+  }
 }
 
 const reactor = () => {
@@ -294,6 +295,26 @@ const reactor = () => {
     return () => {
       removeEntity(getState(AvatarUIContextMenuState).ui.entity)
       getMutableState(PopupMenuState).menus[AvatarMenus.AvatarContext].set(none)
+    }
+  }, [])
+
+  return (
+    <>
+      <QueryReactor
+        Components={[AvatarComponent, TransformComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)]}
+        ChildEntityReactor={AvatarInstanceReactor}
+      />
+    </>
+  )
+}
+
+const AvatarInstanceReactor = () => {
+  const avatarEntity = useEntityContext()
+
+  useEffect(() => {
+    setComponent(avatarEntity, XruiNameplateComponent)
+    return () => {
+      removeComponent(avatarEntity, XruiNameplateComponent)
     }
   }, [])
   return null

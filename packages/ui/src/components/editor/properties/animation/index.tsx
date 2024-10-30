@@ -38,6 +38,7 @@ import { useState } from '@ir-engine/hyperflux'
 import { getCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { FaStreetView } from 'react-icons/fa'
 
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { VRM } from '@pixiv/three-vrm'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -48,7 +49,6 @@ import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -83,7 +83,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.loopAnimation.title')}
       description={t('editor:properties.loopAnimation.description')}
-      icon={<LoopAnimationNodeEditor.iconComponent />}
+      Icon={LoopAnimationNodeEditor.iconComponent}
     >
       {/*<ProgressBar value={5} paused={false} totalTime={100} />*/}
       <InputGroup name="Loop Animation" label={t('editor:properties.loopAnimation.lbl-loopAnimation')}>

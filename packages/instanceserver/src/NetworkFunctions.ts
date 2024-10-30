@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash'
 import { Spark } from 'primus'
 
 import { API } from '@ir-engine/common'

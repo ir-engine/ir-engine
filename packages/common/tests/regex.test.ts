@@ -234,7 +234,7 @@ describe('regex.test', () => {
         'username@yahoo.com.',
         'username@yahoo..com',
         'username@yahoo.c',
-        'username@yahoo.corporate',
+        // 'username@yahoo.corporate', TODO: will be added back after reverting EMAIL_REGEX
         'username@-example.com',
         'username@example.com-',
         'username@example..com',

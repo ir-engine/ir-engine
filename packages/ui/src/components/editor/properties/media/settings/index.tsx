@@ -30,13 +30,13 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { MediaSettingsComponent } from '@ir-engine/engine/src/scene/components/MediaSettingsComponent'
+import { Slider } from '@ir-engine/ui/editor'
 import { MdPermMedia } from 'react-icons/md'
-import Slider from '../../../../../primitives/tailwind/Slider'
+import ComponentDropdown from '../../../ComponentDropdown'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
-import PropertyGroup from '../../group'
 
 export const MediaSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -44,10 +44,10 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
   const mediaState = useComponent(props.entity, MediaSettingsComponent)
 
   return (
-    <PropertyGroup
+    <ComponentDropdown
       name={t('editor:properties.mediaSettings.name')}
       description={t('editor:properties.mediaSettings.description')}
-      icon={<MediaSettingsEditor.iconComponent />}
+      Icon={MediaSettingsEditor.iconComponent}
     >
       <InputGroup
         name="Media Distance Model"
@@ -72,21 +72,17 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       {mediaState.distanceModel.value === DistanceModel.Linear ? (
-        <InputGroup
-          name="Media Rolloff Factor"
+        <Slider
+          min={0}
+          max={1}
+          step={0.01}
+          value={mediaState.rolloffFactor.value}
+          onChange={updateProperty(MediaSettingsComponent, 'rolloffFactor')}
+          onRelease={commitProperty(MediaSettingsComponent, 'rolloffFactor')}
+          aria-label="Media Rolloff Factor"
           label={t('editor:properties.mediaSettings.lbl-mediaRolloffFactor')}
-          info={t('editor:properties.mediaSettings.info-mediaRolloffFactor')}
-          className="w-auto"
-        >
-          <Slider
-            min={0}
-            max={1}
-            step={0.01}
-            value={mediaState.rolloffFactor.value}
-            onChange={updateProperty(MediaSettingsComponent, 'rolloffFactor')}
-            onRelease={commitProperty(MediaSettingsComponent, 'rolloffFactor')}
-          />
-        </InputGroup>
+          description={t('editor:properties.mediaSettings.info-mediaRolloffFactor')}
+        />
       ) : (
         <InputGroup
           name="Media Rolloff Factor"
@@ -170,22 +166,18 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
           unit="°"
         />
       </InputGroup>
-      <InputGroup
-        name="Media Cone Outer Gain"
+      <Slider
+        min={0}
+        max={1}
+        step={0.01}
+        value={mediaState.coneOuterGain.value}
+        onChange={updateProperty(MediaSettingsComponent, 'coneOuterGain')}
+        onRelease={commitProperty(MediaSettingsComponent, 'coneOuterGain')}
+        aria-labelname="Media Cone Outer Gain"
         label={t('editor:properties.mediaSettings.lbl-mediaConeOuterGain')}
-        info={t('editor:properties.mediaSettings.info-mediaConeOuterGain')}
-        className="w-auto"
-      >
-        <Slider
-          min={0}
-          max={1}
-          step={0.01}
-          value={mediaState.coneOuterGain.value}
-          onChange={updateProperty(MediaSettingsComponent, 'coneOuterGain')}
-          onRelease={commitProperty(MediaSettingsComponent, 'coneOuterGain')}
-        />
-      </InputGroup>
-    </PropertyGroup>
+        description={t('editor:properties.mediaSettings.info-mediaConeOuterGain')}
+      />
+    </ComponentDropdown>
   )
 }
 

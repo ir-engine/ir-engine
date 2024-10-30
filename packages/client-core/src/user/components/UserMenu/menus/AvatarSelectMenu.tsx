@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { debounce } from 'lodash-es'
+import { debounce } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 

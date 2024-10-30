@@ -42,7 +42,7 @@
     "@types/react-window": "^1.8.8",
     "@uiw/react-color-sketch": "^2.1.1",
     "i18next": "21.6.16",
-    "lodash-es": "4.17.21",
+    "lodash": "4.17.21",
     "potpack": "^2.0.0",
     "postprocessing": "6.34.1",
     "rc-dock": "3.2.18",

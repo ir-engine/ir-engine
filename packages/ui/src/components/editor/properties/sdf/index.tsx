@@ -27,6 +27,7 @@ import React from 'react'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SDFComponent, SDFMode } from '@ir-engine/engine/src/scene/components/SDFComponent'
 import { GiExplosionRays } from 'react-icons/gi'
 import ColorInput from '../../../../primitives/tailwind/Color'
@@ -34,13 +35,12 @@ import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
-import NodeEditor from '../nodeEditor'
 
 export const SDFEditor: EditorComponentType = (props) => {
   const sdfComponent = useComponent(props.entity, SDFComponent)
 
   return (
-    <NodeEditor {...props} name={'SDF'} description={'Raymarching--torus and fog'} icon={<SDFEditor.iconComponent />}>
+    <NodeEditor {...props} name={'SDF'} description={'Raymarching--torus and fog'} Icon={SDFEditor.iconComponent}>
       <InputGroup name="Add Pass" label={'add pass to postprocess'}>
         <BooleanInput value={sdfComponent.enable.value} onChange={commitProperty(SDFComponent, 'enable')} />
       </InputGroup>

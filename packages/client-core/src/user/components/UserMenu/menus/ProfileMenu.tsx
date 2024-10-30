@@ -59,6 +59,7 @@ import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
+import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
@@ -220,7 +221,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleUsernameChange = (e) => {
-    username.set(e.target.value)
+    const validInput = e.target.value.replace(INVALID_USER_NAME_REGEX, '')
+    username.set(validInput)
     if (!e.target.value) errorUsername.set(t('user:usermenu.profile.usernameError'))
     else if (e.target.value.length > USERNAME_MAX_LENGTH)
       errorUsername.set(
@@ -448,7 +450,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           <Avatar
             imageSrc={avatarThumbnail}
             showChangeButton={hasAcceptedTermsAndAge}
-            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
+            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
           />
 
           <Box className={styles.profileDetails}>

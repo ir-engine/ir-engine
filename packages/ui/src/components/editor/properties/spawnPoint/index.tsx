@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { RiCameraLensFill } from 'react-icons/ri'
-import NodeEditor from '../nodeEditor'
 
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
@@ -44,7 +44,7 @@ export const SpawnPointNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.spawnPoint.name')}
       description={t('editor:properties.spawnPoint.description')}
-      icon={<SpawnPointNodeEditor.iconComponent />}
+      Icon={SpawnPointNodeEditor.iconComponent}
     ></NodeEditor>
   )
 }

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
-import { random } from 'lodash-es'
+import { random } from 'lodash'
 
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'

@@ -26,7 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { ComponentType, getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
-import { Box3, Matrix4, PerspectiveCamera, Quaternion, Sphere, Vector3 } from 'three'
+import { getState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { Box3, Frustum, Matrix4, PerspectiveCamera, Quaternion, Sphere, Vector3 } from 'three'
 import { BoundingBoxComponent, updateBoundingBox } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getBoundingBoxVertices } from '../../transform/functions/BoundingBoxFunctions'
@@ -138,4 +140,23 @@ export function setCameraFocusOnBox(modelEntity: Entity, cameraEntity: Entity) {
   viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
   viewCamera.projectionMatrix.copy(camera.projectionMatrix)
   viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+}
+
+const mat4 = new Matrix4()
+const frustum = new Frustum()
+const worldPosVec3 = new Vector3()
+
+export const inFrustum = (
+  entityToCheck: Entity,
+  cameraEntity: Entity = getState(EngineState).viewerEntity
+): boolean => {
+  if (!cameraEntity) return false
+
+  const camera = getComponent(cameraEntity, CameraComponent)
+
+  mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+  frustum.setFromProjectionMatrix(mat4)
+
+  TransformComponent.getWorldPosition(entityToCheck, worldPosVec3)
+  return frustum.containsPoint(worldPosVec3)
 }

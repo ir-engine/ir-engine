@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import _ from 'lodash-es'
+import _ from 'lodash'
 
 import logger from '@ir-engine/common/src/logger'
 import { projectPermissionPath } from '@ir-engine/common/src/schemas/projects/project-permission.schema'

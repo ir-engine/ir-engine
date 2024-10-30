@@ -59,6 +59,7 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 import { WebLayer3D } from '@ir-engine/xrui'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
@@ -71,7 +72,7 @@ import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
-import { inFrustum, InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
+import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
 import { InteractiveModalState } from '../ui/InteractiveModalView'
 
 /**

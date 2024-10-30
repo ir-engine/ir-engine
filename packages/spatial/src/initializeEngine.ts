@@ -39,7 +39,7 @@ import { SceneComponent } from './renderer/components/SceneComponents'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
 import { PerformanceManager } from './renderer/PerformanceState'
-import { initializeEngineRenderer, RendererComponent } from './renderer/WebGLRendererSystem'
+import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { EntityTreeComponent } from './transform/components/EntityTree'
 import { TransformComponent } from './transform/components/TransformComponent'
 
@@ -61,11 +61,8 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
   camera.layers.enable(ObjectLayers.TransformGizmo)
   camera.layers.enable(ObjectLayers.UVOL)
 
-  const { originEntity, localFloorEntity } = getState(EngineState)
-
   if (canvas) {
-    setComponent(viewerEntity, RendererComponent, { canvas, scenes: [originEntity, localFloorEntity, viewerEntity] })
-    initializeEngineRenderer(viewerEntity)
+    setComponent(viewerEntity, RendererComponent, { canvas, scenes: [viewerEntity] })
     PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
   }
 
@@ -100,7 +97,7 @@ export const initializeSpatialEngine = () => {
   setComponent(localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(localFloorEntity, TransformComponent)
   setComponent(localFloorEntity, VisibleComponent, true)
-  setComponent(localFloorEntity, SceneComponent)
+  setComponent(localFloorEntity, SceneComponent, { active: true })
   const origin = new Group()
   addObjectToGroup(localFloorEntity, origin)
   const floorHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
