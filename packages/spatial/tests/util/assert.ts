@@ -27,11 +27,13 @@ Infinite Reality Engine. All Rights Reserved.
  * @fileoverview Assertion utilities for unit tests
  */
 
-import * as npmAssert from 'assert'
+import { assert } from 'vitest'
 
 import { Color, ColorRepresentation } from 'three'
-function getColorHex(c: ColorRepresentation) {
-  return new Color(c).getHex()
+const get = {
+  colorHex(c: ColorRepresentation) {
+    return new Color(c).getHex()
+  }
 }
 
 /**
@@ -41,18 +43,6 @@ export const Epsilon = 0.001
 /**
  * @description Describes value checking utilities that return (true/false) when the condition is met. */
 export const is = {
-  /**
-   * @description Returns true if `@param val` evaluates to a truthy value */
-  truthy(val: any) {
-    return Boolean(val)
-  },
-
-  /**
-   * @description Returns true if `@param val` evaluates to a falsy value */
-  falsy(val: any) {
-    return !is.truthy(val)
-  },
-
   /**
    * @description Returns whether or not `@param A` and `@param B` are approximately equal, using `@param epsilon` as the margin of error.
    * @note Will also be true when both A and B are not finite. */
@@ -96,41 +86,20 @@ type Message = string | undefined
 // type Message = string | Error | undefined
 
 /**
- * @description Triggers an assertion if `@param val` does not evaluate to a truthy value */
-export function assertTruthy(val: any, msg?: Message): asserts val {
-  npmAssert.equal(is.truthy(val), true, msg)
-}
-
-/**
- * @description Triggers an assertion if `@param val` does not evaluate to a falsy value */
-export function assertFalsy(val: any, msg?: Message): asserts val {
-  npmAssert.equal(is.falsy(val), true, msg)
-}
-
-/**
- * @description Triggers an assertion if `@param val` does not evaluate to a truthy value
- * @note
- * Overrides the default `npmAssert.ok` function, so that error messages are clearer.
- * Use `assertOk(val)` to access the old behavior */
-export function assertOk(val: any, msg?: Message): asserts val {
-  npmAssert.equal(is.truthy(val), true, msg)
-}
-
-/**
  * @description Describes floating point `number` assertion utilities for use in unit tests. */
 export const assertFloat = {
   /**
    * @description
    * Triggers an assertion when `@param A` and `@param B` are not approximately equal, using `@param epsilon` as the margin of error. */
   approxEq(A: number, B: number, epsilon = Epsilon) {
-    assertTruthy(is.floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
+    assert.isTrue(is.floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
   },
 
   /**
    * @description
    * Triggers an assertion when `@param A` and `@param B` are approximately equal, using `@param epsilon` as the margin of error. */
   approxNotEq(A: number, B: number, epsilon = Epsilon) {
-    assertTruthy(!is.floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
+    assert.isFalse(is.floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
   }
 } //:: assertFloat
 
@@ -200,9 +169,9 @@ export const assertArray = {
    * @description
    * Triggers an assert when any of the members of `@param A` are not equal to `@param B`. */
   eq<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
-    npmAssert.equal(A.length, B.length, err + ': Their length is not the same')
+    assert.strictEqual(A.length, B.length, err + ': Their length is not the same')
     for (let id = 0; id < A.length && id < B.length; id++) {
-      npmAssert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same : ${A[id]} : ${B[id]}`)
+      assert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same : ${A[id]} : ${B[id]}`)
     }
   },
 
@@ -211,7 +180,7 @@ export const assertArray = {
    * Triggers an assert when all the members of `@param A` are equal to `@param B`. */
   allNotEq<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
     for (let id = 0; id < A.length && id < B.length; id++) {
-      npmAssert.notDeepEqual(A[id], B[id], err)
+      assert.notDeepEqual(A[id], B[id], err)
     }
   },
 
@@ -221,7 +190,7 @@ export const assertArray = {
    * Does not trigger an assert for members that are equal  */
   anyNotEq<T>(A: Array<T>, B: Array<T>, err = 'One of the elements of the Arrays are equal') {
     for (let id = 0; id < A.length && id < B.length; id++) {
-      !is.deepEqual(A[id], B[id]) && npmAssert.notDeepEqual(A[id], B[id], err)
+      !is.deepEqual(A[id], B[id]) && assert.notDeepEqual(A[id], B[id], err)
     }
   },
 
@@ -229,14 +198,14 @@ export const assertArray = {
    * @description
    * Triggers an assert when `@param arr` has no duplicate members */
   hasDuplicates<T>(arr: Array<T>, msg?: Message) {
-    assertTruthy(is.arrayWithDuplicates(arr), msg)
+    assert.isTrue(is.arrayWithDuplicates(arr), msg)
   },
 
   /**
    * @description
    * Triggers an assert when `@param arr` has duplicate members */
   hasNoDuplicates<T>(arr: Array<T>, msg?: Message) {
-    assertTruthy(!is.arrayWithDuplicates(arr), msg)
+    assert.isFalse(is.arrayWithDuplicates(arr), msg)
   }
 } //:: assertArray
 
@@ -247,13 +216,13 @@ export const assertColor = {
    * @description
    * Triggers an assertion when the colors represented by `@param A` and `@param B` are not equal */
   eq(A: ColorRepresentation, B: ColorRepresentation) {
-    npmAssert.equal(getColorHex(A), getColorHex(B))
+    assert.equal(get.colorHex(A), get.colorHex(B))
   },
 
   /**
    * @description
    * Triggers an assertion when the colors represented by `@param A` and `@param B` are equal */
   notEq(A: ColorRepresentation, B: ColorRepresentation) {
-    npmAssert.notEqual(getColorHex(A), getColorHex(B))
+    assert.notEqual(get.colorHex(A), get.colorHex(B))
   }
 }
