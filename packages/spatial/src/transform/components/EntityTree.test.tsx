@@ -1026,9 +1026,9 @@ describe('useAncestorWithComponents', () => {
   // test for closest = false (furthst)
   it('returns the further ancestor entity', async () => {
     // Initialize with dummy data for the test
-    let rootEntity = createEntity()
-    let child_1 = createEntity()
-    let child_2 = createEntity()
+    const rootEntity = createEntity()
+    const child_1 = createEntity()
+    const child_2 = createEntity()
     let result = UndefinedEntity
 
     setComponent(rootEntity, EntityTreeComponent)
@@ -1064,9 +1064,9 @@ describe('useAncestorWithComponents', () => {
 
   // test for includeSelf = false
   it('returns the closest ancestor entity excluding self', async () => {
-    let rootEntity = createEntity()
-    let child_1 = createEntity()
-    let child_2 = createEntity()
+    const rootEntity = createEntity()
+    const child_1 = createEntity()
+    const child_2 = createEntity()
     let result = UndefinedEntity
 
     setComponent(rootEntity, EntityTreeComponent)

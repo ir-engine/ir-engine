@@ -56,11 +56,11 @@ import { getState } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
+import { assertColor } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
 import { GroupComponent } from './GroupComponent'
-import { assertColorEqual } from './lights/HemisphereLightComponent.test'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
@@ -91,7 +91,7 @@ function assertLineSegmentComponentEq(A: LineSegmentComponentData, B: LineSegmen
   else if (B.geometry === null) assert(false, 'Geometry of B is not equal to A. A has geometry, but B.geometry is null')
   else assert.deepEqual(A.geometry, B.geometry)
   assert.deepEqual(A.material, B.material)
-  assertColorEqual(A.color!, B.color!)
+  assertColor.eq(A.color!, B.color!)
   assert.equal(A.layerMask, B.layerMask)
   assert.equal(A.entity, B.entity)
 }

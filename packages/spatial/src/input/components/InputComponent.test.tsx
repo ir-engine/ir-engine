@@ -52,9 +52,9 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Raycaster } from 'three'
+import { assertArray } from '../../../tests/util/assert'
 import { EngineState } from '../../EngineState'
 import { initializeSpatialEngine } from '../../initializeEngine'
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { EntityTreeComponent, isAncestor } from '../../transform/components/EntityTree'
 import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
@@ -80,11 +80,11 @@ const InputComponentDefaults: InputComponentData = {
 }
 
 function assertInputComponentEq(A: InputComponentData, B: InputComponentData): void {
-  assertArrayEqual(A.inputSinks, B.inputSinks)
+  assertArray.eq(A.inputSinks, B.inputSinks)
   assert.equal(A.activationDistance, B.activationDistance)
   assert.equal(A.highlight, B.highlight)
   assert.equal(A.grow, B.grow)
-  assertArrayEqual(A.inputSources, B.inputSources)
+  assertArray.eq(A.inputSources, B.inputSources)
 }
 
 /** @description Returns whethere or not the given `@param arr` has duplicate values. */
@@ -376,7 +376,7 @@ describe('InputComponent', () => {
       // 3. We retrieve DummyList4 from the inputSources of entity `four`, which are accessed from the parentEntity.InputSinkComponent
       const result = InputComponent.getInputSourceEntities(testEntity)
       assert.ok(result.length > 0, 'The result should not be empty')
-      assertArrayEqual(
+      assertArray.eq(
         result,
         Expected,
         'The result should contain the expected lists of inputSources combined, no matter what their values are'
@@ -813,7 +813,7 @@ describe('InputComponent', () => {
       const resultArray = [merged[0], merged[1], merged[2], merged[3]] as Axes
       // Check that the result is what we expect it to be
       const Expected = [BiggerX, BiggerY, BiggerZ, BiggerW] as Axes
-      assertArrayEqual(resultArray, Expected)
+      assertArray.eq(resultArray, Expected)
       assert.equal(merged.HorizontalScroll, Expected[MouseScroll.HorizontalScroll])
       assert.equal(merged.VerticalScroll, Expected[MouseScroll.VerticalScroll])
     })

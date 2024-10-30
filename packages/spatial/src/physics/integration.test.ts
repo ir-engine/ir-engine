@@ -63,7 +63,7 @@ import { ColliderComponent } from './components/ColliderComponent'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
 import { BodyTypes, Shapes } from './types/PhysicsTypes'
 
-import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../tests/util/mathAssertions'
+import { assertVec } from '../../tests/util/assert'
 import '../transform/TransformModule'
 import './PhysicsModule'
 
@@ -239,7 +239,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
       for (let id = 0; id < childrenCount; ++id) {
         children.push(createEntity())
-        let entity = children[id]
+        const entity = children[id]
         setComponent(entity, NameComponent, 'childEntity-' + id)
         setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? testEntity : children[id - 1] })
         setComponent(entity, TransformComponent)
@@ -297,7 +297,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       // Sanity check before running
       updateTransforms()
       const before = getPositionFromMatrixWorld(testEntity)
-      assertVecAnyApproxNotEq(before, Expected, 3)
+      assertVec.anyApproxNotEq(before, Expected, 3)
 
       // Run and Check the results
       // .. Phase 0: Move the child
@@ -318,10 +318,10 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         rigidBody: physicsWorld.Rigidbodies.get(testEntity)?.translation(),
         collider: physicsWorld.Colliders.get(testEntity)?.translation()
       }
-      assertVecAnyApproxNotEq(before, result.entity, 3) // Check that the entity moved
-      assertVecApproxEq(result.entity, Expected, 3) // Check that the entity moved relative to its parent
-      assertVecApproxEq(result.rigidBody, Expected, 3) // Check that the rigidbody was also moved to the correct position
-      assertVecApproxEq(result.collider, Expected, 3) // Check that the collider was also moved to the correct position
+      assertVec.anyApproxNotEq(before, result.entity, 3) // Check that the entity moved
+      assertVec.approxEq(result.entity, Expected, 3) // Check that the entity moved relative to its parent
+      assertVec.approxEq(result.rigidBody, Expected, 3) // Check that the rigidbody was also moved to the correct position
+      assertVec.approxEq(result.collider, Expected, 3) // Check that the collider was also moved to the correct position
     })
 
     it('should allow moving the RigidBody of an entity separately from its Transform, and the movement should be relative to its parent', () => {
@@ -341,7 +341,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       // Sanity check before running
       updateTransforms()
       const before = getComponent(testEntity, RigidBodyComponent).position.clone()
-      assertVecAnyApproxNotEq(before, Expected, 3)
+      assertVec.anyApproxNotEq(before, Expected, 3)
       before.sub(GravityOneFrame)
 
       // Run and Check the results
@@ -362,10 +362,10 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         rigidBody: physicsWorld.Rigidbodies.get(testEntity)?.translation(),
         collider: physicsWorld.Colliders.get(testEntity)?.translation()
       }
-      assertVecApproxEq(before, result.entity, 3) // Check that the entity did not move
-      assertVecApproxEq(before, result.collider, 3) // Check that the Collider did not move
-      assertVecAnyApproxNotEq(result.entity, result.rigidBody, 3) // Check that the RigidBody moved separately from the Transform
-      assertVecApproxEq(result.rigidBody, Expected, 3) // Check that the RigidBody moved to the correct position
+      assertVec.approxEq(before, result.entity, 3) // Check that the entity did not move
+      assertVec.approxEq(before, result.collider, 3) // Check that the Collider did not move
+      assertVec.anyApproxNotEq(result.entity, result.rigidBody, 3) // Check that the RigidBody moved separately from the Transform
+      assertVec.approxEq(result.rigidBody, Expected, 3) // Check that the RigidBody moved to the correct position
     })
 
     describe('should apply parent.transform overrides to all the child entities contained in its EntityTree ...', () => {
@@ -396,10 +396,10 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
           const entity = children[id]
           const result = getPositionFromMatrixWorld(entity)
           // Should change each sub child of the parent, no matter its depth
-          assertVecApproxEq(result, Expected, 3)
+          assertVec.approxEq(result, Expected, 3)
           // Should also change the Collider of the Child that has it
           if (hasComponent(entity, ColliderComponent))
-            assertVecApproxEq(physicsWorld.Colliders.get(entity)?.translation(), Expected, 3)
+            assertVec.approxEq(physicsWorld.Colliders.get(entity)?.translation(), Expected, 3)
         }
         removeChidren()
       })
@@ -431,10 +431,10 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
           const entity = children[id]
           const result = getRotationFromMatrixWorld(entity)
           // Should change each sub child of the parent, no matter its depth
-          assertVecApproxEq(result, Expected, 4)
+          assertVec.approxEq(result, Expected, 4)
           // Should also change the Collider of the Child that has it
           if (hasComponent(entity, ColliderComponent))
-            assertVecApproxEq(physicsWorld.Colliders.get(entity)?.rotation(), Expected, 4)
+            assertVec.approxEq(physicsWorld.Colliders.get(entity)?.rotation(), Expected, 4)
         }
         removeChidren()
       })
@@ -467,7 +467,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
           const entity = children[id]
           const result = getScaleFromMatrixWorld(entity)
           // Should change each sub child of the parent, no matter its depth
-          assertVecApproxEq(result, Expected, 3)
+          assertVec.approxEq(result, Expected, 3)
         }
         removeChidren()
       })
@@ -507,7 +507,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
           const entity = children[id]
           const result = getPositionFromMatrixWorld(entity)
           // Should change each sub child of the parent, no matter its depth
-          assertVecApproxEq(result, Expected, 3)
+          assertVec.approxEq(result, Expected, 3)
         }
         removeChidren()
       })
@@ -548,7 +548,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
           const entity = children[id]
           const result = getRotationFromMatrixWorld(entity)
           // Should change each sub child of the parent, no matter its depth
-          assertVecApproxEq(result, Expected, 4)
+          assertVec.approxEq(result, Expected, 4)
         }
         removeChidren()
       })
@@ -586,7 +586,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
           const entity = children[id]
           const result = getScaleFromMatrixWorld(entity)
           // Should change each sub child of the parent, no matter its depth
-          assertVecApproxEq(result, Expected, 3)
+          assertVec.approxEq(result, Expected, 3)
         }
         removeChidren()
       })
@@ -628,9 +628,9 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       const transformPosition = getPositionFromMatrix(colliderChildEntity).sub(GravityOneFrame)
       const transformPositionWorld = getPositionFromMatrixWorld(colliderChildEntity)
       assert.notEqual(physicsPosition, undefined)
-      assertVecAnyApproxNotEq(transformPosition, Vector3_Zero, 3)
-      assertVecApproxEq(physicsPosition, transformPosition, 3)
-      assertVecApproxEq(transformPositionWorld, Expected, 3)
+      assertVec.anyApproxNotEq(transformPosition, Vector3_Zero, 3)
+      assertVec.approxEq(physicsPosition, transformPosition, 3)
+      assertVec.approxEq(transformPositionWorld, Expected, 3)
 
       // Cleanup after we are done
       removeChidren()

@@ -36,15 +36,13 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { createEngine } from '@ir-engine/ecs/src/Engine'
+import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-
-import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertVec } from '../../../tests/util/assert'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
@@ -114,14 +112,14 @@ describe('PhysicsSystem', () => {
       const beforeBody = physicsWorld.Rigidbodies.get(testEntity)
       assert.ok(beforeBody)
       const before = beforeBody.linvel()
-      assertVecApproxEq(before, Vector3_Zero, 3)
+      assertVec.approxEq(before, Vector3_Zero, 3)
       // Run and Check after
       Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
       physicsSystemExecute()
       const afterBody = physicsWorld.Rigidbodies.get(testEntity)
       assert.ok(afterBody)
       const after = afterBody.linvel()
-      assertVecAllApproxNotEq(after, before, 3)
+      assertVec.allApproxNotEq(after, before, 3)
     })
 
     function cloneRigidBodyPoseData(entity: Entity) {
@@ -148,27 +146,27 @@ describe('PhysicsSystem', () => {
       // Sanity check before running
       const before = cloneRigidBodyPoseData(testEntity)
       const body = getComponent(testEntity, RigidBodyComponent)
-      assertVecApproxEq(before.previousPosition, body.previousPosition.clone(), 3)
-      assertVecApproxEq(before.previousRotation, body.previousRotation.clone(), 3)
-      assertVecApproxEq(before.position, body.position.clone(), 3)
-      assertVecApproxEq(before.rotation, body.rotation.clone(), 4)
-      assertVecApproxEq(before.targetKinematicPosition, body.targetKinematicPosition.clone(), 3)
-      assertVecApproxEq(before.targetKinematicRotation, body.targetKinematicRotation.clone(), 4)
-      assertVecApproxEq(before.linearVelocity, body.linearVelocity.clone(), 3)
-      assertVecApproxEq(before.angularVelocity, body.angularVelocity.clone(), 3)
+      assertVec.approxEq(before.previousPosition, body.previousPosition.clone(), 3)
+      assertVec.approxEq(before.previousRotation, body.previousRotation.clone(), 3)
+      assertVec.approxEq(before.position, body.position.clone(), 3)
+      assertVec.approxEq(before.rotation, body.rotation.clone(), 4)
+      assertVec.approxEq(before.targetKinematicPosition, body.targetKinematicPosition.clone(), 3)
+      assertVec.approxEq(before.targetKinematicRotation, body.targetKinematicRotation.clone(), 4)
+      assertVec.approxEq(before.linearVelocity, body.linearVelocity.clone(), 3)
+      assertVec.approxEq(before.angularVelocity, body.angularVelocity.clone(), 3)
 
       // Run and Check after
       Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
       physicsSystemExecute()
       const after = cloneRigidBodyPoseData(testEntity)
-      assertVecAnyApproxNotEq(after.previousPosition, before.previousPosition, 3)
-      assertVecAnyApproxNotEq(after.previousRotation, before.previousRotation, 3)
-      assertVecAnyApproxNotEq(after.position, before.position, 3)
-      assertVecAnyApproxNotEq(after.rotation, before.rotation, 4)
-      assertVecAnyApproxNotEq(after.targetKinematicPosition, before.targetKinematicPosition, 3)
-      assertVecAnyApproxNotEq(after.targetKinematicRotation, before.targetKinematicRotation, 4)
-      assertVecAnyApproxNotEq(after.linearVelocity, before.linearVelocity, 3)
-      assertVecAnyApproxNotEq(after.angularVelocity, before.angularVelocity, 3)
+      assertVec.anyApproxNotEq(after.previousPosition, before.previousPosition, 3)
+      assertVec.anyApproxNotEq(after.previousRotation, before.previousRotation, 3)
+      assertVec.anyApproxNotEq(after.position, before.position, 3)
+      assertVec.anyApproxNotEq(after.rotation, before.rotation, 4)
+      assertVec.anyApproxNotEq(after.targetKinematicPosition, before.targetKinematicPosition, 3)
+      assertVec.anyApproxNotEq(after.targetKinematicRotation, before.targetKinematicRotation, 4)
+      assertVec.anyApproxNotEq(after.linearVelocity, before.linearVelocity, 3)
+      assertVec.anyApproxNotEq(after.angularVelocity, before.angularVelocity, 3)
     })
 
     it('should call Physics.simulate to update collisions on the ECS', () => {
