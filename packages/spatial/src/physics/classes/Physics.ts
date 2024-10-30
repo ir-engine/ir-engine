@@ -98,6 +98,12 @@ export type PhysicsWorld = World & {
   drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 }
 
+declare module '@dimforge/rapier3d-compat' {
+  export interface Collider {
+    userData: { entity: Entity }
+  }
+}
+
 async function load() {
   return RAPIER.init()
 }
@@ -293,6 +299,10 @@ const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
   }
 
   rigidbody.setBodyType(typeEnum, false)
+
+  /** @todo turns out this is a react/rapier bug when it comes to changing the rigidbody type. This is the best workaround I could find*/
+  rigidbody.setEnabled(false)
+  rigidbody.setEnabled(true)
 }
 
 function setRigidbodyPose(
@@ -550,6 +560,7 @@ function attachCollider(
   const rigidBody = world.Rigidbodies.get(rigidBodyEntity) // guaranteed will exist
   if (!rigidBody) return console.error('Rigidbody not found for entity ' + rigidBodyEntity)
   const collider = world.createCollider(colliderDesc, rigidBody)
+  collider.userData = { entity: colliderEntity }
   world.Colliders.set(colliderEntity, collider)
   return collider
 }

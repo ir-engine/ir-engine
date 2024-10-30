@@ -6,6 +6,8 @@
   "selectSceneMsg": "Select a Scene in the Project to Start",
   "error": "Error",
   "errorMsg": "There was an unknown error.",
+  "warning": "Warning",
+  "warningMsg": "I dont think you should do that.",
   "generateScreenshot": "Generating Project Screenshot",
   "newScene": "Add Scene",
   "saving": "Saving Project",
@@ -72,7 +74,10 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters and hyphens, and begin and end with an alphanumeric."
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
+  },
+  "warnings" : {
+    "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
     "title": "Viewport",
@@ -94,13 +99,17 @@
       "memory": "Memory",
       "geometries": "Geometries",
       "textures": "Textures",
+      "texturesMB": "Textures MB",
       "render": "Render",
       "FPS": "FPS",
       "frameTime": "Frame Time",
       "calls": "Calls",
       "triangles": "Triangles",
       "points": "Points",
-      "lines": "Lines"
+      "lines": "Lines",
+      "shaderComplexity": "Shader Complexity",
+      "sceneComplexity": "Scene Complexity",
+      "lights": "Lights"
     }
   },
   "toolbar": {
@@ -364,9 +373,9 @@
       "info-maxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
       "info-maxDistanceDisabled": "Only supported with the Linear Distance Model.",
       "lbl-coneInnerAngle": "Cone Inner Angle",
-      "info-coneInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
+      "info-coneInnerAngle": "The angle (double), in degrees, of a cone inside of which there will be no directional volume reduction (gain = 1).",
       "lbl-coneOuterAngle": "Cone Outer Angle",
-      "info-coneOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
+      "info-coneOuterAngle": "The angle (double), in degrees, of an outer cone - within which the volume will be directionally reduced down to a constant value (coneOuterGain). The volume level will linearly reduce from 1 at edge of the inner angle cone to coneOuterGain's value at the edge of the outer angle cone.",
       "lbl-coreOuterGain": "Cone Outer Gain",
       "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
       "lbl-play": "Play",
@@ -427,7 +436,9 @@
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-timeScale": "Time Scale",
-      "lbl-animationPack": "Animation Pack (via Mixamo Rig)"
+      "lbl-animationPack": "Animation Pack (via Mixamo Rig)",
+      "lbl-paused": "Paused",
+      "lbl-loop": "Loop"
     },
     "variant": {
       "name": "Variant",
@@ -616,7 +627,16 @@
       "duration": "Duration",
       "prewarm": "Prewarm",
       "emitter-shape": "Emitter Shape",
+      "emitter-shape-type": {
+        "point": "Point",
+        "sphere": "Sphere",
+        "cone": "Cone",
+        "donut": "Donut",
+        "mesh": "Mesh"
+      },
       "emission-bursts": "Emission Bursts",
+      "add-burst": "Add Burst",
+      "remove-burst": "Remove Burst",
       "shape-mesh": "Emitter Shape Mesh",
       "shape-mesh-info": "Drag Gltf or Glb file here (or paste it's file asset url) to set the mesh to use as the emitter shape",
       "start-life": "Start Life",
@@ -626,6 +646,12 @@
       "start-color": "Start Color",
       "emission-over-time": "Emission Over Time",
       "render-mode": "Render Mode",
+      "render-mode-type": {
+        "billboard": "Billboard",
+        "stretched-billboard": "Stretched Billboard",
+        "mesh": "Mesh",
+        "trail": "Trail"
+      },
       "texture": "Particle Texture",
       "u-tiles": "U Tiles",
       "v-tiles": "V Tiles",
@@ -634,6 +660,14 @@
       "blending": "Blending",
       "transparent": "Transparent",
       "world-space": "Use World Space",
+      "blending-type": {
+        "normal": "Normal",
+        "additive": "Additive",
+        "subtractive": "Subtractive",
+        "multiply": "Multiply",
+        "custom": "Custom",
+        "no-blending": "No Blending"
+      },
       "burst": {
         "time": "Burst Time",
         "count": "Burst Count",
@@ -641,7 +675,8 @@
         "interval": "Burst Interval",
         "probability": "Burst Probability"
       },
-      "addBehavior": "Add Behavior"
+      "addBehavior": "Add Behavior",
+      "remove": "Remove"
     },
     "clouds": {
       "name": "Cloud",
@@ -915,9 +950,13 @@
       "description": "Sets a property on the target object on enter and leave.",
       "lbl-addTrigger": "Add Trigger",
       "lbl-removeTrigger": "Remove Trigger",
-      "lbl-target": "Object",
+      "lbl-target": "Target Object",
+      "info-target": "Drag an entity into this field to set it as the target object and enable callback selections.",
       "lbl-onenter": "On Enter",
+      "info-onenter": "Select a callback to trigger on above target entity when entering this trigger volume.",
       "lbl-onexit": "On Exit",
+      "info-onexit": "Select a callback to trigger on above target entity when exiting this trigger volume.",
+      "info-disabled-callback": "(Disabled) No target entity selected, please drag a target entity into the 'Target Object' field above.",
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
       "ph-selectNode": "Select node...",
@@ -1036,8 +1075,11 @@
     "mountPoint": {
       "name": "Mount point",
       "description": "An object with a pose to define interactable behaviors.",
+      "interact-message-seat": "Press E to Sit",
       "lbl-type": "Type",
-      "lbl-dismount": "Dismount point, offsets this transform"
+      "lbl-dismount": "Dismount point, offsets this transform",
+      "lbl-force-dismount" : "Force Dismount Position",
+      "lbl-force-dismount-info" : "If true, the dismount position will be forced to the specified position (mid-air OK), regardless of raycast result returning a hit within 2m below dismount offset point"
     },
     "text": {
       "name": "3D Text",
@@ -1403,7 +1445,7 @@
     "saveNewScene": {
       "title": "Save As",
       "lbl-name": "Scene Name",
-      "info-name": "Name must be between 4 and 64 characters (with only alphabets, numbers, dashes allowed)",
+      "info-name": "Name must be between 4 and 64 characters (with only letters, numbers, underscores, dashes and periods allowed)",
       "lbl-confirm": "Save Scene"
     },
     "saveModel": {
@@ -1517,6 +1559,10 @@
     "description": "Please use Google Chrome for the best experience with the iR Studio.",
     "downloadChrome": "Download Chrome",
     "continue": "Continue Anyway"
+  },
+  "unsupportedFile": {
+    "title": "Unsupported File Type!",
+    "okay": "Okay"
   },
   "unsupportedDevice": {
     "title": "Unsupported Device Type!",

@@ -45,8 +45,11 @@ import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions
 import { dispatchAction, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
+import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
@@ -179,15 +182,9 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   const { gltfComponentEntity, entity, component } = props
   const dependencies = loadDependencies[component.jsonID!]
   const comp = useComponent(entity, component)
+  const errors = ErrorComponent.useComponentErrors(entity, component)
 
-  useEffect(() => {
-    const compValue = comp.value
-    for (const key of dependencies) {
-      if (!compValue[key]) return
-    }
-
-    // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
-
+  const removeGLTFDependency = () => {
     const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
     const uuid = getComponent(entity, UUIDComponent)
     gltfComponent.dependencies.set((prev) => {
@@ -199,7 +196,23 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
       }
       return prev
     })
+  }
+
+  useEffect(() => {
+    const compValue = comp.value
+    for (const key of dependencies) {
+      if (!compValue[key]) return
+    }
+
+    // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
+    removeGLTFDependency()
   }, [...dependencies.map((key) => comp[key])])
+
+  useEffect(() => {
+    if (!errors) return
+    console.error(`GLTFComponent:ComponentReactor Component ${component.name} errored during loading`)
+    removeGLTFDependency()
+  }, [errors])
 
   return null
 }
@@ -226,6 +239,14 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
 const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
   const { gltfComponentEntity, dependencies } = props
   const entries = Object.entries(dependencies)
+
+  useEffect(() => {
+    return () => {
+      const ancestor = getAncestorWithComponents(gltfComponentEntity, [SceneComponent])
+      const scene = getMutableComponent(ancestor, SceneComponent)
+      scene.active.set(true)
+    }
+  }, [])
 
   return (
     <>
@@ -276,9 +297,9 @@ const useGLTFDocument = (url: string, entity: Entity) => {
 
       if (typeof data === 'string') {
         json = JSON.parse(data)
-      } else if (data instanceof ArrayBuffer) {
+      } else if ('byteLength' in data) {
+        // for some reason, "instanceof ArrayBuffer" is not working in node
         const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
         if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
           try {
             /** TODO we will need to refactor and persist this */
@@ -307,7 +328,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
       dispatchAction(
         GLTFSnapshotAction.createSnapshot({
           source: getComponent(entity, SourceComponent),
-          data: parseStorageProviderURLs(JSON.parse(JSON.stringify(json)))
+          data: parseStorageProviderURLs(structuredClone(json))
         })
       )
     }

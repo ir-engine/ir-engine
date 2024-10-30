@@ -65,8 +65,9 @@ const Toggle = ({
   const containerTwClassName = twMerge('flex items-center gap-4', containerClassName)
 
   return (
-    <div className={containerTwClassName}>
+    <div className={containerTwClassName} data-testid="toggle-input-container">
       <input
+        data-testid="toggle-input"
         disabled={disabled}
         type="checkbox"
         className="peer sr-only"
@@ -74,7 +75,11 @@ const Toggle = ({
         onChange={() => onChange(!value)}
       />
       <div className={twClassName} onClick={() => onChange(!value)} />
-      {label && <Label className={labelClassName}>{label}</Label>}
+      {label && (
+        <Label className={labelClassName} data-testid="toggle-input-label">
+          {label}
+        </Label>
+      )}
     </div>
   )
 }

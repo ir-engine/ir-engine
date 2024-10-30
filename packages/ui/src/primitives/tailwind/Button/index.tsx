@@ -98,9 +98,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button ref={ref} role="button" disabled={disabled} className={twClassName} {...props}>
         {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
         {children && (
-          <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}>{children}</span>
+          <span
+            className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}
+            data-testid="button-name"
+          >
+            {children}
+          </span>
         )}
-        {EndIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{EndIcon}</span>}
+        {EndIcon && (
+          <span className={twMerge('mx-1', iconContainerClassName)} data-testid="button-end-icon">
+            {EndIcon}
+          </span>
+        )}
       </button>
     )
   }

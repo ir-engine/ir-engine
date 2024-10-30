@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   EntityUUID,
@@ -40,17 +41,17 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { TransformComponent } from '../../SpatialModule'
 import { setCallback } from '../../common/CallbackComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
-import { TriggerSystem, triggerEnter, triggerExit } from './TriggerSystem'
+import { TriggerSystem, triggerEnterOrExit } from './TriggerSystem'
 
 describe('TriggerSystem', () => {
   describe('IDs', () => {
@@ -126,14 +127,14 @@ describe('TriggerSystem', () => {
   })
 
   describe('triggerEnter', () => {
-    const Hit = {} as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
+    const Hit = { type: CollisionEvents.TRIGGER_START } as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
     describe('for all entity.triggerComponent.triggers ...', () => {
       it('... should only run if trigger.target defines the UUID of a valid entity', () => {
         setComponent(triggerEntity, TriggerComponent, {
           triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityUUID }]
         })
         assert.equal(enterVal, EnterStartValue)
-        triggerEnter(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.equal(enterVal, EnterStartValue)
       })
 
@@ -146,27 +147,27 @@ describe('TriggerSystem', () => {
           triggers: [{ onEnter: null, onExit: TestOnExitName, target: noEnterEntityUUID }]
         })
         assert.equal(enterVal, EnterStartValue)
-        triggerEnter(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.equal(enterVal, EnterStartValue)
       })
 
       it('... should run the target.CallbackComponent.callbacks[trigger.onEnter] function', () => {
         assert.equal(enterVal, EnterStartValue)
-        triggerEnter(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.notEqual(enterVal, EnterStartValue)
       })
     })
   })
 
   describe('triggerExit', () => {
-    const Hit = {} as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
+    const Hit = { type: CollisionEvents.TRIGGER_END } as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
     describe('for all entity.triggerComponent.triggers ...', () => {
       it('... should only run if trigger.target defines the UUID of a valid entity', () => {
         setComponent(triggerEntity, TriggerComponent, {
           triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityUUID }]
         })
         assert.equal(exitVal, ExitStartValue)
-        triggerExit(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.equal(exitVal, ExitStartValue)
       })
 
@@ -179,13 +180,13 @@ describe('TriggerSystem', () => {
           triggers: [{ onEnter: TestOnEnterName, onExit: null, target: noExitEntityUUID }]
         })
         assert.equal(exitVal, ExitStartValue)
-        triggerExit(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.equal(exitVal, ExitStartValue)
       })
 
       it('... should run the target.CallbackComponent.callbacks[trigger.onExit] function', () => {
         assert.equal(exitVal, ExitStartValue)
-        triggerExit(triggerEntity, targetEntity, Hit)
+        triggerEnterOrExit(triggerEntity, targetEntity, Hit)
         assert.notEqual(exitVal, ExitStartValue)
       })
     })
@@ -214,6 +215,7 @@ describe('TriggerSystem', () => {
       const beforeExit = ExitStartValue + 1
       assert.equal(enterVal, beforeEnter)
       assert.equal(exitVal, beforeExit)
+      console.log(enterVal, exitVal)
       triggerSystemExecute()
       assert.equal(enterVal, beforeEnter)
       assert.equal(exitVal, beforeExit)

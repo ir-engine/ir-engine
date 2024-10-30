@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach } from 'mocha'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 

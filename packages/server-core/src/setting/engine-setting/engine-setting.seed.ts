@@ -53,6 +53,29 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'chargebee'
   )
+  const zendeskSettingSeedData: EngineSettingType[] = await Promise.all(
+    [
+      {
+        key: EngineSettings.Zendesk.Name,
+        value: process.env.ZENDESK_KEY_NAME || ''
+      },
+      {
+        key: EngineSettings.Zendesk.Secret,
+        value: process.env.ZENDESK_SECRET || ''
+      },
+      {
+        key: EngineSettings.Zendesk.Kid,
+        value: process.env.ZENDESK_KID || ''
+      }
+    ].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      type: 'private' as EngineSettingType['type'],
+      category: 'zendesk' as EngineSettingType['category'],
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
 
   const coilSeedData = await generateSeedData(
     [
@@ -63,7 +86,62 @@ export async function seed(knex: Knex): Promise<void> {
     'coil'
   )
 
-  const seedData: EngineSettingType[] = [...taskServerSeedData, ...chargebeeSettingSeedData, ...coilSeedData]
+  const metabaseSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Metabase.SiteUrl,
+        value: process.env.METABASE_SITE_URL || ''
+      },
+      {
+        key: EngineSettings.Metabase.SecretKey,
+        value: process.env.METABASE_SECRET_KEY || ''
+      },
+      {
+        key: EngineSettings.Metabase.Expiration,
+        value: process.env.METABASE_EXPIRATION || ''
+      },
+      {
+        key: EngineSettings.Metabase.CrashDashboardId,
+        value: process.env.METABASE_CRASH_DASHBOARD_ID || ''
+      },
+      {
+        key: EngineSettings.Metabase.Environment,
+        value: process.env.METABASE_ENVIRONMENT || ''
+      }
+    ],
+    'metabase'
+  )
+
+  const redisSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Redis.Address,
+        value: process.env.REDIS_ADDRESS || 'localhost'
+      },
+      {
+        key: EngineSettings.Redis.Password,
+        value: process.env.REDIS_PASSWORD || ''
+      },
+      {
+        key: EngineSettings.Redis.Port,
+        value: process.env.REDIS_PORT || '6379'
+      },
+      {
+        key: EngineSettings.Redis.Enabled,
+        value: process.env.REDIS_ENABLED || ''
+      }
+    ],
+    'redis'
+  )
+
+  const seedData: EngineSettingType[] = [
+    ...taskServerSeedData,
+    ...chargebeeSettingSeedData,
+    ...coilSeedData,
+    ...metabaseSeedData,
+    ...redisSeedData,
+    ...zendeskSettingSeedData
+  ]
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
@@ -82,7 +160,7 @@ export async function seed(knex: Knex): Promise<void> {
   }
 }
 
-async function generateSeedData(
+export async function generateSeedData(
   items: { key: string; value: string }[],
   category: EngineSettingType['category'],
   type: EngineSettingType['type'] = 'private'

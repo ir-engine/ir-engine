@@ -19,7 +19,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import config from '@ir-engine/common/src/config'
 import { useGLTF } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
-import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import React from 'react'
 
 import { IoCubeOutline } from 'react-icons/io5'
@@ -38,6 +38,7 @@ export type PrefabShelfItem = {
   url: string
   category: string
   detail?: string
+  icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>
 }
 
 export const PrefabIcon = ({ categoryTitle, isSelected }: { categoryTitle: string; isSelected: boolean }) => {
@@ -54,6 +55,9 @@ export const PrefabIcon = ({ categoryTitle, isSelected }: { categoryTitle: strin
     Empty: <AddIcon stroke={color} />,
     Default: <IoCubeOutline className={`h-5 w-5 text-[${color}]`} />
   }
+
+  const IconElement = getState(PrefabShelfState).find((item) => item.category == categoryTitle)?.icon
+  if (IconElement) icons[categoryTitle] = <IconElement stroke={color} /> //include external icons
 
   return icons[categoryTitle] ?? icons.Default
 }

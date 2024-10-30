@@ -26,19 +26,19 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, hasComponent, useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
 import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { Slider } from '@ir-engine/ui/editor'
 import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { MdVideocam } from 'react-icons/md'
 import { Scrubber } from 'react-scrubber'
-import Slider from '../../../../../primitives/tailwind/Slider'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
-import NodeEditor from '../../nodeEditor'
 
 interface OptionsType {
   value: number
@@ -88,18 +88,18 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
-      icon={<NewVolumetricNodeEditor.iconComponent />}
+      Icon={NewVolumetricNodeEditor.iconComponent}
     >
-      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
-        <Slider
-          min={0}
-          max={1}
-          step={0.01}
-          value={component.volume.value}
-          onChange={updateProperty(NewVolumetricComponent, 'volume')}
-          onRelease={commitProperty(NewVolumetricComponent, 'volume')}
-        />
-      </InputGroup>
+      <Slider
+        min={0}
+        max={1}
+        step={0.01}
+        value={component.volume.value}
+        onChange={updateProperty(NewVolumetricComponent, 'volume')}
+        onRelease={commitProperty(NewVolumetricComponent, 'volume')}
+        aria-label="Volume"
+        label={t('editor:properties.media.lbl-volume')}
+      />
 
       {component.geometry.targets.length > 0 && (
         <InputGroup name="Geometry Target" label="Geometry Target">

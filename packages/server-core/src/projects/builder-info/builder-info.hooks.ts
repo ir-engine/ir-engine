@@ -21,7 +21,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import verifyScope from '../../hooks/verify-scope'
+import checkScope from '../../hooks/check-scope'
+import or from '../../hooks/or'
 import { builderInfoExternalResolver, builderInfoResolver } from './builder-info.resolvers'
 
 export default {
@@ -32,7 +33,12 @@ export default {
   before: {
     all: [],
     find: [disallow()],
-    get: [iff(isProvider('external'), verifyScope('projects', 'read'))],
+    get: [
+      iff(
+        isProvider('external'),
+        iff(or(checkScope('projects', 'read'), checkScope('editor', 'write'))).else(disallow())
+      )
+    ],
     create: [disallow()],
     update: [disallow()],
     patch: [disallow()],
