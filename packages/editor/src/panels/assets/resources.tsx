@@ -228,6 +228,7 @@ function ResourceItems() {
 
   const assignNavColor = (index: number) => {
     if (hoveredIndex === null) return 'gray-400'
+    //bg-gray-700, bg-gray-400, bg-white
     switch (index) {
       case hoveredIndex:
         return 'white'
@@ -308,15 +309,16 @@ function ResourceItems() {
               key={i}
               className={twMerge(
                 'nav-item transition-padding duration-250 flex w-10 flex-row items-center justify-end gap-1 p-0 text-gray-500',
-                navBarActivated ? 'h-auto' : 'h-1.5'
-              )} // hover:cursor-pointer hover:p-[6px] first:pt-[3px] first:pb-0 last:hover:pt-[6px]
+                navBarActivated ? 'h-auto' : 'h-2',
+                'hover:cursor-pointer hover:py-1.5 hover:first:pb-0 hover:first:pt-1.5 hover:last:hover:pt-1.5'
+              )}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
               onClick={() => handleScrollToPage(i)}
             >
               <span
                 className={twMerge(
-                  'nav-handle duration-250 h-[1px]  w-3 transition-all',
+                  'nav-handle duration-250 h-[1px] w-3 transition-all',
                   hoveredIndex === i ? 'w-10' : '',
                   `bg-${assignNavColor(i)}`
                 )}
