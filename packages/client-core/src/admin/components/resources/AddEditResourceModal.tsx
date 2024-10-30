@@ -39,7 +39,7 @@ import { useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Radio from '@ir-engine/ui/src/primitives/tailwind/Radio'
+import RadioGroup from '@ir-engine/ui/src/primitives/tailwind/Radio'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../../util/upload'
@@ -190,7 +190,7 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
           }}
           disabled={modalProcessing.value}
         />
-        <Radio
+        <RadioGroup
           value={state.source.value}
           options={[
             { label: 'URL', value: 'url' },

@@ -25,14 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect, useState } from 'react'
 import { ArgTypes } from 'storybook/internal/types'
-import Radio, { RadioProps } from './index'
+import RadioGroup, { RadioProps } from './index'
 
 const argTypes: ArgTypes = {
   disabled: {
     control: 'boolean'
   },
   selected: {
-    control: 'boolean'
+    control: 'boolean',
+    name: 'Initially selected'
   },
   label: {
     control: 'text'
@@ -52,7 +53,7 @@ const argTypes: ArgTypes = {
 
 export default {
   title: 'Primitives/Tailwind/Radio',
-  component: Radio,
+  component: RadioGroup,
   parameters: {
     componentSubtitle: 'Radio',
     design: {
@@ -63,12 +64,12 @@ export default {
   argTypes,
   args: {
     numberOfRadios: 1,
-    label: '',
-    description: ''
+    label: 'Remember me',
+    description: 'Save my login details for next time'
   }
 }
 
-const RadioRootRenderer = ({
+const RadioGroupRenderer = ({
   description,
   label,
   disabled,
@@ -97,11 +98,17 @@ const RadioRootRenderer = ({
   }, [selected])
 
   return (
-    <Radio options={options} value={value} onChange={(v) => setValue(v)} disabled={disabled} horizontal={horizontal} />
+    <RadioGroup
+      options={options}
+      value={value}
+      onChange={(v) => setValue(v)}
+      disabled={disabled}
+      horizontal={horizontal}
+    />
   )
 }
 
 export const Default = {
   name: 'Default',
-  render: RadioRootRenderer
+  render: RadioGroupRenderer
 }
