@@ -245,7 +245,7 @@ function ResourceItems() {
   }
 
   return (
-    <div className="relative flex">
+    <div className="relative flex w-full ">
       <div className="relative w-[95%]">
         {' '}
         {resources.length === 0 && (
