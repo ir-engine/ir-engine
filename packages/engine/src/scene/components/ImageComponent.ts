@@ -52,11 +52,9 @@ import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/Mes
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
-import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { ImageAlphaMode, ImageProjection } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
@@ -135,15 +133,6 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
-
-  useImmediateEffect(() => {
-    // we cannot access state in module scope, so we have to set the default value here
-    if (image.source.value === '')
-      image.source.set(
-        `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
-      )
-  }, [])
-
   const [texture, error] = useTexture(image.source.value, entity)
   const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
     entity,

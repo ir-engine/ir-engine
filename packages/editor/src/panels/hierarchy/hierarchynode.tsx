@@ -90,7 +90,6 @@ function getNodeElId(node: HierarchyTreeNodeType) {
 
 function toValidHierarchyNodeName(entity: Entity, name: string): string {
   name = name.trim()
-  if (getComponent(entity, NameComponent) === name) return ''
   return name
 }
 
