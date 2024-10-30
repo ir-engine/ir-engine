@@ -77,15 +77,7 @@ export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
     return {
-      Files: [
-        ModelComponent,
-        LegacyVolumetricComponent,
-        VolumetricComponent,
-        PositionalAudioComponent,
-        AudioAnalysisComponent,
-        VideoComponent,
-        ImageComponent
-      ],
+      Files: [ModelComponent, PositionalAudioComponent, AudioAnalysisComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
