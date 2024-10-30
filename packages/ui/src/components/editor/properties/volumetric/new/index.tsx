@@ -32,11 +32,11 @@ import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/N
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
 import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { Slider } from '@ir-engine/ui/editor'
 import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { MdVideocam } from 'react-icons/md'
 import { Scrubber } from 'react-scrubber'
-import Slider from '../../../../../primitives/tailwind/Slider'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
 
@@ -90,16 +90,16 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.volumetric.description')}
       Icon={NewVolumetricNodeEditor.iconComponent}
     >
-      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')} className="w-auto">
-        <Slider
-          min={0}
-          max={1}
-          step={0.01}
-          value={component.volume.value}
-          onChange={updateProperty(NewVolumetricComponent, 'volume')}
-          onRelease={commitProperty(NewVolumetricComponent, 'volume')}
-        />
-      </InputGroup>
+      <Slider
+        min={0}
+        max={1}
+        step={0.01}
+        value={component.volume.value}
+        onChange={updateProperty(NewVolumetricComponent, 'volume')}
+        onRelease={commitProperty(NewVolumetricComponent, 'volume')}
+        aria-label="Volume"
+        label={t('editor:properties.media.lbl-volume')}
+      />
 
       {component.geometry.targets.length > 0 && (
         <InputGroup name="Geometry Target" label="Geometry Target">

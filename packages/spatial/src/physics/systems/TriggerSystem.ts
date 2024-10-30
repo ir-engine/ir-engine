@@ -35,42 +35,30 @@ import { ColliderHitEvent, CollisionEvents } from '@ir-engine/spatial/src/physic
 
 import { TriggerComponent } from '../components/TriggerComponent'
 
-export const triggerEnter = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
-  const triggerComponent = getComponent(triggerEntity, TriggerComponent)
+export const triggerEnterOrExit = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
+  const triggerComponent = getOptionalComponent(hit.shapeSelf?.userData.entity ?? triggerEntity, TriggerComponent)
+  if (!triggerComponent) return
   for (const trigger of triggerComponent.triggers) {
     if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
     const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
-    if (targetEntity && trigger.onEnter) {
+    if (targetEntity && (trigger.onEnter || trigger.onExit)) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue
-      callbacks.get(trigger.onEnter)?.(triggerEntity, otherEntity)
+      callbacks.get(hit.type === CollisionEvents.TRIGGER_START ? trigger.onEnter! : trigger.onExit!)?.(
+        triggerEntity,
+        otherEntity
+      )
     }
   }
 }
 
-export const triggerExit = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
-  const triggerComponent = getComponent(triggerEntity, TriggerComponent)
-  for (const trigger of triggerComponent.triggers) {
-    if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
-    const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
-    if (targetEntity && trigger.onExit) {
-      const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
-      if (!callbacks) continue
-      callbacks.get(trigger.onExit)?.(triggerEntity, otherEntity)
-    }
-  }
-}
-
-const collisionQuery = defineQuery([TriggerComponent, CollisionComponent])
+const collisionQuery = defineQuery([CollisionComponent])
 
 const execute = () => {
   for (const entity of collisionQuery()) {
     for (const [e, hit] of getComponent(entity, CollisionComponent)) {
-      if (hit.type === CollisionEvents.TRIGGER_START) {
-        triggerEnter(entity, e, hit)
-      }
-      if (hit.type === CollisionEvents.TRIGGER_END) {
-        triggerExit(entity, e, hit)
+      if (hit.type === CollisionEvents.TRIGGER_START || hit.type === CollisionEvents.TRIGGER_END) {
+        triggerEnterOrExit(entity, e, hit)
       }
     }
   }

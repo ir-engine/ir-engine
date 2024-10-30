@@ -36,6 +36,7 @@ import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { Slider } from '@ir-engine/ui/editor'
 import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
@@ -43,7 +44,6 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
@@ -256,8 +256,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
               <Slider
-                className="bg-[#212226] [&::-moz-range-track]:bg-[#212226]"
-                width={160}
+                label={''}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
                 onRelease={compressProperties.quality.set}
@@ -275,8 +274,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
               <Slider
-                className="bg-[#212226] [&::-moz-range-track]:bg-[#212226]"
-                width={160}
+                label={''}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
                 onRelease={compressProperties.compressionLevel.set}
