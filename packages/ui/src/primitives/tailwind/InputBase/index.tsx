@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode, useId } from 'react'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 const variantSizes = {
@@ -39,16 +39,13 @@ export interface InputBaseProps extends React.InputHTMLAttributes<HTMLInputEleme
    * Optional React node to display at the start (left) of the s field.
    * Typically used for icons or other UI elements that provide additional context.
    */
-  startComponent?: ReactNode
+  startComponent?: React.ReactNode
 
   /**
    * Optional React node to display at the end (right) of the input field.
    * Typically used for icons, buttons, or other UI elements that provide actions or additional information.
    */
-  endComponent?: ReactNode
-
-  /** When true, the input field will expand to fill the width of its parent container. */
-  fullWidth?: boolean
+  endComponent?: React.ReactNode
 
   /**
    * Specifies the validation state of the input field, affecting its outline color and the color of helper text.
@@ -66,22 +63,38 @@ export interface InputBaseProps extends React.InputHTMLAttributes<HTMLInputEleme
 }
 
 const InputBase = (
-  { variantSize, startComponent, endComponent, fullWidth, state, helperText, id, ...props }: InputBaseProps,
+  { variantSize, startComponent, endComponent, state, helperText, ...props }: InputBaseProps,
   ref: React.ForwardedRef<HTMLInputElement>
 ) => {
-  const tempId = useId()
-  const inputId = id || tempId
-  const twClassName = twMerge(
-    'w-full rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA]',
+  const containerClass = twMerge(
+    'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] transition-colors duration-300',
     variantSizes[variantSize],
     'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
-    'focus:border-[#375DAF]',
-    'disabled:border-[#42454D] disabled:bg-[#191B1F] disabled:text-[#6B6F78]',
-    state === 'success' ? 'border-[#10B981]' : '',
-    state === 'error' ? 'border-[#C3324B]' : ''
+    'has-[:focus]:border-[#375DAF] has-[:focus]:outline-none',
+    'has-[:disabled]:border-[#42454D] has-[:disabled]:bg-[#191B1F]',
+    state === 'success' && 'border-[#10B981]',
+    state === 'error' && 'border-[#C3324B]'
   )
 
-  return <input className={twClassName} ref={ref} id={inputId} {...props} />
+  const inputClass = twMerge(
+    'placeholder:[#9CA0AA] peer order-2 h-full w-full bg-inherit text-[#F5F5F5] outline-none disabled:text-[#6B6F78]'
+  )
+
+  return (
+    <div className={containerClass}>
+      <input spellCheck={false} className={inputClass} ref={ref} {...props} />
+      {startComponent && (
+        <div className="order-1 flex items-center justify-center text-[#9CA0AA] peer-disabled:text-[#42454D]">
+          {startComponent}
+        </div>
+      )}
+      {endComponent && (
+        <div className="order-3 flex items-center justify-center text-[#9CA0AA] peer-disabled:text-[#42454D]">
+          {endComponent}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default React.forwardRef(InputBase)

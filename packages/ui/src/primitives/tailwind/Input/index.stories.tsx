@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ArgTypes, StoryFn } from '@storybook/react'
-
 import React from 'react'
+import { Globe01Sm, HelpIconSm } from '../../../icons'
 import Input, { InputProps } from './index'
 
 const sizes: InputProps['variantSize'][] = ['xs', 'l', 'xl']
@@ -47,6 +47,11 @@ const argTypes: ArgTypes<InputProps> = {
       type: 'select'
     },
     options: ['success', 'error']
+  },
+  disabled: {
+    control: {
+      type: 'boolean'
+    }
   },
   helperText: {
     control: {
@@ -90,18 +95,54 @@ export default {
 }
 
 const Template: StoryFn<InputProps> = (args) => (
-  <div className="h-[50vh] w-full rounded border border-gray-300 p-4">
-    <Input {...args} spellCheck={false} />
+  <div className="grid h-[50vh] w-full grid-cols-3 divide-x rounded border border-gray-300">
+    {sizes.map((size, index) => (
+      <div key={index} className="col-span-1 flex w-full items-center justify-center p-2">
+        <Input {...args} variantSize={size} />
+      </div>
+    ))}
   </div>
 )
 
 export const Default = Template.bind({})
 Default.args = {
-  value: 'ir@infinityreality.com'
+  value: 'ir@infinityreality.com',
+  placeholder: 'Email Address'
 }
 
 export const FullWidth = Template.bind({})
 FullWidth.args = {
   value: 'ir@infinityreality.com',
-  fullWidth: true
+  fullWidth: true,
+  placeholder: 'Email Address'
+}
+
+export const InputWithLeadingIcon = Template.bind({})
+InputWithLeadingIcon.args = {
+  value: 'ir@infinityreality.com',
+  placeholder: 'Email Address',
+  startComponent: <Globe01Sm />
+}
+
+export const InputWithTrailingIcon = Template.bind({})
+InputWithTrailingIcon.args = {
+  value: 'ir@infinityreality.com',
+  placeholder: 'Email Address',
+  endComponent: (
+    <button>
+      <HelpIconSm />
+    </button>
+  )
+}
+
+export const InputWithBothIcons = Template.bind({})
+InputWithBothIcons.args = {
+  value: 'ir@infinityreality.com',
+  placeholder: 'Email Address',
+  startComponent: <Globe01Sm />,
+  endComponent: (
+    <button>
+      <HelpIconSm />
+    </button>
+  )
 }

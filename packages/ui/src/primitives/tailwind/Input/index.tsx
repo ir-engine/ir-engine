@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useId, useMemo } from 'react'
+import { IoHelpCircleOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import InputBase, { InputBaseProps } from '../InputBase'
 import InputLabel from '../InputBase/InputLabel'
@@ -32,15 +33,17 @@ export interface InputProps extends InputBaseProps {
   labelText: string
   labelPosition: 'top' | 'left'
   infoText?: string
+  fullWidth?: boolean
 }
 
 const Input = (
-  { labelText, labelPosition, infoText, required, fullWidth, id, ...props }: InputProps,
+  { labelText, labelPosition, infoText, fullWidth, required, id, ...props }: InputProps,
   ref: React.ForwardedRef<HTMLInputElement>
 ) => {
   const tempId = useId()
   const inputId = id || tempId
-
+  const comp = <IoHelpCircleOutline />
+  console.log(comp, typeof comp)
   const containerClass = useMemo(() => {
     let _class = `flex ${fullWidth ? 'w-full' : 'w-fit'}`
 

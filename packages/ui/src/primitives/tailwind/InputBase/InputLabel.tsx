@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { IoHelpCircleOutline } from 'react-icons/io5'
+import { HelpIconSm } from '../../../icons'
 import Tooltip from '../Tooltip'
 
 interface InputLabelProps {
@@ -46,7 +46,7 @@ const InputLabel = ({ htmlFor, required, labelText, infoText }: InputLabelProps)
 
         {infoText && (
           <Tooltip content={infoText}>
-            <IoHelpCircleOutline className="h-4 w-4 text-[#9CA0AA]" strokeWidth="1.5px" />
+            <HelpIconSm className="text-[#9CA0AA]" />
           </Tooltip>
         )}
       </div>
