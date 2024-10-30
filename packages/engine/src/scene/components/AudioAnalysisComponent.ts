@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineComponent, setComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'

@@ -31,13 +31,20 @@ module.exports = {
   important: true, // important in prod is must be
   theme: {
     extend: {
+      screens: {
+        'xsh': { 'raw': '(min-height: 500px)' },
+        'smh': { 'raw': '(min-height: 700px)' },
+        'mdh': { 'raw': '(min-height: 900px)' },
+        'lgh': { 'raw': '(min-height: 1100px)' },
+        'xlh': { 'raw': '(min-height: 1300px)' },
+      },
       height: {
         'table-size-xs': 'calc(100vh - 436px)',
         'table-size-sm': 'calc(100vh - 418px)',
         'table-size-md': 'calc(100vh - 402px)',
         'table-size-lg': 'calc(100vh - 386px)',
         'table-size-xl': 'calc(100vh - 318px)',
-        'table-size-full': '100%',
+        'table-size-full': '100%'
       },
       gradientColorStops: {
         ...Array.from({ length: 101 }, (_, i) => i).reduce((acc, curr) => {
@@ -90,6 +97,16 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         figtree: ['Figtree', 'sans-serif']
+      },
+      keyframes: {
+        twinkling: {
+          '0%': { opacity: '0.6' },
+          '50%': { opacity: '1' },
+          '100%': { opacity: '0.6' }
+        }
+      },
+      animation: {
+        twinkling: 'twinkling 5s alternate infinite'
       }
     }
   },

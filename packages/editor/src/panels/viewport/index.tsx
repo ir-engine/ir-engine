@@ -30,7 +30,7 @@ import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { clientSettingPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
@@ -50,11 +50,12 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
 import { EditorState } from '../../services/EditorServices'
-import GizmoTool from './tools/GizmoTool'
+import CameraGizmoTool from './tools/CameraGizmoTool'
 import GridTool from './tools/GridTool'
 import PlayModeTool from './tools/PlayModeTool'
 import RenderModeTool from './tools/RenderTool'
 import SceneHelpersTool from './tools/SceneHelpersTool'
+import TransformGizmoTool from './tools/TransformGizmoTool'
 import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
 import TransformSpaceTool from './tools/TransformSpaceTool'
@@ -83,7 +84,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
         Promise.all(
           Array.from(dropDataTransfer.files).map(async (file) => {
             try {
-              const name = processFileName(file.name)
+              const name = cleanFileNameString(file.name)
               return uploadToFeathersService(fileBrowserUploadPath, [file], {
                 args: [
                   {
@@ -163,7 +164,8 @@ function ViewportContainer() {
           <RenderModeTool />
           <PlayModeTool />
         </div>
-        {sceneName.value ? <GizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <TransformGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (
           <>
             <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />

@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../../patchEngineNode'
+
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
@@ -30,6 +32,7 @@ import fs from 'fs'
 import nock from 'nock'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
@@ -65,7 +68,7 @@ describe('project.test', () => {
   })
 
   beforeEach(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
 
     const name = ('test-project-user-name-' + uuidv4()) as UserName
@@ -102,12 +105,8 @@ describe('project.test', () => {
   })
 
   describe('create', () => {
-    afterEach(async () => {
-      await cleanup(app, testProject.name)
-    })
-
     it('should add new project', async () => {
-      const projectName = `@org/test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `testorg/test-project-${uuidv4().slice(0, 8)}`
 
       testProject = await app.service(projectPath).create(
         {
@@ -120,15 +119,25 @@ describe('project.test', () => {
       assert.equal(testProject.name, projectName)
     })
 
-    it('should not add new project with same name as existing project', () => {
-      assert.rejects(async () => {
-        await app.service(projectPath).create(
-          {
-            name: testProject.name
-          },
-          getParams()
-        )
-      })
+    it('should not add new project with same name as existing project', async () => {
+      const projectName = `testorg/test-project-${uuidv4().slice(0, 8)}`
+
+      testProject = await app.service(projectPath).create(
+        {
+          name: projectName
+        },
+        getParams()
+      )
+
+      await assert.rejects(
+        async () =>
+          await app.service(projectPath).create(
+            {
+              name: testProject.name
+            },
+            getParams()
+          )
+      )
     })
   })
 
@@ -149,9 +158,9 @@ describe('project.test', () => {
       await git.add('.')
       await git.commit('initial commit')
 
-      testUpdateProjectName = `@org1/test-update-project-name-${uuidv4().slice(0, 8)}`
+      testUpdateProjectName = `testorg1/test-update-project-name-${uuidv4().slice(0, 8)}`
 
-      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `testorg1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName
@@ -210,7 +219,7 @@ describe('project.test', () => {
 
   describe('patch', () => {
     beforeEach(async () => {
-      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `testorg1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName
@@ -234,7 +243,7 @@ describe('project.test', () => {
 
   describe('remove', () => {
     beforeEach(async () => {
-      const projectName = `@org1/test-project-${uuidv4().slice(0, 8)}`
+      const projectName = `testorg1/test-project-${uuidv4().slice(0, 8)}`
       testProject = await app.service(projectPath).create(
         {
           name: projectName

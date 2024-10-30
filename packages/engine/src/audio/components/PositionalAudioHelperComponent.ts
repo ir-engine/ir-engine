@@ -25,138 +25,167 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import {
-  BufferAttribute,
   BufferGeometry,
-  InterleavedBufferAttribute,
-  Line,
-  LineBasicMaterial,
+  ConeGeometry,
+  DoubleSide,
+  LatheGeometry,
   Material,
-  MathUtils
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Vector2
 } from 'three'
 
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { NO_PROXY, useDidMount } from '@ir-engine/hyperflux'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
-import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { AudioNodeGroup } from '../../scene/components/MediaComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { PositionalAudioComponent } from './PositionalAudioComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
   name: 'PositionalAudioHelperComponent',
 
   schema: S.Object({
     name: S.String('positional-audio-helper'),
-    audio: S.Type<AudioNodeGroup>(),
-    range: S.Number(1),
-    divisionsInnerAngle: S.Number(16),
-    divisionsOuterAngle: S.Number(2),
-    divisions: S.Number(0),
     entity: S.Entity()
   }),
 
   onSet: (entity, component, json) => {
     if (!json) return
-
-    if (!json.audio) throw new Error('PositionalAudioHelperComponent: Valid AudioNodeGroup required')
-    component.audio.set(json.audio)
     if (typeof json.name === 'string') component.name.set(json.name)
-    if (typeof json.range === 'number') component.range.set(json.range)
-    if (typeof json.divisionsInnerAngle === 'number') component.divisionsInnerAngle.set(json.divisionsInnerAngle)
-    if (typeof json.divisionsOuterAngle === 'number') component.divisionsOuterAngle.set(json.divisionsOuterAngle)
-    component.divisions.set(component.divisionsInnerAngle.value + component.divisionsOuterAngle.value * 2)
   },
 
   reactor: function () {
     const entity = useEntityContext()
-    const component = useComponent(entity, PositionalAudioHelperComponent)
+    const audioComponent = useComponent(entity, PositionalAudioComponent)
 
-    const createGeometry = () => {
-      const geometry = new BufferGeometry()
-      const positions = new Float32Array((component.divisions.value * 3 + 3) * 3)
-      geometry.setAttribute('position', new BufferAttribute(positions, 3))
-      return geometry
+    const [materialInnerAngle] = useResource(
+      () => new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4, side: DoubleSide }),
+      entity
+    )
+    const [materialOuterAngle] = useResource(
+      () => new MeshBasicMaterial({ color: 0x000080, wireframe: true, side: DoubleSide }),
+      entity
+    )
+
+    const [innerCone] = useResource(() => {
+      return createCone(
+        audioComponent.coneInnerAngle.value,
+        audioComponent.maxDistance.value,
+        materialInnerAngle.value as Material
+      )
+    })
+
+    const [innerCap] = useResource(() => {
+      return createCap(
+        audioComponent.coneInnerAngle.value,
+        audioComponent.maxDistance.value,
+        materialInnerAngle.value as Material
+      )
+    })
+
+    const [outerCone] = useResource(() => {
+      return createCone(
+        audioComponent.coneOuterAngle.value,
+        audioComponent.maxDistance.value,
+        materialOuterAngle.value as Material
+      )
+    })
+
+    const [outerCap] = useResource(() => {
+      return createCap(
+        audioComponent.coneOuterAngle.value,
+        audioComponent.maxDistance.value,
+        materialOuterAngle.value as Material
+      )
+    })
+
+    function createCone(angleDegrees: number, coneHyp: number, material: Material) {
+      const sgmnts = Math.floor(angleDegrees / 30)
+      const capSegments = Math.max(sgmnts, 3)
+      const coneSegments = capSegments * 4
+      const angleRad = MathUtils.degToRad(angleDegrees)
+
+      const coneOpp = coneHyp * Math.sin(angleRad / 2)
+      const coneHeight = Math.sqrt(coneHyp ** 2 - coneOpp ** 2)
+
+      const coneGeometry = new ConeGeometry(coneOpp, coneHeight, coneSegments, 1, true)
+
+      if (angleRad <= Math.PI) coneGeometry.rotateX(Math.PI)
+
+      coneGeometry.translate(0, (angleRad <= Math.PI ? 1 : -1) * (coneHeight / 2), 0)
+      coneGeometry.rotateX(Math.PI / 2)
+      return new Mesh(coneGeometry as BufferGeometry, material)
     }
 
-    const [geometryState] = useResource<BufferGeometry>(createGeometry, entity)
-    const [materialInnerAngle] = useResource(() => new LineBasicMaterial({ color: 0x00ff00 }), entity)
-    const [materialOuterAngle] = useResource(() => new LineBasicMaterial({ color: 0xffff00 }), entity)
-    const [line] = useDisposable(
-      Line<BufferGeometry, LineBasicMaterial[]>,
-      entity,
-      geometryState.value as BufferGeometry,
-      [materialOuterAngle.value as LineBasicMaterial, materialInnerAngle.value as LineBasicMaterial]
-    )
-    useHelperEntity(entity, component, line)
+    function createCap(angleDegrees: number, coneHyp: number, material: Material) {
+      const sgmnts = Math.floor(angleDegrees / 30)
+      const capSegments = Math.max(sgmnts, 3)
+      const angleRad = MathUtils.degToRad(angleDegrees)
+      const coneSegments = capSegments * 4
 
-    useDidMount(() => {
-      component.divisions.set(component.divisionsInnerAngle.value + component.divisionsOuterAngle.value * 2)
-    }, [component.divisionsInnerAngle, component.divisionsOuterAngle])
-
-    useDidMount(() => {
-      geometryState.set(createGeometry())
-      line.geometry = geometryState.get(NO_PROXY) as BufferGeometry
-    }, [component.divisions])
-
-    useEffect(() => {
-      const audio = component.audio.value
-      if (!audio.panner) return
-      const range = component.range.value
-      const divisionsInnerAngle = component.divisionsInnerAngle.value
-      const divisionsOuterAngle = component.divisionsOuterAngle.value
-      const geometry = geometryState.get(NO_PROXY)
-      const materials = [materialOuterAngle.get(NO_PROXY), materialInnerAngle.get(NO_PROXY)]
-
-      const coneInnerAngle = MathUtils.degToRad(audio.panner.coneInnerAngle)
-      const coneOuterAngle = MathUtils.degToRad(audio.panner.coneOuterAngle)
-
-      const halfConeInnerAngle = coneInnerAngle / 2
-      const halfConeOuterAngle = coneOuterAngle / 2
-
-      let start = 0
-      let count = 0
-      let i
-      let stride
-
-      const positionAttribute = geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute
-
-      geometry.clearGroups()
-
-      function generateSegment(from, to, divisions, materialIndex) {
-        const step = (to - from) / divisions
-
-        positionAttribute.setXYZ(start, 0, 0, 0)
-        count++
-
-        for (i = from; i < to; i += step) {
-          stride = start + count
-
-          positionAttribute.setXYZ(stride, Math.sin(i) * range, 0, Math.cos(i) * range)
-          positionAttribute.setXYZ(
-            stride + 1,
-            Math.sin(Math.min(i + step, to)) * range,
-            0,
-            Math.cos(Math.min(i + step, to)) * range
-          )
-          positionAttribute.setXYZ(stride + 2, 0, 0, 0)
-
-          count += 3
-        }
-
-        geometry.addGroup(start, count, materialIndex)
-
-        start += count
-        count = 0
+      const capPoints = [] as Vector2[]
+      for (let i = 0; i <= capSegments; i++) {
+        const x = Math.sin(((i / capSegments) * angleRad) / 2) * -coneHyp
+        const y = Math.cos(((i / capSegments) * angleRad) / 2) * -coneHyp
+        capPoints.push(new Vector2(x, y))
       }
 
-      generateSegment(-halfConeOuterAngle, -halfConeInnerAngle, divisionsOuterAngle, 0)
-      generateSegment(-halfConeInnerAngle, halfConeInnerAngle, divisionsInnerAngle, 1)
-      generateSegment(halfConeInnerAngle, halfConeOuterAngle, divisionsOuterAngle, 0)
+      const capGeometry = new LatheGeometry(capPoints, coneSegments)
+      capGeometry.rotateX(Math.PI)
+      capGeometry.rotateX(Math.PI / 2)
+      return new Mesh(capGeometry as BufferGeometry, material)
+    }
 
-      positionAttribute.needsUpdate = true
+    useEffect(() => {
+      if (!audioComponent) return
 
-      if (coneInnerAngle === coneOuterAngle) (materials[0] as Material).visible = false
-    }, [component.audio, component.range, component.divisions])
+      innerCone.set(
+        createCone(
+          audioComponent.coneInnerAngle.value,
+          audioComponent.maxDistance.value,
+          materialInnerAngle.value as Material
+        )
+      )
+      innerCap.set(
+        createCap(
+          audioComponent.coneInnerAngle.value,
+          audioComponent.maxDistance.value,
+          materialInnerAngle.value as Material
+        )
+      )
+      outerCone.set(
+        createCone(
+          audioComponent.coneOuterAngle.value,
+          audioComponent.maxDistance.value,
+          materialOuterAngle.value as Material
+        )
+      )
+      outerCap.set(
+        createCap(
+          audioComponent.coneOuterAngle.value,
+          audioComponent.maxDistance.value,
+          materialOuterAngle.value as Material
+        )
+      )
+    }, [audioComponent.maxDistance.value, audioComponent.coneInnerAngle, audioComponent.coneOuterAngle])
+
+    useEffect(() => {
+      if (!audioComponent) return
+
+      addObjectToGroup(entity, innerCone.value! as unknown as Object3D)
+      addObjectToGroup(entity, innerCap.value! as unknown as Object3D)
+      addObjectToGroup(entity, outerCone.value! as unknown as Object3D)
+      addObjectToGroup(entity, outerCap.value! as unknown as Object3D)
+      return () => {
+        removeObjectFromGroup(entity, innerCone.value! as unknown as Object3D)
+        removeObjectFromGroup(entity, innerCap.value! as unknown as Object3D)
+        removeObjectFromGroup(entity, outerCone.value! as unknown as Object3D)
+        removeObjectFromGroup(entity, outerCap.value! as unknown as Object3D)
+      }
+    }, [innerCone, innerCap, outerCone, outerCap])
 
     return null
   }

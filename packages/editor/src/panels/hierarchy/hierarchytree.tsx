@@ -43,7 +43,7 @@ export function Topbar() {
   const isAddEntityMenuOpen = useHookstate(false)
 
   return (
-    <div className="flex h-8 items-center justify-between gap-2 bg-[#212226]">
+    <div className="flex h-8 items-center justify-between gap-2 bg-[#212226]" data-testid="hierarchy-panel-top-bar">
       <SearchBar
         search={search}
         inputProps={{
@@ -65,6 +65,7 @@ export function Topbar() {
             className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
             size="small"
             textContainerClassName="mx-0"
+            data-testid="hierarchy-panel-add-entity-button"
             onClick={() => isAddEntityMenuOpen.set(true)}
           >
             {t('editor:hierarchy.lbl-addEntity')}
@@ -110,7 +111,11 @@ export function Contents() {
   useHierarchyTreeHotkeys()
 
   return (
-    <div ref={ref} className={twMerge('h-5/6 overflow-hidden', isOver && canDrop && 'border border-dotted')}>
+    <div
+      ref={ref}
+      className={twMerge('h-5/6 overflow-hidden', isOver && canDrop && 'border border-dotted')}
+      data-testid="hierarchy-panel-scene-item-list"
+    >
       <FixedSizeList
         height={listDimensions.height.value}
         width={listDimensions.width.value}

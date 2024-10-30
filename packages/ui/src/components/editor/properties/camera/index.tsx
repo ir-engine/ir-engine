@@ -29,11 +29,11 @@ import React from 'react'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { HiOutlineCamera } from 'react-icons/hi'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
-import NodeEditor from '../nodeEditor'
 
 export const CameraNodeEditor: EditorComponentType = (props) => {
   const component = useComponent(props.entity, CameraComponent)
@@ -42,7 +42,7 @@ export const CameraNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.cameraComponent.name')}
       description={t('editor:properties.cameraComponent.description')}
-      icon={<CameraNodeEditor.iconComponent />}
+      Icon={CameraNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Fov" label={t('editor:properties.cameraComponent.lbl-fov')}>

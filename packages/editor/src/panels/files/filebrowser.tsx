@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { useMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
@@ -31,7 +32,7 @@ import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeState, SelectedFilesState } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
-import { BrowserContextMenu } from './contextmenu'
+import { FileContextMenu } from './contextmenu'
 import FileItem, { TableWrapper } from './fileitem'
 import { CurrentFilesQueryProvider, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 import FilesLoaders from './loaders'
@@ -49,12 +50,29 @@ function Browser() {
   })
   const isListView = useMutableState(FilesViewModeState).viewMode.value === 'list'
   const selectedFiles = useMutableState(SelectedFilesState)
-  const { files } = useCurrentFiles()
+  const { files, refreshDirectory } = useCurrentFiles()
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+
+  useEffect(() => {
+    refreshDirectory()
+  }, [thumbnailJobState.length])
 
   const FileItems = () => (
     <>
       {files.map((file) => (
-        <FileItem file={file} key={file.key} data-testid="files-panel-file-item" />
+        <FileItem
+          file={file}
+          onContextMenu={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
+              selectedFiles.set([file])
+            }
+            setAnchorEvent(event)
+          }}
+          key={file.key}
+          data-testid="files-panel-file-item"
+        />
       ))}
     </>
   )
@@ -66,6 +84,7 @@ function Browser() {
       onContextMenu={(event) => {
         event.preventDefault()
         event.stopPropagation()
+        selectedFiles.set([])
         setAnchorEvent(event)
       }}
     >
@@ -87,7 +106,7 @@ function Browser() {
           )}
         </div>
       </div>
-      <BrowserContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />
+      <FileContextMenu anchorEvent={anchorEvent} setAnchorEvent={setAnchorEvent} />
     </div>
   )
 }

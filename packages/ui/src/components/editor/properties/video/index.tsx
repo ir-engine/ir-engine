@@ -36,6 +36,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
 import BooleanInput from '../../input/Boolean'
@@ -43,7 +44,6 @@ import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
-import NodeEditor from '../nodeEditor'
 
 const fitOptions = [
   { label: 'Cover', value: 'cover' },
@@ -93,7 +93,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.video.name')}
       description={t('editor:properties.video.description')}
-      icon={<VideoNodeEditor.iconComponent />}
+      Icon={VideoNodeEditor.iconComponent}
     >
       {/*<ProgressBar
         value={0}
