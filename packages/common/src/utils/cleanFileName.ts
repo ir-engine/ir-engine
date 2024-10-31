@@ -78,7 +78,7 @@ export function cleanFileNameFile(file: File): File {
   })
   //overwrite the webkitRelativePath property to preserve directory structure
   Object.defineProperty(newFile, 'webkitRelativePath', {
-    value: cleanFileNameString(file.webkitRelativePath),
+    value: file.webkitRelativePath !== '' ? cleanFileNameString(file.webkitRelativePath) : '',
     writable: false,
     enumerable: true,
     configurable: true
