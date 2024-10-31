@@ -248,11 +248,13 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
     return
   }
 
+  const locationInstances = instances.filter((instance) => instance.locationId)
+
   // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
   const locations = (await app.service(locationPath).find({
     query: {
       id: {
-        $in: instances.map((instance) => instance.locationId!)
+        $in: locationInstances.map((instance) => instance.locationId!)
       }
     },
     paginate: false
