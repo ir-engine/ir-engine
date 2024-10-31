@@ -158,12 +158,6 @@ export const MountPointComponent = defineComponent({
 
     useEffect(() => {
       setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
-      // setComponent(entity, BoundingBoxComponent, {
-      //   box: new Box3().setFromCenterAndSize(
-      //     getComponent(entity, TransformComponent).position,
-      //     new Vector3(0.1, 0.1, 0.1)
-      //   )
-      // })
     }, [])
 
     useEffect(() => {
