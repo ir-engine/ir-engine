@@ -124,21 +124,30 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       <div className="my-6 grid grid-cols-3 gap-6">
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.keyName')}
+          labelProps={{
+            text: t('admin:components.setting.keyName'),
+            position: 'top'
+          }}
           value={name?.value || ''}
           onChange={(e) => name.set(e.target.value)}
         />
 
         <PasswordInput
           className="col-span-1"
-          label={t('admin:components.setting.secret')}
+          labelProps={{
+            text: t('admin:components.setting.secret'),
+            position: 'top'
+          }}
           value={secret?.value || ''}
           onChange={(e) => secret.set(e.target.value)}
         />
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.kid')}
+          labelProps={{
+            text: t('admin:components.setting.kid'),
+            position: 'top'
+          }}
           value={kid?.value || ''}
           onChange={(e) => kid.set(e.target.value)}
         />

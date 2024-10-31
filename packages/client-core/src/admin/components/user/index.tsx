@@ -72,8 +72,6 @@ export default function Users() {
                 search.query.set(event.target.value)
               }, 100)
             }}
-            className="bg-theme-surface-main"
-            containerClassName="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
           {selectedUsers.length > 0 && (

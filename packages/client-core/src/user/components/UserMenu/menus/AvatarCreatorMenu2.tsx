@@ -271,11 +271,12 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
               <div className="mx-auto mb-2 flex py-2">
                 <Input
                   value={avatarName.value || ''}
-                  label={t('user:avatar.InputAvatarName')}
+                  labelProps={{
+                    text: t('user:avatar.InputAvatarName'),
+                    position: 'top'
+                  }}
                   onChange={(e) => avatarName.set(e.target.value)}
-                  containerClassName="flex-row h-8"
                   className="w-fit py-1 text-sm"
-                  labelClassname="min-w-[50%] my-auto text-sm"
                 />
               </div>
             )}

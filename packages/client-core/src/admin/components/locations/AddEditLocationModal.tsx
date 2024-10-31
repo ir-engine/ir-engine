@@ -231,20 +231,28 @@ export default function AddEditLocationModal(props: {
               </Button>
             )}
             <Input
-              label={t('admin:components.location.lbl-name')}
+              labelProps={{
+                text: t('admin:components.location.lbl-name'),
+                position: 'top'
+              }}
               value={name.value}
               data-testid="publish-panel-location-name"
               onChange={(event) => name.set(event.target.value)}
-              error={errors.name.value}
+              helperText={errors.name.value}
+              state={errors.name.value ? 'error' : undefined}
               disabled={isLoading}
             />
             <Input
               type="number"
-              label={t('admin:components.location.lbl-maxuser')}
+              labelProps={{
+                text: t('admin:components.location.lbl-maxuser'),
+                position: 'top'
+              }}
               value={maxUsers.value}
               data-testid="publish-panel-location-max-users"
               onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
-              error={errors.maxUsers.value}
+              helperText={errors.maxUsers.value}
+              state={errors.maxUsers.value ? 'error' : undefined}
               disabled={isLoading}
             />
             <Select

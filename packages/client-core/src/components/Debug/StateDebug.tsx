@@ -91,7 +91,6 @@ export function StateDebug() {
       <div className="my-0.5">
         <Text>{t('common:debug.state')}</Text>
         <Input
-          containerClassName="my-0.5"
           type="text"
           placeholder="Search..."
           value={stateSearch.value}

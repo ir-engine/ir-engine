@@ -203,7 +203,10 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       <div className="relative grid w-full gap-6">
         {invite?.id ? (
           <Input
-            label={t('admin:components.invite.recipients')}
+            labelProps={{
+              text: t('admin:components.invite.recipients'),
+              position: 'top'
+            }}
             value={emailRecipients[0].value}
             onChange={() => {}}
             disabled={true}
@@ -323,19 +326,27 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             <Input
               type="datetime-local"
               className="w-auto"
-              label={t('admin:components.invite.startTime')}
+              labelProps={{
+                text: t('admin:components.invite.startTime'),
+                position: 'top'
+              }}
               value={inviteStartTime.value}
               onChange={(event) => inviteStartTime.set(event.target.value)}
-              error={errors.startTime.value}
+              helperText={errors.startTime.value}
+              state={errors.startTime.value ? 'error' : undefined}
               disabled={submitLoading.value}
             />
             <Input
               type="datetime-local"
               className="w-auto"
-              label={t('admin:components.invite.endTime')}
+              labelProps={{
+                text: t('admin:components.invite.endTime'),
+                position: 'top'
+              }}
               value={inviteEndTime.value}
               onChange={(event) => inviteEndTime.set(event.target.value)}
-              error={errors.endTime.value}
+              helperText={errors.endTime.value}
+              state={errors.endTime.value ? 'error' : undefined}
               disabled={submitLoading.value}
             />
           </div>

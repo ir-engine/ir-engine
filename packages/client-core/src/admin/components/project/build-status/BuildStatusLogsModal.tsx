@@ -62,19 +62,32 @@ export default function BuildStatusLogsModal({ buildStatus }: { buildStatus: Bui
       onClose={() => PopoverState.hidePopupover()}
     >
       <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-        <Input disabled label={t('admin:components.buildStatus.columns.id')} value={buildStatus.id} />
+        <Input
+          disabled
+          value={buildStatus.id}
+          labelProps={{
+            text: t('admin:components.buildStatus.columns.id'),
+            position: 'top'
+          }}
+        />
         <div>
           <Label className="mb-2">{t('admin:components.buildStatus.columns.status')}</Label>
           <BuildStatusBadge status={buildStatus.status} />
         </div>
         <Input
           disabled
-          label={t('admin:components.buildStatus.columns.dateStarted')}
+          labelProps={{
+            text: t('admin:components.buildStatus.columns.dateStarted'),
+            position: 'top'
+          }}
           value={getStartOrEndDate(buildStatus.dateStarted)}
         />
         <Input
           disabled
-          label={t('admin:components.buildStatus.columns.dateEnded')}
+          labelProps={{
+            text: t('admin:components.buildStatus.columns.dateEnded'),
+            position: 'top'
+          }}
           value={getStartOrEndDate(buildStatus.dateEnded)}
         />
         <div className="col-span-2 max-h-[50vh] overflow-auto">

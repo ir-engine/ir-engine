@@ -77,10 +77,14 @@ export default function AddEditChannelModal({ channel }: { channel?: ChannelType
     >
       {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
       <Input
-        label={t('admin:components.channel.name')}
+        labelProps={{
+          text: t('admin:components.channel.name'),
+          position: 'top'
+        }}
         value={channelName.value}
         onChange={(event) => channelName.set(event.target.value)}
-        error={errors.channelName.value}
+        helperText={errors.channelName.value}
+        state={errors.channelName.value ? 'error' : undefined}
       />
     </Modal>
   )

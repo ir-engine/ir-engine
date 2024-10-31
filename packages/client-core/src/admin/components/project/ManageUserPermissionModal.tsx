@@ -107,10 +107,14 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
     >
       {selfUserPermission === 'owner' && (
         <Input
-          label={t('admin:components.project.userInviteCode')}
+          labelProps={{
+            text: t('admin:components.project.userInviteCode'),
+            position: 'top'
+          }}
           value={userInviteCode.value}
           onChange={(event) => userInviteCode.set(event.target.value as InviteCode)}
-          error={userInviteCodeError.value}
+          helperText={userInviteCodeError.value}
+          state={userInviteCodeError.value ? 'error' : undefined}
         />
       )}
       <div className="grid gap-4">

@@ -157,11 +157,15 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       <div className="relative grid w-full gap-6">
         {errors.serviceError.value ? <p className="mt-2 text-red-700">{errors.serviceError.value}</p> : null}
         <Input
-          label={t('admin:components.user.name')}
+          labelProps={{
+            text: t('admin:components.user.name'),
+            position: 'top'
+          }}
           placeholder={t('admin:components.user.namePlaceholder')}
           value={name.value}
           onChange={(event) => name.set(event.target.value)}
-          error={errors.name.value}
+          state={errors.name.value ? 'error' : undefined}
+          helperText={errors.name.value}
         />
         <div className="grid gap-3">
           <MultiSelect
@@ -195,7 +199,15 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
           menuClassname="min-h-52"
         />
         {user?.inviteCode && (
-          <Input disabled label={t('admin:components.user.inviteCode')} onChange={() => {}} value={user.inviteCode} />
+          <Input
+            disabled
+            labelProps={{
+              text: t('admin:components.user.inviteCode'),
+              position: 'top'
+            }}
+            onChange={() => {}}
+            value={user.inviteCode}
+          />
         )}
         {user?.id && user.identityProviders.filter((ip) => ip.type !== 'guest').length > 0 ? (
           <div className="grid gap-2">

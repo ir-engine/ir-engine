@@ -61,13 +61,45 @@ const RedisTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       open={open}
     >
       <div className="mt-6 grid grid-cols-2 gap-6">
-        <Input className="col-span-1" label={t('admin:components.setting.address')} value={address || ''} disabled />
+        <Input
+          className="col-span-1"
+          labelProps={{
+            text: t('admin:components.setting.address'),
+            position: 'top'
+          }}
+          value={address || ''}
+          disabled
+        />
 
-        <Input className="col-span-1" label={t('admin:components.setting.password')} value={password || ''} disabled />
+        <Input
+          className="col-span-1"
+          labelProps={{
+            text: t('admin:components.setting.password'),
+            position: 'top'
+          }}
+          value={password || ''}
+          disabled
+        />
 
-        <Input className="col-span-1" label={t('admin:components.setting.port')} value={port || ''} disabled />
+        <Input
+          className="col-span-1"
+          labelProps={{
+            text: t('admin:components.setting.port'),
+            position: 'top'
+          }}
+          value={port || ''}
+          disabled
+        />
 
-        <Input className="col-span-1" label={t('admin:components.setting.enabled')} value={enabled || ''} disabled />
+        <Input
+          className="col-span-1"
+          labelProps={{
+            text: t('admin:components.setting.enabled'),
+            position: 'top'
+          }}
+          value={enabled || ''}
+          disabled
+        />
       </div>
     </Accordion>
   )

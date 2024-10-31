@@ -92,7 +92,10 @@ export default function PatchServerModal() {
         onChange={(e) => {
           state.count.set(parseInt(e.target.value))
         }}
-        label={t('admin:components.instance.count')}
+        labelProps={{
+          text: t('admin:components.instance.count'),
+          position: 'top'
+        }}
       />
     </Modal>
   )

@@ -61,8 +61,6 @@ export default function Recordings() {
                 search.query.set(event.target.value)
               }, 100)
             }}
-            className="dark:bg-[#1A1B1E]"
-            containerClassName="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
         </div>
