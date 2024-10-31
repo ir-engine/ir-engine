@@ -69,10 +69,7 @@ const addEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
 const removeEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
   const state = getMutableState(MountPointState)
   state.mountsToMountedEntities[targetMount].set(none)
-  //feels a bit hacky, but can't delete a record directly since it is read only
-  const mutableMountedEntities = { ...state.mountedEntitiesToMounts.value }
-  delete mutableMountedEntities[mountedEntity]
-  state.mountedEntitiesToMounts.set(mutableMountedEntities)
+  state.mountedEntitiesToMounts[mountedEntity].set(none)
 }
 
 const onEntityDestroyed = (entityUUID: EntityUUID) => {
