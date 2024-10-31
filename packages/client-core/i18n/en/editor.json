@@ -76,8 +76,8 @@
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
   },
-  "warnings" : {
-    "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
+  "warnings": {
+    "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
     "title": "Viewport",
@@ -780,7 +780,7 @@
     "cameraSettings": {
       "name": "Camera Settings",
       "description": "Adjust camera settings to optimize scene visualization, including projection type, field of view, and distance parameters.",
-      "lbl-projectionType" : "Projection Type",
+      "lbl-projectionType": "Projection Type",
       "lbl-fov": "Field of View",
       "lbl-calcClippingPlanes": "Calculate Clipping Planes",
       "lbl-projectionDistance": "Projection Distance",
@@ -1554,19 +1554,8 @@
     "type": "Type",
     "tags": "Tags"
   },
-  "unsupportedBrowser": {
-    "title": "Browser Not Supported!",
-    "description": "Please use Google Chrome for the best experience with the iR Studio.",
-    "downloadChrome": "Download Chrome",
-    "continue": "Continue Anyway"
-  },
   "unsupportedFile": {
     "title": "Unsupported File Type!",
     "okay": "Okay"
-  },
-  "unsupportedDevice": {
-    "title": "Unsupported Device Type!",
-    "description": "We have detected you are using an unsupported device. You may experience errors using this device. If you want to have the best experience with IR Studio, please use a desktop running the latest version of Google Chrome. Thank you!",
-    "continue": "Continue Anyway"
   }
 }
