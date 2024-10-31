@@ -64,15 +64,15 @@ export interface InputBaseProps extends React.InputHTMLAttributes<HTMLInputEleme
   helperText?: string
 
   fullWidth?: boolean
+
+  labelProps?: {
+    text: string
+    position: 'top' | 'left'
+    infoText?: string
+  }
 }
 
-interface LabelProps {
-  labelText: string
-  labelPosition: 'top' | 'left'
-  infoText?: string
-}
-
-export type InputProps = InputBaseProps & LabelProps
+export type InputProps = InputBaseProps
 
 const InputBase = (
   {
@@ -81,9 +81,7 @@ const InputBase = (
     endComponent,
     state,
     helperText,
-    labelText,
-    labelPosition,
-    infoText,
+    labelProps,
     required,
     id,
     fullWidth,
@@ -101,7 +99,7 @@ const InputBase = (
   const [helperOffset, setHelperOffset] = useState('')
   useLayoutEffect(() => {
     const updateHelperTextPosition = () => {
-      if (labelPosition === 'left' && labelRef.current) {
+      if (labelProps?.position === 'left' && labelRef.current) {
         setHelperOffset(`${labelRef.current.offsetWidth + 8}px`)
       } else {
         setHelperOffset('')
@@ -114,21 +112,25 @@ const InputBase = (
     return () => {
       window.removeEventListener('resize', updateHelperTextPosition)
     }
-  }, [labelPosition])
+  }, [labelProps])
 
   return (
     <div className={`flex flex-col gap-y-2 ${fullWidth ? 'w-full' : 'w-fit'}`}>
-      <div className={`flex ${labelPosition === 'top' ? 'flex-col gap-y-2' : 'flex-row items-center gap-x-2'}`}>
-        {labelText && (
+      <div
+        className={`flex ${labelProps?.position === 'top' && 'flex-col gap-y-2'} ${
+          labelProps?.position === 'left' && 'flex-row items-center gap-x-2'
+        }`}
+      >
+        {labelProps?.text && (
           <label htmlFor={inputId} className="block text-xs font-medium" ref={labelRef}>
             <div className="flex flex-row items-center gap-x-1.5">
               <div className="flex flex-row items-center gap-x-0.5">
                 {required && <span className="text-sm text-[#E11D48]">*</span>}
-                <span className="text-xs text-[#D3D5D9]">{labelText}</span>
+                <span className="text-xs text-[#D3D5D9]">{labelProps.text}</span>
               </div>
 
-              {infoText && (
-                <Tooltip content={infoText}>
+              {labelProps?.infoText && (
+                <Tooltip content={labelProps.infoText}>
                   <HelpIconSm className="text-[#9CA0AA]" />
                 </Tooltip>
               )}
@@ -163,7 +165,7 @@ const InputBase = (
 
       {helperText && (
         <span
-          className={`text-xs ${state === 'success' ? 'text-[#0D9467]' : 'text-[#C3324B]'}`}
+          className={`text-xs ${state === 'success' && 'text-[#0D9467]'} ${state === 'error' && 'text-[#C3324B]'}`}
           style={{
             translate: helperOffset
           }}

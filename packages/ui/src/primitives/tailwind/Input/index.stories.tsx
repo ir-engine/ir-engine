@@ -30,7 +30,7 @@ import Input, { InputProps } from './index'
 
 const sizes: InputProps['variantSize'][] = ['xs', 'l', 'xl']
 
-const argTypes: ArgTypes<InputProps> = {
+const argTypes: ArgTypes = {
   variantSize: {
     control: {
       type: 'select'
@@ -94,11 +94,22 @@ export default {
   argTypes: argTypes
 }
 
-const Template: StoryFn<InputProps> = (args) => (
-  <div className="grid h-[50vh] w-full place-items-center rounded border border-gray-300 p-5">
-    <Input {...args} />
-  </div>
-)
+const Template: StoryFn = (args) => {
+  // @ts-ignore
+  const updatedArgs: InputProps = {
+    ...args,
+    labelProps: {
+      text: args.labelText,
+      position: args.labelPosition,
+      infoText: args.infoText
+    }
+  }
+  return (
+    <div className="grid h-[50vh] w-full place-items-center rounded border border-gray-300 p-5">
+      <Input {...updatedArgs} />
+    </div>
+  )
+}
 
 export const Default = Template.bind({})
 Default.args = {
