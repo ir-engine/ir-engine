@@ -36,10 +36,10 @@ import {
   MimeTypeToAssetType
 } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { RadioGroup } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import RadioGroup from '@ir-engine/ui/src/primitives/tailwind/Radio'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../../util/upload'

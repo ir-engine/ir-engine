@@ -36,12 +36,12 @@ import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectP
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { RadioGroup } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -586,7 +586,7 @@ export default function AddEditProjectModal({
           <div className="flex w-full">
             <div className="w-1/2">
               <Label className="mb-4">{t('admin:components.project.autoUpdateMode')}</Label>
-              <Radios
+              <RadioGroup
                 horizontal
                 options={[
                   { label: t('admin:components.project.prod'), value: 'prod' },
