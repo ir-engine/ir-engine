@@ -60,10 +60,11 @@ export const MountPointState = defineState({
     })
   }
 })
+
 const addEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
   const state = getMutableState(MountPointState)
-  state.mountsToMountedEntities[targetMount].merge(mountedEntity)
-  state.mountedEntitiesToMounts[mountedEntity].merge(targetMount)
+  state.mountsToMountedEntities[targetMount].set(mountedEntity)
+  state.mountedEntitiesToMounts[mountedEntity].set(targetMount)
 }
 
 const removeEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
