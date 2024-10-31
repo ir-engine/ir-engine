@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
@@ -40,6 +40,7 @@ import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
+import MediaPreview from './preview'
 
 const PlayModeOptions = [
   {
@@ -68,6 +69,8 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
 
   const media = useComponent(props.entity, MediaComponent)
   const element = useOptionalComponent(props.entity, MediaElementComponent)
+
+  useEffect(() => {}, [media.resources.value])
 
   const toggle = () => {
     media.paused.set(!media.paused.value)
@@ -105,7 +108,11 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
+      <InputGroup
+        name="Is Music"
+        label={t('editor:properties.media.lbl-isMusic')}
+        info={t('editor:properties.media.info-isMusic')}
+      >
         <BooleanInput value={media.isMusic.value} onChange={commitProperty(MediaComponent, 'isMusic')} />
       </InputGroup>
 
@@ -150,18 +157,22 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {media.resources.length > 0 && (
-        <InputGroup
-          name="media-controls"
-          label={t('editor:properties.media.lbl-mediaControls')}
-          className="flex flex-row gap-2"
-        >
-          <Button variant="outline" onClick={toggle}>
-            {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
-          </Button>
-          <Button variant="outline" onClick={reset}>
-            {t('editor:properties.media.resettitle')}
-          </Button>
-        </InputGroup>
+        <div>
+          <InputGroup
+            name="media-controls"
+            info={t('editor:properties.media.info-mediaControls')}
+            label={t('editor:properties.media.lbl-mediaControls')}
+            className="mb-2 flex gap-2"
+          >
+            <Button variant="outline" onClick={toggle}>
+              {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
+            </Button>
+            <Button variant="outline" onClick={reset}>
+              {t('editor:properties.media.resettitle')}
+            </Button>
+          </InputGroup>
+          <MediaPreview resources={media.resources} />
+        </div>
       )}
     </NodeEditor>
   )

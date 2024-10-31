@@ -329,10 +329,17 @@
       "lbl-volume": "Volume",
       "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
+      "info-isMusic": "If true, the media will be treated as music and will not be spatialized (even if a spatial audio component exists).",
       "lbl-size": "Size",
       "seektime": "Start Time",
-      "lbl-mediaControls": "Media Controls"
+      "lbl-mediaControls": "Media Controls",
+      "info-mediaControls": "Control media playback (positional audio based on camera position)"
     },
+    "media-preview": {
+      "lbl-mediaPreview": "Media Preview",
+      "info-mediaPreview": "Preview the selected media (audio or video) source here in properties panel without spatial audio or a video texture in scene",
+      "lbl-selected-source": "Source to Preview"
+      },
     "mesh": {
       "name": "Mesh",
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
