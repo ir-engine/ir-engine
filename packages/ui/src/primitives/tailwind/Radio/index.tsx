@@ -46,6 +46,7 @@ const innerCircleSizeVariant = {
   md: 'h-2.5 w-2.5'
 }
 
+/**individual radio element */
 export const Radio = ({ disabled, label, onClick, value, description, checked, variant = 'sm' }: RadioProps) => {
   const handleClick = (event: React.MouseEvent) => {
     event.stopPropagation()
@@ -118,6 +119,7 @@ export interface RadioGroupProps<T> {
 
 type OptionValueType = string | number
 
+/**group of radio elements */
 const RadioGroup = <T extends OptionValueType>({
   disabled,
   onChange,
