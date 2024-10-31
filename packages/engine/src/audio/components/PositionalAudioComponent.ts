@@ -61,7 +61,7 @@ export const PositionalAudioComponent = defineComponent({
 
   schema: S.Object({
     distanceModel,
-    rolloffFactor: S.Number(3),
+    rolloffFactor: S.Number(1),
     refDistance: S.Number(1),
     maxDistance: S.Number(40),
     coneInnerAngle: S.Number(360),

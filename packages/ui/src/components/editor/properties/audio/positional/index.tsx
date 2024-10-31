@@ -220,6 +220,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       <Slider
         aria-labelname="Cone Outer Gain"
         label={t('editor:properties.audio.lbl-coreOuterGain')}
+        info={t('editor:properties.audio.info-coreOuterGain')}
         description={t('editor:properties.audio.info-coreOuterGain')}
         min={0}
         max={1}
