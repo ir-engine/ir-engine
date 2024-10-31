@@ -35,7 +35,7 @@ const variantSizes = {
 } as const
 
 export interface InputBaseProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  variantSize: keyof typeof variantSizes
+  variantSize?: keyof typeof variantSizes
 
   /**
    * Optional React node to display at the start (left) of the s field.
@@ -54,7 +54,7 @@ export interface InputBaseProps extends React.InputHTMLAttributes<HTMLInputEleme
    * - `success` indicates a successful input.
    * - `error` indicates an error in the input.
    */
-  state: 'success' | 'error'
+  state?: 'success' | 'error'
 
   /**
    * Optional helper text that provides additional information about the input field.
@@ -74,9 +74,9 @@ export interface InputBaseProps extends React.InputHTMLAttributes<HTMLInputEleme
 
 export type InputProps = InputBaseProps
 
-const InputBase = (
+const Input = (
   {
-    variantSize,
+    variantSize = 'l',
     startComponent,
     endComponent,
     state,
@@ -177,4 +177,4 @@ const InputBase = (
   )
 }
 
-export default React.forwardRef(InputBase)
+export default React.forwardRef(Input)
