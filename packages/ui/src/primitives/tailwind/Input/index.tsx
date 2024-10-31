@@ -34,7 +34,7 @@ const variantSizes = {
   xl: 'h-10 py-2.5 px-2'
 } as const
 
-export interface InputBaseProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className'> {
   variantSize?: keyof typeof variantSizes
 
   /**
@@ -71,8 +71,6 @@ export interface InputBaseProps extends React.InputHTMLAttributes<HTMLInputEleme
     infoText?: string
   }
 }
-
-export type InputProps = InputBaseProps
 
 const Input = (
   {
