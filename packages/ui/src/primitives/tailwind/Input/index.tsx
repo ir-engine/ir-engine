@@ -89,8 +89,6 @@ const Input = (
   }: InputProps,
   ref: React.ForwardedRef<HTMLInputElement>
 ) => {
-  const inputClass =
-    'peer order-2 h-full w-full bg-inherit text-[#9CA0AA] outline-none focus:text-[#F5F5F5] disabled:text-[#6B6F78]'
   const tempId = useId()
   const inputId = id || tempId
 
@@ -149,7 +147,13 @@ const Input = (
             state === 'error' && 'border-[#C3324B]'
           )}
         >
-          <input spellCheck={false} className={inputClass} ref={ref} id={inputId} {...props} />
+          <input
+            spellCheck={false}
+            className="peer order-2 h-full w-full bg-[#141619] text-[#9CA0AA] outline-none autofill:bg-red-500 focus:bg-[#141619] focus:text-[#F5F5F5] focus-visible:bg-[#141619] disabled:text-[#6B6F78]"
+            ref={ref}
+            id={inputId}
+            {...props}
+          />
           {startComponent && (
             <div className="order-1 flex items-center justify-center text-[#9CA0AA] peer-disabled:text-[#42454D]">
               {startComponent}
