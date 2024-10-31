@@ -317,4 +317,100 @@ describe('identity-provider.test', () => {
       }
     )
   })
+
+  it('should not allow search without the required scope - multiple queries', async () => {
+    const type = 'guest'
+    const token = uuidv4()
+    const searchEmail = 'testemail@testdomain.com'
+    const identityProviderForSearchCases = await app.service(identityProviderPath).create(
+      {
+        type,
+        token,
+        userId: '' as UserID
+      },
+      {}
+    )
+    const queries = [
+      {
+        description: 'and case with like for both email and accountIdentifier',
+        query: {
+          $select: ['id', 'userId'],
+          $and: [
+            {
+              accountIdentifier: {
+                $like: `%${searchEmail.toLowerCase()}%`
+              }
+            },
+            {
+              email: {
+                $like: `%${searchEmail.toLowerCase()}%`
+              }
+            }
+          ]
+        }
+      },
+      {
+        description: 'like on accountIdentifier',
+        query: {
+          $select: ['id', 'accountIdentifier'],
+          accountIdentifier: {
+            $like: searchEmail.toLowerCase()
+          },
+          $limit: 1
+        }
+      },
+      {
+        description: 'like on email',
+        query: {
+          $select: ['id', 'email'],
+          email: {
+            $like: searchEmail.toLowerCase()
+          },
+          $limit: 1
+        }
+      },
+      {
+        description: 'or case with like for both email and accountIdentifier',
+        query: {
+          $select: ['id', 'userId'],
+          $or: [
+            {
+              accountIdentifier: {
+                $like: `%${searchEmail.toLowerCase()}%`
+              }
+            },
+            {
+              email: {
+                $like: `%${searchEmail.toLowerCase()}%`
+              }
+            }
+          ]
+        }
+      }
+    ] as any[]
+
+    for (const { description, query } of queries) {
+      console.log(description)
+      await assert.rejects(
+        async () => {
+          await app.service(identityProviderPath).find({
+            provider: 'rest',
+            headers: {
+              authorization: `Bearer ${identityProviderForSearchCases.accessToken}`
+            },
+            authentication: {
+              strategy: 'jwt',
+              accessToken: identityProviderForSearchCases.accessToken
+            },
+            query,
+            paginate: false
+          })
+        },
+        {
+          name: 'NotFound',
+          message: 'No scope available for the current user.'
+        }
+      )
+    }
+  })
 })
