@@ -30,7 +30,7 @@ import Tooltip from '../../../primitives/tailwind/Tooltip'
 
 export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: number
-  label: string
+  label?: string
   info?: string
   description?: string
   min?: number
