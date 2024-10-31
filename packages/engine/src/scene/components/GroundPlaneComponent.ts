@@ -45,7 +45,7 @@ import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/compon
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
@@ -74,7 +74,7 @@ export const GroundPlaneComponent = defineComponent({
       () => new MeshStandardMaterial()
     )
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const meshVal = mesh.value as Mesh<PlaneGeometry, MeshStandardMaterial>
       meshVal.geometry.rotateX(-Math.PI / 2)
       meshVal.name = 'GroundPlaneMesh'
@@ -96,12 +96,12 @@ export const GroundPlaneComponent = defineComponent({
       }
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const color = component.color.value
       mesh.material.color.value.set(color)
     }, [component.color])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (component.visible.value) {
         setComponent(meshEntity, VisibleComponent)
         return () => {
