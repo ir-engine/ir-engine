@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import matches from 'ts-matches'
 
 import { EntityUUID, matchesEntityUUID } from '@ir-engine/ecs'
-import { defineAction, defineState, getMutableState, none } from '@ir-engine/hyperflux'
+import { defineAction, defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
 
 export class MountPointActions {
@@ -42,8 +42,8 @@ export class MountPointActions {
 export const MountPointState = defineState({
   name: 'MountPointState',
   initial: () => ({
-    mountsToMountedEntities: {} as Record<EntityUUID, EntityUUID>,
-    mountedEntitiesToMounts: {} as Record<EntityUUID, EntityUUID>
+    mountsToMountedEntities: new Map<EntityUUID, EntityUUID>(),
+    mountedEntitiesToMounts: new Map<EntityUUID, EntityUUID>()
   }),
 
   receptors: {
@@ -61,21 +61,21 @@ export const MountPointState = defineState({
   }
 })
 const addEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
-  const state = getMutableState(MountPointState)
-  state.mountsToMountedEntities[targetMount].merge(mountedEntity)
-  state.mountedEntitiesToMounts[mountedEntity].merge(targetMount)
+  const state = getState(MountPointState)
+  state.mountsToMountedEntities.set(targetMount, mountedEntity)
+  state.mountedEntitiesToMounts.set(mountedEntity, targetMount)
 }
 
 const removeEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
-  const state = getMutableState(MountPointState)
-  state.mountsToMountedEntities[targetMount].set(none)
-  state.mountedEntitiesToMounts[mountedEntity].set(none)
+  const state = getState(MountPointState)
+  state.mountsToMountedEntities.delete(targetMount)
+  state.mountedEntitiesToMounts.delete(mountedEntity)
 }
 
 const onEntityDestroyed = (entityUUID: EntityUUID) => {
-  const state = getMutableState(MountPointState)
-  if (entityUUID in state.mountedEntitiesToMounts.value) {
-    const mountUUID = state.mountedEntitiesToMounts[entityUUID].value
+  const state = getState(MountPointState)
+  if (state.mountedEntitiesToMounts.has(entityUUID)) {
+    const mountUUID = state.mountedEntitiesToMounts.get(entityUUID)
     if (mountUUID) {
       removeEntry(mountUUID, entityUUID)
     }
