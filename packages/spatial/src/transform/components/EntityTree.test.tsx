@@ -1847,9 +1847,10 @@ describe('getNestedChildren', () => {
   })
 }) //:: getNestedChildren
 
-describe('findRootAncestors', () => {
-  /** @todo */
-}) //:: findRootAncestors
+/*
+// @todo Only used in one place. Might be removed.
+describe('findRootAncestors', () => { }) //:: findRootAncestors
+*/
 
 describe('iterateEntityNode', () => {
   let parentEntity: Entity

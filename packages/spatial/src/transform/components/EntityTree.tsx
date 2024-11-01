@@ -600,33 +600,29 @@ export function haveCommonAncestor(entity1: Entity, entity2: Entity): boolean {
 
 /**
  * @description
- * Returns the filtered list of `@param entities` that are not ancestors of any other entities in the `@param target` array.
+ * Returns the filtered list of `@param entities` that are not ancestors of any other entities in the `@param result` array.
  *
  * @param entities The list of entities that will be searched for
  * @param result _(default: [])_ {@link Entity} list used to store the resulting list during the process
  * @returns The resulting filtered {@link Entity} list. Will be the same array as `@param result`
  * */
-export function findCommonAncestors(entities: Entity[], result: Entity[] = []): Entity[] {
+export function findRootAncestors(entities: Entity[], result: Entity[] = []): Entity[] {
   // Initially all entities are candidates
-  for (let i = 0; i < entities.length; i++) result.push(entities[i])
+  for (const entity of entities) result.push(entity)
 
-  // Check if each entity is an ancestor of any of the other entities.
-  // If so reject that entity and remove it from the candidates array.
-  for (let i = 0; i < entities.length; ++i) {
-    const entity = entities[i]
+  // Check the input list against the initial candidates list,
+  // and remove any invalid candidates from the output
+  for (const entity of entities) {
     let validCandidate = true
-
-    for (let j = 0; j < result.length; ++j) {
-      if (isAncestor(result[j], entity)) {
+    for (const candidate of result) {
+      if (isAncestor(candidate, entity)) {
         validCandidate = false
         break
       }
     }
-
     if (!validCandidate) {
       const index = findIndexOfEntityNode(result, entity)
       if (index === -1) throw new Error('Object not found')
-
       result.splice(index, 1)
     }
   }
