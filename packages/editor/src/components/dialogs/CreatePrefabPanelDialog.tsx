@@ -68,7 +68,7 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
   const isOverwriteConfirmed = useHookstate(false)
   const onExportPrefab = async () => {
     const editorState = getState(EditorState)
-    const fileName = defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
+    const fileName = defaultPrefabFolder.value + '/' + prefabName.value + '.prefab.gltf'
     const srcProject = editorState.projectName!
     const fileURL = pathJoin(config.client.fileServer, 'projects', srcProject, fileName)
     try {
