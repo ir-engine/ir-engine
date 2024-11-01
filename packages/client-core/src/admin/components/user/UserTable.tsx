@@ -114,19 +114,46 @@ export default function UserTable({
 
   const createRows = (rows: readonly UserType[]): UserRowType[] =>
     rows.map((row) => {
-      const login = useFind(userLoginPath, {
-        query: {
-          userId: user.id,
-          $sort: { createdAt: -1 },
-          $limit: 1
-        }
-      })
-      const userAvatarQuery = useFind(userAvatarPath, {
-        query: {
-          userId: row.id
-        }
-      })
-      const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
+      const RenderLogin = () => {
+        const login = useFind(userLoginPath, {
+          query: {
+            userId: row.id,
+            $sort: { createdAt: -1 },
+            $limit: 1
+          }
+        })
+
+        return login.data.length > 0 ? (
+          <div className="flex">
+            {toDisplayDateTime(login.data[0].createdAt)}
+            <Tooltip
+              content={
+                <>
+                  <span>IP Address: {login.data[0].ipAddress}</span>
+                  <br />
+                  <span>User Agent: {login.data[0].userAgent}</span>
+                </>
+              }
+            >
+              <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
+            </Tooltip>
+          </div>
+        ) : (
+          <></>
+        )
+      }
+
+      const RenderAvatarImage = () => {
+        const userAvatarQuery = useFind(userAvatarPath, {
+          query: {
+            userId: row.id
+          }
+        })
+        const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
+
+        return <AvatarImage src={userAvatar?.avatar?.thumbnailResource?.url || ''} name={row.name} />
+      }
+
       return {
         select: (
           <Checkbox
@@ -145,27 +172,10 @@ export default function UserTable({
             </Tooltip>
           </div>
         ),
-        avatar: <AvatarImage src={userAvatar?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
+        avatar: <RenderAvatarImage />,
         accountIdentifier: <AccountIdentifiers user={row} />,
-        lastLogin:
-          login.data.length > 0 ? (
-            <div className="flex">
-              {toDisplayDateTime(login.data[0].createdAt)}
-              <Tooltip
-                content={
-                  <>
-                    <span>IP Address: {login.data[0].ipAddress}</span>
-                    <br />
-                    <span>User Agent: {login.data[0].userAgent}</span>
-                  </>
-                }
-              >
-                <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
-              </Tooltip>
-            </div>
-          ) : (
-            <></>
-          ),
+        lastLogin: <RenderLogin />,
+
         acceptedTOS: row.acceptedTOS ? (
           <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
         ) : (
