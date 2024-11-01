@@ -24,10 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useId, useRef, useState } from 'react'
+import { LuInfo } from 'react-icons/lu'
+import { twMerge } from 'tailwind-merge'
+import Tooltip from '../../../primitives/tailwind/Tooltip'
 
 export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: number
   label: string
+  info?: string
   description?: string
   min?: number
   max?: number
@@ -44,6 +48,7 @@ export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 
 const Slider = ({
   value,
   label,
+  info,
   description,
   min = 0,
   max = 100,
@@ -88,6 +93,11 @@ const Slider = ({
         <label className="mr-2 text-sm text-[#B2B5BD] group-hover/editor-slider:text-[#D3D5D9]" htmlFor={id}>
           {label}
         </label>
+      )}
+      {info && (
+        <Tooltip content={info}>
+          <LuInfo className={twMerge('h-5 w-5', 'text-[#A0A1A2]')} />
+        </Tooltip>
       )}
       <input
         id={id}
