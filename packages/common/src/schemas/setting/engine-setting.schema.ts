@@ -54,8 +54,7 @@ export const engineSettingSchema = Type.Object(
     key: Type.String(),
     value: Type.String(),
     type: StringEnum(['private', 'public']),
-    // @ts-ignore
-    category: StringEnum(engineSettingCategories),
+    category: Type.String(),
     updatedBy: Type.Optional(
       TypedString<UserID>({
         format: 'uuid'
