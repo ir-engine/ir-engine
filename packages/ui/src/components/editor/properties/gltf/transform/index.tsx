@@ -74,7 +74,6 @@ function TextParam({
 
       <div className="col-span-2 col-start-3">
         <Input
-          className="py-0 text-xs text-[#9CA0AA]"
           value={state.value}
           onChange={(e) => {
             state.set(parseFunction(e.target.value))
@@ -127,14 +126,12 @@ export default function GLTFTransformProperties({
                 onChange={(e) => {
                   transformParms.dst.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
               />
               <Input
                 value={transformParms.resourceUri.value}
                 onChange={(e) => {
                   transformParms.resourceUri.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
               />
             </div>
           </div>
@@ -154,11 +151,7 @@ export default function GLTFTransformProperties({
               </Text>
             </div>
             <div className="col-span-3 flex flex-col justify-around gap-y-2">
-              <Input
-                value={`${itemCount} Items`}
-                disabled={true}
-                className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
-              />
+              <Input value={`${itemCount} Items`} disabled={true} />
             </div>
           </div>
         )}
