@@ -218,13 +218,19 @@ export default function ImportSettingsPanel() {
       <Input
         value={defaultImportFolder}
         onChange={(event) => setDefaultImportFolder(event.target.value)}
-        label="Default Import Folder"
+        labelProps={{
+          text: 'Default Import Folder',
+          position: 'top'
+        }}
       />
       <Checkbox value={LODGenEnabled} onChange={() => setLODGenEnabled(!LODGenEnabled)} label={'Generate LODs'} />
       {LODGenEnabled && (
         <>
           <Input
-            label="LODs Folder"
+            labelProps={{
+              text: 'LODs Folder',
+              position: 'top'
+            }}
             value={LODImportFolder}
             onChange={(event) => setLODImportFolder(event?.target.value)}
           />

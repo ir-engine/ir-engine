@@ -151,9 +151,12 @@ export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: (
           inputError.set('')
           inputSceneName.set(event.target.value)
         }}
-        label={t('editor:dialog.saveNewScene.lbl-name')}
-        description={t('editor:dialog.saveNewScene.info-name')}
-        error={inputError.value}
+        labelProps={{
+          text: t('editor:dialog.saveNewScene.lbl-name'),
+          position: 'top'
+        }}
+        state={inputError.value ? 'error' : undefined}
+        helperText={inputError.value}
       />
     </Modal>
   )

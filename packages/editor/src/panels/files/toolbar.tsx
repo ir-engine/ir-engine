@@ -250,9 +250,6 @@ export default function FilesToolbar() {
             onChange={(e) => {
               filesState.searchText.set(e.target.value)
             }}
-            labelClassname="text-sm text-red-500"
-            containerClassName="flex h-full w-auto rounded-lg overflow-hidden"
-            className="h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
             data-testid="files-panel-search-input"
           />

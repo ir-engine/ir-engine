@@ -178,12 +178,18 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
           <Input
             value={defaultPrefabFolder.value}
             onChange={(event) => defaultPrefabFolder.set(event.target.value)}
-            label="Default Save Folder"
+            labelProps={{
+              text: 'Default Save Folder',
+              position: 'top'
+            }}
           />
           <Input
             value={prefabName.value}
             onChange={(event) => prefabName.set(event.target.value)}
-            label="Name"
+            labelProps={{
+              text: 'Name',
+              position: 'top'
+            }}
             maxLength={64}
           />
 
@@ -202,7 +208,10 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
               <div className="ml-4 flex items-end">
                 <Input
                   key={index}
-                  label={t('editor:layout.filebrowser.fileProperties.tag')}
+                  labelProps={{
+                    text: t('editor:layout.filebrowser.fileProperties.tag'),
+                    position: 'top'
+                  }}
                   onChange={(event) => {
                     const tags = [...prefabTag.value]
                     tags[index] = event.target.value

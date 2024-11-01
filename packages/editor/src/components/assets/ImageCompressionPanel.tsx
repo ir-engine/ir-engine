@@ -167,7 +167,7 @@ export default function ImageCompressionPanel({
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-theme-input bg-[#2C2E33] px-2 py-1.5" value={title} disabled />
+          <Input value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
