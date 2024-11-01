@@ -44,7 +44,6 @@ import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '
 import React, { useEffect, useLayoutEffect } from 'react'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { TransformComponent } from './TransformComponent'
 
 type EntityTreeSetType = {
   parentEntity: Entity
@@ -679,53 +678,4 @@ export function traverseEarlyOut(entity: Entity, cb: (entity: Entity) => boolean
   }
 
   return stopTravel
-}
-
-/**
- * @description
- * Filters the parent entities from the given entity list.
- * Assuming two entities have a parent child relationship _(can be any level deep)_ in a given entity list,
- * then this function will filter out the child entity.
- *
- * @param rootEntity The {@link Entity} where traversal will start
- * @param entityList List of entities to find parents from
- * @param result Resulting list of parent {@link Entity}. Will be cleared before starting the process.
- * @param filterUnremovable Whether to filter unremovable entities or not
- * @param filterUntransformable Whether to filter untransformable entities or not
- * @returns The resulting {@link Entity} list of parent entities
- */
-export const filterParentEntities = (
-  rootEntity: Entity,
-  entityList: Entity[],
-  result: Entity[] = [],
-  filterUnremovable = true,
-  filterUntransformable = true
-): Entity[] => {
-  result.length = 0
-
-  // Recursively find the nodes in the tree with the lowest depth
-  const traverseParentOnly = (entity: Entity) => {
-    if (!entity) return
-
-    const node = getOptionalComponent(entity, EntityTreeComponent)
-
-    if (
-      entityList.includes(entity) &&
-      !(filterUnremovable && !node?.parentEntity) &&
-      !(filterUntransformable && !hasComponent(entity, TransformComponent))
-    ) {
-      result.push(entity)
-      return
-    }
-
-    if (node?.children) {
-      for (let id = 0; id < node?.children.length; ++id) {
-        traverseParentOnly(node?.children[id])
-      }
-    }
-  }
-
-  traverseParentOnly(rootEntity)
-
-  return result
 }

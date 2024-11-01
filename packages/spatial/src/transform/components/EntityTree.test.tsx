@@ -47,7 +47,6 @@ import { assertArrayEqual } from '../../../tests/util/mathAssertions'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
-  filterParentEntities,
   findIndexOfEntityNode,
   getAncestorWithComponents,
   getChildrenWithComponents,
@@ -1716,46 +1715,6 @@ describe('isAncestor', () => {
   })
 }) //:: isAncestor
 
-describe('filterParentEntities', () => {
-  beforeEach(() => {
-    createEngine()
-  })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
-
-  /** @todo How to setup this test ?? */
-  it.skip('should remove the child entities from the list', () => {
-    const Expected: Entity[] = []
-    // Set the data as expected
-    const parent03 = createEntity()
-    const parent02 = createEntity()
-    const parent01 = createEntity()
-    const rootEntity = createEntity()
-    const child01 = createEntity()
-    const child02 = createEntity()
-    const child03 = createEntity()
-    const child11 = createEntity()
-    const entityList = [parent03, parent02, parent01, rootEntity, child01, child02, child03, child11]
-    const clone = Object.assign([], entityList)
-    setComponent(parent03, EntityTreeComponent)
-    setComponent(parent02, EntityTreeComponent, { parentEntity: parent03 })
-    setComponent(parent01, EntityTreeComponent, { parentEntity: parent02 })
-    setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent01 })
-    setComponent(child01, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child02, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child03, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child11, EntityTreeComponent, { parentEntity: child01 })
-    // Sanity check before running
-    // Run and Check the result
-    const result = filterParentEntities(rootEntity, entityList, clone)
-    console.log(result)
-    console.log(clone)
-    assertArrayEqual(result, Expected)
-  })
-}) //:: filterParentEntities
-
 describe('traverseEarlyOut', () => {
   let parentEntity: Entity
 
@@ -1888,9 +1847,9 @@ describe('getNestedChildren', () => {
   })
 }) //:: getNestedChildren
 
-describe('findCommonAncestors', () => {
+describe('findRootAncestors', () => {
   /** @todo */
-}) //:: findCommonAncestors
+}) //:: findRootAncestors
 
 describe('iterateEntityNode', () => {
   let parentEntity: Entity
