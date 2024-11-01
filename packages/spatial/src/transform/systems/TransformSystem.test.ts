@@ -402,21 +402,18 @@ describe('TransformSystem', () => {
           }
         })
 
-        /** @todo How to setup the BoundingBox so that the camera Frustum doesnt contain it ?? */
-        it.skip(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {
+        it(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {
           const Initial = 0
           const Expected = 1
           const viewerEntity = getState(EngineState).viewerEntity
-          // const box = new Box3(new Vector3(-1, -1, -1), new Vector3(-42, -42, -42))
-          const box = new Box3(new Vector3(1, 1, 1), new Vector3(42, 42, 42))
           // Set the data as expected
-          setComponent(viewerEntity, TransformComponent, { position: new Vector3().setScalar(42_000) })
           const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
           for (const entity of entities) {
-            setComponent(entity, TransformComponent)
+            setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 2) })
             setComponent(entity, FrustumCullCameraComponent)
+            setComponent(entity, MeshComponent, new Mesh(new BoxGeometry(1, 1, 1)))
+            addObjectToGroup(entity, getComponent(entity, MeshComponent))
             setComponent(entity, BoundingBoxComponent) // Set a bounding box, so we hit the `?` branch when frustum culling
-            getMutableComponent(entity, BoundingBoxComponent).box.set(box)
           }
           // Sanity check before running
           for (const entity of entities) {
@@ -492,20 +489,19 @@ describe('TransformSystem', () => {
           }
         })
 
-        /** @todo How to setup the BoundingBox so that the camera Frustum doesnt contain it ?? */
-        it.skip(".. should not set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {
+        it(".. should not set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {
           const Initial = 0
+          const Expected = Initial
           getMutableState(EngineState).viewerEntity.set(UndefinedEntity)
           const viewerEntity = getState(EngineState).viewerEntity
-          // const box = new Box3(new Vector3(-1, -1, -1), new Vector3(-42, -42, -42))
-          const box = new Box3(new Vector3(1, 1, 1), new Vector3(42, 42, 42))
           // Set the data as expected
           const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
           for (const entity of entities) {
-            setComponent(entity, TransformComponent)
+            setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 2) })
             setComponent(entity, FrustumCullCameraComponent)
+            setComponent(entity, MeshComponent, new Mesh(new BoxGeometry(1, 1, 1)))
+            addObjectToGroup(entity, getComponent(entity, MeshComponent))
             setComponent(entity, BoundingBoxComponent) // Set a bounding box, so we hit the `?` branch when frustum culling
-            getMutableComponent(entity, BoundingBoxComponent).box.set(box)
           }
           // Sanity check before running
           for (const entity of entities) {
@@ -518,7 +514,7 @@ describe('TransformSystem', () => {
           System.execute()
           for (const entity of entities) {
             const result = FrustumCullCameraComponent.isCulled[entity]
-            assert.equal(result, Initial)
+            assert.equal(result, Expected)
           }
         })
       })
