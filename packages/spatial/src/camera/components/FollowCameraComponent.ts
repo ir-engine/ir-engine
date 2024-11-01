@@ -113,6 +113,7 @@ export const FollowCameraComponent = defineComponent({
       }),
       cameraRays: S.Array(S.Vec3(), [])
     }),
+    pointerLock: S.Bool(false),
     accumulatedZoomTriggerDebounceTime: S.Number(-1),
     lastZoomStartDistance: S.Number(0)
   }),
@@ -179,6 +180,13 @@ export const FollowCameraComponent = defineComponent({
         follow.targetDistance.set(0)
       }
     }, [follow.mode])
+
+    useImmediateEffect(() => {
+      if (!follow.pointerLock.value) return
+      return () => {
+        document.exitPointerLock()
+      }
+    }, [follow.pointerLock])
 
     useEffect(() => {
       follow.lerpValue.set(0)

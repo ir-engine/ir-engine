@@ -278,11 +278,17 @@ export const CanvasInputReactor = () => {
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
-      pointerComponent.position.set(
-        ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
-        ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
-      )
-
+      if (document.pointerLockElement === canvas) {
+        pointerComponent.position.set(
+          pointerComponent.position.x + event.movementX / canvas.clientWidth,
+          pointerComponent.position.y - event.movementY / canvas.clientHeight
+        )
+      } else {
+        pointerComponent.position.set(
+          ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+          ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
+        )
+      }
       ClientInputFunctions.updatePointerDragging(pointerEntity, event)
       ClientInputFunctions.redirectPointerEventsToXRUI(cameraEntity, event)
     }
