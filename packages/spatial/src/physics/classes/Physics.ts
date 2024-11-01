@@ -98,6 +98,16 @@ export type PhysicsWorld = World & {
   drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 }
 
+declare module '@dimforge/rapier3d-compat' {
+  export interface Collider {
+    entity: Entity
+  }
+
+  export interface RigidBody {
+    entity: Entity
+  }
+}
+
 async function load() {
   return RAPIER.init()
 }
@@ -254,9 +264,8 @@ function createRigidBody(world: PhysicsWorld, entity: Entity) {
   rigidBody.linearVelocity.copy(Vector3_Zero)
   rigidBody.angularVelocity.copy(Vector3_Zero)
 
-  // set entity in userdata for fast look up when required.
-  const rigidBodyUserdata = { entity: entity }
-  body.userData = rigidBodyUserdata
+  // set entity in rigidbody for fast look up when required.
+  body.entity = entity
 
   world.Rigidbodies.set(entity, body)
 }
@@ -554,6 +563,7 @@ function attachCollider(
   const rigidBody = world.Rigidbodies.get(rigidBodyEntity) // guaranteed will exist
   if (!rigidBody) return console.error('Rigidbody not found for entity ' + rigidBodyEntity)
   const collider = world.createCollider(colliderDesc, rigidBody)
+  collider.entity = colliderEntity
   world.Colliders.set(colliderEntity, collider)
   return collider
 }
@@ -769,7 +779,7 @@ function castRay(world: PhysicsWorld, raycastQuery: RaycastArgs, filterPredicate
         position: ray.pointAt(hitWithNormal.toi),
         normal: hitWithNormal.normal,
         body,
-        entity: (body.userData as any)['entity']
+        entity: body.entity
       })
   }
 
@@ -842,7 +852,7 @@ function castShape(world: PhysicsWorld, shapecastQuery: ShapecastArgs) {
       normal: hitWithNormal.normal1,
       collider: hitWithNormal.collider,
       body: hitWithNormal.collider.parent() as RigidBody,
-      entity: (hitWithNormal.collider.parent()?.userData as any)['entity'] ?? UndefinedEntity
+      entity: hitWithNormal.collider.parent()?.entity ?? UndefinedEntity
     })
   }
 }
@@ -856,8 +866,8 @@ const drainCollisionEventQueue =
     const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
     const rigidBody1 = collider1.parent()
     const rigidBody2 = collider2.parent()
-    const entity1 = (rigidBody1?.userData as any)['entity']
-    const entity2 = (rigidBody2?.userData as any)['entity']
+    const entity1 = rigidBody1!.entity
+    const entity2 = rigidBody2!.entity
 
     setComponent(entity1, CollisionComponent)
     setComponent(entity2, CollisionComponent)
@@ -896,10 +906,10 @@ const drainContactEventQueue = (physicsWorld: PhysicsWorld) => (event: TempConta
   const collider1 = physicsWorld.getCollider(event.collider1())
   const collider2 = physicsWorld.getCollider(event.collider2())
 
-  const rigidBody1 = collider1.parent()
-  const rigidBody2 = collider2.parent()
-  const entity1 = (rigidBody1?.userData as any)['entity']
-  const entity2 = (rigidBody2?.userData as any)['entity']
+  const rigidBody1 = collider1.parent()!
+  const rigidBody2 = collider2.parent()!
+  const entity1 = rigidBody1?.entity
+  const entity2 = rigidBody2?.entity
 
   const collisionComponent1 = getOptionalComponent(entity1, CollisionComponent)
   const collisionComponent2 = getOptionalComponent(entity2, CollisionComponent)

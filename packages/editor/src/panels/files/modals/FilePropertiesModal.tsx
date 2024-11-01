@@ -111,7 +111,7 @@ export default function FilePropertiesModal() {
           licensing: resourceDigest.licensing.value,
           attribution: resourceDigest.attribution.value,
           description: resourceDigest.description.value,
-          project: projectName
+          project: resource.project
         })
       }
       modifiedFields.set([])

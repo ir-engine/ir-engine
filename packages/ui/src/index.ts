@@ -25,3 +25,5 @@ Infinite Reality Engine. All Rights Reserved.
 
 export { DropdownItem } from './primitives/tailwind/Dropdown'
 export type { DropdownItemProps } from './primitives/tailwind/Dropdown'
+export { Radio, default as RadioGroup } from './primitives/tailwind/Radio'
+export type { RadioGroupProps, RadioProps } from './primitives/tailwind/Radio'

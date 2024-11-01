@@ -49,11 +49,11 @@ import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
+import { Slider } from '@ir-engine/ui/editor'
 import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Menu from '../../../../common/components/Menu'
 import { clientContextParams } from '../../../../util/ClientContextState'
@@ -385,7 +385,7 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               }}
             />
           </InputGroup>
-          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-volume')} className="justify-start">
+          <div className="justify-start">
             <Slider
               max={1}
               min={0}
@@ -396,9 +396,10 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
                 logger.info({ event_name: `set_total_volume`, event_value: value })
               }}
               onRelease={() => {}}
+              label={t('user:usermenu.setting.lbl-volume')}
             />
-          </InputGroup>
-          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-microphone')} className="justify-start">
+          </div>
+          <div className="justify-start">
             <Slider
               max={1}
               min={0}
@@ -409,10 +410,12 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
                 logger.info({ event_name: `set_microphone_volume`, event_value: value })
               }}
               onRelease={() => {}}
+              label={t('user:usermenu.setting.lbl-microphone')}
             />
-          </InputGroup>
-          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-media-instance')} className="justify-start">
+          </div>
+          <div className="justify-start">
             <Slider
+              label={t('user:usermenu.setting.lbl-media-instance')}
               max={1}
               min={0}
               step={0.01}
@@ -423,8 +426,8 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               }}
               onRelease={() => {}}
             />
-          </InputGroup>
-          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-notification')} className="justify-start">
+          </div>
+          <div className="justify-start">
             <Slider
               max={1}
               min={0}
@@ -435,10 +438,12 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
                 logger.info({ event_name: `set_notification_volume`, event_value: value })
               }}
               onRelease={() => {}}
+              label={t('user:usermenu.setting.lbl-notification')}
             />
-          </InputGroup>
-          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-sound-effect')} className="justify-start">
+          </div>
+          <div className="justify-start">
             <Slider
+              label={t('user:usermenu.setting.lbl-sound-effect')}
               max={1}
               min={0}
               step={0.01}
@@ -449,13 +454,10 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               }}
               onRelease={() => {}}
             />
-          </InputGroup>
-          <InputGroup
-            name="Type"
-            label={t('user:usermenu.setting.lbl-background-music-volume')}
-            className="justify-start"
-          >
+          </div>
+          <div className="justify-start">
             <Slider
+              label={t('user:usermenu.setting.lbl-background-music-volume')}
               max={1}
               min={0}
               step={0.01}
@@ -466,14 +468,14 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               }}
               onRelease={() => {}}
             />
-          </InputGroup>
+          </div>
         </>
       )}
 
       {/* Graphics Settings */}
       {selectedTab.value === 'graphics' && (
         <>
-          <InputGroup name="Type" label={t('user:usermenu.setting.lbl-quality')} className="justify-start">
+          <div className="justify-start">
             <Slider
               max={5}
               min={0}
@@ -481,8 +483,9 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               value={rendererState.qualityLevel.value}
               onChange={handleQualityLevelChange}
               onRelease={() => {}}
+              label={t('user:usermenu.setting.lbl-quality')}
             />
-          </InputGroup>
+          </div>
 
           <div className="grid py-4">
             <div className="grid">
