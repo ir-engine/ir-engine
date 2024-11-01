@@ -112,7 +112,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         </Text>
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.accessKeyId'),
             position: 'top'
@@ -122,7 +121,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.secretAccessKey'),
             position: 'top'
@@ -138,7 +136,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         </Text>
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.accessKeyId'),
             position: 'top'
@@ -148,7 +145,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.secretAccessKey'),
             position: 'top'
@@ -158,7 +154,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.endpoint'),
             position: 'top'
@@ -168,7 +163,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.staticResourceBucket'),
             position: 'top'
@@ -178,7 +172,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.region'),
             position: 'top'
@@ -188,7 +181,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.avatarDir'),
             position: 'top'
@@ -198,7 +190,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.s3DevMode'),
             position: 'top'
@@ -213,7 +204,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
           {t('admin:components.setting.cloudFront')}
         </Text>
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.domain'),
             position: 'top'
@@ -223,7 +213,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.distributionId'),
             position: 'top'
@@ -233,7 +222,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.region'),
             position: 'top'
@@ -248,7 +236,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
           {t('admin:components.setting.sms')}
         </Text>
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.accessKeyId'),
             position: 'top'
@@ -258,7 +245,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.applicationId'),
             position: 'top'
@@ -268,7 +254,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.region'),
             position: 'top'
@@ -278,7 +263,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.senderId'),
             position: 'top'
@@ -288,7 +272,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.secretAccessKey'),
             position: 'top'

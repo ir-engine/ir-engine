@@ -140,7 +140,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.appTitle'),
             position: 'top'
@@ -150,7 +149,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.title'),
             position: 'top'
@@ -160,7 +158,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.appSubtitle'),
             position: 'top'
@@ -170,7 +167,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.shortTitle'),
             position: 'top'
@@ -180,7 +176,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.appDescription'),
             position: 'top'
@@ -190,7 +185,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.startPath'),
             position: 'top'
@@ -200,7 +194,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.appBackground'),
             position: 'top'
@@ -210,7 +203,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.description'),
             position: 'top'
@@ -220,7 +212,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.googleAnalyticsMeasurementId'),
             position: 'top'
@@ -229,7 +220,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           onChange={(e) => settings.gaMeasurementId.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.googleTagManagerContainerId'),
             position: 'top'
@@ -238,7 +228,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           onChange={(e) => settings.gtmContainerId.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.googleTagManagerAuth'),
             position: 'top'
@@ -247,7 +236,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           onChange={(e) => settings.gtmAuth.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.googleTagManagerPreview'),
             position: 'top'
@@ -268,7 +256,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.logo'),
             position: 'top'
@@ -278,7 +265,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.appleTouchIcon'),
             position: 'top'
@@ -288,7 +274,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.favIcon16px'),
             position: 'top'
@@ -298,7 +283,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.favIcon32px'),
             position: 'top'
@@ -308,7 +292,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.icon192px'),
             position: 'top'
@@ -318,7 +301,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.icon512px'),
             position: 'top'
@@ -332,7 +314,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.webmanifestLink'),
             position: 'top'
@@ -342,7 +323,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.swScriptLink'),
             position: 'top'
@@ -352,7 +332,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.url'),
             position: 'top'
@@ -362,7 +341,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.releaseName'),
             position: 'top'
@@ -372,7 +350,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.privacyPolicy'),
             position: 'top'
@@ -382,7 +359,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.key8thWall'),
             position: 'top'
@@ -396,7 +372,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
-          className="col-span-1"
           type="number"
           labelProps={{
             text: t('admin:components.setting.audioMaxBitrate'),
@@ -426,7 +401,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           settings.mediaSettings.video.codec.value === 'h264') && (
           <>
             <Input
-              className="col-span-1"
               type="number"
               labelProps={{
                 text: t('admin:components.setting.videoLowResMaxBitrate'),
@@ -437,7 +411,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             />
 
             <Input
-              className="col-span-1"
               type="number"
               labelProps={{
                 text: t('admin:components.setting.videoMidResMaxBitrate'),
@@ -448,7 +421,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             />
 
             <Input
-              className="col-span-1"
               type="number"
               labelProps={{
                 text: t('admin:components.setting.videoHighResMaxBitrate'),

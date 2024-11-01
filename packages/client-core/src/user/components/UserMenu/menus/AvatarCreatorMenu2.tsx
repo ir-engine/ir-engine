@@ -276,7 +276,6 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
                     position: 'top'
                   }}
                   onChange={(e) => avatarName.set(e.target.value)}
-                  className="w-fit py-1 text-sm"
                 />
               </div>
             )}

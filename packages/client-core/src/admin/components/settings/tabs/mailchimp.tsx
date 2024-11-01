@@ -108,7 +108,6 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
     >
       <div className="my-6 grid grid-cols-4 gap-6">
         <PasswordInput
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.mailchimp.key'),
             position: 'top'
@@ -117,7 +116,6 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
           onChange={(e) => key.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.mailchimp.server'),
             position: 'top'
@@ -126,7 +124,6 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
           onChange={(e) => server.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.mailchimp.audienceId'),
             position: 'top'
@@ -135,7 +132,6 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
           onChange={(e) => audienceId.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.mailchimp.defaultTags'),
             position: 'top'
@@ -144,7 +140,6 @@ const MailchimpTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutable
           onChange={(e) => defaultTags.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.mailchimp.groupId'),
             position: 'top'

@@ -109,7 +109,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     >
       <div className="mt-6 grid grid-cols-2 gap-6">
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.clientHost'),
             position: 'top'
@@ -119,7 +118,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.domain'),
             position: 'top'
@@ -129,7 +127,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.rtcStartPort'),
             position: 'top'
@@ -139,7 +136,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.releaseName'),
             position: 'top'
@@ -149,7 +145,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.rtcEndPort'),
             position: 'top'
@@ -159,7 +154,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.port'),
             position: 'top'
@@ -169,7 +163,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.rtcPortBlockSize'),
             position: 'top'
@@ -179,7 +172,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.mode'),
             position: 'top'
@@ -189,7 +181,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.identifierDigits'),
             position: 'top'
@@ -199,7 +190,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.locationName'),
             position: 'top'
@@ -276,7 +266,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                       <div className="col-span-1 mb-4 flex flex-row items-center">
                         {' '}
                         <Input
-                          className="col-span-1"
                           labelProps={{
                             text: t('admin:components.setting.webRTCSettings.iceURL') + (index + 1),
                             position: 'top'
@@ -349,7 +338,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                   {iceServer.useFixedCredentials.value && (
                     <>
                       <Input
-                        className="col-span-1 mb-1"
                         labelProps={{
                           text: t('admin:components.setting.webRTCSettings.username'),
                           position: 'top'
@@ -361,7 +349,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                       />
 
                       <PasswordInput
-                        className="col-span-1 mb-1"
                         labelProps={{
                           text: t('admin:components.setting.webRTCSettings.credential'),
                           position: 'top'
@@ -384,7 +371,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
                   {iceServer.useTimeLimitedCredentials.value && (
                     <PasswordInput
-                      className="col-span-1 mb-1"
                       labelProps={{
                         text: t('admin:components.setting.webRTCSettings.webRTCStaticAuthSecretKey'),
                         position: 'top'

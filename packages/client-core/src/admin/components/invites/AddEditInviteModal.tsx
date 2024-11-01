@@ -325,7 +325,6 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           <div className="flex justify-between">
             <Input
               type="datetime-local"
-              className="w-auto"
               labelProps={{
                 text: t('admin:components.invite.startTime'),
                 position: 'top'
@@ -338,7 +337,6 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             />
             <Input
               type="datetime-local"
-              className="w-auto"
               labelProps={{
                 text: t('admin:components.invite.endTime'),
                 position: 'top'

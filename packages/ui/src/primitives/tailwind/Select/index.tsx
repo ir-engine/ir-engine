@@ -150,7 +150,6 @@ const Select = <T extends OptionValueType>({
           position: 'top'
         }}
         variantSize={inputVariant}
-        className={twMerge('cursor-pointer', inputClassName)}
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
         onChange={handleSearch}

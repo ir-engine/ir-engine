@@ -59,7 +59,6 @@ const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     >
       <div className="mt-6 grid grid-cols-2 gap-6">
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.taskServer.port'),
             position: 'top'
@@ -69,7 +68,6 @@ const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.taskServer.processInterval'),
             position: 'top'

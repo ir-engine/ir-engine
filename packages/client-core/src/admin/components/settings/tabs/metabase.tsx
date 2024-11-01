@@ -145,7 +145,6 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
     >
       <div className="my-6 grid grid-cols-3 gap-6">
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.metabase.siteUrl'),
             position: 'top'
@@ -155,7 +154,6 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.metabase.environment'),
             position: 'top'
@@ -165,7 +163,6 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
         />
 
         <PasswordInput
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.metabase.secretKey'),
             position: 'top'
@@ -175,7 +172,6 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
         />
 
         <Input
-          className="col-span-1"
           type="number"
           labelProps={{
             text: t('admin:components.setting.metabase.expiration'),
@@ -186,7 +182,6 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
         />
 
         <Input
-          className="col-span-1"
           labelProps={{
             text: t('admin:components.setting.metabase.crashDashboardId'),
             position: 'top'

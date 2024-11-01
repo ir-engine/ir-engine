@@ -148,7 +148,6 @@ const AvatarMenu2 = () => {
                     data-test-id="search-avatar-input"
                     value={search.local.value}
                     placeholder={t('user:avatar.searchAvatar')}
-                    className="text-sm font-normal"
                     onChange={(event) => {
                       search.local.set(event.target.value)
 
