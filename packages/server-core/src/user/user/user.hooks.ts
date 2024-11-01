@@ -286,7 +286,9 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
 }
 
 const addLastLogin = async (context: HookContext<UserService>) => {
-  const results = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+  const results = (
+    Array.isArray(context.result) ? context.result : context.result.data ? context.result.data : [context.result]
+  ) as UserType[]
 
   for (const item of results) {
     const user = item as UserType
