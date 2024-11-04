@@ -41,6 +41,7 @@ import { twMerge } from 'tailwind-merge'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
+import './assetPanel.css'
 import { ASSETS_PAGE_LIMIT, calculateItemsToFetch } from './helpers'
 import { useAssetsQuery } from './hooks'
 
@@ -162,6 +163,8 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
+  const isSelected = useMutableState(ClickPlacementState).selectedAsset.value === resource.url
+
   return (
     <div
       key={resource.id}
@@ -172,7 +175,10 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
         event.stopPropagation()
         anchorEvent.set(event)
       }}
-      className={'mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center' + 'resource-file'}
+      className={twMerge(
+        'resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center',
+        isSelected && 'rounded bg-[#212226]'
+      )}
       data-testid="assets-panel-resource-file"
     >
       <div

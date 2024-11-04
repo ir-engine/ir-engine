@@ -55,7 +55,9 @@ const archive = async (app: Application, projectName: string, params?: ArchiverP
 
   logger.info(`Archiving ${projectName}`)
 
-  const result = await storageProvider.listFolderContent(`projects/${projectName}`)
+  const result = (await storageProvider.listFolderContent(`projects/${projectName}`)).filter(
+    (f) => f.key !== `projects/${projectName}/node_modules/`
+  )
 
   const zip = new JSZip()
 
@@ -69,12 +71,15 @@ const archive = async (app: Application, projectName: string, params?: ArchiverP
 
     if (result[i].type == 'folder') continue
 
-    const blobPromise = (await storageProvider.getObject(result[i].key)).Body
-
-    logger.info(`Added ${result[i].key} to archive`)
-
-    const dir = result[i].key.replace(`projects/${projectName}/`, '')
-    zip.file(dir, blobPromise)
+    try {
+      const blobPromise = (await storageProvider.getObject(result[i].key)).Body
+      logger.info(`Added ${result[i].key} to archive`)
+      const dir = result[i].key.replace(`projects/${projectName}/`, '')
+      zip.file(dir, blobPromise)
+    } catch (err) {
+      /** @todo we should return a warning to the user that a file failed to be included */
+      logger.error(`Failed to add ${result[i].key} to archive`, err)
+    }
   }
 
   const generated = await zip.generateAsync({ type: 'blob', streamFiles: true })

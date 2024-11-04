@@ -29,7 +29,7 @@ import { Vector3 } from 'three'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
+import { defineState, getState, isClient } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
@@ -39,12 +39,16 @@ import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const linkLogic = (linkEntity: Entity, xrState) => {
   const linkComponent = getComponent(linkEntity, LinkComponent)
-  if (!linkComponent.sceneNav) {
-    xrState && xrState.session?.end()
-    typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
-  } else {
-    getMutableState(LinkState).location.set(linkComponent.location)
-  }
+  // if (!linkComponent.sceneNav) {
+  //   xrState && xrState.session?.end()
+  //   typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
+  // } else {
+  //   getMutableState(LinkState).location.set(linkComponent.location)
+  // }
+  xrState && xrState.session?.end()
+  typeof window === 'object' && window && linkComponent.newTab
+    ? window.open(linkComponent.url, '_blank')
+    : (window.location.href = linkComponent.url)
 }
 const linkCallback = (linkEntity: Entity) => {
   const buttons = InputComponent.getMergedButtons(linkEntity)
@@ -74,7 +78,8 @@ export const LinkComponent = defineComponent({
   schema: S.Object({
     url: S.String(''),
     sceneNav: S.Bool(false),
-    location: S.String('')
+    location: S.String(''),
+    newTab: S.Bool(true)
   }),
 
   linkCallbackName,

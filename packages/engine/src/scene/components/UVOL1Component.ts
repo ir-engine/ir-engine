@@ -63,10 +63,10 @@ import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AudioState } from '../../audio/AudioState'
+import { handleAutoplay, LegacyVolumetricComponent } from './LegacyVolumetricComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
-import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
 
 const decodeCorto = (url: string, start: number, end: number) => {
   return new Promise<BufferGeometry | null>((res, rej) => {
@@ -135,7 +135,7 @@ export const UVOL1Component = defineComponent({
 
 function UVOL1Reactor() {
   const entity = useEntityContext()
-  const volumetric = useComponent(entity, VolumetricComponent)
+  const volumetric = useComponent(entity, LegacyVolumetricComponent)
   const component = useComponent(entity, UVOL1Component)
   const shadow = useOptionalComponent(entity, ShadowComponent)
   const videoElement = getMutableComponent(entity, MediaElementComponent).value

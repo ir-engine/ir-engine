@@ -37,10 +37,10 @@ import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvM
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
+import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
-import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
@@ -77,15 +77,7 @@ export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
     return {
-      Files: [
-        ModelComponent,
-        VolumetricComponent,
-        NewVolumetricComponent,
-        PositionalAudioComponent,
-        AudioAnalysisComponent,
-        VideoComponent,
-        ImageComponent
-      ],
+      Files: [ModelComponent, PositionalAudioComponent, AudioAnalysisComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
@@ -94,7 +86,6 @@ export const ComponentShelfCategoriesState = defineState({
         MountPointComponent,
         InteractableComponent,
         InputComponent,
-        GrabbableComponent,
         ScreenshareTargetComponent
       ],
       Lighting: [
@@ -125,6 +116,10 @@ export const ComponentShelfCategoriesState = defineState({
   reactor: () => {
     const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
     const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
+    const [grabbleEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Grabble])
+
+    const [legacyVolumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.LegacyVolumetric])
+    const [volumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.Volumetric])
 
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
@@ -148,5 +143,38 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [portalEnabled])
+
+    useEffect(() => {
+      if (grabbleEnabled) {
+        cShelfState.Interaction.merge([GrabbableComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == GrabbableComponent.name))
+          })
+        }
+      }
+    }, [grabbleEnabled])
+
+    useEffect(() => {
+      if (legacyVolumetricEnabled) {
+        cShelfState.Interaction.merge([LegacyVolumetricComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == LegacyVolumetricComponent.name))
+          })
+        }
+      }
+    }, [legacyVolumetricEnabled])
+
+    useEffect(() => {
+      if (volumetricEnabled) {
+        cShelfState.Interaction.merge([VolumetricComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == VolumetricComponent.name))
+          })
+        }
+      }
+    }, [volumetricEnabled])
   }
 })
