@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 /* eslint-disable max-len */
 
+import * as LegacyVolumetricNodes from '@ir-engine/engine/src/scene/components/LegacyVolumetricNodes'
 import * as VolumetricNodes from '@ir-engine/engine/src/scene/components/VolumetricNodes'
 import {
   getNodeDescriptions,
@@ -80,6 +81,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(SplineNodes),
     ...getNodeDescriptions(QueryNodes),
     ...getNodeDescriptions(AxisNodes),
+    ...getNodeDescriptions(LegacyVolumetricNodes),
     ...getNodeDescriptions(VolumetricNodes),
     ...getNodeDescriptions(VariableNodes),
     // variables
