@@ -353,12 +353,7 @@ export default createSkippableHooks(
       all: [],
       find: [iff(isProvider('external'), addLastLogin)],
       get: [],
-      create: [
-        addUserSettings,
-        addApiKey,
-        updateInviteCode,
-        addUpdateUserAvatar
-      ],
+      create: [addUserSettings, addApiKey, updateInviteCode, addUpdateUserAvatar],
       update: [],
       patch: [updateInviteCode, addUpdateUserAvatar],
       remove: []
