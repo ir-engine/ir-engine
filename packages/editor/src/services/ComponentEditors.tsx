@@ -35,11 +35,11 @@ import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapCo
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
-import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
+import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
@@ -130,7 +130,7 @@ import VariantNodeEditor from '@ir-engine/ui/src/components/editor/properties/va
 import VideoNodeEditor from '@ir-engine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric'
-import LegacyVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/legacy'
+import NewVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
 
 export const ComponentEditorsState = defineState({
@@ -170,8 +170,8 @@ export const ComponentEditorsState = defineState({
       [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
       [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
-      [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,
       [VolumetricComponent.name]: VolumetricNodeEditor,
+      [NewVolumetricComponent.name]: NewVolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
       [EnvmapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,

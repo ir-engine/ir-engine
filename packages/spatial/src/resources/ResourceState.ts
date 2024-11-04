@@ -284,7 +284,7 @@ const resourceCallbacks = {
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
-      asset.dispose?.()
+      asset.dispose()
       const size = resource.metadata.size.value
       if (size) resourceState.totalBufferCount.set(resourceState.totalBufferCount.value - size)
     }

@@ -31,7 +31,6 @@ import {
   ComponentJSONIDMap,
   createEntity,
   Entity,
-  entityExists,
   EntityUUID,
   getComponent,
   getOptionalComponent,
@@ -462,7 +461,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   }, [])
 
   useLayoutEffect(() => {
-    if (!entity || !entityExists(entity)) return
+    if (!entity) return
 
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
   }, [entity, parentEntity, props.childIndex])

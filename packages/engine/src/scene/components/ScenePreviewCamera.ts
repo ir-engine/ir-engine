@@ -39,7 +39,6 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, isClient, useHookstate } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
@@ -56,15 +55,15 @@ export const ScenePreviewCameraComponent = defineComponent({
 
   reactor: function () {
     if (!isClient) return null
+
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useOptionalComponent(Engine.instance.cameraEntity, TransformComponent)
-    const isEditing = useHookstate(getMutableState(EngineState).isEditing).value
 
     useLayoutEffect(() => {
-      if (!engineCameraTransform || isEditing) return
+      if (!engineCameraTransform) return
 
       const transform = getComponent(entity, TransformComponent)
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)

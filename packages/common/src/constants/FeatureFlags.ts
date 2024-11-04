@@ -39,17 +39,11 @@ export const FeatureFlags = {
     Model: {
       Dereference: 'ir.studio.model.dereference'
     },
-    Components: {
-      LegacyVolumetric: 'ir.studio.components.legacyVolumetric',
-      Volumetric: 'ir.studio.components.volumetric'
-    },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript',
-      Portal: 'ir.editor.panel.portal',
-      Grabble: 'ir.editor.panel.grabble'
+      Portal: 'ir.editor.panel.portal'
     },
     UI: {
-      SceneComplexityNotification: 'ir.editor.ui.sceneComplexityNotification',
       TransformPivot: 'ir.editor.ui.transformPivot',
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'

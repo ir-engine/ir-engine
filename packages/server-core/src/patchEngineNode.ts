@@ -32,7 +32,6 @@ import 'jsdom-global/register'
 /** Ensure hookstate is always imported first and overrides react */
 import '@hookstate/core'
 
-import { Blob } from 'buffer'
 import fetch, { Headers, Request, Response } from 'node-fetch'
 
 /**
@@ -44,5 +43,3 @@ globalThis.Response = Response as any
 globalThis.Headers = Headers as any
 
 globalThis.self = globalThis as Window & typeof globalThis
-
-globalThis.Blob = Blob as any

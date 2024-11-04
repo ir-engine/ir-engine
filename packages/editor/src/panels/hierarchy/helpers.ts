@@ -31,7 +31,7 @@ import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -85,17 +85,10 @@ export const copyNodes = (entity?: Entity) => {
 }
 
 export const pasteNodes = (entity?: Entity) => {
-  if (!entity) {
-    const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
-    if (selectedEntities.length > 0) {
-      entity = UUIDComponent.getEntityByUUID(selectedEntities[0])
-    }
-  }
-
   CopyPasteFunctions.getPastedEntities()
     .then((nodeComponentJSONs) => {
       nodeComponentJSONs.forEach((componentJSONs) => {
-        EditorControlFunctions.createObjectFromSceneElement(componentJSONs, entity, getSelectedEntities(entity)[0])
+        EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, getSelectedEntities(entity)[0])
       })
     })
     .catch(() => {

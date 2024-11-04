@@ -60,7 +60,6 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup
         name="Visible"
-        className={'my-4'}
         label={t('editor:properties.groundPlane.lbl-visible')}
         info={t('editor:properties.groundPlane.info-visible')}
       >

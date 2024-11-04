@@ -679,7 +679,6 @@ export class S3Provider implements StorageProviderInterface {
    * @param recursive If true it will list content from sub folders as well.
    */
   async listFolderContent(folderName: string, recursive = false): Promise<FileBrowserContentType[]> {
-    folderName = folderName.endsWith('/') ? folderName : folderName + '/'
     const folderContent = await this.listObjects(folderName, recursive)
 
     const promises: Promise<FileBrowserContentType>[] = []

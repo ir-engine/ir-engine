@@ -561,14 +561,8 @@ export function getNextTrack(currentTrack: number, trackCount: number, currentMo
       return -1
     }
   } else if (currentMode == PlayMode.random) {
-    // random shuffle, don't play the same track again unless it is the only track
-    nextTrack = Math.floor(Math.random() * (trackCount - 1))
-    if (nextTrack >= currentTrack && currentTrack >= 0) {
-      nextTrack += 1
-    }
-    if (nextTrack >= trackCount) {
-      nextTrack = trackCount - 1
-    }
+    // todo: smart random, i.e., lower probability of recently played tracks
+    nextTrack = Math.floor(Math.random() * trackCount)
   } else if (currentMode == PlayMode.singleloop) {
     nextTrack = currentTrack
   } else {

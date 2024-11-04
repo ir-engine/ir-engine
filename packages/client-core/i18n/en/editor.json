@@ -929,7 +929,6 @@
       "lbl-url": "Link URL",
       "lbl-navigateScene": "Scene navigation",
       "lbl-locaiton": "Location Name",
-      "lbl-newTab": "Open in new tab",
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {

@@ -73,7 +73,7 @@ export const setVolumetricTime = makeFlowNodeDefinition({
     const entity = read<Entity>('entity')
     const time = read<number>('time')
     const volumetricComponent = getMutableComponent(entity, VolumetricComponent)
-    volumetricComponent.time.currentTime.set(time)
+    volumetricComponent.currentTrackInfo.currentTime.set(time)
     commit('flow')
   }
 })

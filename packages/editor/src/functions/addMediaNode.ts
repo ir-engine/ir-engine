@@ -204,7 +204,6 @@ export async function addMediaNode(
     )
     return entityUUID
   } else if (url.includes('.uvol')) {
-    // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VolumetricComponent.jsonID },

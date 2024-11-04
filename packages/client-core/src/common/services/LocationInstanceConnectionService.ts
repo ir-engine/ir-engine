@@ -92,14 +92,6 @@ export const LocationInstanceConnectionService = {
       })) as Paginated<InstanceType>
       if (instance.total === 0) {
         instanceId = null!
-
-        const parsed = new URL(window.location.href)
-        const query = parsed.searchParams
-        query.delete('instanceId')
-        parsed.search = query.toString()
-        if (typeof history.pushState !== 'undefined') {
-          window.history.replaceState({}, '', parsed.toString())
-        }
       }
     }
     const provisionResult = await API.instance.service(instanceProvisionPath).find({

@@ -336,12 +336,7 @@ export default defineConfig(async () => {
               : 'service-worker.js'
             : '',
         paymentPointer: coilSetting?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || '',
-        rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`,
-        gtmId: clientSetting.gtmContainerId,
-        gtmEnvironent:
-          clientSetting.gtmAuth && clientSetting.gtmPreview
-            ? `&gtm_auth=${clientSetting.gtmAuth}&gtm_preview=${clientSetting.gtmPreview}&gtm_cookies_win=x`
-            : ''
+        rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { ColorResult } from '@uiw/color-convert'
 import SketchPicker from '@uiw/react-color-sketch'
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { Color, ColorRepresentation } from 'three'
 
 import { twMerge } from 'tailwind-merge'
@@ -52,70 +52,36 @@ export function ColorInput({
 }: ColorInputProp) {
   const color = new Color(value)
   const hexColor = '#' + color.getHexString()
-  const [isPickerOpen, setIsPickerOpen] = useState(false)
-  const pickerRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLDivElement>(null)
-
-  const handleTogglePicker = () => {
-    if (!isPickerOpen) {
-      setIsPickerOpen(true)
-    }
-    onRelease && onRelease(color)
-  }
 
   const handleChange = (result: ColorResult) => {
     const color = new Color(result.hex)
     onChange(color)
   }
-
-  // Close the picker if clicking outside the input or picker - this method didn't require a new signature
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        inputRef.current &&
-        !inputRef.current.contains(event.target) &&
-        pickerRef.current &&
-        !pickerRef.current.contains(event.target)
-      ) {
-        setIsPickerOpen(false)
-        if (onRelease) onRelease(color)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [hexColor, onRelease])
-
   return (
     <div
-      tabIndex={0} // Make the div focusable
-      ref={inputRef} // Ref to track focus on the input
       className={twMerge(
         'relative flex h-9 items-center gap-1 rounded-lg border-none bg-[#1A1A1A] px-2 text-xs text-[#8B8B8D]',
         disabled && 'cursor-not-allowed',
         className
       )}
-      onClick={handleTogglePicker} //opens the color picker
     >
       <div
+        tabIndex={0}
         className={`group h-5 w-5 cursor-pointer rounded border border-black focus:border-theme-primary`}
         style={{ backgroundColor: hexColor }}
       >
-        {isPickerOpen && ( //state to track open/close of color picker
-          <div ref={pickerRef}>
-            <SketchPicker
-              className={twMerge('absolute right-4 z-10 mt-5 bg-theme-surface-main', sketchPickerClassName)}
-              color={hexColor}
-              onChange={handleChange}
-              disableAlpha={true}
-              onPointerLeave={() => {
-                onRelease && onRelease(color)
-              }}
-            />
-          </div>
-        )}
+        <SketchPicker
+          className={twMerge(
+            'absolute right-4 z-10 mt-5 scale-0 bg-theme-surface-main focus-within:scale-100 group-focus:scale-100',
+            sketchPickerClassName
+          )}
+          color={hexColor}
+          onChange={handleChange}
+          disableAlpha={true}
+          onPointerLeave={() => {
+            onRelease && onRelease(color)
+          }}
+        />
       </div>
       <Text fontSize="xs" className={textClassName}>
         {hexColor.toUpperCase()}

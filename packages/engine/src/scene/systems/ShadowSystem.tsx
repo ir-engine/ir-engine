@@ -73,14 +73,17 @@ import { getShadowsEnabled, useShadowsEnabled } from '@ir-engine/spatial/src/ren
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  iterateEntityNode,
+  useChildWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
-import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
@@ -228,20 +231,24 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
   return null
 }
 
-function RenderSettingsQueryReactor() {
-  const entity = useEntityContext()
-  const rendererEntity = useRendererEntity(entity)
+function _CSMReactor() {
+  const rendererEntity = useEntityContext()
+  const renderer = useComponent(rendererEntity, RendererComponent).value
+  /**
+   * @todo Currently this will just return the first entity with a RenderSettingsComponent found,
+   *   but we need some more advanced rule for determining which entity to use
+   *   considering multi-scene support and spatial volumes.
+   *   note: use index 0 (origin entity), index 1 is local floor entity,
+   */
+  const renderSettingsEntity = useChildWithComponents(renderer.scenes[0], [RenderSettingsComponent])
   const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
-  /**
-   * @todo Currently we only have support for CSM for the core renderer, since we need to add proper multi-scene support via spatial volumes.
-   */
-  const viewerEntity = useHookstate(getMutableState(EngineState).viewerEntity).value
 
-  if (!rendererEntity || rendererEntity !== viewerEntity) return null
+  if (!rendererEntity) return null
+  if (!renderSettingsEntity) return null
   if ((isEditor && renderMode === RenderModes.UNLIT) || renderMode === RenderModes.LIT) return null
 
-  return <CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={entity} />
+  return <CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={renderSettingsEntity} />
 }
 
 function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entity }) {
@@ -281,7 +288,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
     activeLightEntity.set(UndefinedEntity)
   }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight])
 
-  if (!renderSettingsComponent.csm.value || !activeLightEntity.value || !directionalLight?.value) return null
+  if (!renderSettingsComponent.csm.value || !activeLightEntity.value || !directionalLight) return null
 
   return (
     <EntityCSMReactor
@@ -453,7 +460,7 @@ const reactor = () => {
   return (
     <>
       {useShadows ? (
-        <QueryReactor Components={[RenderSettingsComponent]} ChildEntityReactor={RenderSettingsQueryReactor} />
+        <QueryReactor Components={[RendererComponent]} ChildEntityReactor={_CSMReactor} />
       ) : shadowTexture ? (
         <QueryReactor Components={[VisibleComponent, ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
       ) : null}

@@ -55,7 +55,7 @@ import {
   TextureTarget,
   TextureType,
   UniformSolveTarget
-} from '../constants/UVOLTypes'
+} from '../constants/NewUVOLTypes'
 import getFirstMesh from './meshUtils'
 
 export const getBufferGeometrySize = (geometry: BufferGeometry) => {

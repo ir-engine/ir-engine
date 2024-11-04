@@ -58,7 +58,7 @@ export default (types: string[]) => {
 
     if (!project) throw new NotFound('Project not found')
 
-    if (project.visibility === 'public' && ['get', 'find'].includes(context.method)) {
+    if (project.visibility === 'public') {
       return context
     }
 
@@ -74,7 +74,6 @@ export default (types: string[]) => {
       console.error(`Project permission not found. ProjectId: ${projectId}`)
       throw new Forbidden(`Project permission not found`)
     }
-
     if (!types.includes(data[0].type)) {
       throw new Forbidden('Missing required project permission')
     }
