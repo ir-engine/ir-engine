@@ -243,7 +243,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   return null
 }
 
-export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null) {
+export function updateEnvMap(obj: Mesh<any, MeshStandardMaterial> | null, envmap: Texture | null) {
   if (!obj) return
   if (!obj.material) return
   if (Array.isArray(obj.material)) {
@@ -260,7 +260,7 @@ export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null)
   }
 }
 
-export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: number) => {
+export const updateEnvMapIntensity = (obj: Mesh<any, MeshStandardMaterial> | null, intensity: number) => {
   if (!obj) return
   if (!obj.material) return
   if (Array.isArray(obj.material)) {
@@ -268,7 +268,7 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
       m.envMapIntensity = intensity
     })
   } else {
-    ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
+    obj.material.envMapIntensity = intensity
   }
 }
 
