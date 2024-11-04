@@ -28,7 +28,7 @@ import { Tween } from '@tweenjs/tween.js'
 import { getMutableComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { NodeCategory, makeFlowNodeDefinition } from '@ir-engine/visual-script'
 
@@ -49,7 +49,7 @@ export const playVolumetric = makeFlowNodeDefinition({
   triggered: ({ read, commit }) => {
     const entity = read<Entity>('entity')
     const play = read<boolean>('play')
-    const volumetricComponent = getMutableComponent(entity, VolumetricComponent)
+    const volumetricComponent = getMutableComponent(entity, LegacyVolumetricComponent)
     volumetricComponent.paused.set(!play)
     commit('flow')
   }
@@ -72,8 +72,8 @@ export const setVolumetricTime = makeFlowNodeDefinition({
   triggered: ({ read, commit }) => {
     const entity = read<Entity>('entity')
     const time = read<number>('time')
-    const volumetricComponent = getMutableComponent(entity, VolumetricComponent)
-    volumetricComponent.time.currentTime.set(time)
+    const volumetricComponent = getMutableComponent(entity, LegacyVolumetricComponent)
+    volumetricComponent.currentTrackInfo.currentTime.set(time)
     commit('flow')
   }
 })
@@ -98,7 +98,7 @@ export const fadeVolumetricAudioVolume = makeFlowNodeDefinition({
     const targetVolume = read<number>('targetVolume')
     const duration = read<number>('duration')
 
-    const volumetricComponent = getMutableComponent(entity, VolumetricComponent)
+    const volumetricComponent = getMutableComponent(entity, LegacyVolumetricComponent)
     const volumeSlider: any = {}
 
     Object.defineProperty(volumeSlider, 'volume', {

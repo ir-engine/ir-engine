@@ -90,7 +90,6 @@ function getNodeElId(node: HierarchyTreeNodeType) {
 
 function toValidHierarchyNodeName(entity: Entity, name: string): string {
   name = name.trim()
-  if (getComponent(entity, NameComponent) === name) return ''
   return name
 }
 
@@ -243,6 +242,9 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   }
 
   const onClickNode = (event: React.MouseEvent) => {
+    if (renamingNode.entity !== entity) {
+      renamingNode.clear()
+    }
     if (event.detail === 1) {
       // Exit click placement mode when anything in the hierarchy is selected
       getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
