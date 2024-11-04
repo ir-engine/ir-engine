@@ -354,7 +354,9 @@
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/ambient-light.prefab.gltf": {
     "type": "asset",
@@ -362,15 +364,17 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/body.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/box-collider.prefab.gltf": {
     "type": "asset",
@@ -378,15 +382,17 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/camera.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/cylinder-collider.prefab.gltf": {
     "type": "asset",
@@ -394,8 +400,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/directional-light.prefab.gltf": {
     "type": "asset",
@@ -403,8 +409,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/fog.prefab.gltf": {
     "type": "asset",
@@ -412,8 +418,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/geo.prefab.gltf": {
     "type": "asset",
@@ -421,15 +427,17 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/ground-plane.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/hemisphere-light.prefab.gltf": {
     "type": "asset",
@@ -437,22 +445,26 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/image.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/mesh-collider.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/point-light.prefab.gltf": {
     "type": "asset",
@@ -460,8 +472,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/postprocessing.prefab.gltf": {
     "type": "asset",
@@ -469,8 +481,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabspostprocessing.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/skybox.prefab.gltf": {
     "type": "asset",
@@ -478,8 +490,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsskybox.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/sphere-collider.prefab.gltf": {
     "type": "asset",
@@ -487,8 +499,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/spot-light.prefab.gltf": {
     "type": "asset",
@@ -496,8 +508,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/text.prefab.gltf": {
     "type": "asset",
@@ -505,22 +517,26 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/title.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/video.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/rings.glb": {
     "type": "asset",
