@@ -23,190 +23,66 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import {
-  getOptionalMutableComponent,
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
-import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
-
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, hasComponent, useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
-import { UVOL1Component } from '@ir-engine/engine/src/scene/components/UVOL1Component'
-import { UVOL2Component } from '@ir-engine/engine/src/scene/components/UVOL2Component'
-import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'
-import { getState } from '@ir-engine/hyperflux'
-import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
-import { MdVideocam } from 'react-icons/md'
-
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
+import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { Slider } from '@ir-engine/ui/editor'
-import { Button } from '@mui/material'
+import { t } from 'i18next'
+import React, { useEffect } from 'react'
+import { MdVideocam } from 'react-icons/md'
 import { Scrubber } from 'react-scrubber'
 import 'react-scrubber/lib/scrubber.css'
-import ArrayInputGroup from '../../input/Array'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 
-const PlayModeOptions = [
-  {
-    label: 'Single',
-    value: PlayMode.single
-  },
-  {
-    label: 'Random',
-    value: PlayMode.random
-  },
-  {
-    label: 'Loop',
-    value: PlayMode.loop
-  },
-  {
-    label: 'SingleLoop',
-    value: PlayMode.singleloop
-  }
-]
-
-type TextureTargetLabelsType = {
-  [key in TextureType]: {
-    label: string
-    value: number
-  }[]
+interface OptionsType {
+  value: number
+  label: string
 }
 
-/**
- * VolumetricNodeEditor provides the editor view to customize properties.
- *
- * @param       {any} props
- * @constructor
- */
 export const VolumetricNodeEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
+  const component = useComponent(props.entity, VolumetricComponent)
 
-  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
-
-  const toggle = () => {
-    volumetricComponent.paused.set(!volumetricComponent.paused.value)
-  }
-
-  const [trackLabels, setTrackLabels] = React.useState(
-    [] as {
-      label: string
-      value: number
-    }[]
-  )
+  const geometryTargets = useHookstate([] as OptionsType[])
+  const textureTargets = useHookstate({} as Partial<Record<TextureType, OptionsType[]>>)
 
   useEffect(() => {
-    const tracks = volumetricComponent.paths.value
-    if (tracks.length === 0) {
-      return
+    if (!hasComponent(props.entity, PlaylistComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, PlaylistComponent, true)
     }
-    if (tracks.length === 1) {
-      const segments = tracks[0].split('/')
-      setTrackLabels([
-        {
-          label: segments[segments.length - 1],
-          value: 0
-        }
-      ])
-      console.log('Setting labels: ', [
-        {
-          label: segments[segments.length - 1],
-          value: 0
-        }
-      ])
-      return
-    }
-
-    let prefix = tracks[0]
-
-    // Don't show the longest common prefix
-    for (let j = 1; j < tracks.length; j++) {
-      while (tracks[j].indexOf(prefix) !== 0) {
-        prefix = prefix.substring(0, prefix.length - 1)
-      }
-    }
-    const _trackLabels = [] as {
-      label: string
-      value: number
-    }[]
-
-    for (let i = 0; i < tracks.length; i++) {
-      _trackLabels.push({
-        label: tracks[i].slice(prefix.length),
-        value: i
-      })
-    }
-    setTrackLabels(_trackLabels)
-    console.log('Setting labels: ', _trackLabels)
-  }, [volumetricComponent.paths])
-
-  const uvol2 = useOptionalComponent(props.entity, UVOL2Component)
-  const [geometryTargets, setGeometryTargets] = React.useState(
-    [] as {
-      label: string
-      value: number
-    }[]
-  )
+  }, [])
 
   useEffect(() => {
-    if (uvol2) {
-      const _geometryTargets = [] as {
-        label: string
-        value: number
-      }[]
-      _geometryTargets.push({
-        label: 'auto',
-        value: -1
+    if (component.geometry.targets.length > 0) {
+      const targetOptions = [] as OptionsType[]
+      const targets = component.geometry.targets.value
+      targets.forEach((target, index) => {
+        targetOptions.push({ value: index, label: target })
       })
-      uvol2.geometryInfo.targets.value.forEach((target, index) => {
-        _geometryTargets.push({
-          label: target,
-          value: index
-        })
-      })
-      setGeometryTargets(_geometryTargets)
+      geometryTargets.set(targetOptions)
     }
-  }, [uvol2?.geometryInfo.targets])
+  }, [component.geometry.targets])
 
-  const [textureTargets, setTextureTargets] = React.useState({} as TextureTargetLabelsType)
   useEffect(() => {
-    if (!uvol2) {
-      return
+    const textureInfo = component.texture.get(NO_PROXY)
+    for (const [textureType, textureTypeInfo] of Object.entries(textureInfo)) {
+      const targetOptions = [] as OptionsType[]
+      const targets = textureTypeInfo.targets
+      targets.forEach((target, index) => {
+        targetOptions.push({ value: index, label: target })
+      })
+      textureTargets.merge({
+        [textureType as TextureType]: targetOptions
+      })
     }
-    const textureTypes = uvol2.textureInfo.textureTypes.value
-    const _textureTargets = {} as TextureTargetLabelsType
-    textureTypes.forEach((textureType) => {
-      _textureTargets[textureType] = [] as {
-        label: string
-        value: number
-      }[]
-      _textureTargets[textureType].push({
-        label: 'auto',
-        value: -1
-      })
-      uvol2.textureInfo[textureType].targets.value.forEach((target, index) => {
-        _textureTargets[textureType].push({
-          label: target,
-          value: index
-        })
-      })
-    })
-    setTextureTargets(_textureTargets)
-  }, [
-    uvol2?.textureInfo.textureTypes,
-    uvol2?.textureInfo.baseColor.targets,
-    uvol2?.textureInfo.normal.targets,
-    uvol2?.textureInfo.emissive.targets,
-    uvol2?.textureInfo.metallicRoughness.targets,
-    uvol2?.textureInfo.occlusion.targets
-  ])
+  }, [component.texture])
 
   return (
     <NodeEditor
@@ -215,30 +91,12 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.volumetric.description')}
       Icon={VolumetricNodeEditor.iconComponent}
     >
-      <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
-        <BooleanInput
-          onChange={commitProperty(VolumetricComponent, 'useLoadingEffect')}
-          value={volumetricComponent.useLoadingEffect.value}
-        />
-      </InputGroup>
-
-      <InputGroup
-        name="Autoplay"
-        label={t('editor:properties.media.lbl-autoplay')}
-        info={t('editor:properties.media.info-autoplay')}
-      >
-        <BooleanInput
-          onChange={commitProperty(VolumetricComponent, 'autoplay')}
-          value={volumetricComponent.autoplay.value}
-        />
-      </InputGroup>
-
       <div className="w-auto">
         <Slider
           min={0}
           max={1}
           step={0.01}
-          value={volumetricComponent.volume.value}
+          value={component.volume.value}
           onChange={updateProperty(VolumetricComponent, 'volume')}
           onRelease={commitProperty(VolumetricComponent, 'volume')}
           aria-label="Volume"
@@ -246,143 +104,66 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         />
       </div>
 
-      <ArrayInputGroup
-        name="Source Paths"
-        //prefix="Content"
-        values={volumetricComponent.paths.value as string[]}
-        //onRelease={commitProperty(VolumetricComponent, 'paths')}
-        label={t('editor:properties.media.paths')}
-        onChange={updateProperty(VolumetricComponent, 'paths')}
-        //acceptFileTypes={VolumetricFileTypes}
-        //acceptDropItems={ItemTypes.Volumetrics}
-      />
-
-      {(hasComponent(props.entity, UVOL2Component) || hasComponent(props.entity, UVOL1Component)) && (
-        <VolumetricCurrentTimeScrubber entity={props.entity} />
+      {component.geometry.targets.length > 0 && (
+        <InputGroup name="Geometry Target" label="Geometry Target">
+          <SelectInput
+            options={geometryTargets.value as Array<OptionsType>}
+            value={
+              component.geometry.userTarget.value === -1
+                ? component.geometry.currentTarget.value
+                : component.geometry.userTarget.value
+            }
+            onChange={(value: number) => {
+              component.geometry.userTarget.set(value)
+            }}
+          />
+        </InputGroup>
       )}
 
-      <div className="w-auto">
-        <Slider
-          value={volumetricComponent.currentTrackInfo.playbackRate.value}
-          min={0.5}
-          max={4}
-          step={0.1}
-          onChange={(value: number) => {
-            volumetricComponent.currentTrackInfo.playbackRate.set(value)
-          }}
-          onRelease={() => {}}
-          aria-label="Playback Rate"
-          label="Playback Rate"
-        />
-      </div>
+      {textureTargets.value &&
+        Object.keys(textureTargets.value).map((textureType) => {
+          const userTarget = component.texture[textureType as TextureType].value?.userTarget ?? -1
+          const currentTarget = component.texture[textureType as TextureType].value?.currentTarget ?? 0
+          const value = userTarget === -1 ? currentTarget : userTarget
+          return (
+            <InputGroup key={props.entity} name={`${textureType} targets`} label={`${textureType} targets`}>
+              <SelectInput
+                options={textureTargets.value[textureType]}
+                value={value}
+                onChange={(value: number) => {
+                  component.texture[textureType as TextureType].merge({
+                    userTarget: value
+                  })
+                }}
+              />
+            </InputGroup>
+          )
+        })}
 
-      <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
-        <SelectInput
-          key={props.entity}
-          options={PlayModeOptions}
-          value={volumetricComponent.playMode.value}
-          onChange={commitProperty(VolumetricComponent, 'playMode')}
-        />
-        {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
-          <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
-            {volumetricComponent.paused.value
-              ? t('editor:properties.media.playtitle')
-              : t('editor:properties.media.pausetitle')}
-          </Button>
-        )}
-      </InputGroup>
-
-      {hasComponent(props.entity, UVOL2Component) && (
-        <>
-          <InputGroup name="Geometry Target" label="Geometry Target">
-            <SelectInput
-              key={props.entity}
-              options={geometryTargets}
-              value={uvol2?.geometryInfo.userTarget.value}
-              onChange={(value: number) => {
-                if (uvol2) {
-                  uvol2.geometryInfo.userTarget.set(value)
-                }
-              }}
-            />
-          </InputGroup>
-          {Object.keys(textureTargets).map((textureType, index) => {
-            return (
-              <InputGroup name={`${textureType} target`} label={`${textureType} target`} key={index}>
-                <SelectInput
-                  key={props.entity}
-                  options={textureTargets[textureType]}
-                  value={uvol2?.textureInfo[textureType].userTarget.value}
-                  onChange={(value: number) => {
-                    if (uvol2) {
-                      uvol2?.textureInfo[textureType].userTarget.set(value)
-                    }
-                  }}
-                />
-              </InputGroup>
-            )
-          })}
-        </>
-      )}
-
-      <InputGroup name="Current Track" label="Current Track">
-        <SelectInput
-          key={props.entity}
-          options={trackLabels}
-          value={trackLabels.length ? volumetricComponent.track.value : ''}
-          onChange={(value: number) => {
-            volumetricComponent.track.set(value)
-          }}
-        />
-      </InputGroup>
+      <TimeScrubber entity={props.entity} />
     </NodeEditor>
   )
 }
 
-function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
-  const { t } = useTranslation()
-  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
-  const uvol2Component = useOptionalComponent(props.entity, UVOL2Component)
-
-  const [isChanging, setIsChanging] = React.useState(false)
-
+function TimeScrubber(props: { entity: Entity }) {
+  const component = useComponent(props.entity, VolumetricComponent)
   return (
-    <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
+    <InputGroup name="Current Time" label="Current Time">
       <Scrubber
         min={0}
-        max={volumetricComponent.currentTrackInfo.duration.value}
-        value={volumetricComponent.currentTrackInfo.currentTime.value}
-        onScrubStart={() => {
-          setIsChanging(true)
-        }}
-        onScrubEnd={(value) => {
-          if (!isChanging) return
-          const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
-          if (
-            uvol2Component &&
-            volumetricComponent.currentTrackInfo.currentTime.value < value &&
-            value < uvol2Component.bufferedUntil.value
-          ) {
-            const engineState = getState(ECSState)
-            UVOL2Component.setStartAndPlaybackTime(props.entity, value, engineState.elapsedSeconds)
-          }
-          setIsChanging(false)
-        }}
-        onScrubChange={() => {}}
+        max={component.time.duration.value}
+        value={component.time.currentTime.value / 1000}
+        bufferPosition={component.time.bufferedUntil.value / 1000}
         tooltip={{
           enabledOnHover: true
         }}
-        {...(hasComponent(props.entity, UVOL2Component)
-          ? {
-              bufferPosition: uvol2Component?.bufferedUntil.value
-            }
-          : {})}
       />
     </InputGroup>
   )
+
+  return null
 }
 
-//setting iconComponent with icon name
 VolumetricNodeEditor.iconComponent = MdVideocam
 
 export default VolumetricNodeEditor

@@ -67,8 +67,13 @@ export function computeCameraDistanceAndCenter(
   padding: number = 1.1
 ) {
   // Create a bounding sphere from the points
-  const boundingSphere = new Sphere().setFromPoints(pointsToFocus)
 
+  //NO IDEA why `new Sphere().setFromPoints(pointsToFocus)` stopped properly calculating a center point after working fine for over a month
+  const boundingSphere = new Sphere()
+  for (const pt of pointsToFocus) {
+    //expandByPoint is a workaround to force calculating a real centerpoint, which stopped working with setFromPoints
+    boundingSphere.expandByPoint(pt)
+  }
   const center = boundingSphere.center
   const radius = boundingSphere.radius
 
