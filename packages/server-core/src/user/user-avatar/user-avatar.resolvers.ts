@@ -43,7 +43,7 @@ export const userAvatarExternalResolver = resolve<UserAvatarType, HookContext>({
       try {
         return await context.app.service(avatarPath).get(userAvatar.avatarId, { query: { skipUser: true } })
       } catch (err) {
-        return {}
+        return undefined
       }
   })
 })

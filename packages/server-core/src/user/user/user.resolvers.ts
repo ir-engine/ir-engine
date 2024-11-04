@@ -58,9 +58,6 @@ export const userDataResolver = resolve<UserType, HookContext>({
   inviteCode: async (inviteCode, _, context) => {
     return inviteCode || ((await getFreeInviteCode(context.app)) as InviteCode)
   },
-  // avatarId: async (avatarId) => {
-  //   return avatarId || undefined
-  // },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })

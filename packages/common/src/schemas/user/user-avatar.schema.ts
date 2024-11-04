@@ -46,7 +46,7 @@ export const userAvatarSchema = Type.Object(
     avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),
-    avatar: Type.Ref(avatarDataSchema),
+    avatar: Type.Optional(Type.Ref(avatarDataSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
