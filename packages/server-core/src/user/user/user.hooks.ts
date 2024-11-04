@@ -288,12 +288,20 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
 const addLastLogin = async (context: HookContext<UserService>) => {
   if (!context.result) return
 
+  const loggedInUser = context.params.user as UserType
+
   const results = (
     Array.isArray(context.result) ? context.result : 'data' in context.result ? context.result.data : [context.result]
   ) as UserType[]
 
+  const hasUserReadScopes =
+    (await checkScope(loggedInUser, 'admin', 'admin')) || (await checkScope(loggedInUser, 'user', 'read'))
+
   for (const item of results) {
     const user = item as UserType
+    const hasAccess = hasUserReadScopes || loggedInUser.id === user.id
+    if (!hasAccess) continue
+
     const lastLogin = await context.app.service(userLoginPath).find({
       query: {
         userId: user.id,
@@ -343,11 +351,10 @@ export default createSkippableHooks(
 
     after: {
       all: [],
-      find: [iff(isProvider('external'), verifyScope('admin', 'admin'), addLastLogin)],
+      find: [iff(isProvider('external'), addLastLogin)],
       get: [],
       create: [
         addUserSettings,
-        // addUserScopes(true),
         addApiKey,
         updateInviteCode,
         addUpdateUserAvatar
