@@ -137,6 +137,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               <ImageLink
                 src={envmapComponent.envMapSourceURL.value}
                 onBlur={commitProperty(EnvmapComponent, 'envMapSourceURL')}
+                onRelease={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (

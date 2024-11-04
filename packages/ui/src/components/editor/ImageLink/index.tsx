@@ -23,14 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import React, { ImgHTMLAttributes, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import FileBrowserInput from '../input/FileBrowser'
 import ImageUrlFallback from './image-url-fallback.png'
 
 export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'onChange' | 'onBlur'> {
   variant?: 'lg' | 'md' | 'sm' | 'full'
-  onChange?: (value: string) => void
+  onRelease?: (value: string) => void
   onBlur?: (value: string) => void
 }
 
@@ -56,7 +59,7 @@ const imageVariants = {
  * @param props.onChange callback to display an input and receive the new value on each keystroke
  * @param props.onBlur callback to display an input and receive the new value when the input loses focus
  */
-export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...props }: ImageLinkProps) {
+export default function ImageLink({ src, onRelease, onBlur, variant = 'full', ...props }: ImageLinkProps) {
   const { t } = useTranslation()
   const imageRef = useRef<HTMLImageElement>(null)
 
@@ -88,27 +91,29 @@ export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...
         className={twMerge(
           'mx-auto rounded',
           imageVariants[variant],
-          !onChange && !onBlur && variant === 'full' && 'h-[370px]'
+          !onRelease && !onBlur && variant === 'full' && 'h-[370px]'
         )}
         ref={imageRef}
         {...props}
       />
-      {(onChange || onBlur) && (
+      {(onRelease || onBlur) && (
         <>
           <button
             className="text-right text-sm text-[#AFBEDF]"
             onClick={() => {
-              onChange?.('')
+              onRelease?.('')
               onBlur?.('')
             }}
           >
             {t('common:components.clear')}
           </button>
-          <input
-            value={src}
-            onChange={(event) => onChange?.(event.target.value)}
+          <FileBrowserInput
+            acceptFileTypes={ImageFileTypes}
+            acceptDropItems={ItemTypes.Images}
             onBlur={(event) => onBlur?.(event.target.value)}
-            className="w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]"
+            onRelease={(event) => onRelease?.(event)}
+            className="bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]"
+            value={src ?? ''}
           />
         </>
       )}

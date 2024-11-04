@@ -60,7 +60,7 @@ export default {
 
 const ImageLinkRenderer = (args: ImageLinkProps & { previewOnly: boolean }) => {
   const [_currentArgs, updateArgs] = useArgs<{ src: string }>()
-  return <ImageLink {...args} onChange={args.previewOnly ? undefined : (value) => updateArgs({ src: value })} />
+  return <ImageLink {...args} onRelease={args.previewOnly ? undefined : (value) => updateArgs({ src: value })} />
 }
 
 export const Default = {
