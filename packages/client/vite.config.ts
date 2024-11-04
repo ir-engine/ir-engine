@@ -378,13 +378,13 @@ export default defineConfig(async () => {
           dir: 'dist',
           format: 'es', // 'commonjs' | 'esm' | 'module' | 'systemjs'
           // ignore files under 1mb
-          experimentalMinChunkSize: 1000000,
-          manualChunks: (id) => {
-            // chunk dependencies
-            if (id.includes('node_modules')) {
-              return parseModuleName(id)
-            }
-          }
+          experimentalMinChunkSize: 1000000
+          // manualChunks: (id) => {
+          //   // chunk dependencies
+          //   if (id.includes('node_modules')) {
+          //     return parseModuleName(id)
+          //   }
+          // }
         }
       }
     }

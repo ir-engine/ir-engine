@@ -27,7 +27,7 @@ import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { ComponentType, Engine } from '@ir-engine/ecs'
+import { ComponentType } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -50,6 +50,7 @@ import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/component
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -136,7 +137,7 @@ export const MediaComponent = defineComponent({
   schema: S.Object({
     controls: S.Bool(false),
     synchronize: S.Bool(true),
-    autoplay: S.Bool(true),
+    autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
     uiOffset: S.Vec3(),
     xruiEntity: S.Entity(),
     volume: S.Number(1),
@@ -187,13 +188,15 @@ export function MediaReactor() {
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
+  const rendererEntity = useRendererEntity(entity)
 
   if (!isClient) return null
 
   useEffect(() => {
+    if (!rendererEntity) return
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
-    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
+    const renderer = getComponent(rendererEntity, RendererComponent).renderer!
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
@@ -253,7 +256,7 @@ export function MediaReactor() {
       removeCallback(entity, StandardCallbacks.PAUSE)
       removeCallback(entity, StandardCallbacks.RESET)
     }
-  }, [])
+  }, [rendererEntity])
 
   useEffect(
     function updatePlay() {
@@ -422,7 +425,7 @@ export function MediaReactor() {
   )
 
   const rendererState = useMutableState(RendererState)
-  const [audioHelperTexture] = useTexture(rendererState.value ? AUDIO_TEXTURE_PATH : '', entity)
+  const [audioHelperTexture] = useTexture(rendererState.nodeHelperVisibility.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
     if (rendererState.nodeHelperVisibility.value && audioHelperTexture) {
