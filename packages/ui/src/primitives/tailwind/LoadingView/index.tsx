@@ -78,6 +78,7 @@ const LoadingView = ({
         fullSpace && 'h-full w-full',
         containerClassName
       )}
+      data-testid="loading-view-spinner"
     >
       {loader}
       {title && <Text className={twMerge('mt-1', titleClassname)}>{title}</Text>}

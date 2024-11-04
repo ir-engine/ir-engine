@@ -34,6 +34,7 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { State, dispatchAction } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { Slider } from '@ir-engine/ui/editor'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SiRender } from 'react-icons/si'
@@ -48,7 +49,6 @@ import {
   ReinhardToneMapping,
   VSMShadowMap
 } from 'three'
-import Slider from '../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
@@ -169,21 +169,17 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {rendererSettingsState.csm.value === true ? (
-        <InputGroup
-          name="Cascades"
+        <Slider
+          min={1}
+          max={5}
+          step={1}
+          value={rendererSettingsState.cascades.value}
+          onChange={updateProperty(RenderSettingsComponent, 'cascades')}
+          onRelease={commitProperty(RenderSettingsComponent, 'cascades')}
+          aria-label="Cascades"
           label={t('editor:properties.renderSettings.lbl-csm-cascades')}
-          info={t('editor:properties.renderSettings.info-csm-cascades')}
-          className="w-auto"
-        >
-          <Slider
-            min={1}
-            max={5}
-            step={1}
-            value={rendererSettingsState.cascades.value}
-            onChange={updateProperty(RenderSettingsComponent, 'cascades')}
-            onRelease={commitProperty(RenderSettingsComponent, 'cascades')}
-          />
-        </InputGroup>
+          description={t('editor:properties.renderSettings.info-csm-cascades')}
+        />
       ) : (
         <></>
       )}
@@ -198,21 +194,17 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           onChange={commitProperty(RenderSettingsComponent, 'toneMapping')}
         />
       </InputGroup>
-      <InputGroup
-        name="Tone Mapping Exposure"
+      <Slider
+        min={0}
+        max={10}
+        step={0.1}
+        value={rendererSettingsState.toneMappingExposure.value}
+        onChange={updateProperty(RenderSettingsComponent, 'toneMappingExposure')}
+        onRelease={commitProperty(RenderSettingsComponent, 'toneMappingExposure')}
+        aria-label="Tone Mapping Exposure"
         label={t('editor:properties.renderSettings.lbl-toneMappingExposure')}
-        info={t('editor:properties.renderSettings.info-toneMappingExposure')}
-        className="w-auto"
-      >
-        <Slider
-          min={0}
-          max={10}
-          step={0.1}
-          value={rendererSettingsState.toneMappingExposure.value}
-          onChange={updateProperty(RenderSettingsComponent, 'toneMappingExposure')}
-          onRelease={commitProperty(RenderSettingsComponent, 'toneMappingExposure')}
-        />
-      </InputGroup>
+        description={t('editor:properties.renderSettings.info-toneMappingExposure')}
+      />
       <InputGroup
         name="Shadow Map Type"
         label={t('editor:properties.renderSettings.lbl-shadowMapType')}

@@ -327,7 +327,7 @@ export const ClickPlacementSystem = defineSystem({
       const intersectPosition = cameraPosition
         .clone()
         .add(cameraDirection.clone().multiplyScalar(physicsIntersection.toi))
-      intersectEntity = (physicsIntersection.collider.parent() as { userData: { entity: Entity } }).userData.entity
+      intersectEntity = physicsIntersection.collider.parent()!.entity
       const intersectNormal = new Vector3(
         physicsIntersection.normal.x,
         physicsIntersection.normal.y,

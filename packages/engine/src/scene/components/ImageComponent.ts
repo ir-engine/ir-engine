@@ -33,6 +33,7 @@ import {
   FrontSide,
   InterleavedBufferAttribute,
   LinearMipmapLinearFilter,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -51,11 +52,9 @@ import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/Mes
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
-import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { ImageAlphaMode, ImageProjection } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
@@ -107,6 +106,7 @@ export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
   mesh.scale.set(_width, _height, 1)
 }
 
+const scaleMatrix = new Matrix4()
 export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
   if (!mesh.material.map) return
 
@@ -114,11 +114,11 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 
   if (!width || !height) return
 
-  const transform = getComponent(mesh.entity, TransformComponent)
   const ratio = (height || 1) / (width || 1)
-  const _width = Math.min(1.0, 1.0 / ratio) * transform.scale.x
-  const _height = Math.min(1.0, ratio) * transform.scale.y
-  mesh.scale.set(_width, _height, 1)
+  const _width = Math.min(1.0, 1.0 / ratio)
+  const _height = Math.min(1.0, ratio)
+  scaleMatrix.makeScale(_width, _height, 1)
+  mesh.geometry.applyMatrix4(scaleMatrix)
 }
 
 function flipNormals<G extends BufferGeometry>(geometry: G) {
@@ -139,13 +139,6 @@ export function ImageReactor() {
     PLANE_GEO,
     () => new MeshBasicMaterial()
   )
-
-  useImmediateEffect(() => {
-    if (!image.source.value)
-      image.source.set(
-        `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/sample_etc1s.ktx2`
-      )
-  }, [])
 
   useEffect(() => {
     if (!error) return
@@ -195,7 +188,7 @@ export function ImageReactor() {
           resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
       }
     },
-    [mesh.material.map, image.projection]
+    [mesh.material.map.value, image.projection.value]
   )
 
   useEffect(

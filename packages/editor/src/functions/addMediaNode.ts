@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Intersection, Material, Mesh, Raycaster, Vector2 } from 'three'
 
-import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -41,6 +40,7 @@ import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComp
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -49,6 +49,8 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Group
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { assignMaterial, createMaterialEntity } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { removeEntityNodeRecursively } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -68,17 +70,6 @@ export async function addMediaNode(
 ): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-
-  const pathArray = url.split('/')
-  const lastIndex = pathArray.length - 1
-  const fileNameWithExt = pathArray[lastIndex]
-  const fileNameArray = fileNameWithExt.split('.')
-  let name: string | undefined = undefined
-  try {
-    name = decodeURI(fileNameArray[0])
-  } catch (err) {
-    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-  }
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
@@ -127,24 +118,33 @@ export async function addMediaNode(
       )
     } else if (contentType.startsWith('model/lookdev')) {
       const gltfLoader = getState(AssetLoaderState).gltfLoader
+      const spinnerEntity = createLoadingSpinner('lookdev loading spinner', getState(EditorState).rootEntity)
       return await new Promise((resolve) =>
         gltfLoader.load(url, (gltf) => {
-          const componentJson = gltf.scene.children[0].userData.componentJson
-          EditorControlFunctions.overwriteLookdevObject(
-            [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-            componentJson,
-            parent!,
-            before
-          )
-          resolve(null)
+          try {
+            let componentJson = [] as ComponentJsonType[]
+            gltf.scene.children.forEach((child) => {
+              componentJson.push(child.userData.componentJson)
+            })
+            const mergedComponentJsonArray = componentJson.flat()
+            EditorControlFunctions.overwriteLookdevObject(
+              [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+              mergedComponentJsonArray,
+              parent!,
+              before
+            )
+            removeEntityNodeRecursively(spinnerEntity)
+            resolve(null)
+          } catch (error) {
+            removeEntityNodeRecursively(spinnerEntity)
+          }
         })
       )
     } else if (contentType.startsWith('model/prefab')) {
       const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
         parent!,
-        before,
-        name
+        before
       )
       const reactor = startReactor(() => {
         const entity = UUIDComponent.useEntityByUUID(entityUUID)
@@ -169,30 +169,27 @@ export async function addMediaNode(
           ...extraComponentJson
         ],
         parent!,
-        before,
-        name
+        before
       )
-
       return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VideoComponent.jsonID },
+        { name: PositionalAudioComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
       parent!,
-      before,
-      name
+      before
     )
     return entityUUID
   } else if (contentType.startsWith('image/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
       parent!,
-      before,
-      name
+      before
     )
     return entityUUID
   } else if (contentType.startsWith('audio/')) {
@@ -203,11 +200,11 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before,
-      name
+      before
     )
     return entityUUID
   } else if (url.includes('.uvol')) {
+    // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VolumetricComponent.jsonID },
@@ -215,8 +212,7 @@ export async function addMediaNode(
         ...extraComponentJson
       ],
       parent!,
-      before,
-      name
+      before
     )
     return entityUUID
   } else {

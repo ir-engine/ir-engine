@@ -653,10 +653,10 @@ describe('Physics : Rapier->ECS API', () => {
         assertVecApproxEq(body.angvel(), Vector3_Zero, 3)
       })
 
-      it("should store the entity in the body's userData property", () => {
+      it('should store the entity in the body', () => {
         Physics.createRigidBody(physicsWorld, testEntity)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assert.deepEqual(body.userData, { entity: testEntity })
+        assert.deepEqual(body.entity, testEntity)
       })
     })
 
@@ -2319,7 +2319,7 @@ describe('Physics : Rapier->ECS API', () => {
         assert.deepEqual(hits.length, 1)
         assert.deepEqual(hits[0].normal.x, -1)
         assert.deepEqual(hits[0].distance, 5)
-        assert.deepEqual((hits[0].body.userData as any)['entity'], testEntity)
+        assert.deepEqual(hits[0].body.entity, testEntity)
       })
     })
 
@@ -2532,8 +2532,8 @@ describe('Physics : Rapier->ECS API', () => {
         assert.ok(colliderParent1)
         assert.ok(colliderParent2)
         // Get the entities from parent.userData
-        const entity1 = (colliderParent1.userData as any)['entity']
-        const entity2 = (colliderParent2.userData as any)['entity']
+        const entity1 = colliderParent1.entity
+        const entity2 = colliderParent2.entity
         assert.equal(testEntity1, entity1)
         assert.equal(testEntity2, entity2)
         // Check before
