@@ -43,14 +43,7 @@ import config from '@ir-engine/common/src/config'
 import { BotUserAgent } from '@ir-engine/common/src/constants/BotUserAgent'
 import { MediaStreamAppData, NetworkConnectionParams } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
 import multiLogger from '@ir-engine/common/src/logger'
-import {
-  ChannelID,
-  InstanceID,
-  InviteCode,
-  LocationID,
-  RoomCode,
-  UserID
-} from '@ir-engine/common/src/schema.type.module'
+import { ChannelID, InstanceID, InviteCode, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchParamFromURL'
 import { AuthTask, ReadyTask } from '@ir-engine/common/src/world/receiveJoinWorld'
 import { Engine } from '@ir-engine/ecs/src/Engine'
@@ -71,8 +64,6 @@ import {
 } from '@ir-engine/hyperflux'
 import {
   DataChannelType,
-  NetworkActions,
-  NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
   addNetwork,
@@ -133,15 +124,6 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   network.primus?.removeAllListeners()
   network.primus?.end()
   removeNetwork(network)
-  /** Dispatch updatePeers locally to ensure event souce states know about this */
-  dispatchAction(
-    NetworkActions.updatePeers({
-      peers: [],
-      $to: Engine.instance.store.peerID,
-      $topic: network.topic,
-      $network: network.id
-    })
-  )
 }
 
 export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Topic, primus: Primus) => {
@@ -433,8 +415,18 @@ export const connectToNetwork = async (
   }
 
   // we can assume that the host peer is always first to connect
-  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID)
-  network.peers[hostPeerID].transport = {
+
+  // dispatchAction(
+  //   NetworkActions.peerJoined({
+  //     $network: network.id,
+  //     peerID: hostPeerID,
+  //     peerIndex: 0,
+  //     userID: instanceID as any as UserID
+  //   })
+  // )
+
+  // NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID)
+  network.transports[hostPeerID] = {
     message,
     buffer
   }

@@ -43,7 +43,6 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
 import { NetworkState, SceneUser } from './NetworkState'
-import { NetworkWorldUserState } from './NetworkUserState'
 
 export const EntityNetworkState = defineState({
   name: 'ee.EntityNetworkState',
@@ -106,8 +105,8 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
   const ownerID = state.ownerId.value
   const isOwner = ownerID === SceneUser || ownerID === Engine.instance.userID
-  const userConnected = !!useHookstate(getMutableState(NetworkWorldUserState)[ownerID]).value || isOwner
-  const isWorldNetworkConnected = !!useHookstate(NetworkState.worldNetworkState).value
+  const worldNetwork = useHookstate(NetworkState.worldNetworkState).value
+  const userConnected = !!worldNetwork?.users?.[ownerID] || isOwner
 
   useLayoutEffect(() => {
     if (!userConnected) return
@@ -137,7 +136,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     setComponent(entity, NetworkObjectComponent, {
       ownerId:
         ownerID === SceneUser
-          ? isWorldNetworkConnected
+          ? worldNetwork
             ? worldNetwork.hostUserID ?? ('' as UserID) // TODO: this is kind of a hack for p2p
             : Engine.instance.store.userID
           : ownerID,
@@ -145,7 +144,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
       authorityPeerID: state.authorityPeerId.value,
       networkId: state.networkId.value
     })
-  }, [isWorldNetworkConnected, userConnected, state.ownerId.value, state.authorityPeerId.value, state.networkId.value])
+  }, [!!worldNetwork, userConnected, state.ownerId.value, state.authorityPeerId.value, state.networkId.value])
 
   useLayoutEffect(() => {
     if (!userConnected || !state.requestingPeerId.value) return
@@ -165,7 +164,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     )
   }, [userConnected, state.requestingPeerId.value])
 
-  return <>{isOwner && isWorldNetworkConnected && <OwnerPeerReactor uuid={props.uuid} />}</>
+  return <>{isOwner && !!worldNetwork && <OwnerPeerReactor uuid={props.uuid} />}</>
 }
 
 const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {

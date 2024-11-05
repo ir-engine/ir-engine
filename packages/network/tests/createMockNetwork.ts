@@ -23,11 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getMutableState, NetworkID, PeerID, UserID } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, NetworkID, PeerID, UserID } from '@ir-engine/hyperflux'
 
-import { NetworkPeerFunctions } from '../src/functions/NetworkPeerFunctions'
 import { createNetwork, NetworkTopics } from '../src/Network'
-import { addNetwork, NetworkState } from '../src/NetworkState'
+import { addNetwork, NetworkActions, NetworkState } from '../src/NetworkState'
 
 const instanceID = 'instanceID' as NetworkID
 const hostPeerID = 'hostPeerID' as PeerID
@@ -38,5 +37,13 @@ export const createMockNetwork = (networkType = NetworkTopics.world) => {
   else getMutableState(NetworkState).hostIds.media.set(instanceID)
   const network = createNetwork(instanceID, hostPeerID, networkType)
   addNetwork(network)
-  NetworkPeerFunctions.createPeer(network, hostPeerID, 0, hostUserID)
+
+  dispatchAction(
+    NetworkActions.peerJoined({
+      $network: network.id,
+      peerID: hostPeerID,
+      peerIndex: 0,
+      userID: hostUserID
+    })
+  )
 }

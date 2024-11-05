@@ -206,7 +206,9 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
 
   for (const [peerID, dataChannels] of Object.entries(schema)) {
     const peer = network.peers[peerID as PeerID]!
-    const peerMedia = Object.entries(peer.media!).filter(([type]) => dataChannels.includes(type as DataChannelType))
+    const peerMedia = network.media[peerID]
+      ? Object.entries(network.media[peerID]!).filter(([type]) => dataChannels.includes(type as DataChannelType))
+      : []
 
     if (peerMedia.length) {
       for (const [dataChannelType, media] of peerMedia) {

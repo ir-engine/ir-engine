@@ -52,8 +52,8 @@ import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { getMutableState, getState, HyperFlux, Identifiable, PeerID, State } from '@ir-engine/hyperflux'
-import { addNetwork, NetworkPeerFunctions, NetworkState, NetworkTopics, updatePeers } from '@ir-engine/network'
+import { dispatchAction, getMutableState, getState, HyperFlux, Identifiable, PeerID, State } from '@ir-engine/hyperflux'
+import { addNetwork, NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { Application } from '@ir-engine/server-core/declarations'
 import config from '@ir-engine/server-core/src/appconfig'
@@ -198,7 +198,14 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   addNetwork(network)
 
-  NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, hostId)
+  dispatchAction(
+    NetworkActions.peerJoined({
+      $network: network.id,
+      peerID: Engine.instance.store.peerID,
+      peerIndex: 0,
+      userID: hostId
+    })
+  )
 
   await loadEngineInjection()
 
@@ -436,9 +443,13 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   const network = getServerNetwork(app)
   const matchingPeer = Object.values(network.peers).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
-    matchingPeer.transport?.end?.()
-    NetworkPeerFunctions.destroyPeer(network, matchingPeer.peerID)
-    updatePeers(network)
+    network.transports[matchingPeer.peerID]?.end?.()
+    dispatchAction(
+      NetworkActions.peerLeft({
+        $network: network.id,
+        peerID: matchingPeer.peerID
+      })
+    )
   }
 }
 
@@ -674,20 +685,21 @@ export default (app: Application): void => {
 
   const kickCreatedListener = async (data: UserKickType) => {
     // TODO: only run for instanceserver
-    if (!NetworkState.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
+    const network = NetworkState.worldNetwork
+    if (!network) return // many attributes (such as .peers) are undefined in mediaserver
 
     logger.info('kicking user id %s', data.userId)
 
-    const peerId = NetworkState.worldNetwork.users[data.userId]
+    const peerId = network.users[data.userId]
     if (!peerId || !peerId[0]) return
 
     logger.info('kicking peerId %o', peerId)
 
-    const peer = NetworkState.worldNetwork.peers[peerId[0]]
-    if (!peer || !peer.transport) return
+    const peer = network.peers[peerId[0]]
+    if (!peer || !network.transports[peer.peerID]) return
 
     handleDisconnect(getServerNetwork(app), peer.peerID)
-    peer.transport.end?.()
+    network.transports[peer.peerID].end?.()
   }
 
   app.service(userKickPath).on('created', kickCreatedListener)

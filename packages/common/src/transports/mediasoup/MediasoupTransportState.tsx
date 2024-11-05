@@ -165,12 +165,12 @@ export const MediasoupTransportState = defineState({
       if (!state[network].keys.length) state[network].set(none)
     }),
 
-    onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
+    onUpdatePeers: NetworkActions.peerLeft.receive((action) => {
       const state = getState(MediasoupTransportState)
       const transports = state[action.$network]
       if (!transports) return
       for (const transport of Object.values(transports)) {
-        if (action.peers.find((peer) => peer.peerID === transport.peerID)) continue
+        if (action.peerID === transport.peerID) continue
         console.log('Transport peer not found:', transport.peerID)
         getMutableState(MediasoupTransportState)[action.$network][transport.transportID].set(none)
       }

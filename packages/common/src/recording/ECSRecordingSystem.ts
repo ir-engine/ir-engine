@@ -64,12 +64,11 @@ import {
   DataChannelType,
   matchesUserID,
   Network,
-  NetworkPeerFunctions,
+  NetworkActions,
   NetworkState,
   NetworkTopics,
   removeDataChannelHandler,
   SerializationSchema,
-  updatePeers,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType,
   WorldNetworkAction
@@ -727,11 +726,14 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Net
   if (network) {
     if (activePlayback.peerIDs) {
       for (const peerID of activePlayback.peerIDs) {
-        NetworkPeerFunctions.destroyPeer(network, peerID)
+        dispatchAction(
+          NetworkActions.peerLeft({
+            $network: network.id,
+            peerID
+          })
+        )
       }
     }
-
-    updatePeers(network)
 
     /** If syncing multipile instance servers, only need to dispatch once, so do it on the world server */
     if (network.topic === NetworkTopics.world) {

@@ -41,6 +41,7 @@ import {
   PeerID,
   UserID,
   defineState,
+  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -50,7 +51,7 @@ import {
 import {
   DataChannelRegistryState,
   DataChannelType,
-  NetworkPeerFunctions,
+  NetworkActions,
   NetworkState,
   NetworkTopics,
   VideoConstants,
@@ -151,16 +152,23 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
       API.instance.service(instanceSignalingPath).get({ instanceID })
     }, 5000)
 
-    NetworkPeerFunctions.createPeer(
-      network,
-      Engine.instance.store.peerID,
-      joinResponse.value.index,
-      Engine.instance.store.userID
+    dispatchAction(
+      NetworkActions.peerJoined({
+        $network: network.id,
+        peerID: Engine.instance.store.peerID,
+        peerIndex: joinResponse.value.index,
+        userID: Engine.instance.store.userID
+      })
     )
 
     return () => {
       clearInterval(heartbeat)
-      NetworkPeerFunctions.destroyPeer(network, Engine.instance.store.peerID)
+      dispatchAction(
+        NetworkActions.peerLeft({
+          $network: network.id,
+          peerID: Engine.instance.store.peerID
+        })
+      )
       removeNetwork(network)
       getMutableState(NetworkState).hostIds[topic].set(none)
     }
@@ -262,7 +270,14 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
 
     const dataChannel = peerConnectionState.dataChannels['actions'] as RTCDataChannel
 
-    NetworkPeerFunctions.createPeer(network, props.peerID, props.peerIndex, props.userID)
+    dispatchAction(
+      NetworkActions.peerJoined({
+        $network: network.id,
+        peerID: props.peerID,
+        peerIndex: props.peerIndex,
+        userID: props.userID
+      })
+    )
 
     const onMessage = (e) => {
       const message = decode(e.data)
@@ -285,7 +300,7 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       dataChannel.send(encode([fromPeerIndex, data]))
     }
 
-    network.peers[props.peerID].transport = {
+    network.transports[props.peerID] = {
       message,
       buffer
     }
@@ -300,7 +315,12 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
     }, 10)
 
     return () => {
-      NetworkPeerFunctions.destroyPeer(network, props.peerID)
+      dispatchAction(
+        NetworkActions.peerLeft({
+          $network: network.id,
+          peerID: props.peerID
+        })
+      )
       dataChannel.removeEventListener('message', onMessage)
     }
   }, [peerConnectionState?.ready, peerConnectionState?.dataChannels?.['actions']])
