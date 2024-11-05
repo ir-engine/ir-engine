@@ -180,6 +180,7 @@ export default function Topbar() {
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
+            variantSize: 'xs',
             startComponent: <HiMagnifyingGlass className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}
