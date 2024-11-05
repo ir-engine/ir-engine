@@ -31,6 +31,7 @@ import {
   ComponentJSONIDMap,
   createEntity,
   Entity,
+  entityExists,
   EntityUUID,
   getComponent,
   getOptionalComponent,
@@ -64,7 +65,6 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
@@ -249,7 +249,7 @@ export const GLTFSnapshotState = defineState({
 
   cloneCurrentSnapshot: (source: string) => {
     const state = getState(GLTFSnapshotState)[source]
-    return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
+    return structuredClone({ source, data: state.snapshots[state.index] }) as {
       data: GLTF.IGLTF
       source: string
     }
@@ -382,7 +382,7 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   return (
     <>
       {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
-        <ParentNodeReactor
+        <NodeReactor
           key={uuid}
           childIndex={childIndex}
           nodeIndex={nodeIndex}
@@ -392,19 +392,6 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
       ))}
     </>
   )
-}
-
-const ParentNodeReactor = (props: {
-  nodeIndex: number
-  childIndex: number
-  parentUUID: EntityUUID
-  documentID: string
-}) => {
-  const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
-  const physicsWorld = Physics.useWorld(parentEntity)
-  if (!parentEntity || !physicsWorld) return null
-
-  return <NodeReactor {...props} />
 }
 
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
@@ -475,7 +462,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   }, [])
 
   useLayoutEffect(() => {
-    if (!entity) return
+    if (!entity || !entityExists(entity)) return
 
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
   }, [entity, parentEntity, props.childIndex])

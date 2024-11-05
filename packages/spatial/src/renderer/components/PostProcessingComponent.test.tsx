@@ -23,6 +23,8 @@
 // Infinite Reality Engine. All Rights Reserved.
 // */
 
+import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
+
 import assert from 'assert'
 import { MathUtils } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -46,7 +48,6 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { act, render } from '@testing-library/react'
 import { Effect } from 'postprocessing'
 import React from 'react'
-import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { RendererState } from '../RendererState'

@@ -45,7 +45,9 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/assets_apartment-CubemapBake.png-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "assets/apartment.glb": {
     "type": "asset",
@@ -66,7 +68,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_01.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -84,7 +86,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_02.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -102,7 +104,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_03.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -113,14 +115,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/female_04.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/avatars/female_04.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -129,14 +131,14 @@
     ]
   },
   "assets/avatars/female_05.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/avatars/female_05.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -145,14 +147,14 @@
     ]
   },
   "assets/avatars/female_06.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/avatars/female_06.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -170,7 +172,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_01.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -188,7 +190,7 @@
     "dependencies": []
   },
   "assets/avatars/male_02.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -208,7 +210,7 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_03.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -219,14 +221,14 @@
     "thumbnailMode": "automatic"
   },
   "assets/avatars/male_04.png": {
-    "type": "file",
+    "type": "asset",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
   "assets/avatars/male_04.vrm": {
-    "type": "avatar",
+    "type": "asset",
     "tags": [
       "Model"
     ],
@@ -311,6 +313,15 @@
     "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsgalaxyTexture.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
+  "assets/generic_midday_02.png": {
+    "type": "asset",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/assets_generic_midday_02.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
   "assets/keycard.glb": {
     "type": "asset",
     "tags": [
@@ -325,7 +336,9 @@
     "tags": [
       "Model"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/assets_platform.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "assets/portal_frame.glb": {
     "type": "asset",
@@ -341,7 +354,9 @@
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/ambient-light.prefab.gltf": {
     "type": "asset",
@@ -349,15 +364,17 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/body.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/box-collider.prefab.gltf": {
     "type": "asset",
@@ -365,15 +382,17 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/camera.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/cylinder-collider.prefab.gltf": {
     "type": "asset",
@@ -381,8 +400,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/directional-light.prefab.gltf": {
     "type": "asset",
@@ -390,8 +409,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/fog.prefab.gltf": {
     "type": "asset",
@@ -399,8 +418,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/geo.prefab.gltf": {
     "type": "asset",
@@ -408,15 +427,17 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/ground-plane.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/hemisphere-light.prefab.gltf": {
     "type": "asset",
@@ -424,22 +445,26 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/image.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/mesh-collider.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/point-light.prefab.gltf": {
     "type": "asset",
@@ -447,8 +472,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/postprocessing.prefab.gltf": {
     "type": "asset",
@@ -456,8 +481,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabspostprocessing.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/skybox.prefab.gltf": {
     "type": "asset",
@@ -465,8 +490,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsskybox.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/sphere-collider.prefab.gltf": {
     "type": "asset",
@@ -474,8 +499,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/spot-light.prefab.gltf": {
     "type": "asset",
@@ -483,8 +508,8 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/text.prefab.gltf": {
     "type": "asset",
@@ -492,22 +517,35 @@
       "Default Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/title.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
   },
   "assets/prefabs/video.prefab.gltf": {
     "type": "asset",
     "tags": [
       "Default Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/Component_thumb_placeholder.png",
+    "thumbnailMode": "custom"
+  },
+  "assets/rings.glb": {
+    "type": "asset",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/assets_rings.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "assets/sample_etc1s.ktx2": {
     "type": "asset",
@@ -616,21 +654,27 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_apartment-New-EnvMap-Bake.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/apartment-Portal.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_apartment-Portal.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/apartment.envmap.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_apartment.envmap.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/apartment.gltf": {
     "type": "scene",
@@ -645,14 +689,18 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_apartment.loadingscreen.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/default.envmap.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_default.envmap.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/default.gltf": {
     "type": "scene",
@@ -667,35 +715,45 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_default.loadingscreen.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station-Portal-- Sky Station Exterior.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station-Portal---Sky-Station-Exterior.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station-Portal-- Sky Station Interior.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station-Portal---Sky-Station-Interior.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station-Portal-- to Apartment.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station-Portal---to-Apartment.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station.envmap.ktx2": {
     "type": "asset",
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station.envmap.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "public/scenes/sky-station.gltf": {
     "type": "scene",
@@ -710,6 +768,8 @@
     "tags": [
       "Image"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station.loadingscreen.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   }
 }

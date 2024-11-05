@@ -7,8 +7,10 @@ kubectl
 lib/
 packages/client/dist
 readme/
-tests/
-vendor/
+**/*.test.ts
+**/*.test.tsx
+**/tests/
+**/vendor/
 packages/**/node_modules
 package-lock.json
 packages/**/package-lock.json
@@ -18,13 +20,8 @@ packages/editor
 packages/instanceserver
 packages/server
 packages/ui
-packages/projects/projects/*/public
-packages/projects/projects/*/assets
-packages/projects/projects/*/*.png
-packages/projects/projects/*/*.jpg
-packages/projects/projects/*/*.jpeg
-packages/projects/projects/*/*.ktx2
-packages/projects/projects/*/*.scene.json
+packages/projects/projects/*/*/public
+packages/projects/projects/*/*/assets
 
 
 kubernetes/**

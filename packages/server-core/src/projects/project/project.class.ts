@@ -141,7 +141,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     // run project install script
     if (projectConfig?.onEvent) {
-      return onProjectEvent(this.app, project, projectConfig.onEvent, 'onInstall')
+      await onProjectEvent(this.app, project, projectConfig.onEvent, 'onInstall')
     }
 
     // if in dev mode, give all admins access to the project

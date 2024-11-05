@@ -31,21 +31,26 @@ import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
-import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectBranchType, ProjectCommitType, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import {
+  identityProviderPath,
+  ProjectBranchType,
+  ProjectCommitType,
+  ProjectType
+} from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { RadioGroup } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
+import { useFind } from '@ir-engine/common'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 
@@ -122,8 +127,8 @@ export default function AddEditProjectModal({
     return () => ProjectUpdateService.clearProjectUpdate(project.name)
   }, [project.name])
 
-  const user = useHookstate(getMutableState(AuthState).user)
-  const hasGithubProvider = user.identityProviders.value.find((ip) => ip.type === 'github')
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const hasGithubProvider = identityProvidersQuery.data.find((ip) => ip.type === 'github')
 
   const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
     (commit: ProjectCommitType) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
@@ -586,7 +591,7 @@ export default function AddEditProjectModal({
           <div className="flex w-full">
             <div className="w-1/2">
               <Label className="mb-4">{t('admin:components.project.autoUpdateMode')}</Label>
-              <Radios
+              <RadioGroup
                 horizontal
                 options={[
                   { label: t('admin:components.project.prod'), value: 'prod' },

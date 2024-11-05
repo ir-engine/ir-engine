@@ -40,6 +40,7 @@
     "importAsset": "Import Asset",
     "importSettings": "Import Settings",
     "exportGLB": "Export as binary glTF (.glb) ...",
+    "exportLookdev": "Export Lookdev Prefab",
     "importScene": "Import scene",
     "exportScene": "Export scene",
     "quit": "Quit to Dashboard"
@@ -76,8 +77,8 @@
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
   },
-  "warnings" : {
-    "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
+  "warnings": {
+    "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
     "title": "Viewport",
@@ -99,13 +100,17 @@
       "memory": "Memory",
       "geometries": "Geometries",
       "textures": "Textures",
+      "texturesMB": "Textures MB",
       "render": "Render",
       "FPS": "FPS",
       "frameTime": "Frame Time",
       "calls": "Calls",
       "triangles": "Triangles",
       "points": "Points",
-      "lines": "Lines"
+      "lines": "Lines",
+      "shaderComplexity": "Shader Complexity",
+      "sceneComplexity": "Scene Complexity",
+      "lights": "Lights"
     }
   },
   "toolbar": {
@@ -325,10 +330,17 @@
       "lbl-volume": "Volume",
       "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
+      "info-isMusic": "If true, the media will be treated as music and will not be spatialized (even if a spatial audio component exists).",
       "lbl-size": "Size",
       "seektime": "Start Time",
-      "lbl-mediaControls": "Media Controls"
+      "lbl-mediaControls": "Media Controls",
+      "info-mediaControls": "Control media playback (positional audio based on camera position)"
     },
+    "media-preview": {
+      "lbl-mediaPreview": "Media Preview",
+      "info-mediaPreview": "Preview the selected media (audio or video) source here in properties panel without spatial audio or a video texture in scene",
+      "lbl-selected-source": "Source to Preview"
+      },
     "mesh": {
       "name": "Mesh",
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
@@ -432,7 +444,9 @@
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-timeScale": "Time Scale",
-      "lbl-animationPack": "Animation Pack (via Mixamo Rig)"
+      "lbl-animationPack": "Animation Pack (via Mixamo Rig)",
+      "lbl-paused": "Paused",
+      "lbl-loop": "Loop"
     },
     "variant": {
       "name": "Variant",
@@ -774,7 +788,7 @@
     "cameraSettings": {
       "name": "Camera Settings",
       "description": "Adjust camera settings to optimize scene visualization, including projection type, field of view, and distance parameters.",
-      "lbl-projectionType" : "Projection Type",
+      "lbl-projectionType": "Projection Type",
       "lbl-fov": "Field of View",
       "lbl-calcClippingPlanes": "Calculate Clipping Planes",
       "lbl-projectionDistance": "Projection Distance",
@@ -916,6 +930,7 @@
       "lbl-url": "Link URL",
       "lbl-navigateScene": "Scene navigation",
       "lbl-locaiton": "Location Name",
+      "lbl-newTab": "Open in new tab",
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
@@ -944,9 +959,13 @@
       "description": "Sets a property on the target object on enter and leave.",
       "lbl-addTrigger": "Add Trigger",
       "lbl-removeTrigger": "Remove Trigger",
-      "lbl-target": "Object",
+      "lbl-target": "Target Object",
+      "info-target": "Drag an entity into this field to set it as the target object and enable callback selections.",
       "lbl-onenter": "On Enter",
+      "info-onenter": "Select a callback to trigger on above target entity when entering this trigger volume.",
       "lbl-onexit": "On Exit",
+      "info-onexit": "Select a callback to trigger on above target entity when exiting this trigger volume.",
+      "info-disabled-callback": "(Disabled) No target entity selected, please drag a target entity into the 'Target Object' field above.",
       "lbl-showHelper": "Show Helper Mesh",
       "ph-errorNode": "Error missing node.",
       "ph-selectNode": "Select node...",
@@ -1065,8 +1084,11 @@
     "mountPoint": {
       "name": "Mount point",
       "description": "An object with a pose to define interactable behaviors.",
+      "interact-message-seat": "Press E to Sit",
       "lbl-type": "Type",
-      "lbl-dismount": "Dismount point, offsets this transform"
+      "lbl-dismount": "Dismount point, offsets this transform",
+      "lbl-force-dismount" : "Force Dismount Position",
+      "lbl-force-dismount-info" : "If true, the dismount position will be forced to the specified position (mid-air OK), regardless of raycast result returning a hit within 2m below dismount offset point"
     },
     "text": {
       "name": "3D Text",
@@ -1353,7 +1375,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "lbl-createPrefab": "Create Prefab",
+    "lbl-createPrefab": "Create Prefab", 
     "issues": "Issues",
     "copy-paste": {
       "no-hierarchy-nodes": "No hierarchy nodes found"
@@ -1541,19 +1563,8 @@
     "type": "Type",
     "tags": "Tags"
   },
-  "unsupportedBrowser": {
-    "title": "Browser Not Supported!",
-    "description": "Please use Google Chrome for the best experience with the iR Studio.",
-    "downloadChrome": "Download Chrome",
-    "continue": "Continue Anyway"
-  },
   "unsupportedFile": {
     "title": "Unsupported File Type!",
     "okay": "Okay"
-  },
-  "unsupportedDevice": {
-    "title": "Unsupported Device Type!",
-    "description": "We have detected you are using an unsupported device. You may experience errors using this device. If you want to have the best experience with IR Studio, please use a desktop running the latest version of Google Chrome. Thank you!",
-    "continue": "Continue Anyway"
   }
 }

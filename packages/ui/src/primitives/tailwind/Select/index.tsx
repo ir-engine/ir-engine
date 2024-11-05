@@ -141,8 +141,9 @@ const Select = <T extends OptionValueType>({
   }
 
   return (
-    <div className={twMerge('relative w-full', className)} ref={ref}>
+    <div className={twMerge('relative w-full', className)} ref={ref} data-testid="select-input-container">
       <Input
+        data-testid="select-input"
         disabled={disabled}
         label={label}
         labelClassname={labelClassName}
@@ -179,7 +180,10 @@ const Select = <T extends OptionValueType>({
         }`}
         ref={menuRef}
       >
-        <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
+        <ul
+          className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}
+          data-testid="select-input-list"
+        >
           {filteredOptions.value.map((option, index) => (
             <li
               key={index}
@@ -189,6 +193,7 @@ const Select = <T extends OptionValueType>({
                 option.disabled ? 'cursor-not-allowed' : 'hover:bg-theme-highlight hover:text-theme-highlight',
                 menuItemClassName
               )}
+              data-testid="select-input-list-item"
               onClick={() => handleOptionItem(option)}
             >
               {option.label}

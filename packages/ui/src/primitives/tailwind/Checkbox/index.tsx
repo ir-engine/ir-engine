@@ -31,28 +31,40 @@ import { v4 as uuidv4 } from 'uuid'
 
 import Label from '../Label'
 
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
+export interface CheckboxProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'onBlur'> {
   value: boolean
   label?: React.ReactNode
   className?: string
   containerClassName?: string
   onChange: (value: boolean) => void
+  onBlur?: (value: boolean) => void
   disabled?: boolean
 }
 
-const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
+const Checkbox = ({ className, containerClassName, label, value, onChange, onBlur, disabled }: CheckboxProps) => {
   const handleChange = () => {
     if (!disabled) {
       onChange(!value)
     }
   }
 
+  const handleRelease = () => {
+    if (!disabled) {
+      onBlur?.(value)
+    }
+  }
+
   const id = uuidv4()
 
   return (
-    <div className={twMerge('relative flex cursor-pointer items-end', containerClassName)}>
+    <div
+      className={twMerge('relative flex cursor-pointer items-end', containerClassName)}
+      data-testid="checkbox-container"
+    >
       <input
         type="checkbox"
+        data-testid="checkbox-input"
         checked={value}
         onChange={handleChange}
         id={id}
@@ -72,7 +84,7 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
       <HiCheck onClick={handleChange} className="absolute m-0.5 hidden h-3 w-3 text-white peer-checked:block" />
 
       {label && (
-        <Label className="ml-2 cursor-pointer self-stretch leading-[1.15]" htmlFor={id}>
+        <Label className="ml-2 cursor-pointer self-stretch leading-[1.15]" data-testid="checkbox-label" htmlFor={id}>
           {label}
         </Label>
       )}
