@@ -39,15 +39,14 @@ import {
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
-  instanceServerSettingPath,
-  InstanceServerSettingType
+  InstanceServerSettingType,
+  instanceServerSettingPath
 } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
 import {
   ServerSettingDatabaseType,
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
-import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -200,22 +199,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
-
-  const mailchimpSettingPromise = knexClient
-    .select()
-    .from<MailchimpSettingType>(mailchimpSettingPath)
-    .then(([dbMailchimp]) => {
-      if (dbMailchimp) {
-        appConfig.mailchimp = {
-          ...appConfig.mailchimp,
-          ...dbMailchimp
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read mailchimp setting: ${e.message}`)
-    })
-  promises.push(mailchimpSettingPromise)
 
   await Promise.all(promises)
 }
