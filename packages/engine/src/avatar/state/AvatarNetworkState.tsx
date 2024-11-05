@@ -34,7 +34,7 @@ import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNe
 import { defineState, getMutableState, isClient, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { WorldNetworkAction } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { TransformComponent } from '@ir-engine/spatial'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 export const AvatarState = defineState({
   name: 'ee.engine.avatar.AvatarState',
