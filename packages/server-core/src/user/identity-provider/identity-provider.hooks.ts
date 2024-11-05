@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { random } from 'lodash'
 
 import { isDev } from '@ir-engine/common/src/config'
@@ -56,7 +56,6 @@ import { HookContext } from '../../../declarations'
 import appConfig from '../../appconfig'
 import persistData from '../../hooks/persist-data'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
-import verifyScope from '../../hooks/verify-scope'
 import { IdentityProviderService } from './identity-provider.class'
 import {
   identityProviderDataResolver,
@@ -295,28 +294,13 @@ async function createAccessToken(context: HookContext<IdentityProviderService>) 
   }
 }
 
-function validateQueryParameters(context: HookContext) {
+const isSearchQuery = (context: HookContext) => {
   const { query } = context.params
-
-  // Check for direct $like usage
-  if (query?.accountIdentifier?.$like !== undefined || query?.email?.$like !== undefined) {
+  const queryLength = Object.keys(query).length
+  // we only need to allow search based on exact email in the query
+  if (queryLength === 2 && query.email && !query.email.$like && !query.email.$notlike) {
     return true
   }
-
-  // Check for $or conditions
-  if (query?.$or) {
-    return query.$or.find(
-      (condition) => condition.accountIdentifier?.$like !== undefined || condition.email?.$like !== undefined
-    )
-  }
-
-  // Check for $and conditions
-  if (query?.$and) {
-    return query.$and.some(
-      (condition) => condition.accountIdentifier?.$like !== undefined || condition.email?.$like !== undefined
-    )
-  }
-
   return false
 }
 
@@ -333,10 +317,7 @@ export default {
       schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [
-      iff(isProvider('external'), setLoggedinUserInQuery('userId')),
-      iff(isProvider('external') && validateQueryParameters, verifyScope('admin', 'admin'))
-    ],
+    find: [iff(isProvider('external'), iffElse(isSearchQuery, [], setLoggedinUserInQuery('userId')))],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
       iff(

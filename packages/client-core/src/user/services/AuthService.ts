@@ -737,15 +737,14 @@ export const AuthService = {
 
   async validateUser(email: string): Promise<boolean> {
     try {
-      const result = await API.instance.service(identityProviderPath).find({
+      const identityProviders = await API.instance.service(identityProviderPath).find({
         query: {
-          $select: ['id', 'email'],
-          accountIdentifier: email.toLowerCase(),
-          $limit: 1
-        }
+          accountIdentifier: email.toLowerCase()
+        },
+        paginate: false
       })
 
-      return result.data.length > 0
+      return identityProviders.length > 0
     } catch (error) {
       return false
     }

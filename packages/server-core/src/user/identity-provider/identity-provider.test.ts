@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,28 +19,29 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
 import '../../patchEngineNode'
 
+import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 
-import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
-import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
+import { createAdmin, createUserApiKey } from '../../test-utils/user-test-utils'
 
 describe('identity-provider.test', () => {
   let userId: UserID
   let accessToken: string
   let app: Application
   let providers: IdentityProviderType[] = []
+  const testEmail = 'test@testdomain.com'
 
   beforeAll(async () => {
     app = await createFeathersKoaApp()
@@ -318,99 +319,58 @@ describe('identity-provider.test', () => {
     )
   })
 
-  it('should not allow search without the required scope - multiple queries', async () => {
-    const type = 'guest'
-    const token = uuidv4()
-    const searchEmail = 'testemail@testdomain.com'
-    const identityProviderForSearchCases = await app.service(identityProviderPath).create(
+  it('should find user with exact email match', async () => {
+    const appUser = await createAdmin(app)
+    const adminUserApiKey = await createUserApiKey(app, appUser)
+    const adminIdentityProvider = await app.service(identityProviderPath).create(
       {
-        type,
-        token,
-        userId: '' as UserID
-      },
-      {}
-    )
-    const queries = [
-      {
-        description: 'and case with like for both email and accountIdentifier',
-        query: {
-          $select: ['id', 'userId'],
-          $and: [
-            {
-              accountIdentifier: {
-                $like: `%${searchEmail.toLowerCase()}%`
-              }
-            },
-            {
-              email: {
-                $like: `%${searchEmail.toLowerCase()}%`
-              }
-            }
-          ]
-        }
+        type: 'email',
+        token: uuidv4(),
+        userId: appUser.id,
+        email: testEmail
       },
       {
-        description: 'like on accountIdentifier',
-        query: {
-          $select: ['id', 'accountIdentifier'],
-          accountIdentifier: {
-            $like: searchEmail.toLowerCase()
-          },
-          $limit: 1
-        }
-      },
-      {
-        description: 'like on email',
-        query: {
-          $select: ['id', 'email'],
-          email: {
-            $like: searchEmail.toLowerCase()
-          },
-          $limit: 1
-        }
-      },
-      {
-        description: 'or case with like for both email and accountIdentifier',
-        query: {
-          $select: ['id', 'userId'],
-          $or: [
-            {
-              accountIdentifier: {
-                $like: `%${searchEmail.toLowerCase()}%`
-              }
-            },
-            {
-              email: {
-                $like: `%${searchEmail.toLowerCase()}%`
-              }
-            }
-          ]
+        provider: 'external',
+        headers: {
+          authorization: `Bearer ${adminUserApiKey.token}`
         }
       }
-    ] as any[]
+    )
+    const result = await app.service(identityProviderPath).find({
+      user: appUser,
+      provider: 'external',
+      headers: {
+        authorization: `Bearer ${adminUserApiKey.token}`
+      },
+      query: {
+        email: testEmail // Exact match
+      },
+      paginate: false
+    })
 
-    for (const { description, query } of queries) {
-      console.log(description)
-      await assert.rejects(
-        async () => {
-          await app.service(identityProviderPath).find({
-            provider: 'rest',
-            headers: {
-              authorization: `Bearer ${identityProviderForSearchCases.accessToken}`
-            },
-            authentication: {
-              strategy: 'jwt',
-              accessToken: identityProviderForSearchCases.accessToken
-            },
-            query,
-            paginate: false
-          })
-        },
-        {
-          name: 'NotFound',
-          message: 'No scope available for the current user.'
+    assert.equal(result.length, 1)
+    assert.equal(result[0].id, adminIdentityProvider.id)
+    assert.equal(result[0].userId, adminIdentityProvider.userId)
+  })
+
+  it('should not not return any identity provider using $like', async () => {
+    const appUser = await createAdmin(app)
+    const adminUserApiKey = await createUserApiKey(app, appUser)
+
+    const result = await app.service(identityProviderPath).find({
+      user: appUser,
+      provider: 'external',
+      headers: {
+        authorization: `Bearer ${adminUserApiKey.token}`
+      },
+      query: {
+        email: {
+          $like: '%@testdomain.com%'
         }
-      )
-    }
+      },
+      paginate: false
+    })
+
+    assert.equal(result.length, 0)
   })
 })
