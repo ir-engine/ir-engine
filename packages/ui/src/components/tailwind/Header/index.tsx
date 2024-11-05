@@ -29,23 +29,27 @@ import { HiUserCircle } from 'react-icons/hi2'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { State, useMutableState } from '@ir-engine/hyperflux'
 
+import { useFind } from '@ir-engine/common'
+import { userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import Button from '../../../primitives/tailwind/Button'
-
-// import ThemeSwitcher from '@ir-engine/ui/src/components/tailwind/ThemeSwitcher'
 
 const Header = (props: { mode: State<'playback' | 'capture'> }) => {
   const authState = useMutableState(AuthState)
   const { user } = authState
-  const avatarDetails = user?.avatar?.value
+  const avatar = useFind(userAvatarPath, {
+    query: {
+      userId: user?.id?.value
+    }
+  })
   return (
     <nav className="navbar relative w-full">
       <label tabIndex={0} className="absolute right-0 top-0">
         <span className="mr-1">{user?.name?.value}</span>
         <div className="avatar">
           <div className="h-[60px] w-auto rounded-full">
-            {avatarDetails?.thumbnailResource?.url ? (
+            {avatar.data[0].avatar.thumbnailResource?.url ? (
               <img
-                src={avatarDetails.thumbnailResource?.url}
+                src={avatar.data[0].avatar.thumbnailResource?.url}
                 crossOrigin="anonymous"
                 className="h-[60px] w-auto rounded-full"
               />

@@ -46,7 +46,7 @@ import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComp
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -55,7 +55,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import React, { KeyboardEvent, useEffect } from 'react'
+import React, { KeyboardEvent, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -126,6 +126,33 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
+  const renameRef = useRef<HTMLDivElement>(null)
+  let isRenameOpen = useState(false)
+
+  const handleRenameOpen = () => {
+    if (!isRenameOpen.value) {
+      isRenameOpen.set(true)
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+  }
+
+  const handleRenameClose = (saveRename: boolean) => {
+    if (isRenameOpen.value) {
+      isRenameOpen.set(false)
+      document.removeEventListener('mousedown', handleClickOutside)
+      if (saveRename) {
+        EditorControlFunctions.modifyName([entity], toValidHierarchyNodeName(entity, currentRenameNode.value))
+        currentRenameNode.set(getComponent(entity, NameComponent))
+      }
+      renamingNode.clear()
+    }
+  }
+
+  const handleClickOutside = (event) => {
+    if (renameRef.current && !renameRef.current.contains(event.target)) {
+      handleRenameClose(true)
+    }
+  }
 
   const [, drag, preview] = useDrag({
     type: ItemTypes.Node,
@@ -371,21 +398,18 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
             <IconComponent entity={entity} />
             <div className="flex flex-1 items-center">
               {renamingNode.entity === entity ? (
-                <div className="relative h-[15px] w-full bg-inherit px-1 text-inherit">
+                <div ref={renameRef} className="relative h-[15px] w-full bg-inherit px-1 text-inherit">
                   <input
                     type="text"
                     className="absolute top-[-3px] m-0 w-full rounded-none bg-inherit py-0.5 pl-0.5 text-sm"
                     data-testid="hierarchy-panel-scene-item-rename-input"
+                    onFocus={() => handleRenameOpen()}
                     onChange={(event) => currentRenameNode.set(event.target.value)}
                     onKeyDown={(event: KeyboardEvent) => {
-                      if (event.key === 'Escape') renamingNode.clear()
-                      else if (event.key === 'Enter') {
-                        EditorControlFunctions.modifyName(
-                          [entity],
-                          toValidHierarchyNodeName(entity, currentRenameNode.value)
-                        )
-                        currentRenameNode.set(getComponent(entity, NameComponent))
-                        renamingNode.clear()
+                      if (event.key === 'Escape') {
+                        handleRenameClose(false)
+                      } else if (event.key === 'Enter') {
+                        handleRenameClose(true)
                       }
                     }}
                     value={currentRenameNode.value}

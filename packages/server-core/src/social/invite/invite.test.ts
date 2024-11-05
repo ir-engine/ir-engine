@@ -59,9 +59,7 @@ describe('invite.service', () => {
 
     testUser = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
-      isGuest: false,
-      scopes: []
+      isGuest: false
     })
 
     testLocation = await createTestLocation(app)

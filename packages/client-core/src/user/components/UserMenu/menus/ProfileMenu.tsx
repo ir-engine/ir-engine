@@ -44,9 +44,13 @@ import { useFind } from '@ir-engine/common'
 import config, { validateEmail, validatePhoneNumber } from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import {
+  ScopeType,
   UserName,
   authenticationSettingPath,
   clientSettingPath,
+  identityProviderPath,
+  scopePath,
+  userApiKeyPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -60,6 +64,7 @@ import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
+import { Engine } from '@ir-engine/ecs'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
@@ -69,7 +74,6 @@ import { UserMenus } from '../../../UserUISystem'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { AvatarService } from '../../../services/AvatarService'
-import { useUserHasAccessHook } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
@@ -105,7 +109,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const clientSetting = useFind(clientSettingPath).data.at(0)
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
-  const apiKey = selfUser.apiKey?.token?.value
+  const apiKey = useFind(userApiKeyPath).data[0]
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = !!selfUser.acceptedTOS.value
 
@@ -133,7 +137,14 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     }
   }, [checked18OrOver])
 
-  const hasAdminAccess = useUserHasAccessHook('admin:admin')
+  const adminScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'admin:admin' as ScopeType
+    }
+  })
+
+  const hasAdminAccess = adminScopeQuery.data.length > 0
   const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   const { initialized, openChat } = useZendesk()
@@ -185,35 +196,36 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     if (!loading.value) logger.info({ event_name: 'view_profile' })
   }, [loading.value])
 
+  const identityProvidersQuery = useFind(identityProviderPath)
+
   useEffect(() => {
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
-    if (selfUser.identityProviders.get({ noproxy: true }))
-      for (const ip of selfUser.identityProviders.get({ noproxy: true })!) {
-        switch (ip.type) {
-          case 'apple':
-            oauthConnectedState.merge({ apple: true })
-            break
-          case 'discord':
-            oauthConnectedState.merge({ discord: true })
-            break
-          case 'facebook':
-            oauthConnectedState.merge({ facebook: true })
-            break
-          case 'linkedin':
-            oauthConnectedState.merge({ linkedin: true })
-            break
-          case 'google':
-            oauthConnectedState.merge({ google: true })
-            break
-          case 'twitter':
-            oauthConnectedState.merge({ twitter: true })
-            break
-          case 'github':
-            oauthConnectedState.merge({ github: true })
-            break
-        }
+    for (const ip of identityProvidersQuery.data) {
+      switch (ip.type) {
+        case 'apple':
+          oauthConnectedState.merge({ apple: true })
+          break
+        case 'discord':
+          oauthConnectedState.merge({ discord: true })
+          break
+        case 'facebook':
+          oauthConnectedState.merge({ facebook: true })
+          break
+        case 'linkedin':
+          oauthConnectedState.merge({ linkedin: true })
+          break
+        case 'google':
+          oauthConnectedState.merge({ google: true })
+          break
+        case 'twitter':
+          oauthConnectedState.merge({ twitter: true })
+          break
+        case 'github':
+          oauthConnectedState.merge({ github: true })
+          break
       }
-  }, [selfUser.identityProviders])
+    }
+  }, [identityProvidersQuery.data])
 
   const updateUserName = (e) => {
     e.preventDefault()
@@ -477,7 +489,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </Text>
             )}
 
-            {hasAcceptedTermsAndAge && selfUser?.apiKey?.id && (
+            {hasAcceptedTermsAndAge && apiKey?.id && (
               <Text variant="body2" mt={1} onClick={() => showApiKey.set(!showApiKey.value)}>
                 {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
               </Text>
@@ -706,14 +718,14 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         {showApiKey.value && (
           <InputText
             label={t('user:usermenu.profile.apiKey')}
-            value={apiKey}
+            value={apiKey?.token}
             sx={{ mt: 2 }}
             endIcon={<Icon type="ContentCopy" />}
             startIcon={<Icon type="Refresh" />}
             startIconTitle={t('user:usermenu.profile.refreshApiKey')}
             onStartIconClick={refreshApiKey}
             onEndIconClick={() => {
-              navigator.clipboard.writeText(apiKey)
+              navigator.clipboard.writeText(apiKey?.token)
               NotificationService.dispatchNotify(t('user:usermenu.profile.apiKeyCopied'), {
                 variant: 'success'
               })

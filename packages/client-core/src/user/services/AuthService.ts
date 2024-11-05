@@ -35,7 +35,6 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
-  AvatarID,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -44,8 +43,6 @@ import {
   UserName,
   UserPatch,
   UserPublicPatch,
-  UserSettingID,
-  UserSettingPatch,
   UserSettingType,
   UserType,
   avatarPath,
@@ -82,60 +79,9 @@ export const UserSeed: UserType = {
   id: '' as UserID,
   name: '' as UserName,
   isGuest: true,
-  avatarId: '' as AvatarID,
-  avatar: {
-    id: '' as AvatarID,
-    name: '',
-    isPublic: true,
-    userId: '' as UserID,
-    modelResourceId: '',
-    thumbnailResourceId: '',
-    identifierName: '',
-    project: '',
-    createdAt: '',
-    updatedAt: ''
-  },
-  apiKey: {
-    id: '',
-    token: '',
-    userId: '' as UserID,
-    createdAt: '',
-    updatedAt: ''
-  },
   acceptedTOS: false,
-  userSetting: {
-    id: '' as UserSettingID,
-    themeModes: {},
-    userId: '' as UserID,
-    createdAt: '',
-    updatedAt: ''
-  },
-  scopes: [],
-  identityProviders: [],
-  locationAdmins: [],
-  locationBans: [],
-  instanceAttendance: [],
-  lastLogin: {
-    id: '',
-    ipAddress: '',
-    userAgent: '',
-    identityProviderId: '',
-    userId: '' as UserID,
-    createdAt: ''
-  },
   createdAt: '',
   updatedAt: ''
-}
-
-const resolveWalletUser = (credentials: any): UserType => {
-  return {
-    ...UserSeed,
-    name: credentials.user.displayName,
-    isGuest: true,
-    avatarId: credentials.user.id,
-    // avatarUrl: credentials.user.icon,
-    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserID }
-  }
 }
 
 const invalidDomainHandling = (error: MessageResponse): void => {
@@ -376,18 +322,16 @@ export const AuthService = {
     try {
       const client = API.instance
       const user = await client.service(userPath).get(userId)
-      if (!user.userSetting) {
-        const settingsRes = (await client
-          .service(userSettingPath)
-          .find({ query: { userId: userId } })) as Paginated<UserSettingType>
 
-        if (settingsRes.total === 0) {
-          user.userSetting = await client.service(userSettingPath).create({ userId: userId })
-        } else {
-          user.userSetting = settingsRes.data[0]
-        }
+      const settingsRes = (await client
+        .service(userSettingPath)
+        .find({ query: { userId: userId } })) as Paginated<UserSettingType>
+
+      if (settingsRes.total === 0) {
+        await client.service(userSettingPath).create({ userId: userId })
       }
-      if (!user.avatarId) {
+      const avatar = await client.service(userAvatarPath).find({ query: { userId } })
+      if (!avatar.data[0]) {
         const avatars = await client.service(avatarPath).find({
           query: {
             isPublic: true
@@ -400,9 +344,6 @@ export const AuthService = {
           await client
             .service(userAvatarPath)
             .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
-
-          user.avatarId = randomReplacementAvatar.id
-          user.avatar = randomReplacementAvatar
         } else {
           throw new Error('No avatars found in database')
         }
@@ -828,11 +769,6 @@ export const AuthService = {
     AuthService.loadUserData(userId)
   },
 
-  async updateUserSettings(id: UserSettingID, data: UserSettingPatch) {
-    const response = await API.instance.service(userSettingPath).patch(id, data)
-    getMutableState(AuthState).user.userSetting.merge(response)
-  },
-
   async removeUser(userId: UserID) {
     await API.instance.service(userPath).remove(userId)
     AuthService.logoutUser()
@@ -847,8 +783,6 @@ export const AuthService = {
     } else {
       apiKey = await API.instance.service(userApiKeyPath).create({})
     }
-
-    getMutableState(AuthState).user.merge({ apiKey })
   },
 
   async createLoginToken() {
