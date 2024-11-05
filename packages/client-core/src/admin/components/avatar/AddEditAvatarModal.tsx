@@ -35,11 +35,11 @@ import { cleanURL } from '@ir-engine/common/src/utils/cleanURL'
 import { AssetsPreviewPanel } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { RadioGroup } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import DragNDrop from '@ir-engine/ui/src/primitives/tailwind/DragNDrop'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
 
 import { getCanvasBlob } from '../../../common/utils'
 
@@ -238,7 +238,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           onChange={(event) => avatarAssets.name.set(event.target.value)}
           error={error.name.value}
         />
-        <Radios
+        <RadioGroup
           value={avatarAssets.source.value}
           options={[
             { label: 'URL', value: 'url' },

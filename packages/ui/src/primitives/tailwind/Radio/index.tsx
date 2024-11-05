@@ -23,56 +23,79 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useId } from 'react'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 export interface RadioProps {
   disabled?: boolean
   label: string
-  name?: string
-  onChange?: (event: React.FormEvent<HTMLInputElement>) => void
-  value?: string
-  defaultChecked?: boolean
+  onClick?: (value: any) => void
+  value: any
+  checked?: boolean
   description?: string
+  variant?: 'sm' | 'md'
 }
 
-const RadioRoot = ({ disabled, label, name, onChange, value, description, defaultChecked }: RadioProps) => {
-  const radioId = useId()
+const outerCircleVariant = {
+  sm: 'h-4 w-4',
+  md: 'h-5 w-5'
+}
+
+const innerCircleSizeVariant = {
+  sm: 'h-2 w-2',
+  md: 'h-2.5 w-2.5'
+}
+
+/**individual radio element */
+export const Radio = ({ disabled, label, onClick, value, description, checked, variant = 'sm' }: RadioProps) => {
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    if (disabled) return
+    onClick?.(value)
+  }
+  const handleKeyUp = (event: React.KeyboardEvent) => {
+    if (disabled) return
+    if (['Enter', ' '].includes(event.key)) {
+      onClick?.(value)
+    }
+  }
+
   return (
-    <div className="flex flex-col">
-      <div className="flex items-start gap-2">
-        <div className="mt-1 grid place-items-center">
-          <input
-            id={radioId}
-            type="radio"
-            name={name}
-            disabled={disabled}
-            className="
-            focus:ring-primary-blue
-            peer col-start-1
-            row-start-1 h-4
-            w-4 shrink-0 appearance-none rounded-full border-[1.5px]
-            border-blue-500 focus:outline-none focus:ring-[0.5px] focus:ring-offset-0
-            disabled:border-gray-400
-          "
-            onChange={onChange}
-            defaultChecked={defaultChecked}
-            value={value}
-          />
-          <div
-            className={twMerge(
-              'pointer-events-none',
-              'col-start-1 row-start-1',
-              'h-2 w-2 rounded-full peer-checked:bg-blue-500',
-              'peer-checked:peer-disabled:bg-gray-400'
-            )}
-          />
-        </div>
-        <label htmlFor={radioId} className={twMerge('text-start hover:cursor-pointer', disabled && 'text-gray-400')}>
-          {label}
-        </label>
+    <div
+      className="group flex items-center gap-x-2 outline-none"
+      tabIndex={1}
+      onClick={handleClick}
+      onKeyUp={handleKeyUp}
+    >
+      <div
+        className={twMerge(
+          outerCircleVariant[variant],
+          'grid cursor-pointer place-items-center rounded-full border',
+          !disabled && 'border-[#212226] group-hover:border-[#9CA0AA] group-focus:border-[#375DAF]',
+          !disabled && 'bg-[#141619] group-hover:bg-[#191B1F] group-focus:bg-[#212226]',
+          disabled && 'cursor-not-allowed border-[#42454D] bg-[#191B1F]'
+        )}
+      >
+        <div
+          className={twMerge(
+            innerCircleSizeVariant[variant],
+            'block rounded-full',
+            !checked && 'hidden',
+            !disabled && 'bg-[#5F7DBF] group-hover:bg-[#5F7DBF] group-focus:bg-[#5F7DBF]',
+            disabled && 'bg-[#42454D]'
+          )}
+        />
       </div>
-      {description && <div className="ml-6 text-sm text-gray-400">{description}</div>}
+      <div
+        className={twMerge(
+          'flex flex-col',
+          !disabled && 'text-start text-[#D3D5D9] group-hover:cursor-pointer',
+          disabled && 'text-[#6B6F78]'
+        )}
+      >
+        <span className={twMerge(!disabled && 'group-hover:text-[#F5F5F5] group-focus:text-[#F5F5F5]')}>{label}</span>
+        <span>{description}</span>
+      </div>
     </div>
   )
 }
@@ -89,39 +112,39 @@ export interface RadioGroupProps<T> {
   onChange: (value: T) => void
   options: OptionType[]
   horizontal?: boolean
+  /**className for the root div */
   className?: string
+  variant?: RadioProps['variant']
 }
 
 type OptionValueType = string | number
 
-const Radio = <T extends OptionValueType>({
+/**group of radio elements */
+const RadioGroup = <T extends OptionValueType>({
   disabled,
-  name,
   onChange,
   options,
   horizontal,
   className,
-  value
+  value,
+  variant
 }: RadioGroupProps<T>) => {
-  const handleChange = (event: React.FormEvent<HTMLInputElement>) => onChange(event.currentTarget.value as T)
-  const defaultName = 'radio-button-group'
   return (
-    <div className={twMerge(`grid gap-6 ${horizontal ? 'grid-flow-col' : ''}`, className)}>
-      {options.map(({ label: optionLabel, value: valueOption, description }, index) => (
-        <div key={valueOption} className="flex items-center gap-2">
-          <RadioRoot
-            name={name || defaultName}
-            disabled={disabled}
-            label={optionLabel}
-            onChange={handleChange}
-            value={valueOption}
-            description={description}
-            defaultChecked={value === valueOption}
-          />
-        </div>
+    <div className={twMerge('grid gap-6', horizontal && 'grid-flow-col', className)}>
+      {options.map(({ label: optionLabel, value: valueOption, description }) => (
+        <Radio
+          variant={variant}
+          key={valueOption}
+          disabled={disabled}
+          label={optionLabel}
+          onClick={(value) => onChange(value)}
+          value={valueOption}
+          description={description}
+          checked={value === valueOption}
+        />
       ))}
     </div>
   )
 }
 
-export default Radio
+export default RadioGroup

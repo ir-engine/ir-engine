@@ -71,7 +71,6 @@ import { getLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { PlayMode } from '../constants/PlayMode'
 import {
   ASTCTextureTarget,
   AudioFileFormat,
@@ -84,13 +83,14 @@ import {
   TextureType,
   UniformSolveTarget,
   UVOL_TYPE
-} from '../constants/UVOLTypes'
+} from '../constants/LegacyUVOLTypes'
+import { PlayMode } from '../constants/PlayMode'
 import getFirstMesh from '../util/meshUtils'
+import { handleAutoplay, LegacyVolumetricComponent } from './LegacyVolumetricComponent'
 import { MediaElementComponent } from './MediaComponent'
-import { TextureTypeSchema } from './NewVolumetricComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
-import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
+import { TextureTypeSchema } from './VolumetricComponent'
 
 export const calculatePriority = (manifest: PlayerManifest) => {
   const geometryTargets = Object.keys(manifest.geometry.targets)
@@ -331,7 +331,7 @@ export const UVOL2Component = defineComponent({
   },
 
   setStartAndPlaybackTime: (entity: Entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
-    const volumetric = getMutableComponent(entity, VolumetricComponent)
+    const volumetric = getMutableComponent(entity, LegacyVolumetricComponent)
 
     volumetric.currentTrackInfo.merge({
       playbackStartDate: newPlaybackStartDate,
@@ -471,7 +471,7 @@ type KeyframeName = KeyframePositionName | KeyframeNormalName
 
 function UVOL2Reactor() {
   const entity = useEntityContext()
-  const volumetric = useComponent(entity, VolumetricComponent)
+  const volumetric = useComponent(entity, LegacyVolumetricComponent)
   const component = useComponent(entity, UVOL2Component)
   const shadow = useOptionalComponent(entity, ShadowComponent)
 

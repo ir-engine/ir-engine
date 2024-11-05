@@ -44,7 +44,6 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState, isClient, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -60,6 +59,7 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 import { WebLayer3D } from '@ir-engine/xrui'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
@@ -67,11 +67,12 @@ import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
-import { inFrustum, InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
+import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
 import { InteractiveModalState } from '../ui/InteractiveModalView'
 
 /**
@@ -119,19 +120,29 @@ export const updateInteractableUI = (entity: Entity) => {
   updateXrDistVec3(selfAvatarEntity)
 
   const hasVisibleComponent = hasComponent(interactable.uiEntity, VisibleComponent)
-  if (hasVisibleComponent && boundingBox) {
-    updateBoundingBox(entity)
+  if (hasVisibleComponent) {
+    if (boundingBox) updateBoundingBox(entity)
+    if (boundingBox && boundingBox.box && !boundingBox.box.isEmpty()) {
+      const center = boundingBox.box.getCenter(_center)
+      const size = boundingBox.box.getSize(_size)
+      if (!size.y) size.y = 1
+      const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
+      xruiTransform.position.x = center.x
+      xruiTransform.position.z = center.z
+      xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
 
-    const center = boundingBox.box.getCenter(_center)
-    const size = boundingBox.box.getSize(_size)
-    if (!size.y) size.y = 1
-    const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
-    xruiTransform.position.x = center.x
-    xruiTransform.position.z = center.z
-    xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
+      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      xruiTransform.rotation.copy(cameraTransform.rotation)
+    } else {
+      TransformComponent.getWorldPosition(entity, _center)
+      const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
+      xruiTransform.position.x = _center.x
+      xruiTransform.position.z = _center.z
+      xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, _center.y + 0.5, alpha)
 
-    const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
-    xruiTransform.rotation.copy(cameraTransform.rotation)
+      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      xruiTransform.rotation.copy(cameraTransform.rotation)
+    }
   }
 
   const distance = xrDistVec3.distanceToSquared(xruiTransform.position)
@@ -207,9 +218,12 @@ const addInteractableUI = (entity: Entity) => {
 
   const uiTransform = getComponent(uiEntity, TransformComponent)
   const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
-  if (boundingBox) {
+  if (boundingBox && boundingBox.box && !boundingBox.box.isEmpty()) {
     updateBoundingBox(entity)
     boundingBox.box.getCenter(uiTransform.position)
+  } else {
+    TransformComponent.getWorldPosition(entity, _center)
+    uiTransform.position.copy(_center)
   }
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
   setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
@@ -221,14 +235,7 @@ const addInteractableUI = (entity: Entity) => {
   const transition = createTransitionState(0.25)
   transition.setState('OUT')
   InteractableTransitions.set(entity, transition)
-}
-
-const removeInteractableUI = (entity: Entity) => {
-  const interactable = getComponent(entity, InteractableComponent)
-  if (interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
-
-  removeEntity(interactable.uiEntity)
-  getMutableComponent(entity, InteractableComponent).uiEntity.set(UndefinedEntity)
+  return uiEntity
 }
 
 export const InteractableComponent = defineComponent({
@@ -236,14 +243,6 @@ export const InteractableComponent = defineComponent({
   jsonID: 'EE_interactable',
 
   schema: S.Object({
-    //TODO reimpliment the frustum culling for interactables
-
-    //TODO check if highlight works properly on init and with non clickInteract
-    //TODO simplify button logic in inputUpdate
-
-    //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
-
-    //TODO canInteract for grabbed state on grabbable?
     canInteract: S.Bool(false),
     uiInteractable: S.Bool(true),
     uiEntity: S.Entity(),
@@ -282,7 +281,6 @@ export const InteractableComponent = defineComponent({
         removeComponent(entity, DistanceFromCameraComponent)
         removeComponent(entity, DistanceFromLocalClientComponent)
         removeComponent(entity, BoundingBoxComponent)
-        removeInteractableUI(entity)
       }
     }, [])
 
@@ -308,15 +306,16 @@ export const InteractableComponent = defineComponent({
 
     useEffect(() => {
       if (!isEditing.value) {
-        addInteractableUI(entity)
-      }
-      return () => {
-        removeInteractableUI(entity)
+        const uiEntity = addInteractableUI(entity)
+        return () => {
+          if (uiEntity) {
+            removeEntity(uiEntity)
+          }
+        }
       }
     }, [isEditing.value])
 
     useEffect(() => {
-      //const xrUI = getMutableComponent(interactableComponent.uiEntity, XRUIComponent)
       const msg = interactableComponent.label?.value ?? ''
       modalState.interactMessage?.set(msg)
     }, [interactableComponent.label]) //TODO just nuke the whole XRUI and recreate....

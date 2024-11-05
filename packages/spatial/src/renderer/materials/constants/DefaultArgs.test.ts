@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { Color, Texture } from 'three'
+import { describe, it } from 'vitest'
 import {
   BoolArg,
   ColorArg,

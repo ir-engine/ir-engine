@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { MeshLambertMaterial } from 'three'
+import { MeshStandardMaterial } from 'three'
 
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
@@ -54,7 +54,7 @@ export const PrimitiveGeometryComponent = defineComponent({
     const mesh = useMeshComponent(
       entity,
       () => createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value),
-      () => new MeshLambertMaterial()
+      () => new MeshStandardMaterial()
     )
 
     useLayoutEffect(() => {

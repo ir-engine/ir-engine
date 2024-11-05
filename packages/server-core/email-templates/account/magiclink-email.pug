@@ -1,13 +1,37 @@
+//- magiclink-email.pug
 extends layout.pug
 block content
-  .title-container
-    h1 You've Got The Magic Link!
-  .message-container
-    h2 Hi 👋!
-    p You asked us to send you a magic link for quickly signing into your account.
-    a(href=hashLink class='link-btn')  Sign In Now! 
-    div
-      p Or copy and paste this link into your browser:
-      a(href=hashLink) #{hashLink}
-    div
-      p(style='color: #8f9299;font-weight: bold;font-family: Roboto, Arial;') NOTE: THIS LINK WILL ONLY WORK ONCE
+  tr
+    td.content(valign='top')
+      table
+        tr
+          td(width='50%' style='width:50%')
+            h1(style='font-family: "Campton", Arial, sans-serif;') You've got the <br> magic link!
+          td(rowspan='2')
+            img(src=irWhiteLogo alt='Infinite Reality')
+        tr
+          td(valign='bottom')
+            h2(style='font-family: "Campton", Arial, sans-serif;') Hi Creator,
+        tr
+          td(colspan='2' valign='top')
+            p(style='font-family: "Campton", Arial, sans-serif;') You asked us to send you a magic link for quickly signing into your account.
+  tr.section(valign='top' height='50%' style='background-color:#fff;background-position:center;background-repeat:no-repeat;background-size: cover;')
+    td(style='padding:0 30px;height:100%')
+      table(height='100%' style='height:100%;')
+        tbody(style='vertical-align:initial;')
+          tr
+            td(style='display:block;')
+              a.cta-button(href=hashLink, style='font-family: "Campton", Arial, sans-serif;color:#fff;') Sign In Now
+              p(style='font-family: "Campton", Arial, sans-serif; margin:0;line-height:27px;') Or copy and paste this link into your browser:
+              table(height='100%' width='70%' style='height:100%;width:70%;margin-top:2.5px')
+                tr
+                  td
+                    a.magic-link(href=hashLink style='color:#c10d8b;') #{hashLink}
+          tr
+            td
+              p(style='font-family: "Campton", Arial, sans-serif;line-height:27px;margin-top:0') Welcome on board.
+              p(style='line-height:27px;margin-top:25px;')
+                strong(style='font-family: "Campton", Arial, sans-serif;') - Infinite Reality Team
+          tr(valign='bottom')
+            td.footer(valign='bottom')
+              p(style='font-family: "Campton", Arial, sans-serif;margin-bottom:0;height:27px;line-height:27px;') Note: This link will only work once.

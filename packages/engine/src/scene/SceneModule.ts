@@ -38,10 +38,10 @@ import { EnvmapComponent } from './components/EnvmapComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
 import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
+import { LegacyVolumetricComponent } from './components/LegacyVolumetricComponent'
 import { LinkComponent } from './components/LinkComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MountPointComponent } from './components/MountPointComponent'
-import { NewVolumetricComponent } from './components/NewVolumetricComponent'
 import { OldColliderComponent } from './components/OldColliderComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
@@ -101,8 +101,8 @@ export const SceneComponents = [
   SplineTrackComponent,
   VariantComponent,
   VideoComponent,
+  LegacyVolumetricComponent,
   VolumetricComponent,
-  NewVolumetricComponent,
   // WaterComponent,
   LinkComponent,
   TextComponent,

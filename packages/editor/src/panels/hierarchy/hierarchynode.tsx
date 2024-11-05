@@ -46,7 +46,7 @@ import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComp
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -55,7 +55,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import React, { KeyboardEvent, useEffect } from 'react'
+import React, { KeyboardEvent, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -90,7 +90,6 @@ function getNodeElId(node: HierarchyTreeNodeType) {
 
 function toValidHierarchyNodeName(entity: Entity, name: string): string {
   name = name.trim()
-  if (getComponent(entity, NameComponent) === name) return ''
   return name
 }
 
@@ -102,7 +101,13 @@ function IconComponent({ entity }: { entity: Entity }) {
     : []
   const _IconComponent = icons.length > 0 ? icons[0] : TransformPropertyGroup.iconComponent
   if (!_IconComponent) return null
-  return <_IconComponent entity={entity} className="h-5 w-5 flex-shrink-0 text-inherit" />
+  return (
+    <_IconComponent
+      entity={entity}
+      className="h-5 w-5 flex-shrink-0 text-inherit"
+      data-testid="hierarchy-panel-scene-item-icon"
+    />
+  )
 }
 
 export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
@@ -121,6 +126,33 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
+  const renameRef = useRef<HTMLDivElement>(null)
+  let isRenameOpen = useState(false)
+
+  const handleRenameOpen = () => {
+    if (!isRenameOpen.value) {
+      isRenameOpen.set(true)
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+  }
+
+  const handleRenameClose = (saveRename: boolean) => {
+    if (isRenameOpen.value) {
+      isRenameOpen.set(false)
+      document.removeEventListener('mousedown', handleClickOutside)
+      if (saveRename) {
+        EditorControlFunctions.modifyName([entity], toValidHierarchyNodeName(entity, currentRenameNode.value))
+        currentRenameNode.set(getComponent(entity, NameComponent))
+      }
+      renamingNode.clear()
+    }
+  }
+
+  const handleClickOutside = (event) => {
+    if (renameRef.current && !renameRef.current.contains(event.target)) {
+      handleRenameClose(true)
+    }
+  }
 
   const [, drag, preview] = useDrag({
     type: ItemTypes.Node,
@@ -237,12 +269,15 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   }
 
   const onClickNode = (event: React.MouseEvent) => {
+    if (renamingNode.entity !== entity) {
+      renamingNode.clear()
+    }
     if (event.detail === 1) {
       // Exit click placement mode when anything in the hierarchy is selected
       getMutableState(EditorHelperState).placementMode.set(PlacementMode.DRAG)
       // Deselect material entity since we've just clicked on a hierarchy node
       getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-      if ((event.ctrlKey && usesCtrlKey()) || (event.metaKey && !usesCtrlKey())) {
+      if (usesCtrlKey() ? event.ctrlKey : event.metaKey) {
         if (entity === rootEntity) return
         EditorControlFunctions.toggleSelection([getComponent(entity, UUIDComponent)])
       } else if (event.shiftKey && firstSelectedEntity.value) {
@@ -259,8 +294,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         firstSelectedEntity.set(entity)
       }
     } else if (event.detail === 2) {
-      if (entity && getOptionalComponent(entity, CameraOrbitComponent)) {
-        const cameraEntity = getState(EngineState).viewerEntity
+      const cameraEntity = getState(EngineState).viewerEntity
+      if (entity && getOptionalComponent(cameraEntity, CameraOrbitComponent)) {
         const editorCameraState = getMutableComponent(cameraEntity, CameraOrbitComponent)
         editorCameraState.focusedEntities.set([entity])
         editorCameraState.refocus.set(true)
@@ -290,7 +325,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     const modelComponent = getComponent(node.entity, ModelComponent)
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(modelComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
-    exportRelativeGLTF(node.entity, fullProjectName, fileName).then(() => {
+    const parsedName = fileName.split('?')[0]
+    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then(() => {
       ResourceLoaderManager.updateResource(modelComponent.src)
       getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
     })
@@ -316,6 +352,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         isOverOn && canDropOn && 'border border-dotted',
         'hover:text-white'
       )}
+      data-testid="hierarchy-panel-scene-item"
     >
       <div
         ref={drag}
@@ -346,6 +383,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
             <button
               type="button"
               className="m-0 h-5 w-5 border-[none] bg-inherit p-0 hover:opacity-80"
+              data-testid={`hierarchy-panel-scene-item-${node.isCollapsed ? 'expand' : 'collapse'}-button`}
               onClick={onCollapseExpandNode}
             >
               {node.isCollapsed ? (
@@ -360,20 +398,18 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
             <IconComponent entity={entity} />
             <div className="flex flex-1 items-center">
               {renamingNode.entity === entity ? (
-                <div className="relative h-[15px] w-full bg-inherit px-1 text-inherit">
+                <div ref={renameRef} className="relative h-[15px] w-full bg-inherit px-1 text-inherit">
                   <input
                     type="text"
                     className="absolute top-[-3px] m-0 w-full rounded-none bg-inherit py-0.5 pl-0.5 text-sm"
+                    data-testid="hierarchy-panel-scene-item-rename-input"
+                    onFocus={() => handleRenameOpen()}
                     onChange={(event) => currentRenameNode.set(event.target.value)}
                     onKeyDown={(event: KeyboardEvent) => {
-                      if (event.key === 'Escape') renamingNode.clear()
-                      else if (event.key === 'Enter') {
-                        EditorControlFunctions.modifyName(
-                          [entity],
-                          toValidHierarchyNodeName(entity, currentRenameNode.value)
-                        )
-                        currentRenameNode.set(getComponent(entity, NameComponent))
-                        renamingNode.clear()
+                      if (event.key === 'Escape') {
+                        handleRenameClose(false)
+                      } else if (event.key === 'Enter') {
+                        handleRenameClose(true)
                       }
                     }}
                     value={currentRenameNode.value}
@@ -383,7 +419,9 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 </div>
               ) : (
                 <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit ">
-                  <span className="text-nowrap text-sm leading-4">{currentRenameNode.value}</span>
+                  <span className="text-nowrap text-sm leading-4" data-testid="hierarchy-panel-scene-item-name">
+                    {currentRenameNode.value}
+                  </span>
                 </div>
               )}
             </div>
@@ -426,6 +464,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
+              data-testid={`hierarchy-panel-scene-item-${visible ? 'hide' : 'unhide'}-button`}
               onClick={onHideUnhideNode}
             >
               {visible ? (

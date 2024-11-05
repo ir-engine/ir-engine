@@ -70,7 +70,7 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 ) => Application
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
+  const app = await createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
   startTimer()
 
   const serverState = getMutableState(ServerState)

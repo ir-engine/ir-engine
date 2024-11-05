@@ -41,7 +41,7 @@ import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { useEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { entityJSONToGLTFNode } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
@@ -115,7 +115,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   const clickState = useState(getMutableState(ClickPlacementState))
   const editorState = useState(getMutableState(EditorHelperState))
   const sceneLoaded = GLTFComponent.useSceneLoaded(parentEntity)
-  const errors = useEntityErrors(clickState.placementEntity.value, ModelComponent)
+  const errors = ErrorComponent.useComponentErrors(clickState.placementEntity.value, ModelComponent)
 
   // const renderers = defineQuery([RendererComponent])
 
@@ -327,7 +327,7 @@ export const ClickPlacementSystem = defineSystem({
       const intersectPosition = cameraPosition
         .clone()
         .add(cameraDirection.clone().multiplyScalar(physicsIntersection.toi))
-      intersectEntity = (physicsIntersection.collider.parent() as { userData: { entity: Entity } }).userData.entity
+      intersectEntity = physicsIntersection.collider.parent()!.entity
       const intersectNormal = new Vector3(
         physicsIntersection.normal.x,
         physicsIntersection.normal.y,

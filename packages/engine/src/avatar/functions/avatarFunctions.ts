@@ -29,7 +29,6 @@ import { AnimationClip, AnimationMixer, Box3, Matrix4, Vector3 } from 'three'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -37,11 +36,11 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
@@ -145,19 +144,17 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rawRig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
   rawRig.leftEye ? rawRig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
-  const avatarComponent = getMutableComponent(entity, AvatarComponent)
-  avatarComponent.avatarHeight.set(size.y)
-  avatarComponent.torsoLength.set(Math.abs(headPos.y - hipsPos.y))
-  avatarComponent.upperLegLength.set(Math.abs(hipsPos.y - leftLowerLegPos.y))
-  avatarComponent.lowerLegLength.set(Math.abs(leftLowerLegPos.y - leftFootPos.y))
-  avatarComponent.hipsHeight.set(hipsPos.y)
-  avatarComponent.eyeHeight.set(eyePos.y)
-  avatarComponent.footHeight.set(leftFootPos.y)
-  avatarComponent.footGap.set(footGap.subVectors(leftFootPos, rightFootPos).length())
-  // angle from ankle to toes along YZ plane
-  rawRig.leftToes &&
-    avatarComponent.footAngle.set(Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y))
-
+  setComponent(entity, AvatarComponent, {
+    avatarHeight: size.y,
+    torsoLength: Math.abs(headPos.y - hipsPos.y),
+    upperLegLength: Math.abs(hipsPos.y - leftLowerLegPos.y),
+    lowerLegLength: Math.abs(leftLowerLegPos.y - leftFootPos.y),
+    hipsHeight: hipsPos.y,
+    eyeHeight: eyePos.y,
+    footHeight: leftFootPos.y,
+    footGap: footGap.subVectors(leftFootPos, rightFootPos).length(),
+    footAngle: rawRig.leftToes ? Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y) : 0
+  })
   //set ik matrices for blending into normalized rig
   const rig = vrm.humanoid.normalizedHumanBones
   rig.hips.node.updateWorldMatrix(false, true)

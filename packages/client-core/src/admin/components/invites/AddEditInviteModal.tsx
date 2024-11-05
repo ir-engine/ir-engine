@@ -41,11 +41,11 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { RadioGroup } from '@ir-engine/ui'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@ir-engine/ui/src/primitives/tailwind/MultiEmailInput'
-import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
@@ -266,7 +266,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             />
             {spawnSelected.value && (
               <>
-                <Radios
+                <RadioGroup
                   horizontal
                   options={spawnTypeOptions.map((option) => ({
                     value: option,

@@ -111,9 +111,20 @@ function ModelReactor() {
   }, [modelComponent.cameraOcclusion])
 
   useEffect(() => {
+    if (modelComponent.src.value) return
+    addError(entity, ModelComponent, 'INVALID_SOURCE', 'No source provided')
+    return () => {
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    }
+  }, [modelComponent.src])
+
+  useEffect(() => {
     if (!error) return
     console.error(error)
     addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
+    return () => {
+      removeError(entity, ModelComponent, 'INVALID_SOURCE')
+    }
   }, [error])
 
   useEffect(() => {
@@ -200,6 +211,7 @@ function ModelReactor() {
         animations: scene.animations
       })
     }
+
     return () => {
       getMutableState(GLTFSourceState)[uuid].set(none)
 

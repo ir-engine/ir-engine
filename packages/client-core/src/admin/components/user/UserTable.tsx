@@ -108,7 +108,13 @@ export default function UserTable({
           />
         ),
         id: row.id,
-        name: truncateText(row.name, { visibleChars: 14, truncatorPosition: 'end' }),
+        name: (
+          <div className="flex">
+            <Tooltip content={row.name}>
+              <span>{truncateText(row.name, { visibleChars: 14, truncatorPosition: 'end' })}</span>
+            </Tooltip>
+          </div>
+        ),
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin: row.lastLogin && (
