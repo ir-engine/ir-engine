@@ -59,7 +59,7 @@ export const ReflectionProbeEditor: EditorComponentType = (props) => {
         <InputGroup name="Texture URL" label={t('editor:properties.reflectionProbe.src')}>
           <ImageLink
             src={reflectionProbeComponent.src.value}
-            onBlur={commitProperty(ReflectionProbeComponent, 'src')}
+            onRelease={commitProperty(ReflectionProbeComponent, 'src')}
           />
           {errors?.LOADING_ERROR && (
             <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.scene.error-url')}</div>

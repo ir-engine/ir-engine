@@ -136,7 +136,6 @@ export const EnvMapEditor: EditorComponentType = (props) => {
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
               <ImageLink
                 src={envmapComponent.envMapSourceURL.value}
-                onBlur={commitProperty(EnvmapComponent, 'envMapSourceURL')}
                 onRelease={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}

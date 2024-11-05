@@ -110,7 +110,6 @@ export default function ImageLink({ src, onRelease, onBlur, variant = 'full', ..
           <FileBrowserInput
             acceptFileTypes={ImageFileTypes}
             acceptDropItems={ItemTypes.Images}
-            onBlur={(event) => onBlur?.(event.target.value)}
             onRelease={(event) => onRelease?.(event)}
             className="bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]"
             value={src ?? ''}

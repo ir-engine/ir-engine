@@ -55,11 +55,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.image.lbl-imgURL')}
         labelClassName="text-nowrap text-[#A0A1A2]"
       >
-        <ImageLink
-          src={imageComponent.source.value}
-          onBlur={commitProperty(ImageComponent, 'source')}
-          onRelease={commitProperty(ImageComponent, 'source')}
-        />
+        <ImageLink src={imageComponent.source.value} onRelease={commitProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (

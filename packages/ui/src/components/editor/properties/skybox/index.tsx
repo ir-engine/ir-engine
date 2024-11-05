@@ -171,7 +171,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   // creating editor view for equirectangular Settings
   const renderEquirectangularSettings = () => (
     <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
-      <ImageLink src={skyboxComponent.equirectangularPath.value} onBlur={onChangeEquirectangularPathOption} />
+      <ImageLink src={skyboxComponent.equirectangularPath.value} onRelease={onChangeEquirectangularPathOption} />
       {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.skybox.error-url')}</div>}
     </InputGroup>
   )
