@@ -48,6 +48,7 @@ import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { UIAddonsState } from '../../services/UIAddonsState'
+import CreatePrefabPanel from '../dialogs/CreatePrefabPanelDialog'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog'
@@ -133,6 +134,10 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.importAsset'),
       action: onImportAsset
+    },
+    {
+      name: t('editor:menubar.exportLookdev'),
+      action: () => PopoverState.showPopupover(<CreatePrefabPanel isExportLookDev={true} />)
     },
     {
       name: t('editor:menubar.quit'),

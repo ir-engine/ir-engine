@@ -40,6 +40,7 @@
     "importAsset": "Import Asset",
     "importSettings": "Import Settings",
     "exportGLB": "Export as binary glTF (.glb) ...",
+    "exportLookdev": "Export Lookdev Prefab",
     "importScene": "Import scene",
     "exportScene": "Export scene",
     "quit": "Quit to Dashboard"
@@ -1374,7 +1375,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "lbl-createPrefab": "Create Prefab",
+    "lbl-createPrefab": "Create Prefab", 
     "issues": "Issues",
     "copy-paste": {
       "no-hierarchy-nodes": "No hierarchy nodes found"
