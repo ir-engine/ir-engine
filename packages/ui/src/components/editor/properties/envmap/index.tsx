@@ -76,7 +76,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
-    if (directory !== directory /*envmapComponent.envMapSourceURL*/) {
+    if (directory !== envmapComponent.envMapSourceURL.value) {
       updateProperties(EnvmapComponent, { envMapSourceURL: directory })
     }
   }, [])
@@ -164,7 +164,6 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           max={10}
           value={envmapComponent.envMapIntensity.value}
           onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
-          onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
           aria-label="EnvMap Intensity"
           label={t('editor:properties.envmap.lbl-intensity')}
         />
