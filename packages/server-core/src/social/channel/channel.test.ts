@@ -32,7 +32,6 @@ import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networ
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schemas/social/channel.schema'
 import { RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'
-import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -65,9 +64,7 @@ describe('channel service', () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const channel = await app.service(channelPath).create({}, { user })
@@ -111,9 +108,7 @@ describe('channel service', () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
@@ -160,9 +155,7 @@ describe('channel service', () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
@@ -189,9 +182,7 @@ describe('channel service', () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(

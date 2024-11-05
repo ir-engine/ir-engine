@@ -23,67 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ComponentType } from '@ir-engine/ecs'
-import { State } from '@ir-engine/hyperflux'
-import { InterleavedBufferAttribute, NormalMapTypes } from 'three'
-import { NewVolumetricComponent } from '../components/NewVolumetricComponent'
-
-export interface FrameData {
-  frameNumber: number
-  keyframeNumber: number
-  startBytePosition: number
-  vertices: number
-  faces: number
-  meshLength: number
-}
-
-export interface OldManifestSchema {
-  maxVertices: number
-  maxTriangles: number
-  frameData: FrameData[]
-  frameRate: number
-}
-
-// ========================================================================= \\
-
-export interface ASTCEncodeOptions {
-  quality?: 'fastest' | 'fast' | 'medium' | 'thorough' | 'exhaustive'
-  vflip?: boolean
-  resolution: {
-    width: number
-    height: number
-  }
-}
-
-export interface KTX2EncodeOptions {
-  /**
-   * The compression_level parameter controls the encoder perf vs. file size tradeoff for ETC1S files
-   * It does not directly control file size vs. quality - see qualityLevel
-   * Range is [0, 5]
-   * @default 1
-   */
-  compressionLevel?: number
-  /**
-   * Sets the ETC1S encoder's quality level, which controls the file size vs. quality tradeoff
-   * Range is [1, 255]
-   * @default 128
-   */
-  qualityLevel?: number
-  /**
-   * Resize images to @e width X @e height.
-   * If not specified, uses the image as is.
-   */
-  resolution: {
-    width: number
-    height: number
-  }
-
-  /**
-   * Vertically flip images
-   */
-  vflip?: boolean
-}
-
 export enum UVOL_TYPE {
   DRACO_WITH_COMPRESSED_TEXTURE = 0,
   GLB_WITH_COMPRESSED_TEXTURE = 1,
@@ -116,7 +55,7 @@ export interface AudioInput {
   outputPath: string
 }
 
-export type GeometryFormat = 'draco' | 'uniform-solve'
+export type GeometryFormat = 'draco' | 'glb' | 'uniform-solve'
 
 export interface GeometryTarget {
   /**
@@ -130,7 +69,7 @@ export interface GeometryTarget {
   /**
    * Total frame count. This information is supplied by the encoder.
    */
-  frameCount?: number
+  frameCount: number
 
   /**
    * Priority of the geometry target.
@@ -139,7 +78,7 @@ export interface GeometryTarget {
    * @default 0
    */
   priority?: number
-  totalSize?: number
+  totalSize: number
 }
 
 export interface DracoEncodeOptions {
@@ -187,6 +126,24 @@ export interface DRACOTarget extends GeometryTarget {
   }
 }
 
+export interface GLBEncodeOptions {
+  /**
+   * simplify meshes targeting triangle count ratio R (default: 1; R should be between 0 and 1)
+   * `simplifyAggressively` is not supported here, because sit changes the topology:
+   * @link https://meshoptimizer.org/#simplification
+   * @default 1
+   */
+  simplificationRatio?: number
+}
+
+export interface GLBTarget extends GeometryTarget {
+  format: 'glb'
+  /**
+   * GLB encoding options for the geometry data.
+   */
+  settings: GLBEncodeOptions
+}
+
 export interface UniformSolveEncodeOptions {
   /**
    * simplify meshes targeting triangle count ratio R (default: 1; R should be between 0 and 1)
@@ -224,7 +181,7 @@ export interface UniformSolveTarget extends GeometryTarget {
    * Number of frames in the the segments
    * This info is supplied by the encoder
    */
-  segmentFrameCount?: number
+  segmentFrameCount: number
 }
 
 export interface GeometryInput {
@@ -248,10 +205,10 @@ export interface GeometryInput {
   /**
    * targets
    */
-  targets: Record<string, DRACOTarget | UniformSolveTarget>
+  targets: Record<string, GLBTarget | DRACOTarget | UniformSolveTarget>
 }
 
-export type TextureFormat = 'ktx2' | 'astc/ktx2'
+export type TextureFormat = 'ktx2' | 'astc/ktx2' | 'video'
 
 export interface TextureTarget {
   /**
@@ -265,7 +222,7 @@ export interface TextureTarget {
   /**
    * Total frame count. This information is supplied by the encoder.
    */
-  frameCount?: number
+  frameCount: number
   /**
    * Priority of the texture target.
    * Calculated by the encoder.
@@ -273,12 +230,49 @@ export interface TextureTarget {
    * @default 0
    */
   priority?: number
-  totalSize?: number
+  totalSize: number
 }
 
+export interface KTX2EncodeOptions {
+  /**
+   * The compression_level parameter controls the encoder perf vs. file size tradeoff for ETC1S files
+   * It does not directly control file size vs. quality - see qualityLevel
+   * Range is [0, 5]
+   * @default 1
+   */
+  compressionLevel?: number
+  /**
+   * Sets the ETC1S encoder's quality level, which controls the file size vs. quality tradeoff
+   * Range is [1, 255]
+   * @default 128
+   */
+  qualityLevel?: number
+  /**
+   * Resize images to @e width X @e height.
+   * If not specified, uses the image as is.
+   */
+  resolution: {
+    width: number
+    height: number
+  }
+
+  /**
+   * Vertically flip images
+   */
+  vflip?: boolean
+}
 export interface KTX2TextureTarget extends TextureTarget {
   format: 'ktx2'
   settings: KTX2EncodeOptions
+}
+
+export interface ASTCEncodeOptions {
+  quality?: 'fastest' | 'fast' | 'medium' | 'thorough' | 'exhaustive'
+  vflip?: boolean
+  resolution: {
+    width: number
+    height: number
+  }
 }
 
 export interface ASTCTextureTarget extends TextureTarget {
@@ -347,11 +341,8 @@ export interface EncoderManifest {
    */
   textureOutputPath: string
   materialProperties?: {
-    normalMapType?: NormalMapTypes
-    normalScale?: {
-      x: number
-      y: number
-    }
+    normalMapType?: number
+    normalScale?: [number, number]
     roughness?: number
     emissiveIntensity?: number
     aoMapIntensity?: number /* Occlusion */
@@ -386,11 +377,8 @@ export interface BasePlayerManifest {
     }
   }>
   materialProperties?: {
-    normalMapType?: NormalMapTypes
-    normalScale?: {
-      x: number
-      y: number
-    }
+    normalMapType?: number
+    normalScale?: [number, number]
     roughness?: number
     emissiveIntensity?: number
     aoMapIntensity?: number /* Occlusion */
@@ -410,6 +398,14 @@ export interface DRACO_Manifest extends BasePlayerManifest {
   }
 }
 
+export interface GLB_Manifest extends BasePlayerManifest {
+  type: UVOL_TYPE.GLB_WITH_COMPRESSED_TEXTURE
+  geometry: {
+    targets: Record<string, GLBTarget>
+    path: EncoderManifest['geometryOutputPath']
+  }
+}
+
 export interface UniformSolve_Manifest extends BasePlayerManifest {
   type: UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE
   geometry: {
@@ -418,7 +414,7 @@ export interface UniformSolve_Manifest extends BasePlayerManifest {
   }
 }
 
-export type PlayerManifest = DRACO_Manifest | UniformSolve_Manifest
+export type PlayerManifest = DRACO_Manifest | GLB_Manifest | UniformSolve_Manifest
 
 export const ABC_TO_OBJ_PADDING = 7
 
@@ -426,42 +422,9 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
   mp3: '.mp3',
   wav: '.wav',
   draco: '.drc',
+  glb: '.glb',
   'uniform-solve': '.glb',
   ktx2: '.ktx2',
-  'astc/ktx2': '.ktx2'
-}
-
-export type Pretrackbufferingcallback = (component: State<ComponentType<typeof NewVolumetricComponent>>) => void
-export interface FrameTargetInfo {
-  initialBufferLoaded: boolean
-  firstFrameLoaded: boolean
-  targets: string[]
-  currentTarget: number
-  userTarget: number
-}
-
-export enum GeometryType {
-  Corto, // legacy
-  Draco,
-  Unify
-}
-
-export const GeometryFormatToType = {
-  draco: GeometryType.Draco,
-  'uniform-solve': GeometryType.Unify
-}
-
-export const TIME_UNIT_MULTIPLIER = 6000 // 1 second = 6000 time units
-
-export type KeyframeAttribute = {
-  position: InterleavedBufferAttribute
-  normal?: InterleavedBufferAttribute
-}
-
-export const textureTypeToUniformKey: Record<TextureType, string> = {
-  baseColor: 'map',
-  normal: 'normalMap',
-  metallicRoughness: 'metallicRoughnessMap',
-  emissive: 'emissiveMap',
-  occlusion: 'aoMap'
+  'astc/ktx2': '.ktx2',
+  video: '.mp4'
 }
