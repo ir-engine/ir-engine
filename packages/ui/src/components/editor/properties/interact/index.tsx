@@ -161,7 +161,11 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       {interactableComponent.uiActivationType.value == XRUIActivationType.proximity && (
-        <InputGroup name="ActivationDistance" label={t('editor:properties.interactable.lbl-activationDistance')}>
+        <InputGroup
+          name="ActivationDistance"
+          label={t('editor:properties.interactable.lbl-UIactivationDistance')}
+          info={t('editor:properties.interactable.info-UIactivationDistance')}
+        >
           <NumericInput
             value={interactableComponent.activationDistance.value}
             onChange={updateProperty(InteractableComponent, 'activationDistance')}

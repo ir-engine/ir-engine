@@ -279,7 +279,8 @@
     "input": {
       "name": "Input Component",
       "description": "Input component that listens for input events and passes them to InputSink components",
-      "lbl-activationDistance": "Proximity focus distance",
+      "lbl-activationDistance": "Proximity activation distance",
+      "info-activationDistance": "The distance within which the input component can be activated by proximity",
       "lbl-sinkTarget": "Sink Target",
       "lbl-addSinkTarget": "Add Sink Target",
       "lbl-removeSinkTarget": "Remove Sink Target"
@@ -288,7 +289,8 @@
       "name": "Interactable",
       "description": "An interactable component with an optional XRUI with text of Label that can trigger callbacks",
       "lbl-label": "Label",
-      "lbl-activationDistance": "Activation Distance",
+      "lbl-UIactivationDistance": "UI Activation Distance",
+      "info-UIactivationDistance": "The distance at which the UI will be activated, check Input Component activation distance for distance at which you can interact with the object",
       "lbl-addcallback": "Add Callback",
       "lbl-removecallback": "Remove Callback",
       "lbl-clickInteract": "Click to Interact",
