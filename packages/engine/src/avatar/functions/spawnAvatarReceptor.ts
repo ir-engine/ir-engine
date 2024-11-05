@@ -121,7 +121,7 @@ export const createAvatarCollider = (entity: Entity) => {
   const colliderEntity = createEntity()
   setComponent(entity, AvatarColliderComponent, { colliderEntity })
 
-  setAvatarColliderTransform(colliderEntity)
+  setAvatarColliderTransform(entity)
   setComponent(colliderEntity, EntityTreeComponent, { parentEntity: entity })
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,

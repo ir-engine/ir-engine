@@ -26,13 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import { random } from 'lodash'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
-import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import {
   IdentityProviderData,
   identityProviderDataValidator,
@@ -215,30 +212,8 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 
 async function createNewUser(context: HookContext<IdentityProviderService>) {
   const isGuest = (context.actualData as IdentityProviderType).type === 'guest'
-  const avatars = await context.app
-    .service(avatarPath)
-    .find({ isInternal: true, query: { isPublic: true, skipUser: true, $limit: 1000 } })
-
-  let selectedAvatarId
-  while (selectedAvatarId == null) {
-    const randomId = random(avatars.data.length - 1)
-    const selectedAvatar = avatars.data[randomId]
-    try {
-      await Promise.all([
-        context.app.service(staticResourcePath).get(selectedAvatar.modelResourceId),
-        context.app.service(staticResourcePath).get(selectedAvatar.thumbnailResourceId)
-      ])
-      selectedAvatarId = selectedAvatar.id
-    } catch (err) {
-      console.log('error in getting resources')
-      avatars.data.splice(randomId, 1)
-      if (avatars.data.length < 1) throw new Error('All avatars are missing static resources')
-    }
-  }
-
   context.existingUser = await context.app.service(userPath).create({
-    isGuest,
-    avatarId: selectedAvatarId
+    isGuest
   })
 }
 

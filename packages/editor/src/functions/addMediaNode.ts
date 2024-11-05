@@ -177,6 +177,7 @@ export async function addMediaNode(
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VideoComponent.jsonID },
+        { name: PositionalAudioComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
@@ -203,6 +204,7 @@ export async function addMediaNode(
     )
     return entityUUID
   } else if (url.includes('.uvol')) {
+    // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VolumetricComponent.jsonID },
