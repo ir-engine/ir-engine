@@ -198,7 +198,10 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           </div>
         </div>
       </InputGroup>
-      <ImageLink src={state.previewImageURL.value ?? portalComponent.previewImageURL.value} />
+      <ImageLink
+        src={state.previewImageURL.value ?? portalComponent.previewImageURL.value}
+        onRelease={commitProperty(PortalComponent, 'previewImageURL')}
+      />
       <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')} className="w-auto">
         <Vector3Input
           value={portalComponent.spawnPosition.value}
