@@ -29,7 +29,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { TypedString } from '../../types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
-import { AvatarID } from './avatar.schema'
+import { avatarDataSchema, AvatarID } from './avatar.schema'
 import { UserID } from './user.schema'
 
 export const userAvatarPath = 'user-avatar'
@@ -46,6 +46,7 @@ export const userAvatarSchema = Type.Object(
     avatarId: TypedString<AvatarID>({
       format: 'uuid'
     }),
+    avatar: Type.Ref(avatarDataSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
