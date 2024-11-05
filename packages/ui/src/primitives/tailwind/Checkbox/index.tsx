@@ -23,22 +23,62 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
-import { FaCheck, FaMinus } from 'react-icons/fa6'
+import { CheckLg, MinusLg } from '@ir-engine/ui/src/icons'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 export interface CheckboxProps {
   checked?: boolean
   disabled?: boolean
-  defaultChecked?: boolean
   indeterminate?: boolean
   label?: string
   description?: string
   onChange: (checked: boolean) => void
+  /**@default md */
+  variantSize?: 'md' | 'lg'
+  /**position where `label` and `description` will be placed
+   * @default right  */
+  variantTextPlacement?: 'left' | 'right'
+}
+
+const variantSizes = {
+  spacings: {
+    md: 'gap-x-2',
+    lg: 'gap-x-4'
+  },
+  checkboxSizes: {
+    md: 'h-4 w-4',
+    lg: 'h-5 w-5'
+  },
+  iconSizes: {
+    md: 'h-3 w-3',
+    lg: 'h-3.5 w-3.5'
+  },
+  textSizes: {
+    md: 'text-sm',
+    lg: 'text-base'
+  },
+  textLineHeight: {
+    md: 'leading-5',
+    lg: 'leading-6'
+  },
+  maxDescriptionWidth: {
+    md: 'max-w-[220px]',
+    lg: 'max-w-[252px]'
+  }
 }
 
 const Checkbox = (
-  { checked, disabled, defaultChecked, indeterminate, label, description, onChange }: CheckboxProps,
+  {
+    checked,
+    disabled,
+    indeterminate,
+    label,
+    description,
+    onChange,
+    variantSize = 'md',
+    variantTextPlacement = 'right'
+  }: CheckboxProps,
   ref: React.ForwardedRef<HTMLDivElement>
 ) => {
   const handleChange = () => {
@@ -47,70 +87,54 @@ const Checkbox = (
     }
   }
 
-  const [isCheckedInternal, setIsCheckedInternal] = useState(defaultChecked !== undefined ? defaultChecked : checked)
-  const [isIndeterminateInternal, setIsIndeterminateInternal] = useState(indeterminate)
-
-  useEffect(() => {
-    if (checked) {
-      setIsCheckedInternal(true)
-      setIsIndeterminateInternal(false)
-    } else {
-      setIsCheckedInternal(false)
-      setIsIndeterminateInternal(indeterminate)
-    }
-  }, [checked])
-
-  useEffect(() => {
-    if (indeterminate) {
-      setIsCheckedInternal(false)
-      setIsIndeterminateInternal(true)
-    } else {
-      setIsIndeterminateInternal(false)
-      setIsCheckedInternal(checked)
-    }
-  }, [indeterminate])
-
   return (
     <div
       className={twMerge(
-        'relative flex cursor-pointer items-center justify-center gap-x-2',
+        'relative flex cursor-pointer items-center justify-center',
+        'group/checkbox outline-none',
+        variantSizes.spacings[variantSize],
+        variantTextPlacement === 'left' && 'flex-row-reverse',
         description && 'items-start'
       )}
+      onKeyDown={(e) => {
+        if (['Enter', ' '].includes(e.key)) handleChange()
+      }}
+      tabIndex={0}
     >
       <div
         className={twMerge(
           'relative',
-          'grid h-4 w-4 place-items-center rounded',
-          'border border-[#42454D] bg-[#141619]',
-          !isCheckedInternal && !isIndeterminateInternal && !disabled && 'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
-          !isCheckedInternal && !disabled && 'focus:border-[#375DAF] focus:bg-[#212226]',
-          (isCheckedInternal || isIndeterminateInternal) && 'border-[#375DAF] bg-[#212226]',
+          'grid place-items-center rounded',
+          variantSizes.checkboxSizes[variantSize],
+          'border border-[#42454D] bg-[#141619] outline-none',
+          !checked &&
+            !indeterminate &&
+            !disabled &&
+            'group-hover/checkbox:border-[#9CA0AA] group-hover/checkbox:bg-[#191B1F]',
+          !checked && !disabled && 'group-focus/checkbox:border-[#375DAF] group-focus/checkbox:bg-[#212226]',
+          (checked || indeterminate) && 'border-[#375DAF] bg-[#212226]',
           disabled && 'cursor-not-allowed border-[#42454D] bg-[#191B1F]'
         )}
         onClick={handleChange}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            handleChange()
-          }
-        }}
-        tabIndex={0}
         ref={ref}
       >
-        <FaCheck
+        <CheckLg
           onClick={handleChange}
           className={twMerge(
-            'absolute h-3 w-3 transition-transform duration-200 ease-in-out',
+            'absolute transition-transform duration-200 ease-in-out',
+            variantSizes.iconSizes[variantSize],
             disabled ? 'cursor-not-allowed text-[#42454D]' : 'text-[#5F7DBF]',
-            isCheckedInternal ? 'scale-100' : 'scale-0'
+            checked ? 'scale-100' : 'scale-0'
           )}
         />
 
-        <FaMinus
+        <MinusLg
           onClick={handleChange}
           className={twMerge(
-            'absolute h-3 w-3 transition-transform duration-200 ease-in-out',
+            'absolute transition-transform duration-200 ease-in-out',
+            variantSizes.iconSizes[variantSize],
             disabled ? 'cursor-not-allowed text-[#42454D]' : 'text-[#5F7DBF]',
-            isIndeterminateInternal ? 'scale-100' : 'scale-0'
+            indeterminate ? 'scale-100' : 'scale-0'
           )}
         />
       </div>
@@ -118,14 +142,21 @@ const Checkbox = (
       {label && (
         <div
           className={twMerge(
-            'text-sm',
-            disabled ? 'cursor-auto text-[#6B6F78]' : 'cursor-pointer text-[#D3D5D9]',
-            description && 'grid gap-y-1 leading-none'
+            variantSizes.textSizes[variantSize],
+            'cursor-pointer text-[#D3D5D9]',
+            variantTextPlacement === 'left' && 'text-right',
+            disabled && 'cursor-auto text-[#6B6F78]',
+            description && 'grid gap-y-1',
+            variantSizes.textLineHeight[variantSize]
           )}
           onClick={handleChange}
         >
-          <p>{label}</p>
-          <p className="block max-w-[220px] text-wrap">{description}</p>
+          <p
+            className={twMerge(!disabled && 'group-hover/checkbox:text-[#F5F5F5] group-focus/checkbox:text-[#F5F5F5]')}
+          >
+            {label}
+          </p>
+          <p className={twMerge('block text-wrap', variantSizes.maxDescriptionWidth[variantSize])}>{description}</p>
         </div>
       )}
     </div>

@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useArgs } from '@storybook/preview-api'
 import React from 'react'
 import { ArgTypes } from 'storybook/internal/types'
 import Checkbox, { CheckboxProps } from './index'
@@ -44,6 +45,16 @@ const argTypes: ArgTypes = {
   description: {
     control: 'text',
     if: { arg: 'description', exists: true }
+  },
+  variantSize: {
+    name: 'size',
+    control: 'inline-radio',
+    options: ['md', 'lg']
+  },
+  variantTextPlacement: {
+    name: 'Text Placement',
+    control: 'inline-radio',
+    options: ['left', 'right']
   }
 }
 
@@ -57,13 +68,19 @@ export default {
       url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2786-21102&node-type=frame&t=TlQtKBH49KjD5Efr-0'
     }
   },
-  argTypes
+  argTypes,
+  args: {
+    variantSize: 'md',
+    variantTextPlacement: 'right'
+  }
 }
 
 const CheckboxRenderer = (args: CheckboxProps) => {
+  const [, updateArgs] = useArgs<{ checked: boolean }>()
+
   return (
     <div className="flex items-center gap-3">
-      <Checkbox {...args} />
+      <Checkbox {...args} onChange={(checked) => updateArgs({ checked })} />
     </div>
   )
 }
