@@ -54,9 +54,7 @@ describe('invite-code-lookup service', () => {
 
     user = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
-      isGuest,
-      scopes: []
+      isGuest
     })
   })
   afterAll(async () => {

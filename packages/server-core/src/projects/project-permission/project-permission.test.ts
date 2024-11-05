@@ -37,7 +37,6 @@ import {
 } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
-import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserID, UserName, userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { deleteFolderRecursive } from '@ir-engine/common/src/utils/fsHelperFunctions'
@@ -74,6 +73,10 @@ describe('project-permission.test', () => {
   let user2: UserType
   let user3: UserType
   let user4: UserType
+  let apiKey1: UserApiKeyType
+  let apiKey2: UserApiKeyType
+  let apiKey3: UserApiKeyType
+  let apiKey4: UserApiKeyType
   let project1, project1Permission1, project1Permission2, project1Permission4
   beforeAll(async () => {
     app = await createFeathersKoaApp()
@@ -83,55 +86,47 @@ describe('project-permission.test', () => {
     user1 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     user2 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     user3 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     user4 = await app.service(userPath).create({
       name: `Test #${Math.random()}` as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
       query: {
         userId: user1.id
       }
     })) as Paginated<UserApiKeyType>
-    user1.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user1.apiKey
+    apiKey1 = user1ApiKeys.data[0]
     const user2ApiKeys = (await app.service(userApiKeyPath).find({
       query: {
         userId: user2.id
       }
     })) as Paginated<UserApiKeyType>
-    user2.apiKey = user2ApiKeys.data.length > 0 ? user2ApiKeys.data[0] : user2.apiKey
+    apiKey2 = user2ApiKeys.data[0]
     const user3ApiKeys = (await app.service(userApiKeyPath).find({
       query: {
         userId: user3.id
       }
     })) as Paginated<UserApiKeyType>
-    user3.apiKey = user3ApiKeys.data.length > 0 ? user3ApiKeys.data[0] : user3.apiKey
+    apiKey3 = user3ApiKeys.data[0]
     const user4ApiKeys = (await app.service(userApiKeyPath).find({
       query: {
         userId: user4.id
       }
     })) as Paginated<UserApiKeyType>
-    user4.apiKey = user4ApiKeys.data.length > 0 ? user4ApiKeys.data[0] : user4.apiKey
+    apiKey4 = user4ApiKeys.data[0]
     await app.service(scopePath).create({
       type: 'editor:write' as ScopeType,
       userId: user1.id
@@ -168,7 +163,7 @@ describe('project-permission.test', () => {
       it('should add a new project owned by creating user', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user1.apiKey.token}`
+            authorization: `Bearer ${apiKey1.token}`
           },
           provider: 'rest'
         }
@@ -195,7 +190,7 @@ describe('project-permission.test', () => {
       it('should create a new project-permission if requested by the owner', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user1.apiKey.token}`
+            authorization: `Bearer ${apiKey1.token}`
           },
           provider: 'rest'
         }
@@ -216,7 +211,7 @@ describe('project-permission.test', () => {
       it('should return the same project-permission if another create request for a project/user combination is made', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user1.apiKey.token}`
+            authorization: `Bearer ${apiKey1.token}`
           },
           provider: 'rest'
         }
@@ -235,7 +230,7 @@ describe('project-permission.test', () => {
       it('should throw an error if the projectId is invalid', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user1.apiKey.token}`
+            authorization: `Bearer ${apiKey1.token}`
           },
           provider: 'rest'
         }
@@ -255,7 +250,7 @@ describe('project-permission.test', () => {
       it('should throw an error if the userId is invalid', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user1.apiKey.token}`
+            authorization: `Bearer ${apiKey1.token}`
           },
           provider: 'rest'
         }
@@ -275,7 +270,7 @@ describe('project-permission.test', () => {
       it('should not allow a user who does not have owner permission on a project to create new permissions for that project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user2.apiKey.token}`
+            authorization: `Bearer ${apiKey2.token}`
           },
           provider: 'rest'
         }
@@ -295,7 +290,7 @@ describe('project-permission.test', () => {
       it('should not allow a user with no permission on a project to create new permissions for that project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user3.apiKey.token}`
+            authorization: `Bearer ${apiKey3.token}`
           },
           provider: 'rest'
         }
@@ -315,7 +310,7 @@ describe('project-permission.test', () => {
       it('should allow an admin user to create new permissions for a project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user4.apiKey.token}`
+            authorization: `Bearer ${apiKey4.token}`
           },
           provider: 'rest'
         }
@@ -346,7 +341,7 @@ describe('project-permission.test', () => {
       it('should only update the type when patching a project-permission', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user1.apiKey.token}`
+            authorization: `Bearer ${apiKey1.token}`
           },
           provider: 'rest'
         }
@@ -364,7 +359,7 @@ describe('project-permission.test', () => {
       it('should allow an admin user to patch permissions for that project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user4.apiKey.token}`
+            authorization: `Bearer ${apiKey4.token}`
           },
           provider: 'rest'
         }
@@ -383,7 +378,7 @@ describe('project-permission.test', () => {
       it('should not allow a user who does not have owner permission on a project to patch permissions for that project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user2.apiKey.token}`
+            authorization: `Bearer ${apiKey2.token}`
           },
           provider: 'rest'
         }
@@ -402,7 +397,7 @@ describe('project-permission.test', () => {
       it('should not allow a user with no permission on a project to patch permissions for that project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user3.apiKey.token}`
+            authorization: `Bearer ${apiKey3.token}`
           },
           provider: 'rest'
         }
@@ -429,7 +424,7 @@ describe('project-permission.test', () => {
       it('should not allow a user who does not have owner permission on a project to remove permissions for that project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user2.apiKey.token}`
+            authorization: `Bearer ${apiKey2.token}`
           },
           provider: 'rest'
         }
@@ -442,7 +437,7 @@ describe('project-permission.test', () => {
       it('should not allow a user with no permission on a project to remove permissions for that project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user3.apiKey.token}`
+            authorization: `Bearer ${apiKey3.token}`
           },
           provider: 'rest'
         }
@@ -455,7 +450,7 @@ describe('project-permission.test', () => {
       it('should allow an owner to remove permissions for that project, and if the last owner permission is removed, a user permission should be made the owner', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user1.apiKey.token}`
+            authorization: `Bearer ${apiKey1.token}`
           },
           provider: 'rest'
         }
@@ -473,7 +468,7 @@ describe('project-permission.test', () => {
       it('should upgrade a user permission to owner if the last owner permission is deleted', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user1.apiKey.token}`
+            authorization: `Bearer ${apiKey1.token}`
           },
           provider: 'rest'
         }
@@ -493,7 +488,7 @@ describe('project-permission.test', () => {
       it('should allow an admin user to remove permissions for that project', async function () {
         const params = {
           headers: {
-            authorization: `Bearer ${user4.apiKey.token}`
+            authorization: `Bearer ${apiKey4.token}`
           },
           provider: 'rest'
         }

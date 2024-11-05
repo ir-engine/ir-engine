@@ -78,13 +78,11 @@ export const createUserApiKey = async (app: Application, user: UserType) => {
  * @returns
  */
 export const createUser = async (app: Application) => {
-  const avatarId = await getAvatarId(app)
   const code = crypto.randomBytes(4).toString('hex') as InviteCode
 
   const user = await app.service(userPath).create({
     name: `User ${v1()}` as UserName,
-    inviteCode: code,
-    avatarId
+    inviteCode: code
   })
 
   return user

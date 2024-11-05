@@ -55,7 +55,8 @@ const AvatarMenu2 = () => {
   const { t } = useTranslation()
   const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
-  const userAvatarId = authState.user?.avatarId.value
+  const avatar = useFind(userAvatarPath, { query: { userId } }).data[0]
+  const userAvatarId = avatar?.avatarId
   const avatarLoading = useHookstate(false)
   const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
