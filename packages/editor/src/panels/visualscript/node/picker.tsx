@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import { NodeSpecJSON } from '@ir-engine/visual-script'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'

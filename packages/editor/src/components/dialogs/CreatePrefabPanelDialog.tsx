@@ -56,8 +56,8 @@ import {
   iterateEntityNode,
   removeEntityNodeRecursively
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'

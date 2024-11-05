@@ -28,9 +28,9 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BuildStatusType } from '@ir-engine/common/src/schema.type.module'
+import { Input } from '@ir-engine/ui'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import CopyText from '@ir-engine/ui/src/primitives/tailwind/CopyText'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 

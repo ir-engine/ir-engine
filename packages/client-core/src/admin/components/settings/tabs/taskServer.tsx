@@ -30,8 +30,8 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 
 const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()

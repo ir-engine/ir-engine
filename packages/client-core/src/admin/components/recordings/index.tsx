@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 
 import { useHookstate } from '@ir-engine/hyperflux'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import RecordingsTable from './RecordingsTable'

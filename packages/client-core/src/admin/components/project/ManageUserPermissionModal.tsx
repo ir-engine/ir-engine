@@ -40,8 +40,8 @@ import {
   projectPermissionPath
 } from '@ir-engine/common/src/schema.type.module'
 import { ImmutableObject, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
