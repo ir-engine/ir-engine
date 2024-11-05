@@ -281,7 +281,7 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
       m.envMapIntensity = intensity
     })
   } else {
-    obj.material.envMapIntensity = intensity
+    ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
   }
 }
 
