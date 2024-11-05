@@ -1216,7 +1216,7 @@ describe('Physics : Rapier->ECS API', () => {
         removeEntity(testEntity)
         return destroyEngine()
       })
-      it('should not do anything for an entity that has a NetworkObjectComponent but no NetworkAuthorityComponent', () => {
+      it('should not update the pose and velocity for an entity that has a NetworkObjectComponent but no NetworkAuthorityComponent', () => {
         setComponent(testEntity, NetworkObjectComponent)
         const impulse = new Vector3(1, 2, 3)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
