@@ -32,9 +32,11 @@ import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 
+import { useFind } from '@ir-engine/common'
+import { ScopeType, scopePath } from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
-import { AuthState } from '../../../user/services/AuthService'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
 import BuildStatusTable from './build-status/BuildStatusTable'
@@ -44,16 +46,21 @@ export default function AdminProject() {
   const search = useHookstate({ local: '', query: '' })
 
   const projectState = useMutableState(ProjectState)
-  const authState = useMutableState(AuthState)
-  const user = authState.user
+
+  const scopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'projects:read' as ScopeType
+    }
+  })
 
   ProjectService.useAPIListeners()
 
   useEffect(() => {
-    if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
+    if (scopeQuery.data.length > 0) {
       ProjectService.getBuilderInfo()
     }
-  }, [user])
+  }, [scopeQuery.data.length > 0])
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null

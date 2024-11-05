@@ -35,7 +35,7 @@ import { EntityUUID, UUIDComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -140,11 +140,12 @@ export const onNewScene = async (
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   getMutableState(EngineState).isEditing.set(true)
-  const gltfEntity = GLTFSourceState.load(sceneURL, uuid, getState(EngineState).originEntity)
+  const unload = GLTFAssetState.loadScene(sceneURL, uuid)
+  const gltfEntity = getState(GLTFAssetState)[sceneURL]
   setComponent(gltfEntity, SceneComponent)
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
+    unload()
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)
-    GLTFSourceState.unload(gltfEntity)
   }
 }
