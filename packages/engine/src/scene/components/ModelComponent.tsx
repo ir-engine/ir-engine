@@ -105,18 +105,18 @@ function ModelReactor() {
   const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
   useEffect(() => {
+    const occlusion = modelComponent.cameraOcclusion.value
+    if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+    else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+  }, [modelComponent.cameraOcclusion])
+
+  useEffect(() => {
     if (modelComponent.src.value) return
     addError(entity, ModelComponent, 'INVALID_SOURCE', 'No source provided')
     return () => {
       removeError(entity, ModelComponent, 'INVALID_SOURCE')
     }
   }, [modelComponent.src])
-
-  useEffect(() => {
-    const occlusion = modelComponent.cameraOcclusion.value
-    if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
-    else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
-  }, [modelComponent.cameraOcclusion])
 
   useEffect(() => {
     if (!error) return
