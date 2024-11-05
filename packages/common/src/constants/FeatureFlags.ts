@@ -54,8 +54,7 @@ export const FeatureFlags = {
       Hierarchy: {
         ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
       },
-      PointClick: 'ir.editor.ui.pointClick',
-      DragDrop: 'ir.editor.ui.dragDrop'
+      PointClick: 'ir.editor.ui.pointClick'
     }
   }
 }

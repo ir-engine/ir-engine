@@ -44,31 +44,30 @@ export default function SceneHelpersTool() {
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
   const [pointClickEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.PointClick])
-  const [dragDropEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.DragDrop])
 
   return (
     <div className="flex items-center gap-1 rounded bg-[#0E0F11]">
       {pointClickEnabled && (
-        <Tooltip content={t('editor:toolbar.placement.click')}>
-          <Button
-            startIcon={<LuMousePointerClick className="text-theme-input" />}
-            onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
-            variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
-            className="px-0"
-            size="small"
-          />
-        </Tooltip>
-      )}
-      {dragDropEnabled && (
-        <Tooltip content={t('editor:toolbar.placement.drag')}>
-          <Button
-            startIcon={<LuMove3D className="text-theme-input" />}
-            onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
-            variant={editorHelperState.placementMode.value === PlacementMode.DRAG ? 'outline' : 'transparent'}
-            className="px-0"
-            size="small"
-          />
-        </Tooltip>
+        <>
+          <Tooltip content={t('editor:toolbar.placement.click')}>
+            <Button
+              startIcon={<LuMousePointerClick className="text-theme-input" />}
+              onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
+              variant={editorHelperState.placementMode.value === PlacementMode.CLICK ? 'outline' : 'transparent'}
+              className="px-0"
+              size="small"
+            />
+          </Tooltip>
+          <Tooltip content={t('editor:toolbar.placement.drag')}>
+            <Button
+              startIcon={<LuMove3D className="text-theme-input" />}
+              onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
+              variant={editorHelperState.placementMode.value === PlacementMode.DRAG ? 'outline' : 'transparent'}
+              className="px-0"
+              size="small"
+            />
+          </Tooltip>
+        </>
       )}
       <Tooltip
         title={t('editor:toolbar.helpersToggle.lbl-helpers')}
