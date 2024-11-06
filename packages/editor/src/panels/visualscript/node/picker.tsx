@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import { NodeSpecJSON } from '@ir-engine/visual-script'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -188,7 +188,6 @@ export const NodePicker: React.FC<NodePickerProps> = ({
         onChange={(event) => {
           setSearch(event.target.value)
         }}
-        className="rounded bg-theme-primary px-1.5 text-[#A3A3A3]"
         startComponent={<HiMagnifyingGlass className="text-white" />}
       />
       <NodePickerNode nodes={filtered} onPickNode={onPickNode} position={position} instance={instance} />

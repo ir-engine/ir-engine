@@ -29,8 +29,8 @@ import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import AddEditLocationModal from './AddEditLocationModal'
@@ -64,8 +64,6 @@ export default function Locations() {
                 search.query.set(event.target.value)
               }, 100)
             }}
-            className="bg-theme-surface-main"
-            containerClassName="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
           <div>
