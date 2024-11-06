@@ -123,7 +123,7 @@ export const RendererComponent = defineComponent({
   },
 
   /**
-   * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
+   * @deprecated will be removed once threejs objects are not proxified. Should only be used in proxifyParentChildRelationships.ts
    * see https://github.com/ir-engine/ir-engine/issues/9308
    */
   activeRender: false,

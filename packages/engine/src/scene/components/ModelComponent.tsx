@@ -42,6 +42,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import {
   EntityTreeComponent,
   iterateEntityNode,
@@ -57,12 +58,13 @@ import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentSt
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
+import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { SourceComponent } from './SourceComponent'
 
 /**
  * ModelComponent is an entity/object hierarchy loaded from a resource
+ * @deprecated - use GLTFComponent instead
  */
 export const ModelComponent = defineComponent({
   name: 'ModelComponent',

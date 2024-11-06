@@ -59,11 +59,11 @@ import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/Gro
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
-import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 

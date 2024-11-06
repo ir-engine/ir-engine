@@ -45,12 +45,12 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/engine/src/scene/functions/loadGLTFModel'
 import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import {
   EntityTreeComponent,
   iterateEntityNode,
