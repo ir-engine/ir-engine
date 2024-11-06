@@ -43,6 +43,7 @@ import assert from 'assert'
 import { BoxGeometry, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../tests/util/mathAssertions'
+import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../common/NameComponent'
 import { Axis, Vector3_Zero } from '../common/constants/MathConstants'
 import { MeshComponent } from '../renderer/components/MeshComponent'
@@ -128,7 +129,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
     beforeEach(async () => {
       createEngine()
-      // mockSpatialEngine()
+      mockSpatialEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
       setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
@@ -253,7 +254,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
     beforeEach(async () => {
       createEngine()
-      // mockSpatialEngine()
+      mockSpatialEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
       setComponent(physicsWorldEntity, NameComponent, 'physicsWorldEntity')
