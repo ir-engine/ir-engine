@@ -24,12 +24,27 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import * as THREE from 'three'
-import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vector3, Vector4 } from 'three'
+import {
+  Euler,
+  Matrix4,
+  Object3D,
+  PropertyBinding,
+  Quaternion,
+  Scene,
+  SkinnedMesh,
+  Vector2,
+  Vector3,
+  Vector4
+} from 'three'
 
-import { Entity } from '@ir-engine/ecs'
-
+import { Entity, getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
+import { BoneComponent } from './renderer/components/BoneComponent'
+import { MeshComponent } from './renderer/components/MeshComponent'
+import { Object3DComponent } from './renderer/components/Object3DComponent'
+import { SkinnedMeshComponent } from './renderer/components/SkinnedMeshComponent'
 import { Object3DUtils } from './transform/Object3DUtils'
+import { EntityTreeComponent } from './transform/components/EntityTree'
 
 //@ts-ignore
 Vector3.prototype.toJSON = function () {
@@ -211,6 +226,88 @@ SkinnedMesh.prototype.applyBoneTransform = function (index, vector) {
   }
 
   return vector.applyMatrix4(this.bindMatrixInverse)
+}
+
+PropertyBinding.findNode = function (root: SkinnedMesh, nodeName: string | number) {
+  if (
+    nodeName === undefined ||
+    nodeName === '' ||
+    nodeName === '.' ||
+    nodeName === -1 ||
+    nodeName === root.name ||
+    nodeName === root.uuid
+  ) {
+    return root
+  }
+
+  // search into skeleton bones.
+  if (root.skeleton) {
+    const bone = root.skeleton.getBoneByName(nodeName as string)
+
+    if (bone !== undefined) {
+      return bone
+    }
+  }
+
+  const entity = root.entity
+  if (entity) {
+    if (!hasComponent(entity, EntityTreeComponent)) return null
+
+    const children = getComponent(entity, EntityTreeComponent).children
+
+    // search into node subtree.
+    const searchEntitySubtree = function (children: Entity[]) {
+      for (let i = 0; i < children.length; i++) {
+        const entity = children[i]
+        const childNode =
+          getOptionalComponent(entity, BoneComponent) ??
+          getOptionalComponent(entity, MeshComponent) ??
+          getOptionalComponent(entity, SkinnedMeshComponent) ??
+          getOptionalComponent(entity, Object3DComponent)!
+
+        if (childNode && (childNode.name === nodeName || childNode.uuid === nodeName)) {
+          return childNode
+        }
+
+        const result = searchEntitySubtree(getComponent(entity, EntityTreeComponent).children)
+
+        if (result) return result
+      }
+
+      return null
+    }
+
+    const subTreeNode = searchEntitySubtree(children)
+
+    if (subTreeNode) {
+      return subTreeNode
+    }
+  }
+
+  // fallback to three hierarchy for non-ecs hierarchy (normalize vrm rigs)
+  const searchNodeSubtree = function (children) {
+    for (let i = 0; i < children.length; i++) {
+      const childNode = children[i]
+
+      if (childNode.name === nodeName || childNode.uuid === nodeName) {
+        return childNode
+      }
+
+      const result = searchNodeSubtree(childNode.children)
+
+      if (result) return result
+    }
+
+    return null
+  }
+
+  const subTreeNode = searchNodeSubtree(root.children)
+
+  if (subTreeNode) {
+    return subTreeNode
+  }
+
+  return null
 }
 
 overrideOnBeforeCompile()

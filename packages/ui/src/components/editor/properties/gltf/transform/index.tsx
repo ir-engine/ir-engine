@@ -27,9 +27,9 @@ import React from 'react'
 
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { State } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
@@ -74,7 +74,6 @@ function TextParam({
 
       <div className="col-span-2 col-start-3">
         <Input
-          className="py-0 text-xs text-[#9CA0AA]"
           value={state.value}
           onChange={(e) => {
             state.set(parseFunction(e.target.value))
@@ -127,14 +126,12 @@ export default function GLTFTransformProperties({
                 onChange={(e) => {
                   transformParms.dst.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
               />
               <Input
                 value={transformParms.resourceUri.value}
                 onChange={(e) => {
                   transformParms.resourceUri.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-[#9CA0AA]"
               />
             </div>
           </div>
@@ -154,11 +151,7 @@ export default function GLTFTransformProperties({
               </Text>
             </div>
             <div className="col-span-3 flex flex-col justify-around gap-y-2">
-              <Input
-                value={`${itemCount} Items`}
-                disabled={true}
-                className="px-2 py-0.5 font-['Figtree'] text-sm text-[#9CA0AA]"
-              />
+              <Input value={`${itemCount} Items`} disabled={true} />
             </div>
           </div>
         )}

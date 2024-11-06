@@ -31,8 +31,8 @@ import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
-import { EntityUUID, UUIDComponent, UndefinedEntity } from '@ir-engine/ecs'
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
+import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -57,7 +57,7 @@ export const saveSceneGLTF = async (
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const { rootEntity } = getState(EditorState)
-  const sourceID = `${getComponent(rootEntity, UUIDComponent)}-${getComponent(rootEntity, GLTFComponent).src}`
+  const sourceID = GLTFComponent.getInstanceID(rootEntity)
 
   const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
