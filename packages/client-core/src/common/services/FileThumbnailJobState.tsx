@@ -139,7 +139,9 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
   thumbnailURL.search = ''
   thumbnailURL.hash = ''
   const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
-  await API.instance.service(staticResourcePath).patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode })
+  await API.instance
+    .service(staticResourcePath)
+    .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
 }
 
 const seenResources = new Set<string>()
