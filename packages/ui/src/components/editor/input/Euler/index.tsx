@@ -51,9 +51,16 @@ const getBoundedRoundedAngle = (angle: number) => {
 }
 
 const tempEuler = new Euler() // we need the persistance, the hookstate doesnt register the dynamically allocated euler and quat value otherwise, thus we cannot assign new variable to the same
+const tempQuat = new Quaternion()
 export const EulerInput = (props: EulerInputProps) => {
+  tempQuat.copy(props.quaternion)
   tempEuler.setFromQuaternion(props.quaternion, 'YXZ')
   const angle = useHookstate({
+    x: getBoundedRoundedAngle(tempEuler.x * RAD2DEG),
+    y: getBoundedRoundedAngle(tempEuler.y * RAD2DEG),
+    z: getBoundedRoundedAngle(tempEuler.z * RAD2DEG)
+  })
+  angle.set({
     x: getBoundedRoundedAngle(tempEuler.x * RAD2DEG),
     y: getBoundedRoundedAngle(tempEuler.y * RAD2DEG),
     z: getBoundedRoundedAngle(tempEuler.z * RAD2DEG)
