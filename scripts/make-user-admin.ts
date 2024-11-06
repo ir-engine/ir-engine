@@ -30,7 +30,16 @@ import knex from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { ScopeID, scopePath, ScopeTypeInterface, userPath, UserType } from '@ir-engine/common/src/schema.type.module'
+import {
+  projectPath,
+  projectPermissionPath,
+  ProjectType,
+  ScopeID,
+  scopePath,
+  ScopeTypeInterface,
+  userPath,
+  UserType
+} from '@ir-engine/common/src/schema.type.module'
 
 import { scopeTypeSeed } from '../packages/server-core/src/scope/scope-type/scope-type.seed'
 
@@ -76,7 +85,7 @@ cli.main(async () => {
               type
             })
             .first()
-          if (existingScope == null) {
+          if (!existingScope) {
             await knexClient.from<ScopeTypeInterface>(scopePath).insert({
               id: uuidv4() as ScopeID,
               userId: options.id,
@@ -88,6 +97,29 @@ cli.main(async () => {
           }
         } catch (e) {
           console.log(e)
+        }
+      }
+
+      const projects = await knexClient.from<ProjectType>(projectPath).select('id', 'name')
+
+      for (const project of projects) {
+        const existingPermission = await knexClient
+          .from(projectPermissionPath)
+          .where({
+            projectId: project.id,
+            userId: options.id
+          })
+          .first()
+        if (!existingPermission) {
+          await knexClient.from(projectPermissionPath).insert({
+            id: uuidv4(),
+            projectId: project.id,
+            userId: options.id,
+            type: 'owner',
+            createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+          })
+          cli.info(`Adding user: ${options.id}, project permission: ${project.name}`)
         }
       }
 

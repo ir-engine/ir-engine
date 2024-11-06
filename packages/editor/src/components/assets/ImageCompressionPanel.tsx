@@ -36,12 +36,12 @@ import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { Input } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -167,7 +167,7 @@ export default function ImageCompressionPanel({
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-theme-input bg-[#2C2E33] px-2 py-1.5" value={title} disabled />
+          <Input value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
