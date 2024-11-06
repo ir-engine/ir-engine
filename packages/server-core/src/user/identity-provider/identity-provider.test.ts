@@ -319,7 +319,7 @@ describe('identity-provider.test', () => {
     )
   })
 
-  it('should find user with exact email match', async () => {
+  it('should find identity provider with exact email match', async () => {
     const appUser = await createAdmin(app)
     const adminUserApiKey = await createUserApiKey(app, appUser)
     const adminIdentityProvider = await app.service(identityProviderPath).create(
@@ -343,7 +343,7 @@ describe('identity-provider.test', () => {
         authorization: `Bearer ${adminUserApiKey.token}`
       },
       query: {
-        email: testEmail // Exact match
+        email: testEmail
       },
       paginate: false
     })
@@ -366,6 +366,27 @@ describe('identity-provider.test', () => {
       query: {
         email: {
           $like: '%@testdomain.com%'
+        }
+      },
+      paginate: false
+    })
+
+    assert.equal(result.length, 0)
+  })
+
+  it('should not return any identity provider using $notlike', async () => {
+    const appUser = await createAdmin(app)
+    const adminUserApiKey = await createUserApiKey(app, appUser)
+
+    const result = await app.service(identityProviderPath).find({
+      user: appUser,
+      provider: 'external',
+      headers: {
+        authorization: `Bearer ${adminUserApiKey.token}`
+      },
+      query: {
+        email: {
+          $notlike: '%@domain.com%'
         }
       },
       paginate: false
