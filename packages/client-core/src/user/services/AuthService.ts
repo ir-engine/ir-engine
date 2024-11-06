@@ -684,11 +684,10 @@ export const AuthService = {
       const identityProviders = await API.instance.service(identityProviderPath).find({
         query: {
           email: email.toLowerCase()
-        },
-        paginate: false
+        }
       })
 
-      return identityProviders.length > 0
+      return identityProviders.data.length > 0
     } catch (error) {
       return false
     }
