@@ -89,7 +89,7 @@ export const EnvmapComponent = defineComponent({
     envMapSourceEntityUUID: S.EntityUUID(),
     envMapIntensity: S.Number(1),
     // internal
-    envmap: S.Nullable(S.Type<Texture>())
+    envmap: S.NonSerialized(S.Nullable(S.Type<Texture>()))
   }),
 
   reactor: function () {
