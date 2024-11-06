@@ -683,7 +683,7 @@ export const AuthService = {
     try {
       const identityProviders = await API.instance.service(identityProviderPath).find({
         query: {
-          accountIdentifier: email.toLowerCase()
+          email: email.toLowerCase()
         },
         paginate: false
       })
