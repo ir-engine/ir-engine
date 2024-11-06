@@ -37,7 +37,7 @@ import {
   Texture
 } from 'three'
 
-import { entityExists, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -59,6 +59,11 @@ import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsType
 import { GroupComponent, GroupQueryReactor } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ResourceManager } from '@ir-engine/spatial/src/resources/ResourceState'
 import {
@@ -66,17 +71,12 @@ import {
   FrustumCullCameraComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { KHRUnlitExtensionComponent } from '../../gltf/MaterialDefinitionComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
-import {
-  MaterialInstanceComponent,
-  MaterialStateComponent
-} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
@@ -167,14 +167,11 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
 
   useImmediateEffect(() => {
     setComponent(entity, DistanceFromCameraComponent)
-    return () => {
-      if (entityExists(entity)) removeComponent(entity, DistanceFromCameraComponent)
-    }
   }, [])
 
   useEffect(() => {
-    const source = hasComponent(entity, ModelComponent)
-      ? getModelSceneID(entity)
+    const source = hasComponent(entity, GLTFComponent)
+      ? GLTFComponent.getInstanceID(entity)
       : getOptionalComponent(entity, SourceComponent)
     return () => {
       ResourceManager.unloadObj(obj, source)
@@ -214,8 +211,8 @@ const execute = () => {
 
 const ModelEntityReactor = () => {
   const entity = useEntityContext()
-  const modelSceneID = useModelSceneID(entity)
-  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[modelSceneID])
+  const modelInstanceID = GLTFComponent.useInstanceID(entity)
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[modelInstanceID])
 
   return (
     <>
@@ -226,17 +223,36 @@ const ModelEntityReactor = () => {
   )
 }
 
+const useIsUnlit = (entity: Entity) => {
+  let isUnlit = !!useOptionalComponent(entity, KHRUnlitExtensionComponent)
+  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
+
+  if (materialInstanceUUIDs) {
+    for (const uuid of materialInstanceUUIDs) {
+      const matEntity = UUIDComponent.getEntityByUUID(uuid)
+      if (matEntity && hasComponent(matEntity, KHRUnlitExtensionComponent)) {
+        isUnlit = true
+        break
+      }
+    }
+  }
+
+  return isUnlit
+}
+
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
   const isVisible = useOptionalComponent(props.entity, VisibleComponent)
+  const isUnlit = useIsUnlit(props.entity)
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
     if (!isMesh || !isVisible) return
-    if (shadowComponent) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
+    if (shadowComponent && !isUnlit)
+      setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
     else removeComponent(props.entity, ShadowComponent)
-  }, [isVisible, isMesh, shadowComponent?.cast, shadowComponent?.receive])
+  }, [isVisible, isMesh, isUnlit, shadowComponent?.cast, shadowComponent?.receive])
 
   useEffect(() => {
     if (!isModelColliders || !isMesh) return
@@ -260,7 +276,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 const reactor = () => {
   return (
     <>
-      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelEntityReactor} />
+      <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ModelEntityReactor} />
       <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
     </>
   )

@@ -291,6 +291,9 @@ export default defineConfig(async () => {
       headers: {
         'Origin-Agent-Cluster': '?1'
       },
+      watch: {
+        ignored: ['**packages/server/upload/**']
+      },
       ...(isDevOrLocal
         ? {
             https: {

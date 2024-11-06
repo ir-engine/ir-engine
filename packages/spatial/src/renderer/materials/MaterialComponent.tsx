@@ -33,16 +33,21 @@ import {
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
-  hasComponent
+  hasComponent,
+  useComponent,
+  useEntityContext,
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import React, { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { MeshComponent } from '../components/MeshComponent'
 import { NoiseOffsetPluginComponent } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPluginComponent } from './constants/plugins/TransparencyDitheringComponent'
-import { setMeshMaterial } from './materialFunctions'
+import { materialPrototypeMatches, setMeshMaterial, updateMaterialPrototype } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -52,6 +57,7 @@ import MeshStandardMaterial from './prototypes/MeshStandardMaterial.mat'
 import MeshToonMaterial from './prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './prototypes/ShadowMaterial.mat'
+
 export type MaterialWithEntity = Material & { entity: Entity }
 
 export type MaterialPrototypeConstructor = new (...args: any) => any
@@ -113,6 +119,17 @@ export const MaterialStateComponent = defineComponent({
       if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
       setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
     }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const materialComponent = useComponent(entity, MaterialStateComponent)
+
+    useEffect(() => {
+      if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
+    }, [materialComponent.prototypeEntity])
+
+    return null
   }
 })
 
@@ -131,8 +148,53 @@ export const MaterialInstanceComponent = defineComponent({
       if (materialComponent?.instances.value)
         materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
     }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
+
+    if (!materialComponent || materialComponent.uuid.value.length === 0) return null
+
+    if (materialComponent.uuid.value.length > 1)
+      return (
+        <>
+          {materialComponent.uuid.value.map((uuid, index) => (
+            <MaterialInstanceSubReactor array={true} key={uuid} index={index} uuid={uuid} entity={entity} />
+          ))}
+        </>
+      )
+
+    return (
+      <MaterialInstanceSubReactor
+        array={false}
+        key={materialComponent.uuid.value[0]}
+        index={0}
+        uuid={materialComponent.uuid.value[0]}
+        entity={entity}
+      />
+    )
   }
 })
+
+const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; entity: Entity; index: number }) => {
+  const { uuid, entity, index } = props
+  const materialStateEntity = UUIDComponent.useEntityByUUID(uuid)
+  const materialStateComponent = useOptionalComponent(materialStateEntity, MaterialStateComponent)
+  const meshComponent = useOptionalComponent(entity, MeshComponent)
+
+  useEffect(() => {
+    if (!meshComponent || !materialStateComponent) return
+    const material = getComponent(materialStateEntity, MaterialStateComponent).material
+    if (props.array) {
+      if (!Array.isArray(meshComponent.material.value)) meshComponent.material.set([])
+      meshComponent.material[index].set(material)
+    } else {
+      meshComponent.material.set(material)
+    }
+  }, [materialStateComponent?.material, !!meshComponent])
+
+  return null
+}
 
 export const MaterialPrototypeComponent = defineComponent({
   name: 'MaterialPrototypeComponent',

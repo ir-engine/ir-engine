@@ -52,11 +52,11 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
-import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -92,7 +92,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   })
 
   setComponent(entity, AvatarAnimationComponent, {
-    rootYRatio: 1,
     locomotion: new Vector3()
   })
 
