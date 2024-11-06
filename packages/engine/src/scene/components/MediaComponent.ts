@@ -192,6 +192,15 @@ export function MediaReactor() {
 
   if (!isClient) return null
 
+  function validateTime() {
+    const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+    const element = mediaElementState.element.value as HTMLMediaElement
+    console.log('element.currentTime = ' + element.currentTime)
+    if (element.currentTime < media.seekTime.value) {
+      setTime(mediaElementState.element, media.seekTime.value)
+    }
+  }
+
   useEffect(() => {
     if (!rendererEntity) return
     setComponent(entity, BoundingBoxComponent)
@@ -387,6 +396,7 @@ export function MediaReactor() {
       if (!media.paused.value) {
         mediaElementState.value.element.play()
       }
+      validateTime()
     },
     [media.resources, media.ended, media.playMode]
   )
@@ -442,6 +452,10 @@ export function MediaReactor() {
       removeComponent(entity, DebugMeshComponent)
     }
   }, [rendererState.nodeHelperVisibility, audioHelperTexture])
+
+  useEffect(() => {
+    validateTime()
+  }, [media.seekTime])
 
   return null
 }
