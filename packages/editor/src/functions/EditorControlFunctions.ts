@@ -737,7 +737,7 @@ const groupObjects = (entities: Entity[]) => {
       const entityUUID = getComponent(entity, UUIDComponent)
       const node = getGLTFNodeByUUID(gltf.data, entityUUID)!
 
-      const nodeMatrix = new Matrix4().fromArray(node.matrix!)
+      const nodeMatrix = node.matrix ? new Matrix4().fromArray(node.matrix) : new Matrix4().identity()
       //subtract the average transform from the node's transform to get the relative transform
       const relativeTransform = nodeMatrix.clone().premultiply(averageTransform.clone().invert())
       node.matrix = relativeTransform.toArray()
