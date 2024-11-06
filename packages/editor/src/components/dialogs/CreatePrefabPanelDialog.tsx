@@ -56,8 +56,8 @@ import {
   iterateEntityNode,
   removeEntityNodeRecursively
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -234,12 +234,18 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           <Input
             value={defaultPrefabFolder.value}
             onChange={(event) => defaultPrefabFolder.set(event.target.value)}
-            label="Default Save Folder"
+            labelProps={{
+              text: 'Default Save Folder',
+              position: 'top'
+            }}
           />
           <Input
             value={prefabName.value}
             onChange={(event) => prefabName.set(event.target.value)}
-            label="Name"
+            labelProps={{
+              text: 'Name',
+              position: 'top'
+            }}
             maxLength={64}
           />
           {!isExportLookDev && (
@@ -259,7 +265,10 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
                   <div className="ml-4 flex items-end">
                     <Input
                       key={index}
-                      label={t('editor:layout.filebrowser.fileProperties.tag')}
+                      labelProps={{
+                        text: t('editor:layout.filebrowser.fileProperties.tag'),
+                        position: 'top'
+                      }}
                       onChange={(event) => {
                         const tags = [...prefabTag.value]
                         tags[index] = event.target.value

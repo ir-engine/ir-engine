@@ -280,7 +280,6 @@ const Track = ({
             onChange()
           }
         }}
-        className={`${active ? 'border-2 border-solid border-black' : ''}`}
       />
       <div ref={dragSourceRef} className="cursor-move text-2xl text-white">
         <MdDragIndicator />

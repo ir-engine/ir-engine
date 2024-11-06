@@ -31,7 +31,7 @@ import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import { useHookstate } from '@ir-engine/hyperflux'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import { FileDataType } from '../../../constants/AssetTypes'
 
@@ -69,9 +69,8 @@ export default function RenameFileModal({ projectName, file }: { projectName: st
         value={newFileName.value}
         data-testid="rename-file-input"
         onChange={(event) => newFileName.set(event.target.value)}
-        errorBorder={!isValid}
-        description={t('editor:dialog.saveNewScene.info-name')}
-        error={!isValid ? t('editor:layout.filebrowser.renameFileError') : undefined}
+        state={!isValid ? 'error' : undefined}
+        helperText={!isValid ? t('editor:layout.filebrowser.renameFileError') : undefined}
       />
     </Modal>
   )

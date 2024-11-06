@@ -35,11 +35,11 @@ import {
   instanceServerSettingPath
 } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -109,71 +109,91 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     >
       <div className="mt-6 grid grid-cols-2 gap-6">
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.clientHost')}
+          labelProps={{
+            text: t('admin:components.setting.clientHost'),
+            position: 'top'
+          }}
           value={settings?.clientHost.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.domain')}
+          labelProps={{
+            text: t('admin:components.setting.domain'),
+            position: 'top'
+          }}
           value={settings?.domain.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.rtcStartPort')}
+          labelProps={{
+            text: t('admin:components.setting.rtcStartPort'),
+            position: 'top'
+          }}
           value={settings?.rtcStartPort.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.releaseName')}
+          labelProps={{
+            text: t('admin:components.setting.releaseName'),
+            position: 'top'
+          }}
           value={settings?.releaseName.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.rtcEndPort')}
+          labelProps={{
+            text: t('admin:components.setting.rtcEndPort'),
+            position: 'top'
+          }}
           value={settings?.rtcEndPort.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.port')}
+          labelProps={{
+            text: t('admin:components.setting.port'),
+            position: 'top'
+          }}
           value={settings?.port.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.rtcPortBlockSize')}
+          labelProps={{
+            text: t('admin:components.setting.rtcPortBlockSize'),
+            position: 'top'
+          }}
           value={settings?.rtcPortBlockSize.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.mode')}
+          labelProps={{
+            text: t('admin:components.setting.mode'),
+            position: 'top'
+          }}
           value={settings?.mode.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.identifierDigits')}
+          labelProps={{
+            text: t('admin:components.setting.identifierDigits'),
+            position: 'top'
+          }}
           value={settings?.identifierDigits.value || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.locationName')}
+          labelProps={{
+            text: t('admin:components.setting.locationName'),
+            position: 'top'
+          }}
           value={settings?.locationName.value || ''}
           disabled
         />
@@ -246,9 +266,10 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                       <div className="col-span-1 mb-4 flex flex-row items-center">
                         {' '}
                         <Input
-                          className="col-span-1"
-                          containerClassName="mb-1"
-                          label={t('admin:components.setting.webRTCSettings.iceURL') + (index + 1)}
+                          labelProps={{
+                            text: t('admin:components.setting.webRTCSettings.iceURL') + (index + 1),
+                            position: 'top'
+                          }}
                           value={iceServer.urls.value}
                           onChange={(e) => {
                             iceServer.urls.set(e.target.value)
@@ -269,7 +290,10 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                         return (
                           <div className="col-span-1 mb-4 flex flex-row items-center" key={urlIndex}>
                             <Input
-                              label={t('admin:components.setting.webRTCSettings.iceURL') + (urlIndex + 1)}
+                              labelProps={{
+                                text: t('admin:components.setting.webRTCSettings.iceURL') + (urlIndex + 1),
+                                position: 'top'
+                              }}
                               value={url}
                               onChange={(e) => {
                                 iceServer.urls[urlIndex].set(e.target.value)
@@ -314,8 +338,10 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                   {iceServer.useFixedCredentials.value && (
                     <>
                       <Input
-                        className="col-span-1 mb-1"
-                        label={t('admin:components.setting.webRTCSettings.username')}
+                        labelProps={{
+                          text: t('admin:components.setting.webRTCSettings.username'),
+                          position: 'top'
+                        }}
                         value={iceServer.username.value || ''}
                         onChange={(e) => {
                           iceServer.username.set(e.target.value)
@@ -323,8 +349,10 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                       />
 
                       <PasswordInput
-                        className="col-span-1 mb-1"
-                        label={t('admin:components.setting.webRTCSettings.credential')}
+                        labelProps={{
+                          text: t('admin:components.setting.webRTCSettings.credential'),
+                          position: 'top'
+                        }}
                         value={iceServer.credential.value || ''}
                         onChange={(e) => {
                           iceServer.credential.set(e.target.value)
@@ -343,8 +371,10 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
                   {iceServer.useTimeLimitedCredentials.value && (
                     <PasswordInput
-                      className="col-span-1 mb-1"
-                      label={t('admin:components.setting.webRTCSettings.webRTCStaticAuthSecretKey')}
+                      labelProps={{
+                        text: t('admin:components.setting.webRTCSettings.webRTCStaticAuthSecretKey'),
+                        position: 'top'
+                      }}
                       value={iceServer.webRTCStaticAuthSecretKey.value || ''}
                       onChange={(e) => {
                         iceServer.webRTCStaticAuthSecretKey.set(e.target.value)
