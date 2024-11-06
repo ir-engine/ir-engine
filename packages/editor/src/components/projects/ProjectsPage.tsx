@@ -42,11 +42,11 @@ import {
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { Engine } from '@ir-engine/ecs'
+import { Input } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
