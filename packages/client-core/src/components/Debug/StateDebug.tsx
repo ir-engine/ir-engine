@@ -34,7 +34,7 @@ import {
   useHookstate
 } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const labelRenderer = (data: Record<string | number, any>) => {
@@ -91,7 +91,6 @@ export function StateDebug() {
       <div className="my-0.5">
         <Text>{t('common:debug.state')}</Text>
         <Input
-          containerClassName="my-0.5"
           type="text"
           placeholder="Search..."
           value={stateSearch.value}

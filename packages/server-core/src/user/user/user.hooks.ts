@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { MethodNotAllowed } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { random } from 'lodash'
 
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
@@ -43,6 +44,7 @@ import {
 } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
+import { avatarPath, staticResourcePath, userLoginPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'
@@ -74,16 +76,6 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
 
   if (hasAdminScope && hasUserWriteScope) {
     return
-  } else if (hasUserWriteScope) {
-    // do not allow user:write scope to change other users' scopes
-    if (Array.isArray(context.data)) {
-      context.data.forEach((userPatchData) => {
-        delete userPatchData.scopes
-      })
-    } else {
-      delete context.data?.scopes
-    }
-    return
   }
 
   // only allow a user to patch it's own data
@@ -94,7 +86,6 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
   const process = (item: UserType) => {
     const data = {} as UserPatch
     // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
-    if (typeof item.avatarId !== 'undefined') data.avatarId = item.avatarId
     if (typeof item.name !== 'undefined') data.name = item.name
     if (typeof item.acceptedTOS !== 'undefined') data.acceptedTOS = item.acceptedTOS
 
@@ -146,47 +137,6 @@ const removeApiKey = async (context: HookContext<UserService>) => {
 }
 
 /**
- * Removes existing scopes of user
- * @param context
- */
-const removeUserScopes = async (context: HookContext<UserService>) => {
-  const data = Array.isArray(context.data) ? context.data : [context.data]
-
-  for (const item of data) {
-    if (item?.scopes) {
-      await context.app.service(scopePath).remove(null, {
-        query: {
-          userId: context.id as UserID
-        }
-      })
-    }
-  }
-}
-
-/**
- * Adds new scopes to user
- * @param useActualData
- */
-const addUserScopes = (useActualData = false) => {
-  return async (context: HookContext<UserService>) => {
-    const dataKey = useActualData ? 'actualData' : 'data'
-    const data: UserType[] = Array.isArray(context[dataKey]) ? context[dataKey] : [context[dataKey]]
-
-    for (const item of data) {
-      if (item?.scopes) {
-        const scopeData = item.scopes.map((el) => {
-          return {
-            ...el,
-            userId: useActualData ? item.id : (context.id as UserID)
-          }
-        })
-        if (scopeData.length > 0) await context.app.service(scopePath).create(scopeData)
-      }
-    }
-  }
-}
-
-/**
  * Updates the user's invite code if they don't have one
  * @param context
  */
@@ -214,8 +164,29 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
     data[0].id = context.id as UserID
   }
 
+  const avatars = await context.app
+    .service(avatarPath)
+    .find({ isInternal: true, query: { isPublic: true, skipUser: true, $limit: 1000 } })
+
+  let selectedAvatarId
+  while (selectedAvatarId == null) {
+    const randomId = random(avatars.data.length - 1)
+    const selectedAvatar = avatars.data[randomId]
+    try {
+      await Promise.all([
+        context.app.service(staticResourcePath).get(selectedAvatar.modelResourceId),
+        context.app.service(staticResourcePath).get(selectedAvatar.thumbnailResourceId)
+      ])
+      selectedAvatarId = selectedAvatar.id
+    } catch (err) {
+      console.log('error in getting resources')
+      avatars.data.splice(randomId, 1)
+      if (avatars.data.length < 1) throw new Error('All avatars are missing static resources')
+    }
+  }
+
   for (const item of data) {
-    if (item?.avatarId) {
+    if (selectedAvatarId) {
       const existingUserAvatar = await context.app.service(userAvatarPath).find({
         query: {
           userId: item.id
@@ -223,10 +194,10 @@ const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
       })
 
       if (existingUserAvatar.data.length === 0) {
-        await context.app.service(userAvatarPath).create({ userId: item.id, avatarId: item.avatarId })
-      } else if (existingUserAvatar.data[0].avatarId !== item.avatarId) {
+        await context.app.service(userAvatarPath).create({ userId: item.id, avatarId: selectedAvatarId })
+      } else if (existingUserAvatar.data[0].avatarId !== selectedAvatarId) {
         await context.app.service(userAvatarPath).patch(existingUserAvatar.data[0].id, {
-          avatarId: item.avatarId
+          avatarId: selectedAvatarId
         })
       }
     }
@@ -314,6 +285,34 @@ const handleUserSearch = async (context: HookContext<UserService>) => {
   }
 }
 
+const addLastLogin = async (context: HookContext<UserService>) => {
+  if (!context.result) return
+
+  const loggedInUser = context.params.user as UserType
+
+  const results = (
+    Array.isArray(context.result) ? context.result : 'data' in context.result ? context.result.data : [context.result]
+  ) as UserType[]
+
+  const hasUserReadScopes =
+    (await checkScope(loggedInUser, 'admin', 'admin')) || (await checkScope(loggedInUser, 'user', 'read'))
+
+  for (const item of results) {
+    const user = item as UserType
+    const hasAccess = hasUserReadScopes || loggedInUser.id === user.id
+    if (!hasAccess) continue
+
+    const lastLogin = await context.app.service(userLoginPath).find({
+      query: {
+        userId: user.id,
+        $sort: { createdAt: -1 },
+        $limit: 1
+      }
+    })
+    user.lastLogin = lastLogin.data[0]
+  }
+}
+
 export default createSkippableHooks(
   {
     around: {
@@ -337,8 +336,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('user', 'write')),
         schemaHooks.validateData(userDataValidator),
         schemaHooks.resolveData(userDataResolver),
-        persistData,
-        discard('scopes', 'avatarId')
+        persistData
       ],
       update: [disallow()],
       patch: [
@@ -346,19 +344,16 @@ export default createSkippableHooks(
         schemaHooks.validateData(userPatchValidator),
         schemaHooks.resolveData(userPatchResolver),
         persistData,
-        disallowNonId,
-        removeUserScopes,
-        addUserScopes(false),
-        discard('scopes', 'avatarId')
+        disallowNonId
       ],
       remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
     },
 
     after: {
       all: [],
-      find: [],
+      find: [iff(isProvider('external'), addLastLogin)],
       get: [],
-      create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode, addUpdateUserAvatar],
+      create: [addUserSettings, addApiKey, updateInviteCode, addUpdateUserAvatar],
       update: [],
       patch: [updateInviteCode, addUpdateUserAvatar],
       remove: []

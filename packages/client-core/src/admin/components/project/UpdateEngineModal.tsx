@@ -31,7 +31,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { useFind } from '@ir-engine/common'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectType, helmSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { ProjectType, ScopeType, helmSettingPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
@@ -39,6 +39,7 @@ import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { Engine } from '@ir-engine/ecs'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
@@ -62,12 +63,19 @@ export default function UpdateEngineModal() {
   const authState = useMutableState(AuthState)
   const user = authState.user
 
+  const scopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'projects:read' as ScopeType
+    }
+  })
+
   useEffect(() => {
-    if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
+    if (scopeQuery.data.length > 0) {
       ProjectService.fetchBuilderTags()
       ProjectService.getBuilderInfo()
     }
-  }, [user])
+  }, [scopeQuery.data.length > 0])
 
   const selectCommitTagOptions = projectState.builderTags.value.map((builderTag) => {
     const pushedDate = toDisplayDateTime(builderTag.pushedAt)

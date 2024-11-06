@@ -32,6 +32,7 @@ import {
   avatarPath,
   identityProviderPath,
   projectDestinationCheckPath,
+  scopePath,
   ScopeType,
   userApiKeyPath,
   UserApiKeyType,
@@ -73,10 +74,9 @@ describe('project-destination-check.test', () => {
 
     const testUser = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
-      isGuest: false,
-      scopes: [{ type: 'projects:read' as ScopeType }]
+      isGuest: false
     })
+    await app.service(scopePath).create({ userId: testUser.id, type: 'projects:read' as ScopeType })
 
     testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
 
