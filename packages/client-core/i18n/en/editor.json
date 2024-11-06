@@ -40,6 +40,7 @@
     "importAsset": "Import Asset",
     "importSettings": "Import Settings",
     "exportGLB": "Export as binary glTF (.glb) ...",
+    "exportLookdev": "Export Lookdev Prefab",
     "importScene": "Import scene",
     "exportScene": "Export scene",
     "quit": "Quit to Dashboard"
@@ -76,8 +77,8 @@
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
   },
-  "warnings" : {
-    "sceneComplexity" : "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
+  "warnings": {
+    "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
   },
   "viewport": {
     "title": "Viewport",
@@ -329,10 +330,17 @@
       "lbl-volume": "Volume",
       "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
+      "info-isMusic": "If true, the media will be treated as music and will not be spatialized (even if a spatial audio component exists).",
       "lbl-size": "Size",
       "seektime": "Start Time",
-      "lbl-mediaControls": "Media Controls"
+      "lbl-mediaControls": "Media Controls",
+      "info-mediaControls": "Control media playback (positional audio based on camera position)"
     },
+    "media-preview": {
+      "lbl-mediaPreview": "Media Preview",
+      "info-mediaPreview": "Preview the selected media (audio or video) source here in properties panel without spatial audio or a video texture in scene",
+      "lbl-selected-source": "Source to Preview"
+      },
     "mesh": {
       "name": "Mesh",
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
@@ -437,22 +445,23 @@
       "lbl-loopAnimation": "Loop Animation",
       "lbl-timeScale": "Time Scale",
       "lbl-animationPack": "Animation Pack (via Mixamo Rig)",
+      "lbl-useVRM": "Use VRM Retargeting",
       "lbl-paused": "Paused",
       "lbl-loop": "Loop"
     },
     "variant": {
       "name": "Variant",
       "description": "Load different assets based on heuristics",
+      "add-variant": "Add Variant",
+      "remove-variant": "Remove",
       "device": "Device",
       "device-mobile": "Mobile",
       "device-desktop": "Desktop",
       "device-xr": "XR",
       "heuristic": "Heuristic",
       "heuristic-distance": "Distance",
-      "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
       "heuristic-device": "Device",
-      "heuristic-budget": "Budget",
       "useDistance": "Use Distance",
       "textureSize": "Texture Size: ",
       "vertexCount": "Vertices: ",
@@ -780,7 +789,7 @@
     "cameraSettings": {
       "name": "Camera Settings",
       "description": "Adjust camera settings to optimize scene visualization, including projection type, field of view, and distance parameters.",
-      "lbl-projectionType" : "Projection Type",
+      "lbl-projectionType": "Projection Type",
       "lbl-fov": "Field of View",
       "lbl-calcClippingPlanes": "Calculate Clipping Planes",
       "lbl-projectionDistance": "Projection Distance",
@@ -922,6 +931,7 @@
       "lbl-url": "Link URL",
       "lbl-navigateScene": "Scene navigation",
       "lbl-locaiton": "Location Name",
+      "lbl-newTab": "Open in new tab",
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
@@ -1366,7 +1376,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "lbl-createPrefab": "Create Prefab",
+    "lbl-createPrefab": "Create Prefab", 
     "issues": "Issues",
     "copy-paste": {
       "no-hierarchy-nodes": "No hierarchy nodes found"
@@ -1554,19 +1564,8 @@
     "type": "Type",
     "tags": "Tags"
   },
-  "unsupportedBrowser": {
-    "title": "Browser Not Supported!",
-    "description": "Please use Google Chrome for the best experience with the iR Studio.",
-    "downloadChrome": "Download Chrome",
-    "continue": "Continue Anyway"
-  },
   "unsupportedFile": {
     "title": "Unsupported File Type!",
     "okay": "Okay"
-  },
-  "unsupportedDevice": {
-    "title": "Unsupported Device Type!",
-    "description": "We have detected you are using an unsupported device. You may experience errors using this device. If you want to have the best experience with IR Studio, please use a desktop running the latest version of Google Chrome. Thank you!",
-    "continue": "Continue Anyway"
   }
 }

@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import {
   AdditiveAnimationBlendMode,
@@ -37,7 +36,9 @@ import {
 
 import {
   defineComponent,
-  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -46,10 +47,9 @@ import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
-import { ModelComponent } from '../../scene/components/ModelComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
-import { AnimationComponent } from './AnimationComponent'
+import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const AnimationBlendMode = S.LiteralUnion(
   [NormalAnimationBlendMode, AdditiveAnimationBlendMode],
@@ -65,7 +65,7 @@ export const LoopAnimationComponent = defineComponent({
   schema: S.Object({
     activeClipIndex: S.Number(-1),
     animationPack: S.String(''),
-
+    useVRM: S.Bool(false),
     // TODO: support blending multiple animation actions. Refactor into AnimationMixerComponent and AnimationActionComponent
     enabled: S.Bool(true),
     paused: S.Bool(false),
@@ -88,25 +88,20 @@ export const LoopAnimationComponent = defineComponent({
     const entity = useEntityContext()
 
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
-    const modelComponent = useOptionalComponent(entity, ModelComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
-    const animationAction = loopAnimationComponent._action.value as AnimationAction
+    const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
 
     const lastAnimationPack = useHookstate('')
     useEffect(() => {
-      if (!animComponent?.animations?.value) return
+      if (!animComponent?.animations?.value || !rigComponent?.vrm) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
-      if (!modelComponent || !asset?.scene || !clip) {
+      if (!clip) {
         loopAnimationComponent._action.set(null)
         return
       }
       animComponent.mixer.time.set(0)
-      const assetObject = modelComponent.asset.get(NO_PROXY)
       try {
-        const action = animComponent.mixer.value.clipAction(
-          assetObject instanceof VRM ? bindAnimationClipFromMixamo(clip, assetObject) : clip
-        )
+        const action = animComponent.mixer.value.clipAction(clip)
         loopAnimationComponent._action.set(action)
         return () => {
           action.stop()
@@ -114,7 +109,17 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [loopAnimationComponent.activeClipIndex, modelComponent?.asset, animComponent?.animations])
+    }, [loopAnimationComponent.activeClipIndex, rigComponent?.vrm, animComponent?.animations])
+
+    useEffect(() => {
+      if (!loopAnimationComponent.useVRM.value && hasComponent(entity, AvatarRigComponent))
+        removeComponent(entity, AvatarRigComponent)
+      else if (loopAnimationComponent.useVRM.value && !hasComponent(entity, AvatarRigComponent)) {
+        setComponent(entity, AvatarRigComponent)
+      }
+    }, [loopAnimationComponent.useVRM.value])
+
+    const animationAction = loopAnimationComponent._action.value as AnimationAction
 
     useEffect(() => {
       if (!animationAction) return
@@ -134,18 +139,21 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!animationAction) return
       animationAction.time = loopAnimationComponent.time.value
-      animationAction.setLoop(loopAnimationComponent.loop.value, loopAnimationComponent.repetitions.value)
+      animationAction.setLoop(loopAnimationComponent.loop.value, loopAnimationComponent.repetitions.value ?? Infinity)
       animationAction.clampWhenFinished = loopAnimationComponent.clampWhenFinished.value
       animationAction.zeroSlopeAtStart = loopAnimationComponent.zeroSlopeAtStart.value
       animationAction.zeroSlopeAtEnd = loopAnimationComponent.zeroSlopeAtEnd.value
       animationAction.blendMode = loopAnimationComponent.blendMode.value
+      animationAction.loop = loopAnimationComponent.loop.value
     }, [
       loopAnimationComponent._action,
+      loopAnimationComponent.repetitions,
       loopAnimationComponent.blendMode,
       loopAnimationComponent.loop,
       loopAnimationComponent.clampWhenFinished,
       loopAnimationComponent.zeroSlopeAtStart,
-      loopAnimationComponent.zeroSlopeAtEnd
+      loopAnimationComponent.zeroSlopeAtEnd,
+      loopAnimationComponent.activeClipIndex
     ])
 
     useEffect(() => {
@@ -185,35 +193,30 @@ export const LoopAnimationComponent = defineComponent({
       }
     }, [])
 
-    /**
-     * A model is required for LoopAnimationComponent.
-     */
-    useEffect(() => {
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
-      if (!asset?.scene) return
-      const model = getComponent(entity, ModelComponent)
-    }, [modelComponent?.asset])
-
-    const [gltf] = useGLTF(loopAnimationComponent.animationPack.value, entity)
+    const animationPackGLTF = useLoadAnimationFromGLTF(loopAnimationComponent.animationPack.value, true)
 
     useEffect(() => {
-      const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (
-        !gltf ||
-        !animComponent ||
-        !asset?.scene ||
-        !loopAnimationComponent.animationPack.value ||
-        lastAnimationPack.value === loopAnimationComponent.animationPack.value
+        (!animationPackGLTF[0].value && loopAnimationComponent.animationPack.value !== '') ||
+        !animComponent?.animations.value ||
+        // gltfComponent?.progress.value !== 100 ||
+        (loopAnimationComponent.animationPack.value != '' &&
+          lastAnimationPack.value === loopAnimationComponent.animationPack.value)
       )
         return
 
       animComponent.mixer.time.set(0)
       animComponent.mixer.value.stopAllAction()
-      const animations = gltf.animations
-      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], gltf.scene)
+      const animations = animationPackGLTF[0].get(NO_PROXY) as AnimationClip[]
+      if (animations) {
+        for (let i = 0; i < animations.length; i++) {
+          retargetAnimationClip(animations[i], animationPackGLTF[1])
+          bindAnimationClipFromMixamo(animations[i])
+        }
+        animComponent.animations.set(animations)
+      }
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
-      animComponent.animations.set(animations)
-    }, [gltf, animComponent, modelComponent?.asset])
+    }, [animationPackGLTF])
 
     useEffect(() => {
       if (!animComponent?.animations) return

@@ -41,11 +41,10 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Input, RadioGroup } from '@ir-engine/ui'
 import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@ir-engine/ui/src/primitives/tailwind/MultiEmailInput'
-import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
@@ -203,7 +202,10 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       <div className="relative grid w-full gap-6">
         {invite?.id ? (
           <Input
-            label={t('admin:components.invite.recipients')}
+            labelProps={{
+              text: t('admin:components.invite.recipients'),
+              position: 'top'
+            }}
             value={emailRecipients[0].value}
             onChange={() => {}}
             disabled={true}
@@ -266,7 +268,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             />
             {spawnSelected.value && (
               <>
-                <Radios
+                <RadioGroup
                   horizontal
                   options={spawnTypeOptions.map((option) => ({
                     value: option,
@@ -322,20 +324,26 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           <div className="flex justify-between">
             <Input
               type="datetime-local"
-              className="w-auto"
-              label={t('admin:components.invite.startTime')}
+              labelProps={{
+                text: t('admin:components.invite.startTime'),
+                position: 'top'
+              }}
               value={inviteStartTime.value}
               onChange={(event) => inviteStartTime.set(event.target.value)}
-              error={errors.startTime.value}
+              helperText={errors.startTime.value}
+              state={errors.startTime.value ? 'error' : undefined}
               disabled={submitLoading.value}
             />
             <Input
               type="datetime-local"
-              className="w-auto"
-              label={t('admin:components.invite.endTime')}
+              labelProps={{
+                text: t('admin:components.invite.endTime'),
+                position: 'top'
+              }}
               value={inviteEndTime.value}
               onChange={(event) => inviteEndTime.set(event.target.value)}
-              error={errors.endTime.value}
+              helperText={errors.endTime.value}
+              state={errors.endTime.value ? 'error' : undefined}
               disabled={submitLoading.value}
             />
           </div>

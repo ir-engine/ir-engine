@@ -38,8 +38,8 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'

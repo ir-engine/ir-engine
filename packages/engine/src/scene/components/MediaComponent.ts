@@ -137,7 +137,7 @@ export const MediaComponent = defineComponent({
   schema: S.Object({
     controls: S.Bool(false),
     synchronize: S.Bool(true),
-    autoplay: S.Bool(true),
+    autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
     uiOffset: S.Vec3(),
     xruiEntity: S.Entity(),
     volume: S.Number(1),
@@ -561,8 +561,14 @@ export function getNextTrack(currentTrack: number, trackCount: number, currentMo
       return -1
     }
   } else if (currentMode == PlayMode.random) {
-    // todo: smart random, i.e., lower probability of recently played tracks
-    nextTrack = Math.floor(Math.random() * trackCount)
+    // random shuffle, don't play the same track again unless it is the only track
+    nextTrack = Math.floor(Math.random() * (trackCount - 1))
+    if (nextTrack >= currentTrack && currentTrack >= 0) {
+      nextTrack += 1
+    }
+    if (nextTrack >= trackCount) {
+      nextTrack = trackCount - 1
+    }
   } else if (currentMode == PlayMode.singleloop) {
     nextTrack = currentTrack
   } else {
