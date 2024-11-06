@@ -251,7 +251,8 @@ export const KHRClearcoatExtensionComponent = defineComponent({
 
       if (component.clearcoatNormalTexture.value?.scale !== undefined) {
         const scale = component.clearcoatNormalTexture.value.scale
-        material.setValues({ clearcoatNormalScale: new Vector2(scale, scale) })
+        // https://github.com/mrdoob/three.js/issues/11438#issuecomment-507003995
+        material.setValues({ clearcoatNormalScale: new Vector2(scale, -scale) })
       }
 
       material.setValues({ clearcoatNormalMap })
@@ -468,7 +469,7 @@ export const KHRVolumeExtensionComponent = defineComponent({
     thicknessFactor: S.Optional(S.Number()),
     thicknessTexture: S.Optional(TextureInfoSchema),
     attenuationDistance: S.Optional(S.Number()),
-    attenuationColorFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()]))
+    attenuationColor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()]))
   }),
 
   reactor: () => {
@@ -493,18 +494,18 @@ export const KHRVolumeExtensionComponent = defineComponent({
     }, [materialStateComponent.material.value.type, component.attenuationDistance.value])
 
     useEffect(() => {
-      if (!component.attenuationColorFactor.value) return
+      if (!component.attenuationColor.value) return
       const material = materialStateComponent.material.value as MeshPhysicalMaterial
       material.setValues({
         attenuationColor: new Color().setRGB(
-          component.attenuationColorFactor.value[0],
-          component.attenuationColorFactor.value[1],
-          component.attenuationColorFactor.value[2],
+          component.attenuationColor.value[0],
+          component.attenuationColor.value[1],
+          component.attenuationColor.value[2],
           LinearSRGBColorSpace
         )
       })
       material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.attenuationColorFactor.value])
+    }, [materialStateComponent.material.value.type, component.attenuationColor.value])
 
     const options = getParserOptions(entity)
     const thicknessMap = GLTFLoaderFunctions.useAssignTexture(options, component.thicknessTexture.get(NO_PROXY))

@@ -30,7 +30,6 @@ import {
   AnimationMixer,
   Bone,
   BufferGeometry,
-  Color,
   Group,
   LoaderUtils,
   MathUtils,
@@ -978,11 +977,7 @@ const CameraReactor = (props: { nodeIndex: number; documentID: string; entity: E
   return null
 }
 
-const defaultMaterial = new MeshStandardMaterial({
-  transparent: true,
-  color: new Color(1, 0, 0),
-  opacity: 0
-})
+const defaultMaterial = () => new MeshStandardMaterial()
 
 const PrimitiveReactor = (props: {
   isSinglePrimitive: boolean
@@ -1015,7 +1010,7 @@ const PrimitiveReactor = (props: {
     //   array[primitive.material!] = getComponent(UUIDComponent.getEntityByUUID(materialUUID), MaterialStateComponent).material
     // })
 
-    const material = props.isSinglePrimitive ? defaultMaterial : meshDef.primitives.map(() => defaultMaterial)
+    const material = props.isSinglePrimitive ? defaultMaterial() : meshDef.primitives.map(() => defaultMaterial())
     const mesh =
       typeof node.skin !== 'undefined'
         ? new SkinnedMesh(finalGeometry as BufferGeometry)
