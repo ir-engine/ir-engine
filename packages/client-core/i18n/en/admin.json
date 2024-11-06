@@ -27,7 +27,7 @@
       "selectScene": "Select a Scene",
       "sceneCantEmpty": "Scene can't be empty",
       "maxUserCantEmpty": "Max users can't be empty",
-      "maxUserExceeded": "You have entered higher than the allowed max users. Please enter a number between 1 and 10.",
+      "maxUserExceeded": "You have entered higher than the allowed max users. Please enter a number between 1 and 5.",
       "nameCantEmpty": "Name can't be empty",
       "typeCantEmpty": "Type can't be empty",
       "nameRequired": "Name is required",
