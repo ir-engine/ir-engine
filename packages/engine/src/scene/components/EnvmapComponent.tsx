@@ -77,8 +77,6 @@ import { SourceComponent } from './SourceComponent'
 
 const tempColor = new Color()
 
-const envMapSourceType = S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.None)
-
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
   jsonID: 'EE_envmap',
@@ -148,7 +146,6 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       if (!envMapTexture) return
-
       envMapTexture.mapping = EquirectangularReflectionMapping
       component.envmap.set(envMapTexture)
     }, [envMapTexture])
@@ -233,6 +230,7 @@ export const EnvmapComponent = defineComponent({
 const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Entity; childrenMesh: Entity[] }) => {
   const { envmapEntity, bakeEntity } = props
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
+
   const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
 
   useEffect(() => {
@@ -263,13 +261,11 @@ export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null)
     obj.material.forEach((mat: MeshStandardMaterial) => {
       if (mat instanceof MeshMatcapMaterial) return
       mat.envMap = envmap
-      mat.needsUpdate = true
     })
   } else {
     if (obj.material instanceof MeshMatcapMaterial) return
     const material = obj.material as MeshStandardMaterial
     material.envMap = envmap
-    material.needsUpdate = true
   }
 }
 
