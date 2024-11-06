@@ -42,10 +42,9 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
+import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../tests/util/mathAssertions'
 import { NameComponent } from '../common/NameComponent'
 import { Axis, Vector3_Zero } from '../common/constants/MathConstants'
-import { addObjectToGroup } from '../renderer/components/GroupComponent'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { SceneComponent } from '../renderer/components/SceneComponents'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
@@ -63,9 +62,8 @@ import { ColliderComponent } from './components/ColliderComponent'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
 import { BodyTypes, Shapes } from './types/PhysicsTypes'
 
-import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../tests/util/mathAssertions'
-import '../transform/TransformModule'
-import './PhysicsModule'
+// import '../transform/TransformModule'
+// import './PhysicsModule'
 
 const execute = {
   physicsSystem: SystemDefinitions.get(PhysicsSystem)!.execute, // with: SimulationSystemGroup
@@ -130,7 +128,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
     beforeEach(async () => {
       createEngine()
-      mockSpatialEngine()
+      // mockSpatialEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
       setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
@@ -168,7 +166,6 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       setComponent(testEntity, VisibleComponent)
       setComponent(testEntity, TransformComponent)
       const mesh = new Mesh(new BoxGeometry())
-      addObjectToGroup(testEntity, mesh)
       setComponent(testEntity, MeshComponent, mesh)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
       setComponent(testEntity, ColliderComponent)
@@ -256,7 +253,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
     beforeEach(async () => {
       createEngine()
-      mockSpatialEngine()
+      // mockSpatialEngine()
       await Physics.load()
       physicsWorldEntity = createEntity()
       setComponent(physicsWorldEntity, NameComponent, 'physicsWorldEntity')

@@ -77,7 +77,7 @@ export const metabaseCrashDashboard = async (context: HookContext<MetabaseUrlSer
   }
 
   const token = Jwt.sign(payload, METABASE_SECRET_KEY!)
-  context.dispatch = METABASE_SITE_URL + '/embed/dashboard/' + token + '#theme=transparent&bordered=false&titled=false'
+  context.dispatch = METABASE_SITE_URL + '/embed/dashboard/' + token + '#theme=transparent&bordered=false&titled=true'
 }
 
 export default {

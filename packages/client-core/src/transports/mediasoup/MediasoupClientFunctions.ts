@@ -427,7 +427,6 @@ export const connectToNetwork = async (
 
   network.primus.on('data', (message) => {
     if (!message) return
-    console.log('MESSAGE', message)
     network.onMessage(network.hostPeerID, message)
   })
 

@@ -28,7 +28,7 @@ import assert from 'assert'
 import { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { AvatarID, UserName, userPath } from '@ir-engine/common/src/schema.type.module'
+import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { EventDispatcher, createState } from '@ir-engine/hyperflux'
 
@@ -199,7 +199,7 @@ describe('FeathersHooks', () => {
         rerender()
       })
       await act(() => {
-        result.current.create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+        result.current.create({ name: 'Jack' as UserName, isGuest: true })
       })
       const findHook = renderHook(() => {
         return useFind(userPath)
@@ -287,9 +287,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          API.instance
-            .service(userPath)
-            .create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+          API.instance.service(userPath).create({ name: 'Jack' as UserName, isGuest: true })
         })
         await act(() => {
           rerender()
@@ -310,9 +308,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          API.instance
-            .service(userPath)
-            .create({ name: 'Jack' as UserName, avatarId: '' as AvatarID, isGuest: true, scopes: [] })
+          API.instance.service(userPath).create({ name: 'Jack' as UserName, isGuest: true })
         })
         await act(() => {
           rerender()

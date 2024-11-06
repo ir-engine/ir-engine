@@ -31,9 +31,12 @@ export enum CollisionGroups {
   Trigger = 1 << 3
 }
 
+/** Default | Avatars | Ground */
 export const DefaultCollisionMask = CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground
 
+/** Default | Ground | Trigger */
 export const AvatarCollisionMask = CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
 
+/** Default | Avatars | Ground | Trigger */
 export const AllCollisionMask =
   CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground | CollisionGroups.Trigger

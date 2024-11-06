@@ -1,1 +1,26 @@
 @import "tailwindcss/components";
+
+.stars {
+  box-shadow: 
+    5rem 2rem 0 rgb(255 255 255 / 80%),
+    3rem 5rem 0 rgb(255 255 255 / 50%),
+    5rem 7rem 0 rgb(255 255 255 / 80%),
+    13rem 10rem 0 rgb(255 255 255 / 70%),
+    4rem 13rem 0 rgb(255 255 255 / 90%),
+    32rem 13rem 0 rgb(255 255 255 / 40%),
+    10rem 6rem 2px rgb(255 255 255 / 80%),
+    12rem 6rem 2px rgb(255 255 255 / 80%),
+    33rem 9rem 3px rgb(255 255 255 / 60%),
+    20rem 2rem 2px rgb(255 255 255 / 90%),
+    22rem 4rem 2px rgb(255 255 255 / 60%),
+    29rem 9rem 3px rgb(255 255 255 / 50%),
+    30rem 3rem 2px rgb(255 255 255 / 70%),
+    33rem 5rem 0 rgb(255 255 255 / 90%),
+    27rem 4rem 2px rgb(255 255 255 / 80%),
+    24rem 7rem 2px rgb(255 255 255 / 95%),
+    13rem 3rem 0 rgb(255 255 255 / 50%),
+    15rem 5rem 0 rgb(255 255 255 / 80%),
+    6rem 9rem 1px rgb(255 255 255 / 90%),
+    23rem 1rem 2px rgb(255 255 255 / 60%),
+    25rem 11rem 2px rgb(255 255 255 / 90%)
+}
