@@ -73,6 +73,8 @@ export default class EEECSImporterExtension extends ImporterExtension implements
             ecsExtensions[jsonID] = newUUID
             remappedUUIDs[uuid] = newUUID
           }
+          //generate entity now
+          UUIDComponent.getOrCreateEntityByUUID(ecsExtensions[jsonID])
         }
         const compData = ecsExtensions[jsonID]
         componentJson.push({
