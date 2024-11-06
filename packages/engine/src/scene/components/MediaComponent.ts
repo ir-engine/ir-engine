@@ -193,11 +193,10 @@ export function MediaReactor() {
   if (!isClient) return null
 
   function validateTime() {
-    const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-    const element = mediaElementState.element.value as HTMLMediaElement
-    console.log('element.currentTime = ' + element.currentTime)
+    const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
+    const element = mediaElementComponent.element.value as HTMLMediaElement
     if (element.currentTime < media.seekTime.value) {
-      setTime(mediaElementState.element, media.seekTime.value)
+      setTime(mediaElementComponent.element, media.seekTime.value)
     }
   }
 
