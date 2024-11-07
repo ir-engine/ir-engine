@@ -107,7 +107,8 @@ export const identityProviderQuerySchema = Type.Intersect(
         $like: Type.String()
       },
       email: {
-        $like: Type.String()
+        $like: Type.String(),
+        $notlike: Type.String()
       }
     }),
     // Add additional query properties here

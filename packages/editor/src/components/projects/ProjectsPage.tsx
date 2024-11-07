@@ -30,17 +30,22 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
 import { useFind } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
+import {
+  ProjectType,
+  ScopeType,
+  identityProviderPath,
+  projectPath,
+  scopePath
+} from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
+import { Engine } from '@ir-engine/ecs'
+import { Checkbox, Input } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -167,8 +172,26 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
       $sort: { name: 1 }
     }
   })
-  const hasWriteAccess =
-    projectContextState.project?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
+
+  const adminScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'admin:admin' as ScopeType
+    }
+  })
+
+  const hasAdminAccess = adminScopeQuery.data.length > 0
+
+  const editorScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'projects:write' as ScopeType
+    }
+  })
+
+  const hasProjectAccess = editorScopeQuery.data.length > 0
+
+  const hasWriteAccess = projectContextState.project?.hasWriteAccess || (hasAdminAccess && hasProjectAccess)
 
   const installedProjects = projectFindQuery.data.filter(() => projectCategoryFilter.installed.value)
 
@@ -326,7 +349,8 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
   const authState = useMutableState(AuthState)
   const authUser = authState.authUser
   const user = authState.user
-  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const githubProvider = identityProvidersQuery.data.find((ip) => ip.type === 'github')
 
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
 
@@ -385,17 +409,17 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
         <div className="flex w-fit flex-col gap-4 rounded-lg border bg-neutral-900 p-2 shadow-lg">
           <Checkbox
             label={t('editor.projects.installed')}
-            value={projectCategoryFilter.installed.value}
+            checked={projectCategoryFilter.installed.value}
             onChange={() => toggleFilter('installed')}
           />
           <Checkbox
             label={t('editor.projects.official')}
-            value={projectCategoryFilter.official.value}
+            checked={projectCategoryFilter.official.value}
             onChange={() => toggleFilter('official')}
           />
           <Checkbox
             label={t('editor.projects.community')}
-            value={projectCategoryFilter.community.value}
+            checked={projectCategoryFilter.community.value}
             onChange={() => toggleFilter('community')}
           />
         </div>

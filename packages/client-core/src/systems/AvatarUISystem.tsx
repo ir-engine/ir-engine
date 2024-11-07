@@ -141,7 +141,7 @@ const onSecondaryClick = () => {
   const state = getMutableState(AvatarUIContextMenuState)
   if (hits.length) {
     const hit = hits[0]
-    const hitEntity = (hit.body?.userData as any)?.entity as Entity
+    const hitEntity = hit.body.entity
     if (typeof hitEntity !== 'undefined' && hitEntity !== AvatarComponent.getSelfAvatarEntity()) {
       if (hasComponent(hitEntity, NetworkObjectComponent)) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId

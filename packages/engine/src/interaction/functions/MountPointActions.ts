@@ -27,7 +27,7 @@ import matches from 'ts-matches'
 
 import { EntityUUID, matchesEntityUUID } from '@ir-engine/ecs'
 import { defineAction, defineState, getMutableState, none } from '@ir-engine/hyperflux'
-import { NetworkTopics } from '@ir-engine/network'
+import { NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
 
 export class MountPointActions {
   static mountInteraction = defineAction({
@@ -41,12 +41,44 @@ export class MountPointActions {
 
 export const MountPointState = defineState({
   name: 'MountPointState',
-  initial: {} as Record<EntityUUID, EntityUUID>,
+  initial: () => ({
+    mountsToMountedEntities: {} as Record<EntityUUID, EntityUUID>,
+    mountedEntitiesToMounts: {} as Record<EntityUUID, EntityUUID>
+  }),
+
   receptors: {
     onMountInteraction: MountPointActions.mountInteraction.receive((action) => {
       const state = getMutableState(MountPointState)
-      if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
-      else state[action.targetMount].set(none)
+      if (action.mounted) {
+        addEntry(action.targetMount, action.mountedEntity)
+      } else {
+        removeEntry(action.targetMount, action.mountedEntity)
+      }
+    }),
+    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
+      onEntityDestroyed(action.entityUUID)
     })
   }
 })
+
+const addEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
+  const state = getMutableState(MountPointState)
+  state.mountsToMountedEntities[targetMount].set(mountedEntity)
+  state.mountedEntitiesToMounts[mountedEntity].set(targetMount)
+}
+
+const removeEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
+  const state = getMutableState(MountPointState)
+  state.mountsToMountedEntities[targetMount].set(none)
+  state.mountedEntitiesToMounts[mountedEntity].set(none)
+}
+
+const onEntityDestroyed = (entityUUID: EntityUUID) => {
+  const state = getMutableState(MountPointState)
+  if (entityUUID in state.mountedEntitiesToMounts.value) {
+    const mountUUID = state.mountedEntitiesToMounts[entityUUID].value
+    if (mountUUID) {
+      removeEntry(mountUUID, entityUUID)
+    }
+  }
+}

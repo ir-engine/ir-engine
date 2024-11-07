@@ -32,7 +32,8 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -46,6 +47,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
@@ -90,10 +92,21 @@ export const AvatarControllerComponent = defineComponent({
     const isCameraAttachedToAvatar = XRState.useCameraAttachedToAvatar()
     const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
     const world = Physics.useWorld(entity)
+    const gltfComponent = useOptionalComponent(entity, GLTFComponent)
 
     useImmediateEffect(() => {
       avatarControllerComponent.cameraEntity.set(getState(EngineState).viewerEntity || UndefinedEntity)
     }, [])
+
+    useEffect(() => {
+      if (!gltfComponent) return
+
+      if (gltfComponent.progress.value !== 100) {
+        AvatarControllerComponent.captureMovement(entity, entity)
+      } else {
+        AvatarControllerComponent.releaseMovement(entity, entity)
+      }
+    }, [gltfComponent?.progress?.value])
 
     useEffect(() => {
       if (!world) return

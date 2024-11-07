@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import BooleanInput from '../../input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import InputGroup from '../../input/Group'
 import { ControlledStringInput } from '../../input/String'
 
@@ -81,7 +81,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
             </div>
           ))
         : null}
-      <InputGroup name="Navigate Path" label={t('editor:properties.linkComp.lbl-navigateScene')}>
+      {/* <InputGroup name="Navigate Path" label={t('editor:properties.linkComp.lbl-navigateScene')}>
         <BooleanInput value={linkComponent.sceneNav.value} onChange={commitProperty(LinkComponent, 'sceneNav')} />
       </InputGroup>
 
@@ -101,7 +101,17 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
             onRelease={commitProperty(LinkComponent, 'url')}
           />
         </InputGroup>
-      )}
+      )} */}
+      <InputGroup name="Redirect" label={t('editor:properties.linkComp.lbl-newTab')}>
+        <Checkbox checked={linkComponent.newTab.value} onChange={commitProperty(LinkComponent, 'newTab')} />
+      </InputGroup>
+      <InputGroup name="LinkUrl" label={t('editor:properties.linkComp.lbl-url')}>
+        <ControlledStringInput
+          value={linkComponent.url.value}
+          onChange={updateProperty(LinkComponent, 'url')}
+          onRelease={commitProperty(LinkComponent, 'url')}
+        />
+      </InputGroup>
     </NodeEditor>
   )
 }

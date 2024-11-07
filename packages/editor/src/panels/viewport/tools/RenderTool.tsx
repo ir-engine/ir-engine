@@ -30,7 +30,7 @@ import { ShadowMapResolutionOptions } from '@ir-engine/client-core/src/user/comp
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
@@ -100,11 +100,7 @@ const RenderModeTool = () => {
             containerClassName="justify-between"
             className="w-8"
           >
-            <BooleanInput
-              className="bg-gray-500 hover:border-0"
-              value={rendererState.usePostProcessing.value}
-              onChange={handlePostProcessingChange}
-            />
+            <Checkbox checked={rendererState.usePostProcessing.value} onChange={handlePostProcessingChange} />
           </InputGroup>
           <InputGroup
             name="Shadow Map Resolution"

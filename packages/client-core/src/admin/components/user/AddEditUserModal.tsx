@@ -24,19 +24,17 @@ import { useTranslation } from 'react-i18next'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation } from '@ir-engine/common'
 import {
-  AvatarID,
   ScopeType,
-  UserData,
-  UserName,
-  UserPatch,
   UserType,
   avatarPath,
+  identityProviderPath,
+  scopePath,
   scopeTypePath,
-  userPath
+  userAvatarPath
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@ir-engine/ui/src/primitives/tailwind/MultiSelect'
@@ -53,12 +51,24 @@ const getDefaultErrors = () => ({
 export default function AddEditUserModal({ user }: { user?: UserType }) {
   const { t } = useTranslation()
 
-  const userMutation = useMutation(userPath)
+  const scopeMutation = useMutation(scopePath)
   const avatarsQuery = useFind(avatarPath, {
     query: {
       action: 'admin'
     }
   })
+  const userScopesQuery = useFind(scopePath, {
+    query: {
+      userId: user?.id,
+      paginate: false
+    }
+  })
+  const userAvatarQuery = useFind(userAvatarPath, {
+    query: {
+      userId: user?.id
+    }
+  })
+  const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
   const avatarOptions: SelectOptionsType[] =
     avatarsQuery.status === 'success'
       ? [
@@ -80,27 +90,35 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
         ]
       : [{ label: t('common:select.fetching'), value: '', disabled: true }]
 
-  if (user) {
-    for (const scope of user.scopes || []) {
+  if (user && userScopesQuery.status === 'success') {
+    for (const scope of userScopesQuery.data) {
       const scopeExists = scopeTypeOptions.find((st) => st.value === scope.type)
       if (!scopeExists) {
         scopeTypeOptions.push({ label: scope.type, value: scope.type })
       }
     }
 
-    if ((!avatarOptions.find((av) => av.value === user.avatarId) && user.avatar) || user.avatarId) {
-      avatarOptions.push({ label: user.avatar?.name || user.avatarId, value: user.avatarId })
+    if (!avatarOptions.find((av) => av.value === userAvatar?.avatarId) && userAvatar?.avatarId) {
+      avatarOptions.push({ label: userAvatar.avatar.name || userAvatar.avatarId, value: userAvatar.avatarId })
     }
   }
+
+  const identityProvidersQuery = useFind(identityProviderPath, { query: { userId: user?.id } })
 
   const submitLoading = useHookstate(false)
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(user?.name || '')
-  const avatarId = useHookstate(user?.avatarId || '')
-  const scopes = useHookstate(user?.scopes || [])
+  const avatarId = useHookstate(userAvatar?.avatarId || '')
+  const scopes = useHookstate<Array<{ type: ScopeType }>>([])
+
+  useEffect(() => {
+    scopes.set(userScopesQuery.data.map((scope) => ({ type: scope.type })))
+  }, [userScopesQuery.data, user])
 
   const handleSubmit = async () => {
+    if (!user?.id) return
+
     errors.set(getDefaultErrors())
 
     if (!name.value) {
@@ -113,18 +131,25 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       return
     }
 
-    const userData: UserData = {
-      name: name.value as UserName,
-      avatarId: avatarId.value as AvatarID,
-      isGuest: user?.isGuest,
-      scopes: scopes.value.map((scope) => ({ type: scope.type }))
-    }
     submitLoading.set(true)
     try {
-      if (user?.id) {
-        await userMutation.patch(user.id, userData as UserPatch)
-      } else {
-        await userMutation.create(userData)
+      const scopesToCreate = scopes.value
+        .filter((scope) => !userScopesQuery.data.find((current) => current.type === scope.type))
+        .map((scope) => ({ type: scope.type, userId: user.id }))
+      if (scopesToCreate.length > 0) {
+        await scopeMutation.create(scopesToCreate)
+      }
+      const scopesToRemove = userScopesQuery.data
+        .filter((current) => !scopes.value.find((scope) => scope.type === current.type))
+        .map((scope) => scope.id)
+      if (scopesToRemove.length > 0) {
+        await scopeMutation.remove(null, {
+          query: {
+            id: {
+              $in: scopesToRemove
+            }
+          }
+        })
       }
       PopoverState.hidePopupover()
     } catch (error) {
@@ -135,16 +160,8 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
   }
 
   useEffect(() => {
-    if (avatarsQuery.data && user) {
-      avatarId.set(user?.avatarId)
-    }
-  }, [avatarsQuery.data, user])
-
-  useEffect(() => {
-    if (scopeTypesQuery.data && user) {
-      scopes.set(user.scopes)
-    }
-  }, [scopeTypesQuery.data, user])
+    if (userAvatar) avatarId.set(userAvatar.avatarId)
+  }, [userAvatar])
 
   return (
     <Modal
@@ -157,11 +174,15 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       <div className="relative grid w-full gap-6">
         {errors.serviceError.value ? <p className="mt-2 text-red-700">{errors.serviceError.value}</p> : null}
         <Input
-          label={t('admin:components.user.name')}
+          labelProps={{
+            text: t('admin:components.user.name'),
+            position: 'top'
+          }}
           placeholder={t('admin:components.user.namePlaceholder')}
           value={name.value}
           onChange={(event) => name.set(event.target.value)}
-          error={errors.name.value}
+          state={errors.name.value ? 'error' : undefined}
+          helperText={errors.name.value}
         />
         <div className="grid gap-3">
           <MultiSelect
@@ -195,9 +216,17 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
           menuClassname="min-h-52"
         />
         {user?.inviteCode && (
-          <Input disabled label={t('admin:components.user.inviteCode')} onChange={() => {}} value={user.inviteCode} />
+          <Input
+            disabled
+            labelProps={{
+              text: t('admin:components.user.inviteCode'),
+              position: 'top'
+            }}
+            onChange={() => {}}
+            value={user.inviteCode}
+          />
         )}
-        {user?.id && user.identityProviders.filter((ip) => ip.type !== 'guest').length > 0 ? (
+        {user?.id && identityProvidersQuery.data.filter((ip) => ip.type !== 'guest').length > 0 ? (
           <div className="grid gap-2">
             <Label>{t('admin:components.user.linkedAccounts')}</Label>
             <AccountIdentifiers user={user} />
