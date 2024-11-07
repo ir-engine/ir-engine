@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Paginated, Params } from '@feathersjs/feathers'
+import { ScopeTypeType, scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
+import { scopePath } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarType, avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -78,15 +80,28 @@ export const createUserApiKey = async (app: Application, user: UserType) => {
  * @returns
  */
 export const createUser = async (app: Application) => {
-  const avatarId = await getAvatarId(app)
   const code = crypto.randomBytes(4).toString('hex') as InviteCode
 
   const user = await app.service(userPath).create({
     name: `User ${v1()}` as UserName,
-    inviteCode: code,
-    avatarId
+    inviteCode: code
   })
 
+  return user
+}
+
+export const createAdmin = async (app: Application) => {
+  const user = await createUser(app)
+  const scopeType = (await app.service(scopeTypePath).find({
+    paginate: false
+  })) as any as ScopeTypeType[]
+
+  await app.service(scopePath).create(
+    scopeType.map((scope) => ({
+      type: scope.type,
+      userId: user.id
+    }))
+  )
   return user
 }
 

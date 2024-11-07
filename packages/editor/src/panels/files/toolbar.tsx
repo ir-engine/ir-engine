@@ -25,12 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { Checkbox, Input } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
-import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -161,16 +159,13 @@ const ViewModeSettings = () => {
             </div>
             <div>
               {availableTableColumns.map((column, index) => (
-                <InputGroup
+                <Checkbox
+                  checked={viewModeSettings.list.selectedTableColumns[column].value}
+                  onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
                   label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
-                  dataTestId={`files-panel-view-mode-list-options-column-${column}`}
+                  data-testid={`files-panel-view-mode-list-options-column-${column}`}
                   key={index}
-                >
-                  <BooleanInput
-                    value={viewModeSettings.list.selectedTableColumns[column].value}
-                    onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                  />
-                </InputGroup>
+                />
               ))}
             </div>
           </div>
@@ -250,9 +245,7 @@ export default function FilesToolbar() {
             onChange={(e) => {
               filesState.searchText.set(e.target.value)
             }}
-            labelClassname="text-sm text-red-500"
-            containerClassName="flex h-full w-auto rounded-lg overflow-hidden"
-            className="h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+            variantSize="xs"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
             data-testid="files-panel-search-input"
           />

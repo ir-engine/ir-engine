@@ -37,17 +37,18 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+
+import { GroupComponent } from '../../renderer/components/GroupComponent'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { EngineState } from '../../EngineState'
-import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
+import { EntityTreeComponent } from '../components/EntityTree'
 import { composeMatrix, TransformComponent } from '../components/TransformComponent'
 import { TransformSerialization } from '../TransformSerialization'
 

@@ -160,7 +160,8 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       {envmapComponent.type.value !== EnvMapSourceType.None && (
         <Slider
           min={0}
-          max={20}
+          step={0.01}
+          max={10}
           value={envmapComponent.envMapIntensity.value}
           onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
           onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}

@@ -150,7 +150,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
       )}
 
       <Input
-        className="w-full"
+        fullWidth
         value={state.currentEmail.value}
         placeholder={t('common:multiEmailInput.placeholder')}
         onKeyDown={handleKeyDown}

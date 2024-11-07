@@ -25,12 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineState } from '@ir-engine/hyperflux'
 
-import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
+import { Entity } from '@ir-engine/ecs'
 
 export const AnimationState = defineState({
   name: 'AnimationState',
   initial: () => ({
-    loadedAnimations: {} as Record<string, GLTF>,
+    loadedAnimations: {} as Record<string, Entity>,
     avatarLoadingEffect: false
   })
 })

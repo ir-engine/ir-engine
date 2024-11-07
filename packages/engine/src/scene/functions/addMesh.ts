@@ -28,8 +28,8 @@ import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/Gro
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { Mesh } from 'three'
-import { proxifyParentChildRelationships } from './loadGLTFModel'
 
 /**
  * Helper function for attaching a mesh to a scene entity
