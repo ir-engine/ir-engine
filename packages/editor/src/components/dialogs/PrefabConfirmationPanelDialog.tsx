@@ -24,11 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { Entity } from '@ir-engine/ecs'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-export default function PrefabConfirmationPanelDialog({ entity }: { entity: Entity }) {
+export default function PrefabConfirmationPanelDialog() {
   const { t } = useTranslation()
 
   return (

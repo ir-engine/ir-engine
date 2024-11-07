@@ -35,12 +35,11 @@ import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import Text from '@ir-engine/client-core/src/common/components/Text'
 import { useFind, useMutation } from '@ir-engine/common'
 import { AvatarID, avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
-import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { hasComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
 import { AvatarState } from '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
-import { LocalAvatarState } from '@ir-engine/engine/src/avatar/state/AvatarState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
@@ -49,6 +48,7 @@ import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
@@ -63,7 +63,8 @@ const AvatarMenu = () => {
   const userId = authState.user?.id?.value
   const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
   const avatarLoading = useHookstate(false)
-  const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
+  const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
+  const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
   const [createAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.CreateAvatar])
 
@@ -118,11 +119,11 @@ const AvatarMenu = () => {
   }
 
   useEffect(() => {
-    if (avatarLoading.value && isUserReady.value) {
+    if (avatarLoading.value && selfAvatarLoaded) {
       avatarLoading.set(false)
       PopupMenuServices.showPopupMenu()
     }
-  }, [isUserReady, avatarLoading])
+  }, [selfAvatarLoaded, avatarLoading])
 
   return (
     <Menu

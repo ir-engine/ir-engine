@@ -23,42 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneList, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Box3, Matrix4, Vector3 } from 'three'
+import { VRM, VRMHumanBone, VRMHumanBoneList } from '@pixiv/three-vrm'
+import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
 
-// import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
-import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { ModelComponent } from '../../scene/components/ModelComponent'
+import { AnimationState } from '../AnimationManager'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { preloadedAnimations } from '../animation/Util'
-import { AnimationState } from '../AnimationManager'
-import avatarBoneMatching from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
-import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
-import { LocalAvatarState } from '../state/AvatarState'
-import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -67,54 +48,6 @@ declare module '@pixiv/three-vrm/types/VRM' {
       retargeted?: boolean
     }
   }
-}
-/** Checks if the asset is a VRM. If not, attempt to use
- *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
-export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
-  const scene = model.scene ?? model // FBX assets do not have 'scene' property
-  if (!scene) return null!
-  let foundModel = model
-  //sometimes, for some exporters, the vrm object is stored in the userData
-  if (model.userData?.vrm instanceof VRM) {
-    if (model.userData.vrmMeta.metaVersion > 0) return model.userData.vrm
-    foundModel = model.userData.vrm
-  }
-
-  //vrm0 is an instance of the vrm object
-  if (foundModel instanceof VRM) {
-    const bones = foundModel.humanoid.rawHumanBones
-    foundModel.humanoid.normalizedHumanBonesRoot.removeFromParent()
-    bones.hips.node.rotateY(Math.PI)
-    const humanoid = new VRMHumanoid(bones)
-    const vrm = new VRM({
-      ...foundModel,
-      humanoid,
-      scene: foundModel.scene,
-      meta: { name: foundModel.scene.children[0].name } as VRM1Meta
-    })
-    if (!vrm.userData) vrm.userData = {}
-    return vrm
-  }
-
-  return avatarBoneMatching(foundModel)
-}
-
-/**tries to load avatar model asset if an avatar is not already pending */
-export const loadAvatarModelAsset = (entity: Entity, avatarURL: string) => {
-  if (!avatarURL) return
-  //check if the url to the file is an avaturn url to infer the file type
-  const pendingComponent = getOptionalComponent(entity, AvatarPendingComponent)
-  if (pendingComponent && pendingComponent.url === avatarURL) return
-
-  setComponent(entity, AvatarPendingComponent, { url: avatarURL })
-  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.captureMovement(entity, entity)
-
-  setComponent(entity, ModelComponent, { src: avatarURL, cameraOcclusion: false, convertToVRM: true })
-}
-
-export const unloadAvatarForUser = async (entity: Entity) => {
-  setComponent(entity, ModelComponent, { src: '' })
-  removeComponent(entity, AvatarPendingComponent)
 }
 
 const hipsPos = new Vector3(),
@@ -125,16 +58,18 @@ const hipsPos = new Vector3(),
   leftLowerLegPos = new Vector3(),
   leftUpperLegPos = new Vector3(),
   footGap = new Vector3(),
-  eyePos = new Vector3(),
-  size = new Vector3(),
-  box = new Box3()
+  eyePos = new Vector3()
+// box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
+  setComponent(entity, AvatarComponent)
   iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
-  box.expandByObject(vrm.scene).getSize(size)
-
+  // box.expandByObject(vrm.scene).getSize(size)
+  const worldHeight = Math.abs(getComponent(entity, TransformComponent).position.y)
+  console.log(worldHeight)
   const rawRig = vrm.humanoid.rawHumanBones
+  rawRig.hips.node.updateWorldMatrix(true, true)
   rawRig.hips.node.getWorldPosition(hipsPos)
   rawRig.head.node.getWorldPosition(headPos)
   rawRig.leftFoot.node.getWorldPosition(leftFootPos)
@@ -145,7 +80,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rawRig.leftEye ? rawRig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   setComponent(entity, AvatarComponent, {
-    avatarHeight: size.y,
+    avatarHeight: headPos.y - worldHeight + 0.25,
     torsoLength: Math.abs(headPos.y - hipsPos.y),
     upperLegLength: Math.abs(hipsPos.y - leftLowerLegPos.y),
     lowerLegLength: Math.abs(leftLowerLegPos.y - leftFootPos.y),
@@ -171,48 +106,23 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   }
 }
 
-/**Kicks off avatar animation loading and setup. Called after an avatar's model asset is
- * successfully loaded.
- */
-export const setupAvatarForUser = (entity: Entity, model: VRM) => {
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-
-  setComponent(entity, AvatarRigComponent, {
-    normalizedRig: model.humanoid.normalizedHumanBones,
-    rawRig: model.humanoid.rawHumanBones
-  })
-
-  setObjectLayers(model.scene, ObjectLayers.Avatar)
-
-  const loadingEffect = getState(AnimationState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
-
-  removeComponent(entity, AvatarPendingComponent)
-
-  if (hasComponent(entity, AvatarControllerComponent)) AvatarControllerComponent.releaseMovement(entity, entity)
-
-  if (isClient && loadingEffect) {
-    const avatarHeight = getComponent(entity, AvatarComponent).avatarHeight
-    setComponent(entity, AvatarDissolveComponent, {
-      height: avatarHeight
-    })
-  }
-
-  if (entity === selfAvatarEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
-}
-
-export const retargetAvatarAnimations = (entity: Entity) => {
-  const rigComponent = getComponent(entity, AvatarRigComponent)
+export const setAvatarAnimations = (entity: Entity) => {
+  const vrm = getComponent(entity, AvatarRigComponent).vrm
   const manager = getState(AnimationState)
-  const animations = [] as AnimationClip[]
-  for (const key in manager.loadedAnimations) {
-    for (const animation of manager.loadedAnimations[key].animations)
-      animations.push(bindAnimationClipFromMixamo(animation, rigComponent.vrm))
+  for (const boneName of VRMHumanBoneList) {
+    const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
+    if (bone) bone.name = boneName
   }
   setComponent(entity, AnimationComponent, {
-    animations: animations,
-    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBonesRoot)
+    animations: Object.values(manager.loadedAnimations)
+      .map((anim) => getComponent(anim, AnimationComponent).animations)
+      .flat(),
+    mixer: new AnimationMixer(vrm.humanoid.normalizedHumanBonesRoot)
   })
 }
+
+const runClipName = 'Run_RootMotion',
+  walkClipName = 'Walk_RootMotion'
 
 /**
  * @todo: stop using global state for avatar speed
@@ -221,8 +131,13 @@ export const retargetAvatarAnimations = (entity: Entity) => {
  */
 export const setAvatarSpeedFromRootMotion = () => {
   const manager = getState(AnimationState)
-  const run = manager.loadedAnimations[preloadedAnimations.locomotion].animations[4] ?? [new AnimationClip()]
-  const walk = manager.loadedAnimations[preloadedAnimations.locomotion].animations[6] ?? [new AnimationClip()]
+  const animations = getComponent(
+    manager.loadedAnimations[preloadedAnimations.locomotion],
+    AnimationComponent
+  ).animations
+  /**@todo handle avatar animation clips generically */
+  const run = AnimationClip.findByName(animations, runClipName)
+  const walk = AnimationClip.findByName(animations, walkClipName)
   const movement = getMutableState(AvatarMovementSettingsState)
   if (run) movement.runSpeed.set(getRootSpeed(run))
   if (walk) movement.walkSpeed.set(getRootSpeed(walk))
