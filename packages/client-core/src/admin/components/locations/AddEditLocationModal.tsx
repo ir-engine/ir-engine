@@ -304,8 +304,8 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                 <div>{'Previous Thumbnail'}</div>
               </div>
               <div className="flex flex-row justify-evenly">
-                <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? ''} variant="lg" />
-                <ImageLink src={sceneThumbnailState.oldThumbnailURL.value ?? ''} variant="lg" />
+                <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? ''} variant="md" />
+                <ImageLink src={sceneThumbnailState.oldThumbnailURL.value ?? ''} variant="md" />
               </div>
               <div className="flex flex-row gap-2 ">
                 <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
@@ -329,8 +329,8 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                 <div>{'Previous Loading Screen'}</div>
               </div>
               <div className="flex flex-row justify-evenly ">
-                <ImageLink src={sceneThumbnailState.loadingScreenURL.value ?? ''} variant="lg" />
-                <ImageLink src={sceneThumbnailState.oldLoadingScreenURL.value ?? ''} variant="lg" />
+                <ImageLink src={sceneThumbnailState.loadingScreenURL.value ?? ''} variant="md" />
+                <ImageLink src={sceneThumbnailState.oldLoadingScreenURL.value ?? ''} variant="md" />
               </div>
               <div className="flex flex-row gap-2">
                 <Button onClick={SceneThumbnailState.createLoadingScreen} className="w-full">
