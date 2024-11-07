@@ -62,6 +62,7 @@ import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '@ir-engine/network'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -382,6 +383,7 @@ function updateRigidbodyPose(entities: Entity[]) {
     if (!world) continue
     const body = world.Rigidbodies.get(entity)
     if (!body) continue
+    if (hasComponent(entity, NetworkObjectComponent) && !hasComponent(entity, NetworkObjectAuthorityTag)) continue
     const translation = body.translation() as Vector3
     const rotation = body.rotation() as Quaternion
     const linvel = body.linvel() as Vector3

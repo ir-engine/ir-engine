@@ -679,6 +679,20 @@ export const AuthService = {
     }
   },
 
+  async validateUser(email: string): Promise<boolean> {
+    try {
+      const identityProviders = await API.instance.service(identityProviderPath).find({
+        query: {
+          email: email.toLowerCase()
+        }
+      })
+
+      return identityProviders.data.length > 0
+    } catch (error) {
+      return false
+    }
+  },
+
   async addConnectionByPassword(form: EmailLoginForm) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })

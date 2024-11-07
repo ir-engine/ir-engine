@@ -86,7 +86,11 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.input.description')}
       Icon={InputComponentNodeEditor.iconComponent}
     >
-      <InputGroup name="ActivationDistance" label={t('editor:properties.input.lbl-activationDistance')}>
+      <InputGroup
+        name="ActivationDistance"
+        label={t('editor:properties.input.lbl-activationDistance')}
+        info={t('editor:properties.input.info-activationDistance')}
+      >
         <NumericInput
           value={inputComponent.activationDistance.value}
           onChange={updateProperty(InputComponent, 'activationDistance')}

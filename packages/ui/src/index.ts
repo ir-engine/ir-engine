@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+export { default as Checkbox } from './primitives/tailwind/Checkbox'
+export type { CheckboxProps } from './primitives/tailwind/Checkbox'
 export { DropdownItem } from './primitives/tailwind/Dropdown'
 export type { DropdownItemProps } from './primitives/tailwind/Dropdown'
 export { default as Input } from './primitives/tailwind/Input'
