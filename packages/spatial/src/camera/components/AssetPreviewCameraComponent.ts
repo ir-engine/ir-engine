@@ -23,35 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
-import Checkbox from '../../../../primitives/tailwind/Checkbox'
+import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useEffect } from 'react'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { useChildrenWithComponents } from '../../transform/components/EntityTree'
+import { CameraOrbitComponent } from './CameraOrbitComponent'
 
-export interface BooleanInputProp {
-  value: boolean
-  onChange: (value: boolean) => void
-  onRelease?: (value: boolean) => void
-  disabled?: boolean
-  className?: string
-}
+export const AssetPreviewCameraComponent = defineComponent({
+  name: 'AssetPreviewCameraComponent',
 
-export const BooleanInput = (props: BooleanInputProp) => {
-  const onBlur = () => {
-    if (props.onRelease) props.onRelease(props.value)
+  schema: S.Object({
+    targetModelEntity: S.Entity()
+  }),
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const previewCameraComponent = useComponent(entity, AssetPreviewCameraComponent)
+    const childMeshes = useChildrenWithComponents(previewCameraComponent.targetModelEntity.value, [MeshComponent])
+    const cameraOrbitComponent = useComponent(entity, CameraOrbitComponent)
+
+    useEffect(() => {
+      cameraOrbitComponent.focusedEntities.set([previewCameraComponent.targetModelEntity.value])
+      cameraOrbitComponent.refocus.set(true)
+    }, [childMeshes, cameraOrbitComponent])
+
+    return null
   }
-
-  return (
-    <Checkbox
-      className={twMerge(
-        'rounded-sm border border-theme-input bg-black dark:bg-[#1A1A1A]',
-        'hover:border-blue-800 hover:bg-theme-highlight',
-        props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer',
-        props.className
-      )}
-      onBlur={onBlur}
-      {...props}
-    />
-  )
-}
-
-export default BooleanInput
+})

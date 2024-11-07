@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../threejsPatches'
-
 import { NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
@@ -125,7 +123,7 @@ export const RendererComponent = defineComponent({
   },
 
   /**
-   * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
+   * @deprecated will be removed once threejs objects are not proxified. Should only be used in proxifyParentChildRelationships.ts
    * see https://github.com/ir-engine/ir-engine/issues/9308
    */
   activeRender: false,
@@ -289,8 +287,8 @@ export const RendererComponent = defineComponent({
         canvas.removeEventListener('webglcontextlost', handleWebGLContextLost)
         // canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
 
-        rendererComponent.value.renderer?.dispose()
-        rendererComponent.value.effectComposer?.dispose()
+        renderer.dispose()
+        composer.dispose()
       }
     }, [rendererComponent.renderContext.value])
 

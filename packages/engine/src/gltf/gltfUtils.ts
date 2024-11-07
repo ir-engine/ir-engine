@@ -23,25 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component, { BooleanInputProp } from './index'
+import { GLTF } from '@gltf-transform/core'
 
-const argTypes: BooleanInputProp = { value: false, onChange: () => {} }
-
-export default {
-  title: 'Editor/Input/Boolean',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'BooleanInput',
-    jest: 'Boolean.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
-}
-export const Default = {
-  args: {
-    value: false
+export function nodeIsChild(index: number, nodes: GLTF.INode[]) {
+  for (const node of nodes) {
+    if (node.children && node.children.includes(index)) return true
   }
+
+  return false
 }
