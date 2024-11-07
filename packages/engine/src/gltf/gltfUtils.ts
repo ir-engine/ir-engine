@@ -50,10 +50,12 @@ export function gltfReplaceUUIDReferences(gltf: GLTF.IGLTF, prevUUID: EntityUUID
 
     for (const extKey in node.extensions) {
       if (extKey === UUIDComponent.jsonID) continue
+
+      const ext = node.extensions[extKey]
       // If a component is just a reference to a uuid
-      if (node.extensions[extKey] === prevUUID) node.extensions[extKey] = newUUID
-      else if (typeof node.extensions[extKey] === 'object') {
-        replaceUUID(node.extensions[extKey], prevUUID, newUUID)
+      if (ext === prevUUID) node.extensions[extKey] = newUUID
+      else if (typeof ext === 'object') {
+        replaceUUID(ext, prevUUID, newUUID)
       }
     }
   }
