@@ -177,7 +177,6 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onChange={updateProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
                   onRelease={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
                   disabled={props.multiEdit || !target}
-                  className="bg-[#212226]"
                 />
               )}
             </InputGroup>
@@ -204,7 +203,6 @@ const TriggerProperties: EditorComponentType = (props) => {
                   onRelease={updateProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
                   onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
                   disabled={props.multiEdit || !target}
-                  className="bg-[#212226]"
                 />
               )}
             </InputGroup>

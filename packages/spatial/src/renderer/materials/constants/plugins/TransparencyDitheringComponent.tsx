@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
-import { defineComponent, getComponent, getOptionalComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, getComponent, getOptionalComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -64,6 +64,7 @@ export const TransparencyDitheringPluginComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
+    const material = useComponent(entity, MaterialStateComponent).material
     useEffect(() => {
       const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
       if (!materialComponent) return
@@ -95,7 +96,7 @@ export const TransparencyDitheringPluginComponent = defineComponent({
         shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
       }
       setPlugin(materialComponent.material as Material, callback)
-    })
+    }, [material])
     return null
   }
 })

@@ -30,7 +30,7 @@ import nock from 'nock'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { projectCommitsPath } from '@ir-engine/common/src/schemas/projects/project-commits.schema'
-import { ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
@@ -65,10 +65,9 @@ describe('project-commits.test', () => {
 
     const testUser = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
-      isGuest: false,
-      scopes: [{ type: 'projects:read' as ScopeType }]
+      isGuest: false
     })
+    await app.service(scopePath).create({ userId: testUser.id, type: 'projects:read' as ScopeType })
 
     testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
 

@@ -32,8 +32,8 @@ import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constan
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -271,11 +271,11 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
               <div className="mx-auto mb-2 flex py-2">
                 <Input
                   value={avatarName.value || ''}
-                  label={t('user:avatar.InputAvatarName')}
+                  labelProps={{
+                    text: t('user:avatar.InputAvatarName'),
+                    position: 'top'
+                  }}
                   onChange={(e) => avatarName.set(e.target.value)}
-                  containerClassName="flex-row h-8"
-                  className="w-fit py-1 text-sm"
-                  labelClassname="min-w-[50%] my-auto text-sm"
                 />
               </div>
             )}
