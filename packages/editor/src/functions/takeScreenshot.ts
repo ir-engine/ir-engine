@@ -103,13 +103,9 @@ export async function takeScreenshot(
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
-  camera.layers.set(ObjectLayers.Scene)
-
-  console.log('DEBUG', scenePreviewCamera)
 
   const rendererComponent = getComponent(getState(EngineState).viewerEntity, RendererComponent)
   const renderer = rendererComponent.renderer!
-
   const renderContext = rendererComponent.renderContext!
   const effectComposer = rendererComponent.effectComposer!
 
@@ -157,7 +153,6 @@ export async function takeScreenshot(
   scenePreviewCamera.updateProjectionMatrix()
 
   // restore
-  camera.layers.enableAll()
   effectComposer.setMainCamera(camera)
   renderer.setPixelRatio(pixelRatio)
   effectComposer.setSize(originalSize.width, originalSize.height, false)
