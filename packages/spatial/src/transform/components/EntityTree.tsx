@@ -500,7 +500,7 @@ export function getChildrenWithComponents(rootEntity: Entity, components: Compon
   const children = [] as Entity[]
 
   const tree = getOptionalComponent(rootEntity, EntityTreeComponent)
-  if (!tree?.children) return [] as Entity[]
+  if (!tree?.children) return children
 
   const results = tree.children.filter((childEntity) => hasComponents(childEntity, components))
   children.push(...results)

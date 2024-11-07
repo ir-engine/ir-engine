@@ -23,141 +23,160 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { forwardRef, InputHTMLAttributes } from 'react'
-import { HiXCircle } from 'react-icons/hi'
+import React, { useId, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { HelpIconSm } from '../../../icons'
+import Tooltip from '../Tooltip'
 
-import Label from '../Label'
+const variantSizes = {
+  xs: 'h-6 py-0.5 px-2',
+  l: 'h-8 py-1.5 px-2',
+  xl: 'h-10 py-2.5 px-2'
+} as const
 
-export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
-  value: string | number
-  label?: string
-  containerClassName?: string
-  description?: string
-  type?: InputHTMLAttributes<HTMLInputElement>['type']
-  onChange?: InputHTMLAttributes<HTMLInputElement>['onChange']
-  error?: string
-  disabled?: boolean
-  startComponent?: JSX.Element
-  endComponent?: JSX.Element
-  variant?: 'outlined' | 'underlined' | 'onboarding'
-  labelClassname?: string
-  errorBorder?: boolean
-  maxLength?: number
-  autoComplete?: string
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className'> {
+  variantSize?: keyof typeof variantSizes
+
+  /**
+   * Optional React node to display at the start (left) of the s field.
+   * Typically used for icons or other UI elements that provide additional context.
+   */
+  startComponent?: React.ReactNode
+
+  /**
+   * Optional React node to display at the end (right) of the input field.
+   * Typically used for icons, buttons, or other UI elements that provide actions or additional information.
+   */
+  endComponent?: React.ReactNode
+
+  /**
+   * Specifies the validation state of the input field, affecting its outline color and the color of helper text.
+   * - `success` indicates a successful input.
+   * - `error` indicates an error in the input.
+   */
+  state?: 'success' | 'error'
+
+  /**
+   * Optional helper text that provides additional information about the input field.
+   * When set, this will only be displayed when a valid `state` (`success` or `error`) is set.
+   * The color of the helper text is determined by the current state.
+   */
+  helperText?: string
+
+  fullWidth?: boolean
+
+  labelProps?: {
+    text: string
+    position: 'top' | 'left'
+    infoText?: string
+  }
 }
 
-const variants = {
-  outlined: ' ',
-  underlined: 'bg-transparent border-0 border-b rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
-}
+const Input = (
+  {
+    variantSize = 'l',
+    startComponent,
+    endComponent,
+    state,
+    helperText,
+    labelProps,
+    required,
+    id,
+    fullWidth,
+    ...props
+  }: InputProps,
+  ref: React.ForwardedRef<HTMLInputElement>
+) => {
+  const tempId = useId()
+  const inputId = id || tempId
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      className,
-      containerClassName,
-      label,
-      type = 'text',
-      error,
-      description,
-      value,
-      itemType,
-      onChange,
-      disabled,
-      startComponent,
-      endComponent,
-      variant = 'outlined',
-      labelClassname,
-      errorBorder,
-      autoComplete,
-      ...props
-    },
-    ref
-  ) => {
-    // Define a base style for the onboarding variant and conditionally apply error styling
-    const onboardingVariantStyle = errorBorder
-      ? 'bg-transparent border border-rose-600 rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
-      : 'bg-transparent border border-neutral-500 rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
+  const labelRef = useRef<HTMLLabelElement>(null)
 
-    const twClassname = twMerge(
-      'text-base font-normal tracking-tight',
-      'textshadow-sm flex h-9 w-full rounded-lg border border-theme-primary bg-theme-surfaceInput px-3.5 py-5 transition-colors',
-      'file:border-0 file:bg-theme-surfaceInput file:text-sm file:font-medium',
-      'dark:[color-scheme:dark]',
-      'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
-      variant !== 'outlined' ? '' : 'focus-visible:ring-1',
-      startComponent ? 'ps-10' : undefined,
-      endComponent ? 'pe-10' : undefined,
-      variant === 'onboarding' ? onboardingVariantStyle : variants[variant],
-      className
-    )
-
-    const containerVariants = {
-      outlined: 'gap-2',
-      underlined: '',
-      onboarding: ''
+  const [helperOffset, setHelperOffset] = useState('')
+  useLayoutEffect(() => {
+    const updateHelperTextPosition = () => {
+      if (labelProps?.position === 'left' && labelRef.current) {
+        setHelperOffset(`${labelRef.current.offsetWidth + 8}px`)
+      } else {
+        setHelperOffset('')
+      }
     }
 
-    const twcontainerClassName = twMerge(
-      'flex w-full flex-col items-center',
-      containerVariants[variant],
-      containerClassName
-    )
+    updateHelperTextPosition()
 
-    const containerClass =
-      variant === 'outlined' ? 'bg-theme-surface-main relative h-full w-full' : ' relative h-full w-full'
-    const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'
+    window.addEventListener('resize', updateHelperTextPosition)
+    return () => {
+      window.removeEventListener('resize', updateHelperTextPosition)
+    }
+  }, [labelProps])
 
-    return (
-      <div className={twcontainerClassName}>
-        {label && (
-          <Label className={twMerge(`self-stretch ${labelClass}`, labelClassname)} data-testid="input-label">
-            {label}
-          </Label>
+  return (
+    <div className={`flex flex-col gap-y-2 ${fullWidth ? 'w-full' : 'w-fit'}`}>
+      <div
+        className={`flex ${labelProps?.position === 'top' && 'flex-col gap-y-2'} ${
+          labelProps?.position === 'left' && 'flex-row items-center gap-x-2'
+        }`}
+      >
+        {labelProps?.text && (
+          <label htmlFor={inputId} className="block text-xs font-medium" ref={labelRef}>
+            <div className="flex flex-row items-center gap-x-1.5">
+              <div className="flex flex-row items-center gap-x-0.5">
+                {required && <span className="text-sm text-[#E11D48]">*</span>}
+                <span className="text-xs text-[#D3D5D9]">{labelProps.text}</span>
+              </div>
+
+              {labelProps?.infoText && (
+                <Tooltip content={labelProps.infoText}>
+                  <HelpIconSm className="text-[#9CA0AA]" />
+                </Tooltip>
+              )}
+            </div>
+          </label>
         )}
-        <div className={containerClass}>
+
+        <div
+          className={twMerge(
+            'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] transition-colors duration-300',
+            variantSizes[variantSize],
+            'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
+            'has-[:focus]:border-[#375DAF] has-[:focus]:outline-none',
+            'has-[:disabled]:border-[#42454D] has-[:disabled]:bg-[#191B1F]',
+            state === 'success' && 'border-[#10B981]',
+            state === 'error' && 'border-[#C3324B]'
+          )}
+        >
+          <input
+            spellCheck={false}
+            className="peer order-2 h-full w-full bg-[#141619] text-[#9CA0AA] outline-none autofill:bg-red-500 focus:bg-[#141619] focus:text-[#F5F5F5] focus-visible:bg-[#141619] disabled:text-[#6B6F78]"
+            ref={ref}
+            id={inputId}
+            {...props}
+          />
           {startComponent && (
-            <div className="pointer-events-auto absolute inset-y-0 left-0 start-0 ml-2 flex items-center ps-0">
+            <div className="order-1 flex items-center justify-center text-[#9CA0AA] peer-disabled:text-[#42454D]">
               {startComponent}
             </div>
           )}
-          <input
-            ref={ref}
-            disabled={disabled}
-            type={type}
-            className={twClassname}
-            value={value}
-            onChange={onChange}
-            autoComplete={autoComplete}
-            {...props}
-          />
-
           {endComponent && (
-            <div
-              className="pointer-events-auto absolute inset-y-0 end-0 flex items-center"
-              data-testid="input-end-component-container"
-            >
+            <div className="order-3 flex items-center justify-center text-[#9CA0AA] peer-disabled:text-[#42454D]">
               {endComponent}
             </div>
           )}
         </div>
-        {description && (
-          <p className="self-stretch text-xs text-theme-secondary" data-testid="input-description-text">
-            {description}
-          </p>
-        )}
-        {error && (
-          <p
-            className="inline-flex items-center gap-2.5 self-start text-sm text-theme-iconRed"
-            data-testid="input-error-text"
-          >
-            <HiXCircle /> {error}
-          </p>
-        )}
       </div>
-    )
-  }
-)
 
-export default Input
+      {helperText && (
+        <span
+          className={`text-xs ${state === 'success' && 'text-[#0D9467]'} ${state === 'error' && 'text-[#C3324B]'}`}
+          style={{
+            translate: helperOffset
+          }}
+        >
+          {helperText}
+        </span>
+      )}
+    </div>
+  )
+}
+
+export default React.forwardRef(Input)
