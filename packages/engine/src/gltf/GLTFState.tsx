@@ -30,6 +30,7 @@ import {
   AnimationMixer,
   Bone,
   BufferGeometry,
+  FrontSide,
   Group,
   LoaderUtils,
   MathUtils,
@@ -977,7 +978,16 @@ const CameraReactor = (props: { nodeIndex: number; documentID: string; entity: E
   return null
 }
 
-const defaultMaterial = () => new MeshStandardMaterial()
+const defaultMaterial = () =>
+  new MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: 0x000000,
+    metalness: 1,
+    roughness: 1,
+    transparent: false,
+    depthTest: true,
+    side: FrontSide
+  })
 
 const PrimitiveReactor = (props: {
   isSinglePrimitive: boolean
