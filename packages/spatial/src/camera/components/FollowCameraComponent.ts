@@ -149,8 +149,8 @@ export const FollowCameraComponent = defineComponent({
       const distance = (windowHeight / windowWidth) * cameraSettings.startCameraDistance
 
       follow.merge({
-        distance: distance,
-        targetDistance: distance,
+        distance: cameraSettings.startCameraDistance,
+        targetDistance: cameraSettings.startCameraDistance,
         thirdPersonMinDistance: cameraSettings.minCameraDistance,
         thirdPersonMaxDistance: cameraSettings.maxCameraDistance,
         effectiveMinDistance: cameraSettings.minCameraDistance,
