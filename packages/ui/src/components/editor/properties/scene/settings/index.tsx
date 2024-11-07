@@ -40,13 +40,13 @@ import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbna
 
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, useState } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import { ImageLink } from '@ir-engine/ui/editor'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import ComponentDropdown from '../../../ComponentDropdown'
-import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import NodeInput from '../../../input/Node'
 import NumericInput from '../../../input/Numeric'
@@ -87,8 +87,8 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.sceneSettings.lbl-spectate')}
         info={t('editor:properties.sceneSettings.info-spectate')}
       >
-        <BooleanInput
-          value={useSpectatingEntity.value}
+        <Checkbox
+          checked={useSpectatingEntity.value}
           onChange={(value) => {
             useSpectatingEntity.set(value)
             commitProperty(

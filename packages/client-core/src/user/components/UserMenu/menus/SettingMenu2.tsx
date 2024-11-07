@@ -49,8 +49,8 @@ import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
+import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
@@ -376,15 +376,18 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
             </div>
           )}
 
-          <InputGroup name="Type" label={t('user:usermenu.setting.use-positional-media')} className="justify-start">
-            <BooleanInput
-              value={audioState.positionalMedia.value}
+          <div className="justify-start">
+            <Checkbox
+              variantTextPlacement="left"
+              label={t('user:usermenu.setting.use-positional-media')}
+              checked={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
                 getMutableState(AudioState).positionalMedia.set(value)
                 logger.info({ event_name: `spatial_user_av`, event_value: value })
               }}
             />
-          </InputGroup>
+          </div>
+
           <div className="justify-start">
             <Slider
               max={1}
@@ -488,23 +491,23 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
           </div>
 
           <div className="grid py-4">
-            <div className="grid">
-              <InputGroup name="Type" label={t('user:usermenu.setting.lbl-pp')} className="justify-start">
-                <BooleanInput onChange={handlePostProcessingCheckbox} value={rendererState.usePostProcessing.value} />
-              </InputGroup>
-            </div>
+            <Checkbox
+              onChange={handlePostProcessingCheckbox}
+              checked={rendererState.usePostProcessing.value}
+              label={t('user:usermenu.setting.lbl-pp')}
+            />
 
-            <div className="grid">
-              <InputGroup name="Type" label={t('user:usermenu.setting.lbl-shadow')} className="justify-start">
-                <BooleanInput onChange={handleShadowCheckbox} value={rendererState.useShadows.value} />
-              </InputGroup>
-            </div>
+            <Checkbox
+              onChange={handleShadowCheckbox}
+              checked={rendererState.useShadows.value}
+              label={t('user:usermenu.setting.lbl-shadow')}
+            />
 
-            <div className="grid">
-              <InputGroup name="Type" label={t('user:usermenu.setting.lbl-automatic')} className="justify-start">
-                <BooleanInput onChange={handleAutomaticCheckbox} value={rendererState.automatic.value} />
-              </InputGroup>
-            </div>
+            <Checkbox
+              onChange={handleAutomaticCheckbox}
+              checked={rendererState.automatic.value}
+              label={t('user:usermenu.setting.lbl-automatic')}
+            />
           </div>
 
           {rendererState.useShadows.value && (

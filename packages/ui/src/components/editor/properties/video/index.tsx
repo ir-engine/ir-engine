@@ -38,8 +38,8 @@ import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { Checkbox } from '@ir-engine/ui'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -193,7 +193,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.video.lbl-use-alpha')}
         info={t('editor:properties.video.lbl-use-alpha-info')}
       >
-        <BooleanInput value={video.useAlpha.value} onChange={commitProperty(VideoComponent, 'useAlpha')} />
+        <Checkbox checked={video.useAlpha.value} onChange={commitProperty(VideoComponent, 'useAlpha')} />
       </InputGroup>
 
       {video.useAlpha.value && (
@@ -215,8 +215,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             label={t('editor:properties.video.lbl-use-alpha-uv-transform')}
             info={t('editor:properties.video.lbl-use-alpha-uv-transform-info')}
           >
-            <BooleanInput
-              value={video.useAlphaUVTransform.value}
+            <Checkbox
+              checked={video.useAlphaUVTransform.value}
               onChange={commitProperty(VideoComponent, 'useAlphaUVTransform')}
             />
           </InputGroup>

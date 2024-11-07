@@ -35,11 +35,10 @@ import {
   instanceServerSettingPath
 } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Checkbox, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -213,10 +212,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         </Text>
 
         <Checkbox
-          className="col-span-1"
-          containerClassName="mb-1"
           label={t('admin:components.setting.webRTCSettings.useCustomICEServers')}
-          value={settings.webRTCSettings.useCustomICEServers.value || false}
+          checked={settings.webRTCSettings.useCustomICEServers.value || false}
           onChange={(value) => settings.webRTCSettings.useCustomICEServers.set(value)}
         />
 
@@ -229,7 +226,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           <div>
             {settings.webRTCSettings.iceServers.map((iceServer, index) => {
               return (
-                <div className="col-span-1 mb-4 rounded-2xl border border-4 border-theme-input p-4" key={index}>
+                <div className="col-span-1 mb-4 rounded-2xl border-4 border-theme-input p-4" key={index}>
                   <div className="flex items-center">
                     <Text component="h4" fontSize="xl" fontWeight="semibold" className="col-span-full">
                       {t('admin:components.setting.webRTCSettings.iceServer') + (index + 1)}
@@ -328,10 +325,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                   </div>
 
                   <Checkbox
-                    className="col-span-1"
-                    containerClassName="mb-1"
                     label={t('admin:components.setting.webRTCSettings.useFixedCredentials')}
-                    value={iceServer.useFixedCredentials.value || false}
+                    checked={iceServer.useFixedCredentials.value || false}
                     onChange={(value) => iceServer.useFixedCredentials.set(value)}
                   />
 
@@ -362,10 +357,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                   )}
 
                   <Checkbox
-                    className="col-span-1"
-                    containerClassName="mb-1"
                     label={t('admin:components.setting.webRTCSettings.useTimeLimitedCredentials')}
-                    value={iceServer.useTimeLimitedCredentials.value || false}
+                    checked={iceServer.useTimeLimitedCredentials.value || false}
                     onChange={(value) => iceServer.useTimeLimitedCredentials.set(value)}
                   />
 
@@ -412,10 +405,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         )}
 
         <Checkbox
-          className="col-span-1"
-          containerClassName="mb-1"
           label={t('admin:components.setting.webRTCSettings.usePrivateInstanceserverIP')}
-          value={settings.webRTCSettings.usePrivateInstanceserverIP.value || false}
+          checked={settings.webRTCSettings.usePrivateInstanceserverIP.value || false}
           onChange={(value) => settings.webRTCSettings.usePrivateInstanceserverIP.set(value)}
         />
       </div>

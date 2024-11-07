@@ -56,6 +56,7 @@ import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enum
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, UndefinedEntity, removeEntity } from '@ir-engine/ecs'
+import { NetworkObjectComponent } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import {
@@ -1215,7 +1216,24 @@ describe('Physics : Rapier->ECS API', () => {
         removeEntity(testEntity)
         return destroyEngine()
       })
-
+      it('should not update the pose and velocity for an entity that has a NetworkObjectComponent but no NetworkAuthorityComponent', () => {
+        setComponent(testEntity, NetworkObjectComponent)
+        const impulse = new Vector3(1, 2, 3)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
+        body.applyImpulse(impulse, false)
+        const before = {
+          x: RigidBodyComponent.linearVelocity.x[testEntity],
+          y: RigidBodyComponent.linearVelocity.y[testEntity],
+          z: RigidBodyComponent.linearVelocity.z[testEntity]
+        }
+        Physics.updateRigidbodyPose([testEntity])
+        const after = {
+          x: RigidBodyComponent.linearVelocity.x[testEntity],
+          y: RigidBodyComponent.linearVelocity.y[testEntity],
+          z: RigidBodyComponent.linearVelocity.z[testEntity]
+        }
+        assertVecApproxEq(before, after, 3)
+      })
       it("should set the position of the entity's RigidBodyComponent", () => {
         const position = new Vector3(1, 2, 3)
         const body = physicsWorld.Rigidbodies.get(testEntity)!

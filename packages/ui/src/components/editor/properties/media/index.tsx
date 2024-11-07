@@ -33,10 +33,10 @@ import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
+import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import Button from '../../../../primitives/tailwind/Button'
 import ArrayInputGroup from '../../input/Array'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -113,7 +113,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-isMusic')}
         info={t('editor:properties.media.info-isMusic')}
       >
-        <BooleanInput value={media.isMusic.value} onChange={commitProperty(MediaComponent, 'isMusic')} />
+        <Checkbox checked={media.isMusic.value} onChange={commitProperty(MediaComponent, 'isMusic')} />
       </InputGroup>
 
       <InputGroup
@@ -121,7 +121,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-controls')}
         info={t('editor:properties.media.info-controls')}
       >
-        <BooleanInput value={media.controls.value} onChange={commitProperty(MediaComponent, 'controls')} />
+        <Checkbox checked={media.controls.value} onChange={commitProperty(MediaComponent, 'controls')} />
       </InputGroup>
 
       <InputGroup
@@ -129,7 +129,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-autoplay')}
         info={t('editor:properties.media.info-autoplay')}
       >
-        <BooleanInput value={media.autoplay.value} onChange={commitProperty(MediaComponent, 'autoplay')} />
+        <Checkbox checked={media.autoplay.value} onChange={commitProperty(MediaComponent, 'autoplay')} />
       </InputGroup>
 
       <InputGroup
@@ -137,7 +137,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-synchronize')}
         info={t('editor:properties.media.info-synchronize')}
       >
-        <BooleanInput value={media.synchronize.value} onChange={commitProperty(MediaComponent, 'synchronize')} />
+        <Checkbox checked={media.synchronize.value} onChange={commitProperty(MediaComponent, 'synchronize')} />
       </InputGroup>
 
       <ArrayInputGroup

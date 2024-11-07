@@ -42,8 +42,8 @@ import 'react-scrubber/lib/scrubber.css'
 import { v4 as uuidv4 } from 'uuid'
 
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Checkbox } from '@ir-engine/ui'
 import Button from '../../../../primitives/tailwind/Button'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
@@ -144,7 +144,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
       <DndProvider backend={HTML5Backend}>
         <div ref={drop} className="w-full pl-4 pr-2">
           <InputGroup name="Autoplay" label="Autoplay">
-            <BooleanInput onChange={commitProperty(PlaylistComponent, 'autoplay')} value={component.autoplay.value} />
+            <Checkbox onChange={commitProperty(PlaylistComponent, 'autoplay')} checked={component.autoplay.value} />
           </InputGroup>
           {component.tracks.length > 0 ? (
             <>

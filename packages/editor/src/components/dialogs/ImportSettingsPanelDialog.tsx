@@ -26,10 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { NO_PROXY, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Checkbox, Input } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
@@ -223,7 +222,7 @@ export default function ImportSettingsPanel() {
           position: 'top'
         }}
       />
-      <Checkbox value={LODGenEnabled} onChange={() => setLODGenEnabled(!LODGenEnabled)} label={'Generate LODs'} />
+      <Checkbox checked={LODGenEnabled} onChange={() => setLODGenEnabled(!LODGenEnabled)} label={'Generate LODs'} />
       {LODGenEnabled && (
         <>
           <Input
@@ -251,7 +250,7 @@ export default function ImportSettingsPanel() {
         </>
       )}
       <Text>Image Compression Settings</Text>
-      <Checkbox label={'Compress to KTX2'} value={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />
+      <Checkbox label={'Compress to KTX2'} checked={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />
       {KTXEnabled && <ImageCompressionBox compressProperties={compressProperties} />}
     </Modal>
   )
