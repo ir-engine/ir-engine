@@ -28,11 +28,11 @@ import { twMerge } from 'tailwind-merge'
 
 export interface RadioProps {
   disabled?: boolean
-  label: string
+  label: string | JSX.Element
   onClick?: (value: any) => void
   value: any
   checked?: boolean
-  description?: string
+  description?: string | JSX.Element
   variant?: 'sm' | 'md'
 }
 
@@ -89,6 +89,7 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
       <div
         className={twMerge(
           'flex flex-col',
+          description ? '' : 'w-full',
           !disabled && 'text-start text-[#D3D5D9] group-hover:cursor-pointer',
           disabled && 'text-[#6B6F78]'
         )}
@@ -102,8 +103,8 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
 
 type OptionType = {
   value: string
-  label: string
-  description?: string
+  label: string | JSX.Element
+  description?: string | JSX.Element
 }
 export interface RadioGroupProps<T> {
   value?: T
