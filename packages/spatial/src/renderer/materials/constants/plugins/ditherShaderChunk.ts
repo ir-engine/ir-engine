@@ -61,6 +61,7 @@ uniform int useWorldCalculation[2];
 export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
 float distance = 1.0;
+float alphaTest = 0.5;
 for(int i = 0; i < 2; i++){
     distance *= pow(clamp(distances[i]*length(centers[i] - (useWorldCalculation[i] == 1 ? vWorldPosition : vLocalPosition)), 0.0, 1.0), exponents[i]);
 }
