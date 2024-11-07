@@ -93,21 +93,17 @@ export const LoopAnimationComponent = defineComponent({
 
     const lastAnimationPack = useHookstate('')
     useEffect(() => {
-      if (!animComponent?.animations?.value || !rigComponent?.vrm) return
+      if (!animComponent?.animations?.value || (loopAnimationComponent.useVRM && !rigComponent?.vrm)) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
       if (!clip) {
         loopAnimationComponent._action.set(null)
         return
       }
       animComponent.mixer.time.set(0)
-      try {
-        const action = animComponent.mixer.value.clipAction(clip)
-        loopAnimationComponent._action.set(action)
-        return () => {
-          action.stop()
-        }
-      } catch (e) {
-        console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
+      const action = animComponent.mixer.value.clipAction(clip)
+      loopAnimationComponent._action.set(action)
+      return () => {
+        action.stop()
       }
     }, [loopAnimationComponent.activeClipIndex, rigComponent?.vrm, animComponent?.animations])
 
