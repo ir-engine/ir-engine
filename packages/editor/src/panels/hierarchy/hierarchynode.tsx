@@ -41,10 +41,9 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
@@ -318,24 +317,24 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     }
     setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
-  const isModelRoot = hasComponent(entity, ModelComponent)
-  const isModified = isModelRoot && !!getState(GLTFModifiedState)[getModelSceneID(entity)]
+  const isModelRoot = hasComponent(entity, GLTFComponent)
+  const isModified = isModelRoot && !!getState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)]
 
   const onSaveChanges = () => {
-    const modelComponent = getComponent(node.entity, ModelComponent)
-    const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(modelComponent.src)!
+    const gltfComponent = getComponent(node.entity, GLTFComponent)
+    const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
     const parsedName = fileName.split('?')[0]
     exportRelativeGLTF(node.entity, fullProjectName, parsedName).then(() => {
-      ResourceLoaderManager.updateResource(modelComponent.src)
-      getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
+      ResourceLoaderManager.updateResource(gltfComponent.src)
+      getMutableState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
     })
   }
 
   const onRevert = () => {
-    const modelComponent = getComponent(node.entity, ModelComponent)
-    ResourceLoaderManager.updateResource(modelComponent.src)
-    getMutableState(GLTFModifiedState)[getModelSceneID(entity)].set(none)
+    const gltfComponent = getComponent(node.entity, GLTFComponent)
+    ResourceLoaderManager.updateResource(gltfComponent.src)
+    getMutableState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
   }
 
   return (

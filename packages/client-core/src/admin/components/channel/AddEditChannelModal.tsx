@@ -30,7 +30,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useMutation } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 const getDefaultErrors = () => ({
@@ -77,10 +77,14 @@ export default function AddEditChannelModal({ channel }: { channel?: ChannelType
     >
       {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
       <Input
-        label={t('admin:components.channel.name')}
+        labelProps={{
+          text: t('admin:components.channel.name'),
+          position: 'top'
+        }}
         value={channelName.value}
         onChange={(event) => channelName.set(event.target.value)}
-        error={errors.channelName.value}
+        helperText={errors.channelName.value}
+        state={errors.channelName.value ? 'error' : undefined}
       />
     </Modal>
   )

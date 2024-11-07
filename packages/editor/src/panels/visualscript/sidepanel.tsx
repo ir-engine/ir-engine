@@ -143,7 +143,6 @@ export const SidePanel = ({
                   <MdOutlineAdd className="inline-block shrink-0 text-2xl" />
                 </Button>
                 <StringInput
-                  className="h-7"
                   value={template.name}
                   onChange={(e) => {
                     template.name = e
@@ -181,7 +180,6 @@ export const SidePanel = ({
                   <div className="flex w-full flex-row overflow-hidden">
                     <StringInput
                       value={variable.name}
-                      className="h-7"
                       onChange={(e) => {
                         handleEditVariable({ ...variable, name: e })
                       }}
