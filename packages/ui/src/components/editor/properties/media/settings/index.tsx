@@ -30,10 +30,10 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { MediaSettingsComponent } from '@ir-engine/engine/src/scene/components/MediaSettingsComponent'
+import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { MdPermMedia } from 'react-icons/md'
 import ComponentDropdown from '../../../ComponentDropdown'
-import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
@@ -65,8 +65,8 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.mediaSettings.lbl-immersiveMedia')}
         info={t('editor:properties.mediaSettings.info-immersiveMedia')}
       >
-        <BooleanInput
-          value={mediaState.immersiveMedia.value}
+        <Checkbox
+          checked={mediaState.immersiveMedia.value}
           onChange={commitProperty(MediaSettingsComponent, 'immersiveMedia')}
         />
       </InputGroup>

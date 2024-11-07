@@ -27,7 +27,7 @@ import { CheckLg, MinusLg } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-export interface CheckboxProps {
+export interface CheckboxProps extends Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange'> {
   checked?: boolean
   disabled?: boolean
   indeterminate?: boolean
@@ -77,7 +77,8 @@ const Checkbox = (
     description,
     onChange,
     variantSize = 'md',
-    variantTextPlacement = 'right'
+    variantTextPlacement = 'right',
+    ...props
   }: CheckboxProps,
   ref: React.ForwardedRef<HTMLDivElement>
 ) => {
@@ -100,6 +101,7 @@ const Checkbox = (
         if (['Enter', ' '].includes(e.key)) handleChange()
       }}
       tabIndex={0}
+      {...props}
     >
       <div
         className={twMerge(
