@@ -27,9 +27,8 @@ import React from 'react'
 
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { State } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Checkbox, Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
@@ -45,7 +44,7 @@ function CheckBoxParam({ label, state }: { label: string; state: State<boolean> 
 
       <div className="col-span-2 col-start-3">
         <Checkbox
-          value={state.value}
+          checked={state.value}
           onChange={() => {
             state.set((v) => !v)
           }}

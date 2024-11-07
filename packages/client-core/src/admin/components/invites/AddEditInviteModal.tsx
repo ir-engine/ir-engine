@@ -41,8 +41,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input, RadioGroup } from '@ir-engine/ui'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import { Checkbox, Input, RadioGroup } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@ir-engine/ui/src/primitives/tailwind/MultiEmailInput'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
@@ -262,7 +261,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           <>
             <Checkbox
               label={t('admin:components.invite.spawnAtPosition')}
-              value={spawnSelected.value}
+              checked={spawnSelected.value}
               onChange={(value) => spawnSelected.set(value)}
               disabled={submitLoading.value}
             />
@@ -310,13 +309,13 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         )}
         <Checkbox
           label={t('admin:components.invite.oneTime')}
-          value={oneTimeInvite.value}
+          checked={oneTimeInvite.value}
           onChange={(value) => oneTimeInvite.set(value)}
           disabled={submitLoading.value}
         />
         <Checkbox
           label={t('admin:components.invite.timedInvite')}
-          value={timedInvite.value}
+          checked={timedInvite.value}
           onChange={(value) => timedInvite.set(value)}
           disabled={submitLoading.value}
         />
@@ -351,7 +350,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         {inviteType.value === 'new-user' && (
           <Checkbox
             label={t('admin:components.invite.makeAdmin')}
-            value={makeAdmin.value}
+            checked={makeAdmin.value}
             onChange={(value) => makeAdmin.set(value)}
             disabled={submitLoading.value}
           />
