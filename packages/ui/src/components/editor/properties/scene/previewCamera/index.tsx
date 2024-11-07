@@ -28,8 +28,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineCamera } from 'react-icons/hi'
 
-import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
+import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
@@ -58,15 +57,12 @@ const scene = new Scene()
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [bufferUrl, setBufferUrl] = useState<string>('')
-  const transformComponent = useComponent(Engine.instance.cameraEntity, TransformComponent)
+  const transformComponent = useComponent(getState(EngineState).viewerEntity, TransformComponent)
 
   const onSetFromViewport = () => {
-    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const transform = getComponent(props.entity, TransformComponent)
-    transform.position.copy(position)
-    transform.rotation.copy(rotation)
+    const { position, rotation } = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+    setComponent(props.entity, TransformComponent, { position: position, rotation: rotation })
     computeTransformMatrix(props.entity)
-
     EditorControlFunctions.commitTransformSave([props.entity])
   }
 
