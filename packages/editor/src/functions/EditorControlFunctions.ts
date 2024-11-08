@@ -33,6 +33,7 @@ import {
   ComponentJSONIDMap,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   SerializedComponentType,
   updateComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -432,6 +433,14 @@ const duplicateObject = (entities: Entity[]) => {
   }
 }
 
+const applyTransformToChildren = (entity: Entity) => {
+  iterateEntityNode(entity, (entity) => {
+    if (!hasComponent(entity, TransformComponent)) return
+    computeTransformMatrix(entity)
+    TransformComponent.dirtyTransforms[entity] = true
+  })
+}
+
 const positionObject = (
   nodes: Entity[],
   positions: Vector3[],
@@ -468,10 +477,7 @@ const positionObject = (
 
     updateComponent(entity, TransformComponent, { position: transform.position })
 
-    iterateEntityNode(entity, (entity) => {
-      computeTransformMatrix(entity)
-      TransformComponent.dirtyTransforms[entity] = true
-    })
+    applyTransformToChildren(entity)
   }
 }
 
@@ -505,10 +511,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
 
-    iterateEntityNode(entity, (entity) => {
-      computeTransformMatrix(entity)
-      TransformComponent.dirtyTransforms[entity] = true
-    })
+    applyTransformToChildren(entity)
   }
 }
 
