@@ -136,8 +136,7 @@ export default function FilePropertiesModal() {
             resource.name === resourceDigest.name.value &&
             resource.licensing === resourceDigest.licensing.value &&
             resource.attribution === resourceDigest.attribution.value &&
-            resource.description === resourceDigest.description.value &&
-            resource.project === projectName
+            resource.description === resourceDigest.description.value
           ) {
             console.log('All properties successfully updated')
             modifiedFields.set([])
