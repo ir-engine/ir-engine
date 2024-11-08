@@ -30,7 +30,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useFind, useMutation } from '@ir-engine/common'
 import { LocationID, locationPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
@@ -92,7 +92,10 @@ export default function PatchServerModal() {
         onChange={(e) => {
           state.count.set(parseInt(e.target.value))
         }}
-        label={t('admin:components.instance.count')}
+        labelProps={{
+          text: t('admin:components.instance.count'),
+          position: 'top'
+        }}
       />
     </Modal>
   )

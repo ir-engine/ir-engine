@@ -44,6 +44,7 @@ import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { ObjOrFunction } from './resourceHooks'
 
 export interface DisposableObject {
   uuid: string
@@ -70,6 +71,7 @@ export enum ResourceType {
   Material = 'Material',
   Object3D = 'Object3D',
   Audio = 'Audio',
+  File = 'File',
   Unknown = 'Unknown'
   // ECSData = 'ECSData',
 }
@@ -84,6 +86,7 @@ export type ResourceAssetType =
   | Mesh
   | DisposableObject
   | AudioBuffer
+  | ArrayBuffer
 
 type BaseMetadata = {
   size?: number
@@ -115,15 +118,12 @@ type Resource = {
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
 
-  initial: () => {
-    Cache.clear()
-    return {
-      resources: {} as Record<string, Resource>,
-      totalVertexCount: 0,
-      totalBufferCount: 0,
-      debug: false
-    }
-  },
+  initial: () => ({
+    resources: {} as Record<string, Resource>,
+    totalVertexCount: 0,
+    totalBufferCount: 0,
+    debug: false
+  }),
 
   debugLog: (...data: any[]) => {
     if (getState(ResourceState).debug) console.log(...data)
@@ -243,6 +243,7 @@ const resourceCallbacks = {
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
+      if (!asset.image) return
       asset.wrapS = RepeatWrapping
       asset.wrapT = RepeatWrapping
       asset.onUpdate = () => {
@@ -259,22 +260,16 @@ const resourceCallbacks = {
         resource.metadata.size.set(size)
         // Non compressed texture size
       } else {
-        if (asset.image) {
-          const height = asset.image.height
-          const width = asset.image.width
-          const size = width * height * 4
-          resource.metadata.size.set(size)
-        } else {
-          resource.metadata.size.set(0)
-        }
+        const height = asset.image.height
+        const width = asset.image.width
+        const size = width * height * 4
+        resource.metadata.size.set(size)
       }
-
       if ((asset as CompressedTexture).isCompressedTexture) {
         const id = resource.id.value
         if (id.endsWith('ktx2')) asset.source.data.src = id
       }
-
-      resource.metadata.merge({ textureWidth: asset.image ? asset.image.width : 0 })
+      resource.metadata.merge({ textureWidth: asset.image.width })
       resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
@@ -375,6 +370,13 @@ const resourceCallbacks = {
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: AudioBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
   },
+  [ResourceType.File]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (asset: ArrayBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: ArrayBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
+  },
   [ResourceType.Unknown]: {
     onStart: (resource: State<Resource>) => {},
     onLoad: (asset: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
@@ -453,7 +455,7 @@ const disposeMaterial = (asset: Material | Material[]) => {
   const dispose = (material: Material) => {
     if ((material as DisposableObject).disposed) return
     for (const [_, val] of Object.entries(material) as [string, Texture][]) {
-      if (val && val.isTexture) {
+      if (isTexture(val)) {
         unload(val.uuid, UndefinedEntity)
       }
     }
@@ -473,6 +475,10 @@ const disposeObj = (obj: Object3D, sceneID?: string) => {
   if (typeof disposable.dispose === 'function') disposable.dispose()
 }
 //#endregion
+
+const isTexture = (val: any): val is Texture => {
+  return val && typeof val === 'object' && 'isTexture' in val
+}
 
 const onItemLoadedFor = <T extends ResourceAssetType>(
   url: string,
@@ -561,6 +567,13 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
 }
 
 const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resourceType = ResourceType.Unknown) => {
+  if (Array.isArray(asset)) {
+    for (const assetItem of asset) {
+      addReferencedAsset(assetKey, assetItem, resourceType)
+    }
+    return
+  }
+
   if (resourceType == ResourceType.Unknown) resourceType = getResourceType(asset)
 
   switch (resourceType) {
@@ -569,7 +582,7 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
       break
     case ResourceType.Mesh: {
       const mesh = asset as Mesh
-      onItemLoadedFor(assetKey, resourceType, (asset as Mesh).uuid, mesh)
+      onItemLoadedFor(assetKey, resourceType, mesh.uuid, mesh)
       addReferencedAsset(assetKey, mesh.material, ResourceType.Material)
       addReferencedAsset(assetKey, mesh.geometry, ResourceType.Geometry)
       break
@@ -583,8 +596,8 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
     case ResourceType.Material: {
       const material = asset as Material
       onItemLoadedFor(assetKey, resourceType, material.uuid, material)
-      for (const [_, val] of Object.entries(material) as [string, Texture][]) {
-        if (val && val.isTexture) {
+      for (const [_, val] of Object.entries(material) as [string, any][]) {
+        if (isTexture(val)) {
           addReferencedAsset(assetKey, val, ResourceType.Texture)
         }
       }
@@ -598,10 +611,66 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
   }
 }
 
-const addResource = <T extends object>(res: NonNullable<T> | (() => NonNullable<T>), id: string, entity: Entity): T => {
+const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resourceType = ResourceType.Unknown) => {
+  if (Array.isArray(asset)) {
+    for (const assetItem of asset) {
+      removeReferencedAsset(assetKey, assetItem, resourceType)
+    }
+    return
+  }
+
+  if (resourceType == ResourceType.Unknown) resourceType = getResourceType(asset)
+
+  switch (resourceType) {
+    case ResourceType.GLTF:
+      ResourceState.debugWarn("ResourceState:removeReferencedAsset GLTFs shouldn't be a referenced asset")
+      break
+    case ResourceType.Mesh: {
+      const mesh = asset as Mesh
+      removeResource(mesh.uuid)
+      removeReferencedAsset(assetKey, mesh.material, ResourceType.Material)
+      removeReferencedAsset(assetKey, mesh.geometry, ResourceType.Geometry)
+      break
+    }
+    case ResourceType.Texture:
+      removeResource((asset as Texture).uuid)
+      break
+    case ResourceType.Geometry:
+      removeResource((asset as Geometry).uuid)
+      break
+    case ResourceType.Material: {
+      const material = asset as Material
+      removeResource(material.uuid)
+      for (const [_, val] of Object.entries(material) as [string, any][]) {
+        if (isTexture(val)) {
+          removeReferencedAsset(assetKey, val, ResourceType.Texture)
+        }
+      }
+      break
+    }
+    case ResourceType.Object3D:
+      removeResource((asset as Object3D).uuid)
+      break
+    default:
+      break
+  }
+
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const obj = (typeof res === 'function' ? res() : res) as unknown as ResourceAssetType
+  if (!resources[assetKey].value || !resources[assetKey].assetRefs.value?.[resourceType]) return
+
+  resources[assetKey].assetRefs[resourceType].set((refs: string[]) => {
+    const index = refs.indexOf((asset as Object3D).uuid)
+    if (index !== -1) refs.splice(index, 1)
+    return refs
+  })
+}
+
+const addResource = <T>(res: ObjOrFunction<T>, id: string, entity: Entity): T => {
+  const obj = (res instanceof Function ? res() : res) as unknown as ResourceAssetType
+  if (!obj) return obj
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
   const resourceType = getResourceType(obj)
   const callbacks = resourceCallbacks[resourceType]
 
@@ -699,6 +768,7 @@ export const ResourceManager = {
   resourceCallbacks,
   loadObj,
   addReferencedAsset,
+  removeReferencedAsset,
   addResource,
   unload,
   unloadObj,

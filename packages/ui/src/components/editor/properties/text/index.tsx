@@ -42,8 +42,8 @@ import {
   TroikaTextLineHeight
 } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import { ColorInput } from '../../../../primitives/tailwind/Color'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -212,7 +212,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup name="TextWrap" label={t('editor:properties.text.textWrap')}>
-            <BooleanInput value={text.textWrap.value} onChange={commitProperty(TextComponent, 'textWrap')} />
+            <Checkbox checked={text.textWrap.value} onChange={commitProperty(TextComponent, 'textWrap')} />
           </InputGroup>
           <InputGroup name="TextAnchor" label={t('editor:properties.text.textAnchor')}>
             <Vector2Input
@@ -411,7 +411,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.text.advancedActive')}
         info={HoverInfo.AdvancedGroup}
       >
-        <BooleanInput value={advancedActive.value} onChange={advancedActive.set} />
+        <Checkbox checked={advancedActive.value} onChange={advancedActive.set} />
       </InputGroup>
       {advancedActive.value ? (
         /*Show Advanced Options only when Active*/
@@ -429,7 +429,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               label={t('editor:properties.text.clippingActive')}
               info={HoverInfo.Clipping}
             >
-              <BooleanInput value={text.clipActive.value} onChange={commitProperty(TextComponent, 'clipActive')} />
+              <Checkbox checked={text.clipActive.value} onChange={commitProperty(TextComponent, 'clipActive')} />
             </InputGroup>
             <InputGroup
               disabled={!text.clipActive.value}
@@ -487,8 +487,8 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               label={t('editor:properties.text.gpuAccelerated')}
               info={HoverInfo.GPUAccelerated}
             >
-              <BooleanInput
-                value={text.gpuAccelerated.value}
+              <Checkbox
+                checked={text.gpuAccelerated.value}
                 onChange={commitProperty(TextComponent, 'gpuAccelerated')}
               />
             </InputGroup>

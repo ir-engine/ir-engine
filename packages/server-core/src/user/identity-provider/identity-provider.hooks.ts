@@ -25,14 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import { random } from 'lodash'
+import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
 import { scopePath, ScopeType } from '@ir-engine/common/src/schemas/scope/scope.schema'
-import { avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import {
   IdentityProviderData,
   identityProviderDataValidator,
@@ -215,30 +212,8 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 
 async function createNewUser(context: HookContext<IdentityProviderService>) {
   const isGuest = (context.actualData as IdentityProviderType).type === 'guest'
-  const avatars = await context.app
-    .service(avatarPath)
-    .find({ isInternal: true, query: { isPublic: true, skipUser: true, $limit: 1000 } })
-
-  let selectedAvatarId
-  while (selectedAvatarId == null) {
-    const randomId = random(avatars.data.length - 1)
-    const selectedAvatar = avatars.data[randomId]
-    try {
-      await Promise.all([
-        context.app.service(staticResourcePath).get(selectedAvatar.modelResourceId),
-        context.app.service(staticResourcePath).get(selectedAvatar.thumbnailResourceId)
-      ])
-      selectedAvatarId = selectedAvatar.id
-    } catch (err) {
-      console.log('error in getting resources')
-      avatars.data.splice(randomId, 1)
-      if (avatars.data.length < 1) throw new Error('All avatars are missing static resources')
-    }
-  }
-
   context.existingUser = await context.app.service(userPath).create({
-    isGuest,
-    avatarId: selectedAvatarId
+    isGuest
   })
 }
 
@@ -294,6 +269,16 @@ async function createAccessToken(context: HookContext<IdentityProviderService>) 
   }
 }
 
+const isSearchQuery = (context: HookContext) => {
+  const { query } = context.params
+  const queryLength = Object.keys(query).length
+  // we only need to allow search based on exact email in the query
+  if (queryLength === 2 && query.email && !query.email.$like && !query.email.$notlike) {
+    return true
+  }
+  return false
+}
+
 export default {
   around: {
     all: [
@@ -307,7 +292,7 @@ export default {
       schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
+    find: [iff(isProvider('external'), iffElse(isSearchQuery, [], setLoggedinUserInQuery('userId')))],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
       iff(
