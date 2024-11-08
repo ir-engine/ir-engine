@@ -48,3 +48,6 @@ export const isSafari =
 export const isMobile = mobileOrTablet
 
 export const isIPhone = typeof navigator !== 'undefined' && navigator.userAgent.match(/iPhone/i) !== null
+
+export const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') > -1
+export const firefoxVersion = isFirefox ? parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1]) : -1

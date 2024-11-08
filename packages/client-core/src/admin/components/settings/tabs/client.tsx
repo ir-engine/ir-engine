@@ -29,9 +29,9 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { clientSettingPath, ClientSettingType } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -140,84 +140,106 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appTitle')}
+          labelProps={{
+            text: t('admin:components.setting.appTitle'),
+            position: 'top'
+          }}
           value={settings.appTitle.value || ''}
           onChange={(e) => settings.appTitle.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.title')}
+          labelProps={{
+            text: t('admin:components.setting.title'),
+            position: 'top'
+          }}
           value={settings.title.value || ''}
           onChange={(e) => settings.title.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appSubtitle')}
+          labelProps={{
+            text: t('admin:components.setting.appSubtitle'),
+            position: 'top'
+          }}
           value={settings.appSubtitle.value || ''}
           onChange={(e) => settings.appSubtitle.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.shortTitle')}
+          labelProps={{
+            text: t('admin:components.setting.shortTitle'),
+            position: 'top'
+          }}
           value={settings.shortTitle.value || ''}
           onChange={(e) => settings.shortTitle.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appDescription')}
+          labelProps={{
+            text: t('admin:components.setting.appDescription'),
+            position: 'top'
+          }}
           value={settings.appDescription.value || ''}
           onChange={(e) => settings.appDescription.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.startPath')}
+          labelProps={{
+            text: t('admin:components.setting.startPath'),
+            position: 'top'
+          }}
           value={settings.startPath.value || '/'}
           onChange={(e) => settings.startPath.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appBackground')}
+          labelProps={{
+            text: t('admin:components.setting.appBackground'),
+            position: 'top'
+          }}
           value={settings.appBackground.value || ''}
           onChange={(e) => settings.appBackground.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.description')}
+          labelProps={{
+            text: t('admin:components.setting.description'),
+            position: 'top'
+          }}
           value={settings.siteDescription.value || ''}
           onChange={(e) => settings.siteDescription.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.googleAnalyticsMeasurementId')}
+          labelProps={{
+            text: t('admin:components.setting.googleAnalyticsMeasurementId'),
+            position: 'top'
+          }}
           value={settings.gaMeasurementId.value || ''}
           onChange={(e) => settings.gaMeasurementId.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.googleTagManagerContainerId')}
+          labelProps={{
+            text: t('admin:components.setting.googleTagManagerContainerId'),
+            position: 'top'
+          }}
           value={settings.gtmContainerId.value || ''}
           onChange={(e) => settings.gtmContainerId.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.googleTagManagerAuth')}
-          description={t('admin:components.setting.googleTagManagerAuthDescription')}
+          labelProps={{
+            text: t('admin:components.setting.googleTagManagerAuth'),
+            position: 'top'
+          }}
           value={settings.gtmAuth.value || ''}
           onChange={(e) => settings.gtmAuth.set(e.target.value)}
         />
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.googleTagManagerPreview')}
-          description={t('admin:components.setting.googleTagManagerPreviewDescription')}
+          labelProps={{
+            text: t('admin:components.setting.googleTagManagerPreview'),
+            position: 'top'
+          }}
           value={settings.gtmPreview.value || ''}
           onChange={(e) => settings.gtmPreview.set(e.target.value)}
         />
@@ -234,43 +256,55 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.logo')}
+          labelProps={{
+            text: t('admin:components.setting.logo'),
+            position: 'top'
+          }}
           value={settings.logo.value || ''}
           onChange={(e) => settings.logo.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appleTouchIcon')}
+          labelProps={{
+            text: t('admin:components.setting.appleTouchIcon'),
+            position: 'top'
+          }}
           value={settings.appleTouchIcon.value || ''}
           onChange={(e) => settings.appleTouchIcon.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.favIcon16px')}
+          labelProps={{
+            text: t('admin:components.setting.favIcon16px'),
+            position: 'top'
+          }}
           value={settings.favicon16px.value || ''}
           onChange={(e) => settings.favicon16px.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.favIcon32px')}
+          labelProps={{
+            text: t('admin:components.setting.favIcon32px'),
+            position: 'top'
+          }}
           value={settings.favicon32px.value || ''}
           onChange={(e) => settings.favicon32px.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.icon192px')}
+          labelProps={{
+            text: t('admin:components.setting.icon192px'),
+            position: 'top'
+          }}
           value={settings.icon192px.value || ''}
           onChange={(e) => settings.icon192px.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.icon512px')}
+          labelProps={{
+            text: t('admin:components.setting.icon512px'),
+            position: 'top'
+          }}
           value={settings.icon512px.value || ''}
           onChange={(e) => settings.icon512px.set(e.target.value)}
         />
@@ -280,43 +314,55 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.webmanifestLink')}
+          labelProps={{
+            text: t('admin:components.setting.webmanifestLink'),
+            position: 'top'
+          }}
           value={settings.webmanifestLink.value || ''}
           onChange={(e) => settings.webmanifestLink.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.swScriptLink')}
+          labelProps={{
+            text: t('admin:components.setting.swScriptLink'),
+            position: 'top'
+          }}
           value={settings.swScriptLink.value || ''}
           onChange={(e) => settings.swScriptLink.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.url')}
+          labelProps={{
+            text: t('admin:components.setting.url'),
+            position: 'top'
+          }}
           value={clientSettings?.url || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.releaseName')}
+          labelProps={{
+            text: t('admin:components.setting.releaseName'),
+            position: 'top'
+          }}
           value={clientSettings?.releaseName || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.privacyPolicy')}
+          labelProps={{
+            text: t('admin:components.setting.privacyPolicy'),
+            position: 'top'
+          }}
           value={settings.privacyPolicy.value}
           onChange={(e) => settings.privacyPolicy.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.key8thWall')}
+          labelProps={{
+            text: t('admin:components.setting.key8thWall'),
+            position: 'top'
+          }}
           value={settings.key8thWall.value || ''}
           onChange={(e) => settings.key8thWall.set(e.target.value)}
         />
@@ -326,9 +372,11 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
-          className="col-span-1"
           type="number"
-          label={t('admin:components.setting.audioMaxBitrate')}
+          labelProps={{
+            text: t('admin:components.setting.audioMaxBitrate'),
+            position: 'top'
+          }}
           value={settings.mediaSettings.audio.maxBitrate.value || ''}
           onChange={(e) => settings.mediaSettings.audio.maxBitrate.set(Number(e.target.value))}
         />
@@ -353,25 +401,31 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           settings.mediaSettings.video.codec.value === 'h264') && (
           <>
             <Input
-              className="col-span-1"
               type="number"
-              label={t('admin:components.setting.videoLowResMaxBitrate')}
+              labelProps={{
+                text: t('admin:components.setting.videoLowResMaxBitrate'),
+                position: 'top'
+              }}
               value={settings.mediaSettings.video.lowResMaxBitrate.value || ''}
               onChange={(e) => settings.mediaSettings.video.lowResMaxBitrate.set(Number(e.target.value))}
             />
 
             <Input
-              className="col-span-1"
               type="number"
-              label={t('admin:components.setting.videoMidResMaxBitrate')}
+              labelProps={{
+                text: t('admin:components.setting.videoMidResMaxBitrate'),
+                position: 'top'
+              }}
               value={settings.mediaSettings.video.midResMaxBitrate.value || ''}
               onChange={(e) => settings.mediaSettings.video.midResMaxBitrate.set(Number(e.target.value))}
             />
 
             <Input
-              className="col-span-1"
               type="number"
-              label={t('admin:components.setting.videoHighResMaxBitrate')}
+              labelProps={{
+                text: t('admin:components.setting.videoHighResMaxBitrate'),
+                position: 'top'
+              }}
               value={settings.mediaSettings.video.highResMaxBitrate.value || ''}
               onChange={(e) => settings.mediaSettings.video.highResMaxBitrate.set(Number(e.target.value))}
             />
@@ -391,21 +445,30 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           <>
             <Input
               type="number"
-              label={t('admin:components.setting.screenshareLowResMaxBitrate')}
+              labelProps={{
+                text: t('admin:components.setting.screenshareLowResMaxBitrate'),
+                position: 'top'
+              }}
               value={settings.mediaSettings.screenshare.lowResMaxBitrate.value || ''}
               onChange={(e) => settings.mediaSettings.screenshare.lowResMaxBitrate.set(Number(e.target.value))}
             />
 
             <Input
               type="number"
-              label={t('admin:components.setting.screenshareMidResMaxBitrate')}
+              labelProps={{
+                text: t('admin:components.setting.screenshareMidResMaxBitrate'),
+                position: 'top'
+              }}
               value={settings.mediaSettings.screenshare.midResMaxBitrate.value || ''}
               onChange={(e) => settings.mediaSettings.screenshare.midResMaxBitrate.set(Number(e.target.value))}
             />
 
             <Input
               type="number"
-              label={t('admin:components.setting.screenshareHighResMaxBitrate')}
+              labelProps={{
+                text: t('admin:components.setting.screenshareHighResMaxBitrate'),
+                position: 'top'
+              }}
               value={settings.mediaSettings.screenshare.highResMaxBitrate.value || ''}
               onChange={(e) => settings.mediaSettings.screenshare.highResMaxBitrate.set(Number(e.target.value))}
             />

@@ -136,13 +136,15 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           inviteeIdentityProvider = inviteeIdentityProviderResult.data[0]
         }
       } else if (invite.inviteeId != null) {
-        const invitee = await this.app.service(userPath).get(invite.inviteeId)
+        const identityProviders = await this.app
+          .service(identityProviderPath)
+          .find({ query: { userId: invite.inviteeId } })
 
-        if (invitee == null || invitee.identityProviders == null || invitee.identityProviders.length === 0) {
+        if (identityProviders.data == null || identityProviders.data.length === 0) {
           throw new BadRequest('Invalid invitee ID')
         }
 
-        inviteeIdentityProvider = invitee.identityProviders[0]
+        inviteeIdentityProvider = identityProviders.data[0]
       }
 
       if (params[identityProviderPath] == null) params[identityProviderPath] = inviteeIdentityProvider

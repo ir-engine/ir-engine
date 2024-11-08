@@ -34,7 +34,7 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
-import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'
 
@@ -64,8 +64,8 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.groundPlane.lbl-visible')}
         info={t('editor:properties.groundPlane.info-visible')}
       >
-        <BooleanInput
-          value={groundPlaneComponent.visible.value}
+        <Checkbox
+          checked={groundPlaneComponent.visible.value}
           onChange={commitProperty(GroundPlaneComponent, 'visible')}
         />
       </InputGroup>
