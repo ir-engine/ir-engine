@@ -43,6 +43,7 @@ import { assertVecApproxEq } from '../../../../tests/util/mathAssertions'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
+import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
 import { ObjectComponent } from '../ObjectComponent'
@@ -249,35 +250,29 @@ describe('SpotLightComponent', () => {
     })
 
     it('should create a new SpotLight object and add it to the ObjectComponent of the entity when it is mounted', () => {
-      setComponent(testEntity, ObjectComponent)
-
       // Sanity check before running
       const before = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!before, true)
+      assert.equal(!!before, false)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
       const after = getComponent(testEntity, ObjectComponent)
-      assert.notEqual(!!after, true)
       assert.equal(!!after, true)
-      const result = after[0].type === 'SpotLight'
+      const result = after.type === 'SpotLight'
       assert.equal(result, true)
     })
 
     it('should remove the SpotLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
-      setComponent(testEntity, ObjectComponent)
-
       // Sanity check before running
       const before1 = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!before1, true)
+      assert.equal(!!before1, false)
       setComponent(testEntity, SpotLightComponent)
 
       // Run and Check the result
       removeComponent(testEntity, SpotLightComponent)
       const after = getComponent(testEntity, ObjectComponent)
-      assert.notEqual(!!after, true)
-      assert.equal(!!after, true)
-      assert.notEqual(after[0].type, 'SpotLight')
+      assert.equal(!!after, false)
+      assert.notEqual(after?.type, 'SpotLight')
     })
 
     it('should react when directionalLightComponent.color changes', () => {
@@ -295,7 +290,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).color
       assertColorEqual(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[0] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.color.getHex(), Expected)
     })
 
@@ -313,7 +308,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).intensity
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.intensity, Expected)
     })
 
@@ -331,7 +326,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).range
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.distance, Expected)
     })
 
@@ -349,7 +344,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).decay
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.decay, Expected)
     })
 
@@ -367,7 +362,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).angle
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.angle, Expected)
     })
 
@@ -385,7 +380,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).penumbra
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.penumbra, Expected)
     })
 
@@ -403,7 +398,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).castShadow
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.castShadow, Expected)
     })
 
@@ -421,7 +416,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).shadowBias
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.shadow.bias, Expected)
     })
 
@@ -439,7 +434,7 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).shadowRadius
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.shadow.radius, Expected)
     })
 
@@ -450,13 +445,13 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
-      const before = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const before = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(before.shadow.mapSize.x, Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
       SpotLightComponent.reactorMap.get(testEntity)!.run()
-      const result = getComponent(testEntity, ObjectComponent)[1] as SpotLight
+      const result = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(result.shadow.mapSize.x, Expected)
     })
 
@@ -470,18 +465,19 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, SpotLightComponent)
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       SpotLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Expected)
-      assert.equal(getComponent(testEntity, LightHelperComponent).name, 'spot-light-helper')
+
+      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
+      assert.equal(hasComponent(childEntity1, LightHelperComponent), Expected)
+      assert.equal(getComponent(childEntity1, LightHelperComponent).name, 'spot-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
       SpotLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
+      assert.equal(hasComponent(childEntity1, LightHelperComponent), Initial)
     })
   }) //:: reactor
 })

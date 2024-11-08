@@ -41,6 +41,7 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
+import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
@@ -262,18 +263,19 @@ describe('HemisphereLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, HemisphereLightComponent)
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       HemisphereLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Expected)
-      assert.equal(getComponent(testEntity, LightHelperComponent).name, 'hemisphere-light-helper')
+
+      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
+      assert.equal(hasComponent(childEntity1, LightHelperComponent), Expected)
+      assert.equal(getComponent(childEntity1, LightHelperComponent).name, 'hemisphere-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
       HemisphereLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
+      assert.equal(hasComponent(childEntity1, LightHelperComponent), Initial)
     })
   }) //:: reactor
 })

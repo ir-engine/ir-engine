@@ -371,21 +371,17 @@ describe('DirectionalLightComponent', () => {
       const Initial = 21
       const Expected = 42
 
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       getMutableState(RendererState).shadowMapResolution.set(Initial)
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
-      const before = getComponent(testEntity, ObjectComponent)[1] as DirectionalLight
+      const before = getComponent(testEntity, ObjectComponent) as DirectionalLight
       assert.equal(before.shadow.mapSize.x, Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
       DirectionalLightComponent.reactorMap.get(testEntity)!.run()
-      const result = getComponent(testEntity, ObjectComponent)[1] as DirectionalLight
+      const result = getComponent(testEntity, ObjectComponent) as DirectionalLight
       assert.equal(result.shadow.mapSize.x, Expected)
     })
 

@@ -26,19 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { SpotLight } from 'three'
 
-import {
-  defineComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { defineComponent, getMutableComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
 import { useUpdateLight } from '../../functions/useUpdateLight'
@@ -74,7 +70,7 @@ export const SpotLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const [light] = useDisposable(SpotLight, entity)
-    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
+    const helperEntity = useHookstate(UndefinedEntity)
 
     useEffect(() => {
       setComponent(entity, LightTagComponent)
@@ -89,8 +85,12 @@ export const SpotLightComponent = defineComponent({
 
     useEffect(() => {
       light.color.set(spotLightComponent.color.value)
-      if (lightHelper) lightHelper.color.set(spotLightComponent.color.value)
-    }, [spotLightComponent.color, lightHelper])
+    }, [spotLightComponent.color])
+
+    useEffect(() => {
+      if (helperEntity.value)
+        getMutableComponent(helperEntity.value, LightHelperComponent).color.set(spotLightComponent.color.value)
+    }, [helperEntity, spotLightComponent.color])
 
     useEffect(() => {
       light.intensity = spotLightComponent.intensity.value
@@ -135,11 +135,15 @@ export const SpotLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, LightHelperComponent, { name: 'spot-light-helper', light: light })
-      }
+      if (!debugEnabled.value) return
+
+      helperEntity.set(createEntity())
+      setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
+      setComponent(helperEntity.value, LightHelperComponent, { name: 'spot-light-helper', light: light })
+
       return () => {
-        removeComponent(entity, LightHelperComponent)
+        removeEntity(helperEntity.value)
+        helperEntity.set(UndefinedEntity)
       }
     }, [debugEnabled])
 
