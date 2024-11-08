@@ -195,8 +195,9 @@ export const LoopAnimationComponent = defineComponent({
         (!animationPackGLTF[0].value && loopAnimationComponent.animationPack.value !== '') ||
         !animComponent?.animations.value ||
         // gltfComponent?.progress.value !== 100 ||
-        (loopAnimationComponent.animationPack.value != '' &&
-          lastAnimationPack.value === loopAnimationComponent.animationPack.value)
+        (loopAnimationComponent.animationPack.value !== '' &&
+          lastAnimationPack.value === loopAnimationComponent.animationPack.value) ||
+        loopAnimationComponent.animationPack.value === ''
       )
         return
 
