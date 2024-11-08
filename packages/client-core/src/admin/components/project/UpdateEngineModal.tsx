@@ -33,7 +33,7 @@ import { useFind } from '@ir-engine/common'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectType, ScopeType, helmSettingPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import { Checkbox } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -178,7 +178,7 @@ export default function UpdateEngineModal() {
           disabled={modalProcessing.value}
         />
         <Checkbox
-          value={updateProjects.value}
+          checked={updateProjects.value}
           onChange={updateProjects.set}
           label={t('admin:components.project.updateSelector')}
           disabled={modalProcessing.value}
@@ -199,7 +199,7 @@ export default function UpdateEngineModal() {
                   <div key={project.id} className="border border-theme-primary bg-theme-surfaceInput px-3.5 py-5">
                     <Checkbox
                       label={project.name}
-                      value={projectsToUpdate.value.has(project.name)}
+                      checked={projectsToUpdate.value.has(project.name)}
                       disabled={modalProcessing.value}
                       onChange={(value) => addOrRemoveProjectsToUpdate(project as ProjectType, value)}
                     />

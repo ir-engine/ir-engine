@@ -41,12 +41,11 @@ import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEdito
 import { NO_PROXY, getState } from '@ir-engine/hyperflux'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
+import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { GiMagickTrick } from 'react-icons/gi'
 import Accordion from '../../../../primitives/tailwind/Accordion'
-import Checkbox from '../../../../primitives/tailwind/Checkbox'
 import ColorInput from '../../../../primitives/tailwind/Color'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
@@ -139,9 +138,9 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
 
       case PropertyTypes.Boolean:
         renderVal = (
-          <BooleanInput
+          <Checkbox
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingValue}
+            checked={effectSettingValue}
           />
         )
         break
@@ -270,7 +269,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             onChange={(val) =>
               commitProperties(PostProcessingComponent, { [`effects.${effect}.isActive`]: val }, [props.entity])
             }
-            value={postprocessing.effects[effect]?.isActive?.value}
+            checked={postprocessing.effects[effect]?.isActive?.value}
             label={effect}
           />
           {postprocessing.effects[effect]?.isActive?.value && (
@@ -293,8 +292,8 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
-        <BooleanInput
-          value={postprocessing.enabled.value}
+        <Checkbox
+          checked={postprocessing.enabled.value}
           onChange={(val) => {
             commitProperty(PostProcessingComponent, 'enabled')(val)
           }}
