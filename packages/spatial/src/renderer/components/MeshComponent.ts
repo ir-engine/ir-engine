@@ -49,43 +49,32 @@ export const MeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
-    const [meshResource] = useResource(meshComponent.value, entity, meshComponent.uuid.value)
-    const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
-    const [materialResource] = useResource<Material | Material[]>(
-      meshComponent.material.value as Material | Material[],
-      entity,
-      !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
-    )
+    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
 
     useEffect(() => {
-      const box = geometryResource.boundingBox.get(NO_PROXY) as Box3 | null
+      const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null
       if (!box) return
 
       setComponent(entity, BoundingBoxComponent, { box: box })
       return () => {
         removeComponent(entity, BoundingBoxComponent)
       }
-    }, [geometryResource.boundingBox])
+    }, [meshComponent.geometry.boundingBox])
 
     useEffect(() => {
-      if (meshComponent.value !== meshResource.value) meshResource.set(meshComponent.value)
-    }, [meshComponent])
+      const material = meshComponent.material.value
 
-    useEffect(() => {
-      const mesh = meshComponent.value
-      if (mesh.geometry !== geometryResource.value) geometryResource.set(mesh.geometry)
-    }, [meshComponent.geometry])
-
-    useEffect(() => {
-      const mesh = meshComponent.value
-      if (mesh.material !== materialResource.value) materialResource.set(mesh.material)
-
-      if (Array.isArray(mesh.material)) {
-        for (const material of mesh.material) material.needsUpdate = true
+      if (Array.isArray(material)) {
+        material.forEach((material) => (material.needsUpdate = true))
       } else {
-        ;(mesh.material as Material).needsUpdate = true
+        ;(material as Material).needsUpdate = true
       }
     }, [meshComponent.material])
+
+    useEffect(() => {
+      const mesh = meshComponent.value
+      if (mesh !== meshResource.value) meshResource.set(mesh)
+    }, [meshComponent])
 
     return null
   }
