@@ -23,18 +23,33 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export type ResourceType = {
-  type: string // 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
-  tags?: string[]
-  dependencies?: string[] // other keys
-  licensing?: string
-  description?: string
-  name?: string
-  attribution?: string
-  thumbnailKey?: string
-  thumbnailMode?: string // 'automatic' | 'manual'
-  dimensions?: number[]
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import type { Knex } from 'knex'
+
+const assetPath = 'asset'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const dimensionsColumnExists = await knex.schema.hasColumn(staticResourcePath, 'dimensions')
+  if (!dimensionsColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.json('dimensions').defaultTo(null)
+    })
+  }
 }
 
-// key = /path/to/file.ext
-export type ResourcesJson = Record<string, ResourceType>
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const dimensionsColumnExists = await knex.schema.hasColumn(staticResourcePath, 'dimensions')
+  if (dimensionsColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('dimensions')
+    })
+  }
+}

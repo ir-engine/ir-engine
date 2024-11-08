@@ -1602,7 +1602,8 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
             name: item.name,
             attribution: item.attribution,
             thumbnailKey: (item as any).thumbnailURL, // old fields
-            thumbnailMode: (item as any).thumbnailType // old fields
+            thumbnailMode: (item as any).thumbnailType, // old fields,
+            dimensions: item.dimensions
           }
         ]
       })
@@ -1766,7 +1767,8 @@ export const uploadLocalProjectToProvider = async (
             name: resourceInfo?.name ?? undefined,
             attribution: resourceInfo?.attribution ?? undefined,
             thumbnailKey,
-            thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
+            thumbnailMode: resourceInfo?.thumbnailMode ?? undefined,
+            dimensions: resourceInfo?.dimensionsc ?? undefined
           },
           { ignoreResourcesJson: true }
         )
@@ -1787,7 +1789,8 @@ export const uploadLocalProjectToProvider = async (
             name: resourceInfo?.name ?? undefined,
             attribution: resourceInfo?.attribution ?? undefined,
             thumbnailKey,
-            thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
+            thumbnailMode: resourceInfo?.thumbnailMode ?? undefined,
+            dimensions: resourceInfo?.dimensions ?? undefined
           },
           { ignoreResourcesJson: true }
         )
