@@ -36,7 +36,7 @@ import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunct
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { isClient } from '@ir-engine/hyperflux'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 /**
  * @description

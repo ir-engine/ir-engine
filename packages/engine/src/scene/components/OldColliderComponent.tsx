@@ -33,7 +33,6 @@ import {
   defineComponent,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -52,11 +51,11 @@ import {
   ColliderOptions,
   OldShapeTypes
 } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { iterateEntityNode, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { computeTransformMatrix, updateGroupChildren } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 
@@ -168,9 +167,6 @@ export const OldColliderComponent = defineComponent({
         const colliderComponent = getComponent(entity, OldColliderComponent)
 
         iterateEntityNode(entity, computeTransformMatrix)
-        if (hasComponent(entity, GroupComponent)) {
-          updateGroupChildren(entity)
-        }
 
         const meshesToRemove = [] as Mesh[]
 
@@ -254,7 +250,7 @@ export const OldColliderComponent = defineComponent({
           removeComponent(entity, TriggerComponent)
         }
       }
-    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, tree])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent, tree])
 
     return null
   }

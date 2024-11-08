@@ -23,7 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
+import './threejsPatches'
+
+import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 
 import { createEntity, getComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -33,7 +35,7 @@ import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
 import { EngineState } from './EngineState'
 import { InputComponent } from './input/components/InputComponent'
-import { addObjectToGroup } from './renderer/components/GroupComponent'
+import { MeshComponent } from './renderer/components/MeshComponent'
 import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
 import { SceneComponent } from './renderer/components/SceneComponents'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
@@ -98,12 +100,9 @@ export const initializeSpatialEngine = () => {
   setComponent(localFloorEntity, TransformComponent)
   setComponent(localFloorEntity, VisibleComponent, true)
   setComponent(localFloorEntity, SceneComponent, { active: true })
-  const origin = new Group()
-  addObjectToGroup(localFloorEntity, origin)
   const floorHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
   setObjectLayers(floorHelperMesh, ObjectLayers.Gizmos)
-  floorHelperMesh.frustumCulled = false
-  origin.add(floorHelperMesh)
+  setComponent(localFloorEntity, MeshComponent, floorHelperMesh)
 
   getMutableState(EngineState).merge({
     originEntity,

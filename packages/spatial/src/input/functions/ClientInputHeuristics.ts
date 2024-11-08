@@ -46,8 +46,8 @@ import { CameraComponent, CameraGizmoTagComponent } from '../../camera/component
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { EngineState } from '../../EngineState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { GroupComponent, ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -168,8 +168,7 @@ export function findEditor(intersectionData: Set<IntersectionData>, caster: Rayc
   const inputObj = inputObjectsQuery().concat(cameraGizmo)
 
   const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
-    .map((eid) => getComponent(eid, GroupComponent))
-    .flat()
+    .map((eid) => getComponent(eid, ObjectComponent))
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
   caster.layers.enable(ObjectLayers.Gizmos)
@@ -236,9 +235,8 @@ const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
 export function findMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean, caster: Raycaster) {
   const inputState = getState(InputState)
   const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
-    .filter((eid) => hasComponent(eid, GroupComponent))
-    .map((eid) => getComponent(eid, GroupComponent))
-    .flat()
+    .filter((eid) => hasComponent(eid, ObjectComponent))
+    .map((eid) => getComponent(eid, ObjectComponent))
 
   const hits = caster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {

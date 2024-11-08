@@ -38,7 +38,7 @@ import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoader
 import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { addObjectToGroup } from '../../renderer/components/ObjectComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'

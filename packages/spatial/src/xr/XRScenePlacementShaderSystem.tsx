@@ -30,7 +30,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
-import { GroupQueryReactor } from '../renderer/components/GroupComponent'
+import { QueryReactor } from '@ir-engine/ecs'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { XRState } from './XRState'
@@ -95,9 +95,7 @@ function XRScenePlacementReactor({ obj }) {
 }
 
 const reactor = () => {
-  return (
-    <GroupQueryReactor GroupChildReactor={XRScenePlacementReactor} Components={[VisibleComponent, MeshComponent]} />
-  )
+  return <QueryReactor ChildEntityReactor={XRScenePlacementReactor} Components={[VisibleComponent, MeshComponent]} />
 }
 
 export const XRScenePlacementShaderSystem = defineSystem({

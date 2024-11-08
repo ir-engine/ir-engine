@@ -35,7 +35,7 @@ import { defineState, getMutableState, getState, useMutableState } from '@ir-eng
 
 import { Vector3_Zero } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '../renderer/components/GroupComponent'
+import { addObjectToGroup } from '../renderer/components/ObjectComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { DirectionalLightComponent } from '../renderer/components/lights/DirectionalLightComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'

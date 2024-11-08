@@ -37,14 +37,14 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BoxGeometry, Color, ColorRepresentation, DirectionalLight, Mesh, MeshBasicMaterial } from 'three'
+import { BoxGeometry, Color, ColorRepresentation, DirectionalLight, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
-import { GroupComponent, addObjectToGroup } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { DirectionalLightComponent } from './DirectionalLightComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -219,41 +219,35 @@ describe('DirectionalLightComponent', () => {
       assert.equal(hasComponent(testEntity, LightTagComponent), true)
     })
 
-    it('should create a new DirectionalLight object and add it to the GroupComponent of the entity when it is mounted', () => {
-      setComponent(testEntity, GroupComponent)
+    it('should create a new DirectionalLight object and add it to the ObjectComponent of the entity when it is mounted', () => {
+      setComponent(testEntity, ObjectComponent)
 
       // Sanity check before running
-      const before = getComponent(testEntity, GroupComponent)
-      assert.equal(before.length, 0)
+      const before = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!before, true)
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
-      const after = getComponent(testEntity, GroupComponent)
-      assert.notEqual(after.length, 0)
-      assert.equal(after.length, 1)
+      const after = getComponent(testEntity, ObjectComponent)
+      assert.notEqual(!!after, true)
+      assert.equal(!!after, true)
       const result = after[0].type === 'DirectionalLight'
       assert.equal(result, true)
     })
 
-    it('should remove the DirectionalLight object from the GroupComponent of the entityContext when it is unmounted', () => {
-      setComponent(testEntity, GroupComponent)
-      const DummyObject = new Mesh(new BoxGeometry())
+    it('should remove the DirectionalLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
+      setComponent(testEntity, ObjectComponent)
 
       // Sanity check before running
-      const before1 = getComponent(testEntity, GroupComponent)
-      assert.equal(before1.length, 0)
+      const before1 = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!before1, true)
       setComponent(testEntity, DirectionalLightComponent)
-      addObjectToGroup(testEntity, DummyObject)
-      const before2 = getComponent(testEntity, GroupComponent)
-      assert.notEqual(before2.length, 0)
-      assert.equal(before2.length, 2)
-      assert.equal(before2[0].type, 'DirectionalLight')
 
       // Run and Check the result
       removeComponent(testEntity, DirectionalLightComponent)
-      const after = getComponent(testEntity, GroupComponent)
-      assert.notEqual(after.length, 2)
-      assert.equal(after.length, 1)
+      const after = getComponent(testEntity, ObjectComponent)
+      assert.notEqual(!!after, true)
+      assert.equal(!!after, true)
       assert.notEqual(after[0].type, 'DirectionalLight')
     })
 
@@ -385,13 +379,13 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
-      const before = getComponent(testEntity, GroupComponent)[1] as DirectionalLight
+      const before = getComponent(testEntity, ObjectComponent)[1] as DirectionalLight
       assert.equal(before.shadow.mapSize.x, Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
       DirectionalLightComponent.reactorMap.get(testEntity)!.run()
-      const result = getComponent(testEntity, GroupComponent)[1] as DirectionalLight
+      const result = getComponent(testEntity, ObjectComponent)[1] as DirectionalLight
       assert.equal(result.shadow.mapSize.x, Expected)
     })
 

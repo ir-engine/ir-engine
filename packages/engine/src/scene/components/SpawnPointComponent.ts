@@ -30,7 +30,7 @@ import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src
 import { getMutableState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'

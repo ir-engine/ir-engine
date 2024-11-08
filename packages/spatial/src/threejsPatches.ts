@@ -41,7 +41,7 @@ import { Entity, getComponent, getOptionalComponent, hasComponent } from '@ir-en
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
 import { BoneComponent } from './renderer/components/BoneComponent'
 import { MeshComponent } from './renderer/components/MeshComponent'
-import { Object3DComponent } from './renderer/components/Object3DComponent'
+import { ObjectComponent } from './renderer/components/ObjectComponent'
 import { SkinnedMeshComponent } from './renderer/components/SkinnedMeshComponent'
 import { Object3DUtils } from './transform/Object3DUtils'
 import { EntityTreeComponent } from './transform/components/EntityTree'
@@ -263,7 +263,7 @@ PropertyBinding.findNode = function (root: SkinnedMesh, nodeName: string | numbe
           getOptionalComponent(entity, BoneComponent) ??
           getOptionalComponent(entity, MeshComponent) ??
           getOptionalComponent(entity, SkinnedMeshComponent) ??
-          getOptionalComponent(entity, Object3DComponent)!
+          getOptionalComponent(entity, ObjectComponent)!
 
         if (childNode && (childNode.name === nodeName || childNode.uuid === nodeName)) {
           return childNode

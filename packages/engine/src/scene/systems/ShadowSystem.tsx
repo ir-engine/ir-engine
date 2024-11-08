@@ -61,9 +61,13 @@ import {
   createSortAndApplyPriorityQueue
 } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import {
+  addObjectToGroup,
+  GroupComponent,
+  ObjectComponent
+} from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -201,26 +205,21 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
   const { rendererEntity } = props
 
   const shadowComponent = useComponent(entity, ShadowComponent)
-  const groupComponent = useComponent(entity, GroupComponent)
+  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh | null
   const csm = useComponent(rendererEntity, RendererComponent).csm.value
 
   useEffect(() => {
     if (!csm || !shadowComponent.receive.value) return
 
-    if (!groupComponent) return
+    if (!obj) return
 
-    const objs = [...groupComponent.value] as Mesh<any, Material>[]
-    for (const obj of objs) {
-      if (obj.material) {
-        csm.setupMaterial(obj)
-      }
+    if (obj.material) {
+      csm.setupMaterial(obj)
     }
 
     return () => {
-      for (const obj of objs) {
-        if (obj.material) {
-          csm.teardownMaterial(obj.material)
-        }
+      if (obj.material) {
+        csm.teardownMaterial(obj.material as any)
       }
     }
   }, [shadowComponent.receive, csm])
@@ -394,7 +393,7 @@ const updateDropShadowTransforms = () => {
     const sizeBias = 0.3
     const finalRadius = sizeBias * dropShadow.radius + dropShadow.radius * centerCorrectedDist * 0.5
 
-    const shadowMaterial = (getComponent(dropShadow.entity, GroupComponent)[0] as Mesh).material as Material
+    const shadowMaterial = (getComponent(dropShadow.entity, ObjectComponent) as Mesh).material as Material
     shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 1.2
     shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
     dropShadowTransform.rotation.copy(shadowRotation)

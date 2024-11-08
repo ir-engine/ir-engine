@@ -47,7 +47,7 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'

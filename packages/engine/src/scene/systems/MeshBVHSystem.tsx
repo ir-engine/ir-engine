@@ -40,8 +40,8 @@ import { computeBoundsTree, disposeBoundsTree, MeshBVHHelper } from 'three-mesh-
 import { defineSystem, PresentationSystemGroup, QueryReactor, useEntityContext } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { generateMeshBVH } from '../functions/bvhWorkerPool'

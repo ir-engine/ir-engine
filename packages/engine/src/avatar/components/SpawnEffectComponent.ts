@@ -43,7 +43,7 @@ import { Physics, RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Phy
 import { AvatarCollisionMask, CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'

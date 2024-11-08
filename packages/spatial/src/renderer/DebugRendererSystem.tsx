@@ -35,7 +35,7 @@ import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux
 import { NameComponent } from '../common/NameComponent'
 import { EngineState } from '../EngineState'
 import { RapierWorldState } from '../physics/classes/Physics'
-import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
+import { addObjectToGroup, ObjectComponent } from '../renderer/components/ObjectComponent'
 import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
@@ -51,7 +51,7 @@ const execute = () => {
   for (const [id, physicsDebugEntity] of Array.from(PhysicsDebugEntities)) {
     const world = getState(RapierWorldState)[id]
     if (!world) continue
-    const lineSegments = getComponent(physicsDebugEntity, GroupComponent)[0] as any as LineSegments
+    const lineSegments = getComponent(physicsDebugEntity, ObjectComponent) as any as LineSegments
     const debugRenderBuffer = world.debugRender()
     lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
     lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))

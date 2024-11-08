@@ -35,7 +35,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/ObjectComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { occlusionMat, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'

@@ -24,11 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity, setComponent } from '@ir-engine/ecs'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { Mesh } from 'three'
 
 /**
@@ -40,6 +39,5 @@ import { Mesh } from 'three'
 export function addMesh(entity: Entity, mesh: Mesh, objectLayers: number[] = [ObjectLayers.Scene]) {
   setComponent(entity, MeshComponent, mesh)
   addObjectToGroup(entity, mesh)
-  proxifyParentChildRelationships(mesh)
   setObjectLayers(mesh, ...objectLayers)
 }

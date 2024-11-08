@@ -44,6 +44,7 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
+  useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -51,13 +52,17 @@ import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { GroupComponent, GroupQueryReactor } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import {
+  GroupComponent,
+  Object3DWithEntity,
+  ObjectComponent
+} from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   MaterialInstanceComponent,
@@ -159,8 +164,9 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
 const groupQuery = defineQuery([GroupComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
-function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
-  const { entity, obj } = props
+function SceneObjectReactor() {
+  const entity = useEntityContext()
+  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Object3DWithEntity
 
   const renderState = getMutableState(RendererState)
   const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
@@ -194,7 +200,7 @@ const execute = () => {
     callbacks.get(UpdatableCallback)?.(delta)
   }
   for (const entity of groupQuery()) {
-    const group = getComponent(entity, GroupComponent)
+    const obj = getComponent(entity, ObjectComponent)
     /**
      * do frustum culling here, but only if the object is more than 5 units away
      */
@@ -205,7 +211,7 @@ const execute = () => {
         DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
       )
 
-    for (const obj of group) obj.visible = visible
+    obj.visible = visible
   }
 }
 
@@ -277,7 +283,7 @@ const reactor = () => {
   return (
     <>
       <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ModelEntityReactor} />
-      <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+      <QueryReactor Components={[ObjectComponent]} ChildEntityReactor={SceneObjectReactor} />
     </>
   )
 }

@@ -41,8 +41,8 @@ import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUti
 import { useDisposable } from '../../../resources/resourceHooks'
 import { RendererState } from '../../RendererState'
 import { useUpdateLight } from '../../functions/useUpdateLight'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 const size = 1

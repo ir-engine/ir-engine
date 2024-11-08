@@ -33,7 +33,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { useDisposable, useResource } from '../../resources/resourceHooks'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './ObjectComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 

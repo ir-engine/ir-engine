@@ -53,7 +53,7 @@ import { createTransitionState } from '@ir-engine/spatial/src/common/functions/c
 import { easeOutCubic, normalizeRange } from '@ir-engine/spatial/src/common/functions/MathFunctions'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { ReferenceSpace, XRAction, XRState } from '@ir-engine/spatial/src/xr/XRState'

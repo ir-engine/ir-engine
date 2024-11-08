@@ -42,7 +42,7 @@ import { getMutableState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 

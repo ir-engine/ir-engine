@@ -29,7 +29,7 @@ import { Entity, getComponent } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { getHips, mixamoVRMRigMap } from '../AvatarBoneMatching'
 
@@ -44,7 +44,7 @@ const _scale = new Vector3()
 export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) => {
   const hips = getHips(gltfEntity)
   const hipsPositionScale = TransformComponent.getWorldScale(hips, _scale).y
-  getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
+  getComponent(hips, ObjectComponent).updateWorldMatrix(false, true)
   for (let i = 0; i < clip.tracks.length; i++) {
     const track = clip.tracks[i]
     const trackSplitted = track.name.split('.')

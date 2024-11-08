@@ -61,8 +61,8 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { MouseScroll } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { HolographicMaterial } from '@ir-engine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
@@ -274,7 +274,7 @@ export const ClickPlacementSystem = defineSystem({
     const sceneObjects: any[] = []
     const candidates = objectLayerQuery()
     for (const entity of candidates) {
-      const obj = getOptionalComponent(entity, GroupComponent)?.[0]
+      const obj = getOptionalComponent(entity, ObjectComponent)
       !!obj && sceneObjects.push(obj)
     }
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])

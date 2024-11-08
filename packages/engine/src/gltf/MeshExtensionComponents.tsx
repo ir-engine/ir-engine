@@ -35,8 +35,8 @@ import {
 } from '@ir-engine/ecs'
 import { NO_PROXY, State, none, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import React, { useEffect } from 'react'
 import {
   BufferAttribute,

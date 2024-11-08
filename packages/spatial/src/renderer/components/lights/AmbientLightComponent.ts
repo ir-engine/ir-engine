@@ -31,7 +31,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../../resources/resourceHooks'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 export const AmbientLightComponent = defineComponent({

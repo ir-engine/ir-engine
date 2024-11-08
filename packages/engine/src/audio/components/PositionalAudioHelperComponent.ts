@@ -41,7 +41,7 @@ import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { PositionalAudioComponent } from './PositionalAudioComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({

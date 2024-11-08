@@ -11,7 +11,7 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { defineActionQueue, getMutableState } from '@ir-engine/hyperflux'
 import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/functions/createWorkerFromCrossOriginURL'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { MediaStreamState } from '../MediaStreamState'

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  EntityContext,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -35,9 +34,7 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { ReactorRoot, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import React from 'react'
 import sinon from 'sinon'
 import { BoxGeometry, Layers, Matrix4, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -49,27 +46,19 @@ import {
 } from '../../../tests/util/mathAssertions'
 import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { TransformComponent } from '../RendererModule'
-import {
-  GroupComponent,
-  GroupQueryReactor,
-  GroupReactor,
-  addObjectToGroup,
-  removeGroupComponent,
-  removeObjectFromGroup
-} from './GroupComponent'
+import { ObjectComponent, addObjectToGroup, removeObjectFromGroup } from './ObjectComponent'
 import { Layer } from './ObjectLayerComponent'
-import { VisibleComponent } from './VisibleComponent'
 
-const GroupComponentDefaults = [] as Object3D[]
+const ObjectComponentDefaults = [] as Object3D[]
 
-function assertGroupComponentEq(A, B) {
+function assertObjectComponentEq(A, B) {
   assertArrayEqual(A, B)
 }
 
-describe('GroupComponent', () => {
+describe('ObjectComponent', () => {
   describe('IDs', () => {
-    it('should initialize the GroupComponent.name field with the expected value', () => {
-      assert.equal(GroupComponent.name, 'GroupComponent')
+    it('should initialize the ObjectComponent.name field with the expected value', () => {
+      assert.equal(ObjectComponent.name, 'ObjectComponent')
     })
   }) //:: IDs
 
@@ -79,7 +68,7 @@ describe('GroupComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
-      setComponent(testEntity, GroupComponent)
+      setComponent(testEntity, ObjectComponent)
     })
 
     afterEach(() => {
@@ -88,8 +77,8 @@ describe('GroupComponent', () => {
     })
 
     it('should initialize the component with the expected default values', () => {
-      const data = getComponent(testEntity, GroupComponent)
-      assertGroupComponentEq(data, GroupComponentDefaults)
+      const data = getComponent(testEntity, ObjectComponent)
+      assertObjectComponentEq(data, ObjectComponentDefaults)
     })
   }) //:: onInit
 
@@ -99,7 +88,7 @@ describe('GroupComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
-      setComponent(testEntity, GroupComponent)
+      setComponent(testEntity, ObjectComponent)
     })
 
     afterEach(() => {
@@ -124,52 +113,11 @@ describe('GroupComponent', () => {
       assert.equal(spy1.called, false)
       assert.equal(spy2.called, false)
       // Run and Check the result
-      removeComponent(testEntity, GroupComponent)
+      removeComponent(testEntity, ObjectComponent)
       assert.equal(spy1.called, true)
       assert.equal(spy2.called, true)
     })
   }) //:: onRemove
-
-  describe('removeGroupComponent', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, GroupComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should call the T.removeFromParent function for every object in the group', () => {
-      const spy1 = sinon.spy()
-      const spy2 = sinon.spy()
-      const mesh1 = new Mesh(new BoxGeometry())
-      const mesh2 = new Mesh(new SphereGeometry())
-      mesh1.removeFromParent = spy1
-      mesh2.removeFromParent = spy2
-      mesh1.name = 'Mesh1'
-      mesh2.name = 'Mesh2'
-      addObjectToGroup(testEntity, mesh1)
-      addObjectToGroup(testEntity, mesh2)
-      assert.equal(spy1.called, false)
-      assert.equal(spy2.called, false)
-      // Run and Check the result
-      removeGroupComponent(testEntity)
-      assert.equal(spy1.called, true)
-      assert.equal(spy2.called, true)
-    })
-
-    it('should remove the GroupComponent from the entity', () => {
-      assert.equal(hasComponent(testEntity, GroupComponent), true)
-      // Run and Check the result
-      removeGroupComponent(testEntity)
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
-    })
-  }) //:: removeGroupComponent
 
   describe('removeObjectFromGroup', () => {
     let testEntity = UndefinedEntity
@@ -177,7 +125,7 @@ describe('GroupComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
-      setComponent(testEntity, GroupComponent)
+      setComponent(testEntity, ObjectComponent)
     })
 
     afterEach(() => {
@@ -199,24 +147,24 @@ describe('GroupComponent', () => {
       assert.equal(spy.called, true)
     })
 
-    it('should remove the `@param object` from the GroupComponent list if the entity has a GroupComponent that contains the `@param object`', () => {
+    it('should remove the `@param object` from the ObjectComponent list if the entity has a ObjectComponent that contains the `@param object`', () => {
       const mesh1 = new Mesh(new BoxGeometry())
       const mesh2 = new Mesh(new SphereGeometry())
       addObjectToGroup(testEntity, mesh1)
       addObjectToGroup(testEntity, mesh2)
-      assert.equal(getComponent(testEntity, GroupComponent).includes(mesh2), true)
+      assert.equal(getComponent(testEntity, ObjectComponent), mesh2)
       // Run and Check the result
       removeObjectFromGroup(testEntity, mesh2)
-      assert.equal(getComponent(testEntity, GroupComponent).includes(mesh2), false)
+      assert.notEqual(getComponent(testEntity, ObjectComponent), mesh2)
     })
 
-    it('should remove the GroupComponent from the entity if the group has no objects left after removing the `@param object`', () => {
+    it('should remove the ObjectComponent from the entity if the group has no objects left after removing the `@param object`', () => {
       const mesh = new Mesh(new BoxGeometry())
       addObjectToGroup(testEntity, mesh)
-      assert.equal(getComponent(testEntity, GroupComponent).includes(mesh), true)
+      assert.equal(getComponent(testEntity, ObjectComponent), mesh)
       // Run and Check the result
       removeObjectFromGroup(testEntity, mesh)
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
     })
   }) //:: removeObjectFromGroup
 
@@ -233,19 +181,19 @@ describe('GroupComponent', () => {
       return destroyEngine()
     })
 
-    it('should add the object to the GroupComponent list of objects', () => {
-      setComponent(testEntity, GroupComponent)
+    it('should add the object to the ObjectComponent', () => {
+      setComponent(testEntity, ObjectComponent)
       const mesh = new Mesh(new BoxGeometry())
-      assert.equal(getComponent(testEntity, GroupComponent).includes(mesh), false)
+      assert.notEqual(getComponent(testEntity, ObjectComponent), mesh)
       addObjectToGroup(testEntity, mesh)
-      assert.equal(getComponent(testEntity, GroupComponent).includes(mesh), true)
+      assert.equal(getComponent(testEntity, ObjectComponent), mesh)
     })
 
-    it("should add a GroupComponent to the entity if it doesn't already have one", () => {
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+    it("should add a ObjectComponent to the entity if it doesn't already have one", () => {
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
       const mesh = new Mesh(new BoxGeometry())
       addObjectToGroup(testEntity, mesh)
-      assert.equal(hasComponent(testEntity, GroupComponent), true)
+      assert.equal(hasComponent(testEntity, ObjectComponent), true)
     })
 
     it("should add a TransformComponent to the entity if it doesn't already have one", () => {
@@ -347,78 +295,4 @@ describe('GroupComponent', () => {
       assertMatrixApproxEq(mesh.matrixWorld, getComponent(testEntity, TransformComponent).matrixWorld)
     })
   }) //:: addObjectToGroup
-
-  describe('GroupReactor', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should run the `@param GroupChildReactor` once for every object contained in the GroupComponent of the entity', () => {
-      const mesh1 = new Mesh(new BoxGeometry())
-      const mesh2 = new Mesh(new BoxGeometry())
-      addObjectToGroup(testEntity, mesh1)
-      addObjectToGroup(testEntity, mesh2)
-      setComponent(testEntity, GroupComponent)
-      const thingSpy = sinon.spy()
-      function Thing() {
-        thingSpy()
-        return null
-      }
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: testEntity },
-          <GroupReactor GroupChildReactor={Thing} />
-        )
-      }) as ReactorRoot
-      root.run()
-      assert.equal(thingSpy.callCount, 2)
-      removeObjectFromGroup(testEntity, mesh1)
-      removeObjectFromGroup(testEntity, mesh2)
-      root.run()
-      assert.equal(thingSpy.callCount, 2)
-    })
-  }) //:: GroupReactor
-
-  describe('GroupQueryReactor', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should run the `@param GroupChildReactor` once for every entity that contains both a GroupComponent and the given list of `@param Components`', () => {
-      const mesh1 = new Mesh(new BoxGeometry())
-      const mesh2 = new Mesh(new BoxGeometry())
-      addObjectToGroup(testEntity, mesh1)
-      addObjectToGroup(testEntity, mesh2)
-      setComponent(testEntity, GroupComponent)
-      const thingSpy = sinon.spy()
-      function Thing() {
-        thingSpy()
-        return null
-      }
-      const ComponentList = [VisibleComponent]
-      for (const component of ComponentList) setComponent(testEntity, component)
-      const root = startReactor(() => {
-        return <GroupQueryReactor GroupChildReactor={Thing} Components={ComponentList} />
-      })
-      root.run()
-      assert.equal(thingSpy.callCount, 2)
-    })
-  }) //:: GroupQueryReactor
 })

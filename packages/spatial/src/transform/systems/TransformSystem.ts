@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+import { Frustum, Matrix4, Vector3 } from 'three'
 
 import {
   AnimationSystemGroup,
@@ -38,12 +38,9 @@ import {
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { GroupComponent } from '../../renderer/components/GroupComponent'
-
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { EngineState } from '../../EngineState'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -53,7 +50,6 @@ import { composeMatrix, TransformComponent } from '../components/TransformCompon
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
-const groupQuery = defineQuery([GroupComponent, VisibleComponent])
 
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
@@ -80,19 +76,6 @@ export const computeTransformMatrix = (entity: Entity) => {
     if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
   } else {
     transform.matrixWorld.copy(transform.matrix)
-  }
-}
-
-export const updateGroupChildren = (entity: Entity) => {
-  const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
-  // drop down one level and update children
-
-  for (const root of group) {
-    if (root.isProxified) continue
-    for (const obj of root.children) {
-      obj.updateMatrixWorld()
-      obj.matrixWorldNeedsUpdate = false
-    }
   }
 }
 
@@ -175,9 +158,6 @@ const sortAndMakeDirtyEntities = () => {
 const execute = () => {
   const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
-
-  const dirtyGroupEntities = groupQuery().filter(isDirty)
-  for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)

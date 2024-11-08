@@ -40,7 +40,7 @@ import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/Ma
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'

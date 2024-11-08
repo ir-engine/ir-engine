@@ -41,8 +41,8 @@ import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/t
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { addObjectToGroup, ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -119,7 +119,7 @@ export const updateBoundingBox = (entity: Entity) => {
   const helperEntity = boundingBox.helper
   if (!helperEntity) return
 
-  const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
+  const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
   helperObject.updateMatrixWorld(true)
 }
 

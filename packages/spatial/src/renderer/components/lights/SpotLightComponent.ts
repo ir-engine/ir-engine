@@ -42,7 +42,7 @@ import { useDisposable } from '../../../resources/resourceHooks'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
 import { useUpdateLight } from '../../functions/useUpdateLight'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 // const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)

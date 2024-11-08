@@ -41,7 +41,7 @@ import { LightHelperComponent } from '../../../common/debug/LightHelperComponent
 import { useDisposable } from '../../../resources/resourceHooks'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 export const PointLightComponent = defineComponent({

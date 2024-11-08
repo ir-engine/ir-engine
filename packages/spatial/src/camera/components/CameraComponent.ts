@@ -29,7 +29,7 @@ import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
-import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/ObjectComponent'
 
 export const CameraComponent = defineComponent({
   name: 'CameraComponent',

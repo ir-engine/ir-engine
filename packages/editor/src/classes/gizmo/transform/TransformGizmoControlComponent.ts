@@ -44,7 +44,7 @@ import {
 } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 

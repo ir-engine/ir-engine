@@ -33,10 +33,11 @@ import {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { haveCommonAncestor } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { NO_PROXY } from '@ir-engine/hyperflux'
 import { EnvmapComponent, updateEnvMap } from '../components/EnvmapComponent'
 import { EnvMapSourceType } from '../constants/EnvMapEnum'
 
@@ -44,15 +45,13 @@ const EnvmapReactor = (props: { backgroundEntity: Entity }) => {
   const entity = useEntityContext()
   const envmapComponent = useComponent(entity, EnvmapComponent)
   const backgroundComponent = useComponent(props.backgroundEntity, BackgroundComponent)
-  const groupComponent = useComponent(entity, GroupComponent)
+  const obj = useComponent(entity, ObjectComponent)?.get(NO_PROXY)
 
   useEffect(() => {
     // TODO use spatial queries
     if (!haveCommonAncestor(entity, props.backgroundEntity)) return
     if (envmapComponent.type.value !== EnvMapSourceType.Skybox) return
-    for (const obj of groupComponent.value) {
-      updateEnvMap(obj as any, backgroundComponent.value as any)
-    }
+    updateEnvMap(obj as any, backgroundComponent.value as any)
   }, [envmapComponent.type, backgroundComponent])
 
   return null

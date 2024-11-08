@@ -55,7 +55,7 @@ import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'

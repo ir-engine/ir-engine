@@ -40,7 +40,7 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -125,17 +125,17 @@ export function gizmoUpdate(gizmoEntity) {
   setVisibleComponent(gizmo.picker[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
   setVisibleComponent(gizmo.picker[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
 
-  const gizmoObject = getComponent(gizmo.gizmo[gizmoControl.mode], GroupComponent)[0]
-  const pickerObject = getComponent(gizmo.picker[gizmoControl.mode], GroupComponent)[0]
-  const helperObject = getComponent(gizmo.helper[gizmoControl.mode], GroupComponent)[0]
+  const gizmoObject = getComponent(gizmo.gizmo[gizmoControl.mode], ObjectComponent)
+  const pickerObject = getComponent(gizmo.picker[gizmoControl.mode], ObjectComponent)
+  const helperObject = getComponent(gizmo.helper[gizmoControl.mode], ObjectComponent)
 
   gizmoObject.position.copy(gizmoControl.worldPosition)
   pickerObject.position.copy(gizmoControl.worldPosition)
   helperObject.position.set(0, 0, 0)
 
   let handles: any[] = []
-  handles = handles.concat(getComponent(gizmo.picker[gizmoControl.mode], GroupComponent)[0].children)
-  handles = handles.concat(getComponent(gizmo.gizmo[gizmoControl.mode], GroupComponent)[0].children)
+  handles = handles.concat(getComponent(gizmo.picker[gizmoControl.mode], ObjectComponent).children)
+  handles = handles.concat(getComponent(gizmo.gizmo[gizmoControl.mode], ObjectComponent).children)
 
   for (const handle of helperObject.children) {
     handle.visible = false
@@ -484,7 +484,7 @@ function pointerHover(gizmoEntity) {
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const gizmoVisual = getComponent(gizmoControlComponent.visualEntity.value, TransformGizmoVisualComponent)
-  const picker = getComponent(gizmoVisual.picker[gizmoControlComponent.mode.value], GroupComponent)[0]
+  const picker = getComponent(gizmoVisual.picker[gizmoControlComponent.mode.value], ObjectComponent)
   const targetEntity =
     gizmoControlComponent.controlledEntities.value.length > 1
       ? gizmoControlComponent.pivotEntity.value
@@ -509,7 +509,7 @@ function pointerDown(gizmoEntity) {
   if (!inputPointerEntity) return
   const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
-  const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0]
+  const plane = getComponent(gizmoControlComponent.planeEntity.value, ObjectComponent)
   const targetEntity =
     gizmoControlComponent.controlledEntities.value.length > 1
       ? gizmoControlComponent.pivotEntity.value
@@ -778,7 +778,7 @@ function pointerMove(gizmoEntity) {
   const axis = gizmoControlComponent.axis.value
   const mode = gizmoControlComponent.mode.value
   const entity = targetEntity
-  const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0]
+  const plane = getComponent(gizmoControlComponent.planeEntity.value, ObjectComponent)
 
   let space = gizmoControlComponent.space.value
 

@@ -35,7 +35,7 @@ import {
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
 import { useEffect } from 'react'
-import { AnimationAction, Bone, Euler, Group, Matrix4, Vector3 } from 'three'
+import { AnimationAction, Bone, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
 import { UUIDComponent } from '@ir-engine/ecs'
@@ -55,15 +55,12 @@ import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
-import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 
@@ -123,9 +120,9 @@ export const AvatarRigComponent = defineComponent({
         setAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
-        addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+        // addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
         return () => {
-          removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+          // removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
         }
       }
     }, [gltfComponent?.progress?.value, gltfComponent?.src.value])
@@ -152,32 +149,22 @@ export default function createVRM(rootEntity: Entity) {
     return bones
   }
 
-  // console.log(gltf)
-  if (!hasComponent(rootEntity, Object3DComponent)) {
+  if (!hasComponent(rootEntity, ObjectComponent)) {
     const obj3d = new Group()
-    setComponent(rootEntity, Object3DComponent, obj3d)
-    addObjectToGroup(rootEntity, obj3d)
-    proxifyParentChildRelationships(obj3d)
+    setComponent(rootEntity, ObjectComponent, obj3d)
   }
 
   if (gltf.extensions?.VRM || gltf.extensions?.VRMC_vrm) {
-    // console.log('Creating VRM from VRM extension')
     const vrmExtensionDefinition = (gltf.extensions!.VRM as V0VRM.VRM) ?? (gltf.extensions.VRMC_vrm as V0VRM.VRM)
     const humanBonesArray = Array.isArray(vrmExtensionDefinition.humanoid?.humanBones)
       ? vrmExtensionDefinition.humanoid?.humanBones
       : formatHumanBones(vrmExtensionDefinition.humanoid!.humanBones as any)
-    console.log(humanBonesArray)
-    console.log(vrmExtensionDefinition.humanoid?.humanBones)
     const bones = humanBonesArray.reduce((bones, bone) => {
-      // console.log(bone)
       const nodeID = `${documentID}-${bone.node}` as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(nodeID)
       bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
-      console.log(bone.bone, bones[bone.bone!])
       return bones
     }, {} as VRMHumanBones)
-    console.log(bones)
-    // console.log(vrmExtensionDefinition)
 
     /**hacky, @todo test with vrm1 */
     iterateEntityNode(rootEntity, (entity) => {
@@ -190,7 +177,7 @@ export default function createVRM(rootEntity: Entity) {
 
     const humanoid = new VRMHumanoid(bones)
 
-    const scene = getComponent(rootEntity, Object3DComponent)
+    const scene = getComponent(rootEntity, ObjectComponent)
 
     const meta = vrmExtensionDefinition.meta! as any
 
@@ -216,12 +203,15 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   const hipsEntity = iterateEntityNode(
     rootEntity,
     (entity) => entity,
-    (entity) => hipsRegex.test(getComponent(entity, NameComponent)),
+    (entity) => (hasComponent(entity, NameComponent) ? hipsRegex.test(getComponent(entity, NameComponent)) : false),
     false,
     true
   )?.[0]
 
   const hipsName = getComponent(hipsEntity, NameComponent)
+
+  const hipsParent = getOptionalComponent(hipsEntity, EntityTreeComponent)?.parentEntity
+  if (!hasComponent(hipsParent!, ObjectComponent)) setComponent(hipsParent!, ObjectComponent, new Object3D())
 
   const bones = {} as VRMHumanBones
 
@@ -237,12 +227,12 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
 
   iterateEntityNode(rootEntity, (entity) => {
-    // if (!getComponent(entity, BoneComponent)) return
-    const boneComponent = getOptionalComponent(entity, BoneComponent) || getComponent(entity, TransformComponent)
-    boneComponent?.matrixWorld.identity()
+    const transform = getOptionalComponent(entity, TransformComponent)
+    transform?.matrixWorld.identity()
+
     if (entity === rootEntity) return
 
-    const name = getComponent(entity, NameComponent)
+    const name = getOptionalComponent(entity, NameComponent) ?? ''
     /**match the keys to create a humanoid bones object */
     let boneName = mixamoPrefix + name
 
@@ -253,13 +243,13 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 
     const bone = mixamoVRMRigMap[boneName] as string
     if (bone) {
-      if (boneComponent instanceof Bone) boneComponent.quaternion.set(0, 0, 0, 1)
+      if (transform instanceof Bone) transform.quaternion.set(0, 0, 0, 1)
       const node = getComponent(entity, BoneComponent)
       bones[bone] = { node } as VRMHumanBone
     }
   })
   const humanoid = enforceTPose(bones)
-  const scene = getComponent(rootEntity, Object3DComponent)
+  const scene = getComponent(rootEntity, ObjectComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
   const childName = getComponent(children[0], NameComponent)
 

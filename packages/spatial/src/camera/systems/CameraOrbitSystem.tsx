@@ -41,7 +41,7 @@ import { getState, isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -149,11 +149,8 @@ const execute = () => {
       } else {
         box.makeEmpty()
         for (const object of cameraOrbit.focusedEntities.value) {
-          const group = getOptionalComponent(object, GroupComponent)
-          if (group)
-            for (const obj of group) {
-              box.expandByObject(obj)
-            }
+          const obj = getOptionalComponent(object, ObjectComponent)
+          if (obj) box.expandByObject(obj)
         }
         if (box.isEmpty()) {
           const entity = cameraOrbit.focusedEntities[0].value

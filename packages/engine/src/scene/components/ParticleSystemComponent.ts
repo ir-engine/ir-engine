@@ -73,7 +73,7 @@ import {
   useHookstate
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'

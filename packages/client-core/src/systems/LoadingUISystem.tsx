@@ -48,7 +48,7 @@ import { CameraComponent } from '@ir-engine/spatial/src/camera/components/Camera
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -65,6 +65,7 @@ import { useFind } from '@ir-engine/common'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
@@ -116,11 +117,13 @@ export const LoadingUISystemState = defineState({
       }
     })
 
+    setComponent(meshEntity, TransformComponent)
+
     setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(meshEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
     setComponent(meshEntity, VisibleComponent)
-    addObjectToGroup(meshEntity, mesh)
+    setComponent(meshEntity, MeshComponent, mesh)
     mesh.renderOrder = 1
     setObjectLayers(mesh, ObjectLayers.UI)
 
@@ -216,7 +219,7 @@ const SceneSettingsChildReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (!loadingTexture) return
 
-    const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
+    const mesh = getComponent(meshEntity, ObjectComponent) as any as Mesh<SphereGeometry, MeshBasicMaterial>
     if (sceneComponent && sceneComponent.loadingScreenURL && mesh.userData.url !== sceneComponent.loadingScreenURL) {
       mesh.userData.url = sceneComponent.loadingScreenURL
     }
@@ -318,7 +321,7 @@ const execute = () => {
 
   setVisibleComponent(meshEntity, isReady)
 
-  const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
+  const mesh = getComponent(meshEntity, ObjectComponent) as any as Mesh<SphereGeometry, MeshBasicMaterial>
   mesh.material.opacity = opacity
 
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {

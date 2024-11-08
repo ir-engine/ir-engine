@@ -39,7 +39,7 @@ import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
 import { S } from '@ir-engine/ecs'
 import { useResource } from '../../resources/resourceHooks'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ObjectComponent, addObjectToGroup, removeObjectFromGroup } from './ObjectComponent'
 
 export const MeshComponent = defineComponent({
   name: 'MeshComponent',
@@ -50,6 +50,13 @@ export const MeshComponent = defineComponent({
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
     const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
+
+    useImmediateEffect(() => {
+      setComponent(entity, ObjectComponent, meshResource.get(NO_PROXY) as Mesh)
+      return () => {
+        removeComponent(entity, ObjectComponent)
+      }
+    }, [])
 
     useEffect(() => {
       const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null

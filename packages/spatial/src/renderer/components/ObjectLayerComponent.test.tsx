@@ -39,7 +39,7 @@ import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup } from './ObjectComponent'
 import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent, ObjectLayerMaskDefault } from './ObjectLayerComponent'
 
 const maxBitWidth = 32
