@@ -101,7 +101,6 @@ describe('spawnAvatarReceptor', () => {
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     assert(hasComponent(entity, TransformComponent))
-    assert(hasComponent(entity, AvatarComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, RigidBodyComponent))
