@@ -29,6 +29,22 @@ export default createSwaggerServiceOptions({
   schemas: {},
   docs: {
     description: 'Logs api service description',
-    securities: ['all']
+    securities: ['all'],
+    definitions: {
+      ['logs-api']: {
+        type: 'object',
+        properties: {
+          msg: {
+            type: 'string'
+          },
+          level: {
+            type: 'string'
+          }
+        },
+        additionalProperties: {
+          type: 'string'
+        }
+      }
+    }
   }
 })
