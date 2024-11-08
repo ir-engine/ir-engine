@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../../threejsPatches'
-
 import React, { FC, memo, useEffect, useLayoutEffect } from 'react'
 import { Camera, Object3D } from 'three'
 
