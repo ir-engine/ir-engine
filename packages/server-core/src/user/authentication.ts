@@ -27,6 +27,7 @@ import { AuthenticationService } from '@feathersjs/authentication'
 import { oauth } from '@feathersjs/authentication-oauth'
 
 import { Application } from '../../declarations'
+import authenticationDocs from './authentication.doc'
 import AppleStrategy from './strategies/apple'
 import DiscordStrategy from './strategies/discord'
 import FacebookStrategy from './strategies/facebook'
@@ -53,7 +54,9 @@ export default (app: Application): void => {
   authentication.register('linkedin', new LinkedInStrategy(app) as any)
   authentication.register('twitter', new TwitterStrategy(app) as any)
 
-  app.use('authentication', authentication)
+  app.use('authentication', authentication, {
+    docs: authenticationDocs
+  })
 
   // @ts-ignore
   app.configure(oauth())

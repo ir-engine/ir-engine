@@ -28,8 +28,8 @@ import React from 'react'
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
 import { generateDefaults } from '@ir-engine/spatial/src/renderer/materials/constants/DefaultArgs'
+import { Checkbox } from '@ir-engine/ui'
 import ColorInput from '../../../../primitives/tailwind/Color'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -113,7 +113,7 @@ export default function ParameterInput({
 
               switch (parms.type) {
                 case 'boolean':
-                  return <BooleanInput value={values[k]} onChange={setArgsProp(k)} />
+                  return <Checkbox checked={values[k]} onChange={setArgsProp(k)} />
                 case 'entity':
                 case 'integer':
                 case 'float':
