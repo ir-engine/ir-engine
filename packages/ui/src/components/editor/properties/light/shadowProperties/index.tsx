@@ -28,8 +28,8 @@ import { useTranslation } from 'react-i18next'
 import { Component, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { Checkbox } from '@ir-engine/ui'
 import React from 'react'
-import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 
@@ -51,10 +51,7 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
   return (
     <>
       <InputGroup name="Cast Shadows" label={t('editor:properties.directionalLight.lbl-castShadows')}>
-        <BooleanInput
-          value={lightComponent.castShadow.value}
-          onChange={commitProperty(props.component, 'castShadow')}
-        />
+        <Checkbox checked={lightComponent.castShadow.value} onChange={commitProperty(props.component, 'castShadow')} />
       </InputGroup>
       <InputGroup name="Shadow Bias" label={t('editor:properties.directionalLight.lbl-shadowBias')}>
         <NumericInput

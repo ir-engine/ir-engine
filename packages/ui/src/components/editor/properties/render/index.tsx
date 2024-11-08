@@ -34,6 +34,7 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { State, dispatchAction } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -49,7 +50,6 @@ import {
   ReinhardToneMapping,
   VSMShadowMap
 } from 'three'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 
@@ -163,10 +163,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.renderSettings.lbl-csm')}
         info={t('editor:properties.renderSettings.info-csm')}
       >
-        <BooleanInput
-          value={rendererSettingsState.csm.value}
-          onChange={commitProperty(RenderSettingsComponent, 'csm')}
-        />
+        <Checkbox checked={rendererSettingsState.csm.value} onChange={commitProperty(RenderSettingsComponent, 'csm')} />
       </InputGroup>
       {rendererSettingsState.csm.value === true ? (
         <Slider

@@ -32,7 +32,7 @@ import { EnvMapBakeTypes } from '@ir-engine/engine/src/scene/types/EnvMapBakeTyp
 import { commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { uploadBPCEMBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import { useTranslation } from 'react-i18next'
 import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
@@ -201,12 +201,13 @@ export const EnvMapBakeNodeEditor = (props) => {
           onChange={commitProperty(EnvMapBakeComponent, 'resolution')}
         />
       </InputGroup>
-      <InputGroup name="Box Projection" label="Box Projection">
-        <BooleanInput
-          value={bakeComponent.boxProjection.value}
-          onChange={commitProperty(EnvMapBakeComponent, 'boxProjection')}
-        />
-      </InputGroup>
+      <Checkbox
+        variantTextPlacement="left"
+        checked={bakeComponent.boxProjection.value}
+        onChange={commitProperty(EnvMapBakeComponent, 'boxProjection')}
+        aria-label="Box Projection"
+        label="Box Projection"
+      />
     </NodeEditor>
   )
 }

@@ -23,33 +23,86 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { useArgs } from '@storybook/preview-api'
+import React from 'react'
+import { ArgTypes } from 'storybook/internal/types'
+import Checkbox, { CheckboxProps } from './index'
+
+const argTypes: ArgTypes = {
+  checked: {
+    control: 'boolean'
+  },
+  disabled: {
+    control: 'boolean'
+  },
+  indeterminate: {
+    control: 'boolean'
+  },
+  label: {
+    control: 'text',
+    if: { arg: 'label', exists: true }
+  },
+  description: {
+    control: 'text',
+    if: { arg: 'description', exists: true }
+  },
+  variantSize: {
+    name: 'size',
+    control: 'inline-radio',
+    options: ['md', 'lg']
+  },
+  variantTextPlacement: {
+    name: 'Text Placement',
+    control: 'inline-radio',
+    options: ['left', 'right']
+  }
+}
 
 export default {
   title: 'Primitives/Tailwind/Checkbox',
-  component: Component,
+  component: Checkbox,
   parameters: {
     componentSubtitle: 'Checkbox',
-    jest: 'Checkbox.test.tsx',
     design: {
       type: 'figma',
-      url: ''
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2786-21102&node-type=frame&t=TlQtKBH49KjD5Efr-0'
     }
+  },
+  argTypes,
+  args: {
+    variantSize: 'md',
+    variantTextPlacement: 'right'
   }
 }
 
-export const Unchecked = {
+const CheckboxRenderer = (args: CheckboxProps) => {
+  const [, updateArgs] = useArgs<{ checked: boolean }>()
+
+  return (
+    <div className="flex items-center gap-3">
+      <Checkbox {...args} onChange={(checked) => updateArgs({ checked })} />
+    </div>
+  )
+}
+
+export const Default = {
+  name: 'Default',
+  render: CheckboxRenderer
+}
+
+export const WithLabel = {
+  name: 'With Label',
+  render: CheckboxRenderer,
   args: {
-    label: 'Checkbox Example',
-    value: false,
-    onChange: () => {}
+    label: 'Checkbox label'
   }
 }
 
-export const Checked = {
+export const WithDescription = {
+  name: 'With Description',
+  render: CheckboxRenderer,
   args: {
-    label: 'Checkbox Checked Example',
-    value: true,
-    onChange: () => {}
+    label: 'Checkbox label',
+    description: 'Save my login details for next time.'
   }
 }

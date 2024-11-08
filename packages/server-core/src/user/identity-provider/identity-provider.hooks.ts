@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { isDev } from '@ir-engine/common/src/config'
 import { scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
@@ -269,6 +269,16 @@ async function createAccessToken(context: HookContext<IdentityProviderService>) 
   }
 }
 
+const isSearchQuery = (context: HookContext) => {
+  const { query } = context.params
+  const queryLength = Object.keys(query).length
+  // we only need to allow search based on exact email in the query
+  if (queryLength === 2 && query.email && !query.email.$like && !query.email.$notlike) {
+    return true
+  }
+  return false
+}
+
 export default {
   around: {
     all: [
@@ -282,7 +292,7 @@ export default {
       schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [iff(isProvider('external'), setLoggedinUserInQuery('userId'))],
+    find: [iff(isProvider('external'), iffElse(isSearchQuery, [], setLoggedinUserInQuery('userId')))],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
       iff(

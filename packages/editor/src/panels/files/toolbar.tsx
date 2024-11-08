@@ -25,10 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Checkbox, Input } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
-import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
@@ -161,16 +159,13 @@ const ViewModeSettings = () => {
             </div>
             <div>
               {availableTableColumns.map((column, index) => (
-                <InputGroup
+                <Checkbox
+                  checked={viewModeSettings.list.selectedTableColumns[column].value}
+                  onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
                   label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}
-                  dataTestId={`files-panel-view-mode-list-options-column-${column}`}
+                  data-testid={`files-panel-view-mode-list-options-column-${column}`}
                   key={index}
-                >
-                  <BooleanInput
-                    value={viewModeSettings.list.selectedTableColumns[column].value}
-                    onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
-                  />
-                </InputGroup>
+                />
               ))}
             </div>
           </div>
