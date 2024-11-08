@@ -794,7 +794,7 @@ const removeObject = (entities: Entity[]) => {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
     const gltfData = gltf.data
 
-    ComponentDropdownStateFunctions.removeEntitiesFromComponentState(uuidsToRemove)
+    ComponentDropdownStateFunctions.removeEntitiesFromComponentState([...uuidsToRemove])
     const nodesToRemove = collectNodesToRemove(gltf.data, uuidsToRemove)
     removeNodes(gltfData, nodesToRemove)
     compactNodes(gltfData)
