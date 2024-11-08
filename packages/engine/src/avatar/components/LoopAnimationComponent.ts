@@ -90,10 +90,9 @@ export const LoopAnimationComponent = defineComponent({
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
     const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
-
     const lastAnimationPack = useHookstate('')
     useEffect(() => {
-      if (!animComponent?.animations?.value || (loopAnimationComponent.useVRM && !rigComponent?.vrm)) return
+      if (!animComponent?.animations?.value || (loopAnimationComponent.useVRM.value && !rigComponent?.vrm.value)) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
       if (!clip) {
         loopAnimationComponent._action.set(null)
