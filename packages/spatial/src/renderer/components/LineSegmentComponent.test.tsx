@@ -61,7 +61,7 @@ import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
 import { assertColorEqual } from './lights/HemisphereLightComponent.test'
 import { LineSegmentComponent } from './LineSegmentComponent'
-import { GroupComponent } from './ObjectComponent'
+import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
@@ -180,12 +180,12 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should call addObjectToGroup(lineSegment) with the entity when it mounts', () => {
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
-      assert.equal(hasComponent(testEntity, GroupComponent), true)
+      assert.equal(hasComponent(testEntity, ObjectComponent), true)
     })
 
     it('should set a VisibleComponent to the entity when it mounts', () => {
@@ -198,14 +198,14 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should call removeObjectFromGroup(lineSegment) with the entity when it unmounts', () => {
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
-      assert.equal(hasComponent(testEntity, GroupComponent), true)
-      removeComponent(testEntity, GroupComponent)
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      assert.equal(hasComponent(testEntity, ObjectComponent), true)
+      removeComponent(testEntity, ObjectComponent)
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
     })
 
     it('should trigger when component.name changes', () => {
@@ -274,11 +274,11 @@ describe('LineSegmentComponent', () => {
           rerender(<Reactor />)
         }).then(() => {
           assert(hasComponent(entity, LineSegmentComponent))
-          assert(hasComponent(entity, GroupComponent))
+          assert(hasComponent(entity, ObjectComponent))
           assert(hasComponent(entity, ObjectLayerMaskComponent))
           assert(hasComponent(entity, ObjectLayerComponents[layer]))
-          const group = getComponent(entity, GroupComponent)
-          const lineSegments = group[0] as LineSegments
+          const object = getComponent(entity, ObjectComponent)
+          const lineSegments = object as LineSegments
           assert(lineSegments.isLineSegments)
           assert(lineSegments.layers.mask === layerMask)
           unmount()

@@ -35,8 +35,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import sinon from 'sinon'
-import { BoxGeometry, Layers, Matrix4, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { BoxGeometry, Layers, Matrix4, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import {
   assertMatrixAllApproxNotEq,
@@ -44,16 +43,9 @@ import {
   assertVecAllApproxNotEq,
   assertVecApproxEq
 } from '../../../tests/util/mathAssertions'
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { TransformComponent } from '../RendererModule'
-import { ObjectComponent, addObjectToGroup, removeObjectFromGroup } from './ObjectComponent'
+import { ObjectComponent } from './ObjectComponent'
 import { Layer } from './ObjectLayerComponent'
-
-const ObjectComponentDefaults = [] as Object3D[]
-
-function assertObjectComponentEq(A, B) {
-  assertArrayEqual(A, B)
-}
 
 describe('ObjectComponent', () => {
   describe('IDs', () => {
@@ -61,63 +53,6 @@ describe('ObjectComponent', () => {
       assert.equal(ObjectComponent.name, 'ObjectComponent')
     })
   }) //:: IDs
-
-  describe('onInit', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, ObjectComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should initialize the component with the expected default values', () => {
-      const data = getComponent(testEntity, ObjectComponent)
-      assertObjectComponentEq(data, ObjectComponentDefaults)
-    })
-  }) //:: onInit
-
-  describe('onRemove', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, ObjectComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should call the T.removeFromParent function for every object in the group that has a parent', () => {
-      const spy1 = sinon.spy()
-      const spy2 = sinon.spy()
-      const meshParent = new Mesh(new BoxGeometry())
-      const mesh1 = new Mesh(new BoxGeometry())
-      const mesh2 = new Mesh(new SphereGeometry())
-      mesh1.removeFromParent = spy1
-      mesh2.removeFromParent = spy2
-      mesh1.name = 'Mesh1'
-      mesh2.name = 'Mesh2'
-      mesh1.parent = meshParent
-      mesh2.parent = meshParent
-      addObjectToGroup(testEntity, mesh1)
-      addObjectToGroup(testEntity, mesh2)
-      assert.equal(spy1.called, false)
-      assert.equal(spy2.called, false)
-      // Run and Check the result
-      removeComponent(testEntity, ObjectComponent)
-      assert.equal(spy1.called, true)
-      assert.equal(spy2.called, true)
-    })
-  }) //:: onRemove
 
   describe('removeObjectFromGroup', () => {
     let testEntity = UndefinedEntity
@@ -133,37 +68,23 @@ describe('ObjectComponent', () => {
       return destroyEngine()
     })
 
-    it('should call the T.removeFromParent function of the object if the object has a parent', () => {
-      const spy = sinon.spy()
-      const meshParent = new Mesh(new BoxGeometry())
-      const mesh = new Mesh(new BoxGeometry())
-      mesh.removeFromParent = spy
-      mesh.name = 'Mesh1'
-      mesh.parent = meshParent
-      addObjectToGroup(testEntity, mesh)
-      assert.equal(spy.called, false)
-      // Run and Check the result
-      removeObjectFromGroup(testEntity, mesh)
-      assert.equal(spy.called, true)
-    })
-
     it('should remove the `@param object` from the ObjectComponent list if the entity has a ObjectComponent that contains the `@param object`', () => {
       const mesh1 = new Mesh(new BoxGeometry())
       const mesh2 = new Mesh(new SphereGeometry())
-      addObjectToGroup(testEntity, mesh1)
-      addObjectToGroup(testEntity, mesh2)
+      setComponent(testEntity, ObjectComponent, mesh1)
+      setComponent(testEntity, ObjectComponent, mesh2)
       assert.equal(getComponent(testEntity, ObjectComponent), mesh2)
       // Run and Check the result
-      removeObjectFromGroup(testEntity, mesh2)
+      removeComponent(testEntity, ObjectComponent)
       assert.notEqual(getComponent(testEntity, ObjectComponent), mesh2)
     })
 
     it('should remove the ObjectComponent from the entity if the group has no objects left after removing the `@param object`', () => {
       const mesh = new Mesh(new BoxGeometry())
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(getComponent(testEntity, ObjectComponent), mesh)
       // Run and Check the result
-      removeObjectFromGroup(testEntity, mesh)
+      removeComponent(testEntity, ObjectComponent)
       assert.equal(hasComponent(testEntity, ObjectComponent), false)
     })
   }) //:: removeObjectFromGroup
@@ -185,28 +106,28 @@ describe('ObjectComponent', () => {
       setComponent(testEntity, ObjectComponent)
       const mesh = new Mesh(new BoxGeometry())
       assert.notEqual(getComponent(testEntity, ObjectComponent), mesh)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(getComponent(testEntity, ObjectComponent), mesh)
     })
 
     it("should add a ObjectComponent to the entity if it doesn't already have one", () => {
       assert.equal(hasComponent(testEntity, ObjectComponent), false)
       const mesh = new Mesh(new BoxGeometry())
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(hasComponent(testEntity, ObjectComponent), true)
     })
 
     it("should add a TransformComponent to the entity if it doesn't already have one", () => {
       assert.equal(hasComponent(testEntity, TransformComponent), false)
       const mesh = new Mesh(new BoxGeometry())
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(hasComponent(testEntity, TransformComponent), true)
     })
 
     it('should set the entity property of the `@param object` to `@param entity`', () => {
       const mesh = new Mesh(new BoxGeometry())
       assert.notEqual(mesh.entity, testEntity)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(mesh.entity, testEntity)
     })
 
@@ -215,7 +136,7 @@ describe('ObjectComponent', () => {
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: Expected })
       assertVecAllApproxNotEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assertVecApproxEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
     })
 
@@ -224,7 +145,7 @@ describe('ObjectComponent', () => {
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { rotation: Expected })
       assertVecAllApproxNotEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assertVecApproxEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
     })
 
@@ -233,35 +154,35 @@ describe('ObjectComponent', () => {
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { scale: Expected })
       assertVecAllApproxNotEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assertVecApproxEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
     })
 
     it('should set the matrixAutoUpdate value of the object to false', () => {
       const mesh = new Mesh(new BoxGeometry())
       assert.equal(mesh.matrixAutoUpdate, true)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(mesh.matrixAutoUpdate, false)
     })
 
     it('should set the matrixWorldAutoUpdate value of the object to false', () => {
       const mesh = new Mesh(new BoxGeometry())
       assert.equal(mesh.matrixWorldAutoUpdate, true)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(mesh.matrixWorldAutoUpdate, false)
     })
 
     it('should set the frustumCulled value of the object to false', () => {
       const mesh = new Mesh(new BoxGeometry())
       assert.equal(mesh.frustumCulled, true)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(mesh.frustumCulled, false)
     })
 
     it('should set the layers value of the object to a new Layer whichs ID is the `@param entity`', () => {
       const mesh = new Mesh(new BoxGeometry())
       assert.equal(mesh.layers instanceof Layers, true)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assert.equal(mesh.layers instanceof Layer, true)
       // @ts-ignore Typescript doesn't understand the ObjectLayer type override done by addObjectToGroup
       assert.equal(mesh.layers.entity, testEntity)
@@ -277,7 +198,7 @@ describe('ObjectComponent', () => {
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: position, rotation: rotation, scale: scale })
       assertMatrixAllApproxNotEq(mesh.matrix, Expected)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assertMatrixApproxEq(mesh.matrix, getComponent(testEntity, TransformComponent).matrix)
     })
 
@@ -291,7 +212,7 @@ describe('ObjectComponent', () => {
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: position, rotation: rotation, scale: scale })
       assertMatrixAllApproxNotEq(mesh.matrixWorld, Expected)
-      addObjectToGroup(testEntity, mesh)
+      setComponent(testEntity, ObjectComponent, mesh)
       assertMatrixApproxEq(mesh.matrixWorld, getComponent(testEntity, TransformComponent).matrixWorld)
     })
   }) //:: addObjectToGroup

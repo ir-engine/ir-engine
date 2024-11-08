@@ -209,12 +209,11 @@ describe('AmbientLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!before, true)
+      assert.equal(!!before, false)
 
       // Run and Check the result
       setComponent(testEntity, AmbientLightComponent)
       const after = getComponent(testEntity, ObjectComponent)
-      assert.notEqual(!!after, true)
       assert.equal(!!after, true)
       const result = after.type === 'AmbientLight'
       assert.equal(result, true)
@@ -225,15 +224,13 @@ describe('AmbientLightComponent', () => {
 
       // Sanity check before running
       const before1 = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!before1, true)
+      assert.equal(!!before1, false)
       setComponent(testEntity, AmbientLightComponent)
 
       // Run and Check the result
       removeComponent(testEntity, AmbientLightComponent)
       const after = getComponent(testEntity, ObjectComponent)
-      assert.notEqual(!!after, true)
-      assert.equal(!!after, true)
-      assert.notEqual(after[0].type, 'AmbientLight')
+      assert.equal(!!after, false)
     })
 
     it('should react when component.intensity changes', () => {

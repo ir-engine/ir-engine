@@ -26,7 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 
-import { defineComponent, getMutableComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getMutableComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
@@ -38,7 +44,7 @@ import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { RendererState } from '../../RendererState'
 import { useUpdateLight } from '../../functions/useUpdateLight'
 import { LineSegmentComponent } from '../LineSegmentComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../ObjectComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 const size = 1
@@ -122,9 +128,9 @@ export const DirectionalLightComponent = defineComponent({
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
       directionalLightComponent.light.set(light)
-      addObjectToGroup(entity, light)
+      setComponent(entity, ObjectComponent, light)
       return () => {
-        removeObjectFromGroup(entity, light)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 

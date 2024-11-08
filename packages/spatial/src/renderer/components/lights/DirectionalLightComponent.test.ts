@@ -37,10 +37,11 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BoxGeometry, Color, ColorRepresentation, DirectionalLight, MeshBasicMaterial } from 'three'
+import { Color, ColorRepresentation, DirectionalLight } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
+import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
@@ -224,14 +225,13 @@ describe('DirectionalLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!before, true)
+      assert.equal(!!before, false)
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
       const after = getComponent(testEntity, ObjectComponent)
-      assert.notEqual(!!after, true)
       assert.equal(!!after, true)
-      const result = after[0].type === 'DirectionalLight'
+      const result = after.type === 'DirectionalLight'
       assert.equal(result, true)
     })
 
@@ -240,15 +240,13 @@ describe('DirectionalLightComponent', () => {
 
       // Sanity check before running
       const before1 = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!before1, true)
+      assert.equal(!!before1, false)
       setComponent(testEntity, DirectionalLightComponent)
 
       // Run and Check the result
       removeComponent(testEntity, DirectionalLightComponent)
       const after = getComponent(testEntity, ObjectComponent)
-      assert.notEqual(!!after, true)
-      assert.equal(!!after, true)
-      assert.notEqual(after[0].type, 'DirectionalLight')
+      assert.equal(!!after, false)
     })
 
     it('should react when directionalLightComponent.color changes', () => {
@@ -271,9 +269,7 @@ describe('DirectionalLightComponent', () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
+      getMutableState(RendererState).nodeHelperVisibility.set(true)
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -283,7 +279,9 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
-      const result = getComponent(testEntity, LineSegmentComponent).color
+
+      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
+      const result = getComponent(childEntity1, LineSegmentComponent).color
       assert.equal(new Color(result).getHex(), Expected.getHex())
     })
 
@@ -291,9 +289,6 @@ describe('DirectionalLightComponent', () => {
       const Expected = 42
 
       // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -311,9 +306,6 @@ describe('DirectionalLightComponent', () => {
       const Expected = 42
 
       // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -331,9 +323,6 @@ describe('DirectionalLightComponent', () => {
       const Expected = 42
 
       // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -351,9 +340,6 @@ describe('DirectionalLightComponent', () => {
       const Expected = 42
 
       // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -395,18 +381,19 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, DirectionalLightComponent)
-      assert.equal(hasComponent(testEntity, LineSegmentComponent), Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       DirectionalLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(testEntity, LineSegmentComponent), Expected)
-      assert.equal(getComponent(testEntity, LineSegmentComponent).name, 'directional-light-helper')
+
+      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
+      assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
+      assert.equal(getComponent(childEntity1, LineSegmentComponent).name, 'directional-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
       DirectionalLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(testEntity, LineSegmentComponent), Initial)
+      assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)
     })
   }) //:: reactor
 })

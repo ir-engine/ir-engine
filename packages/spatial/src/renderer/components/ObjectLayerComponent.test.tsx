@@ -39,7 +39,7 @@ import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { addObjectToGroup } from './ObjectComponent'
+import { ObjectComponent } from './ObjectComponent'
 import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent, ObjectLayerMaskDefault } from './ObjectLayerComponent'
 
 const maxBitWidth = 32
@@ -68,7 +68,7 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     assert(hasComponent(entity, ObjectLayerComponents[layer]))
   })
 
-  it('Sets objectLayers on group', () => {
+  it('Sets objectLayers on object', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -77,7 +77,7 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     const objectLayer = 2
     const nonEnabledObjectLayer = 5
 
-    addObjectToGroup(entity, mesh)
+    setComponent(entity, ObjectComponent, mesh)
     mesh.layers.enable(objectLayer)
 
     assert(hasComponent(entity, ObjectLayerMaskComponent))
@@ -87,34 +87,7 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     assert(!mesh.layers.isEnabled(nonEnabledObjectLayer))
   })
 
-  it('Sets objectLayers on group multiple', () => {
-    const meshCount = 10
-
-    const entity = createEntity()
-    const meshes = [] as Mesh[]
-
-    for (let i = 0; i < meshCount; i++) {
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      const mesh = new Mesh(geometry, material)
-      meshes.push(mesh)
-      addObjectToGroup(entity, mesh)
-    }
-
-    const objectLayers = [5, 6, 7]
-
-    setComponent(entity, ObjectLayerMaskComponent)
-    ObjectLayerMaskComponent.enableLayers(entity, ...objectLayers)
-
-    for (const mesh of meshes) {
-      for (const layer of objectLayers) {
-        assert(mesh.layers.isEnabled(layer))
-        assert(hasComponent(entity, ObjectLayerComponents[layer]))
-      }
-    }
-  })
-
-  it('Updates objectLayers on group', () => {
+  it('Updates objectLayers on object', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -123,7 +96,7 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     const objectLayers = [2, 3, 4]
     const nonEnabledObjectLayer = 5
 
-    addObjectToGroup(entity, mesh)
+    setComponent(entity, ObjectComponent, mesh)
     setComponent(entity, ObjectLayerMaskComponent)
     ObjectLayerMaskComponent.enableLayers(entity, ...objectLayers)
 
