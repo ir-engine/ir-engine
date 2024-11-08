@@ -121,6 +121,7 @@ export const LoopAnimationComponent = defineComponent({
       if (animationAction.isRunning()) {
         animationAction.paused = loopAnimationComponent.paused.value
       } else if (!animationAction.isRunning() && !loopAnimationComponent.paused.value) {
+        if (animComponent) animComponent.mixer.value.stopAllAction()
         animationAction.paused = false
         animationAction.play()
       }

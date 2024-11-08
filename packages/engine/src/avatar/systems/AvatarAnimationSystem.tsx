@@ -348,6 +348,7 @@ const AnimationReactor = () => {
 
   useEffect(() => {
     if (!loadedAnimations.value) return
+
     let i = 0
     for (const loadedAnimationEntity of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
       for (const animation of loadedAnimationEntity[0]!) {
@@ -357,7 +358,7 @@ const AnimationReactor = () => {
       getMutableState(AnimationState).loadedAnimations[animations[i]].set(loadedAnimationEntity[1]!)
       i++
     }
-  }, [loadedAnimations])
+  }, [loadedAnimations.value])
 
   const locomotionAnimationState = useHookstate(
     getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]

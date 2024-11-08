@@ -84,8 +84,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     envMapIntensity: 0.5
   })
 
-  setComponent(entity, AvatarComponent)
-
   setComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(new Object3D()),
     animations: [] as AnimationClip[]
@@ -100,8 +98,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     allowRolling: false,
     enabledRotations: [false, true, false]
   })
-
-  createAvatarCollider(entity)
 
   if (ownerID === Engine.instance.store.userID) {
     createAvatarController(entity)
