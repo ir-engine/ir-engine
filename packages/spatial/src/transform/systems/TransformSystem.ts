@@ -53,7 +53,6 @@ import { composeMatrix, TransformComponent } from '../components/TransformCompon
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
-const groupQuery = defineQuery([GroupComponent, VisibleComponent])
 
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
@@ -173,6 +172,9 @@ const sortAndMakeDirtyEntities = () => {
 }
 
 const execute = () => {
+  // define groupQuery inside execute to avoid circular dependency
+  const groupQuery = defineQuery([GroupComponent, VisibleComponent])
+
   const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
