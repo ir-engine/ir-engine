@@ -23,28 +23,57 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    authentication: {
-      type: 'object',
-      properties: {
-        strategy: {
-          type: 'string',
-          default: 'local'
-        },
-        email: {
-          type: 'string'
-        },
-        password: {
-          type: 'string'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Authentication service description',
+    idNames: {
+      remove: 'accessToken'
+    },
+    idType: 'string',
+    securities: ['remove'],
+    schemas: {
+      authRequest: {
+        type: 'object',
+        properties: {
+          strategy: { type: 'string', default: 'jwt' },
+          accessToken: { type: 'string' }
+        }
+      },
+      authResult: {
+        type: 'object',
+        properties: {
+          accessToken: { type: 'string' },
+          authentication: {
+            type: 'object',
+            properties: {
+              strategy: { type: 'string' },
+              accessToken: { type: 'string' }
+            },
+            payload: {
+              type: 'object',
+              properties: {
+                iat: { type: 'string' },
+                exp: { type: 'string' },
+                sub: { type: 'string' },
+                jti: { type: 'string' }
+              }
+            }
+          },
+          'identity-provider': { $ref: '#/components/schemas/IdentityProvider' }
         }
       }
-    }
-  },
-  securities: ['create', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
+    },
+    refs: {
+      createRequest: 'authRequest',
+      removeRequest: 'authRequest',
+      createResponse: 'authResult',
+      removeResponse: 'authResult'
+    },
+    operations: {
+      remove: {}
     }
   }
-}
+})

@@ -46,8 +46,8 @@ import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackCompone
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { Checkbox } from '@ir-engine/ui'
 import Button from '../../../../primitives/tailwind/Button'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -161,7 +161,11 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       {interactableComponent.uiActivationType.value == XRUIActivationType.proximity && (
-        <InputGroup name="ActivationDistance" label={t('editor:properties.interactable.lbl-activationDistance')}>
+        <InputGroup
+          name="ActivationDistance"
+          label={t('editor:properties.interactable.lbl-UIactivationDistance')}
+          info={t('editor:properties.interactable.info-UIactivationDistance')}
+        >
           <NumericInput
             value={interactableComponent.activationDistance.value}
             onChange={updateProperty(InteractableComponent, 'activationDistance')}
@@ -176,8 +180,8 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
           label={t('editor:properties.interactable.lbl-clickInteract')}
           info={t('editor:properties.interactable.info-clickInteract')}
         >
-          <BooleanInput
-            value={interactableComponent.clickInteract.value}
+          <Checkbox
+            checked={interactableComponent.clickInteract.value}
             onChange={commitProperty(InteractableComponent, 'clickInteract')}
           />
         </InputGroup>

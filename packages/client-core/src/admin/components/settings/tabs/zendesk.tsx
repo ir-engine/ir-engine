@@ -31,10 +31,10 @@ import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
@@ -123,22 +123,28 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     >
       <div className="my-6 grid grid-cols-3 gap-6">
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.keyName')}
+          labelProps={{
+            text: t('admin:components.setting.keyName'),
+            position: 'top'
+          }}
           value={name?.value || ''}
           onChange={(e) => name.set(e.target.value)}
         />
 
         <PasswordInput
-          className="col-span-1"
-          label={t('admin:components.setting.secret')}
+          labelProps={{
+            text: t('admin:components.setting.secret'),
+            position: 'top'
+          }}
           value={secret?.value || ''}
           onChange={(e) => secret.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.kid')}
+          labelProps={{
+            text: t('admin:components.setting.kid'),
+            position: 'top'
+          }}
           value={kid?.value || ''}
           onChange={(e) => kid.set(e.target.value)}
         />

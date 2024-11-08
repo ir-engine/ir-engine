@@ -44,15 +44,7 @@ export function Topbar() {
 
   return (
     <div className="flex h-8 items-center justify-between gap-2 bg-[#212226]" data-testid="hierarchy-panel-top-bar">
-      <SearchBar
-        search={search}
-        inputProps={{
-          className:
-            'text-[#A3A3A3] bg-[#141619] h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-xs placeholder:text-[#A3A3A3] focus-visible:ring-0',
-          containerClassName: 'flex h-auto w-full pl-2',
-          variant: 'underlined'
-        }}
-      />
+      <SearchBar inputProps={{ fullWidth: true }} search={search} debounceTime={100} />
       <Popup
         keepInside
         open={isAddEntityMenuOpen.value}
