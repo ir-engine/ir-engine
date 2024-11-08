@@ -69,6 +69,7 @@ const GITHUB_LFS_FLOOR = 30 * 1000 * 1000
 const TOKEN_REGEX = /"RemoteAuth ([0-9a-zA-Z-_]+)"/
 const OID_REGEX = /oid sha256:([0-9a-fA-F]{64})/
 const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing or failing
+const COMMIT_FILE_PAGE_SIZE = 150 //Only upload 150 files in a push to GitHub; more than ~200 may trigger errors on uploading trees
 
 export const refreshToken = async (githubSettings: AuthAppCredentialsType, token: string, app: Application) => {
   const identityProviderResponse = await app.service(identityProviderPath).find({
@@ -434,43 +435,55 @@ const uploadToRepo = async (
     fileBlobs.push(blob)
     filePaths.push(gitAttributesFilePath)
   }
-  // Create a new tree from all of the files, so that a new commit can be made from it
-  const newTree = await createNewTree(
-    octo,
-    org,
-    repo,
-    fileBlobs,
-    filePaths.map((path) => path.replace(`projects/${project.name}/`, '')),
-    currentCommit.treeSha
-  )
-  const date = Date.now()
-  const commitMessage = `Update by ${user.login} at ${new Date(date).toJSON()}`
-  //Create the new commit with all of the file changes
-  const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
+  let treeSha = currentCommit.treeSha
+  let commitSha = currentCommit.commitSha
+  //GitHub's tree creation endpoint sometimes throws errors if it's processing too many files in a single tree.
+  //We chunk the update into commits of 100 files to make sure we're staying under whatever limit it's running into.
+  for (let i = 0; i < fileBlobs.length; i += COMMIT_FILE_PAGE_SIZE) {
+    const blobSlice = fileBlobs.slice(i, i + COMMIT_FILE_PAGE_SIZE)
+    const pathsSlice = filePaths.slice(i, i + COMMIT_FILE_PAGE_SIZE)
+    // Create a new tree from all of the files, so that a new commit can be made from it
+    const newTree = await createNewTree(
+      octo,
+      org,
+      repo,
+      blobSlice,
+      pathsSlice.map((path) => path.replace(`projects/${project.name}/`, '')),
+      filePaths.map((path) => path.replace(`projects/${project.name}/`, '')),
+      treeSha
+    )
+    const date = Date.now()
+    const commitMessage = `Update by ${user.login} at ${new Date(date).toJSON()}`
+    //Create the new commit with all of the file changes
+    const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, commitSha)
+    treeSha = newCommit.tree.sha
+    commitSha = newCommit.sha
+
+    try {
+      //This pushes the commit to the main branch in GitHub
+      await setBranchToCommit(octo, org, repo, branch, commitSha)
+    } catch (err) {
+      console.log('error pushing commit', err)
+      // Couldn't push directly to branch for some reason, so making a new branch and opening a PR instead
+      await octo.git.createRef({
+        owner: org,
+        repo,
+        ref: `refs/heads/${user.login}-${date}`,
+        sha: commitSha
+      })
+      await octo.pulls.create({
+        owner: org,
+        repo,
+        head: `refs/heads/${user.login}-${date}`,
+        base: `refs/heads/${branch}`,
+        title: commitMessage
+      })
+    }
+  }
 
   await app
     .service(projectPath)
-    .patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()), hasLocalChanges: false })
-
-  try {
-    //This pushes the commit to the main branch in GitHub
-    await setBranchToCommit(octo, org, repo, branch, newCommit.sha)
-  } catch (err) {
-    // Couldn't push directly to branch for some reason, so making a new branch and opening a PR instead
-    await octo.git.createRef({
-      owner: org,
-      repo,
-      ref: `refs/heads/${user.login}-${date}`,
-      sha: newCommit.sha
-    })
-    await octo.pulls.create({
-      owner: org,
-      repo,
-      head: `refs/heads/${user.login}-${date}`,
-      base: `refs/heads/${branch}`,
-      title: commitMessage
-    })
-  }
+    .patch(project.id, { commitSHA: commitSha, commitDate: toDateTimeSql(new Date()), hasLocalChanges: false })
 }
 export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch = 'main') => {
   try {
@@ -684,6 +697,7 @@ const createNewTree = async (
   repo: string,
   blobs: any[],
   paths: string[],
+  fullPaths: string[],
   parentTreeSha: string
 ) => {
   const oldTree = await octo.git.getTree({
@@ -702,7 +716,7 @@ const createNewTree = async (
     sha
   })) as any[]
   committableFilesMap.forEach((fileName) => {
-    if (fileName && paths.indexOf(fileName) < 0) {
+    if (fileName && fullPaths.indexOf(fileName) < 0) {
       tree.push({
         path: fileName,
         mode: `100644`,
