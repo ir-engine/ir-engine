@@ -32,8 +32,8 @@ import { MathUtils as _Math } from 'three'
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Checkbox } from '@ir-engine/ui'
 import ColorInput from '../../../../../primitives/tailwind/Color'
-import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 
@@ -118,9 +118,9 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="castShadow" label={t('editor:properties.spotLight.lbl-castShadow')}>
-        <BooleanInput
+        <Checkbox
           onChange={commitProperty(SpotLightComponent, 'castShadow')}
-          value={lightComponent.castShadow.value}
+          checked={lightComponent.castShadow.value}
         />
       </InputGroup>
       <InputGroup name="ShadowBias" label={t('editor:properties.spotLight.lbl-shadowBias')}>

@@ -36,9 +36,8 @@ import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { Input } from '@ir-engine/ui'
+import { Checkbox, Input } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -193,57 +192,45 @@ export default function ImageCompressionPanel({
           containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
+          className="w-min"
           name="flipY"
           label={t('editor:properties.model.transform.flipY')}
           info={t('editor:properties.model.transform.flipYTooltip')}
         >
-          <BooleanInput
-            className="bg-[#2C2E33]"
-            value={compressProperties.flipY.value}
-            onChange={compressProperties.flipY.set}
-          />
+          <Checkbox checked={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
+          className="w-min"
           name="linear"
           label={t('editor:properties.model.transform.srgb')}
           info={t('editor:properties.model.transform.srgbTooltip')}
         >
-          <BooleanInput
-            className="bg-[#2C2E33]"
-            value={compressProperties.srgb.value}
-            onChange={compressProperties.srgb.set}
-          />
+          <Checkbox checked={compressProperties.srgb.value} onChange={compressProperties.srgb.set} />
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="mipmaps"
+          className="w-min"
           label={t('editor:properties.model.transform.mipmaps')}
           info={t('editor:properties.model.transform.mipmapsTooltip')}
         >
-          <BooleanInput
-            className="bg-[#2C2E33]"
-            value={compressProperties.mipmaps.value}
-            onChange={compressProperties.mipmaps.set}
-          />
+          <Checkbox checked={compressProperties.mipmaps.value} onChange={compressProperties.mipmaps.set} />
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="normalMap"
+          className="w-min"
           label={t('editor:properties.model.transform.normalMap')}
           info={t('editor:properties.model.transform.normalMapTooltip')}
         >
-          <BooleanInput
-            className="bg-[#2C2E33]"
-            value={compressProperties.normalMap.value}
-            onChange={compressProperties.normalMap.set}
-          />
+          <Checkbox checked={compressProperties.normalMap.value} onChange={compressProperties.normalMap.set} />
         </InputGroup>
         {compressProperties.mode.value === 'ETC1S' && (
           <>
@@ -309,10 +296,10 @@ export default function ImageCompressionPanel({
               name="uastcZstandard"
               label={t('editor:properties.model.transform.uastcZstandard')}
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}
+              className="w-min"
             >
-              <BooleanInput
-                className="bg-[#2C2E33]"
-                value={compressProperties.uastcZstandard.value}
+              <Checkbox
+                checked={compressProperties.uastcZstandard.value}
                 onChange={compressProperties.uastcZstandard.set}
               />
             </InputGroup>

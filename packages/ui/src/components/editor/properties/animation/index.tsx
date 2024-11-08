@@ -39,12 +39,12 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { useState } from '@ir-engine/hyperflux'
 import { getCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { Checkbox } from '@ir-engine/ui'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaStreetView } from 'react-icons/fa'
 import { LoopOnce, LoopPingPong, LoopRepeat } from 'three'
 import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
@@ -117,15 +117,15 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       {canConvert && (
         <InputGroup name="Use VRM" label={t('editor:properties.loopAnimation.lbl-useVRM')}>
-          <BooleanInput
-            value={loopAnimationComponent.useVRM.value}
+          <Checkbox
+            checked={loopAnimationComponent.useVRM.value}
             onChange={commitProperty(LoopAnimationComponent, 'useVRM')}
           />
         </InputGroup>
       )}
       <InputGroup name="Paused" label={t('editor:properties.loopAnimation.lbl-paused')}>
-        <BooleanInput
-          value={loopAnimationComponent.paused.value}
+        <Checkbox
+          checked={loopAnimationComponent.paused.value}
           onChange={commitProperty(LoopAnimationComponent, 'paused')}
         />
       </InputGroup>
