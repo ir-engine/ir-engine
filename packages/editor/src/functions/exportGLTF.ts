@@ -46,7 +46,8 @@ export async function exportRelativeGLTF(entity: Entity, projectName: string, re
       [``],
       [
         {
-          contentType: 'model/gltf+json'
+          contentType: 'model/gltf+json',
+          type: 'asset'
         }
       ]
     ).promises

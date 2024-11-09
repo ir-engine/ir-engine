@@ -23,40 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
+import React from 'react'
 
-export function nodeIsChild(index: number, nodes: GLTF.INode[]) {
-  for (const node of nodes) {
-    if (node.children && node.children.includes(index)) return true
-  }
-
-  return false
-}
-
-const replaceUUID = (obj: object | null, prevUUID: EntityUUID, newUUID: EntityUUID) => {
-  if (!obj) return
-  for (const key in obj) {
-    if (obj[key] === prevUUID) obj[key] = newUUID
-    else if (typeof obj[key] === 'object') replaceUUID(obj[key], prevUUID, newUUID)
-  }
-}
-
-export function gltfReplaceUUIDReferences(gltf: GLTF.IGLTF, prevUUID: EntityUUID, newUUID: EntityUUID) {
-  if (!gltf.nodes) return
-
-  for (const node of gltf.nodes) {
-    if (!node.extensions) continue
-
-    for (const extKey in node.extensions) {
-      if (extKey === UUIDComponent.jsonID) continue
-
-      const ext = node.extensions[extKey]
-      // If a component is just a reference to a uuid
-      if (ext === prevUUID) node.extensions[extKey] = newUUID
-      else if (typeof ext === 'object') {
-        replaceUUID(ext, prevUUID, newUUID)
-      }
-    }
-  }
+export default function FilePropertiesSaveConfirmationModal() {
+  return (
+    <div className="flex items-center justify-center">
+      <div className="z-10  w-[30vw] rounded-lg border border-gray-800 bg-theme-surface-main p-20 shadow-lg">
+        <ProgressBar
+          bgColor={'#ffffff'}
+          completed={50}
+          loopingBarWidth={50}
+          height="4px"
+          baseBgColor="#000000"
+          isLabelVisible={false}
+          isLooping={true}
+          loopingBarSpeed={0.4}
+        />
+        <div className="mb-8 mt-6  flex justify-between text-sm text-white">
+          <span>Saving asset changes...</span>
+          <span>Please Wait</span>
+        </div>
+      </div>
+    </div>
+  )
 }

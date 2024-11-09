@@ -36,7 +36,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
@@ -129,11 +128,7 @@ PropertyBinding.findNode = function (root: SkinnedMesh, nodeName: string | numbe
     const searchEntitySubtree = function (children: Entity[]) {
       for (let i = 0; i < children.length; i++) {
         const entity = children[i]
-        const childNode =
-          getOptionalComponent(entity, BoneComponent) ??
-          getOptionalComponent(entity, MeshComponent) ??
-          getOptionalComponent(entity, SkinnedMeshComponent) ??
-          getOptionalComponent(entity, ObjectComponent)!
+        const childNode = getOptionalComponent(entity, ObjectComponent)
 
         if (childNode && (childNode.name === nodeName || childNode.uuid === nodeName)) {
           return childNode
