@@ -66,7 +66,6 @@ import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
-import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
 
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
@@ -118,7 +117,6 @@ export const AvatarRigComponent = defineComponent({
         const vrm = createVRM(entity)
         setObjectLayers(vrm.scene, ObjectLayers.Avatar)
         setupAvatarProportions(entity, vrm)
-        createAvatarCollider(entity)
         rigComponent.vrm.set(vrm)
         rigComponent.normalizedRig.set(vrm.humanoid.normalizedHumanBones)
         rigComponent.rawRig.set(vrm.humanoid.rawHumanBones)

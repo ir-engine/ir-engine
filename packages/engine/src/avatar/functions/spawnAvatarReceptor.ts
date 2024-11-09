@@ -64,6 +64,7 @@ import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '.
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
+  console.log('yaya', entity)
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
@@ -93,6 +94,10 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     locomotion: new Vector3()
   })
 
+  setComponent(entity, AvatarComponent)
+
+  createAvatarCollider(entity)
+
   setComponent(entity, RigidBodyComponent, {
     type: BodyTypes.Kinematic,
     allowRolling: false,
@@ -116,7 +121,6 @@ export const createAvatarCollider = (entity: Entity) => {
   const colliderEntity = createEntity()
   setComponent(entity, AvatarColliderComponent, { colliderEntity })
 
-  setAvatarColliderTransform(entity)
   setComponent(colliderEntity, EntityTreeComponent, { parentEntity: entity })
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,

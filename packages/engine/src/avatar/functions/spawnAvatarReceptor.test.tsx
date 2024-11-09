@@ -89,7 +89,7 @@ describe('spawnAvatarReceptor', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
+        entityUUID: Engine.instance.store.userID as string as EntityUUID,
         avatarURL: '',
         name: ''
       })
@@ -98,7 +98,7 @@ describe('spawnAvatarReceptor', () => {
     ReactorReconciler.flushSync(() => applyIncomingActions())
     ReactorReconciler.flushSync(() => spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID))
 
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.store.userID)
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))

@@ -42,7 +42,6 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { applyGamepadInput } from './moveAvatar'
@@ -77,7 +76,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.store.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -87,7 +86,7 @@ describe('moveAvatar function tests', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
+        entityUUID: Engine.instance.store.userID as string as EntityUUID,
         avatarURL: '',
         name: ''
       })
@@ -95,8 +94,8 @@ describe('moveAvatar function tests', () => {
 
     applyIncomingActions()
 
-    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
+    spawnAvatarReceptor(Engine.instance.store.userID as string as EntityUUID)
+    const entity = UUIDComponent.getEntityByUUID(Engine.instance.store.userID as string as EntityUUID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
     const avatar = getComponent(entity, AvatarControllerComponent)
@@ -118,7 +117,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.store.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -128,7 +127,7 @@ describe('moveAvatar function tests', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
+        entityUUID: Engine.instance.store.userID as string as EntityUUID,
         avatarURL: '',
         name: ''
       })
@@ -136,8 +135,8 @@ describe('moveAvatar function tests', () => {
 
     applyIncomingActions()
 
-    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = UUIDComponent.getEntityByUUID(Engine.instance.store.userID as string as EntityUUID)
+    spawnAvatarReceptor(Engine.instance.store.userID as string as EntityUUID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -158,7 +157,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.store.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -171,7 +170,7 @@ describe('moveAvatar function tests', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
+        entityUUID: Engine.instance.store.userID as string as EntityUUID,
         avatarURL: '',
         name: ''
       })
@@ -179,8 +178,8 @@ describe('moveAvatar function tests', () => {
 
     applyIncomingActions()
 
-    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
+    spawnAvatarReceptor(Engine.instance.store.userID as string as EntityUUID)
+    const entity = UUIDComponent.getEntityByUUID(Engine.instance.store.userID as string as EntityUUID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -201,7 +200,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.store.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -211,7 +210,7 @@ describe('moveAvatar function tests', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
+        entityUUID: Engine.instance.store.userID as string as EntityUUID,
         avatarURL: '',
         name: ''
       })
@@ -219,8 +218,8 @@ describe('moveAvatar function tests', () => {
 
     applyIncomingActions()
 
-    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
+    spawnAvatarReceptor(Engine.instance.store.userID as string as EntityUUID)
+    const entity = UUIDComponent.getEntityByUUID(Engine.instance.store.userID as string as EntityUUID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
