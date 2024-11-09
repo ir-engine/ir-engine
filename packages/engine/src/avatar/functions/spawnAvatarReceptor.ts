@@ -64,7 +64,6 @@ import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '.
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
-  console.log('yaya', entity)
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
