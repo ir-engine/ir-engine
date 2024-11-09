@@ -23,73 +23,62 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { QueryReactor, UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  removeEntityNodeRecursively,
-  useAncestorWithComponents
+  removeEntityNodeRecursively
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
-import { Not } from 'bitecs'
-import React, { FC, useEffect } from 'react'
+import { useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
-import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
+import { parseGLTFModel } from '../functions/loadGLTFModel'
+import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { SourceComponent } from './SourceComponent'
 
 /**
  * ModelComponent is an entity/object hierarchy loaded from a resource
+ * @deprecated - use GLTFComponent instead
  */
 export const ModelComponent = defineComponent({
   name: 'ModelComponent',
-  jsonID: 'EE_model',
+  jsonID: 'EE_model_old',
 
   schema: S.Object({
     src: S.String(''),
     cameraOcclusion: S.Bool(true),
     /** optional, only for bone matchable avatars */
     convertToVRM: S.Bool(false),
-    scene: S.Nullable(S.Type<Group>()),
-    asset: S.Nullable(S.Type<VRM | GLTF>()),
-    dereference: S.Bool(false)
+    scene: S.NonSerialized(S.Nullable(S.Type<Group>())),
+    asset: S.NonSerialized(S.Nullable(S.Type<VRM | GLTF>())),
+    dereference: S.NonSerialized(S.Bool(false))
   }),
-
-  toJSON: (component) => {
-    return {
-      src: component.src,
-      cameraOcclusion: component.cameraOcclusion,
-      convertToVRM: component.convertToVRM
-    }
-  },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
@@ -143,16 +132,16 @@ function ModelReactor() {
       return
     }
 
-    const boneMatchedAsset =
-      gltf instanceof VRM || modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
+    // const boneMatchedAsset =
+    //   gltf instanceof VRM || modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
 
     /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
-    if (boneMatchedAsset instanceof VRM)
-      setComponent(entity, AnimationComponent, {
-        mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
-      })
+    // if (boneMatchedAsset instanceof VRM)
+    //   setComponent(entity, AnimationComponent, {
+    //     mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
+    //   })
 
-    modelComponent.asset.set(boneMatchedAsset)
+    modelComponent.asset.set(gltf)
   }, [gltf])
 
   useEffect(() => {
@@ -245,44 +234,4 @@ function ModelReactor() {
   }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
 
   return null
-}
-
-/**
- * Returns true if the entity has a model component or a mesh component that is not a child of model
- * @param entity
- * @returns {boolean}
- */
-export const useHasModelOrIndependentMesh = (entity: Entity) => {
-  const hasModel = !!useOptionalComponent(entity, ModelComponent)
-  const isChildOfModel = !!useAncestorWithComponents(entity, [ModelComponent])
-  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
-
-  return hasModel || (hasMesh && !isChildOfModel)
-}
-
-export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
-  const ModelReactor = () => {
-    const entity = useEntityContext()
-    const sceneInstanceID = useModelSceneID(entity)
-    const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
-    return (
-      <>
-        {childEntities.value?.map((childEntity) => (
-          <props.ChildReactor entity={childEntity} rootEntity={entity} key={childEntity} />
-        ))}
-      </>
-    )
-  }
-
-  const MeshReactor = () => {
-    const entity = useEntityContext()
-    return <props.ChildReactor entity={entity} rootEntity={entity} key={entity} />
-  }
-
-  return (
-    <>
-      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelReactor} />
-      <QueryReactor Components={[Not(SourceComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
-    </>
-  )
 }

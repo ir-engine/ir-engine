@@ -36,7 +36,7 @@ import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
@@ -99,19 +99,19 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Enable Rotation" label={t('editor:properties.splinetrack.lbl-enableRotation')}>
-        <BooleanInput
-          value={component.enableRotation.value}
+        <Checkbox
+          checked={component.enableRotation.value}
           onChange={commitProperty(SplineTrackComponent, 'enableRotation')}
         />
       </InputGroup>
       <InputGroup name="Lock XZ" label={t('editor:properties.splinetrack.lbl-lockXZ')}>
-        <BooleanInput
-          value={component.lockToXZPlane.value}
+        <Checkbox
+          checked={component.lockToXZPlane.value}
           onChange={commitProperty(SplineTrackComponent, 'lockToXZPlane')}
         />
       </InputGroup>
       <InputGroup name="Loop" label={t('editor:properties.splinetrack.lbl-loop')}>
-        <BooleanInput value={component.loop.value} onChange={commitProperty(SplineTrackComponent, 'loop')} />
+        <Checkbox checked={component.loop.value} onChange={commitProperty(SplineTrackComponent, 'loop')} />
       </InputGroup>
     </NodeEditor>
   )

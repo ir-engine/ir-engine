@@ -29,6 +29,7 @@ import { Component } from '@ir-engine/ecs'
 import { VisualScriptComponent } from '@ir-engine/engine'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
@@ -39,7 +40,6 @@ import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/Gro
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
@@ -77,7 +77,7 @@ export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
     return {
-      Files: [ModelComponent, PositionalAudioComponent, AudioAnalysisComponent, VideoComponent, ImageComponent],
+      Files: [GLTFComponent, PositionalAudioComponent, AudioAnalysisComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [
@@ -120,6 +120,8 @@ export const ComponentShelfCategoriesState = defineState({
 
     const [legacyVolumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.LegacyVolumetric])
     const [volumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.Volumetric])
+    const [audioAnalysisEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.AudioAnalysis])
+    const [screenshareTargetEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.ScreenshareTarget])
 
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
@@ -176,5 +178,27 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [volumetricEnabled])
+
+    useEffect(() => {
+      if (audioAnalysisEnabled) {
+        cShelfState.Interaction.merge([AudioAnalysisComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == AudioAnalysisComponent.name))
+          })
+        }
+      }
+    }, [audioAnalysisEnabled])
+
+    useEffect(() => {
+      if (screenshareTargetEnabled) {
+        cShelfState.Interaction.merge([ScreenshareTargetComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == ScreenshareTargetComponent.name))
+          })
+        }
+      }
+    }, [screenshareTargetEnabled])
   }
 })

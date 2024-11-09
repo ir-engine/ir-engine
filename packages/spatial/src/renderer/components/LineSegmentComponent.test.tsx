@@ -69,9 +69,9 @@ type LineSegmentComponentData = {
   name: string
   geometry: BufferGeometry
   material: Material
-  color: ColorRepresentation | undefined
-  layerMask: typeof ObjectLayers.NodeHelper
-  entity: undefined | Entity
+  color?: ColorRepresentation
+  layerMask: number
+  entity?: Entity
 }
 
 const LineSegmentComponentDefaults = {
@@ -124,7 +124,7 @@ describe('LineSegmentComponent', () => {
       Expected.material = material
       setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       const data = getComponent(testEntity, LineSegmentComponent)
-      assertLineSegmentComponentEq(data, Expected)
+      assertLineSegmentComponentEq(data as LineSegmentComponentData, Expected)
     })
   }) //:: onInit
 
@@ -154,7 +154,7 @@ describe('LineSegmentComponent', () => {
       Expected.material = material1
       setComponent(testEntity, LineSegmentComponent, { geometry: geometry1, material: material1 })
       const data = getComponent(testEntity, LineSegmentComponent)
-      assertLineSegmentComponentEq(data, Expected)
+      assertLineSegmentComponentEq(data as LineSegmentComponentData, Expected)
 
       const geometry2 = new BoxGeometry(2, 2, 2)
       const material2 = new MeshBasicMaterial({ color: 0x222222 })
@@ -162,7 +162,7 @@ describe('LineSegmentComponent', () => {
       Expected.geometry = geometry2
       Expected.material = material2
       const result = getComponent(testEntity, LineSegmentComponent)
-      assertLineSegmentComponentEq(result, Expected)
+      assertLineSegmentComponentEq(result as LineSegmentComponentData, Expected)
     })
   }) //:: onSet
 

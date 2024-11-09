@@ -51,7 +51,7 @@ import {
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { Kind, SerializedType, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
+import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   HasDeserializers,
@@ -622,6 +622,16 @@ export function hasComponents<C extends Component>(entity: Entity, components: C
     if (!hasComponent(entity, component)) return false
   }
   return true
+}
+
+export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
+  let hasAllComponents = true
+  for (const component of components) {
+    const exists = !!useOptionalComponent(entity, component)
+    if (!exists) hasAllComponents = false
+  }
+
+  return hasAllComponents
 }
 
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {

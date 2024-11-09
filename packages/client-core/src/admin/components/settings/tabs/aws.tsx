@@ -30,9 +30,9 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind, useMutation } from '@ir-engine/common'
 import { AwsCloudFrontType, AwsSmsType, awsSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const SMS_PROPERTIES = {
@@ -112,15 +112,19 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         </Text>
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.accessKeyId')}
+          labelProps={{
+            text: t('admin:components.setting.accessKeyId'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.eks?.accessKeyId || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.secretAccessKey')}
+          labelProps={{
+            text: t('admin:components.setting.secretAccessKey'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.eks?.secretAccessKey || ''}
           disabled
         />
@@ -132,50 +136,64 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         </Text>
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.accessKeyId')}
+          labelProps={{
+            text: t('admin:components.setting.accessKeyId'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.s3?.accessKeyId || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.secretAccessKey')}
+          labelProps={{
+            text: t('admin:components.setting.secretAccessKey'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.s3?.secretAccessKey || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.endpoint')}
+          labelProps={{
+            text: t('admin:components.setting.endpoint'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.s3?.endpoint || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.staticResourceBucket')}
+          labelProps={{
+            text: t('admin:components.setting.staticResourceBucket'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.s3?.staticResourceBucket || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.region')}
+          labelProps={{
+            text: t('admin:components.setting.region'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.s3?.region || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.avatarDir')}
+          labelProps={{
+            text: t('admin:components.setting.avatarDir'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.s3?.avatarDir || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.s3DevMode')}
+          labelProps={{
+            text: t('admin:components.setting.s3DevMode'),
+            position: 'top'
+          }}
           value={adminAwsSettingsData?.s3?.s3DevMode || ''}
           disabled
         />
@@ -186,22 +204,28 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
           {t('admin:components.setting.cloudFront')}
         </Text>
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.domain')}
+          labelProps={{
+            text: t('admin:components.setting.domain'),
+            position: 'top'
+          }}
           value={cloudfront?.value?.domain || ''}
           onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.DOMAIN)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.distributionId')}
+          labelProps={{
+            text: t('admin:components.setting.distributionId'),
+            position: 'top'
+          }}
           value={cloudfront?.value?.distributionId || ''}
           onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.DISTRIBUTION_ID)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.region')}
+          labelProps={{
+            text: t('admin:components.setting.region'),
+            position: 'top'
+          }}
           value={cloudfront?.value?.region || ''}
           onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.REGION)}
         />
@@ -212,36 +236,46 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
           {t('admin:components.setting.sms')}
         </Text>
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.accessKeyId')}
+          labelProps={{
+            text: t('admin:components.setting.accessKeyId'),
+            position: 'top'
+          }}
           value={sms?.value?.accessKeyId || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.ACCESS_KEY_ID)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.applicationId')}
+          labelProps={{
+            text: t('admin:components.setting.applicationId'),
+            position: 'top'
+          }}
           value={sms?.value?.applicationId || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.APPLICATION_ID)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.region')}
+          labelProps={{
+            text: t('admin:components.setting.region'),
+            position: 'top'
+          }}
           value={sms?.value?.region || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.REGION)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.senderId')}
+          labelProps={{
+            text: t('admin:components.setting.senderId'),
+            position: 'top'
+          }}
           value={sms?.value?.senderId || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SENDER_ID)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.secretAccessKey')}
+          labelProps={{
+            text: t('admin:components.setting.secretAccessKey'),
+            position: 'top'
+          }}
           value={sms?.value?.secretAccessKey || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SECRET_ACCESS_KEY)}
         />

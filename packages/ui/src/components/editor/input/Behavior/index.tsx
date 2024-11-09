@@ -52,7 +52,7 @@ import {
 } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import BooleanInput from '../Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import ColorGenerator from '../Generator/Color'
 import RotationGenerator from '../Generator/Rotation'
 import ValueGenerator from '../Generator/Value'
@@ -219,7 +219,7 @@ export default function BehaviorInput({
             />
           </InputGroup>
           <InputGroup name="dynamic" label="Dynamic">
-            <BooleanInput value={rotation3D.dynamic} onChange={onChange(rotation3DScope.dynamic)} />
+            <Checkbox checked={rotation3D.dynamic} onChange={onChange(rotation3DScope.dynamic)} />
           </InputGroup>
         </>
       )

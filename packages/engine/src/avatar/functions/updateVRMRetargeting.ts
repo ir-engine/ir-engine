@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -31,10 +31,14 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { BoneComponent } from '../components/BoneComponent'
 
-export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
+export const updateVRMRetargeting = (avatarEntity: Entity) => {
+  const vrm = getComponent(avatarEntity, AvatarRigComponent).vrm
+  if (!vrm?.humanoid) return
+
   const humanoidRig = (vrm.humanoid as any)._normalizedHumanBones // as VRMHumanoidRig
   for (const boneName of VRMHumanBoneList) {
     const boneNode = humanoidRig.original.getBoneNode(boneName) as Object3D | null

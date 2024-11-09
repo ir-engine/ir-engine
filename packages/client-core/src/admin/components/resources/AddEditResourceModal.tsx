@@ -36,9 +36,8 @@ import {
   MimeTypeToAssetType
 } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { RadioGroup } from '@ir-engine/ui'
+import { Input, RadioGroup } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -175,16 +174,29 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
         {errors.serverError.value && <p className="mt-4 text-red-700">{errors.serverError.value}</p>}
         <Input
           value={state.name.value}
-          label={t('admin:components.resources.resourceName')}
+          labelProps={{
+            text: t('admin:components.resources.resourceName'),
+            position: 'top'
+          }}
           onChange={(e) => {
             state.name.set(e.target.value)
           }}
           disabled={modalProcessing.value}
         />
-        <Input value={state.mimeType.value} label={t('admin:components.resources.columns.mimeType')} disabled />
+        <Input
+          value={state.mimeType.value}
+          disabled
+          labelProps={{
+            text: t('admin:components.resources.columns.mimeType'),
+            position: 'top'
+          }}
+        />
         <Input
           value={state.project.value}
-          label={t('admin:components.resources.columns.project')}
+          labelProps={{
+            text: t('admin:components.resources.columns.project'),
+            position: 'top'
+          }}
           onChange={(e) => {
             state.project.set(e.target.value)
           }}
@@ -224,7 +236,10 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
             onChange={(e) => {
               state.resourceURL.set(e.target.value)
             }}
-            label={t('admin:components.resources.resourceUrl')}
+            labelProps={{
+              text: t('admin:components.resources.resourceUrl'),
+              position: 'top'
+            }}
             disabled={modalProcessing.value}
           />
         )}
