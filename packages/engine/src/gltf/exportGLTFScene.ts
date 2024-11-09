@@ -35,10 +35,13 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { Matrix4 } from 'three'
+import { Matrix4, Mesh } from 'three'
+import { GLTFExporter } from '../assets/exporters/gltf/GLTFExporter'
 import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
+import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 
 export interface GLTFSceneExportExtension {
@@ -73,10 +76,17 @@ export class IgnoreGLTFComponentExportExtension implements GLTFSceneExportExtens
 
   beforeNode(entity: Entity) {
     if (hasComponent(entity, GLTFComponent)) {
+      const source = GLTFComponent.getInstanceID(entity)
       const children = getOptionalComponent(entity, EntityTreeComponent)?.children
       if (children && children.length) {
-        this.entityChildrenCache[entity] = children
-        getMutableComponent(entity, EntityTreeComponent).children.set([])
+        const removed: Entity[] = []
+        const toKeep: Entity[] = []
+        for (const child of children) {
+          if (getOptionalComponent(child, SourceComponent) === source) removed.push(child)
+          else toKeep.push(child)
+        }
+        this.entityChildrenCache[entity] = removed
+        getMutableComponent(entity, EntityTreeComponent).children.set(toKeep)
       }
     }
   }
@@ -93,11 +103,14 @@ export class IgnoreGLTFComponentExportExtension implements GLTFSceneExportExtens
 export type ExportExtension = new () => GLTFSceneExportExtension
 
 export const defaultExportExtensionList = [
-  IgnoreGLTFComponentExportExtension,
+  // IgnoreGLTFComponentExportExtension,
   RemoveRootNodeParentExportExtension
 ] as ExportExtension[]
 
-export function exportGLTFScene(entity: Entity, exportExtensionTypes: ExportExtension[] = defaultExportExtensionList) {
+export async function exportGLTFScene(
+  entity: Entity,
+  exportExtensionTypes: ExportExtension[] = defaultExportExtensionList
+) {
   const exportExtensions = exportExtensionTypes.map((ext) => new ext())
 
   const gltf = {
@@ -113,7 +126,7 @@ export function exportGLTFScene(entity: Entity, exportExtensionTypes: ExportExte
     extensionsUsed: new Set<string>(),
     exportExtensions
   }
-  const rootIndex = exportGLTFSceneNode(entity, gltf, context)
+  const rootIndex = await exportGLTFSceneNode(entity, gltf, context)
   gltf.scenes![0].nodes.push(rootIndex)
   if (context.extensionsUsed.size) gltf.extensionsUsed = [...context.extensionsUsed]
   cleanStorageProviderURLs(gltf)
@@ -126,21 +139,112 @@ export function exportGLTFScene(entity: Entity, exportExtensionTypes: ExportExte
 const _diffMatrix = new Matrix4()
 const _transformMatrix = new Matrix4()
 
-const exportGLTFSceneNode = (
+const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF) => {
+  return new Promise<void>((resolve, reject) => {
+    const exporter = new GLTFExporter()
+    exporter.parse(
+      mesh,
+      (meshGLTF: GLTF.IGLTF) => {
+        console.log(gltf)
+        appendGLTF(meshGLTF, gltf)
+        resolve()
+      },
+      reject
+    )
+  })
+}
+
+type GLTFAppendContext = {
+  meshTable: Record<number, number>
+  materialTable: Record<number, number>
+  cameraTable: Record<number, number>
+  bufferTable: Record<number, number>
+  bufferViewTable: Record<number, number>
+  accessorTable: Record<number, number>
+  textureTable: Record<number, number>
+  imageTable: Record<number, number>
+  samplerTable: Record<number, number>
+  skinTable: Record<number, number>
+  animationTable: Record<number, number>
+}
+
+const appendMesh = (meshIndex: number, src: GLTF.IGLTF, dst: GLTF.IGLTF, context: GLTFAppendContext): number => {
+  if (context.meshTable[meshIndex] !== undefined) return context.meshTable[meshIndex]
+
+  if (!dst.meshes) dst.meshes = []
+  const newMeshIndex = dst.meshes.length
+  dst.meshes[newMeshIndex] = src.meshes![meshIndex]
+  context.meshTable[meshIndex] = newMeshIndex
+
+  const mesh = dst.meshes[newMeshIndex]
+
+  return newMeshIndex
+}
+
+const appendNode = (
+  nodeIndex: number,
+  src: GLTF.IGLTF,
+  dst: GLTF.IGLTF,
+  offset: number,
+  context: GLTFAppendContext
+): number => {
+  // I don't think nodes can be reused (one node as a child of two parent nodes), so no need for loopup table
+  const node = src.nodes![nodeIndex]
+  const offsetIndex = offset + nodeIndex
+  dst.nodes![offsetIndex] = node
+  if (node.children) {
+    node.children = node.children.map((index) => {
+      appendNode(index, src, dst, offset, context)
+      return offset + index
+    })
+  }
+
+  if (node.mesh !== undefined) node.mesh = appendMesh(node.mesh, src, dst, context)
+
+  return offsetIndex
+}
+
+const appendGLTF = (src: GLTF.IGLTF, dst: GLTF.IGLTF) => {
+  if (src.scene === undefined || src.scenes === undefined || src.nodes === undefined) return
+
+  const context = {
+    meshTable: {},
+    materialTable: {},
+    cameraTable: {},
+    bufferTable: {},
+    bufferViewTable: {},
+    accessorTable: {},
+    textureTable: {},
+    imageTable: {},
+    samplerTable: {},
+    skinTable: {},
+    animationTable: {}
+  } as GLTFAppendContext
+
+  const offset = dst.nodes!.length
+  const nodesToAppend = src.scenes[0].nodes
+  for (let i = 0; i < nodesToAppend.length; i++) {
+    const nodeIndex = nodesToAppend[i]
+    const newIndex = appendNode(nodeIndex, src, dst, offset, context)
+    dst.scenes![0].nodes.push(newIndex)
+  }
+}
+
+const exportGLTFSceneNode = async (
   entity: Entity,
   gltf: GLTF.IGLTF,
   context: {
     extensionsUsed: Set<string>
     exportExtensions: GLTFSceneExportExtension[]
   }
-): number => {
+): Promise<number> => {
   for (const extension of context.exportExtensions) extension.beforeNode?.(entity)
 
   const children = getOptionalComponent(entity, EntityTreeComponent)?.children
   const childrenIndicies = [] as number[]
   if (children && children.length > 0) {
     for (const child of children) {
-      childrenIndicies.push(exportGLTFSceneNode(child, gltf, context))
+      childrenIndicies.push(await exportGLTFSceneNode(child, gltf, context))
     }
   }
 
@@ -170,6 +274,10 @@ const exportGLTFSceneNode = (
         // If no parent, position at identity, but keep scale
         node.matrix = _diffMatrix.identity().scale(transform.scale).toArray()
       }
+    } else if (component === MeshComponent) {
+      const mesh = getComponent(entity, MeshComponent)
+      if (mesh.userData['ignoreOnExport']) continue
+      await exportMesh(mesh, gltf)
     } else {
       const compData = serializeComponent(entity, component)
       // Do we not want to serialize tag components?
