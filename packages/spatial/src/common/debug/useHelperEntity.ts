@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { Mesh, Object3D } from 'three'
 
 import {
   createEntity,
@@ -60,6 +60,8 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
 
     const helperEntity = createEntity()
     const helper = helperFactory()
+    // workaround for hemisphere light helper having child mesh internally
+    const helperMesh = helper.children[0] as Mesh<any, any> | undefined
     setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
     setComponent(helperEntity, ObjectComponent, helper)
     setComponent(helperEntity, UUIDComponent, generateEntityUUID())
@@ -68,7 +70,10 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
     helperEntityState.set(helperEntity)
 
     return () => {
-      if (helper.dispose) helper.dispose()
+      if (helperMesh) {
+        helperMesh.material.dispose()
+        helperMesh.geometry.dispose()
+      } else if (helper.dispose) helper.dispose()
       helperEntityState.set(UndefinedEntity)
       removeEntity(helperEntity)
     }
