@@ -24,23 +24,21 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { PointLight } from 'three'
+import { PointLight, PointLightHelper } from 'three'
 
 import {
   defineComponent,
-  getMutableComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
+import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { useDisposable } from '../../../resources/resourceHooks'
-import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
 import { ObjectComponent } from '../ObjectComponent'
@@ -67,7 +65,8 @@ export const PointLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const pointLightComponent = useComponent(entity, PointLightComponent)
     const [light] = useDisposable(PointLight, entity)
-    const helperEntity = useHookstate(UndefinedEntity)
+    const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled.value)
+    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as PointLightHelper | undefined
 
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
@@ -80,12 +79,8 @@ export const PointLightComponent = defineComponent({
 
     useEffect(() => {
       light.color.set(pointLightComponent.color.value)
-    }, [pointLightComponent.color])
-
-    useEffect(() => {
-      if (helperEntity.value)
-        getMutableComponent(helperEntity.value, LightHelperComponent).color.set(pointLightComponent.color.value)
-    }, [helperEntity.value, pointLightComponent.color])
+      if (helper) helper.color = pointLightComponent.color.value
+    }, [!!helper, pointLightComponent.color])
 
     useEffect(() => {
       light.intensity = pointLightComponent.intensity.value
@@ -120,19 +115,6 @@ export const PointLightComponent = defineComponent({
         light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
-
-    useEffect(() => {
-      if (!debugEnabled.value) return
-
-      helperEntity.set(createEntity())
-      setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
-      setComponent(helperEntity.value, LightHelperComponent, { name: 'point-light-helper', light: light })
-
-      return () => {
-        removeEntity(helperEntity.value)
-        helperEntity.set(UndefinedEntity)
-      }
-    }, [debugEnabled])
 
     return null
   }

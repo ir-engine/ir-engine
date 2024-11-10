@@ -30,12 +30,11 @@ import {
   destroyEngine,
   getComponent,
   hasComponent,
-  removeComponent,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { BoxGeometry, Layers, Matrix4, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { BoxGeometry, Layers, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import {
   assertMatrixAllApproxNotEq,
@@ -54,42 +53,7 @@ describe('ObjectComponent', () => {
     })
   }) //:: IDs
 
-  describe('removeObjectFromGroup', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, ObjectComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should remove the `@param object` from the ObjectComponent list if the entity has a ObjectComponent that contains the `@param object`', () => {
-      const mesh1 = new Mesh(new BoxGeometry())
-      const mesh2 = new Mesh(new SphereGeometry())
-      setComponent(testEntity, ObjectComponent, mesh1)
-      setComponent(testEntity, ObjectComponent, mesh2)
-      assert.equal(getComponent(testEntity, ObjectComponent), mesh2)
-      // Run and Check the result
-      removeComponent(testEntity, ObjectComponent)
-      assert.notEqual(getComponent(testEntity, ObjectComponent), mesh2)
-    })
-
-    it('should remove the ObjectComponent from the entity if the group has no objects left after removing the `@param object`', () => {
-      const mesh = new Mesh(new BoxGeometry())
-      setComponent(testEntity, ObjectComponent, mesh)
-      assert.equal(getComponent(testEntity, ObjectComponent), mesh)
-      // Run and Check the result
-      removeComponent(testEntity, ObjectComponent)
-      assert.equal(hasComponent(testEntity, ObjectComponent), false)
-    })
-  }) //:: removeObjectFromGroup
-
-  describe('addObjectToGroup', () => {
+  describe('setComponent', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -103,7 +67,6 @@ describe('ObjectComponent', () => {
     })
 
     it('should add the object to the ObjectComponent', () => {
-      setComponent(testEntity, ObjectComponent)
       const mesh = new Mesh(new BoxGeometry())
       assert.notEqual(getComponent(testEntity, ObjectComponent), mesh)
       setComponent(testEntity, ObjectComponent, mesh)

@@ -24,21 +24,25 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { SpotLight } from 'three'
+import { SpotLight, SpotLightHelper } from 'three'
 
-import { defineComponent, getMutableComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 
-import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
+import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { useDisposable } from '../../../resources/resourceHooks'
-import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
 import { useUpdateLight } from '../../functions/useUpdateLight'
-import { addObjectToGroup, removeObjectFromGroup } from '../ObjectComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 // const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
@@ -70,27 +74,24 @@ export const SpotLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const [light] = useDisposable(SpotLight, entity)
-    const helperEntity = useHookstate(UndefinedEntity)
+    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled.value)
+    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
 
     useEffect(() => {
       setComponent(entity, LightTagComponent)
       if (isMobileXRHeadset) return
       light.target.position.set(1, 0, 0)
       light.target.name = 'light-target'
-      addObjectToGroup(entity, light)
+      setComponent(entity, ObjectComponent, light)
       return () => {
-        removeObjectFromGroup(entity, light)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 
     useEffect(() => {
       light.color.set(spotLightComponent.color.value)
-    }, [spotLightComponent.color])
-
-    useEffect(() => {
-      if (helperEntity.value)
-        getMutableComponent(helperEntity.value, LightHelperComponent).color.set(spotLightComponent.color.value)
-    }, [helperEntity, spotLightComponent.color])
+      if (helper) helper.color = spotLightComponent.color.value
+    }, [!!helper, spotLightComponent.color])
 
     useEffect(() => {
       light.intensity = spotLightComponent.intensity.value
@@ -133,19 +134,6 @@ export const SpotLightComponent = defineComponent({
         light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
-
-    useEffect(() => {
-      if (!debugEnabled.value) return
-
-      helperEntity.set(createEntity())
-      setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
-      setComponent(helperEntity.value, LightHelperComponent, { name: 'spot-light-helper', light: light })
-
-      return () => {
-        removeEntity(helperEntity.value)
-        helperEntity.set(UndefinedEntity)
-      }
-    }, [debugEnabled])
 
     useUpdateLight(light)
 

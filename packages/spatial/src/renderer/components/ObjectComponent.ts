@@ -33,12 +33,11 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent,
-  useComponent
+  setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, useImmediateEffect } from '@ir-engine/hyperflux'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
@@ -54,13 +53,13 @@ export type Object3DWithEntity = Object3D & { entity: Entity }
 export const ObjectComponent = defineComponent({
   name: 'ObjectComponent',
   jsonID: 'EE_object3d',
-  schema: S.Type<Object3DWithEntity>(),
+  schema: S.Required(S.Type<Object3DWithEntity>()),
 
   reactor: () => {
     const entity = useEntityContext()
-    const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Object3DWithEntity
 
     useImmediateEffect(() => {
+      const obj = getComponent(entity, ObjectComponent) as Object3DWithEntity
       setComponent(entity, TransformComponent)
 
       obj.entity = entity

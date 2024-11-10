@@ -59,11 +59,18 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { NameComponent } from '../../common/NameComponent'
 import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
-import { assertColorEqual } from './lights/HemisphereLightComponent.test'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
+
+function getColorHex(c: ColorRepresentation) {
+  return new Color(c).getHex()
+}
+
+function assertColorEqual(l: ColorRepresentation, r: ColorRepresentation) {
+  assert.equal(getColorHex(l), getColorHex(r))
+}
 
 type LineSegmentComponentData = {
   name: string

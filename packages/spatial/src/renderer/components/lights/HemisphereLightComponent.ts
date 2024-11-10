@@ -24,19 +24,23 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { HemisphereLight } from 'three'
+import { HemisphereLight, HemisphereLightHelper } from 'three'
 
-import { defineComponent, getMutableComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 
-import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
+import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { useDisposable } from '../../../resources/resourceHooks'
-import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { RendererState } from '../../RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../ObjectComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 export const HemisphereLightComponent = defineComponent({
@@ -55,13 +59,16 @@ export const HemisphereLightComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const [light] = useDisposable(HemisphereLight, entity)
-    const helperEntity = useHookstate(UndefinedEntity)
+    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled.value)
+    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
+      | HemisphereLightHelper
+      | undefined
 
     useEffect(() => {
       setComponent(entity, LightTagComponent)
-      addObjectToGroup(entity, light)
+      setComponent(entity, ObjectComponent, light)
       return () => {
-        removeObjectFromGroup(entity, light)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 
@@ -71,29 +78,12 @@ export const HemisphereLightComponent = defineComponent({
 
     useEffect(() => {
       light.color.set(hemisphereLightComponent.skyColor.value)
-    }, [hemisphereLightComponent.skyColor])
-
-    useEffect(() => {
-      if (helperEntity.value)
-        getMutableComponent(helperEntity.value, LightHelperComponent).color.set(hemisphereLightComponent.skyColor.value)
-    }, [helperEntity, hemisphereLightComponent.skyColor])
+      if (helper) helper.color = hemisphereLightComponent.skyColor.value
+    }, [!!helper, hemisphereLightComponent.skyColor])
 
     useEffect(() => {
       light.intensity = hemisphereLightComponent.intensity.value
     }, [hemisphereLightComponent.intensity])
-
-    useEffect(() => {
-      if (!debugEnabled.value) return
-
-      helperEntity.set(createEntity())
-      setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
-      setComponent(helperEntity.value, LightHelperComponent, { name: 'hemisphere-light-helper', light: light })
-
-      return () => {
-        removeEntity(helperEntity.value)
-        helperEntity.set(UndefinedEntity)
-      }
-    }, [debugEnabled])
 
     return null
   }

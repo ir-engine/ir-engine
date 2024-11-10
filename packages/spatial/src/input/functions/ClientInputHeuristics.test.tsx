@@ -45,7 +45,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
-import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { Box3, BoxGeometry, Mesh, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { assertFloatApproxEq, assertFloatApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { createMockXRUI } from '../../../tests/util/MockXRUI'
@@ -58,7 +58,7 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { BodyTypes, SceneQueryType, Shapes } from '../../physics/types/PhysicsTypes'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { addObjectToGroup, GroupComponent } from '../../renderer/components/ObjectComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -501,15 +501,13 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         const box2 = new Mesh(new BoxGeometry(2, 2, 2))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
         const KnownEntities = [one, two]
 
         const data = new Set<IntersectionData>()
@@ -533,15 +531,13 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         const box2 = new Mesh(new BoxGeometry(2, 2, 2))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
 
         const data = new Set<IntersectionData>()
         assert.equal(data.size, 0)
@@ -567,15 +563,13 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         // setComponent(one, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         const box2 = new Mesh(new BoxGeometry(2, 2, 2))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         // setComponent(two, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
         const KnownEntities = [one, two]
         getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
 
@@ -600,15 +594,13 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         // setComponent(one, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         const box2 = new Mesh(new BoxGeometry(2, 2, 2))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         // setComponent(two, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
         const KnownEntities = [one, two]
         getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
 
@@ -647,7 +639,7 @@ describe('ClientInputHeuristics', () => {
       it('... should enable the ObjectLayers.TransformGizmo layer in raycaster.layers', () => {
         const testEntity = createEntity()
         setComponent(testEntity, InputComponent)
-        setComponent(testEntity, GroupComponent)
+        setComponent(testEntity, ObjectComponent, new Object3D())
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, TransformGizmoTagComponent)
 
@@ -669,8 +661,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         setComponent(one, InputComponent)
         setComponent(one, TransformGizmoTagComponent)
 
@@ -679,8 +670,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
         setComponent(two, InputComponent)
         setComponent(two, TransformGizmoTagComponent)
 
@@ -689,8 +679,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(three, VisibleComponent)
         setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
+        setComponent(three, ObjectComponent, box3)
         setComponent(three, InputComponent)
         // setComponent(three, TransformGizmoTagComponent)  // Do not add three to the gizmoPickerObject query
 
@@ -719,8 +708,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         setComponent(one, InputComponent)
         setComponent(one, TransformGizmoTagComponent)
 
@@ -729,8 +717,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
         setComponent(two, InputComponent)
         setComponent(two, TransformGizmoTagComponent)
 
@@ -756,7 +743,6 @@ describe('ClientInputHeuristics', () => {
       it('... should disable the ObjectLayers.TransformGizmo layer in raycaster.layers', () => {
         const testEntity = createEntity()
         setComponent(testEntity, InputComponent)
-        setComponent(testEntity, GroupComponent)
         setComponent(testEntity, VisibleComponent)
         // setComponent(testEntity, TransformGizmoTagComponent)  // Do not enable, so that the gizmoPicker.length branch of the code is hit
 
@@ -779,8 +765,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         setComponent(one, InputComponent)
         // setComponent(one, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
 
@@ -789,8 +774,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
         setComponent(two, InputComponent)
         // setComponent(two, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
 
@@ -799,8 +783,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(three, VisibleComponent)
         setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
+        setComponent(three, ObjectComponent, box3)
         // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
 
         const KnownEntities = [one, two]
@@ -828,8 +811,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         setComponent(one, InputComponent)
         // setComponent(one, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
 
@@ -838,8 +820,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
         setComponent(two, InputComponent)
         // setComponent(two, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
 
@@ -848,8 +829,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(three, VisibleComponent)
         setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
+        setComponent(three, ObjectComponent, box3)
         // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
 
         const rayOrigin = new Vector3(0, 0, 0)

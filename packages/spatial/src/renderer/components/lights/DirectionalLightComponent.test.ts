@@ -221,8 +221,6 @@ describe('DirectionalLightComponent', () => {
     })
 
     it('should create a new DirectionalLight object and add it to the ObjectComponent of the entity when it is mounted', () => {
-      setComponent(testEntity, ObjectComponent)
-
       // Sanity check before running
       const before = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before, false)
@@ -236,8 +234,6 @@ describe('DirectionalLightComponent', () => {
     })
 
     it('should remove the DirectionalLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
-      setComponent(testEntity, ObjectComponent)
-
       // Sanity check before running
       const before1 = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before1, false)

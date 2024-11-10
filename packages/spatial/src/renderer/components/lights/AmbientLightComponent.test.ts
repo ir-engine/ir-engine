@@ -205,8 +205,6 @@ describe('AmbientLightComponent', () => {
     })
 
     it('should add an AmbientLight object to the ObjectComponent of the entityContext when it is mounted', () => {
-      setComponent(testEntity, ObjectComponent)
-
       // Sanity check before running
       const before = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before, false)
@@ -220,8 +218,6 @@ describe('AmbientLightComponent', () => {
     })
 
     it('should remove the AmbientLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
-      setComponent(testEntity, ObjectComponent)
-
       // Sanity check before running
       const before1 = getComponent(testEntity, ObjectComponent)
       assert.equal(!!before1, false)
