@@ -41,7 +41,7 @@ import {
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from './TransformComponent'
@@ -363,7 +363,7 @@ export function useAncestorWithComponents(
     const ParentSubReactor = React.memo((props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
       const matchesQuery = _useHasAllComponents(props.entity, components)
-      useEffect(() => {
+      useImmediateEffect(() => {
         if (!unmounted) forceUpdate()
       }, [tree?.parentEntity?.value, matchesQuery])
       if (matchesQuery && closest) return null
