@@ -362,7 +362,7 @@ export function useAncestorWithComponents(
     let unmounted = false
     const ParentSubReactor = React.memo((props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
+      const matchesQuery = _useHasAllComponents(props.entity, components)
       useEffect(() => {
         if (!unmounted) forceUpdate()
       }, [tree?.parentEntity?.value, matchesQuery])
