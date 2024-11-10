@@ -41,6 +41,7 @@ import assert from 'assert'
 import { BoxGeometry, ColorRepresentation, MeshBasicMaterial, PointLight } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
+import { NameComponent } from '../../../common/NameComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -413,6 +414,7 @@ describe('PointLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, PointLightComponent)
+      setComponent(testEntity, NameComponent, 'point-light')
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
@@ -420,7 +422,7 @@ describe('PointLightComponent', () => {
 
       const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
       assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
-      assert.equal(getComponent(childEntity1, ObjectComponent).name, 'point-light-helper')
+      assert.equal(getComponent(childEntity1, NameComponent), 'point-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)

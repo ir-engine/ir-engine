@@ -56,6 +56,8 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   const nameComponent = useOptionalComponent(parentEntity, NameComponent)
 
   useEffect(() => {
+    if (!enabled) return
+
     const helperEntity = createEntity()
     const helper = helperFactory()
     setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
@@ -63,9 +65,11 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
     setComponent(helperEntity, UUIDComponent, generateEntityUUID())
     setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
     setVisibleComponent(helperEntity, true)
+    helperEntityState.set(helperEntity)
 
     return () => {
       if (helper.dispose) helper.dispose()
+      helperEntityState.set(UndefinedEntity)
       removeEntity(helperEntity)
     }
   }, [enabled])

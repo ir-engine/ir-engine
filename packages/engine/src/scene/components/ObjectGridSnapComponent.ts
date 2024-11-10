@@ -109,7 +109,8 @@ export const BoundingBoxHelperComponent = defineComponent({
     bbox: S.Required(S.Type<Box3>()),
     density: S.Number(2),
     color: S.Color(0xff0000),
-    layerMask: S.Number(ObjectLayerMasks.NodeHelper)
+    layerMask: S.Number(ObjectLayerMasks.NodeHelper),
+    helperEntity: S.Optional(S.Type<Entity>())
   }),
 
   reactor: function () {
@@ -126,6 +127,7 @@ export const BoundingBoxHelperComponent = defineComponent({
         material: new LineBasicMaterial({ color: component.color.value }),
         layerMask: component.layerMask.value
       })
+      component.helperEntity.set(helperEntity)
       return helperEntity
     }).value
     const lineSegment = useComponent(lineSegmentedEntity, LineSegmentComponent)
