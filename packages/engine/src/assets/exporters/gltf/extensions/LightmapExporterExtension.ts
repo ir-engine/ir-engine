@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { KHR_TEXTURE_TRANSFORM } from '@gltf-transform/extensions/src/constants'
 import { Material, Texture } from 'three'
 
+import { EXTENSIONS } from '../../../loaders/gltf/GLTFExtensions'
 import { ExporterExtension } from './ExporterExtension'
 
 export class LightmapExporterExtension extends ExporterExtension {
@@ -52,7 +52,7 @@ export class LightmapExporterExtension extends ExporterExtension {
         texCoord: 1,
         intensity: material.lightMapIntensity,
         extensions: {
-          [KHR_TEXTURE_TRANSFORM]: {
+          [EXTENSIONS.KHR_TEXTURE_TRANSFORM]: {
             offset,
             scale,
             rotation,
