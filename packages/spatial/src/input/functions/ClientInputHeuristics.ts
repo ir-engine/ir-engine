@@ -47,7 +47,7 @@ import { ObjectDirection } from '../../common/constants/MathConstants'
 import { EngineState } from '../../EngineState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { GroupComponent, ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -146,18 +146,18 @@ export function findProximity(
 }
 
 /**Editor InputComponent raycast query */
-const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
 
 /** @todo abstract into heuristic api */
 const gizmoPickerObjectsQuery = defineQuery([
   InputComponent,
-  GroupComponent,
+  ObjectComponent,
   VisibleComponent,
   TransformGizmoTagComponent
 ])
 
-//prevent query from detecting CameraGizmoVisualEntity which has no GroupComponent but has CameraGizmoTagComponent
-const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, GroupComponent])
+//prevent query from detecting CameraGizmoVisualEntity which has no ObjectComponent but has CameraGizmoTagComponent
+const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, ObjectComponent])
 
 export function findEditor(intersectionData: Set<IntersectionData>, caster: Raycaster) {
   const pickerObj = gizmoPickerObjectsQuery() // gizmo heuristic
@@ -169,6 +169,7 @@ export function findEditor(intersectionData: Set<IntersectionData>, caster: Rayc
 
   const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
     .map((eid) => getComponent(eid, ObjectComponent))
+  console.log({ objects })
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
   caster.layers.enable(ObjectLayers.Gizmos)

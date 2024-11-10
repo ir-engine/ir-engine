@@ -41,7 +41,7 @@ import { ColorRepresentation, SpotLight, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertVecApproxEq } from '../../../../tests/util/mathAssertions'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
-import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
+import { NameComponent } from '../../../common/NameComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -465,19 +465,20 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, SpotLightComponent)
+      setComponent(testEntity, NameComponent, 'spot-light')
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       SpotLightComponent.reactorMap.get(testEntity)!.run()
 
       const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-      assert.equal(hasComponent(childEntity1, LightHelperComponent), Expected)
-      assert.equal(getComponent(childEntity1, LightHelperComponent).name, 'spot-light-helper')
+      assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
+      assert.equal(getComponent(childEntity1, NameComponent), 'spot-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
       SpotLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(childEntity1, LightHelperComponent), Initial)
+      assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
     })
   }) //:: reactor
 })

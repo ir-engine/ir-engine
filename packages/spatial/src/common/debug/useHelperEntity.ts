@@ -24,45 +24,65 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { Mesh, Object3D } from 'three'
 
-import { createEntity, Entity, generateEntityUUID, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
-import { State, useHookstate } from '@ir-engine/hyperflux'
+import {
+  createEntity,
+  Entity,
+  generateEntityUUID,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  useOptionalComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 
-export function useHelperEntity<
-  TObject extends Object3D,
-  TComponent extends State<Partial<{ name: string; entity: Entity }>>
->(
-  entity: Entity,
-  component: TComponent,
-  helper: TObject | undefined = undefined,
+type DisposableObject3D = Object3D & { dispose?: () => void }
+
+export function useHelperEntity<TObject extends DisposableObject3D>(
+  parentEntity: Entity,
+  helperFactory: () => TObject,
+  enabled: boolean,
   layerMask = ObjectLayerMasks.NodeHelper
 ): Entity {
-  const helperEntityState = useHookstate<Entity>(createEntity)
+  const helperEntityState = useHookstate(UndefinedEntity)
+  const nameComponent = useOptionalComponent(parentEntity, NameComponent)
 
   useEffect(() => {
-    const helperEntity = helperEntityState.value
-    if (helper) {
-      helper.name = `${component.name.value}-${entity}`
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-    }
-    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+    if (!enabled) return
+
+    const helperEntity = createEntity()
+    const helper = helperFactory()
+    // workaround for hemisphere light helper having child mesh internally
+    const helperMesh = helper.children[0] as Mesh<any, any> | undefined
+    setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
+    setComponent(helperEntity, ObjectComponent, helper)
     setComponent(helperEntity, UUIDComponent, generateEntityUUID())
     setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
     setVisibleComponent(helperEntity, true)
-    component.entity.set(helperEntity)
+    helperEntityState.set(helperEntity)
 
     return () => {
+      if (helperMesh) {
+        helperMesh.material.dispose()
+        helperMesh.geometry.dispose()
+      } else if (helper.dispose) helper.dispose()
+      helperEntityState.set(UndefinedEntity)
       removeEntity(helperEntity)
     }
-  }, [])
+  }, [enabled])
+
+  useEffect(() => {
+    if (!helperEntityState.value) return
+    setComponent(helperEntityState.value, NameComponent, `${nameComponent?.value ?? parentEntity}-helper`)
+  }, [helperEntityState.value, nameComponent])
 
   return helperEntityState.value
 }

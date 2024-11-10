@@ -24,14 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { PerspectiveCamera } from 'three'
+import { CameraHelper, PerspectiveCamera } from 'three'
 
 import { useExecute } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
-  removeComponent,
-  setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -40,7 +38,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -92,17 +90,7 @@ export const ScenePreviewCameraComponent = defineComponent({
       engineCameraTransform.rotation.value.copy(previewCameraTransform.rotation.value)
     }, [previewCameraTransform])
 
-    useLayoutEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, CameraHelperComponent, {
-          name: 'scene-preview-helper',
-          camera: previewCamera.camera.value as PerspectiveCamera
-        })
-      }
-      return () => {
-        removeComponent(entity, CameraHelperComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled.value)
 
     return null
   }

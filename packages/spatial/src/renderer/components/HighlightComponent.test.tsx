@@ -35,7 +35,6 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -49,6 +48,7 @@ import React from 'react'
 import { BoxGeometry, MathUtils, Mesh } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { EngineState } from '../../EngineState'
+import { NameComponent } from '../../common/NameComponent'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../RendererModule'
@@ -101,9 +101,8 @@ describe('HighlightSystem', () => {
       const result = createEntity()
       setComponent(result, HighlightComponent)
       setComponent(result, VisibleComponent)
+      setComponent(result, NameComponent, name)
       setComponent(result, MeshComponent, new Mesh(new BoxGeometry()))
-      getMutableComponent(result, MeshComponent).name.set(name)
-      setComponent(result, GroupComponent)
       setComponent(result, EntityTreeComponent)
       return {
         id: result,
