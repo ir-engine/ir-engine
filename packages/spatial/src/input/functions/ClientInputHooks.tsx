@@ -350,9 +350,11 @@ export const CanvasInputReactor = () => {
 export const MeshInputReactor = () => {
   const entity = useEntityContext()
   const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
+  console.log('MeshInputReactor', { shouldReceiveInput })
 
   useImmediateEffect(() => {
     const inputState = getState(InputState)
+    console.log('useImmediateEffect', { shouldReceiveInput })
     if (shouldReceiveInput) inputState.inputMeshes.add(entity)
     else inputState.inputMeshes.delete(entity)
   }, [shouldReceiveInput])
