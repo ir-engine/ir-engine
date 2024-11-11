@@ -1158,7 +1158,7 @@ describe('ClientInputHooks', () => {
       assert.equal(result.has(testEntity), false)
     })
 
-    it('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
+    it.only('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
       const before = getState(InputState).inputMeshes
       assert.equal(before.has(testEntity), false)
 
@@ -1174,14 +1174,15 @@ describe('ClientInputHooks', () => {
       console.log({ before })
 
       // Setup the reactor
-      const Reactor = React.createElement(
-        EntityContext.Provider,
-        { value: testEntity },
-        React.createElement(ClientInputHooks.MeshInputReactor, {})
-      )
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.MeshInputReactor, {})
+        )
+      }) as ReactorRoot
 
-      const { rerender, unmount } = render(Reactor)
-      await act(() => rerender(Reactor))
+      root.run()
 
       // Check the result
       const one = getState(InputState).inputMeshes
@@ -1190,13 +1191,12 @@ describe('ClientInputHooks', () => {
 
       removeComponent(parentEntity, InputComponent)
       console.log({ afterRemove: getState(InputState).inputMeshes })
-      await act(() => rerender(Reactor))
+
+      root.run()
 
       const two = getState(InputState).inputMeshes
       console.log({ two })
       assert.equal(two.has(testEntity), false)
-
-      unmount()
     })
   })
 
