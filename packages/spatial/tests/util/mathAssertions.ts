@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import { assert } from 'vitest'
 
 import { Color, ColorRepresentation } from 'three'
 export function getColorHex(c: ColorRepresentation) {
@@ -187,3 +187,29 @@ export function assertColorEqual(l: ColorRepresentation, r: ColorRepresentation)
 export function assertColorNotEqual(l: ColorRepresentation, r: ColorRepresentation) {
   assert.notEqual(getColorHex(l), getColorHex(r))
 }
+
+//______________________________________________________________
+// @section How to implement a new matcher                      |
+// @reference https://vitest.dev/guide/extending-matchers.html  |
+//______________________________________________________________|
+// import { expect } from 'vitest'
+// function matcherTemplate <T>(actual :T, expected :T) {
+//   const condition = false
+//
+//   const pass = condition
+//   function message () :string {
+//     const { isNot } = this
+//     return "SomeMessage" + isNot?".not":""
+//   }
+//
+//   const result = {
+//     pass     : pass,
+//     message  : message,
+//     actual   : actual,
+//     expected : expected, }
+//   return result
+// }
+//
+// expect.extend({
+//   __someExample: matcherTemplate
+// })
