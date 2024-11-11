@@ -57,7 +57,7 @@ export default function SceneItem({
 
   const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
   const isOptionsPopupOpen = useHookstate(false)
-  const sceneItemOptionsRef = useRef(null)
+  const sceneItemOptionsRef = useRef<HTMLDivElement>(null)
 
   useClickOutside(sceneItemOptionsRef, () => isOptionsPopupOpen.set(false))
 
@@ -117,7 +117,7 @@ export default function SceneItem({
           />
           <ul
             className={twMerge(
-              'dropdown-menu absolute z-10 block  w-[180px]  rounded-lg bg-theme-primary px-4 py-3 pr-10',
+              'dropdown-menu absolute left-6 top-2  z-10  block w-[180px] rounded-lg bg-theme-primary px-4 py-3 pr-10',
               isOptionsPopupOpen.value ? 'visible' : 'hidden'
             )}
             data-testid="project-options-list"
