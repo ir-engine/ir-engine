@@ -1167,11 +1167,8 @@ describe('ClientInputHooks', () => {
       setComponent(parentEntity, InputComponent)
       setComponent(parentEntity, EntityTreeComponent)
 
-      console.log({ parentEntity, testEntity })
-
       setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
       assert.equal(before.has(testEntity), false)
-      console.log({ before })
 
       // Setup the reactor
       const root = startReactor(() => {
@@ -1186,16 +1183,13 @@ describe('ClientInputHooks', () => {
 
       // Check the result
       const one = getState(InputState).inputMeshes
-      console.log({ one })
       assert.equal(one.has(testEntity), true)
 
       removeComponent(parentEntity, InputComponent)
-      console.log({ afterRemove: getState(InputState).inputMeshes })
 
       root.run()
 
       const two = getState(InputState).inputMeshes
-      console.log({ two })
       assert.equal(two.has(testEntity), false)
     })
   })
