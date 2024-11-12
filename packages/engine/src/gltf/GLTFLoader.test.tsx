@@ -71,6 +71,9 @@ const skinned_gltf = base_url + '/skinned-mesh/Fox.gltf'
 const camera_gltf = base_url + '/camera/Cameras.gltf'
 const khr_light_gltf = base_url + '/khr-light/LightsPunctualLamp.gltf'
 const instanced_gltf = base_url + '/instanced/SimpleInstancing.gltf'
+const default_url = 'packages/projects/default-project/assets'
+const animation_pack = default_url + '/animations/emotes.glb'
+const rings_gltf = default_url + '/rings.glb'
 
 const setupEntity = () => {
   const parent = createEntity()
@@ -218,7 +221,7 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
-  it('can load an texture for a material', async () => {
+  it('can load a texture for a material', async () => {
     const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
@@ -251,7 +254,7 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
-  it('can load a meshes with multiple primitives/materials', async () => {
+  it('can load meshes with multiple primitives/materials', async () => {
     const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
@@ -327,6 +330,43 @@ describe('GLTF Loader', () => {
     assert(mesh.geometry.morphTargetsRelative)
 
     unmount()
+  })
+
+  it('can load a mesh with a single animation clip', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: rings_gltf })
+
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
+
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
+
+    const animationComponent = getComponent(entity, AnimationComponent)
+    assert(animationComponent.animations.length === gltf.animations!.length)
+  })
+
+  it('can load a skeleton with many animation clips', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, AnimationComponent, { animations: [] })
+    setComponent(entity, GLTFComponent, { src: animation_pack })
+
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
+
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
+
+    const animationComponent = getComponent(entity, AnimationComponent)
+    assert(animationComponent?.animations.length === gltf.animations!.length)
   })
 
   it('can load skinned meshes with bones and animations', async () => {
