@@ -43,16 +43,8 @@ export function Topbar() {
   const isAddEntityMenuOpen = useHookstate(false)
 
   return (
-    <div className="flex h-8 items-center justify-between gap-2 bg-[#212226]">
-      <SearchBar
-        search={search}
-        inputProps={{
-          className:
-            'text-[#A3A3A3] bg-[#141619] h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-xs placeholder:text-[#A3A3A3] focus-visible:ring-0',
-          containerClassName: 'flex h-auto w-full pl-2',
-          variant: 'underlined'
-        }}
-      />
+    <div className="flex h-8 items-center justify-between gap-2 bg-[#212226]" data-testid="hierarchy-panel-top-bar">
+      <SearchBar inputProps={{ fullWidth: true }} search={search} debounceTime={100} />
       <Popup
         keepInside
         open={isAddEntityMenuOpen.value}
@@ -65,6 +57,7 @@ export function Topbar() {
             className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
             size="small"
             textContainerClassName="mx-0"
+            data-testid="hierarchy-panel-add-entity-button"
             onClick={() => isAddEntityMenuOpen.set(true)}
           >
             {t('editor:hierarchy.lbl-addEntity')}
@@ -110,7 +103,11 @@ export function Contents() {
   useHierarchyTreeHotkeys()
 
   return (
-    <div ref={ref} className={twMerge('h-5/6 overflow-hidden', isOver && canDrop && 'border border-dotted')}>
+    <div
+      ref={ref}
+      className={twMerge('h-5/6 overflow-hidden', isOver && canDrop && 'border border-dotted')}
+      data-testid="hierarchy-panel-scene-item-list"
+    >
       <FixedSizeList
         height={listDimensions.height.value}
         width={listDimensions.width.value}

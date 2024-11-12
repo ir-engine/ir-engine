@@ -36,16 +36,16 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { HiOutlineCamera } from 'react-icons/hi'
 import { Box3, Vector3 } from 'three'
 import Button from '../../../../primitives/tailwind/Button'
+import ComponentDropdown from '../../ComponentDropdown'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
-import PropertyGroup from '../group'
 
 /** Types copied from Camera Modes of engine. */
 const projectionTypeSelect = [
@@ -59,7 +59,7 @@ const projectionTypeSelect = [
   }
 ]
 
-const modelQuery = defineQuery([ModelComponent])
+const modelQuery = defineQuery([GLTFComponent])
 const _box3 = new Box3()
 
 export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
@@ -92,10 +92,10 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup
+    <ComponentDropdown
       name={t('editor:properties.cameraSettings.name')}
       description={t('editor:properties.cameraSettings.description')}
-      icon={<CameraPropertiesNodeEditor.iconComponent />}
+      Icon={CameraPropertiesNodeEditor.iconComponent}
     >
       <InputGroup name="Projection type" label={t('editor:properties.cameraSettings.lbl-projectionType')}>
         <SelectInput
@@ -214,7 +214,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
-    </PropertyGroup>
+    </ComponentDropdown>
   )
 }
 

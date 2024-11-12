@@ -35,10 +35,10 @@ import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
 import PaginatedList from '@ir-engine/ui/src/components/editor/layout/PaginatedList'
-import NodeEditor from '@ir-engine/ui/src/components/editor/properties/nodeEditor'
 import ParameterInput from '@ir-engine/ui/src/components/editor/properties/parameter'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@ir-engine/visual-script'
+import NodeEditor from '../properties/common/NodeEditor'
 import { useTemplateHandler, useVariableHandler, useVisualScriptFlow } from './hooks'
 import { Examples } from './modals/load'
 import { visualToFlow } from './transformers'
@@ -143,7 +143,6 @@ export const SidePanel = ({
                   <MdOutlineAdd className="inline-block shrink-0 text-2xl" />
                 </Button>
                 <StringInput
-                  className="h-7"
                   value={template.name}
                   onChange={(e) => {
                     template.name = e
@@ -181,7 +180,6 @@ export const SidePanel = ({
                   <div className="flex w-full flex-row overflow-hidden">
                     <StringInput
                       value={variable.name}
-                      className="h-7"
                       onChange={(e) => {
                         handleEditVariable({ ...variable, name: e })
                       }}

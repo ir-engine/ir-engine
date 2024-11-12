@@ -26,8 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { Engine, getOptionalComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
+import { useEffect } from 'react'
+import { ResourceState, ResourceType } from '../resources/ResourceState'
 import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
 
 export const RenderInfoState = defineState({
@@ -37,19 +39,54 @@ export const RenderInfoState = defineState({
     info: {
       geometries: 0,
       textures: 0,
+      texturesMB: 0,
       fps: 0,
       frameTime: 0,
       calls: 0,
       triangles: 0,
       points: 0,
       lines: 0,
-      programs: 0
+      programs: 0,
+      shaderComplexity: 0,
+      sceneComplexity: 0
     }
   }
 })
 
+export type SceneComplexityParams = {
+  vertices: number
+  triangles: number
+  texturesMB: number
+  lights: number
+  drawCalls: number
+  shaderComplexity: number
+}
+
+// count number of lines in vertex and fragment shaders
+export function getShaderComplexity(resources: Record<string, any>): number {
+  const countLines = (code?: string): number => (code || '').split('\n').length
+  const totalComplexity = Object.values(resources)
+    .filter(
+      (resource) =>
+        resource.type === ResourceType.Material &&
+        (resource.asset?.isShaderMaterial || resource.asset?.isMeshStandardMaterial)
+    )
+    .map((resource) => resource.asset)
+    .reduce(
+      (total, material) => {
+        total.vertexInstructions += countLines(material.vertexShader)
+        total.fragmentInstructions += countLines(material.fragmentShader)
+        return total
+      },
+      { vertexInstructions: 0, fragmentInstructions: 0 }
+    )
+
+  return totalComplexity.vertexInstructions + totalComplexity.fragmentInstructions
+}
+
 const execute = () => {
   const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)?.renderer
+
   if (!renderer) return
 
   const state = getState(RenderInfoState)
@@ -60,7 +97,7 @@ const execute = () => {
     const fps = 1 / deltaSeconds
     const frameTime = deltaSeconds * 1000
 
-    getMutableState(RenderInfoState).info.set({
+    getMutableState(RenderInfoState).info.merge({
       geometries: info.memory.geometries,
       textures: info.memory.textures,
       fps,
@@ -78,8 +115,22 @@ const execute = () => {
   renderer.info.autoReset = !state.visible
 }
 
+const reactor = () => {
+  const resourceState = useHookstate(getMutableState(ResourceState))
+
+  useEffect(() => {
+    getMutableState(RenderInfoState).info.merge({
+      texturesMB: resourceState.totalBufferCount.value / (1024 * 1024),
+      shaderComplexity: getShaderComplexity(resourceState.resources.value)
+    })
+  }, [resourceState.resources])
+
+  return null
+}
+
 export const RenderInfoSystem = defineSystem({
   uuid: 'ee.editor.RenderInfoSystem',
   insert: { with: WebGLRendererSystem },
-  execute
+  execute,
+  reactor
 })

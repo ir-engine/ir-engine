@@ -31,11 +31,11 @@ import { MathUtils as _Math } from 'three'
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Checkbox } from '@ir-engine/ui'
 import ColorInput from '../../../../../primitives/tailwind/Color'
-import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
-import NodeEditor from '../../nodeEditor'
 
 /**
  * SpotLightNodeEditor component class used to provide editor view for property customization.
@@ -50,7 +50,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.spotLight.name')}
       description={t('editor:properties.spotLight.description')}
-      icon={<SpotLightNodeEditor.iconComponent />}
+      Icon={SpotLightNodeEditor.iconComponent}
     >
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
         <ColorInput
@@ -118,9 +118,9 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="castShadow" label={t('editor:properties.spotLight.lbl-castShadow')}>
-        <BooleanInput
-          onChange={updateProperty(SpotLightComponent, 'castShadow')}
-          value={lightComponent.castShadow.value}
+        <Checkbox
+          onChange={commitProperty(SpotLightComponent, 'castShadow')}
+          checked={lightComponent.castShadow.value}
         />
       </InputGroup>
       <InputGroup name="ShadowBias" label={t('editor:properties.spotLight.lbl-shadowBias')}>

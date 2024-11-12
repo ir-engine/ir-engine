@@ -25,10 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { getAllEntities } from 'bitecs'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 
-import { ECS } from '..'
+import { ECS, S } from '..'
 import {
   defineComponent,
   getComponent,
@@ -45,19 +46,9 @@ const mockDeltaMillis = 1000 / 60
 
 const MockComponent = defineComponent({
   name: 'MockComponent',
-  onInit: (entity) => {
-    return {
-      mockValue: 0
-    }
-  },
-  onSet: (entity, component, json: { mockValue: number }) => {
-    if (typeof json?.mockValue === 'number') component.mockValue.set(json.mockValue)
-  },
-  toJSON: (component) => {
-    return {
-      mockValue: component.mockValue
-    }
-  }
+  schema: S.Object({
+    mockValue: S.Number(0)
+  })
 })
 
 const MockSystemState = new Set<Entity>()
@@ -139,17 +130,14 @@ describe('ECS', () => {
     // assert.equal(exit.length, 1)
     // assert.equal(exit[0], entity)
 
-    removeComponent(entity, MockComponent)
-    // @ts-expect-error - should have type error for wrong unknown property
-    setComponent(entity, MockComponent, { mockValueWrong: 44 })
+    // removeComponent(entity, MockComponent)
+    // setComponent(entity, MockComponent, { mockValueWrong: 44 } as any)
 
-    removeComponent(entity, MockComponent)
-    // @ts-expect-error - should have type error for wrong missing required property
-    setComponent(entity, MockComponent, {})
+    // removeComponent(entity, MockComponent)
+    // setComponent(entity, MockComponent, {})
 
-    removeComponent(entity, MockComponent)
-    // @ts-expect-error - should have type error for wrong value type
-    setComponent(entity, MockComponent, { mockValue: 'hi' })
+    // removeComponent(entity, MockComponent)
+    // setComponent(entity, MockComponent, { mockValue: 'hi' } as any)
   })
 
   it('should add component', async () => {

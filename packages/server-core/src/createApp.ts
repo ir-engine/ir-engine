@@ -47,6 +47,7 @@ import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { Application } from '../declarations'
+import packagejson from '../package.json'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import { default as appConfig, default as config } from './appconfig'
@@ -59,32 +60,32 @@ import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('fix-esm').register()
-
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
       ui: swagger.swaggerUI({
         docsPath: '/openapi'
-        // docsJsonPath: '/openapi.json',
-        // indexFile: path.join(process.cwd() + '/openapi.html')
       }),
       specs: {
         info: {
           title: 'Infinite Reality Engine API Surface',
           description: 'APIs for the Infinite Reality Engine application',
-          version: '1.0.0'
+          version: packagejson.version
         },
         schemes: ['https'],
-        securityDefinitions: {
-          bearer: {
-            type: 'apiKey',
-            in: 'header',
-            name: 'authorization'
+        components: {
+          securitySchemes: {
+            BearerAuth: {
+              type: 'http',
+              scheme: 'bearer'
+            }
           }
         },
-        security: [{ bearer: [] }]
+        security: [{ BearerAuth: [] }]
+      },
+      idType: 'string',
+      ignore: {
+        paths: ['oauth', 'knex_migrations']
       }
     })
   )
@@ -172,10 +173,10 @@ export const serverJobRedisPipe = pipe(configurePrimus(), configureRedis(), conf
   app: Application
 ) => Application
 
-export const createFeathersKoaApp = (
+export const createFeathersKoaApp = async (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
-): Application => {
+): Promise<Application> => {
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({
@@ -257,7 +258,7 @@ export const createFeathersKoaApp = (
   app.configure(authentication)
 
   // Set up our services (see `services/index.js`)
-  app.configure(services)
+  await services(app)
 
   // Store headers across internal service calls
   app.hooks({

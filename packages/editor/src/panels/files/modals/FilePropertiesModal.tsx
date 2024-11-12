@@ -23,9 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
@@ -37,16 +34,19 @@ import {
   fileBrowserUploadPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, getMutableState, startReactor, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
 import { FilesState, SelectedFilesState } from '../../../services/FilesState'
 import { createFileDigest, createStaticResourceDigest } from '../helpers'
+import FilePropertiesSaveConfirmationModal from './FilePropertiesSaveConfirmationModal'
 
 export default function FilePropertiesModal() {
   const projectName = useMutableState(FilesState).projectName.value
@@ -98,6 +98,7 @@ export default function FilePropertiesModal() {
   }
 
   const handleSubmit = async () => {
+    PopoverState.showPopupover(<FilePropertiesSaveConfirmationModal />)
     if (modifiedFields.value.length > 0) {
       const addedTags: string[] = resourceDigest.tags.value!.filter((tag) => !sharedTags.value.includes(tag))
       const removedTags: string[] = sharedTags.value!.filter((tag) => !resourceDigest.tags.value!.includes(tag))
@@ -111,10 +112,43 @@ export default function FilePropertiesModal() {
           licensing: resourceDigest.licensing.value,
           attribution: resourceDigest.attribution.value,
           description: resourceDigest.description.value,
-          project: projectName
+          project: resource.project
         })
       }
-      modifiedFields.set([])
+      const reactor = startReactor(() => {
+        const updatedResources = useFind(staticResourcePath, {
+          query: {
+            key: {
+              $like: undefined,
+              $or: files.map(({ key }) => ({
+                key
+              }))
+            },
+            $limit: 10000
+          }
+        })
+        for (const resource of updatedResources.data) {
+          const oldTags = resource.tags ?? []
+          const newTags = Array.from(new Set([...addedTags, ...oldTags.filter((tag) => !removedTags.includes(tag))]))
+          if (
+            resource.tags?.length === newTags.length &&
+            resource.tags.every((val, index) => val === newTags[index]) &&
+            resource.name === resourceDigest.name.value &&
+            resource.licensing === resourceDigest.licensing.value &&
+            resource.attribution === resourceDigest.attribution.value &&
+            resource.description === resourceDigest.description.value
+          ) {
+            console.log('All properties successfully updated')
+            modifiedFields.set([])
+            PopoverState.hidePopupover()
+            PopoverState.hidePopupover()
+            reactor.stop()
+          }
+        }
+        return null
+      })
+    } else {
+      PopoverState.hidePopupover()
       PopoverState.hidePopupover()
     }
   }
@@ -195,11 +229,6 @@ export default function FilePropertiesModal() {
     }
   }
 
-  const uploadThumbnailRef = useRef<HTMLInputElement>(null)
-  const onClickUploadThumbnail = () => {
-    uploadThumbnailRef.current?.click()
-  }
-
   return (
     <Modal
       title={title}
@@ -219,32 +248,32 @@ export default function FilePropertiesModal() {
         )}
         <Button
           title={t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
+          data-testid="files-panel-file-item-properties-regenerate-thumbnail-button"
           onClick={handleRegenerateThumbnail}
           className="mt-2 text-xs"
         >
           {t('editor:layout.filebrowser.fileProperties.regenerateThumbnail')}
         </Button>
-        <label className="mt-2 text-xs">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleUploadThumbnail}
-            className="hidden"
-            ref={uploadThumbnailRef}
-          />
-          <Button
-            title={t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
-            className="mt-2 text-xs"
-            onClick={onClickUploadThumbnail}
-          >
-            {t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}
-          </Button>
-        </label>
+        <div className="mt-1 rounded-md bg-blue-primary px-4 py-1 text-base">
+          {/* Use a label to trigger the file input click, no ref needed */}
+          <label className="mt-1 cursor-pointer text-xs">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleUploadThumbnail} // Directly attach the handler here
+              className="hidden"
+            />
+            {/* Style the button to act as a proxy for the hidden input */}
+            <span className="button">{t('editor:layout.filebrowser.fileProperties.uploadThumbnail')}</span>
+          </label>
+        </div>
       </div>
       <div className="flex flex-col items-center gap-2">
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.fileName')}</Text>
-          <Text className="text-theme-input">{filename}</Text>
+          <Text className="text-theme-input" data-testid="files-panel-file-item-properties-file-name">
+            {filename}
+          </Text>
         </div>
         <div className="grid grid-cols-2 items-center gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.name')}</Text>
@@ -280,11 +309,13 @@ export default function FilePropertiesModal() {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.type')}</Text>
-          <Text className="text-theme-input">{fileDigest.type.toUpperCase()}</Text>
+          <Text className="text-theme-input" data-testid="files-panel-file-item-properties-file-type">
+            {fileDigest.type.toUpperCase()}
+          </Text>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
-          <Text className="text-theme-input">
+          <Text className="text-theme-input" data-testid="files-panel-file-item-properties-file-size">
             {files.map((file) => file.size).reduce((total, value) => total + parseInt(value ?? '0'), 0)}
           </Text>
         </div>

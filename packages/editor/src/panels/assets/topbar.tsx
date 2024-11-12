@@ -25,11 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
-import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
+import { Slider } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -51,13 +50,18 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button startIcon={<IoSettingsSharp />} className="h-7 w-7 rounded-lg bg-transparent p-0" />
+          <Button
+            startIcon={<IoSettingsSharp />}
+            className="h-7 w-7 rounded-lg bg-transparent p-0"
+            data-testid="assets-panel-view-options-button"
+          />
         </Tooltip>
       }
     >
-      <div className="flex flex-col">
-        <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
+      <div className="flex flex-col justify-end">
+        <div className="w-3/5">
           <Slider
+            label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
             min={10}
             max={100}
             step={0.5}
@@ -65,7 +69,7 @@ const ViewModeSettings = () => {
             onChange={viewModeSettings.list.fontSize.set}
             onRelease={viewModeSettings.list.fontSize.set}
           />
-        </InputGroup>
+        </div>
       </div>
     </Popup>
   )
@@ -93,7 +97,10 @@ export function AssetsBreadcrumbs() {
   }
 
   return (
-    <div className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2">
+    <div
+      className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2"
+      data-testid="assets-panel-breadcrumbs"
+    >
       <HiOutlineFolder
         onClick={() => handleSelectParentCategory(0)}
         className="cursor-pointer text-xs text-[#A3A3A3]"
@@ -102,6 +109,7 @@ export function AssetsBreadcrumbs() {
         <span
           key={category.name.value}
           className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+          data-testid={`assets-panel-breadcrumb-nested-level-${idx}`}
           onClick={() => handleSelectParentCategory(idx)}
         >
           <span className="hover:underline">{category.name.value}</span>
@@ -109,7 +117,10 @@ export function AssetsBreadcrumbs() {
         </span>
       ))}
       {currentCategory && (
-        <span className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]">
+        <span
+          className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+          data-testid="assets-panel-breadcrumb-current-category"
+        >
           {currentCategory.name.value}
         </span>
       )}
@@ -121,7 +132,7 @@ export default function Topbar() {
   const { t } = useTranslation()
   const { search } = useAssetsQuery()
   const { currentCategoryPath, expandedCategories } = useAssetsCategory()
-  const { refetchResources } = useAssetsQuery()
+  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
 
   const handleBack = () => {
     currentCategoryPath.set((path) => path.slice(0, -1))
@@ -133,19 +144,34 @@ export default function Topbar() {
     refetchResources()
   }
 
-  useEffect(() => refetchResources(), [search.query])
+  useEffect(() => {
+    staticResourcesPagination.skip.set(0)
+    refetchResources()
+  }, [search.query])
 
   return (
-    <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1">
+    <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
       <div className="flex h-7 w-7 items-center rounded-lg">
         <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-          <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={handleBack} />
+          <Button
+            variant="transparent"
+            startIcon={<IoArrowBack />}
+            className="p-0"
+            data-testid="assets-panel-back-button"
+            onClick={handleBack}
+          />
         </Tooltip>
       </div>
       <div className="flex h-7 w-7 items-center rounded-lg">
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <Button variant="transparent" startIcon={<FiRefreshCcw />} className="p-0" onClick={handleRefresh} />
+          <Button
+            variant="transparent"
+            startIcon={<FiRefreshCcw />}
+            className="p-0"
+            data-testid="assets-panel-refresh-button"
+            onClick={handleRefresh}
+          />
         </Tooltip>
       </div>
       <ViewModeSettings />
@@ -154,10 +180,7 @@ export default function Topbar() {
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
-            labelClassname: 'text-sm text-red-500',
-            containerClassName: 'flex h-full w-auto rounded-lg overflow-hidden',
-            className:
-              'h-6 rounded-lg border border-theme-input px-2 py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0',
+            variantSize: 'xs',
             startComponent: <HiMagnifyingGlass className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}
@@ -168,6 +191,7 @@ export default function Topbar() {
         rounded="none"
         className="h-full whitespace-nowrap bg-theme-highlight px-2"
         size="small"
+        data-testid="assets-panel-upload-button"
         onClick={() => uploadFiles().then(handleRefresh)}
       >
         {t('editor:layout.filebrowser.uploadAssets')}

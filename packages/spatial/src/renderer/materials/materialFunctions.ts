@@ -78,6 +78,13 @@ export const extractDefaults = (defaultArgs: PrototypeArgument) => {
   )
 }
 
+export const extractValues = (defaultArgs: PrototypeArgument, material: Material) => {
+  return formatMaterialArgs(
+    Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, material[k]])),
+    defaultArgs
+  )
+}
+
 export const formatMaterialArgs = (args: any, defaultArgs?: PrototypeArgument) => {
   if (!args) return args
   return Object.fromEntries(
@@ -125,7 +132,8 @@ export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUI
 
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
   if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
-  else for (let i = 0; i < mesh.material.length; i++) mesh.material[i] = getMaterial(newMaterialUUIDs[i])
+  else
+    for (let i = 0; i < (mesh.material as Material[]).length; i++) mesh.material[i] = getMaterial(newMaterialUUIDs[i])
 }
 
 export const setPlugin = (material: Material, callback) => {

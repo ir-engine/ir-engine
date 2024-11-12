@@ -36,22 +36,22 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { TransformComponent } from '@ir-engine/spatial'
-import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { FrustumCullCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
-import { BoneComponent } from '../../avatar/components/BoneComponent'
-import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
@@ -170,64 +170,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   }
 
   return entityJson
-}
-
-export const proxifyParentChildRelationships = (obj: Object3D) => {
-  const objEntity = obj.entity
-  Object.defineProperties(obj, {
-    matrixWorld: {
-      get() {
-        return getComponent(objEntity, TransformComponent).matrixWorld
-      },
-      set(value) {
-        if (value != undefined) throw new Error('Cannot set matrixWorld of proxified object')
-        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
-      }
-    },
-    parent: {
-      get() {
-        if (RendererComponent.activeRender) return null // hack to check if renderer is rendering
-        if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-          const result = getOptionalComponent(
-            getComponent(objEntity, EntityTreeComponent).parentEntity!,
-            GroupComponent
-          )?.[0]
-          return result ?? null
-        }
-        return null
-      },
-      set(value) {
-        if (value != undefined) throw new Error('Cannot set parent of proxified object')
-        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
-      }
-    },
-    children: {
-      get() {
-        if (RendererComponent.activeRender) return [] // hack to check if renderer is rendering
-        if (hasComponent(objEntity, EntityTreeComponent)) {
-          const childEntities = getComponent(objEntity, EntityTreeComponent).children
-          const result: Object3D[] = []
-          for (const childEntity of childEntities) {
-            if (hasComponent(childEntity, MeshComponent)) {
-              result.push(getComponent(childEntity, MeshComponent))
-            } else if (hasComponent(childEntity, Object3DComponent)) {
-              result.push(getComponent(childEntity, Object3DComponent))
-            }
-          }
-          return result
-        } else {
-          return []
-        }
-      },
-      set(value) {
-        if (value != undefined) throw new Error('Cannot set children of proxified object')
-        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
-      }
-    },
-    isProxified: {
-      value: true
-    }
-  })
 }
 
 export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
@@ -349,12 +291,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     setComponent(objEntity, Object3DComponent, obj)
   }
 
-  const material = mesh.material
-  if (!material) return eJson
-
   delete mesh.userData['componentJson']
   delete mesh.userData['gltfExtensions']
   delete mesh.userData['useVisible']
-
+  delete mesh.userData['name']
   return eJson
 }
