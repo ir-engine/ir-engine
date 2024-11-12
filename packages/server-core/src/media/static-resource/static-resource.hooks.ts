@@ -292,6 +292,36 @@ const addDeleteLog = async (context: HookContext<StaticResourceService>) => {
   }
 }
 
+const addPatchLog = async (context: HookContext<StaticResourceService>) => {
+  try {
+    const resource = context.result as StaticResourceType
+
+    const project = await context.app.service(projectPath).find({
+      query: {
+        name: resource.project,
+        $limit: 1
+      }
+    })
+
+    const projectId = project.data[0].id
+
+    const action = resource.type === 'scene' ? 'SCENE_MODIFIED' : 'RESOURCE_MODIFIED'
+
+    await context.app.service(projectHistoryPath).create({
+      projectId: projectId,
+      userId: context.params.user?.id || null,
+      action: action,
+      actionIdentifier: resource.id,
+      actionIdentifierType: 'static-resource',
+      actionDetail: JSON.stringify({
+        url: resource.key
+      })
+    })
+  } catch (error) {
+    console.error('Error in adding patch log: ', error)
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -401,7 +431,7 @@ export default {
     ],
     create: [updateResourcesJson],
     update: [updateResourcesJson],
-    patch: [updateResourcesJson],
+    patch: [updateResourcesJson, addPatchLog],
     remove: [removeResourcesJson, addDeleteLog]
   },
 
