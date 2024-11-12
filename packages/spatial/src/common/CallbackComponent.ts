@@ -56,3 +56,8 @@ export function getCallback(entity: Entity, key: string): ((...params: any) => v
   if (!hasComponent(entity, CallbackComponent)) return undefined
   return getComponent(entity, CallbackComponent).get(key)
 }
+
+export function hasCallback(entity: Entity, key: string): boolean {
+  if (!hasComponent(entity, CallbackComponent)) return false
+  return !!getComponent(entity, CallbackComponent).get(key)
+}

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import { assert } from 'vitest'
 
 const Epsilon = 0.001
 export function floatApproxEq(A: number, B: number, epsilon = Epsilon): boolean {
@@ -76,3 +76,29 @@ export function assertMatrixAllApproxNotEq(A, B, epsilon = Epsilon) {
     assertFloatApproxNotEq(A.elements[id], B.elements[id], epsilon)
   }
 }
+
+//______________________________________________________________
+// @section How to implement a new matcher                      |
+// @reference https://vitest.dev/guide/extending-matchers.html  |
+//______________________________________________________________|
+// import { expect } from 'vitest'
+// function matcherTemplate <T>(actual :T, expected :T) {
+//   const condition = false
+//
+//   const pass = condition
+//   function message () :string {
+//     const { isNot } = this
+//     return "SomeMessage" + isNot?".not":""
+//   }
+//
+//   const result = {
+//     pass     : pass,
+//     message  : message,
+//     actual   : actual,
+//     expected : expected, }
+//   return result
+// }
+//
+// expect.extend({
+//   __someExample: matcherTemplate
+// })
