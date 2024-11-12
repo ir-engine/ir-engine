@@ -6,6 +6,7 @@
   "search.useParentIgnoreFiles": true,
   "search.exclude": {
     "/packages/server/upload": true,
+    "/packages/**/coverage": true,
     "/packages/server/upload_test": true,
     "/packages/client/dist": true
   },

@@ -23,11 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineConfig } from 'vitest/config'
+import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
+import React from 'react'
 
-export default defineConfig({
-  test: {
-    environment: 'jsdom',
-    passWithNoTests: true
-  }
-})
+export default function FilePropertiesSaveConfirmationModal() {
+  return (
+    <div className="flex items-center justify-center">
+      <div className="z-10  w-[30vw] rounded-lg border border-gray-800 bg-theme-surface-main p-20 shadow-lg">
+        <ProgressBar
+          bgColor={'#ffffff'}
+          completed={50}
+          loopingBarWidth={50}
+          height="4px"
+          baseBgColor="#000000"
+          isLabelVisible={false}
+          isLooping={true}
+          loopingBarSpeed={0.4}
+        />
+        <div className="mb-8 mt-6  flex justify-between text-sm text-white">
+          <span>Saving asset changes...</span>
+          <span>Please Wait</span>
+        </div>
+      </div>
+    </div>
+  )
+}
