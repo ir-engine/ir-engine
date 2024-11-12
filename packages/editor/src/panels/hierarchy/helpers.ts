@@ -36,6 +36,7 @@ import {
 } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { nodeIsChild } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
@@ -116,14 +117,6 @@ export const pasteNodes = (entity?: Entity) => {
 
 /* HIERARCHY TREE WALKER */
 
-function isChild(index: number, nodes: GLTF.INode[]) {
-  for (const node of nodes) {
-    if (node.children && node.children.includes(index)) return true
-  }
-
-  return false
-}
-
 function buildHierarchyTree(
   depth: number,
   childIndex: number,
@@ -198,7 +191,7 @@ function buildHierarchyTreeForNodes(
   isRendered: boolean
 ) {
   for (let i = 0; i < nodes.length; i++) {
-    if (isChild(i, nodes)) continue
+    if (nodeIsChild(i, nodes)) continue
     buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID, showModelChildren, isRendered)
   }
   if (!outArray.length) return
