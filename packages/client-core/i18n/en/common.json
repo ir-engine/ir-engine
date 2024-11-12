@@ -16,7 +16,8 @@
     "edit": "Edit",
     "save": "Save",
     "none": "None",
-    "update": "Update"
+    "update": "Update",
+    "clear": "Clear"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
@@ -27,6 +28,16 @@
   "toast": {
     "joined": "joined",
     "left": "left"
+  },
+  "unsupportedDevice": {
+    "title": "Unsupported device type!",
+    "description": "Please use a desktop running the latest version of Google Chrome for the best experience with the iR Studio."
+  },
+  "unsupportedBrowser": {
+    "title": "Browser Not Supported!",
+    "description": "Please use Google Chrome for the best experience with the iR Studio.",
+    "downloadChrome": "Download Chrome",
+    "continue": "Continue Anyway"
   },
   "loader": {
     "connecting": "Connecting...",

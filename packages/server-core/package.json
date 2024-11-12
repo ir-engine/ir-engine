@@ -36,7 +36,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run",
+    "test": "cross-env TEST=true vitest run --config=../../vitest.server.config.ts",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback --all",
@@ -81,6 +81,7 @@
     "feathers-sync": "3.0.2",
     "flatted": "3.1.0",
     "fs-blob-store": "6.0.0",
+    "helmet": "^6.0.0",
     "internal-ip": "^6.1.0",
     "ipfs-http-client": "^56.0.3",
     "jose": "^5.9.2",

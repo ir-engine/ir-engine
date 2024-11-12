@@ -34,7 +34,6 @@ import { InstanceID } from '../networking/instance.schema'
 import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { channelUserSchema } from './channel-user.schema'
-import { messageSchema } from './message.schema'
 
 export const channelPath = 'channel'
 
@@ -55,7 +54,6 @@ export const channelSchema = Type.Object(
       })
     ),
     channelUsers: Type.Array(Type.Ref(channelUserSchema)),
-    messages: Type.Array(Type.Ref(messageSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

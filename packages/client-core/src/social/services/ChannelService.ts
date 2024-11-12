@@ -117,7 +117,6 @@ export const ChannelService = {
         targetChannelId: channel.id,
         messageCreated: true
       })
-      channelState.merge({ messageCreated: true })
     } catch (err) {
       console.error(err)
       //Occasionally, the client attempts to fetch the instance's channel after it's been created, but before the user's

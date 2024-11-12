@@ -32,9 +32,9 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { LuImage } from 'react-icons/lu'
 import InputGroup from '../../input/Group'
-import ImageInput from '../../input/Image'
 import ImageSourceProperties from './sourceProperties'
 
 export const ImageNodeEditor: EditorComponentType = (props) => {
@@ -55,12 +55,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.image.lbl-imgURL')}
         labelClassName="text-nowrap text-[#A0A1A2]"
       >
-        <ImageInput
-          value={imageComponent.source.value}
-          onRelease={commitProperty(ImageComponent, 'source')}
-          containerClassName="rounded-lg text-xs text-[#8B8B8D]"
-          className="h-10 rounded-md bg-[#1A1A1A] text-xs text-[#8B8B8D]"
-        />
+        <ImageLink src={imageComponent.source.value} onBlur={commitProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (

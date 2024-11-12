@@ -60,7 +60,6 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
 
     // Combine the name with the lowercase extension
     const newFileName = hasExtension ? `${nameWithoutExtension}.${extension}` : `${nameWithoutExtension}`
-
     return filePath ? filePath + '/' + newFileName : newFileName
   } catch (e) {
     return fullFileName
@@ -73,8 +72,16 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
  * @param file
  */
 export function cleanFileNameFile(file: File): File {
-  return new File([file], cleanFileNameString(file.name), {
+  const newFile = new File([file], cleanFileNameString(file.name), {
     type: file.type,
     lastModified: file.lastModified
   })
+  //overwrite the webkitRelativePath property to preserve directory structure
+  Object.defineProperty(newFile, 'webkitRelativePath', {
+    value: file.webkitRelativePath !== '' ? cleanFileNameString(file.webkitRelativePath) : '',
+    writable: false,
+    enumerable: true,
+    configurable: true
+  })
+  return newFile
 }

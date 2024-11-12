@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getOptionalComponent } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
@@ -53,11 +53,13 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
   const selectionState = useMutableState(SelectionState)
 
   /**@todo use asset source decoupled from uuid to make this less brittle */
-  const source = node.includes('/') ? node.split('/')?.pop()?.split('?')[0] : null
+  const source = !hasComponent(UUIDComponent.getEntityByUUID(node), MaterialStateComponent)
 
   const onClickNode = () => {
     if (!source) {
       materialSelection.set(node)
+      console.log(node)
+      console.log(UUIDComponent.getEntityByUUID(node))
     }
   }
 
@@ -95,7 +97,7 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
               <HiOutlineArchiveBox className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
               <div className="flex flex-1 items-center">
                 <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                  <span className="text-nowrap text-sm leading-4">{source}</span>
+                  <span className="text-nowrap text-sm leading-4">{node.split('/')?.pop()?.split('?')[0]}</span>
                 </div>
               </div>
             </div>

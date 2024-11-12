@@ -53,7 +53,7 @@ import {
 import { NetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 
-import { useFind, useGet, useMutation } from '@ir-engine/common'
+import { useFind, useMutation } from '@ir-engine/common'
 import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
@@ -99,8 +99,16 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     spawnAvatar.set(gltfLoaded && spectateEntity.value === null)
   }, [gltfLoaded, spectateEntity.value])
 
+  const userAvatarQuery = useFind(userAvatarPath, {
+    query: {
+      userId: Engine.instance.store.userID
+    }
+  })
+
+  const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
+
   useImmediateEffect(() => {
-    if (!spawnAvatar.value) return
+    if (!spawnAvatar.value || !userAvatar) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
@@ -109,7 +117,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     spawnLocalAvatarInWorld({
       parentUUID: rootUUID,
       avatarSpawnPose,
-      avatarURL: user.avatar.modelResource!.url!,
+      avatarURL: userAvatar.avatar.modelResource!.url!,
       name: user.name
     })
 
@@ -126,20 +134,12 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
     }
-  }, [spawnAvatar.value])
+  }, [spawnAvatar.value, !!userAvatar])
 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
 
   const userAvatarMutation = useMutation(userAvatarPath)
-
-  const userAvatarQuery = useFind(userAvatarPath, {
-    query: {
-      userId: Engine.instance.store.userID
-    }
-  })
-
-  const userAvatar = useGet(avatarPath, userAvatarQuery.data?.[0]?.avatarId)
 
   useImmediateEffect(() => {
     if (!errorWithAvatar || !avatarsQuery.data.length) return
@@ -148,14 +148,14 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   }, [errorWithAvatar])
 
   useImmediateEffect(() => {
-    if (!userAvatar.data) return
+    if (!userAvatar) return
     dispatchAction(
       AvatarNetworkAction.setAvatarURL({
-        avatarURL: userAvatar.data.modelResource!.url,
+        avatarURL: userAvatar.avatar.modelResource!.url,
         entityUUID: (Engine.instance.store.userID + '_avatar') as any as EntityUUID
       })
     )
-  }, [userAvatar.data])
+  }, [userAvatar])
 
   return null
 }
