@@ -53,19 +53,22 @@ const Button = (
   { children, size = 'l', fullWidth, variant = 'primary', ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLButtonElement>
 ) => {
-  const twClassName = twMerge(
-    'flex items-center justify-center gap-1 rounded-md',
-    'text-sm font-medium leading-4 text-white',
-    'px-4 py-1',
-    sizes[size],
-    fullWidth ? 'w-full' : 'w-fit',
-    'min-w-[66px]',
-    'disabled:cursor-not-allowed',
-    variants[variant]
-  )
-
   return (
-    <button ref={ref} role="button" className={twClassName} {...props}>
+    <button
+      ref={ref}
+      role="button"
+      className={twMerge(
+        'flex items-center justify-center gap-1 rounded-md',
+        'text-sm font-medium leading-4 text-white',
+        'px-4 py-1',
+        sizes[size],
+        fullWidth ? 'w-full' : 'w-fit',
+        'min-w-[66px]',
+        'disabled:cursor-not-allowed',
+        variants[variant]
+      )}
+      {...props}
+    >
       {children}
     </button>
   )

@@ -36,10 +36,15 @@ const argTypes: ArgTypes = {
     control: 'boolean'
   },
   startIcon: {
-    control: 'boolean'
+    control: 'boolean',
+    name: 'Start Icon'
   },
   endIcon: {
-    control: 'boolean'
+    control: 'boolean',
+    name: 'End Icon'
+  },
+  variant: {
+    table: { disable: true }
   }
 }
 
@@ -51,9 +56,6 @@ export default {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2035-16950'
-    },
-    controls: {
-      include: ['children', ...Object.keys(argTypes)]
     }
   },
   argTypes
@@ -70,11 +72,14 @@ const ButtonRenderer = (
   return (
     <div className="flex items-center gap-3">
       {sizes.map((size) => (
-        <Button key={size} size={size} {...args}>
-          {args.startIcon && <HiOutlineMail />}
-          {args.children}
-          {args.endIcon && <HiOutlineMail />}
-        </Button>
+        <div className="flex grow flex-col items-center">
+          <span className="mb-2 text-sm text-blue-400">{size}</span>
+          <Button key={size} size={size} {...args}>
+            {args.startIcon && <HiOutlineMail />}
+            {args.children}
+            {args.endIcon && <HiOutlineMail />}
+          </Button>
+        </div>
       ))}
     </div>
   )
