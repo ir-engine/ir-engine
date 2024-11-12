@@ -83,6 +83,7 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
+import { execPromise } from '../../util/execPromise'
 import { getContentType } from '../../util/fileUtils'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
@@ -1517,6 +1518,7 @@ export const updateProject = async (
     )
   }
   // run project install script
+  await execPromise(`npm install`, { cwd: appRootPath.path })
   if (projectConfig?.onEvent) {
     await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
