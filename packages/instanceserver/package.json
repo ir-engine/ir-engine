@@ -37,7 +37,7 @@
     "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect=2995' ts-node --swc src/index.ts",
     "dev-channel": " cross-env APP_ENV=development NODE_OPTIONS='--inspect=2996' DEV_CHANNEL=true INSTANCESERVER_PORT=3032 ts-node --swc src/index.ts",
     "dev-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",
-    "test": "cross-env TEST=true vitest run",
+    "test": "cross-env TEST=true vitest run --config=../../vitest.server.config.ts",
     "validate": "npm run build && npm run test"
   },
   "types": "lib/",
