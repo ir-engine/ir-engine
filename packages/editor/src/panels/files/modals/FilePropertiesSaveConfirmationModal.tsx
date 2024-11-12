@@ -23,35 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import React from 'react'
-import { twMerge } from 'tailwind-merge'
-import Checkbox from '../../../../primitives/tailwind/Checkbox'
 
-export interface BooleanInputProp {
-  value: boolean
-  onChange: (value: boolean) => void
-  onRelease?: (value: boolean) => void
-  disabled?: boolean
-  className?: string
-}
-
-export const BooleanInput = (props: BooleanInputProp) => {
-  const onBlur = () => {
-    if (props.onRelease) props.onRelease(props.value)
-  }
-
+export default function FilePropertiesSaveConfirmationModal() {
   return (
-    <Checkbox
-      className={twMerge(
-        'rounded-sm border border-theme-input bg-black dark:bg-[#1A1A1A]',
-        'hover:border-blue-800 hover:bg-theme-highlight',
-        props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer',
-        props.className
-      )}
-      onBlur={onBlur}
-      {...props}
-    />
+    <div className="flex items-center justify-center">
+      <div className="z-10  w-[30vw] rounded-lg border border-gray-800 bg-theme-surface-main p-20 shadow-lg">
+        <ProgressBar
+          bgColor={'#ffffff'}
+          completed={50}
+          loopingBarWidth={50}
+          height="4px"
+          baseBgColor="#000000"
+          isLabelVisible={false}
+          isLooping={true}
+          loopingBarSpeed={0.4}
+        />
+        <div className="mb-8 mt-6  flex justify-between text-sm text-white">
+          <span>Saving asset changes...</span>
+          <span>Please Wait</span>
+        </div>
+      </div>
+    </div>
   )
 }
-
-export default BooleanInput

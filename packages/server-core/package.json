@@ -36,7 +36,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run",
+    "test": "cross-env TEST=true vitest run --config=../../vitest.server.config.ts",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback --all",

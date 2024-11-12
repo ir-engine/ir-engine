@@ -32,7 +32,8 @@ import {
   getComponent,
   getOptionalComponent,
   UndefinedEntity,
-  useOptionalComponent
+  useOptionalComponent,
+  useQuery
 } from '@ir-engine/ecs'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -132,6 +133,7 @@ const HierarchySnapshotReactor = (props: {
     }
   }, [sourceId])
 
+  const sourceQuery = useQuery([SourceComponent])
   useEffect(() => {
     const nodes = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[], showModelChildren)
     if (didHierarchyChange(hierarchyNodes.value as HierarchyTreeNodeType[], nodes)) {
@@ -144,7 +146,8 @@ const HierarchySnapshotReactor = (props: {
     gltfSnapshot,
     selectionState.selectedEntities,
     showModelChildren,
-    modifiedState.keys
+    modifiedState.keys,
+    sourceQuery
   ])
 
   useEffect(() => {

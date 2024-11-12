@@ -260,16 +260,16 @@ const restrictProtectedQuery = async (context: HookContext<LocationService>) => 
  * @function restrictPublicQuery
  * @param context
  * @description This hook function restricts allowed query params for public calls
- * from the viewer section by only allowing the slugifiedName parameter, any other
+ * from the viewer section by only allowing slugifiedName and projectId parameters, any other
  * parameter will be discarded from the query protecting from any malicious query injection.
  *
- * This function is discarding all params but slugifiedName instead of throwing a BadRequest if other
+ * This function is discarding all params but slugifiedName and projectId instead of throwing a BadRequest if other
  * parameters are present, having as goal to avoid providing any feedback to malicious users
  * that could allow them to figure out unforeseen and unsafe patterns or combinations in order to
  * successfully perform an injection attack.
  */
 const restrictPublicQuery = async (context: HookContext<LocationService>) => {
-  keepQuery('slugifiedName')(context)
+  keepQuery('slugifiedName', 'projectId')(context)
 }
 
 export default {

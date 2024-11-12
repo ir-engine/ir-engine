@@ -31,9 +31,9 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { State } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import { validate as isValidUUID } from 'uuid'
 
 import { channelColumns, ChannelRowType } from '../../common/constants/channel'
@@ -81,7 +81,7 @@ export default function ChannelTable({
     rows.map((row) => ({
       select: (
         <Checkbox
-          value={selectedChannels.value.findIndex((invite) => invite.id === row.id) !== -1}
+          checked={selectedChannels.value.findIndex((invite) => invite.id === row.id) !== -1}
           onChange={(value) => {
             if (value) selectedChannels.merge([row])
             else selectedChannels.set((prevInvites) => prevInvites.filter((invite) => invite.id !== row.id))
@@ -130,7 +130,7 @@ export default function ChannelTable({
           id: 'select',
           label: (
             <Checkbox
-              value={selectedChannels.length === adminChannelsQuery.data.length}
+              checked={selectedChannels.length === adminChannelsQuery.data.length}
               onChange={(value) => {
                 if (value) selectedChannels.set(adminChannelsQuery.data.slice())
                 else selectedChannels.set([])

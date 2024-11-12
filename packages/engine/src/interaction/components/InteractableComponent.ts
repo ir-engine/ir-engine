@@ -243,15 +243,15 @@ export const InteractableComponent = defineComponent({
   jsonID: 'EE_interactable',
 
   schema: S.Object({
-    canInteract: S.Bool(false),
-    uiInteractable: S.Bool(true),
-    uiEntity: S.Entity(),
+    canInteract: S.NonSerialized(S.Bool(false)),
+    uiInteractable: S.NonSerialized(S.Bool(true)),
+    uiEntity: S.NonSerialized(S.Entity()),
     label: S.String('E'),
-    uiVisibilityOverride: S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none),
-    uiActivationType: S.Enum(XRUIActivationType, XRUIActivationType.proximity),
+    uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
+    uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
     activationDistance: S.Number(2),
     clickInteract: S.Bool(false),
-    highlighted: S.Bool(false),
+    highlighted: S.NonSerialized(S.Bool(false)),
     callbacks: S.Array(
       S.Object({
         /**

@@ -82,7 +82,7 @@ export const EnvmapComponent = defineComponent({
   jsonID: 'EE_envmap',
 
   schema: S.Object({
-    type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.None),
+    type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.Skybox),
     envMapTextureType: S.LiteralUnion(Object.values(EnvMapTextureType), EnvMapTextureType.Equirectangular),
     envMapSourceColor: S.Color(0xfff),
     envMapSourceURL: S.String(''),
