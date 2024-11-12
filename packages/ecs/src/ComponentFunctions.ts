@@ -624,6 +624,16 @@ export function hasComponents<C extends Component>(entity: Entity, components: C
   return true
 }
 
+export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
+  let hasAllComponents = true
+  for (const component of components) {
+    const exists = !!useOptionalComponent(entity, component)
+    if (!exists) hasAllComponents = false
+  }
+
+  return hasAllComponents
+}
+
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.onRemove(entity, component.stateMap[entity]!)
