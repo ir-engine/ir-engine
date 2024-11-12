@@ -38,8 +38,8 @@ import { useTranslation } from 'react-i18next'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -149,7 +149,6 @@ const AvatarMenu2 = () => {
                     data-test-id="search-avatar-input"
                     value={search.local.value}
                     placeholder={t('user:avatar.searchAvatar')}
-                    className="text-sm font-normal"
                     onChange={(event) => {
                       search.local.set(event.target.value)
 

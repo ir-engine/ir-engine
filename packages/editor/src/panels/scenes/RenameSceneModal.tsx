@@ -32,7 +32,7 @@ import { renameScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 import { useHookstate } from '@ir-engine/hyperflux'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 type Props = {
@@ -78,8 +78,8 @@ export default function RenameSceneModal({ sceneName, onRenameScene, scene, refe
           inputError.set('')
           newSceneName.set(event.target.value)
         }}
-        description={t('editor:dialog.saveNewScene.info-name')}
-        error={inputError.value}
+        state={inputError.value ? 'error' : undefined}
+        helperText={inputError.value}
         data-testid="scene-panel-scene-rename-input"
       />
     </Modal>

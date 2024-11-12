@@ -50,7 +50,7 @@ export function ColorInput({
   textClassName,
   sketchPickerClassName
 }: ColorInputProp) {
-  const color = new Color(value)
+  let color = new Color(value)
   const hexColor = '#' + color.getHexString()
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
@@ -60,11 +60,15 @@ export function ColorInput({
     if (!isPickerOpen) {
       setIsPickerOpen(true)
     }
+    handleRelease()
+  }
+
+  const handleRelease = () => {
     onRelease && onRelease(color)
   }
 
   const handleChange = (result: ColorResult) => {
-    const color = new Color(result.hex)
+    color = new Color(result.hex)
     onChange(color)
   }
 
@@ -78,7 +82,7 @@ export function ColorInput({
         !pickerRef.current.contains(event.target)
       ) {
         setIsPickerOpen(false)
-        if (onRelease) onRelease(color)
+        handleRelease()
       }
     }
 
@@ -111,7 +115,7 @@ export function ColorInput({
               onChange={handleChange}
               disableAlpha={true}
               onPointerLeave={() => {
-                onRelease && onRelease(color)
+                handleRelease()
               }}
             />
           </div>

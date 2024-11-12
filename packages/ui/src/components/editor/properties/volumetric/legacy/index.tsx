@@ -42,7 +42,7 @@ import { UVOL1Component } from '@ir-engine/engine/src/scene/components/UVOL1Comp
 import { UVOL2Component } from '@ir-engine/engine/src/scene/components/UVOL2Component'
 import { TextureType } from '@ir-engine/engine/src/scene/constants/UVOLTypes'
 import { getState } from '@ir-engine/hyperflux'
-import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import { MdVideocam } from 'react-icons/md'
 
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -216,9 +216,9 @@ export const LegacyVolumetricNodeEditor: EditorComponentType = (props) => {
       Icon={LegacyVolumetricNodeEditor.iconComponent}
     >
       <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
-        <BooleanInput
+        <Checkbox
           onChange={commitProperty(LegacyVolumetricComponent, 'useLoadingEffect')}
-          value={volumetricComponent.useLoadingEffect.value}
+          checked={volumetricComponent.useLoadingEffect.value}
         />
       </InputGroup>
 
@@ -227,9 +227,9 @@ export const LegacyVolumetricNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-autoplay')}
         info={t('editor:properties.media.info-autoplay')}
       >
-        <BooleanInput
+        <Checkbox
           onChange={commitProperty(LegacyVolumetricComponent, 'autoplay')}
-          value={volumetricComponent.autoplay.value}
+          checked={volumetricComponent.autoplay.value}
         />
       </InputGroup>
 

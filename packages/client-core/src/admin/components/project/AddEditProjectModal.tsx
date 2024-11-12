@@ -40,9 +40,8 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { RadioGroup } from '@ir-engine/ui'
+import { Input, RadioGroup } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
@@ -399,19 +398,16 @@ export default function AddEditProjectModal({
         <div className="grid gap-2">
           {hasGithubProvider ? (
             <Input
-              label={`${t('admin:components.project.destination')} (${t('admin:components.project.githubUrl')})`}
+              labelProps={{
+                text: `${t('admin:components.project.destination')} (${t('admin:components.project.githubUrl')})`,
+                position: 'top'
+              }}
               placeholder="https://github.com/{user}/{repo}"
               value={projectUpdateStatus.value?.destinationURL}
-              error={projectUpdateStatus.value?.destinationError}
+              helperText={projectUpdateStatus.value?.destinationError}
+              state={projectUpdateStatus.value?.destinationError ? 'error' : undefined}
               onChange={handleChangeDestination}
               onBlur={handleChangeDestinationRepo}
-              description={
-                !projectUpdateStatus.value?.destinationProcessing &&
-                projectUpdateStatus.value?.destinationProjectName.length > 0
-                  ? `${t('admin:components.project.destinationProjectName')}: ${projectUpdateStatus.value
-                      ?.destinationProjectName}`
-                  : undefined
-              }
             />
           ) : (
             <Text>{t('admin:components.project.needsGithubProvider')}</Text>
@@ -434,19 +430,16 @@ export default function AddEditProjectModal({
         <div className="grid gap-2">
           {hasGithubProvider ? (
             <Input
-              label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
+              labelProps={{
+                text: `${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`,
+                position: 'top'
+              }}
               placeholder="https://github.com/{user}/{repo}"
               value={projectUpdateStatus.value?.sourceURL}
-              error={projectUpdateStatus.value?.sourceURLError}
+              helperText={projectUpdateStatus.value?.sourceURLError}
+              state={projectUpdateStatus.value?.sourceURLError ? 'error' : undefined}
               onChange={handleChangeSource}
               onBlur={handleChangeSourceRepo}
-              description={
-                !projectUpdateStatus.value?.destinationProcessing &&
-                projectUpdateStatus.value?.destinationProjectName.length > 0
-                  ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
-                      ?.destinationProjectName}`
-                  : undefined
-              }
               endComponent={
                 <Button
                   title={t('admin:components.project.copyDestination')}
