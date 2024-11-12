@@ -110,7 +110,6 @@ describe('LookAtSystem', () => {
       })
     })
 
-    /** @todo */
     describe('when EngineState.viewerEntity is truthy', () => {
       describe('for every entity that has the components [LookAtComponent, TransformComponent] ...', () => {
         let testEntity = UndefinedEntity
