@@ -26,14 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { ECSState, Entity, hasComponent } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import {
-  checkBitflag,
   NetworkObjectSendPeriodicUpdatesTag,
+  ViewCursor,
+  checkBitflag,
   readUint8,
   readVector3,
   readVector4,
   rewindViewCursor,
   spaceUint8,
-  ViewCursor,
   writeVector3,
   writeVector4
 } from '@ir-engine/network'
