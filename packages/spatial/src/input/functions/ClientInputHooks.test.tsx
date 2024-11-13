@@ -1158,7 +1158,7 @@ describe('ClientInputHooks', () => {
       assert.equal(result.has(testEntity), false)
     })
 
-    it.only('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
+    it('should trigger whenever the entityContext.ancestor gets or removes its InputComponent', async () => {
       const before = getState(InputState).inputMeshes
       assert.equal(before.has(testEntity), false)
 
