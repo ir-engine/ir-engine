@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { PerspectiveCamera } from 'three'
+import { Euler, PerspectiveCamera } from 'three'
 
 import { useExecute } from '@ir-engine/ecs'
 import {
@@ -65,10 +65,10 @@ export const ScenePreviewCameraComponent = defineComponent({
     useLayoutEffect(() => {
       if (!engineCameraTransform || isEditing) return
 
-      //const transform = getComponent(entity, TransformComponent)
-      //const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-      //cameraTransform.position.copy(transform.position)
-      //cameraTransform.rotation.copy(transform.rotation)
+      const transform = getComponent(entity, TransformComponent)
+      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      cameraTransform.position.copy(transform.position)
+      cameraTransform.rotation.copy(transform.rotation)
       const camera = previewCamera.camera.value as PerspectiveCamera
       addObjectToGroup(entity, camera)
       return () => {
@@ -87,8 +87,8 @@ export const ScenePreviewCameraComponent = defineComponent({
 
     useLayoutEffect(() => {
       if (!engineCameraTransform) return
-      engineCameraTransform.position.value.copy(previewCameraTransform.position.value)
-      engineCameraTransform.rotation.value.copy(previewCameraTransform.rotation.value)
+      previewCamera.camera.value.position.copy(previewCameraTransform.position.value)
+      previewCamera.camera.value.rotation.copy(new Euler().setFromQuaternion(previewCameraTransform.rotation.value))
     }, [previewCameraTransform])
 
     useLayoutEffect(() => {
