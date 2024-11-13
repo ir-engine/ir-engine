@@ -56,11 +56,11 @@ import { getState } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
+import { assertColorEqual } from '../../../tests/util/mathAssertions'
 import { NameComponent } from '../../common/NameComponent'
 import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
 import { GroupComponent } from './GroupComponent'
-import { assertColorEqual } from './lights/HemisphereLightComponent.test'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
