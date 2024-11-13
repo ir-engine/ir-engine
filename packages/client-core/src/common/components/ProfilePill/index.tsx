@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind } from '@ir-engine/common'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -37,7 +39,8 @@ import { AuthState } from '../../../user/services/AuthService'
 const ProfilePill = () => {
   const user = getMutableState(AuthState).user
   const avatarThumbnail = useUserAvatarThumbnail(user.value.id)
-  const email = user.value.identityProviders.find((ip) => ip.type === 'email')?.accountIdentifier
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const email = identityProvidersQuery.data.find((ip) => ip.type === 'email')?.accountIdentifier
   const popUpOpened = useHookstate(false)
   return (
     <Popup

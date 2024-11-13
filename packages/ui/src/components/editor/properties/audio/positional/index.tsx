@@ -39,9 +39,10 @@ import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEdito
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
+import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
-import Slider from '../../../../../primitives/tailwind/Slider'
+import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '../../../input/Group'
 import NumericScrubber from '../../../input/Numeric/Scrubber'
 import SelectInput from '../../../input/Select'
@@ -55,7 +56,11 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const audioComponent = useComponent(props.entity, PositionalAudioComponent)
 
   useEffect(() => {
-    if (!hasComponent(props.entity, MediaComponent) && !hasComponent(props.entity, VolumetricComponent)) {
+    if (
+      !hasComponent(props.entity, MediaComponent) &&
+      !hasComponent(props.entity, LegacyVolumetricComponent) &&
+      !hasComponent(props.entity, VolumetricComponent)
+    ) {
       const nodes = SelectionState.getSelectedEntities()
       EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
     }
@@ -217,21 +222,18 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           unit="°"
         />
       </InputGroup>
-      <InputGroup
-        name="Cone Outer Gain"
+      <Slider
+        aria-labelname="Cone Outer Gain"
         label={t('editor:properties.audio.lbl-coreOuterGain')}
         info={t('editor:properties.audio.info-coreOuterGain')}
-        className="w-auto"
-      >
-        <Slider
-          min={0}
-          max={1}
-          step={0.01}
-          value={audioComponent.coneOuterGain.value}
-          onChange={updateProperty(PositionalAudioComponent, 'coneOuterGain')}
-          onRelease={commitProperty(PositionalAudioComponent, 'coneOuterGain')}
-        />
-      </InputGroup>
+        description={t('editor:properties.audio.info-coreOuterGain')}
+        min={0}
+        max={1}
+        step={0.01}
+        value={audioComponent.coneOuterGain.value}
+        onChange={updateProperty(PositionalAudioComponent, 'coneOuterGain')}
+        onRelease={commitProperty(PositionalAudioComponent, 'coneOuterGain')}
+      />
     </NodeEditor>
   )
 }

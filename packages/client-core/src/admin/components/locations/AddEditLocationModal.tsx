@@ -35,8 +35,8 @@ import {
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
@@ -209,6 +209,7 @@ export default function AddEditLocationModal(props: {
                 size="medium"
                 variant="transparent"
                 className="w-full cursor-default text-left text-xs"
+                data-testid="publish-panel-copy-link-buttons-group"
                 endIcon={
                   <HiLink
                     className="z-10 h-4 w-4 cursor-pointer"
@@ -230,18 +231,28 @@ export default function AddEditLocationModal(props: {
               </Button>
             )}
             <Input
-              label={t('admin:components.location.lbl-name')}
+              labelProps={{
+                text: t('admin:components.location.lbl-name'),
+                position: 'top'
+              }}
               value={name.value}
+              data-testid="publish-panel-location-name"
               onChange={(event) => name.set(event.target.value)}
-              error={errors.name.value}
+              helperText={errors.name.value}
+              state={errors.name.value ? 'error' : undefined}
               disabled={isLoading}
             />
             <Input
               type="number"
-              label={t('admin:components.location.lbl-maxuser')}
+              labelProps={{
+                text: t('admin:components.location.lbl-maxuser'),
+                position: 'top'
+              }}
               value={maxUsers.value}
+              data-testid="publish-panel-location-max-users"
               onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
-              error={errors.maxUsers.value}
+              helperText={errors.maxUsers.value}
+              state={errors.maxUsers.value ? 'error' : undefined}
               disabled={isLoading}
             />
             <Select
@@ -295,13 +306,18 @@ export default function AddEditLocationModal(props: {
         </div>
 
         <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
-          <Button variant="outline" onClick={() => PopoverState.hidePopupover()}>
+          <Button
+            variant="outline"
+            data-testid="publish-panel-cancel-button"
+            onClick={() => PopoverState.hidePopupover()}
+          >
             {t('common:components.cancel')}
           </Button>
           <div className="ml-auto flex items-center gap-2">
             {location?.id && (
               <Button
                 className="bg-[#162546]"
+                data-testid="publish-panel-unpublish-button"
                 endIcon={unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 disabled={isLoading}
                 onClick={unPublishLocation}
@@ -310,6 +326,7 @@ export default function AddEditLocationModal(props: {
               </Button>
             )}
             <Button
+              data-testid="publish-panel-publish-or-update-button"
               endIcon={publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               disabled={isLoading}
               onClick={handlePublish}

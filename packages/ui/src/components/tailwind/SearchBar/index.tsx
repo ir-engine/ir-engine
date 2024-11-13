@@ -30,17 +30,10 @@ import { State } from '@ir-engine/hyperflux'
 
 import { SearchSmSm } from '@ir-engine/ui/src/icons'
 import Input, { InputProps } from '@ir-engine/ui/src/primitives/tailwind/Input'
-import { twMerge } from 'tailwind-merge'
-
-const variants = {
-  small: 'px-1 py-0.5 ps-8',
-  medium: 'p-2 ps-8',
-  large: 'px-2 py-5 ps-10'
-}
 
 export default function SearchBar({
   search,
-  size = 'large',
+  variantSize = 'l',
   inputProps = {},
   debounceTime = 100
 }: {
@@ -48,7 +41,7 @@ export default function SearchBar({
     local: string
     query: string
   }>
-  size?: 'small' | 'medium' | 'large'
+  variantSize?: InputProps['variantSize']
   inputProps?: Partial<InputProps>
   debounceTime?: number
 }) {
@@ -72,10 +65,9 @@ export default function SearchBar({
           search.query.set(event.target.value)
         }, debounceTime)
       }}
-      className={twMerge('bg-theme-surface-main', variants[size])}
-      containerClassName="w-1/5 block bg-[#141619]"
       startComponent={<SearchSmSm className="h-20 text-white" />}
       data-testid="search-input"
+      variantSize={variantSize}
       {...inputProps}
     />
   )

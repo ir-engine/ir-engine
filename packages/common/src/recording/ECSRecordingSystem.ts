@@ -32,6 +32,7 @@ import {
   RecordingID,
   recordingPath,
   RecordingSchemaType,
+  userAvatarPath,
   UserID,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
@@ -642,16 +643,25 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             }
 
             if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
-              dispatchAction(
-                AvatarNetworkAction.spawn({
-                  parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
-                  ownerID: entityID,
-                  entityUUID: (entityID + '_avatar') as EntityUUID,
-                  avatarURL: user.avatar.modelResource!.url!,
-                  name: user.name + "'s Clone"
+              api
+                .service(userAvatarPath)
+                .find({
+                  query: {
+                    userId: user.id
+                  }
                 })
-              )
-              entitiesSpawned.push(entityID)
+                .then((userAvatars) => {
+                  dispatchAction(
+                    AvatarNetworkAction.spawn({
+                      parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+                      ownerID: entityID,
+                      entityUUID: (entityID + '_avatar') as EntityUUID,
+                      avatarURL: userAvatars.data[0].avatar.modelResource!.url!,
+                      name: user.name + "'s Clone"
+                    })
+                  )
+                  entitiesSpawned.push(entityID)
+                })
             }
           })
           .catch((e) => {
