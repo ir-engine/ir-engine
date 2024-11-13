@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Entity, UUIDComponent, getComponent } from '@ir-engine/ecs'
 import { useMutableState } from '@ir-engine/hyperflux'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { HiCube, HiMiniXMark, HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
-import { ComponentDropdownState, ComponentDropdownStateFunctions } from './ComponentDropdownState.ts'
+import { ComponentDropdownState } from './ComponentDropdownState'
 
 export interface ComponentDropdownProps {
   name?: string
@@ -54,34 +54,44 @@ export default function ComponentDropdown({
   const entityUUID = getComponent(entity, UUIDComponent)
   const dropdownStateRecord = useMutableState(ComponentDropdownState).componentStates
 
-  const getIsMinimized = (): boolean => {
+  // State to track if minimized
+  const [isMinimized, setIsMinimized] = useState(() => {
     const mindefault = minimizedDefault ?? false
     return name ? dropdownStateRecord[entityUUID][name]?.value ?? minimizedDefault ?? mindefault : mindefault
-  }
+  })
+
+  // Update isMinimized whenever dependencies change
+  useEffect(() => {
+    const mindefault = minimizedDefault ?? false
+    const currentMinimized = name
+      ? dropdownStateRecord[entityUUID][name]?.value ?? minimizedDefault ?? mindefault
+      : mindefault
+    setIsMinimized(currentMinimized)
+  }, [dropdownStateRecord, entityUUID, name, minimizedDefault])
 
   const toggleMinimized = () => {
-    if (name) ComponentDropdownStateFunctions.addOrUpdateComponentStateByUUID(entityUUID, name, !getIsMinimized())
+    if (name) {
+      const newMinimized = !isMinimized
+      ComponentDropdownState.addOrUpdateUUID(entityUUID, name, newMinimized)
+      setIsMinimized(newMinimized)
+    }
   }
 
   return (
     <div
       className={twMerge(
         'group/component-dropdown w-full rounded bg-[#212226] p-2 transition-all duration-300 ease-out focus:border focus:border-[#375DAF] focus:outline-0',
-        getIsMinimized() && 'h-10'
+        isMinimized && 'h-10'
       )}
       tabIndex={0}
     >
       <div className="flex items-center">
         <button
           className="my-1 text-[#9CA0AA] group-hover/component-dropdown:text-[#F5F5F5] group-focus/component-dropdown:text-[#F5F5F5]"
-          title={getIsMinimized() ? 'maximize' : 'minimize'}
+          title={isMinimized ? 'maximize' : 'minimize'}
           onClick={() => toggleMinimized()}
         >
-          {getIsMinimized() ? (
-            <HiOutlineChevronRight className="h-4 w-4" />
-          ) : (
-            <HiOutlineChevronDown className="h-4 w-4" />
-          )}
+          {isMinimized ? <HiOutlineChevronRight className="h-4 w-4" /> : <HiOutlineChevronDown className="h-4 w-4" />}
         </button>
         <button className="ml-2 text-[#9CA0AA] group-hover/component-dropdown:text-[#F5F5F5] group-focus/component-dropdown:text-[#F5F5F5]">
           <Icon className="h-5 w-5" />
@@ -96,8 +106,8 @@ export default function ComponentDropdown({
           <HiMiniXMark className="h-2 w-2 group-hover/component-dropdown:h-4 group-hover/component-dropdown:w-4 group-focus/component-dropdown:h-4 group-focus/component-dropdown:w-4" />
         </button>
       </div>
-      {!getIsMinimized() && <div className="text-center text-xs leading-[18px] text-[#D3D5D9]">{description}</div>}
-      <div className={twMerge('mt-4', getIsMinimized() && 'hidden')}>{children}</div>
+      {!isMinimized && <div className="text-center text-xs leading-[18px] text-[#D3D5D9]">{description}</div>}
+      <div className={twMerge('mt-4', isMinimized && 'hidden')}>{children}</div>
     </div>
   )
 }
