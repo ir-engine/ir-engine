@@ -1227,7 +1227,7 @@ describe('Physics : Rapier->ECS API', () => {
           y: RigidBodyComponent.linearVelocity.y[testEntity],
           z: RigidBodyComponent.linearVelocity.z[testEntity]
         }
-        assertVecApproxEq(before, after, 3)
+        assertVec.approxEq(before, after, 3)
       })
       it("should set the position of the entity's RigidBodyComponent", () => {
         const position = new Vector3(1, 2, 3)
