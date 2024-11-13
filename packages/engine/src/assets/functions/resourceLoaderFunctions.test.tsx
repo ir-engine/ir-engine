@@ -36,8 +36,10 @@ import {
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 
+import Sinon from 'sinon'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+import { Loader } from '../loaders/base/Loader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { loadResource } from './resourceLoaderFunctions'
 
@@ -301,4 +303,41 @@ describe('resourceLoaderFunctions', () => {
         )
       }, done)
     }))
+
+  it('Will use the passed in loader', () => {
+    const entity = createEntity()
+    const resourceState = getState(ResourceState)
+
+    const loader = {
+      load: (
+        url: string,
+        onLoad: (data: any) => void,
+        onProgress?: (event: ProgressEvent) => void,
+        onError?: (err: unknown) => void,
+        signal?: AbortSignal
+      ) => {
+        onLoad(url)
+      }
+    } as Loader
+
+    const spy = Sinon.spy()
+
+    const controller = new AbortController()
+    loadResource(
+      url,
+      ResourceType.GLTF,
+      entity,
+      spy,
+      (resquest) => {
+        assert(false)
+      },
+      (error) => {
+        assert(false)
+      },
+      controller.signal,
+      loader
+    )
+
+    assert(spy.calledOnce)
+  })
 })

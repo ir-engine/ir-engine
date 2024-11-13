@@ -30,9 +30,9 @@ import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
+import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { SiAudiomack } from 'react-icons/si'
-import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 
 export const AudioAnalysisEditor: EditorComponentType = (props) => {
@@ -42,8 +42,8 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor {...props} name={t('editor:properties.audioAnalysis.name')} Icon={AudioAnalysisEditor.iconComponent}>
       <InputGroup name="Bass" label={t('editor:properties.audioAnalysis.lbl-bassEnabled')}>
-        <BooleanInput
-          value={audioAnalysisComponent.bassEnabled.value}
+        <Checkbox
+          checked={audioAnalysisComponent.bassEnabled.value}
           onChange={commitProperty(AudioAnalysisComponent, 'bassEnabled')}
         />
       </InputGroup>
@@ -58,8 +58,8 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
         label={t('editor:properties.audioAnalysis.lbl-bassMultiplier')}
       />
       <InputGroup name="Mid Enabled" label={t('editor:properties.audioAnalysis.lbl-midEnabled')}>
-        <BooleanInput
-          value={audioAnalysisComponent.midEnabled.value}
+        <Checkbox
+          checked={audioAnalysisComponent.midEnabled.value}
           onChange={commitProperty(AudioAnalysisComponent, 'midEnabled')}
         />
       </InputGroup>
@@ -74,8 +74,8 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
         onRelease={commitProperty(AudioAnalysisComponent, 'midMultiplier')}
       />
       <InputGroup name="Treble Enabled" label={t('editor:properties.audioAnalysis.lbl-trebleEnabled')}>
-        <BooleanInput
-          value={audioAnalysisComponent.trebleEnabled.value}
+        <Checkbox
+          checked={audioAnalysisComponent.trebleEnabled.value}
           onChange={commitProperty(AudioAnalysisComponent, 'trebleEnabled')}
         />
       </InputGroup>

@@ -31,21 +31,25 @@ import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
-import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectBranchType, ProjectCommitType, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import {
+  identityProviderPath,
+  ProjectBranchType,
+  ProjectCommitType,
+  ProjectType
+} from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Input, RadioGroup } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
+import { useFind } from '@ir-engine/common'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 
@@ -122,8 +126,8 @@ export default function AddEditProjectModal({
     return () => ProjectUpdateService.clearProjectUpdate(project.name)
   }, [project.name])
 
-  const user = useHookstate(getMutableState(AuthState).user)
-  const hasGithubProvider = user.identityProviders.value.find((ip) => ip.type === 'github')
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const hasGithubProvider = identityProvidersQuery.data.find((ip) => ip.type === 'github')
 
   const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
     (commit: ProjectCommitType) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
@@ -394,19 +398,16 @@ export default function AddEditProjectModal({
         <div className="grid gap-2">
           {hasGithubProvider ? (
             <Input
-              label={`${t('admin:components.project.destination')} (${t('admin:components.project.githubUrl')})`}
+              labelProps={{
+                text: `${t('admin:components.project.destination')} (${t('admin:components.project.githubUrl')})`,
+                position: 'top'
+              }}
               placeholder="https://github.com/{user}/{repo}"
               value={projectUpdateStatus.value?.destinationURL}
-              error={projectUpdateStatus.value?.destinationError}
+              helperText={projectUpdateStatus.value?.destinationError}
+              state={projectUpdateStatus.value?.destinationError ? 'error' : undefined}
               onChange={handleChangeDestination}
               onBlur={handleChangeDestinationRepo}
-              description={
-                !projectUpdateStatus.value?.destinationProcessing &&
-                projectUpdateStatus.value?.destinationProjectName.length > 0
-                  ? `${t('admin:components.project.destinationProjectName')}: ${projectUpdateStatus.value
-                      ?.destinationProjectName}`
-                  : undefined
-              }
             />
           ) : (
             <Text>{t('admin:components.project.needsGithubProvider')}</Text>
@@ -429,19 +430,16 @@ export default function AddEditProjectModal({
         <div className="grid gap-2">
           {hasGithubProvider ? (
             <Input
-              label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
+              labelProps={{
+                text: `${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`,
+                position: 'top'
+              }}
               placeholder="https://github.com/{user}/{repo}"
               value={projectUpdateStatus.value?.sourceURL}
-              error={projectUpdateStatus.value?.sourceURLError}
+              helperText={projectUpdateStatus.value?.sourceURLError}
+              state={projectUpdateStatus.value?.sourceURLError ? 'error' : undefined}
               onChange={handleChangeSource}
               onBlur={handleChangeSourceRepo}
-              description={
-                !projectUpdateStatus.value?.destinationProcessing &&
-                projectUpdateStatus.value?.destinationProjectName.length > 0
-                  ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
-                      ?.destinationProjectName}`
-                  : undefined
-              }
               endComponent={
                 <Button
                   title={t('admin:components.project.copyDestination')}
@@ -586,7 +584,7 @@ export default function AddEditProjectModal({
           <div className="flex w-full">
             <div className="w-1/2">
               <Label className="mb-4">{t('admin:components.project.autoUpdateMode')}</Label>
-              <Radios
+              <RadioGroup
                 horizontal
                 options={[
                   { label: t('admin:components.project.prod'), value: 'prod' },

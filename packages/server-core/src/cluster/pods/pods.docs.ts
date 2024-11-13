@@ -25,10 +25,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { podsSchema } from '@ir-engine/common/src/schemas/cluster/pods.schema'
+import {
+  podsSchema,
+  serverContainerInfoSchema,
+  serverPodInfoSchema
+} from '@ir-engine/common/src/schemas/cluster/pods.schema'
 
 export default createSwaggerServiceOptions({
-  schemas: { podsSchema },
+  schemas: { podsSchema, serverPodInfoSchema, serverContainerInfoSchema },
   docs: {
     description: 'Pods service description',
     securities: ['all']

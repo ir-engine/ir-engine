@@ -31,17 +31,19 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
 import { useFind } from '@ir-engine/common'
 import {
   InviteCode,
   ProjectPermissionType,
   ProjectType,
-  projectPermissionPath
+  ScopeType,
+  projectPermissionPath,
+  scopePath
 } from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs'
 import { ImmutableObject, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -51,9 +53,19 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const userInviteCode = useHookstate('' as InviteCode)
   const userInviteCodeError = useHookstate(undefined)
+
+  const scopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.store.userID,
+      type: 'admin:admin' as ScopeType
+    }
+  })
+
+  const userHasAccess = scopeQuery.data.length > 0
+
   const selfUserPermission =
     project?.projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
-    userHasAccess('admin:admin')
+    userHasAccess
       ? 'owner'
       : 'user'
 
@@ -107,10 +119,14 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
     >
       {selfUserPermission === 'owner' && (
         <Input
-          label={t('admin:components.project.userInviteCode')}
+          labelProps={{
+            text: t('admin:components.project.userInviteCode'),
+            position: 'top'
+          }}
           value={userInviteCode.value}
           onChange={(event) => userInviteCode.set(event.target.value as InviteCode)}
-          error={userInviteCodeError.value}
+          helperText={userInviteCodeError.value}
+          state={userInviteCodeError.value ? 'error' : undefined}
         />
       )}
       <div className="grid gap-4">

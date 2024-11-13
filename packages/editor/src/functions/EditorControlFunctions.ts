@@ -50,7 +50,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
-  findCommonAncestors,
+  findRootAncestors,
   iterateEntityNode
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -93,6 +93,37 @@ const hasComponentInAuthoringLayer = <C extends Component<any, any>>(entity: Ent
   const doc = getState(GLTFDocumentState)[source]
   const node = getGLTFNodeByUUID(doc, uuid)
   return node?.extensions?.[componentJsonId] !== undefined
+}
+
+const appendToSnapshot = (toAppend: GLTF.IGLTF, parent = getState(EditorState).rootEntity) => {
+  if (!toAppend.scenes || !toAppend.nodes) return
+
+  const sceneID = getComponent(parent, SourceComponent)
+  const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+  const offset = gltf.data.nodes!.length
+
+  const nodesToAppend = toAppend.scenes[0].nodes
+  for (let i = 0; i < nodesToAppend.length; i++) {
+    const nodeIndex = nodesToAppend[i]
+    const newIndex = appendNode(nodeIndex, toAppend, gltf.data, offset)
+    gltf.data.scenes![0].nodes.push(newIndex)
+  }
+
+  dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+}
+
+const appendNode = (nodeIndex: number, src: GLTF.IGLTF, dst: GLTF.IGLTF, offset: number): number => {
+  const node = src.nodes![nodeIndex]
+  const offsetIndex = offset + nodeIndex
+  dst.nodes![offsetIndex] = node
+  if (node.children) {
+    node.children = node.children.map((index) => {
+      appendNode(index, src, dst, offset)
+      return offset + index
+    })
+  }
+
+  return offsetIndex
 }
 
 const addOrRemoveComponent = <C extends Component<any, any>>(
@@ -344,7 +375,7 @@ const duplicateObject = (entities: Entity[]) => {
   const copyMap = {} as { [entityUUID: EntityUUID]: EntityUUID }
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const rootEntities = findCommonAncestors(entities)
+    const rootEntities = findRootAncestors(entities)
 
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
@@ -902,6 +933,7 @@ const commitTransformSave = (entities: Entity[]) => {
 }
 
 export const EditorControlFunctions = {
+  appendToSnapshot,
   addOrRemoveComponent,
   hasComponentInAuthoringLayer,
   modifyProperty,

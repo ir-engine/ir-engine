@@ -134,6 +134,19 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
 })
 
 export const locationPatchResolver = resolve<LocationType, HookContext>({
+  projectId: async (value, location, context: HookContext<LocationService>) => {
+    if (location.sceneId) {
+      try {
+        const asset = await context.app.service(staticResourcePath).get(location.sceneId)
+        if (!asset.project) throw new BadRequest('Error populating projectId into location')
+        const project = await context.app.service(projectPath).find({ query: { name: asset.project } })
+        if (!project || project.total === 0) throw new BadRequest('Error populating projectId into location')
+        return project.data[0].id
+      } catch (error) {
+        throw new BadRequest('Error populating projectId into location')
+      }
+    }
+  },
   slugifiedName: async (value, location) => {
     if (location.name) return slugify(location.name, { lower: true })
   },
