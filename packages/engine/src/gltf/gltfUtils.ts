@@ -101,11 +101,13 @@ const appendToGLTFArray = <
   table: Record<number, number>
 ): [T, number] => {
   if (!dst[key]) dst[key] = []
-  const newIndex = dst[key].length
-  dst[key][newIndex] = src[key]![index]
+
+  const arr = dst[key]! as Arr
+  const newIndex = arr.length
+  arr[newIndex] = src[key]![index]
   table[index] = newIndex
 
-  return [dst[key][newIndex] as T, newIndex]
+  return [arr[newIndex] as T, newIndex]
 }
 
 const appendBuffer = (bufferIndex: number, src: GLTF.IGLTF, dst: GLTF.IGLTF, context: GLTFAppendContext): number => {

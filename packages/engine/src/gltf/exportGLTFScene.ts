@@ -111,7 +111,7 @@ type GLTFSceneExportContext = {
 export type ExportExtension = new () => GLTFSceneExportExtension
 
 export const defaultExportExtensionList = [
-  // IgnoreGLTFComponentExportExtension,
+  IgnoreGLTFComponentExportExtension,
   RemoveRootNodeParentExportExtension
 ] as ExportExtension[]
 
@@ -202,8 +202,6 @@ const exportGLTFSceneNode = async (
     //skip components that don't have a jsonID
     if (!component.jsonID) continue
 
-    // if (component.jsonID === GLTFComponent.jsonID) continue
-
     if (component === TransformComponent) {
       const transform = getComponent(entity, TransformComponent)
       const parent = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
@@ -218,6 +216,7 @@ const exportGLTFSceneNode = async (
     } else if (component === MeshComponent) {
       const mesh = getComponent(entity, MeshComponent)
       if (mesh.userData['ignoreOnExport']) continue
+      // might need to do something with the mesh scale first
       await exportMesh(mesh, gltf, context)
     } else {
       const compData = serializeComponent(entity, component)
