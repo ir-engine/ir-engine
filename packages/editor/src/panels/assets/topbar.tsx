@@ -38,6 +38,7 @@ import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesViewModeSettings } from '../../services/FilesState'
+import { ImportSettingsState } from '../../services/ImportSettingsState'
 import { useAssetsCategory, useAssetsQuery } from './hooks'
 
 const ViewModeSettings = () => {
@@ -77,9 +78,11 @@ const ViewModeSettings = () => {
 
 const uploadFiles = () => {
   const projectName = getState(EditorState).projectName
+  const importFolder = getState(ImportSettingsState).importFolder || '/assets/'
+
   return inputFileWithAddToScene({
     projectName: projectName as string,
-    directoryPath: `projects/${projectName}/assets/`
+    directoryPath: `projects/${projectName}${importFolder}`
   }).catch((err) => {
     NotificationService.dispatchNotify(err.message, { variant: 'error' })
   })
