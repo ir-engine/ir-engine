@@ -31,8 +31,8 @@ import { useMutation } from '@ir-engine/common'
 import { imageConvertPath } from '@ir-engine/common/src/schema.type.module'
 import { ImageConvertDefaultParms, ImageConvertParms } from '@ir-engine/engine/src/assets/constants/ImageConvertParms'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
@@ -92,8 +92,7 @@ export default function ImageConvertModal({
         <div className="flex items-center gap-2">
           <Label className="w-16">{t('editor:layout.filebrowser.image-convert.resize')}</Label>
           <Checkbox
-            className="bg-theme-highlight"
-            value={convertProperties.resize.value}
+            checked={convertProperties.resize.value}
             onChange={(value) => convertProperties.resize.set(value)}
           />
         </div>

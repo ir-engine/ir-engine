@@ -36,6 +36,7 @@ import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathR
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
@@ -43,7 +44,6 @@ import { MdOutlineViewInAr } from 'react-icons/md'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import ModelInput from '../../../input/Model'
 import SelectInput from '../../../input/Select'
@@ -117,8 +117,8 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
-        <BooleanInput
-          value={gltfComponent.cameraOcclusion.value}
+        <Checkbox
+          checked={gltfComponent.cameraOcclusion.value}
           onChange={commitProperty(GLTFComponent, 'cameraOcclusion')}
         />
       </InputGroup>
