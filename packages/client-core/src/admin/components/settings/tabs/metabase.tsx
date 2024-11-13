@@ -27,10 +27,10 @@ import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { EngineSettingData, EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -145,37 +145,47 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
     >
       <div className="my-6 grid grid-cols-3 gap-6">
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.metabase.siteUrl')}
+          labelProps={{
+            text: t('admin:components.setting.metabase.siteUrl'),
+            position: 'top'
+          }}
           value={siteUrl?.value || ''}
           onChange={(e) => siteUrl.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.metabase.environment')}
+          labelProps={{
+            text: t('admin:components.setting.metabase.environment'),
+            position: 'top'
+          }}
           value={environment?.value || ''}
           onChange={(e) => environment.set(e.target.value)}
         />
 
         <PasswordInput
-          className="col-span-1"
-          label={t('admin:components.setting.metabase.secretKey')}
+          labelProps={{
+            text: t('admin:components.setting.metabase.secretKey'),
+            position: 'top'
+          }}
           value={secretKey?.value || ''}
           onChange={(e) => secretKey.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
           type="number"
-          label={t('admin:components.setting.metabase.expiration')}
+          labelProps={{
+            text: t('admin:components.setting.metabase.expiration'),
+            position: 'top'
+          }}
           value={expiration?.value || 10}
           onChange={(e) => expiration.set(e.target.value)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.metabase.crashDashboardId')}
+          labelProps={{
+            text: t('admin:components.setting.metabase.crashDashboardId'),
+            position: 'top'
+          }}
           value={crashDashboardId?.value || ''}
           onChange={(e) => crashDashboardId.set(e.target.value)}
         />

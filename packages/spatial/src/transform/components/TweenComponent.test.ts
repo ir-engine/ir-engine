@@ -23,11 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineConfig } from 'vitest/config'
+import assert from 'assert'
+import { describe, it } from 'vitest'
+import { TweenComponent } from './TweenComponent'
 
-export default defineConfig({
-  test: {
-    environment: 'jsdom',
-    passWithNoTests: true
-  }
-})
+describe('TweenComponent', () => {
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(TweenComponent.name, 'TweenComponent')
+    })
+  }) //:: Fields
+}) //:: TweenComponent

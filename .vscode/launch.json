@@ -96,37 +96,37 @@
             "type": "node-terminal",
         },
         {
-            "command": "cd packages/editor && npm run test",
+            "command": "cd packages/editor && npm run test -- --maxConcurrency 1 --no-file-parallelism --bail 1 --reporter=basic",
             "name": "npm run test - editor",
             "request": "launch",
-            "type": "node-terminal",
+            "type": "node-terminal"
         },
         {
-            "command": "cd packages/spatial && npm run test",
+            "command": "cd packages/spatial && npm run test -- --maxConcurrency 1 --no-file-parallelism --bail 1 --reporter=basic",
             "name": "npm run test - spatial",
             "request": "launch",
-            "type": "node-terminal",
+            "type": "node-terminal"
         },
         {
-            "command": "cd packages/ecs && npm run test",
+            "command": "cd packages/ecs && npm run test -- --maxConcurrency 1 --no-file-parallelism --bail 1 --reporter=basic",
             "name": "npm run test - ecs",
             "request": "launch",
             "type": "node-terminal",
         },
         {
-            "command": "cd packages/engine && npm run test",
+            "command": "cd packages/engine && npm run test -- --maxConcurrency 1 --no-file-parallelism --bail 1 --reporter=basic",
             "name": "npm run test - engine",
             "request": "launch",
             "type": "node-terminal",
         },
         {
-            "command": "cd packages/common && npm run test",
+            "command": "cd packages/common && npm run test -- --maxConcurrency 1 --no-file-parallelism --bail 1 --reporter=basic",
             "name": "npm run test - common",
             "request": "launch",
             "type": "node-terminal",
         },
         {
-            "command": "cd packages/network && npm run test",
+            "command": "cd packages/network && npm run test -- --maxConcurrency 1 --no-file-parallelism --bail 1 --reporter=basic",
             "name": "npm run test - network",
             "request": "launch",
             "type": "node-terminal",

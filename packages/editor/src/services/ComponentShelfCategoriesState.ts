@@ -120,6 +120,8 @@ export const ComponentShelfCategoriesState = defineState({
 
     const [legacyVolumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.LegacyVolumetric])
     const [volumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.Volumetric])
+    const [audioAnalysisEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.AudioAnalysis])
+    const [screenshareTargetEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.ScreenshareTarget])
 
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
@@ -176,5 +178,27 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [volumetricEnabled])
+
+    useEffect(() => {
+      if (audioAnalysisEnabled) {
+        cShelfState.Interaction.merge([AudioAnalysisComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == AudioAnalysisComponent.name))
+          })
+        }
+      }
+    }, [audioAnalysisEnabled])
+
+    useEffect(() => {
+      if (screenshareTargetEnabled) {
+        cShelfState.Interaction.merge([ScreenshareTargetComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == ScreenshareTargetComponent.name))
+          })
+        }
+      }
+    }, [screenshareTargetEnabled])
   }
 })

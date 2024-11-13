@@ -31,9 +31,9 @@ import { useFind, useGet, useMutation } from '@ir-engine/common'
 import { ProjectSettingType, projectPath, projectSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -192,8 +192,10 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           {displayedSettings.value.map((setting: ProjectSettingType, index: number) => (
             <div className="my-2 flex flex-row items-end gap-2" key={index}>
               <Input
-                containerClassName="w-1/4"
-                label={t('admin:components.setting.project.keyName')}
+                labelProps={{
+                  text: t('admin:components.setting.project.keyName'),
+                  position: 'top'
+                }}
                 value={setting.key}
                 endComponent={
                   <Button
@@ -208,8 +210,10 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 onChange={(e) => handleSettingsKeyChange(e, setting, index)}
               />
               <Input
-                containerClassName="w-1/4"
-                label={t('admin:components.setting.project.value')}
+                labelProps={{
+                  text: t('admin:components.setting.project.value'),
+                  position: 'top'
+                }}
                 value={setting.value || ''}
                 endComponent={
                   setting.userId && (

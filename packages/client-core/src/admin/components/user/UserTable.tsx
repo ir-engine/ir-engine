@@ -31,10 +31,10 @@ import {
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import React from 'react'
@@ -157,7 +157,7 @@ export default function UserTable({
       return {
         select: (
           <Checkbox
-            value={selectedUsers.value.findIndex((invite) => invite.id === row.id) !== -1}
+            checked={selectedUsers.value.findIndex((invite) => invite.id === row.id) !== -1}
             onChange={(value) => {
               if (value) selectedUsers.merge([row])
               else selectedUsers.set((prevInvites) => prevInvites.filter((invite) => invite.id !== row.id))
@@ -225,7 +225,7 @@ export default function UserTable({
           id: 'select',
           label: (
             <Checkbox
-              value={selectedUsers.length === adminUserQuery.data.length}
+              checked={selectedUsers.length === adminUserQuery.data.length}
               onChange={(value) => {
                 if (value) selectedUsers.set(adminUserQuery.data.slice())
                 else selectedUsers.set([])
