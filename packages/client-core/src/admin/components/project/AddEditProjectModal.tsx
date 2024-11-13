@@ -40,8 +40,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Input, RadioGroup } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input, RadioGroup } from '@ir-engine/ui'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
@@ -443,15 +442,17 @@ export default function AddEditProjectModal({
               endComponent={
                 <Button
                   title={t('admin:components.project.copyDestination')}
-                  variant="outline"
-                  size="small"
+                  variant="tertiary"
+                  size="sm"
                   className="p-3 [&>*]:m-0"
-                  startIcon={<HiMiniClipboardDocumentList />}
                   onClick={() => {
                     handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
                     handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
                   }}
-                />
+                  iconOnly
+                >
+                  <HiMiniClipboardDocumentList />
+                </Button>
               }
             />
           ) : (

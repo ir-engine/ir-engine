@@ -27,10 +27,10 @@ import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 import { HiOutlineRefresh } from 'react-icons/hi'
 
 import { useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
+import { Button } from '@ir-engine/ui'
 import { serverAutoRefreshOptions } from '../../common/constants/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import ApiJobsTable from './ApiJobsTable'
@@ -66,10 +66,12 @@ export default function Servers() {
             <Button
               title={t('admin:components.common.refresh')}
               onClick={serverInfoQuery.refetch}
-              startIcon={<HiOutlineRefresh />}
-              variant="outline"
+              variant="tertiary"
               className="justify-self-end border-0"
-            />
+              iconOnly
+            >
+              <HiOutlineRefresh />
+            </Button>
             <Select
               options={serverAutoRefreshOptions}
               currentValue={autoRefresh.value}

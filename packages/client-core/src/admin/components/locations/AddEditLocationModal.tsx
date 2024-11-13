@@ -35,8 +35,7 @@ import {
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
@@ -205,22 +204,9 @@ export default function AddEditLocationModal(props: {
           <div className="relative grid w-full gap-6">
             {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
             {location && (
-              <Button
-                size="medium"
-                variant="transparent"
-                className="w-full cursor-default text-left text-xs"
+              <button
+                className="flex w-full cursor-default items-center justify-center gap-x-1 text-left text-xs font-medium"
                 data-testid="publish-panel-copy-link-buttons-group"
-                endIcon={
-                  <HiLink
-                    className="z-10 h-4 w-4 cursor-pointer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(new URL(location.url).href)
-                      NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
-                        variant: 'success'
-                      })
-                    }}
-                  />
-                }
               >
                 <div
                   className="cursor-pointer text-blue-primary hover:underline"
@@ -228,7 +214,16 @@ export default function AddEditLocationModal(props: {
                 >
                   {location.url}
                 </div>
-              </Button>
+                <HiLink
+                  className="z-10 h-4 w-4 cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(new URL(location.url).href)
+                    NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
+                      variant: 'success'
+                    })
+                  }}
+                />
+              </button>
             )}
             <Input
               labelProps={{
@@ -307,7 +302,7 @@ export default function AddEditLocationModal(props: {
 
         <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
           <Button
-            variant="outline"
+            variant="tertiary"
             data-testid="publish-panel-cancel-button"
             onClick={() => PopoverState.hidePopupover()}
           >
@@ -318,24 +313,20 @@ export default function AddEditLocationModal(props: {
               <Button
                 className="bg-[#162546]"
                 data-testid="publish-panel-unpublish-button"
-                endIcon={unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 disabled={isLoading}
                 onClick={unPublishLocation}
               >
                 {t('editor:toolbar.publishLocation.unpublish')}
+                {unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               </Button>
             )}
-            <Button
-              data-testid="publish-panel-publish-or-update-button"
-              endIcon={publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
-              disabled={isLoading}
-              onClick={handlePublish}
-            >
+            <Button data-testid="publish-panel-publish-or-update-button" disabled={isLoading} onClick={handlePublish}>
               {location?.id
                 ? t('common:components.update')
                 : sceneModified
                 ? t('editor:toolbar.publishLocation.saveAndPublish')
                 : t('editor:toolbar.publishLocation.title')}
+              {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
             </Button>
           </div>
         </div>

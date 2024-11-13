@@ -36,21 +36,21 @@ const sizes = {
 const variants = {
   primary: 'bg-[#375DAF] hover:bg-[#214AA6] focus:bg-[#375DAF] disabled:bg-[#5F7DBF] disabled:text-[#AFBEDF]',
   secondary: 'bg-[#162546] hover:bg-[#213869] focus:bg-[#213869] disabled:bg-[#375DAF] disabled:text-white',
-  tertiary: 'border border-[#162546]  disabled:text-white',
-  green: 'bg-[#0D9467] hover:bg-[#10B981] focus:bg-[#10B981] disabled:bg-[#0A6F4D]  disabled:text-white',
-  red: 'bg-[#F43F5E] hover:bg-[#FB7185] focus:bg-[#F43F5E] disabled:bg-[#C3324B]  disabled:text-white'
+  tertiary: 'border border-[#162546] disabled:text-white',
+  green: 'bg-[#0D9467] hover:bg-[#10B981] focus:bg-[#10B981] disabled:bg-[#0A6F4D] disabled:text-white',
+  red: 'bg-[#F43F5E] hover:bg-[#FB7185] focus:bg-[#F43F5E] disabled:bg-[#C3324B] disabled:text-white'
 } as const
 
-export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode
   size?: keyof typeof sizes
   variant?: keyof typeof variants
   fullWidth?: boolean
-  className?: string
+  iconOnly?: boolean
 }
 
 const Button = (
-  { children, size = 'l', fullWidth, variant = 'primary', ...props }: ButtonProps,
+  { children, size = 'l', fullWidth, variant = 'primary', className, iconOnly, ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLButtonElement>
 ) => {
   return (
@@ -65,7 +65,8 @@ const Button = (
         fullWidth ? 'w-full' : 'w-fit',
         'min-w-[66px]',
         'disabled:cursor-not-allowed',
-        variants[variant]
+        variants[variant],
+        className
       )}
       {...props}
     >

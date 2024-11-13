@@ -28,9 +28,9 @@ import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
+import { Button } from '@ir-engine/ui'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { serverColumns, ServerRowType } from '../../common/constants/server'
 import DataTable from '../../common/Table'
@@ -98,7 +98,7 @@ export default function ServerTable({
       action: (
         <div className="flex items-center gap-5">
           <Button
-            size="small"
+            size="sm"
             variant="primary"
             onClick={() => {
               PopoverState.showPopupover(
@@ -109,8 +109,7 @@ export default function ServerTable({
             {t('admin:components.server.viewLogs')}
           </Button>
           <Button
-            rounded="full"
-            variant="outline"
+            variant="tertiary"
             className="h-8 w-8"
             onClick={() => {
               PopoverState.showPopupover(
@@ -122,6 +121,7 @@ export default function ServerTable({
                 />
               )
             }}
+            iconOnly
           >
             <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>
