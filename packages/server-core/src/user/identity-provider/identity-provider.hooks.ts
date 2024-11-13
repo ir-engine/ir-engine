@@ -39,7 +39,8 @@ import {
   IdentityProviderType
 } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
-import { checkScope } from '@ir-engine/common/src/utils/checkScope'
+import { checkScope as checkScopeHook } from '@ir-engine/common/src/utils/checkScope'
+import checkScope from '../../hooks/check-scope'
 
 import { Paginated } from '@feathersjs/feathers'
 import {
@@ -180,7 +181,7 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
 }
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
-  const isAdmin = context.existingUser && (await checkScope(context.existingUser, 'admin', 'admin'))
+  const isAdmin = context.existingUser && (await checkScopeHook(context.existingUser, 'admin', 'admin'))
   if (
     !isAdmin &&
     context.params!.provider &&
@@ -238,7 +239,7 @@ async function addScopes(context: HookContext<IdentityProviderService>) {
 }
 
 const addDevProjectPermissions = async (context: HookContext<IdentityProviderService>) => {
-  if (!isDev || !(await checkScope(context.existingUser, 'admin', 'admin'))) return
+  if (!isDev || !(await checkScopeHook(context.existingUser, 'admin', 'admin'))) return
 
   const user = context.existingUser as UserType
 
@@ -294,7 +295,14 @@ export default {
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
     find: [
-      iff(isProvider('external'), iffElse(isAction('admin') || isSearchQuery, [], setLoggedinUserInQuery('userId'))),
+      iff(
+        isProvider('external'),
+        iffElse(
+          (ctx: HookContext) => (isAction('admin')(ctx) && checkScope('admin', 'admin')(ctx)) || isSearchQuery(ctx),
+          [],
+          [setLoggedinUserInQuery('userId')]
+        )
+      ),
       discardQuery('action')
     ],
     get: [iff(isProvider('external'), checkIdentityProvider)],
