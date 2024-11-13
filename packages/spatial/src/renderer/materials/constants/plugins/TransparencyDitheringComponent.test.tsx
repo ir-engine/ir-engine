@@ -38,7 +38,7 @@ import {
 import assert from 'assert'
 import { Material, Uniform } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertArrayEqual } from '../../../../physics/components/RigidBodyComponent.test'
+import { assertArrayEqual } from '../../../../../tests/util/mathAssertions'
 import { MaterialStateComponent } from '../../MaterialComponent'
 import {
   TransparencyDitheringPluginComponent,

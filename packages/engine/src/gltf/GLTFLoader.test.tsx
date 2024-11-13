@@ -314,6 +314,7 @@ describe('GLTF Loader', () => {
     setComponent(entity, GLTFComponent, { src: morph_gltf })
 
     const { rerender, unmount } = render(<></>)
+    await act(() => rerender(<></>))
     applyIncomingActions()
     await act(() => rerender(<></>))
 
