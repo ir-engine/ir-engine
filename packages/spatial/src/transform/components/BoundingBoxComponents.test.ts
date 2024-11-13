@@ -40,7 +40,7 @@ import { ReactorRoot, getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Box3, BoxGeometry, Mesh, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertVec } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
@@ -74,8 +74,8 @@ const BoundingBoxComponentDefaults: BoundingBoxComponentData = {
 }
 
 function assertBoundingBoxComponentEq(A: BoundingBoxComponentData, B: BoundingBoxComponentData): void {
-  assertVecApproxEq(A.box.max, B.box.max, 3)
-  assertVecApproxEq(A.box.min, B.box.min, 3)
+  assertVec.approxEq(A.box.max, B.box.max, 3)
+  assertVec.approxEq(A.box.min, B.box.min, 3)
   assert.equal(A.helper, B.helper)
 }
 
@@ -383,8 +383,8 @@ describe('expandBoxByObject', () => {
     // Run and Check the result
     BoundingBoxComponentFunctions.expandBoxByObject(mesh, box)
     const after = getComponent(testEntity, BoundingBoxComponent).box.clone()
-    assertVecApproxEq(before.min, after.min, 3)
-    assertVecApproxEq(before.max, after.max, 3)
+    assertVec.approxEq(before.min, after.min, 3)
+    assertVec.approxEq(before.max, after.max, 3)
   })
 
   it('should call `@param box`.union() to compute the result of combining itself with `@param`.object.geometry.boundingBox', () => {
@@ -399,7 +399,7 @@ describe('expandBoxByObject', () => {
     // Run and Check the result
     BoundingBoxComponentFunctions.expandBoxByObject(mesh, box)
     const after = mesh.geometry.boundingBox!
-    assertVecAnyApproxNotEq(before.min, after.min, 3)
-    assertVecAnyApproxNotEq(before.max, after.max, 3)
+    assertVec.anyApproxNotEq(before.min, after.min, 3)
+    assertVec.anyApproxNotEq(before.max, after.max, 3)
   })
 }) //:: expandBoxByObject

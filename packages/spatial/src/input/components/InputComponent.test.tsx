@@ -297,10 +297,10 @@ describe('InputComponent', () => {
         parentEntity,
         parentEntity
       ]
-      assertArrayHasDuplicates(DummyList)
+      assertArray.hasDuplicates(DummyList)
       getMutableComponent(parentEntity, InputSinkComponent).inputEntities.set(DummyList)
       const result = InputComponent.getInputEntities(testEntity)
-      assertArrayHasNoDuplicates(result)
+      assertArray.hasNoDuplicates(result)
       assert.ok(
         !result.includes(testEntity),
         'the result should not contain the given entity if it does not have an InputComponent'

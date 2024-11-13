@@ -24,9 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { render } from '@testing-library/react'
-import assert from 'assert'
 import React, { useEffect } from 'react'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { EntityUUID, hasComponents, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -43,7 +42,7 @@ import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs/src/Ent
 import { NameComponent } from '../../common/NameComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
-import { assertArrayEqual } from '../../../tests/util/mathAssertions'
+import { assertArray } from '../../../tests/util/assert'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
@@ -100,7 +99,7 @@ const EntityTreeComponentDefaults: EntityTreeComponentData = {
 function assertEntityTreeComponentEq(A: EntityTreeComponentData, B: EntityTreeComponentData): void {
   assert.equal(A.parentEntity, B.parentEntity)
   assert.equal(A.childIndex, B.childIndex)
-  assertArrayEqual(A.children, B.children)
+  assertArray.eq(A.children, B.children)
 }
 
 describe('EntityTreeComponent', () => {
@@ -1494,9 +1493,7 @@ describe('useAncestorWithComponents', () => {
     // Define the Reactor that will run the tested hook
     const Reactor = () => {
       const entity = useAncestorWithComponents(rootEntity, [component, component2])
-      console.log('render', entity)
       useEffect(() => {
-        console.log('effect', entity)
         result = entity
       }, [entity])
       return null
@@ -1525,7 +1522,7 @@ describe('useAncestorWithComponents', () => {
     assertEntityHierarchy('Case1: result', result)
     assert.equal(parent_1, result, `Case1: Did not return the correct entity. result = ${result}`)
     // Case1: Terminate
-    destroyEntityTree(parent_1)
+    removeEntityNodeRecursively(parent_1)
     R1.unmount()
 
     /**
@@ -1556,7 +1553,7 @@ describe('useAncestorWithComponents', () => {
     assertEntityHierarchy('Case2: result', result)
     assert.equal(parent_2, result, `Case2: Did not return the correct entity. result = ${result}`)
     // Case2: Terminate
-    destroyEntityTree(rootEntity)
+    removeEntityNodeRecursively(rootEntity)
     R2.unmount()
 
     /**
@@ -1584,7 +1581,7 @@ describe('useAncestorWithComponents', () => {
       `Case3: Returned a valid entity, but should return UndefinedEntity. result = ${result}`
     )
     // Case3: Terminate
-    destroyEntityTree(rootEntity)
+    removeEntityNodeRecursively(rootEntity)
     R3.unmount()
 
     /**
@@ -1610,7 +1607,7 @@ describe('useAncestorWithComponents', () => {
     assert.equal(parent_1, result, `Case4: Did not return the correct entity. result = ${result}`)
     assert.notEqual(parent_2, result, `Case4: Did not return the correct entity. result = ${result}`)
     // Case4: Terminate
-    destroyEntityTree(rootEntity)
+    removeEntityNodeRecursively(rootEntity)
     R4.unmount()
 
     /**
@@ -1644,7 +1641,7 @@ describe('useAncestorWithComponents', () => {
     assertEntityHierarchy('Case5: result', result)
     assert.equal(parent_1, result, `Case5: Did not return the correct entity. result = ${result}`)
     // Case1: Terminate
-    destroyEntityTree(parent_1)
+    removeEntityNodeRecursively(parent_1)
     R5.unmount()
   })
 
@@ -1684,7 +1681,7 @@ describe('useAncestorWithComponents', () => {
     assert.equal(child_1, result, `Case2: Did not return the correct entity. result = ${result}`)
     R2.unmount()
 
-    destroyEntityTree(rootEntity)
+    removeEntityNodeRecursively(rootEntity)
   })
 
   // test for includeSelf = false
@@ -1705,10 +1702,7 @@ describe('useAncestorWithComponents', () => {
 
     const Reactor = () => {
       const entity = useAncestorWithComponents(child_2, [NameComponent], true, false)
-      console.log('render', entity)
-      useEffect(() => {
-        console.log('effect', entity)
-      }, [entity])
+      useEffect(() => {}, [entity])
       result = entity
       return null
     }
@@ -2083,7 +2077,7 @@ describe('getNestedChildren', () => {
     assert.equal(Expected.includes(parentEntity), false)
     // Run and Check the result
     const result = getNestedChildren(parentEntity, predicate)
-    assertArrayEqual(result, Expected)
+    assertArray.eq(result, Expected)
   })
 
   it('should return all children of an entity when `@param pred` never returns false for any entity', () => {
@@ -2105,7 +2099,7 @@ describe('getNestedChildren', () => {
     }
     // Run and Check the result
     const result = getNestedChildren(parentEntity, predicate)
-    assertArrayEqual(result, Expected)
+    assertArray.eq(result, Expected)
   })
 }) //:: getNestedChildren
 
@@ -2123,6 +2117,7 @@ describe('iterateEntityNode', () => {
     parentEntity = createEntity()
     setComponent(parentEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(parentEntity, UUIDComponent, 'root' as EntityUUID)
+    setComponent(parentEntity, NameComponent, 'parentEntity-' + parentEntity)
   })
 
   afterEach(() => {
@@ -2187,11 +2182,11 @@ describe('iterateEntityNode', () => {
       return getComponent(entity, NameComponent)
     }
     const result = iterateEntityNode(parentEntity, callback)
-    assertArrayEqual(result, Expected)
+    assertArray.eq(result, Expected)
   })
 
   it('should not process an entity when `@param pred` is specified and returns false for that entity', () => {
-    const Expected: string[] = []
+    const Expected: string[] = [getComponent(parentEntity, NameComponent)]
     function getName(entity: Entity): string {
       return 'entity-' + entity
     }
@@ -2214,7 +2209,7 @@ describe('iterateEntityNode', () => {
     for (const entity of entities) assert.equal(hasComponents(entity, [NameComponent, EntityTreeComponent]), true)
     // Run and Check the result
     const result = iterateEntityNode(parentEntity, callback, predicate)
-    assertArrayEqual(result, Expected)
+    assertArray.eq(result, Expected)
   })
 
   it('should not process the children of an entity when `@param pred` is specified, it returns false for that entity and snubChildren is true', () => {
@@ -2246,7 +2241,7 @@ describe('iterateEntityNode', () => {
     assert.equal(Expected.includes(getComponent(parentEntity, NameComponent)), false)
     // Run and Check the result
     const result = iterateEntityNode(parentEntity, callback, predicate, snubChildren)
-    assertArrayEqual(result, Expected)
+    assertArray.eq(result, Expected)
   })
 
   it('should stop traversing as soon as `@param pred` returns true for the first time when `@param breakOnFind` is set to true', () => {
@@ -2279,6 +2274,6 @@ describe('iterateEntityNode', () => {
     assert.equal(Expected.includes(getComponent(parentEntity, NameComponent)), true)
     // Run and Check the result
     const result = iterateEntityNode(parentEntity, callback, predicate, snubChildren, breakOnFind)
-    assertArrayEqual(result, Expected)
+    assertArray.eq(result, Expected)
   })
 }) //:: iterateEntityNode

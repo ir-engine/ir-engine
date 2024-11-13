@@ -199,7 +199,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       execute.transformDirtyUpdateSystem()
       execute.physicsPreTransformSystem()
       result.physicsPreTransformSystem = getPositionFromMatrix(testEntity)
-      assertVecApproxEq(result.physicsPreTransformSystem, Expected.after.physicsPreTransformSystem, 3, 0.01)
+      assertVec.approxEq(result.physicsPreTransformSystem, Expected.after.physicsPreTransformSystem, 3, 0.01)
       // .. Phase 3
       execute.transformSystem()
       result.transformSystem = getPositionFromMatrix(testEntity)
