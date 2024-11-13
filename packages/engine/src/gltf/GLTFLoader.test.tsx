@@ -29,6 +29,7 @@ import {
   createEntity,
   generateEntityUUID,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   setComponent
 } from '@ir-engine/ecs'
@@ -51,7 +52,7 @@ import assert from 'assert'
 import React from 'react'
 import Sinon from 'sinon'
 import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent.ts'
@@ -348,25 +349,33 @@ describe('GLTF Loader', () => {
 
     const animationComponent = getComponent(entity, AnimationComponent)
     assert(animationComponent.animations.length === gltf.animations!.length)
+
+    unmount()
   })
 
   it('can load a skeleton with many animation clips', async () => {
     const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
-    setComponent(entity, AnimationComponent, { animations: [] })
     setComponent(entity, GLTFComponent, { src: animation_pack })
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
     await act(() => rerender(<></>))
-
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 100000 }
+    )
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
     const gltf = gltfDocumentState[instanceID]
 
     const animationComponent = getComponent(entity, AnimationComponent)
     assert(animationComponent?.animations.length === gltf.animations!.length)
+
+    unmount()
   })
 
   it('can load skinned meshes with bones and animations', async () => {
