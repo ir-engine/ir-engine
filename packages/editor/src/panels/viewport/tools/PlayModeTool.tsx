@@ -36,34 +36,38 @@ import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 const PlayModeTool: React.FC = () => {
   const { t } = useTranslation()
 
-  const isEditing = useHookstate(getMutableState(EngineState).isEditing)
+  const engineState = useHookstate(getMutableState(EngineState))
 
   const onTogglePlayMode = () => {
-    getMutableState(EngineState).isEditing.set(!isEditing.value)
+    engineState.isEditing.set(!engineState.isEditing.value)
   }
 
   useEffect(() => {
-    if (isEditing.value) return
+    if (engineState.isEditing.value) return
     getMutableState(LocationState).currentLocation.location.sceneId.set(getState(EditorState).sceneAssetID!)
     return () => {
       getMutableState(LocationState).currentLocation.location.sceneId.set('')
     }
-  }, [isEditing])
+  }, [engineState.isEditing])
 
   return (
     <div id="preview" className="flex items-center">
       <Tooltip
         title={
-          isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
+          engineState.isEditing.value
+            ? t('editor:toolbar.command.lbl-playPreview')
+            : t('editor:toolbar.command.lbl-stopPreview')
         }
         content={
-          isEditing.value ? t('editor:toolbar.command.info-playPreview') : t('editor:toolbar.command.info-stopPreview')
+          engineState.isEditing.value
+            ? t('editor:toolbar.command.info-playPreview')
+            : t('editor:toolbar.command.info-stopPreview')
         }
       >
         <Button
           variant="transparent"
           startIcon={
-            isEditing.value ? (
+            engineState.isEditing.value ? (
               <HiOutlinePlay className="text-theme-input" />
             ) : (
               <HiOutlinePause className="text-theme-input" />
