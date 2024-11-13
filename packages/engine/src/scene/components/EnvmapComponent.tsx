@@ -41,7 +41,7 @@ import {
   Vector3
 } from 'three'
 
-import { EntityUUID, UUIDComponent, useQuery } from '@ir-engine/ecs'
+import { EntityUUID, Not, UUIDComponent, useQuery } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -100,7 +100,12 @@ export const EnvmapComponent = defineComponent({
     const textureSource =
       component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : ''
     const [envMapTexture, error] = useTexture(textureSource, entity)
-    const childrenMesh = useChildrenWithComponents(entity, [MeshComponent, VisibleComponent, SourceComponent])
+    const childrenMesh = useChildrenWithComponents(entity, [
+      MeshComponent,
+      VisibleComponent,
+      SourceComponent,
+      Not(EnvmapComponent)
+    ])
 
     const probeQuery = useQuery([ReflectionProbeComponent])
 
@@ -261,11 +266,13 @@ export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null)
     obj.material.forEach((mat: MeshStandardMaterial) => {
       if (mat instanceof MeshMatcapMaterial) return
       mat.envMap = envmap
+      mat.needsUpdate = true
     })
   } else {
     if (obj.material instanceof MeshMatcapMaterial) return
     const material = obj.material as MeshStandardMaterial
     material.envMap = envmap
+    material.needsUpdate = true
   }
 }
 
@@ -275,9 +282,11 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
   if (Array.isArray(obj.material)) {
     obj.material.forEach((m: MeshStandardMaterial) => {
       m.envMapIntensity = intensity
+      m.needsUpdate = true
     })
   } else {
     ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
+    ;(obj.material as MeshStandardMaterial).needsUpdate = true
   }
 }
 
