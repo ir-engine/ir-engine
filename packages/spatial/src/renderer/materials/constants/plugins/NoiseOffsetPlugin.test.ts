@@ -141,11 +141,11 @@ describe('NoiseOffsetSystem', () => {
   const System = SystemDefinitions.get(NoiseOffsetSystem)!
 
   describe('Fields', () => {
-    it('should initialize the ClientInputSystem.uuid field with the expected value', () => {
+    it('should initialize the *System.uuid field with the expected value', () => {
       assert.equal(System.uuid, 'ee.spatial.material.NoiseOffsetSystem')
     })
 
-    it('should initialize the ClientInputSystem.insert field with the expected value', () => {
+    it('should initialize the *System.insert field with the expected value', () => {
       assert.notEqual(System.insert, undefined)
       assert.notEqual(System.insert!.before, undefined)
       assert.equal(System.insert!.before!, PresentationSystemGroup)

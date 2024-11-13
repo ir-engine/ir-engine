@@ -123,7 +123,7 @@ describe('PhysicsSystem', () => {
     })
 
     function cloneRigidBodyPoseData(entity: Entity) {
-      const body = getComponent(testEntity, RigidBodyComponent)
+      const body = getComponent(entity, RigidBodyComponent)
       return {
         previousPosition: body.previousPosition.clone(),
         previousRotation: body.previousRotation.clone(),
@@ -274,7 +274,6 @@ describe('PhysicsSystem', () => {
 
     describe('PhysicsSceneReactor', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: PhysicsWorld
       let physicsWorldEntity = UndefinedEntity
 
       beforeEach(async () => {
@@ -296,6 +295,7 @@ describe('PhysicsSystem', () => {
 
       const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)?.reactor
 
+      /** @todo Why is the world not recreated as expected ?? */
       it.skip("should create a new physics world whenever the UUIDComponent of a SceneComponent's entityContext changes", () => {
         // Sanity check before running
         assert.equal(hasComponent(physicsWorldEntity, SceneComponent), false)

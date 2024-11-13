@@ -1935,8 +1935,6 @@ describe('Physics : Rapier->ECS API', () => {
 
       it('should set the position relative to the parent entity', () => {
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        console.log(JSON.stringify(result))
-        console.log(JSON.stringify(result.translation))
         assertVec.approxEq(result.translation, Vector3_Zero, 3)
       })
 

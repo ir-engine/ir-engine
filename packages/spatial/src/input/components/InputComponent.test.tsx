@@ -87,19 +87,6 @@ function assertInputComponentEq(A: InputComponentData, B: InputComponentData): v
   assertArray.eq(A.inputSources, B.inputSources)
 }
 
-/** @description Returns whethere or not the given `@param arr` has duplicate values. */
-export function arrayHasDuplicates(arr: any[]): boolean {
-  return new Set(arr).size !== arr.length
-}
-
-export function assertArrayHasDuplicates(arr: any[]) {
-  assert.ok(arrayHasDuplicates(arr))
-}
-
-export function assertArrayHasNoDuplicates(arr: any[]) {
-  assert.ok(!arrayHasDuplicates(arr))
-}
-
 /** @description Alias to create a dummy entity with an InputComponent. Used for syntax ergonomics. */
 function createDummyEntity(): Entity {
   const result = createEntity()

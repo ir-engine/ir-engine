@@ -427,4 +427,4 @@ describe('PointLightComponent', () => {
       assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
     })
   }) //:: reactor
-})
+}) //:: PointLightComponent

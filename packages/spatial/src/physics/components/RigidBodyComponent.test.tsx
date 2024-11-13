@@ -395,7 +395,7 @@ describe('RigidBodyComponent', () => {
 
       // Locked
       const AllLocked = [false, false, false] as [boolean, boolean, boolean]
-      assertArray.anyNotEq(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked) // Should still be the default
+      assertArray.allNotEq(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked) // Should still be the default
       setComponent(testEntity, RigidBodyComponent, { enabledRotations: AllLocked })
       assertArray.eq(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked)
       reactor.run()

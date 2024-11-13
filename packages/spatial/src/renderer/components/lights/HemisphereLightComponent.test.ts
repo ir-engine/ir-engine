@@ -265,4 +265,4 @@ describe('HemisphereLightComponent', () => {
       assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
     })
   }) //:: reactor
-})
+}) //:: HemisphereLightComponent
