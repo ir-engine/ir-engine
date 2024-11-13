@@ -91,10 +91,11 @@ export class CustomOAuthStrategy extends OAuthStrategy {
     type: IdentityProviderType['type']
   ) {
     const isSignIn = originalParams.query?.action === 'signin'
-    if (isSignIn && authentication?.profile?.email) {
+    if (isSignIn && authentication?.profile) {
+      const token = (await this.getEntityQuery(authentication?.profile, {})).token
       const identityProviders = await this.app.service(identityProviderPath).find({
         query: {
-          email: authentication.profile.email,
+          token,
           type: type
         }
       })

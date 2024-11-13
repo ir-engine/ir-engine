@@ -136,7 +136,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
     }
 
     const loginType = params.query?.userId ? 'connection' : 'login'
-    let redirectUrl = `${redirectDomain}?token=${data as AuthenticationResult}&type=${loginType}`
+    let redirectUrl = `${redirectDomain}?token=${(data as AuthenticationResult).accessToken}&type=${loginType}`
     if (redirectPath) {
       redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
     }
