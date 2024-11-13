@@ -23,21 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-import Text from '../../../primitives/tailwind/Text'
+import assert from 'assert'
+import { describe, it } from 'vitest'
+import { LookAtComponent } from './LookAtComponent'
 
-export const PanelTitle = ({ children }: { children: ReactNode }) => {
-  return (
-    <Text fontSize="sm" className="leading-none">
-      {children}
-    </Text>
-  )
-}
+describe('LookAtComponent', () => {
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(LookAtComponent.name, 'LookAtComponent')
+    })
 
-export const PanelDragContainer = ({ children, dataTestId }: { children: ReactNode; dataTestId?: string }) => {
-  return (
-    <div className="flex cursor-pointer rounded-t-md px-4 py-2" data-testid={dataTestId || ''}>
-      {children}
-    </div>
-  )
-}
+    it('should initialize the *Component.jsonID field with the expected value', () => {
+      assert.equal(LookAtComponent.jsonID, 'IR_lookAt')
+    })
+  }) //:: Fields
+}) //:: LookAtComponent

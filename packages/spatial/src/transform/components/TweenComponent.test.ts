@@ -23,21 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-import Text from '../../../primitives/tailwind/Text'
+import assert from 'assert'
+import { describe, it } from 'vitest'
+import { TweenComponent } from './TweenComponent'
 
-export const PanelTitle = ({ children }: { children: ReactNode }) => {
-  return (
-    <Text fontSize="sm" className="leading-none">
-      {children}
-    </Text>
-  )
-}
-
-export const PanelDragContainer = ({ children, dataTestId }: { children: ReactNode; dataTestId?: string }) => {
-  return (
-    <div className="flex cursor-pointer rounded-t-md px-4 py-2" data-testid={dataTestId || ''}>
-      {children}
-    </div>
-  )
-}
+describe('TweenComponent', () => {
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(TweenComponent.name, 'TweenComponent')
+    })
+  }) //:: Fields
+}) //:: TweenComponent
