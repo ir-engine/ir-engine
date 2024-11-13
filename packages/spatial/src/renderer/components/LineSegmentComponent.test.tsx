@@ -56,6 +56,7 @@ import { getState } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
+import { assertColorEqual } from '../../../tests/util/mathAssertions'
 import { NameComponent } from '../../common/NameComponent'
 import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
@@ -63,14 +64,6 @@ import { LineSegmentComponent } from './LineSegmentComponent'
 import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
-
-function getColorHex(c: ColorRepresentation) {
-  return new Color(c).getHex()
-}
-
-function assertColorEqual(l: ColorRepresentation, r: ColorRepresentation) {
-  assert.equal(getColorHex(l), getColorHex(r))
-}
 
 type LineSegmentComponentData = {
   name: string
