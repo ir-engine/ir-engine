@@ -41,7 +41,9 @@ export const FeatureFlags = {
     },
     Components: {
       LegacyVolumetric: 'ir.studio.components.legacyVolumetric',
-      Volumetric: 'ir.studio.components.volumetric'
+      Volumetric: 'ir.studio.components.volumetric',
+      AudioAnalysis: 'ir.studio.components.audioAnalysis',
+      ScreenshareTarget: 'ir.studio.components.screenshareTarget'
     },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript',

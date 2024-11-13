@@ -24,6 +24,7 @@
   "main": "src/index.ts",
   "scripts": {
     "check-errors": "tsc --noemit",
+    "test": "exit 0",
     "test:generate-output": "jest --json --outputFile=./tests/jest-test-results.json || true",
     "test:watch": "jest -u --json --watchAll --outputFile=./tests/jest-test-results.json || true",
     "prebuild:storybook": "npm run test:generate-output",
