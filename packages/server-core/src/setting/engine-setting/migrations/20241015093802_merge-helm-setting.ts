@@ -56,7 +56,7 @@ export async function up(knex: Knex): Promise<void> {
           ...item,
           id: uuidv4(),
           type: 'private' as EngineSettingType['type'],
-          category: 'helm' as EngineSettingType['category'],
+          category: 'helm',
           createdAt: await getDateTimeSql(),
           updatedAt: await getDateTimeSql()
         }))
