@@ -35,7 +35,6 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
@@ -66,10 +65,10 @@ export const ScenePreviewCameraComponent = defineComponent({
     useLayoutEffect(() => {
       if (!engineCameraTransform || isEditing) return
 
-      const transform = getComponent(entity, TransformComponent)
-      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-      cameraTransform.position.copy(transform.position)
-      cameraTransform.rotation.copy(transform.rotation)
+      //const transform = getComponent(entity, TransformComponent)
+      //const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      //cameraTransform.position.copy(transform.position)
+      //cameraTransform.rotation.copy(transform.rotation)
       const camera = previewCamera.camera.value as PerspectiveCamera
       addObjectToGroup(entity, camera)
       return () => {
