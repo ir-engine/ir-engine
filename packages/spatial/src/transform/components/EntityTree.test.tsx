@@ -87,7 +87,7 @@ function assertEntityHierarchy(name: string, entity: Entity, parent: Entity = Un
 
 type EntityTreeComponentData = {
   parentEntity: Entity
-  childIndex: number | undefined
+  childIndex?: number
   children: Entity[]
 }
 
