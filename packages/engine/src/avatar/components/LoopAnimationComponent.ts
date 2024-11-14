@@ -90,24 +90,19 @@ export const LoopAnimationComponent = defineComponent({
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
     const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
-
     const lastAnimationPack = useHookstate('')
     useEffect(() => {
-      if (!animComponent?.animations?.value || !rigComponent?.vrm) return
+      if (!animComponent?.animations?.value || (loopAnimationComponent.useVRM.value && !rigComponent?.vrm.value)) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
       if (!clip) {
         loopAnimationComponent._action.set(null)
         return
       }
       animComponent.mixer.time.set(0)
-      try {
-        const action = animComponent.mixer.value.clipAction(clip)
-        loopAnimationComponent._action.set(action)
-        return () => {
-          action.stop()
-        }
-      } catch (e) {
-        console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
+      const action = animComponent.mixer.value.clipAction(clip)
+      loopAnimationComponent._action.set(action)
+      return () => {
+        action.stop()
       }
     }, [loopAnimationComponent.activeClipIndex, rigComponent?.vrm, animComponent?.animations])
 
@@ -126,6 +121,7 @@ export const LoopAnimationComponent = defineComponent({
       if (animationAction.isRunning()) {
         animationAction.paused = loopAnimationComponent.paused.value
       } else if (!animationAction.isRunning() && !loopAnimationComponent.paused.value) {
+        if (animComponent) animComponent.mixer.value.stopAllAction()
         animationAction.paused = false
         animationAction.play()
       }
@@ -200,8 +196,9 @@ export const LoopAnimationComponent = defineComponent({
         (!animationPackGLTF[0].value && loopAnimationComponent.animationPack.value !== '') ||
         !animComponent?.animations.value ||
         // gltfComponent?.progress.value !== 100 ||
-        (loopAnimationComponent.animationPack.value != '' &&
-          lastAnimationPack.value === loopAnimationComponent.animationPack.value)
+        (loopAnimationComponent.animationPack.value !== '' &&
+          lastAnimationPack.value === loopAnimationComponent.animationPack.value) ||
+        loopAnimationComponent.animationPack.value === ''
       )
         return
 
