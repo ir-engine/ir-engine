@@ -480,7 +480,7 @@ const useGLTFDocument = (entity: Entity) => {
     return () => {
       dispatchAction(GLTFSnapshotAction.unload({ source }))
     }
-  }, [])
+  }, [source])
 
   useEffect(() => {
     if (!url) {
