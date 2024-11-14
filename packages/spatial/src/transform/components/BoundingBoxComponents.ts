@@ -43,7 +43,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { addObjectToGroup, ObjectComponent } from '../../renderer/components/ObjectComponent'
-import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent, setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { RendererState } from '../../renderer/RendererState'
@@ -82,8 +82,8 @@ export const BoundingBoxComponent = defineComponent({
 
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
 
-      addObjectToGroup(helperEntity, helper)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      setComponent(helperEntity, ObjectComponent, helper)
+      ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
       boundingBox.helper.set(helperEntity)
 
       return () => {
