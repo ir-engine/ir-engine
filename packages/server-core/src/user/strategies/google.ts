@@ -72,22 +72,25 @@ export class Googlestrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
-    if (!entity.userId) {
-      const code = (await getFreeInviteCode(this.app)) as InviteCode
-      const newUser = await this.app.service(userPath).create({
-        name: '' as UserName,
-        isGuest: false,
-        inviteCode: code
-      })
-      entity.userId = newUser.id
-      await this.app.service(identityProviderPath).patch(entity.id, {
-        userId: newUser.id,
-        email: entity.email
-      })
-    } else
-      await this.app.service(identityProviderPath)._patch(entity.id, {
-        email: entity.email
-      })
+
+    if (entity.type === 'google') {
+      if (!entity.userId) {
+        const code = (await getFreeInviteCode(this.app)) as InviteCode
+        const newUser = await this.app.service(userPath).create({
+          name: '' as UserName,
+          isGuest: false,
+          inviteCode: code
+        })
+        entity.userId = newUser.id
+        await this.app.service(identityProviderPath).patch(entity.id, {
+          userId: newUser.id,
+          email: entity.email
+        })
+      } else
+        await this.app.service(identityProviderPath)._patch(entity.id, {
+          email: entity.email
+        })
+    }
     const identityProvider = authResult[identityProviderPath]
     const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
@@ -141,6 +144,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
             return {
               ...entity,
               associateEmail: profileEmail,
+              loginId: loginToken.id,
               loginToken: loginToken.token,
               promptForConnection: true
             }
@@ -173,7 +177,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
     }
 
     if (data[identityProviderPath]?.promptForConnection) {
-      let redirectUrl = `${redirectDomain}?promptForConnection=true&associateEmail=${data[identityProviderPath].associateEmail}&loginToken=${data[identityProviderPath].loginToken}`
+      let redirectUrl = `${redirectDomain}?promptForConnection=true&associateEmail=${data[identityProviderPath].associateEmail}&loginToken=${data[identityProviderPath].loginToken}&loginId=${data[identityProviderPath].loginId}`
       if (redirectPath) {
         redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
       }
@@ -216,6 +220,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
     if (authEntity.promptForConnection) {
       fetchedEntity.promptForConnection = authEntity.promptForConnection
       fetchedEntity.associateEmail = authEntity.associateEmail
+      fetchedEntity.loginId = authEntity.loginId
       fetchedEntity.loginToken = authEntity.loginToken
     }
 

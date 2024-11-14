@@ -108,29 +108,29 @@ export class GithubStrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
-    console.log('updating github entity', entity)
-    if (!entity.userId) {
-      const code = (await getFreeInviteCode(this.app)) as InviteCode
-      const newUser = await this.app.service(userPath).create({
-        name: '' as UserName,
-        isGuest: false,
-        inviteCode: code
-      })
-      entity.userId = newUser.id
-      await this.app.service(identityProviderPath)._patch(entity.id, {
-        userId: newUser.id,
-        oauthToken: params.access_token,
-        oauthRefreshToken: params.refresh_token,
-        email: entity.email
-      })
-    } else
-      await this.app.service(identityProviderPath)._patch(entity.id, {
-        oauthToken: params.access_token,
-        oauthRefreshToken: params.refresh_token,
-        email: entity.email
-      })
+    if (entity.type === 'github') {
+      if (!entity.userId) {
+        const code = (await getFreeInviteCode(this.app)) as InviteCode
+        const newUser = await this.app.service(userPath).create({
+          name: '' as UserName,
+          isGuest: false,
+          inviteCode: code
+        })
+        entity.userId = newUser.id
+        await this.app.service(identityProviderPath)._patch(entity.id, {
+          userId: newUser.id,
+          oauthToken: params.access_token,
+          oauthRefreshToken: params.refresh_token,
+          email: entity.email
+        })
+      } else
+        await this.app.service(identityProviderPath)._patch(entity.id, {
+          oauthToken: params.access_token,
+          oauthRefreshToken: params.refresh_token,
+          email: entity.email
+        })
+    }
     const identityProvider = authResult[identityProviderPath]
-    console.log('identityProvider to potentially remove', identityProvider)
     const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
@@ -147,7 +147,6 @@ export class GithubStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      console.log('removing guest identity-provider', identityProvider)
       await this.app.service(identityProviderPath)._remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
       if (!config.kubernetes.enabled)
@@ -189,11 +188,11 @@ export class GithubStrategy extends CustomOAuthStrategy {
           return {
             ...entity,
             associateEmail: profileEmail,
+            loginId: loginToken.id,
             loginToken: loginToken.token,
             promptForConnection: true
           }
         }
-        console.log('removing entity', entity)
         await this.app.service(identityProviderPath).remove(entity.id)
       }
       if (!config.kubernetes.enabled)
@@ -227,7 +226,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     }
 
     if (data[identityProviderPath]?.promptForConnection) {
-      let redirectUrl = `${redirectDomain}?promptForConnection=true&associateEmail=${data[identityProviderPath].associateEmail}&loginToken=${data[identityProviderPath].loginToken}`
+      let redirectUrl = `${redirectDomain}?promptForConnection=true&associateEmail=${data[identityProviderPath].associateEmail}&loginToken=${data[identityProviderPath].loginToken}&loginId=${data[identityProviderPath].loginId}`
       if (redirectPath) {
         redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
       }
@@ -272,6 +271,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     if (authEntity.promptForConnection) {
       fetchedEntity.promptForConnection = authEntity.promptForConnection
       fetchedEntity.associateEmail = authEntity.associateEmail
+      fetchedEntity.loginId = authEntity.loginId
       fetchedEntity.loginToken = authEntity.loginToken
     }
 

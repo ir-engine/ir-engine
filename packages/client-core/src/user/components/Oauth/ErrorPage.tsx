@@ -43,7 +43,7 @@ interface ErrorPageProps {
 
 export default function ErrorPage({ name }: ErrorPageProps) {
   const { t } = useTranslation()
-  const initialState = { error: '', token: '', email: '', promptForConnection: 'false', loginToken: '' }
+  const initialState = { error: '', token: '', email: '', promptForConnection: 'false', loginToken: '', loginId: '' }
   const [state, setState] = useState(initialState)
   const search = new URLSearchParams(useLocation().search)
   const showError = useHookstate(false)
@@ -54,6 +54,7 @@ export default function ErrorPage({ name }: ErrorPageProps) {
     const type = search.get('type') as string
     const path = search.get('path') as string
     const promptForConnection = search.get('promptForConnection') as string
+    const loginId = search.get('loginId') as string
     const loginToken = search.get('loginToken') as string
     const email = search.get('associateEmail') as string
     const instanceId = search.get('instanceId') as InstanceID
@@ -69,7 +70,7 @@ export default function ErrorPage({ name }: ErrorPageProps) {
       }
     }
 
-    setState({ ...state, error, token, promptForConnection, email, loginToken })
+    setState({ ...state, error, token, promptForConnection, email, loginToken, loginId })
   }, [])
 
   function redirectToRoot() {
@@ -78,6 +79,7 @@ export default function ErrorPage({ name }: ErrorPageProps) {
 
   function doRedirect(connect = false) {
     const path = search.get('path') as string
+    const loginId = search.get('loginId') as string
     const loginToken = search.get('loginToken') as string
     const instanceId = search.get('instanceId') as InstanceID
     let redirect = config.client.clientUrl
@@ -85,7 +87,7 @@ export default function ErrorPage({ name }: ErrorPageProps) {
     if (instanceId != null) redirect += `?instanceId=${instanceId}`
     window.location.href = `${
       config.client.serverUrl
-    }/login/${loginToken}?redirectUrl=${redirect}&associate=${connect.toString()}`
+    }/login/${loginId}?token=${loginToken}&redirectUrl=${redirect}&associate=${connect.toString()}`
   }
 
   return (
