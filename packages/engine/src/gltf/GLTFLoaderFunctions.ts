@@ -584,7 +584,6 @@ const useLoadMaterial = (
   }, [material, materialDef.alphaMode])
 
   useEffect(() => {
-    console.log({material, alphaMode: materialDef.alphaMode, alphaCutoff: materialDef.alphaCutoff})
     if (materialDef.alphaMode === ALPHA_MODES.MASK) {
       material?.setValues({ alphaTest: typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5 })
     } else {
