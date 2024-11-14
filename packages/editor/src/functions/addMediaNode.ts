@@ -33,7 +33,7 @@ import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { GLTFComponent, loadGltfFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFComponent, loadGLTFFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { gltfReplaceUUIDReferences } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
@@ -155,7 +155,7 @@ export async function addMediaNode(
         }
       )
     } else if (contentType.startsWith('model/prefab')) {
-      loadGltfFile(url, (gltf) => {
+      loadGLTFFile(url, (gltf) => {
         if (gltf.nodes)
           gltf.nodes.forEach((node) => {
             if (node.extensions && node.extensions[UUIDComponent.jsonID]) {

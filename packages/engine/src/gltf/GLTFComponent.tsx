@@ -61,6 +61,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
@@ -90,15 +91,6 @@ type DependencyEval = {
   eval: (val: unknown) => boolean
 }
 
-const loadDependencies = {
-  ['EE_model']: [
-    {
-      key: 'progress',
-      eval: (progress) => progress === 100
-    }
-  ]
-} as Record<string, DependencyEval[]>
-
 type ComponentDependencies = {
   componentDependencies: Record<EntityUUID, Component[]>
   childrenDependencies: Map<Component, number>
@@ -111,6 +103,15 @@ const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
     dependencies.childrenDependencies.size === 0
   )
 }
+
+const loadDependencies = {
+  ['EE_model']: [
+    {
+      key: 'dependencies',
+      eval: (dependencies) => componentDependenciesLoaded(dependencies as ComponentDependencies | undefined)
+    }
+  ]
+} as Record<string, DependencyEval[]>
 
 const buildComponentDependencies = (json: GLTF.IGLTF) => {
   const dependencies = {
@@ -199,6 +200,11 @@ export const GLTFComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const gltfComponent = useComponent(entity, GLTFComponent)
+    const loaded = GLTFComponent.useSceneLoaded(entity)
+
+    useEffect(() => {
+      setVisibleComponent(entity, loaded)
+    }, [loaded])
 
     useEffect(() => {
       const occlusion = gltfComponent.cameraOcclusion.value
@@ -206,7 +212,7 @@ export const GLTFComponent = defineComponent({
       else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
     }, [gltfComponent.cameraOcclusion])
 
-    useGLTFDocument(gltfComponent.src.value, entity)
+    useGLTFDocument(entity)
 
     const sourceID = GLTFComponent.getInstanceID(entity)
 
@@ -412,7 +418,7 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
   // console.log(event)
 }
 
-export const loadGltfFile = (
+export const loadGLTFFile = (
   url: string,
   onLoad: (gltf: GLTF.IGLTF, body: ArrayBuffer | null) => void,
   onProgress?: (event: ProgressEvent) => void,
@@ -464,9 +470,10 @@ export const loadGltfFile = (
   loader.load(url, onSuccess, onProgress, onError, signal)
 }
 
-const useGLTFDocument = (url: string, entity: Entity) => {
+const useGLTFDocument = (entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
-  const source = GLTFComponent.getInstanceID(entity)
+  const url = state.src.value
+  const source = GLTFComponent.useInstanceID(entity)
   useGLTFResource(url, entity)
 
   useEffect(() => {
@@ -488,7 +495,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
       addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
     }
 
-    loadGltfFile(
+    loadGLTFFile(
       url,
       (gltf, body) => {
         if (body) state.body.set(body)
