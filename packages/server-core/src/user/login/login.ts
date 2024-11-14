@@ -56,9 +56,9 @@ async function redirect(ctx, next) {
     if (data.error) return ctx.redirect(`${redirectPath || originPath}/?error=${data.error as string}`)
     if (data.promptForConnection) {
       return ctx.redirect(
-        `${originPath}/auth/magiclink?loginId=${data.loginId}&loginToken=${data.loginToken as string}&promptForConnection=true&associateEmail=${
-          data.associateEmail
-        }${redirectQuery}`
+        `${originPath}/auth/magiclink?loginId=${data.loginId}&loginToken=${
+          data.loginToken as string
+        }&promptForConnection=true&associateEmail=${data.associateEmail}${redirectQuery}`
       )
     } else return ctx.redirect(`${originPath}/auth/magiclink?type=login&token=${data.token as string}${redirectQuery}`)
   } catch (err) {
