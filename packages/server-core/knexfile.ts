@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import type { Knex } from 'knex'
+import sortBy from 'lodash/sortBy'
 import path from 'path'
 
 import appConfig from '@ir-engine/server-core/src/appconfig'
@@ -66,6 +67,23 @@ if (projectsExists) {
   parseDirectory(projectsDirectory)
 }
 
+function getFile(migrationsInfo) {
+  const absoluteDir = path.resolve(process.cwd(), migrationsInfo.directory)
+  const _path = path.join(absoluteDir, migrationsInfo.file)
+  return import(_path)
+}
+
+function filterMigrations(migrationSource, migrations, loadExtensions) {
+  return migrations.filter((migration) => {
+    const migrationName = migrationSource.getMigrationName(migration)
+    const extension = path.extname(migrationName)
+    return loadExtensions.includes(extension)
+  })
+}
+
+const sortDirsSeparately = false
+const loadExtensions = ['.ts']
+
 const config: Knex.Config = {
   client: 'mysql',
   connection: {
@@ -78,7 +96,52 @@ const config: Knex.Config = {
     multipleStatements: true
   },
   migrations: {
-    directory: migrationsDirectories,
+    migrationSource: {
+      /** taken and modified from default knex importer to work with { "type": "module" } specified in package.json */
+      getMigrations() {
+        // Get a list of files in all specified migration directories
+        const readMigrationsPromises = migrationsDirectories.map((configDir) => {
+          const absoluteDir = path.resolve(process.cwd(), configDir)
+          return fs.promises.readdir(absoluteDir).then((files) => ({
+            files,
+            configDir,
+            absoluteDir
+          }))
+        })
+
+        return Promise.all(readMigrationsPromises).then((allMigrations) => {
+          const migrations = allMigrations.reduce(
+            (acc, migrationDirectory) => {
+              // When true, files inside the folder should be sorted
+              if (sortDirsSeparately) {
+                migrationDirectory.files = migrationDirectory.files.sort()
+              }
+
+              migrationDirectory.files.forEach((file) => acc.push({ file, directory: migrationDirectory.configDir }))
+
+              return acc
+            },
+            [] as { file: string; directory: string }[]
+          )
+
+          // If true we have already sorted the migrations inside the folders
+          // return the migrations fully qualified
+          if (sortDirsSeparately) {
+            return filterMigrations(this, migrations, loadExtensions)
+          }
+
+          return filterMigrations(this, sortBy(migrations, 'file'), loadExtensions)
+        })
+      },
+
+      getMigrationName(migration: any) {
+        return migration.file
+      },
+
+      getMigration(migrationInfo) {
+        return getFile(migrationInfo)
+      }
+    },
     tableName: 'knex_migrations',
     stub: 'migration.stub',
     extension: 'ts',
@@ -97,4 +160,4 @@ const config: Knex.Config = {
 //     }
 // }
 
-module.exports = config
+export default config

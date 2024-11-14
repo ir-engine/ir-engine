@@ -27,7 +27,7 @@ import './patchNodeForWebXREmulator'
 
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
-import { Entity, getMutableComponent, setComponent } from '@ir-engine/ecs'
+import { Entity, setComponent } from '@ir-engine/ecs'
 import { EffectComposer, Pass, RenderPass } from 'postprocessing'
 import { WebGLRenderTarget } from 'three'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
@@ -35,16 +35,8 @@ import { createWebXRManager } from '../../src/xr/WebXRManager'
 import { MockEventListener } from './MockEventListener'
 
 class MockCanvas extends MockEventListener {
-  #context = {
-    getContextAttributes: () => {
-      return {
-        xrCompatible: true
-      }
-    },
-    viewport: () => {}
-  }
   parentElement = new MockEventListener()
-  getContext = () => this.#context
+  getContext = () => null! // null will tell the renderer to not initialize, allowing our mock to work
 }
 
 class MockRenderer {
@@ -88,15 +80,13 @@ class MockEffectComposer extends EffectComposer {
 
 export const mockEngineRenderer = (entity: Entity) => {
   const renderer = new MockRenderer() as unknown as WebGLRenderer
-  setComponent(entity, RendererComponent)
   const effectComposer = new MockEffectComposer()
   const renderPass = new RenderPass()
   effectComposer.addPass(renderPass)
   const xrManager = createWebXRManager(renderer)
   xrManager.cameraAutoUpdate = false
   xrManager.enabled = true
-  getMutableComponent(entity, RendererComponent).merge({
-    supportWebGL2: true,
+  setComponent(entity, RendererComponent, {
     canvas: renderer.domElement,
     renderContext: renderer.getContext(),
     renderer,
@@ -104,6 +94,4 @@ export const mockEngineRenderer = (entity: Entity) => {
     renderPass,
     xrManager
   })
-  // run reactor
-  setComponent(entity, RendererComponent)
 }

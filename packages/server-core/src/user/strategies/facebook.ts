@@ -25,9 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
-import { random } from 'lodash'
 
-import { avatarPath, AvatarType } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -70,16 +68,11 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       {}
     )
     if (!entity.userId) {
-      const avatars = (await this.app
-        .service(avatarPath)
-        .find({ isInternal: true, query: { isPublic: true, $limit: 1000 } })) as Paginated<AvatarType>
       const code = (await getFreeInviteCode(this.app)) as InviteCode
       const newUser = await this.app.service(userPath).create({
         name: '' as UserName,
         isGuest: false,
-        inviteCode: code,
-        avatarId: avatars.data[random(avatars.data.length - 1)].id,
-        scopes: []
+        inviteCode: code
       })
       entity.userId = newUser.id
       await this.app.service(identityProviderPath).patch(entity.id, {

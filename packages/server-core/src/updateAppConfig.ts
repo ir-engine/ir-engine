@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// ensure logger is loaded first - it loads the dotenv config
+import logger from './ServerLogger'
+
 import knex from 'knex'
 
 import {
@@ -40,10 +43,8 @@ import {
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
-import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
-import logger from './ServerLogger'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
@@ -178,22 +179,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
-
-  const mailchimpSettingPromise = knexClient
-    .select()
-    .from<MailchimpSettingType>(mailchimpSettingPath)
-    .then(([dbMailchimp]) => {
-      if (dbMailchimp) {
-        appConfig.mailchimp = {
-          ...appConfig.mailchimp,
-          ...dbMailchimp
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read mailchimp setting: ${e.message}`)
-    })
-  promises.push(mailchimpSettingPromise)
 
   await Promise.all(promises)
 }

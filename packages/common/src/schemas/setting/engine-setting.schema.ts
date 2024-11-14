@@ -34,6 +34,17 @@ export const engineSettingPath = 'engine-setting'
 
 export const engineSettingMethods = ['find', 'create', 'patch', 'remove'] as const
 
+export const engineSettingCategories = [
+  'aws',
+  'server',
+  'task-server',
+  'chargebee',
+  'coil',
+  'zendesk',
+  'redis',
+  'metabase'
+] as const
+
 // Main data model schema
 export const engineSettingSchema = Type.Object(
   {
@@ -45,7 +56,7 @@ export const engineSettingSchema = Type.Object(
       maxLength: 4095
     }),
     type: StringEnum(['private', 'public']),
-    category: StringEnum(['aws', 'server', 'task-server', 'chargebee', 'coil', 'zendesk', 'instance-server', 'redis']),
+    category: Type.String(),
     updatedBy: Type.Optional(
       TypedString<UserID>({
         format: 'uuid'

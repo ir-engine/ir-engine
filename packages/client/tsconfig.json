@@ -1,41 +1,30 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": [
-      "ESNext",
-      "dom",
-      "dom.iterable",
-      "WebWorker"
-    ],
-    "allowJs": true,
+    "useDefineForClassFields": true,
+    "module": "CommonJS",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
     "noEmit": true,
-    "module": "ESNext",
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": false,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
-    "declaration": true,
-    "outDir": "./lib",
-    "types": ["vite/client", "mocha", "@types/offscreencanvas", "vite-plugin-pwa/client",  "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"]
+    "declaration": false,
+    "types": ["@types/node"]
   },
-  "exclude": [
-    "**/node_modules/**",
-  ],
-  "include": [
-    "../../__global.d.ts",
-    "../server-core/src/",
-    "./**/*.ts",
-    "./**/*.tsx"
-  ]
+  "include": ["../../__global.d.ts", "../client-core/src", "../server-core/src", "./src", "./index.ts"]
 }

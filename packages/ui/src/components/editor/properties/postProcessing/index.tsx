@@ -37,21 +37,20 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { NO_PROXY, getState } from '@ir-engine/hyperflux'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
+import { Checkbox } from '@ir-engine/ui'
+import { Slider } from '@ir-engine/ui/editor'
 import { GiMagickTrick } from 'react-icons/gi'
 import Accordion from '../../../../primitives/tailwind/Accordion'
-import Checkbox from '../../../../primitives/tailwind/Checkbox'
 import ColorInput from '../../../../primitives/tailwind/Color'
-import Slider from '../../../../primitives/tailwind/Slider'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import Vector2Input from '../../input/Vector2'
 import Vector3Input from '../../input/Vector3'
-import NodeEditor from '../nodeEditor'
 
 enum PropertyTypes {
   BlendFunction,
@@ -126,6 +125,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       case PropertyTypes.Number:
         renderVal = (
           <Slider
+            label={effectSettingState.name}
             min={effectSettingState.min}
             max={effectSettingState.max}
             step={effectSettingState.step}
@@ -138,9 +138,9 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
 
       case PropertyTypes.Boolean:
         renderVal = (
-          <BooleanInput
+          <Checkbox
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingValue}
+            checked={effectSettingValue}
           />
         )
         break
@@ -269,7 +269,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             onChange={(val) =>
               commitProperties(PostProcessingComponent, { [`effects.${effect}.isActive`]: val }, [props.entity])
             }
-            value={postprocessing.effects[effect]?.isActive?.value}
+            checked={postprocessing.effects[effect]?.isActive?.value}
             label={effect}
           />
           {postprocessing.effects[effect]?.isActive?.value && (
@@ -288,14 +288,13 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
-      icon={<PostProcessingSettingsEditor.iconComponent />}
+      Icon={PostProcessingSettingsEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
-        <BooleanInput
-          value={postprocessing.enabled.value}
+        <Checkbox
+          checked={postprocessing.enabled.value}
           onChange={(val) => {
-            console.log('changed ', val, !!val)
             commitProperty(PostProcessingComponent, 'enabled')(val)
           }}
         />

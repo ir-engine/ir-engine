@@ -68,11 +68,12 @@ import {
 } from './GLTFExtensions'
 import { GLTFParser } from './GLTFParser'
 import { KTX2Loader } from './KTX2Loader'
+import { MeshoptDecoder } from './meshopt_decoder'
 
 export class GLTFLoader extends Loader {
   dracoLoader = null as null | DRACOLoader
   ktx2Loader = null as null | KTX2Loader
-  meshoptDecoder = null
+  meshoptDecoder = null as null | MeshoptDecoder
 
   pluginCallbacks = [] as any[]
 
@@ -186,7 +187,7 @@ export class GLTFLoader extends Loader {
 
         if (typeof data === 'string') {
           json = JSON.parse(data)
-        } else if (data instanceof ArrayBuffer) {
+        } else if ('byteLength' in data) {
           const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
 
           if (magic === BINARY_EXTENSION_HEADER_MAGIC) {

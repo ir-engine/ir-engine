@@ -23,26 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM } from '@pixiv/three-vrm'
-
-import { getComponent, getOptionalMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
-import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
-import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-const loopAnimationQuery = defineQuery([AnimationComponent, LoopAnimationComponent, ModelComponent, TransformComponent])
 
 const execute = () => {
   const { deltaSeconds } = getState(ECSState)
@@ -56,16 +49,9 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
-    const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
-    animationActionComponent?._action.value &&
-      animationActionComponent?.time.set(animationActionComponent._action.value.time)
-  }
-
-  for (const entity of loopAnimationQuery()) {
-    const model = getComponent(entity, ModelComponent)
-    if (model.asset instanceof VRM) {
-      updateVRMRetargeting(model.asset, entity)
-    }
+    //const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
+    // animationActionComponent?._action.value &&
+    //   animationActionComponent?.time.set(animationActionComponent._action.value.time)
   }
 }
 

@@ -28,7 +28,7 @@ import { instancePath, locationPath } from '@ir-engine/common/src/schema.type.mo
 
 /** @todo reimplement realtime connections with instances in studio */
 export const useEditorActiveInstances = (sceneID: string) => {
-  const locationQuery = useFind(locationPath, { query: { sceneId: sceneID, paginate: false } })
+  const locationQuery = useFind(locationPath, { query: { action: 'studio', sceneId: sceneID, paginate: false } })
 
   const instanceQuery = useFind(instancePath, {
     query: {

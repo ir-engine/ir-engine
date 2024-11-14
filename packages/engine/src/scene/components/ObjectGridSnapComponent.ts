@@ -42,16 +42,12 @@ import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugCompon
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import {
-  EntityTreeComponent,
-  iterateEntityNode,
-  useChildrenWithComponents
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
 import { Box3, BufferGeometry, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
-import { ModelComponent } from './ModelComponent'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
   const lineSegmentList: Vector3[] = []
@@ -173,12 +169,14 @@ export const ObjectGridSnapComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
+    const gltfLoaded = GLTFComponent.useSceneLoaded(entity)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
-    const modelComponent = useComponent(entity, ModelComponent)
-    const meshComponents = useChildrenWithComponents(entity, [MeshComponent])
 
     useEffect(() => {
-      if (!modelComponent.scene.value) return
+      if (!gltfLoaded) return
+      const originalPosition = new Vector3()
+      const originalRotation = new Quaternion()
+      const originalScale = new Vector3()
       const originalParent = getComponent(entity, EntityTreeComponent).parentEntity
       const transform = getComponent(entity, TransformComponent)
       transform.matrix.decompose(originalPosition, originalRotation, originalScale)
@@ -220,7 +218,7 @@ export const ObjectGridSnapComponent = defineComponent({
 
       //set bounding box in component
       snapComponent.bbox.set(bbox)
-    }, [modelComponent.scene, meshComponents])
+    }, [gltfLoaded])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return

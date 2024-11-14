@@ -27,7 +27,7 @@ import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { ComponentType, Engine } from '@ir-engine/ecs'
+import { ComponentType } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -41,7 +41,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
+import { State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
 import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -49,6 +49,8 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -135,7 +137,7 @@ export const MediaComponent = defineComponent({
   schema: S.Object({
     controls: S.Bool(false),
     synchronize: S.Bool(true),
-    autoplay: S.Bool(true),
+    autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
     uiOffset: S.Vec3(),
     xruiEntity: S.Entity(),
     volume: S.Number(1),
@@ -186,13 +188,23 @@ export function MediaReactor() {
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
+  const rendererEntity = useRendererEntity(entity)
 
   if (!isClient) return null
 
+  function validateTime() {
+    const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
+    const element = mediaElementComponent.element.value as HTMLMediaElement
+    if (element.currentTime < media.seekTime.value) {
+      setTime(mediaElementComponent.element, media.seekTime.value)
+    }
+  }
+
   useEffect(() => {
+    if (!rendererEntity) return
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })
-    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
+    const renderer = getComponent(rendererEntity, RendererComponent).renderer!
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
@@ -219,6 +231,22 @@ export function MediaReactor() {
     renderer.domElement.addEventListener('pointerup', handleAutoplay)
     renderer.domElement.addEventListener('touchend', handleAutoplay)
 
+    setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
+    setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
+    setCallback(entity, StandardCallbacks.RESET, () => {
+      media.paused.set(!media.autoplay.value)
+
+      //using to force the react to update the seek time if already set to 0
+      //due to media's seekTime is not being updated with the media elements current time
+      let seekTime = media.seekTime.value
+      if (seekTime == 0) {
+        seekTime = 0.000001
+      } else {
+        seekTime = 0
+      }
+      media.seekTime.set(seekTime)
+    })
+
     return () => {
       window.removeEventListener('pointerup', handleAutoplay)
       window.removeEventListener('keypress', handleAutoplay)
@@ -231,8 +259,12 @@ export function MediaReactor() {
       removeComponent(entity, BoundingBoxComponent)
       removeComponent(entity, InputComponent)
       removeComponent(entity, MediaElementComponent)
+
+      removeCallback(entity, StandardCallbacks.PLAY)
+      removeCallback(entity, StandardCallbacks.PAUSE)
+      removeCallback(entity, StandardCallbacks.RESET)
     }
-  }, [])
+  }, [rendererEntity])
 
   useEffect(
     function updatePlay() {
@@ -363,6 +395,7 @@ export function MediaReactor() {
       if (!media.paused.value) {
         mediaElementState.value.element.play()
       }
+      validateTime()
     },
     [media.resources, media.ended, media.playMode]
   )
@@ -400,11 +433,11 @@ export function MediaReactor() {
     [mediaElement, media.isMusic]
   )
 
-  const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-  const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
+  const rendererState = useMutableState(RendererState)
+  const [audioHelperTexture] = useTexture(rendererState.nodeHelperVisibility.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
-    if (debugEnabled.value && audioHelperTexture) {
+    if (rendererState.nodeHelperVisibility.value && audioHelperTexture) {
       const material = new MeshBasicMaterial({ transparent: true, side: DoubleSide })
       material.map = audioHelperTexture
       setComponent(entity, DebugMeshComponent, {
@@ -417,7 +450,11 @@ export function MediaReactor() {
     return () => {
       removeComponent(entity, DebugMeshComponent)
     }
-  }, [debugEnabled, audioHelperTexture])
+  }, [rendererState.nodeHelperVisibility, audioHelperTexture])
+
+  useEffect(() => {
+    validateTime()
+  }, [media.seekTime])
 
   return null
 }
@@ -537,8 +574,14 @@ export function getNextTrack(currentTrack: number, trackCount: number, currentMo
       return -1
     }
   } else if (currentMode == PlayMode.random) {
-    // todo: smart random, i.e., lower probability of recently played tracks
-    nextTrack = Math.floor(Math.random() * trackCount)
+    // random shuffle, don't play the same track again unless it is the only track
+    nextTrack = Math.floor(Math.random() * (trackCount - 1))
+    if (nextTrack >= currentTrack && currentTrack >= 0) {
+      nextTrack += 1
+    }
+    if (nextTrack >= trackCount) {
+      nextTrack = trackCount - 1
+    }
   } else if (currentMode == PlayMode.singleloop) {
     nextTrack = currentTrack
   } else {

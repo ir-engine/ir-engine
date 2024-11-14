@@ -28,7 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
-import React, { startTransition, use } from 'react'
+import React, { startTransition } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
@@ -51,7 +51,7 @@ import {
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import { Kind, SerializedType, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
+import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   HasDeserializers,
@@ -624,6 +624,16 @@ export function hasComponents<C extends Component>(entity: Entity, components: C
   return true
 }
 
+export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
+  let hasAllComponents = true
+  for (const component of components) {
+    const exists = !!useOptionalComponent(entity, component)
+    if (!exists) hasAllComponents = false
+  }
+
+  return hasAllComponents
+}
+
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.onRemove(entity, component.stateMap[entity]!)
@@ -718,7 +728,7 @@ export function useComponent<C extends Component>(entity: Entity, component: C):
   const componentState = component.stateMap[entity]!
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (componentState.promise) {
-    ;(use ?? _use)(componentState.promise)
+    ;(React.use ?? _use)(componentState.promise)
   }
   return useHookstate(componentState) as State<ComponentType<C>>
 }

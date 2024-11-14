@@ -42,7 +42,7 @@ import {
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getState } from '@ir-engine/hyperflux'
 import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
-import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CameraComponent, CameraGizmoTagComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { EngineState } from '../../EngineState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
@@ -156,16 +156,27 @@ const gizmoPickerObjectsQuery = defineQuery([
   TransformGizmoTagComponent
 ])
 
+//prevent query from detecting CameraGizmoVisualEntity which has no GroupComponent but has CameraGizmoTagComponent
+const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, GroupComponent])
+
 export function findEditor(intersectionData: Set<IntersectionData>, caster: Raycaster) {
   const pickerObj = gizmoPickerObjectsQuery() // gizmo heuristic
-  const inputObj = inputObjectsQuery()
+  const cameraGizmo = cameraGizmoQuery() //camera gizmo heuristic
 
-  const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
+  //concatenating cameraGizmo to both pickerObjects(transformGizmo) and inputObjects
+  const allGizmos = cameraGizmo.concat(pickerObj)
+  const inputObj = inputObjectsQuery().concat(cameraGizmo)
+
+  const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
     .map((eid) => getComponent(eid, GroupComponent))
     .flat()
+
+  //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
+  caster.layers.enable(ObjectLayers.Gizmos)
   pickerObj.length > 0
     ? caster.layers.enable(ObjectLayers.TransformGizmo)
     : caster.layers.disable(ObjectLayers.TransformGizmo)
+
   const hits = caster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
     const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)

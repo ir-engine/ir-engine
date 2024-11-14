@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { bufferToHex } from '../hex-utils'
+import { isClient } from '@ir-engine/hyperflux'
 import { WebRenderer } from '../WebRenderer'
+import { bufferToHex } from '../hex-utils'
 import { generateEmbeddedCSS, getEmbeddedCSS } from './generateEmbeddedCSS'
 
 export async function getAllEmbeddedStyles(el: Element) {
@@ -68,7 +69,9 @@ export async function getAllEmbeddedStyles(el: Element) {
             }
           }
 
-          const hashBuffer = await crypto.subtle.digest('SHA-1', WebRenderer.textEncoder.encode(cssText))
+          const hashBuffer = isClient
+            ? await crypto.subtle.digest('SHA-1', WebRenderer.textEncoder.encode(cssText))
+            : new ArrayBuffer(0)
           return { serialized: cssText, hash: bufferToHex(hashBuffer) }
         })
       )

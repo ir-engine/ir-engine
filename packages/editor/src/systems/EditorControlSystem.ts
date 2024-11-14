@@ -55,8 +55,8 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
-import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
-import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
+import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import isInputSelected from '../functions/isInputSelected'
@@ -162,8 +162,9 @@ const onKeyX = () => {
 }
 
 const onKeyZ = (control: boolean, shift: boolean) => {
-  const source = getState(EditorState).scenePath
-  if (!source) return
+  const rootEntity = getState(EditorState).rootEntity
+  if (!rootEntity) return
+  const source = getComponent(rootEntity, SourceComponent)
   if (control) {
     const state = getState(GLTFSnapshotState)[source]
     if (shift) {
@@ -361,8 +362,13 @@ const execute = () => {
       clickStartEntity = capturingEntity
     }
   }
+
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
-    if (hasComponent(clickStartEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
+    if (
+      hasComponent(clickStartEntity, SourceComponent) &&
+      !getState(ClickPlacementState).placementEntity &&
+      getMutableState(EditorHelperState).gizmoEnabled.value
+    ) {
       const selectedEntities = SelectionState.getSelectedEntities()
 
       //only update selection if the selection actually changed (prevents unnecessarily creating new transform gizmos in edit mode)

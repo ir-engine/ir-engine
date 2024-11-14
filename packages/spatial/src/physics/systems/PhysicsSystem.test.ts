@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-
 import {
   Entity,
   SimulationSystemGroup,
@@ -43,13 +41,16 @@ import { getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
 import { Vector3 } from 'three'
-import { TransformComponent } from '../../SpatialModule'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+
+import { destroyEngine } from '@ir-engine/ecs/src/Engine'
+import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics, PhysicsWorld } from '../classes/Physics'
-import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -124,7 +125,7 @@ describe('PhysicsSystem', () => {
     })
 
     function cloneRigidBodyPoseData(entity: Entity) {
-      const body = getComponent(testEntity, RigidBodyComponent)
+      const body = getComponent(entity, RigidBodyComponent)
       return {
         previousPosition: body.previousPosition.clone(),
         previousRotation: body.previousRotation.clone(),
@@ -275,7 +276,6 @@ describe('PhysicsSystem', () => {
 
     describe('PhysicsSceneReactor', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld: PhysicsWorld
       let physicsWorldEntity = UndefinedEntity
 
       beforeEach(async () => {
@@ -297,6 +297,7 @@ describe('PhysicsSystem', () => {
 
       const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)?.reactor
 
+      /** @todo Why is the world not recreated as expected ?? */
       it.skip("should create a new physics world whenever the UUIDComponent of a SceneComponent's entityContext changes", () => {
         // Sanity check before running
         assert.equal(hasComponent(physicsWorldEntity, SceneComponent), false)

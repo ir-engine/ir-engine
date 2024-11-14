@@ -52,6 +52,13 @@ export const EngineSettings = {
     WebRTCSettings: 'webRTCSettings',
     ShutdownDelayMs: 'shutdownDelayMs'
   },
+  Metabase: {
+    SiteUrl: 'siteUrl',
+    SecretKey: 'secretKey',
+    CrashDashboardId: 'crashDashboardId',
+    Expiration: 'expiration',
+    Environment: 'environment'
+  },
   Redis: {
     Address: 'address',
     Password: 'password',

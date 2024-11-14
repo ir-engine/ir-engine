@@ -37,7 +37,8 @@ import {
 } from '@ir-engine/ecs'
 import assert from 'assert'
 import { Material, Uniform } from 'three'
-import { assertArrayEqual } from '../../../../physics/components/RigidBodyComponent.test'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertArrayEqual } from '../../../../../tests/util/mathAssertions'
 import { MaterialStateComponent } from '../../MaterialComponent'
 import {
   TransparencyDitheringPluginComponent,

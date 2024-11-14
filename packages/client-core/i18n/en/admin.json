@@ -600,15 +600,6 @@
         "header": "Zendesk",
         "subtitle": "Edit Zendesk Settings"
       },
-      "mailchimp": {
-        "header": "Mailchimp",
-        "subtitle": "Edit Mailchimp Settings",
-        "key": "Key",
-        "server": "Server",
-        "audienceId": "Audience Id",
-        "defaultTags": "Default Tags (comma separated)",
-        "groupId": "Group Id"
-      },
       "keyName": "key Name",
       "kid": "Key Id"
     },

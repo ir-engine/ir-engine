@@ -42,12 +42,12 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@ir-engine/spatial'
 
-import BooleanInput from '../../input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
+import ComponentDropdown from '../../ComponentDropdown'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import Vector3Input from '../../input/Vector3'
-import PropertyGroup from '../group'
 
 const position = new Vector3()
 const rotation = new Quaternion()
@@ -100,10 +100,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup
+    <ComponentDropdown
       name={t('editor:properties.transform.title')}
       description={t('editor:properties.transform.description')}
-      icon={<TransformPropertyGroup.iconComponent />}
+      Icon={TransformPropertyGroup.iconComponent}
     >
       <InputGroup
         name="Dynamically Load Children"
@@ -112,8 +112,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         className="flex w-auto flex-row-reverse flex-nowrap items-center gap-1"
         containerClassName="mb-4"
       >
-        <BooleanInput
-          value={hasComponent(props.entity, SceneDynamicLoadTagComponent)}
+        <Checkbox
+          checked={hasComponent(props.entity, SceneDynamicLoadTagComponent)}
           onChange={onChangeDynamicLoad}
           className="mr-2"
         />
@@ -151,7 +151,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           onRelease={onRelease}
         />
       </InputGroup>
-    </PropertyGroup>
+    </ComponentDropdown>
   )
 }
 

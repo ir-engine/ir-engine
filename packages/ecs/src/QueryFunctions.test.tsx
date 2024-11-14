@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { act, render, renderHook } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { ComponentMap, defineComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'

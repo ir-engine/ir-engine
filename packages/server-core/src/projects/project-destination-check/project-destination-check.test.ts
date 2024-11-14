@@ -23,14 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import '../../patchEngineNode'
+
 import nock from 'nock'
-import { v4 as uuidv4 } from 'uuid'
+import { afterAll, afterEach, assert, beforeAll, describe, it } from 'vitest'
 
 import {
   avatarPath,
   identityProviderPath,
   projectDestinationCheckPath,
+  scopePath,
   ScopeType,
   userApiKeyPath,
   UserApiKeyType,
@@ -60,22 +62,21 @@ describe('project-destination-check.test', () => {
     }
   })
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
 
-    const name = ('test-project-destination-check-user-name-' + uuidv4()) as UserName
+    const name = ('test-project-destination-check-user-name-' + Math.random().toString().slice(2, 12)) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-destination-check-avatar-name-' + uuidv4()
+      name: 'test-project-destination-check-avatar-name-' + Math.random().toString().slice(2, 12)
     })
 
     const testUser = await app.service(userPath).create({
       name,
-      avatarId: avatar.id,
-      isGuest: false,
-      scopes: [{ type: 'projects:read' as ScopeType }]
+      isGuest: false
     })
+    await app.service(scopePath).create({ userId: testUser.id, type: 'projects:read' as ScopeType })
 
     testUserApiKey = await app.service(userApiKeyPath).create({ userId: testUser.id })
 
@@ -94,7 +95,7 @@ describe('project-destination-check.test', () => {
 
   afterEach(() => nock.cleanAll())
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })

@@ -27,10 +27,10 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs, { readFileSync, writeFileSync } from 'fs'
-import lodash from 'lodash'
+import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
-import viteCompression from 'vite-plugin-compression'
+import viteCompression from 'vite-plugin-compression2'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
@@ -42,8 +42,6 @@ import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
 import { getEngineSetting } from './scripts/getEngineSettings'
-
-const { isArray, mergeWith } = lodash
 
 const parseModuleName = (moduleName: string) => {
   // // chunk medisoup-client
@@ -117,13 +115,6 @@ const merge = (src, dest) =>
       return b.concat(a)
     }
   })
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import('ts-node').then((tsnode) => {
-  tsnode.register({
-    project: './tsconfig.json'
-  })
-})
 
 const getProjectConfigExtensions = async (config: UserConfig) => {
   const projects = fs.existsSync(path.resolve(__dirname, '../projects/projects'))
@@ -300,6 +291,9 @@ export default defineConfig(async () => {
       headers: {
         'Origin-Agent-Cluster': '?1'
       },
+      watch: {
+        ignored: ['**packages/server/upload/**']
+      },
       ...(isDevOrLocal
         ? {
             https: {
@@ -345,12 +339,17 @@ export default defineConfig(async () => {
               : 'service-worker.js'
             : '',
         paymentPointer: coilSetting?.find((item) => item.key === EngineSettings.Coil.PaymentPointer)?.value || '',
-        rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`
+        rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`,
+        gtmId: clientSetting.gtmContainerId,
+        gtmEnvironent:
+          clientSetting.gtmAuth && clientSetting.gtmPreview
+            ? `&gtm_auth=${clientSetting.gtmAuth}&gtm_preview=${clientSetting.gtmPreview}&gtm_cookies_win=x`
+            : ''
       }),
       viteCompression({
-        filter: /\.(js|mjs|json|css)$/i,
+        include: /\.(js|mjs|json|css)$/i,
         algorithm: 'brotliCompress',
-        deleteOriginFile: true
+        deleteOriginalAssets: true
       }),
       viteCommonjs({
         include: ['use-sync-external-store']
@@ -382,13 +381,13 @@ export default defineConfig(async () => {
           dir: 'dist',
           format: 'es', // 'commonjs' | 'esm' | 'module' | 'systemjs'
           // ignore files under 1mb
-          experimentalMinChunkSize: 1000000,
-          manualChunks: (id) => {
-            // chunk dependencies
-            if (id.includes('node_modules')) {
-              return parseModuleName(id)
-            }
-          }
+          experimentalMinChunkSize: 1000000
+          // manualChunks: (id) => {
+          //   // chunk dependencies
+          //   if (id.includes('node_modules')) {
+          //     return parseModuleName(id)
+          //   }
+          // }
         }
       }
     }
