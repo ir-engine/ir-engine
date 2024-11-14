@@ -28,7 +28,7 @@ import React, { useEffect, useState } from 'react'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
