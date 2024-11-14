@@ -197,7 +197,7 @@ export const updateBuilder = async (
           `kubectl delete deployment --ignore-not-found=true ${builderDeployments.body.items[0].metadata!.name}`
         )
 
-      if (helmSettings.length > 0 && helmBuilder)
+      if (helmSettings.length > 0 && helmBuilder && helmBuilder.length > 0)
         await execAsync(
           `helm repo update && helm upgrade --reuse-values --version ${helmBuilder} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
         )
