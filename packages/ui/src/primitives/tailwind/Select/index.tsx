@@ -35,9 +35,10 @@ export interface MenuItemProps {
   disabled?: boolean
   selected?: boolean
   onClick?: () => void
+  showCheckmark?: boolean
 }
 
-export const MenuItem = ({ children, selected, disabled, onClick }: MenuItemProps) => {
+export const MenuItem = ({ children, selected, disabled, onClick, showCheckmark }: MenuItemProps) => {
   return (
     <div
       tabIndex={0}
@@ -50,7 +51,7 @@ export const MenuItem = ({ children, selected, disabled, onClick }: MenuItemProp
     >
       <div className="w-full">{children}</div>
 
-      {selected && <CheckLg color="#375DAF" />}
+      {selected && showCheckmark && <CheckLg color="#375DAF" />}
     </div>
   )
 }
@@ -66,6 +67,7 @@ export interface SelectProps<T = string | number> {
     text: string
     position: 'top' | 'left'
   }
+  showCheckmark?: boolean
 }
 
 const Select = ({
@@ -75,7 +77,8 @@ const Select = ({
   onChange,
   value,
   renderValue,
-  labelProps
+  labelProps,
+  showCheckmark
 }: SelectProps) => {
   const variantToWidth: Record<NonNullable<SelectProps['width']>, string> = {
     sm: '240px',
@@ -170,7 +173,8 @@ const Select = ({
           onChange(child.props.value)
           setOpen(false)
         },
-        selected: selectedMenuIndex === index
+        selected: selectedMenuIndex === index,
+        showCheckmark: showCheckmark
       })
     }
     return child
@@ -210,7 +214,7 @@ const Select = ({
         >
           <div className="w-full">{selectedLabelContent || '-'}</div>
 
-          <ChevronDownSm className={`absolute right-1 ${open && 'rotate-180'} duration-300`} />
+          <ChevronDownSm className={`${open && 'rotate-180'} duration-300`} />
         </div>
 
         {open && (

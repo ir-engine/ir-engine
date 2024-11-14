@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Rows01Md } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { ArgTypes } from 'storybook/internal/types'
 import Select, { MenuItem, SelectProps } from './index'
@@ -50,6 +51,11 @@ const argTypes: ArgTypes = {
       type: 'select'
     },
     options: ['top', 'left']
+  },
+  showCheckmark: {
+    control: {
+      type: 'boolean'
+    }
   }
 }
 
@@ -69,12 +75,17 @@ export default {
   }
 }
 
-const Renderer = ({ numberOfListItems, labelText, labelPosition, ...props }) => {
-  const items = Array.from({ length: numberOfListItems }, (_, i) => (
-    <MenuItem key={i} value={i} selected={i === 0}>
-      <span>Item {i}</span>
-    </MenuItem>
-  ))
+const Renderer = ({ numberOfListItems, labelText, labelPosition, generateItem, ...props }) => {
+  const items = Array.from({ length: numberOfListItems }, (_, i) => {
+    if (generateItem) {
+      return generateItem(i)
+    }
+    return (
+      <MenuItem key={i} value={i} selected={i === 0}>
+        <span>Account Settings {i}</span>
+      </MenuItem>
+    )
+  })
 
   const [value, setValue] = React.useState(-1)
 
@@ -112,5 +123,48 @@ export const CustomRenderValue = {
     labelText: 'Price',
     labelPosition: 'top',
     renderValue: (value: number) => `$${Math.max(value * 100, 20)}`
+  }
+}
+
+export const SecondaryText = {
+  render: Renderer,
+  args: {
+    generateItem: (i: number) => (
+      <MenuItem key={i} value={i} selected={i === 0}>
+        <div className="flex w-full items-center justify-between">
+          <span>Account Settings {i}</span>
+          <span className="text-xs">secondary</span>
+        </div>
+      </MenuItem>
+    ),
+    renderValue: (value: number) => (
+      <div className="flex w-full items-center justify-between">
+        <span>Account Settings {value}</span>
+      </div>
+    ),
+    showCheckmark: false
+  }
+}
+
+export const SecondaryTextWithIcon = {
+  render: Renderer,
+  args: {
+    generateItem: (i: number) => (
+      <MenuItem key={i} value={i} selected={i === 0}>
+        <div className="flex w-full items-center justify-between">
+          <span className="flex items-center gap-x-2">
+            <Rows01Md />
+            Account Settings {i}
+          </span>
+          <span className="text-xs">secondary</span>
+        </div>
+      </MenuItem>
+    ),
+    renderValue: (value: number) => (
+      <div className="flex w-full items-center justify-between">
+        <span>Account Settings {value}</span>
+      </div>
+    ),
+    showCheckmark: false
   }
 }
