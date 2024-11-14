@@ -73,7 +73,7 @@ cli.main(async () => {
     const helmMainVersionName = path.join(appRootPath.path, 'helm-main-version.txt')
     const helmBuilderVersionName = path.join(appRootPath.path, 'helm-builder-version.txt')
 
-    if (helmSettings) {
+    if (helmSettings && helmSettings.length > 0) {
       if (helmMain) fs.writeFileSync(helmMainVersionName, helmMain)
       else {
         const { stdout } = await execAsync(`helm history ${options.stage} | grep deployed`)
