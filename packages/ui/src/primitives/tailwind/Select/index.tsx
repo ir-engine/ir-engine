@@ -110,13 +110,6 @@ const Select = ({
           direction: newDirection,
           maxHeight: `${maxHeight}px`
         })
-        console.log({
-          spaceAbove,
-          spaceBelow,
-          windowHeight,
-          newDirection,
-          maxHeight
-        })
       }
     }
     updateDirection()
