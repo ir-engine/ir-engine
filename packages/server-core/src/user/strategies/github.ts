@@ -108,6 +108,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
+    console.log('updating github entity', entity)
     if (!entity.userId) {
       const code = (await getFreeInviteCode(this.app)) as InviteCode
       const newUser = await this.app.service(userPath).create({
@@ -129,6 +130,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
         email: entity.email
       })
     const identityProvider = authResult[identityProviderPath]
+    console.log('identityProvider to potentially remove', identityProvider)
     const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
@@ -145,6 +147,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
+      console.log('removing guest identity-provider', identityProvider)
       await this.app.service(identityProviderPath)._remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
       if (!config.kubernetes.enabled)
@@ -190,11 +193,12 @@ export class GithubStrategy extends CustomOAuthStrategy {
             promptForConnection: true
           }
         }
+        console.log('removing entity', entity)
+        await this.app.service(identityProviderPath).remove(entity.id)
       }
       if (!config.kubernetes.enabled)
         await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
       else await this.createRefreshJob(user.id)
-      await this.app.service(identityProviderPath).remove(entity.id)
       await this.userLoginEntry(newIP, params)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {
