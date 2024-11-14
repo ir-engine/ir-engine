@@ -23,28 +23,39 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
+import { Color, Euler, Matrix4, MeshBasicMaterial, Object3D, Quaternion, Raycaster, Vector3 } from 'three'
 
 import {
+  ComponentType,
   Engine,
   Entity,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
+  removeComponent,
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import { TransformAxis, TransformMode, TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getState, NO_PROXY } from '@ir-engine/hyperflux'
+import {
+  TransformAxis,
+  TransformAxisType,
+  TransformMode,
+  TransformSpace,
+  TransformSpaceType
+} from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { getState, NO_PROXY, State } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'
 import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
@@ -133,105 +144,113 @@ export function gizmoUpdate(gizmoEntity) {
   pickerObject.position.copy(gizmoControl.worldPosition)
   helperObject.position.set(0, 0, 0)
 
-  let handles: any[] = []
-  handles = handles.concat(getComponent(gizmo.picker[gizmoControl.mode], ObjectComponent).children)
-  handles = handles.concat(getComponent(gizmo.gizmo[gizmoControl.mode], ObjectComponent).children)
+  const handles = [
+    ...getComponent(gizmo.picker[gizmoControl.mode], EntityTreeComponent).children,
+    ...getComponent(gizmo.gizmo[gizmoControl.mode], EntityTreeComponent).children
+  ]
 
-  for (const handle of helperObject.children) {
-    handle.visible = false
-    handle.rotation.set(0, 0, 0)
-    handle.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
-    handle.position.set(0, 0, 0)
+  for (const helperEntity of getComponent(gizmo.helper[gizmoControl.mode], EntityTreeComponent).children) {
+    removeComponent(helperEntity, VisibleComponent)
+    const transform = getComponent(helperEntity, TransformComponent)
+    transform.rotation.identity()
+    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
+    transform.position.set(0, 0, 0)
+    const name = getComponent(helperEntity, NameComponent)
 
-    if (handle.name === 'AXIS') {
-      handle.visible = !!gizmoControl.axis
-      handle.position.copy(gizmoControl.worldPosition)
+    if (name === 'AXIS') {
+      if (gizmoControl.axis) setComponent(helperEntity, VisibleComponent)
+      transform.position.copy(gizmoControl.worldPosition)
 
       if (gizmoControl.axis === TransformAxis.X) {
         _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, 0))
-        handle.quaternion.copy(quaternion).multiply(_tempQuaternion)
+        transform.rotation.copy(quaternion).multiply(_tempQuaternion)
 
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.X]).applyQuaternion(quaternion).dot(gizmoControl.eye)) > 0.9
         ) {
-          handle.visible = false
+          removeComponent(helperEntity, VisibleComponent)
         }
       }
 
       if (gizmoControl.axis === TransformAxis.Y) {
         _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, Math.PI / 2))
-        handle.quaternion.copy(quaternion).multiply(_tempQuaternion)
+        transform.rotation.copy(quaternion).multiply(_tempQuaternion)
 
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.Y]).applyQuaternion(quaternion).dot(gizmoControl.eye)) > 0.9
         ) {
-          handle.visible = false
+          removeComponent(helperEntity, VisibleComponent)
         }
       }
 
       if (gizmoControl.axis === TransformAxis.Z) {
         _tempQuaternion.setFromEuler(_tempEuler.set(0, Math.PI / 2, 0))
-        handle.quaternion.copy(quaternion).multiply(_tempQuaternion)
+        transform.rotation.copy(quaternion).multiply(_tempQuaternion)
 
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.Z]).applyQuaternion(quaternion).dot(gizmoControl.eye)) > 0.9
         ) {
-          handle.visible = false
+          removeComponent(helperEntity, VisibleComponent)
         }
       }
 
       if (gizmoControl.axis === TransformAxis.XYZE) {
         _tempQuaternion.setFromEuler(_tempEuler.set(0, Math.PI / 2, 0))
         _alignVector.copy(gizmoControl.rotationAxis)
-        handle.quaternion.setFromRotationMatrix(_lookAtMatrix.lookAt(Vector3_Zero, _alignVector, Axis[TransformAxis.Y]))
-        handle.quaternion.multiply(_tempQuaternion)
-        handle.visible = gizmoControl.dragging
+        transform.rotation.setFromRotationMatrix(
+          _lookAtMatrix.lookAt(Vector3_Zero, _alignVector, Axis[TransformAxis.Y])
+        )
+        transform.rotation.multiply(_tempQuaternion)
+        if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
       }
 
       if (gizmoControl.axis === TransformAxis.E) {
-        handle.visible = false
+        removeComponent(helperEntity, VisibleComponent)
       }
-    } else if (handle.name === 'START') {
-      handle.position.copy(gizmoControl.worldPositionStart)
-      handle.visible = gizmoControl.dragging
-    } else if (handle.name === 'END') {
-      handle.position.copy(gizmoControl.worldPosition)
-      handle.visible = gizmoControl.dragging
-    } else if (handle.name === 'DELTA') {
-      handle.position.copy(gizmoControl.worldPositionStart)
-      handle.quaternion.copy(gizmoControl.worldQuaternionStart)
+    } else if (name === 'START') {
+      transform.position.copy(gizmoControl.worldPositionStart)
+      if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
+    } else if (name === 'END') {
+      transform.position.copy(gizmoControl.worldPosition)
+      if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
+    } else if (name === 'DELTA') {
+      transform.position.copy(gizmoControl.worldPositionStart)
+      transform.rotation.copy(gizmoControl.worldQuaternionStart)
       _tempVector
         .set(1e-10, 1e-10, 1e-10)
         .add(gizmoControl.worldPositionStart)
         .sub(gizmoControl.worldPosition)
         .multiplyScalar(-1)
       _tempVector.applyQuaternion(gizmoControl.worldQuaternionStart.clone().invert())
-      handle.scale.copy(_tempVector)
-      handle.visible = gizmoControl.dragging
+      transform.scale.copy(_tempVector)
+      if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
     } else {
-      handle.quaternion.copy(quaternion)
+      transform.rotation.copy(quaternion)
 
       if (gizmoControl.dragging) {
-        handle.position.copy(gizmoControl.worldPositionStart)
+        transform.position.copy(gizmoControl.worldPositionStart)
       } else {
-        handle.position.copy(gizmoControl.worldPosition)
+        transform.position.copy(gizmoControl.worldPosition)
       }
 
       if (gizmoControl.axis) {
-        handle.visible = gizmoControl.axis.search(handle.name) !== -1
+        if (gizmoControl.axis.search(name) !== -1) setComponent(helperEntity, VisibleComponent)
       }
     }
   }
 
-  for (const handle of handles) {
-    handle.visible = true
-    handle.rotation.set(0, 0, 0)
-    handle.position.set(0, 0, 0)
-    handle.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
+  for (const handleEntity of handles) {
+    const gizmoControl = getComponent(gizmoEntity, TransformGizmoControlComponent)
+    setComponent(handleEntity, VisibleComponent)
+    const name = getComponent(handleEntity, NameComponent)
+    const transform = getComponent(handleEntity, TransformComponent)
+    transform.rotation.identity()
+    transform.position.set(0, 0, 0)
+    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
 
     // Align handles to current local or world rotation
 
-    handle.quaternion.copy(quaternion)
+    transform.rotation.copy(quaternion)
 
     if (gizmoControl.mode === TransformMode.translate || gizmoControl.mode === TransformMode.scale) {
       // Hide translate and scale axis facing the camera
@@ -239,63 +258,63 @@ export function gizmoUpdate(gizmoEntity) {
       const AXIS_HIDE_THRESHOLD = 0.99
       const PLANE_HIDE_THRESHOLD = 0.2
 
-      if (handle.name === TransformAxis.X) {
+      if (name === TransformAxis.X) {
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.X]).applyQuaternion(quaternion).dot(gizmoControl.eye)) >
           AXIS_HIDE_THRESHOLD
         ) {
-          handle.scale.set(1e-10, 1e-10, 1e-10)
-          handle.visible = false
+          transform.scale.set(1e-10, 1e-10, 1e-10)
+          removeComponent(handleEntity, VisibleComponent)
         }
       }
 
-      if (handle.name === TransformAxis.Y) {
+      if (name === TransformAxis.Y) {
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.Y]).applyQuaternion(quaternion).dot(gizmoControl.eye)) >
           AXIS_HIDE_THRESHOLD
         ) {
-          handle.scale.set(1e-10, 1e-10, 1e-10)
-          handle.visible = false
+          transform.scale.set(1e-10, 1e-10, 1e-10)
+          removeComponent(handleEntity, VisibleComponent)
         }
       }
 
-      if (handle.name === TransformAxis.Z) {
+      if (name === TransformAxis.Z) {
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.Z]).applyQuaternion(quaternion).dot(gizmoControl.eye)) >
           AXIS_HIDE_THRESHOLD
         ) {
-          handle.scale.set(1e-10, 1e-10, 1e-10)
-          handle.visible = false
+          transform.scale.set(1e-10, 1e-10, 1e-10)
+          removeComponent(handleEntity, VisibleComponent)
         }
       }
 
-      if (handle.name === TransformAxis.XY) {
+      if (name === TransformAxis.XY) {
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.Z]).applyQuaternion(quaternion).dot(gizmoControl.eye)) <
           PLANE_HIDE_THRESHOLD
         ) {
-          handle.scale.set(1e-10, 1e-10, 1e-10)
-          handle.visible = false
+          transform.scale.set(1e-10, 1e-10, 1e-10)
+          removeComponent(handleEntity, VisibleComponent)
         }
       }
 
-      if (handle.name === TransformAxis.YZ) {
+      if (name === TransformAxis.YZ) {
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.X]).applyQuaternion(quaternion).dot(gizmoControl.eye)) <
           PLANE_HIDE_THRESHOLD
         ) {
-          handle.scale.set(1e-10, 1e-10, 1e-10)
-          handle.visible = false
+          transform.scale.set(1e-10, 1e-10, 1e-10)
+          removeComponent(handleEntity, VisibleComponent)
         }
       }
 
-      if (handle.name === TransformAxis.XZ) {
+      if (name === TransformAxis.XZ) {
         if (
           Math.abs(_alignVector.copy(Axis[TransformAxis.Y]).applyQuaternion(quaternion).dot(gizmoControl.eye)) <
           PLANE_HIDE_THRESHOLD
         ) {
-          handle.scale.set(1e-10, 1e-10, 1e-10)
-          handle.visible = false
+          transform.scale.set(1e-10, 1e-10, 1e-10)
+          removeComponent(handleEntity, VisibleComponent)
         }
       }
     } else if (gizmoControl.mode === TransformMode.rotate) {
@@ -303,62 +322,74 @@ export function gizmoUpdate(gizmoEntity) {
 
       _alignVector.copy(gizmoControl.eye).applyQuaternion(_tempQuaternion.copy(quaternion).invert())
 
-      if (handle.name.search(TransformAxis.E) !== -1) {
-        handle.quaternion.setFromRotationMatrix(
+      if (name.search(TransformAxis.E) !== -1) {
+        transform.rotation.setFromRotationMatrix(
           _lookAtMatrix.lookAt(gizmoControl.eye, Vector3_Zero, Axis[TransformAxis.Y])
         )
       }
 
-      if (handle.name === TransformAxis.X) {
+      if (name === TransformAxis.X) {
         _tempQuaternion.setFromAxisAngle(Axis[TransformAxis.X], Math.atan2(-_alignVector.y, _alignVector.z))
         _tempQuaternion.multiplyQuaternions(quaternion.clone(), _tempQuaternion)
-        handle.quaternion.copy(_tempQuaternion)
+        transform.rotation.copy(_tempQuaternion)
       }
 
-      if (handle.name === TransformAxis.Y) {
+      if (name === TransformAxis.Y) {
         _tempQuaternion.setFromAxisAngle(Axis[TransformAxis.Y], Math.atan2(_alignVector.x, _alignVector.z))
         _tempQuaternion.multiplyQuaternions(quaternion.clone(), _tempQuaternion)
-        handle.quaternion.copy(_tempQuaternion)
+        transform.rotation.copy(_tempQuaternion)
       }
 
-      if (handle.name === TransformAxis.Z) {
+      if (name === TransformAxis.Z) {
         _tempQuaternion.setFromAxisAngle(Axis[TransformAxis.Z], Math.atan2(_alignVector.y, _alignVector.x))
         _tempQuaternion.multiplyQuaternions(quaternion.clone(), _tempQuaternion)
-        handle.quaternion.copy(_tempQuaternion)
+        transform.rotation.copy(_tempQuaternion)
       }
     }
     // Hide disabled axes
-    handle.visible = handle.visible && (handle.name.indexOf(TransformAxis.X) === -1 || gizmoControl.showX)
-    handle.visible = handle.visible && (handle.name.indexOf(TransformAxis.Y) === -1 || gizmoControl.showY)
-    handle.visible = handle.visible && (handle.name.indexOf(TransformAxis.Z) === -1 || gizmoControl.showZ)
-    handle.visible =
-      handle.visible &&
-      (handle.name.indexOf(TransformAxis.E) === -1 || (gizmoControl.showX && gizmoControl.showY && gizmoControl.showZ))
+
+    const isVisible = hasComponent(handleEntity, VisibleComponent)
+    const visible =
+      (isVisible && name.indexOf(TransformAxis.X) > -1 && gizmoControl.showX) ||
+      (name.indexOf(TransformAxis.Y) > -1 && gizmoControl.showY) ||
+      (name.indexOf(TransformAxis.Z) > -1 && gizmoControl.showZ) ||
+      (name.indexOf(TransformAxis.E) > -1 && gizmoControl.showX && gizmoControl.showY && gizmoControl.showZ)
+
+    if (visible) {
+      setComponent(handleEntity, VisibleComponent)
+    } else {
+      removeComponent(handleEntity, VisibleComponent)
+    }
 
     // highlight selected axis
 
-    //handle.material._color = handle.material._color || handle.material.uniforms.color.value
-    handle.material._color = handle.material._color || handle.material.color.clone()
-    handle.material._opacity = handle.material._opacity || handle.material.opacity
+    const material = getComponent(handleEntity, MeshComponent).material as MeshBasicMaterial & {
+      _color: Color
+      _opacity: number
+    }
 
-    //setGizmogizmoMaterialProperties(handle.material , handle.material._color , handle.material._opacity, true)
+    //material._color = material._color || material.uniforms.color.value
+    material._color = material._color || material.color.clone()
+    material._opacity = material._opacity || material.opacity
 
-    handle.material.color.copy(handle.material._color)
-    handle.material.opacity = handle.material._opacity
+    //setGizmogizmoMaterialProperties(material , material._color , material._opacity, true)
+
+    material.color.copy(material._color)
+    material.opacity = material._opacity
 
     if (gizmoControl.enabled && gizmoControl.axis) {
-      if (handle.name === gizmoControl.axis) {
+      if (name === gizmoControl.axis) {
         //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
-        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
-        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
+        material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+        material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
       } else if (
         gizmoControl.axis.split('').some(function (a) {
-          return handle.name === a
+          return name === a
         })
       ) {
         //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
-        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
-        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
+        material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+        material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
       }
     }
   }
@@ -477,14 +508,13 @@ export function controlUpdate(gizmoEntity: Entity) {
   }
 }
 
-function pointerHover(gizmoEntity) {
+function pointerHover(gizmoEntity: Entity) {
   // TODO support gizmos in multiple viewports
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const gizmoVisual = getComponent(gizmoControlComponent.visualEntity.value, TransformGizmoVisualComponent)
-  const picker = getComponent(gizmoVisual.picker[gizmoControlComponent.mode.value], ObjectComponent)
   const targetEntity =
     gizmoControlComponent.controlledEntities.value.length > 1
       ? gizmoControlComponent.pivotEntity.value
@@ -494,16 +524,17 @@ function pointerHover(gizmoEntity) {
 
   const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   _raycaster.setFromCamera(pointerPosition, camera)
+  const picker = getComponent(gizmoVisual.picker[gizmoControlComponent.mode.value], ObjectComponent)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
   if (intersect) {
-    gizmoControlComponent.axis.set(intersect.object.name)
+    gizmoControlComponent.axis.set(intersect.object.name as (typeof TransformAxis)[keyof typeof TransformAxis])
   } else {
     gizmoControlComponent.axis.set(null)
   }
 }
 
-function pointerDown(gizmoEntity) {
+function pointerDown(gizmoEntity: Entity) {
   // TODO support gizmos in multiple viewports
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
@@ -558,7 +589,15 @@ function pointerDown(gizmoEntity) {
   }
 }
 
-function applyTranslate(entity, pointStart, pointEnd, axis, space, translationSnap, pivotControlledEntity = false) {
+function applyTranslate(
+  entity: Entity,
+  pointStart: Vector3,
+  pointEnd: Vector3,
+  axis: TransformAxisType,
+  space: TransformSpaceType,
+  translationSnap: number | null,
+  pivotControlledEntity = false
+) {
   _offset.copy(pointEnd).sub(pointStart)
 
   if (space === TransformSpace.local && axis !== TransformAxis.XYZ) {
@@ -620,7 +659,14 @@ function applyTranslate(entity, pointStart, pointEnd, axis, space, translationSn
   return newPosition
 }
 
-function applyScale(entity, pointStart, pointEnd, axis, scaleSnap, pivotControlledEntity = false) {
+function applyScale(
+  entity: Entity,
+  pointStart: Vector3,
+  pointEnd: Vector3,
+  axis: TransformAxisType,
+  scaleSnap: number | null,
+  pivotControlledEntity = false
+) {
   if (axis.search(TransformAxis.XYZ) !== -1) {
     let d = pointEnd.length() / pointStart.length()
 
@@ -670,7 +716,12 @@ function applyScale(entity, pointStart, pointEnd, axis, scaleSnap, pivotControll
   return newScale
 }
 
-function applyRotation(entity, gizmoControlComponent, axis, space) {
+function applyRotation(
+  entity: Entity,
+  gizmoControlComponent: State<ComponentType<typeof TransformGizmoControlComponent>>,
+  axis: TransformAxisType,
+  space: TransformSpaceType
+) {
   _offset.copy(gizmoControlComponent.pointEnd.value).sub(gizmoControlComponent.pointStart.value)
   const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
 
@@ -957,7 +1008,7 @@ export function onPointerUp(gizmoEntity) {
   pointerUp(gizmoEntity)
 }
 
-export function intersectObjectWithRay(object, raycaster, includeInvisible?) {
+export function intersectObjectWithRay(object: Object3D, raycaster: Raycaster, includeInvisible?: boolean) {
   const allIntersections = raycaster.intersectObject(object, true)
 
   for (let i = 0; i < allIntersections.length; i++) {

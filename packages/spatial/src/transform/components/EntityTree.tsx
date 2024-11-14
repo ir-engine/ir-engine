@@ -33,7 +33,6 @@ import {
   getOptionalMutableComponent,
   hasComponent,
   hasComponents,
-  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -139,19 +138,6 @@ export const EntityTreeComponent = defineComponent({
     return null
   }
 })
-
-/**
- * @description
- * Recursively call {@link removeComponent} with {@link EntityTreeComponent} on `@param entity` and all its children entities
- * Children entities will be traversed first
- *
- * @param entity The parent entity where traversal will start.
- */
-export function removeFromEntityTree(entity: Entity): void {
-  traverseEntityNodeChildFirst(entity, (nodeEntity) => {
-    removeComponent(nodeEntity, EntityTreeComponent)
-  })
-}
 
 /**
  * @description

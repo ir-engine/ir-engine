@@ -68,7 +68,10 @@ import {
   GroupComponent,
   ObjectComponent
 } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { CSM } from '@ir-engine/spatial/src/renderer/csm/CSM'
@@ -347,7 +350,7 @@ const DropShadowReactor = () => {
       'Shadow for ' + getComponent(entity, NameComponent) + '_' + getComponent(entity, UUIDComponent)
     )
     setComponent(shadowEntity, VisibleComponent)
-    setComponent(shadowEntity, ObjectLayerComponents[ObjectLayers.Scene])
+    ObjectLayerMaskComponent.setLayer(shadowEntity, ObjectLayers.Scene)
     setComponent(entity, DropShadowComponent, { radius, center, entity: shadowEntity })
 
     return () => {

@@ -133,7 +133,7 @@ function pointerDown(gizmoEntity) {
   const cameraDistance = focusCenter.distanceTo(
     getComponent(getState(EngineState).viewerEntity, TransformComponent).position
   )
-  const direction = new Vector3().fromArray(cameraGizmo[cameraGizmoComponent.axis!][0][1]).normalize()
+  const direction = new Vector3().fromArray(cameraGizmo[cameraGizmoComponent.axis!][0][1] as Array<number>).normalize()
   const newRotation = new Quaternion().setFromUnitVectors(Vector3_Forward, direction.normalize())
   const newPosition = focusCenter.clone().add(direction.multiplyScalar(-cameraDistance))
 
