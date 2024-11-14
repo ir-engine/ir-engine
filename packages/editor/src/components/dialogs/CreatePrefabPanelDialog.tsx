@@ -262,9 +262,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
               </Button>
               <div>
                 {(prefabTag.value ?? []).map((tag, index) => (
-                  <div className="ml-4 flex items-end">
+                  <div className="ml-4 flex items-end" key={tag + index}>
                     <Input
-                      key={index}
                       labelProps={{
                         text: t('editor:layout.filebrowser.fileProperties.tag'),
                         position: 'top'

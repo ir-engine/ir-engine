@@ -57,9 +57,9 @@ import { HiSparkles } from 'react-icons/hi'
 
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Checkbox } from '@ir-engine/ui'
 import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
-import BooleanInput from '../../input/Boolean'
 import ColorGenerator from '../../input/Generator/Color'
 import ValueGenerator from '../../input/Generator/Value'
 import InputGroup from '../../input/Group'
@@ -183,7 +183,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       Icon={ParticleSystemNodeEditor.iconComponent}
     >
       <InputGroup name="Looping" label={t('editor:properties.particle-system.looping')}>
-        <BooleanInput value={particleSystem.systemParameters.looping} onChange={onSetSystemParm('looping')} />
+        <Checkbox checked={particleSystem.systemParameters.looping} onChange={onSetSystemParm('looping')} />
       </InputGroup>
 
       <InputGroup name="Duration" label={t('editor:properties.particle-system.duration')}>
@@ -191,7 +191,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       <InputGroup name="Prewarm" label={t('editor:properties.particle-system.prewarm')}>
-        <BooleanInput value={particleSystem.systemParameters.prewarm} onChange={onSetSystemParm('prewarm')} />
+        <Checkbox checked={particleSystem.systemParameters.prewarm} onChange={onSetSystemParm('prewarm')} />
       </InputGroup>
 
       <InputGroup name="Emitter Shape" label={t('editor:properties.particle-system.emitter-shape')}>
@@ -329,8 +329,8 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup name="Follow Local Origin" label={t('editor:properties.particle-system.follow-local-origin')}>
-            <BooleanInput
-              value={particleSystem.systemParameters.rendererEmitterSettings.followLocalOrigin}
+            <Checkbox
+              checked={particleSystem.systemParameters.rendererEmitterSettings.followLocalOrigin}
               onChange={onSetState(particleSystemState.systemParameters.rendererEmitterSettings.followLocalOrigin)}
             />
           </InputGroup>
@@ -403,13 +403,13 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Transparent" label={t('editor:properties.particle-system.transparent')}>
-        <BooleanInput
-          value={particleSystem.systemParameters.transparent ?? false}
+        <Checkbox
+          checked={particleSystem.systemParameters.transparent ?? false}
           onChange={onSetState(particleSystemState.systemParameters.transparent)}
         />
       </InputGroup>
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>
-        <BooleanInput value={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
+        <Checkbox checked={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
       <Button className="self-end" onClick={onAddBehavior}>
         {t('editor:properties.particle-system.addBehavior')}

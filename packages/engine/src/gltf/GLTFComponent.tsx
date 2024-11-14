@@ -32,12 +32,15 @@ import {
   defineComponent,
   Entity,
   EntityUUID,
+  generateEntityUUID,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  UndefinedEntity,
   useComponent,
   useEntityContext,
+  useHasComponents,
   useOptionalComponent,
   useQuery,
   UUIDComponent
@@ -47,6 +50,7 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  NO_PROXY_STEALTH,
   none,
   State,
   useHookstate,
@@ -78,6 +82,7 @@ import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
+import { gltfReplaceUUIDReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 
 type DependencyEval = {
@@ -194,7 +199,6 @@ export const GLTFComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const gltfComponent = useComponent(entity, GLTFComponent)
-    const dependencies = gltfComponent.dependencies.value as ComponentDependencies | undefined
 
     useEffect(() => {
       const occlusion = gltfComponent.cameraOcclusion.value
@@ -213,6 +217,7 @@ export const GLTFComponent = defineComponent({
       }
     }, [gltfComponent.src])
 
+    const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
     return (
       <>
         <ResourceReactor documentID={sourceID} entity={entity} />
@@ -325,7 +330,8 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
 const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: string; components: Component[] }) => {
   const { gltfComponentEntity, uuid, components } = props
   const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID) as Entity | undefined
-  return entity ? (
+  const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
+  return entity && hasComponents ? (
     <>
       {components.map((component) => {
         return (
@@ -484,6 +490,23 @@ const useGLTFDocument = (url: string, entity: Entity) => {
       url,
       (gltf, body) => {
         if (body) state.body.set(body)
+
+        if (gltf.nodes) {
+          for (const node of gltf.nodes) {
+            if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
+              let uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
+              //check if uuid already exists
+              if (UUIDComponent.entitiesByUUIDState[uuid]?.value) {
+                //regenerate uuid if it already exists
+                const prevUUID = uuid
+                uuid = generateEntityUUID()
+                node.extensions[UUIDComponent.jsonID] = uuid
+                gltfReplaceUUIDReferences(gltf, prevUUID, uuid)
+              }
+              UUIDComponent.getOrCreateEntityByUUID(uuid)
+            }
+          }
+        }
 
         const dependencies = buildComponentDependencies(gltf)
         state.dependencies.set(dependencies)

@@ -986,7 +986,7 @@ const defaultMaterial = () =>
   new MeshStandardMaterial({
     color: 0xffffff,
     emissive: 0x000000,
-    metalness: 1,
+    metalness: 0,
     roughness: 1,
     transparent: false,
     depthTest: true,

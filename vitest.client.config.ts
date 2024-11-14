@@ -23,25 +23,36 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component, { BooleanInputProp } from './index'
+import { configDefaults, defineConfig } from 'vitest/config'
 
-const argTypes: BooleanInputProp = { value: false, onChange: () => {} }
+const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use default report config on CI.
+const watermark = [80, 95] as [number, number]
+const threshold = 80
 
-export default {
-  title: 'Editor/Input/Boolean',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'BooleanInput',
-    jest: 'Boolean.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    passWithNoTests: true,
+    testTimeout: 2 * 60 * 1000,
+    hookTimeout: 2 * 60 * 1000,
+    reporters: reporters,
+    slowTestThreshold: 1000,
+    coverage: {
+      reporter: ['html'],
+      provider: 'istanbul',
+      thresholds: {
+        perFile: true,
+        statements: threshold,
+        branches: threshold,
+        functions: threshold,
+        lines: threshold
+      },
+      watermarks: {
+        statements: watermark,
+        branches: watermark,
+        functions: watermark,
+        lines: watermark
+      }
     }
-  },
-  argTypes
-}
-export const Default = {
-  args: {
-    value: false
   }
-}
+})

@@ -23,11 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineConfig } from 'vitest/config'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import React from 'react'
+import FileBrowserInput from '../FileBrowser'
+import { StringInputProps } from '../String'
 
-export default defineConfig({
-  test: {
-    environment: 'jsdom',
-    passWithNoTests: true
-  }
-})
+export function ImageInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
+}
+ImageInput.defaultProps = {}
+export default ImageInput

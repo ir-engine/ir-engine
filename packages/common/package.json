@@ -7,7 +7,7 @@
   "description": "Shared types for other Infinite Reality Engine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run"
+    "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",
