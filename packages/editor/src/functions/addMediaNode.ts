@@ -35,7 +35,7 @@ import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoader
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent, loadGLTFFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { gltfReplaceUUIDReferences } from '@ir-engine/engine/src/gltf/gltfUtils'
+import { gltfReplaceUUIDsReferences } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
@@ -156,15 +156,18 @@ export async function addMediaNode(
       )
     } else if (contentType.startsWith('model/prefab')) {
       loadGLTFFile(url, (gltf) => {
-        if (gltf.nodes)
+        if (gltf.nodes) {
+          const uuidReplacements = [] as [EntityUUID, EntityUUID][]
           gltf.nodes.forEach((node) => {
             if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
               const prevUUID = node.extensions[UUIDComponent.jsonID] as EntityUUID
               const newUUID = generateEntityUUID()
               node.extensions[UUIDComponent.jsonID] = newUUID
-              gltfReplaceUUIDReferences(gltf, prevUUID, newUUID)
+              uuidReplacements.push([prevUUID, newUUID])
             }
           })
+          gltfReplaceUUIDsReferences(gltf, uuidReplacements)
+        }
         EditorControlFunctions.appendToSnapshot(gltf)
       })
     } else {

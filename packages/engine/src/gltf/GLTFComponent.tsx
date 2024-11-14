@@ -83,7 +83,7 @@ import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
-import { gltfReplaceUUIDReferences } from './gltfUtils'
+import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 
 type DependencyEval = {
@@ -501,6 +501,7 @@ const useGLTFDocument = (entity: Entity) => {
         if (body) state.body.set(body)
 
         if (gltf.nodes) {
+          const uuidReplacements = [] as [EntityUUID, EntityUUID][]
           for (const node of gltf.nodes) {
             if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
               let uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
@@ -510,11 +511,13 @@ const useGLTFDocument = (entity: Entity) => {
                 const prevUUID = uuid
                 uuid = generateEntityUUID()
                 node.extensions[UUIDComponent.jsonID] = uuid
-                gltfReplaceUUIDReferences(gltf, prevUUID, uuid)
+                uuidReplacements.push([prevUUID, uuid])
               }
               UUIDComponent.getOrCreateEntityByUUID(uuid)
             }
           }
+          // Replace references in the GLTF of replaced uuids
+          gltfReplaceUUIDsReferences(gltf, uuidReplacements)
         }
 
         const dependencies = buildComponentDependencies(gltf)
