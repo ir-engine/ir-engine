@@ -36,12 +36,7 @@ import {
 import assert from 'assert'
 import { BoxGeometry, Layers, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import {
-  assertMatrixAllApproxNotEq,
-  assertMatrixApproxEq,
-  assertVecAllApproxNotEq,
-  assertVecApproxEq
-} from '../../../tests/util/mathAssertions'
+import { assertMatrix, assertVec } from '../../../tests/util/assert'
 import { TransformComponent } from '../RendererModule'
 import { ObjectComponent } from './ObjectComponent'
 import { Layer } from './ObjectLayerComponent'
@@ -98,27 +93,27 @@ describe('ObjectComponent', () => {
       const Expected = new Vector3(40, 41, 42)
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: Expected })
-      assertVecAllApproxNotEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
+      assertVec.allApproxNotEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
       setComponent(testEntity, ObjectComponent, mesh)
-      assertVecApproxEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
+      assertVec.approxEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
     })
 
     it("should set the quaterion value of the object to the value of the entity's TransformComponent.rotation", () => {
       const Expected = new Quaternion(40, 41, 42, 43).normalize()
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { rotation: Expected })
-      assertVecAllApproxNotEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
+      assertVec.allApproxNotEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
       setComponent(testEntity, ObjectComponent, mesh)
-      assertVecApproxEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
+      assertVec.approxEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
     })
 
     it("should set the scale value of the object to the value of the entity's TransformComponent.scale", () => {
       const Expected = new Vector3(40, 41, 42)
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { scale: Expected })
-      assertVecAllApproxNotEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
+      assertVec.allApproxNotEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
       setComponent(testEntity, ObjectComponent, mesh)
-      assertVecApproxEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
+      assertVec.approxEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
     })
 
     it('should set the matrixAutoUpdate value of the object to false', () => {
@@ -160,9 +155,9 @@ describe('ObjectComponent', () => {
       Expected.decompose(position, rotation, scale)
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: position, rotation: rotation, scale: scale })
-      assertMatrixAllApproxNotEq(mesh.matrix, Expected)
+      assertMatrix.allApproxNotEq(mesh.matrix, Expected)
       setComponent(testEntity, ObjectComponent, mesh)
-      assertMatrixApproxEq(mesh.matrix, getComponent(testEntity, TransformComponent).matrix)
+      assertMatrix.approxEq(mesh.matrix, getComponent(testEntity, TransformComponent).matrix)
     })
 
     it("should set the matrixWorld value of the object to the value of the entity's TransformComponent.matrixWorld", () => {
@@ -174,9 +169,9 @@ describe('ObjectComponent', () => {
       Expected.decompose(position, rotation, scale)
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: position, rotation: rotation, scale: scale })
-      assertMatrixAllApproxNotEq(mesh.matrixWorld, Expected)
+      assertMatrix.allApproxNotEq(mesh.matrixWorld, Expected)
       setComponent(testEntity, ObjectComponent, mesh)
-      assertMatrixApproxEq(mesh.matrixWorld, getComponent(testEntity, TransformComponent).matrixWorld)
+      assertMatrix.approxEq(mesh.matrixWorld, getComponent(testEntity, TransformComponent).matrixWorld)
     })
   }) //:: addObjectToGroup
 })

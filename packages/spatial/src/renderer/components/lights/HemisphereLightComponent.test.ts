@@ -38,7 +38,7 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, Color, ColorRepresentation, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertColorEqual, assertColorNotEqual } from '../../../../tests/util/mathAssertions'
+import { assertColor } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../../../common/NameComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
@@ -63,13 +63,13 @@ const HemisphereLightComponentDefaults: HemisphereLightComponentData = {
 }
 
 function assertHemisphereLightComponentEq(A: HemisphereLightComponentData, B: HemisphereLightComponentData): void {
-  assertColorEqual(A.skyColor, B.skyColor)
-  assertColorEqual(A.groundColor, B.groundColor)
+  assertColor.eq(A.skyColor, B.skyColor)
+  assertColor.eq(A.groundColor, B.groundColor)
   assert.equal(A.intensity, B.intensity)
 }
 function assertHemisphereLightComponentNotEq(A: HemisphereLightComponentData, B: HemisphereLightComponentData): void {
-  assertColorNotEqual(A.skyColor, B.skyColor)
-  assertColorNotEqual(A.groundColor, B.groundColor)
+  assertColor.notEq(A.skyColor, B.skyColor)
+  assertColor.notEq(A.groundColor, B.groundColor)
   assert.notEqual(A.intensity, B.intensity)
 }
 
@@ -199,12 +199,12 @@ describe('HemisphereLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, HemisphereLightComponent).groundColor
-      assertColorEqual(before, HemisphereLightComponentDefaults.groundColor)
+      assertColor.eq(before, HemisphereLightComponentDefaults.groundColor)
 
       // Run and Check the result
       setComponent(testEntity, HemisphereLightComponent, { groundColor: Expected })
       const result = getComponent(testEntity, HemisphereLightComponent).groundColor
-      assertColorEqual(result, Expected)
+      assertColor.eq(result, Expected)
     })
 
     it('should react when directionalLightComponent.skyColor changes', () => {
@@ -215,12 +215,12 @@ describe('HemisphereLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, HemisphereLightComponent).skyColor
-      assertColorEqual(before, HemisphereLightComponentDefaults.skyColor)
+      assertColor.eq(before, HemisphereLightComponentDefaults.skyColor)
 
       // Run and Check the result
       setComponent(testEntity, HemisphereLightComponent, { skyColor: Expected })
       const result = getComponent(testEntity, HemisphereLightComponent).skyColor
-      assertColorEqual(result, Expected)
+      assertColor.eq(result, Expected)
     })
 
     it('should react when hemisphereLightComponent.intensity changes', () => {
