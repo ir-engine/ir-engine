@@ -1141,9 +1141,9 @@ const MaterialInstanceReactor = (props: {
   }, [materialEntity, primitive.material])
 
   const material = useOptionalComponent(materialEntity, MaterialStateComponent)?.material
-  const useDerivativeTangents = primitive.attributes.tangent === undefined
-  const useVertexColors = primitive.attributes.color !== undefined
-  const useFlatShading = primitive.attributes.normal === undefined
+  const useDerivativeTangents = primitive.attributes.TANGENT === undefined
+  const useVertexColors = primitive.attributes.COLOR_0 !== undefined
+  const useFlatShading = primitive.attributes.NORMAL === undefined
 
   useEffect(() => {
     const material = getOptionalComponent(materialEntity, MaterialStateComponent)?.material as MeshPhysicalMaterial
