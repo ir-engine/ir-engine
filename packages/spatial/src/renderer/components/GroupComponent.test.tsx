@@ -41,13 +41,7 @@ import React from 'react'
 import sinon from 'sinon'
 import { BoxGeometry, Layers, Matrix4, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import {
-  assertArrayEqual,
-  assertMatrixAllApproxNotEq,
-  assertMatrixApproxEq,
-  assertVecAllApproxNotEq,
-  assertVecApproxEq
-} from '../../../tests/util/mathAssertions'
+import { assertArray, assertMatrix, assertVec } from '../../../tests/util/assert'
 import { TransformComponent } from '../RendererModule'
 import {
   GroupComponent,
@@ -63,7 +57,7 @@ import { VisibleComponent } from './VisibleComponent'
 const GroupComponentDefaults = [] as Object3D[]
 
 function assertGroupComponentEq(A, B) {
-  assertArrayEqual(A, B)
+  assertArray.eq(A, B)
 }
 
 describe('GroupComponent', () => {
@@ -266,27 +260,27 @@ describe('GroupComponent', () => {
       const Expected = new Vector3(40, 41, 42)
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: Expected })
-      assertVecAllApproxNotEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
+      assertVec.allApproxNotEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
       addObjectToGroup(testEntity, mesh)
-      assertVecApproxEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
+      assertVec.approxEq(mesh.position, getComponent(testEntity, TransformComponent).position, 3)
     })
 
     it("should set the quaterion value of the object to the value of the entity's TransformComponent.rotation", () => {
       const Expected = new Quaternion(40, 41, 42, 43).normalize()
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { rotation: Expected })
-      assertVecAllApproxNotEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
+      assertVec.allApproxNotEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
       addObjectToGroup(testEntity, mesh)
-      assertVecApproxEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
+      assertVec.approxEq(mesh.quaternion, getComponent(testEntity, TransformComponent).rotation, 4)
     })
 
     it("should set the scale value of the object to the value of the entity's TransformComponent.scale", () => {
       const Expected = new Vector3(40, 41, 42)
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { scale: Expected })
-      assertVecAllApproxNotEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
+      assertVec.allApproxNotEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
       addObjectToGroup(testEntity, mesh)
-      assertVecApproxEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
+      assertVec.approxEq(mesh.scale, getComponent(testEntity, TransformComponent).scale, 3)
     })
 
     it('should set the matrixAutoUpdate value of the object to false', () => {
@@ -328,9 +322,9 @@ describe('GroupComponent', () => {
       Expected.decompose(position, rotation, scale)
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: position, rotation: rotation, scale: scale })
-      assertMatrixAllApproxNotEq(mesh.matrix, Expected)
+      assertMatrix.allApproxNotEq(mesh.matrix, Expected)
       addObjectToGroup(testEntity, mesh)
-      assertMatrixApproxEq(mesh.matrix, getComponent(testEntity, TransformComponent).matrix)
+      assertMatrix.approxEq(mesh.matrix, getComponent(testEntity, TransformComponent).matrix)
     })
 
     it("should set the matrixWorld value of the object to the value of the entity's TransformComponent.matrixWorld", () => {
@@ -342,9 +336,9 @@ describe('GroupComponent', () => {
       Expected.decompose(position, rotation, scale)
       const mesh = new Mesh(new BoxGeometry())
       setComponent(testEntity, TransformComponent, { position: position, rotation: rotation, scale: scale })
-      assertMatrixAllApproxNotEq(mesh.matrixWorld, Expected)
+      assertMatrix.allApproxNotEq(mesh.matrixWorld, Expected)
       addObjectToGroup(testEntity, mesh)
-      assertMatrixApproxEq(mesh.matrixWorld, getComponent(testEntity, TransformComponent).matrixWorld)
+      assertMatrix.approxEq(mesh.matrixWorld, getComponent(testEntity, TransformComponent).matrixWorld)
     })
   }) //:: addObjectToGroup
 
