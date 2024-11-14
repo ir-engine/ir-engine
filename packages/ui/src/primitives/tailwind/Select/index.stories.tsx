@@ -56,6 +56,22 @@ const argTypes: ArgTypes = {
     control: {
       type: 'boolean'
     }
+  },
+  disabled: {
+    control: {
+      type: 'boolean'
+    }
+  },
+  helperText: {
+    control: {
+      type: 'text'
+    }
+  },
+  state: {
+    control: {
+      type: 'select'
+    },
+    options: ['success', 'error']
   }
 }
 

@@ -24,10 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
-import { CheckLg, ChevronDownSm } from '@ir-engine/ui/src/icons'
-import React, { useEffect, useLayoutEffect } from 'react'
+import { CheckLg, ChevronDownSm, HelpIconSm } from '@ir-engine/ui/src/icons'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { InputProps, variantSizes } from '../Input'
+import Tooltip from '../Tooltip'
 
 export interface MenuItemProps {
   children: React.ReactNode
@@ -63,11 +64,12 @@ export interface SelectProps<T = string | number> {
   onChange: (value: T) => void
   value: T
   renderValue?: (value: T) => React.ReactNode
-  labelProps?: {
-    text: string
-    position: 'top' | 'left'
-  }
+  labelProps?: InputProps['labelProps']
+  state?: InputProps['state']
+  helperText?: InputProps['helperText']
+  required?: boolean
   showCheckmark?: boolean
+  disabled?: boolean
 }
 
 const Select = ({
@@ -78,7 +80,11 @@ const Select = ({
   value,
   renderValue,
   labelProps,
-  showCheckmark
+  state,
+  helperText,
+  required,
+  showCheckmark,
+  disabled
 }: SelectProps) => {
   const variantToWidth: Record<NonNullable<SelectProps['width']>, string> = {
     sm: '240px',
@@ -86,14 +92,16 @@ const Select = ({
     lg: '520px',
     full: '100%'
   }
-  const [open, setOpen] = React.useState(true)
-  const [positioning, setPositioning] = React.useState({
+  const [open, setOpen] = useState(false)
+  const [positioning, setPositioning] = useState({
     direction: 'down' as 'down' | 'up',
     maxHeight: '0px'
   })
-  const ref = React.useRef<HTMLDivElement>(null)
-  const [selectedLabelContent, setSelectedLabelContent] = React.useState<React.ReactNode>(null)
-  const [selectedMenuIndex, setSelectedMenuIndex] = React.useState(-1)
+  const ref = useRef<HTMLDivElement>(null)
+  const [selectedLabelContent, setSelectedLabelContent] = useState<React.ReactNode>(null)
+  const [selectedMenuIndex, setSelectedMenuIndex] = useState(-1)
+  const labelRef = useRef<HTMLLabelElement>(null)
+  const [helperOffset, setHelperOffset] = useState('')
 
   useLayoutEffect(() => {
     const updateDirection = () => {
@@ -119,6 +127,23 @@ const Select = ({
       window.removeEventListener('resize', updateDirection)
     }
   }, [])
+
+  useLayoutEffect(() => {
+    const updateHelperTextPosition = () => {
+      if (labelProps?.position === 'left' && labelRef.current) {
+        setHelperOffset(`${labelRef.current.offsetWidth + 8}px`)
+      } else {
+        setHelperOffset('')
+      }
+    }
+
+    updateHelperTextPosition()
+
+    window.addEventListener('resize', updateHelperTextPosition)
+    return () => {
+      window.removeEventListener('resize', updateHelperTextPosition)
+    }
+  }, [labelProps])
 
   useClickOutside(ref, () => {
     setOpen(false)
@@ -174,55 +199,83 @@ const Select = ({
   })
 
   return (
-    <div
-      className={twMerge(
-        'flex',
-        width === 'full' ? 'w-full' : 'w-fit',
-        labelProps?.position === 'top' && 'flex-col gap-y-2',
-        labelProps?.position === 'left' && 'flex-row items-center gap-x-2'
-      )}
-    >
-      {labelProps?.text && (
-        <label className="block text-xs font-medium">
-          <div className="flex flex-row items-center gap-x-1.5">
-            <div className="flex flex-row items-center gap-x-0.5">
-              <span className="whitespace-nowrap text-xs text-[#D3D5D9]">{labelProps.text}</span>
-            </div>
-          </div>
-        </label>
-      )}
-
+    <div className={`flex flex-col gap-y-2 ${width === 'full' ? 'w-full' : 'w-fit'}`}>
       <div
-        ref={ref}
-        className="relative"
-        style={{
-          width: variantToWidth[width]
-        }}
-      >
-        <div
-          onClick={() => {
-            setOpen((v) => !v)
-          }}
-          className={`relative flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA] ${variantSizes[inputSizeVariant]}`}
-        >
-          <div className="w-full">{selectedLabelContent || '-'}</div>
-
-          <ChevronDownSm className={`${open && 'rotate-180'} duration-300`} />
-        </div>
-
-        {open && (
-          <div
-            className={`absolute flex w-full flex-col overflow-y-auto rounded-lg ${
-              positioning.direction === 'down' && 'top-[calc(100%+0.5rem)]'
-            } ${positioning.direction === 'up' && 'bottom-[calc(100%+0.5rem)]'}`}
-            style={{
-              maxHeight: positioning.maxHeight
-            }}
-          >
-            {modifiedChildren}
-          </div>
+        className={twMerge(
+          'flex',
+          width === 'full' ? 'w-full' : 'w-fit',
+          labelProps?.position === 'top' && 'flex-col gap-y-2',
+          labelProps?.position === 'left' && 'flex-row items-center gap-x-2'
         )}
+      >
+        {labelProps?.text && (
+          <label className="block text-xs font-medium" ref={labelRef}>
+            <div className="flex flex-row items-center gap-x-1.5">
+              <div className="flex flex-row items-center gap-x-0.5">
+                {required && <span className="text-sm text-[#E11D48]">*</span>}
+                <span className="text-xs text-[#D3D5D9]">{labelProps.text}</span>
+              </div>
+
+              {labelProps?.infoText && (
+                <Tooltip content={labelProps.infoText}>
+                  <HelpIconSm className="text-[#9CA0AA]" />
+                </Tooltip>
+              )}
+            </div>
+          </label>
+        )}
+
+        <div
+          ref={ref}
+          className="relative"
+          style={{
+            width: variantToWidth[width]
+          }}
+        >
+          <div
+            onClick={() => {
+              if (!disabled) {
+                setOpen((v) => !v)
+              }
+            }}
+            className={twMerge(
+              `relative flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA] ${
+                variantSizes[inputSizeVariant]
+              } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
+              state === 'success' && 'border-[#10B981]',
+              state === 'error' && 'border-[#C3324B]'
+            )}
+          >
+            <div className="w-full">{selectedLabelContent || '-'}</div>
+
+            <ChevronDownSm className={`${open && 'rotate-180'} duration-300`} />
+          </div>
+
+          {open && (
+            <div
+              className={`absolute flex w-full flex-col overflow-y-auto rounded-lg ${
+                positioning.direction === 'down' && 'top-[calc(100%+0.5rem)]'
+              } ${positioning.direction === 'up' && 'bottom-[calc(100%+0.5rem)]'}`}
+              style={{
+                maxHeight: positioning.maxHeight
+              }}
+            >
+              {modifiedChildren}
+            </div>
+          )}
+        </div>
       </div>
+
+      {helperText && (
+        <span
+          className={`text-xs ${state === 'success' && 'text-[#0D9467]'} ${state === 'error' && 'text-[#C3324B]'}`}
+          style={{
+            translate: helperOffset
+          }}
+        >
+          {helperText}
+        </span>
+      )}
     </div>
   )
 }
