@@ -41,7 +41,7 @@ import assert from 'assert'
 import { Material, Uniform, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { assertVecApproxEq } from '../../../../../tests/util/mathAssertions'
+import { assertVec } from '../../../../../tests/util/assert'
 import { generateNoiseTexture } from '../../../functions/generateNoiseTexture'
 import { MaterialStateComponent } from '../../MaterialComponent'
 import { NoiseOffsetPluginComponent, NoiseOffsetSystem } from './NoiseOffsetPlugin'
@@ -72,7 +72,7 @@ function assertNoiseOffsetPluginComponentEq(
   assert.deepEqual(A.frequency, A.frequency)
   assert.deepEqual(A.amplitude, B.amplitude)
   //assert.deepEqual((A.noiseTexture as Uniform<Texture>).value.uuid, (B.noiseTexture as Uniform<Texture>).value.uuid)
-  assertVecApproxEq((A.offsetAxis as Uniform<Vector3>).value, (B.offsetAxis as Uniform<Vector3>).value, 3)
+  assertVec.approxEq((A.offsetAxis as Uniform<Vector3>).value, (B.offsetAxis as Uniform<Vector3>).value, 3)
   assert.deepEqual(A.time, B.time)
 }
 
@@ -141,11 +141,11 @@ describe('NoiseOffsetSystem', () => {
   const System = SystemDefinitions.get(NoiseOffsetSystem)!
 
   describe('Fields', () => {
-    it('should initialize the ClientInputSystem.uuid field with the expected value', () => {
+    it('should initialize the *System.uuid field with the expected value', () => {
       assert.equal(System.uuid, 'ee.spatial.material.NoiseOffsetSystem')
     })
 
-    it('should initialize the ClientInputSystem.insert field with the expected value', () => {
+    it('should initialize the *System.insert field with the expected value', () => {
       assert.notEqual(System.insert, undefined)
       assert.notEqual(System.insert!.before, undefined)
       assert.equal(System.insert!.before!, PresentationSystemGroup)

@@ -112,7 +112,12 @@ export const identityProviderQuerySchema = Type.Intersect(
       }
     }),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        action: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

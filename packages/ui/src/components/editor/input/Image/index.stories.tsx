@@ -23,11 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineConfig } from 'vitest/config'
+import Component from './index'
 
-export default defineConfig({
-  test: {
-    environment: 'jsdom',
-    passWithNoTests: true
-  }
-})
+const argTypes = {}
+
+export default {
+  title: 'Editor/Input/Image',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ImageInput',
+    jest: 'Image.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
+export const Default = { args: Component }
