@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
 
 import { PopupMenuServices } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
@@ -41,14 +40,10 @@ export const EditorNavbarProfile = () => {
 
   return (
     <>
-      <Button
-        onClick={handleClick}
-        className="flex items-center"
-        endIcon={<MdPerson className="text-2xl" />}
-        variant="transparent"
-      >
+      <button onClick={handleClick} className="flex items-center gap-1 font-medium text-white">
         <span>{name.value}</span>
-      </Button>
+        <MdPerson className="text-2xl" />
+      </button>
     </>
   )
 }

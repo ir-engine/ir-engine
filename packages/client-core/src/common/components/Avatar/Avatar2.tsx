@@ -28,6 +28,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiEdit2 } from 'react-icons/fi'
+import { HiPencil } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 import { handleSoundEffect } from '../../utils'
 
@@ -116,13 +117,13 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
       />
       {showChangeButton && (
         <Button
-          size="sm"
+          size="xs"
           variant="secondary"
           data-testid="edit-avatar-button"
           className="h-8 w-10 rounded-full border-[#162546] border-opacity-65 text-white"
           onClick={handleChange}
         >
-          <FiEdit2 size={16} />
+          <HiPencil size={16} />
         </Button>
       )}
     </div>

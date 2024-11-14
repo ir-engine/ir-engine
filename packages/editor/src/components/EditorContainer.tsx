@@ -49,7 +49,7 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
@@ -277,14 +277,9 @@ const EditorContainer = () => {
             content={t('editor:help')}
             arrow={true}
           >
-            <Button
-              rounded="full"
-              size="small"
-              className="h-8 w-8 p-0"
-              iconContainerClassName="m-0"
-              startIcon={<IoHelpCircleOutline fontSize={24} />}
-              onClick={openChat}
-            />
+            <Button size="sm" className="h-8 w-8 p-0" onClick={openChat}>
+              <IoHelpCircleOutline fontSize={24} />
+            </Button>
           </Tooltip>
         </div>
       )}

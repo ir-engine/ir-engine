@@ -63,7 +63,7 @@ const Button = (
         'px-4 py-1',
         sizes[size],
         fullWidth ? 'w-full' : 'w-fit',
-        'min-w-[66px]',
+        // 'min-w-[66px]',
         'disabled:cursor-not-allowed',
         variants[variant],
         className
