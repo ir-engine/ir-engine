@@ -1186,7 +1186,6 @@ describe('ClientInputHooks', () => {
       assert.equal(one.has(testEntity), true)
 
       removeComponent(parentEntity, InputComponent)
-
       root.run()
 
       const two = getState(InputState).inputMeshes

@@ -28,7 +28,7 @@ import Text from '../../../primitives/tailwind/Text'
 
 export const PanelTitle = ({ children }: { children: ReactNode }) => {
   return (
-    <Text fontSize="sm" className="bg-[#212226] leading-none">
+    <Text fontSize="sm" className="leading-none">
       {children}
     </Text>
   )
