@@ -53,6 +53,10 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -355,6 +359,8 @@ const AnimationReactor = () => {
         bindAnimationClipFromMixamo(animation)
       }
       getMutableState(AnimationState).loadedAnimations[animations[i]].set(loadedAnimationEntity[1]!)
+      for (const entity of getComponent(loadedAnimationEntity[1], EntityTreeComponent).children)
+        removeEntityNodeRecursively(entity)
       i++
     }
   }, [loadedAnimations])
