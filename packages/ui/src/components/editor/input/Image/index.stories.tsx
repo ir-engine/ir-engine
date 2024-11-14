@@ -23,21 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-import Text from '../../../primitives/tailwind/Text'
+import Component from './index'
 
-export const PanelTitle = ({ children }: { children: ReactNode }) => {
-  return (
-    <Text fontSize="sm" className="leading-none">
-      {children}
-    </Text>
-  )
-}
+const argTypes = {}
 
-export const PanelDragContainer = ({ children, dataTestId }: { children: ReactNode; dataTestId?: string }) => {
-  return (
-    <div className="flex cursor-pointer rounded-t-md px-4 py-2" data-testid={dataTestId || ''}>
-      {children}
-    </div>
-  )
+export default {
+  title: 'Editor/Input/Image',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ImageInput',
+    jest: 'Image.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
+export const Default = { args: Component }
