@@ -35,7 +35,7 @@ import {
 } from '@ir-engine/ecs'
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertArrayEqual } from '../../../tests/util/mathAssertions'
+import { assertArray } from '../../../tests/util/assert'
 import { ComputedTransformComponent } from './ComputedTransformComponent'
 import { TransformComponent } from './TransformComponent'
 
@@ -53,7 +53,7 @@ function assertComputedTransformComponentEq(
   A: ComputedTransformComponentData,
   B: ComputedTransformComponentData
 ): void {
-  assertArrayEqual(A.referenceEntities, B.referenceEntities)
+  assertArray.eq(A.referenceEntities, B.referenceEntities)
   assert.equal(A.computeFunction?.toString(), B.computeFunction?.toString())
 }
 
