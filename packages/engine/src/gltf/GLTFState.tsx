@@ -1091,9 +1091,7 @@ const PrimitiveExtensionReactor = (props: {
   useEffect(() => {
     if (!extensions) return
     for (const extension in extensions) {
-      console.log(extension)
       const Component = ComponentJSONIDMap.get(extension)
-      console.log(Component)
       if (!Component) continue
       setComponent(props.entity, Component, extensions[extension])
     }

@@ -169,7 +169,6 @@ export function findEditor(intersectionData: Set<IntersectionData>, caster: Rayc
 
   const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
     .map((eid) => getComponent(eid, ObjectComponent))
-  console.log({ objects })
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
   caster.layers.enable(ObjectLayers.Gizmos)
