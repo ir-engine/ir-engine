@@ -23,21 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-import Text from '../../../primitives/tailwind/Text'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import React from 'react'
+import FileBrowserInput from '../FileBrowser'
+import { StringInputProps } from '../String'
 
-export const PanelTitle = ({ children }: { children: ReactNode }) => {
-  return (
-    <Text fontSize="sm" className="leading-none">
-      {children}
-    </Text>
-  )
+export function ImageInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
 }
-
-export const PanelDragContainer = ({ children, dataTestId }: { children: ReactNode; dataTestId?: string }) => {
-  return (
-    <div className="flex cursor-pointer rounded-t-md px-4 py-2" data-testid={dataTestId || ''}>
-      {children}
-    </div>
-  )
-}
+ImageInput.defaultProps = {}
+export default ImageInput

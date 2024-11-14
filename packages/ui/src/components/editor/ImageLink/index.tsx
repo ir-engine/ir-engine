@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { ImgHTMLAttributes, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import ImageInput from '../input/Image'
 import ImageUrlFallback from './image-url-fallback.png'
 
 export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'onChange' | 'onBlur'> {
@@ -104,12 +105,7 @@ export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...
           >
             {t('common:components.clear')}
           </button>
-          <input
-            value={src}
-            onChange={(event) => onChange?.(event.target.value)}
-            onBlur={(event) => onBlur?.(event.target.value)}
-            className="w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]"
-          />
+          <ImageInput value={src ?? ''} onChange={onChange} onRelease={onBlur} />
         </>
       )}
     </div>
