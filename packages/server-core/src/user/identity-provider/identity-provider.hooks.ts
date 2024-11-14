@@ -298,7 +298,7 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          (ctx: HookContext) => (isAction('admin')(ctx) && checkScope('admin', 'admin')(ctx)) || isSearchQuery(ctx),
+          (ctx: HookContext) => (isAction('admin')(ctx) && checkScope('user', 'read')(ctx)) || isSearchQuery(ctx),
           [],
           [setLoggedinUserInQuery('userId')]
         )
