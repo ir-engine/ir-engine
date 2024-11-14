@@ -37,7 +37,7 @@ import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertVecApproxEq } from '../../tests/util/mathAssertions'
+import { assertVec } from '../../tests/util/assert'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { SpawnPoseState } from './SpawnPoseState'
 import { TransformComponent } from './components/TransformComponent'
@@ -93,10 +93,11 @@ describe('SpawnPoseState', () => {
           }, {})
         )
         // Sanity check before running
-        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Initial, 3)
+        for (const entity of entities) assertVec.approxEq(getComponent(entity, TransformComponent).position, Initial, 3)
         // Run and Check the result
         const root = startReactor(SpawnPoseState.reactor)
-        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Expected, 3)
+        for (const entity of entities)
+          assertVec.approxEq(getComponent(entity, TransformComponent).position, Expected, 3)
       })
 
       it('... should update the entity with that UUID: TransformComponent.rotation should become SpawnPoseState.spawnRotation', () => {
@@ -124,10 +125,11 @@ describe('SpawnPoseState', () => {
           }, {})
         )
         // Sanity check before running
-        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).rotation, Initial, 4)
+        for (const entity of entities) assertVec.approxEq(getComponent(entity, TransformComponent).rotation, Initial, 4)
         // Run and Check the result
         const root = startReactor(SpawnPoseState.reactor)
-        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).rotation, Expected, 4)
+        for (const entity of entities)
+          assertVec.approxEq(getComponent(entity, TransformComponent).rotation, Expected, 4)
       })
 
       it('... should not do anything if entity is falsy', () => {
@@ -154,10 +156,10 @@ describe('SpawnPoseState', () => {
           }, {})
         )
         // Sanity check before running
-        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Initial, 3)
+        for (const entity of entities) assertVec.approxEq(getComponent(entity, TransformComponent).position, Initial, 3)
         // Run and Check the result
         const root = startReactor(SpawnPoseState.reactor)
-        for (const entity of entities) assertVecApproxEq(getComponent(entity, TransformComponent).position, Initial, 3)
+        for (const entity of entities) assertVec.approxEq(getComponent(entity, TransformComponent).position, Initial, 3)
       })
     })
   }) //:: reactor
