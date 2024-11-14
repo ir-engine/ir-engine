@@ -41,12 +41,12 @@ import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/t
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
+import { RendererState } from '../../renderer/RendererState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { addObjectToGroup, ObjectComponent } from '../../renderer/components/ObjectComponent'
-import { ObjectLayerMaskComponent, setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { RendererState } from '../../renderer/RendererState'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',

@@ -35,7 +35,6 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
-  hasComponents,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
@@ -43,7 +42,7 @@ import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
 import sinon from 'sinon'
-import { Box3, BoxGeometry, Group, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { Box3, BoxGeometry, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { MockXRFrame } from '../../../tests/util/MockXR'
 import { assertArrayAnyNotEq, assertArrayEqual, assertVecApproxEq } from '../../../tests/util/mathAssertions'

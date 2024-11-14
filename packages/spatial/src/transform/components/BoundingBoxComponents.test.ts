@@ -44,12 +44,12 @@ import { assertVecAnyApproxNotEq, assertVecApproxEq } from '../../../tests/util/
 import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent, BoundingBoxComponentFunctions, updateBoundingBox } from './BoundingBoxComponents'
 import { EntityTreeComponent } from './EntityTree'
 import { TransformComponent } from './TransformComponent'
-import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 
 function createEntityWithBoxAndParent(parent: Entity): Entity {
   const result = createEntity()
@@ -220,7 +220,11 @@ describe('BoundingBoxComponent', () => {
           assert.equal(hasComponent(helperEntity, TransformComponent), true)
           assert.equal(hasComponent(helperEntity, ObjectComponent), true)
           const result = getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper)
-          console.log(getComponent(helperEntity, ObjectComponent).layers, getComponent(helperEntity, ObjectComponent).layers.mask, getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper))
+          console.log(
+            getComponent(helperEntity, ObjectComponent).layers,
+            getComponent(helperEntity, ObjectComponent).layers.mask,
+            getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper)
+          )
           assert.equal(result, Expected)
         })
       })
