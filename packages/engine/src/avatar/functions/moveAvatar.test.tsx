@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import { strictEqual } from 'assert'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
@@ -41,12 +40,13 @@ import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Ph
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { act, render } from '@testing-library/react'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+import { AvatarState } from '../state/AvatarNetworkState'
 import { applyGamepadInput } from './moveAvatar'
-import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 describe('moveAvatar function tests', () => {
   let sceneEntity: Entity
@@ -71,13 +71,14 @@ describe('moveAvatar function tests', () => {
 
   const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
   const tag = <NetworkWorldUserStateSystemReactor />
+  const avatarUrl = 'packages/projects/default-project/assets/avatars/male_01.vrm'
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.store.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -87,16 +88,14 @@ describe('moveAvatar function tests', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarURL: '',
-        name: ''
+        entityUUID: (Engine.instance.store.userID + '_avatar') as EntityUUID,
+        avatarURL: avatarUrl,
+        name: 'TestAvatar'
       })
     )
-
     applyIncomingActions()
-
-    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
+    await act(() => rerender(AvatarState.reactor))
+    const entity = AvatarComponent.getSelfAvatarEntity()
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
     const avatar = getComponent(entity, AvatarControllerComponent)
@@ -118,7 +117,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.store.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -128,17 +127,14 @@ describe('moveAvatar function tests', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarURL: '',
-        name: ''
+        entityUUID: (Engine.instance.store.userID + '_avatar') as EntityUUID,
+        avatarURL: avatarUrl,
+        name: 'TestAvatar'
       })
     )
-
     applyIncomingActions()
-
-    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
-
+    await act(() => rerender(AvatarState.reactor))
+    const entity = AvatarComponent.getSelfAvatarEntity()
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
@@ -158,7 +154,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.store.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -171,17 +167,14 @@ describe('moveAvatar function tests', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarURL: '',
-        name: ''
+        entityUUID: (Engine.instance.store.userID + '_avatar') as EntityUUID,
+        avatarURL: avatarUrl,
+        name: 'TestAvatar'
       })
     )
-
     applyIncomingActions()
-
-    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
-
+    await act(() => rerender(AvatarState.reactor))
+    const entity = AvatarComponent.getSelfAvatarEntity()
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
@@ -201,27 +194,25 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.store.userID, 0)
 
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(() => rerender(<></>))
 
     dispatchAction(
       AvatarNetworkAction.spawn({
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarURL: '',
-        name: ''
+        entityUUID: (Engine.instance.store.userID + '_avatar') as EntityUUID,
+        avatarURL: avatarUrl,
+        name: 'TestAvatar'
       })
     )
-
     applyIncomingActions()
-
-    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
-
+    await act(() => rerender(AvatarState.reactor))
+    const entity = AvatarComponent.getSelfAvatarEntity()
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0

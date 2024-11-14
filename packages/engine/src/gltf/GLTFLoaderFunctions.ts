@@ -1059,6 +1059,7 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
 
       useEffect(() => {
         const channelDataArray = Object.values(channelData.get(NO_PROXY))
+        if (!channelDataArray.some((data) => data.nodes)) return
         if (
           (channelDataArray.length === 1 && channelDataArray[0].nodes === null) /**@todo reevaluate this check */ ||
           channelDataArray.some((data) => !data.outputAccessors || !data.inputAccessors)
