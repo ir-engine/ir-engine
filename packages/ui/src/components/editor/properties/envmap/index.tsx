@@ -35,12 +35,7 @@ import { EnvMapSourceType, EnvMapTextureType } from '@ir-engine/engine/src/scene
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperties,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ImageLink, Slider } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
@@ -76,8 +71,8 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
-    if (directory !== directory /*envmapComponent.envMapSourceURL*/) {
-      updateProperties(EnvmapComponent, { envMapSourceURL: directory })
+    if (directory !== envmapComponent.envMapSourceURL.value) {
+      commitProperty(EnvmapComponent, 'envMapSourceURL', directory)
     }
   }, [])
 
