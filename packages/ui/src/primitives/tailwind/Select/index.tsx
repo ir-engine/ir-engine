@@ -266,7 +266,7 @@ const Select = ({
         </div>
       </div>
 
-      {helperText && (
+      {helperText && !open && (
         <span
           className={`text-xs ${state === 'success' && 'text-[#0D9467]'} ${state === 'error' && 'text-[#C3324B]'}`}
           style={{
