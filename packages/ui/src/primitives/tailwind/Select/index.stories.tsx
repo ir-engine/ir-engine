@@ -23,30 +23,94 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import React, { useEffect } from 'react'
+import { ArgTypes } from 'storybook/internal/types'
+import Select, { MenuItem, SelectProps } from './index'
 
-export default {
-  title: 'Primitives/Tailwind/Select',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'Select',
-    jest: 'Select.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
+const argTypes: ArgTypes = {
+  numberOfListItems: {
+    control: 'number',
+    name: 'Number of List Items'
+  },
+  width: {
+    control: 'select',
+    options: ['sm', 'md', 'lg', 'full']
+  },
+  inputSizeVariant: {
+    control: 'select',
+    options: ['xs', 'l', 'xl']
+  },
+  labelText: {
+    control: {
+      type: 'text'
     }
+  },
+  labelPosition: {
+    control: {
+      type: 'select'
+    },
+    options: ['top', 'left']
   }
 }
 
-export const Default = {
+export default {
+  title: 'Primitives/Tailwind/Select',
+  component: Select,
+  parameters: {
+    componentSubtitle: 'Select',
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2508-3421&t=XJmPDraRXGrLFAp3-4'
+    }
+  },
+  argTypes,
   args: {
-    label: 'Select Example',
-    options: [
-      { name: 'A1', value: 'a1' },
-      { name: 'B2', value: 'b2' },
-      { name: 'C3', value: 'c3' }
-    ],
-    currentValue: 'b2',
-    onChange: () => {}
+    numberOfListItems: 5
+  }
+}
+
+const Renderer = ({ numberOfListItems, labelText, labelPosition, ...props }) => {
+  const items = Array.from({ length: numberOfListItems }, (_, i) => (
+    <MenuItem key={i} value={i} selected={i === 0}>
+      <span>Item {i}</span>
+    </MenuItem>
+  ))
+
+  const [value, setValue] = React.useState(-1)
+
+  const onChange = (value: number) => {
+    setValue(value)
+  }
+
+  const [labelProps, setLabelProps] = React.useState(undefined as SelectProps['labelProps'] | undefined)
+
+  useEffect(() => {
+    if (labelText && labelPosition) {
+      setLabelProps({
+        text: labelText,
+        position: labelPosition
+      })
+    } else {
+      setLabelProps(undefined)
+    }
+  }, [labelText, labelPosition])
+
+  return (
+    <Select value={value} onChange={onChange} labelProps={labelProps} {...props}>
+      {items}
+    </Select>
+  )
+}
+
+export const Default = {
+  render: Renderer
+}
+
+export const CustomRenderValue = {
+  render: Renderer,
+  args: {
+    labelText: 'Price',
+    labelPosition: 'top',
+    renderValue: (value: number) => `$${Math.max(value * 100, 20)}`
   }
 }
