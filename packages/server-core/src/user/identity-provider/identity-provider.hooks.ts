@@ -39,7 +39,7 @@ import {
   IdentityProviderType
 } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
-import { checkScope as checkScopeHook } from '@ir-engine/common/src/utils/checkScope'
+import { checkScope as checkScopeMethod } from '@ir-engine/common/src/utils/checkScope'
 import checkScope from '../../hooks/check-scope'
 
 import { Paginated } from '@feathersjs/feathers'
@@ -181,7 +181,7 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
 }
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
-  const isAdmin = context.existingUser && (await checkScopeHook(context.existingUser, 'admin', 'admin'))
+  const isAdmin = context.existingUser && (await checkScopeMethod(context.existingUser, 'admin', 'admin'))
   if (
     !isAdmin &&
     context.params!.provider &&
@@ -239,7 +239,7 @@ async function addScopes(context: HookContext<IdentityProviderService>) {
 }
 
 const addDevProjectPermissions = async (context: HookContext<IdentityProviderService>) => {
-  if (!isDev || !(await checkScopeHook(context.existingUser, 'admin', 'admin'))) return
+  if (!isDev || !(await checkScopeMethod(context.existingUser, 'admin', 'admin'))) return
 
   const user = context.existingUser as UserType
 
