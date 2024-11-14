@@ -29,7 +29,8 @@ import {
   imageDataToBlob
 } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
 import { commitProperty } from '../components/properties/Util'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -132,5 +133,19 @@ export const SceneThumbnailState = defineState({
       loadingScreenImageData: null,
       uploadingLoadingScreen: false
     })
+  },
+  reactor: () => {
+    const editorState = useHookstate(getMutableState(EditorState))
+    useEffect(() => {
+      getMutableState(SceneThumbnailState).merge({
+        oldLoadingScreenURL: null,
+        oldThumbnailURL: null,
+        loadingScreenURL: null,
+        thumbnailURL: null,
+        thumbnail: null,
+        loadingScreenImageData: null
+      })
+    }, [editorState.scenePath])
+    return null
   }
 })
