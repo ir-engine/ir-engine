@@ -349,11 +349,13 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
 
 const ChildDependencyReactor = (props: { gltfComponentEntity: Entity; component: Component; count: number }) => {
   const { gltfComponentEntity, component, count } = props
-  const childrenCount = useChildrenWithComponents(gltfComponentEntity, [component]).length
+  const children = useChildrenWithComponents(gltfComponentEntity, [component])
+  const childrenCount = children.length
 
   useEffect(() => {
-    // Loading spinner meshes make this number higher than the mesh count on the GLTF
-    if (childrenCount >= count) {
+    const gltfSource = GLTFComponent.getInstanceID(gltfComponentEntity)
+    const gltfChildren = children.filter((child) => getOptionalComponent(child, SourceComponent) === gltfSource)
+    if (gltfChildren.length === count) {
       const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
       ;(gltfComponent.dependencies as State<ComponentDependencies>).childrenDependencies.set((prev) => {
         prev.delete(component)
