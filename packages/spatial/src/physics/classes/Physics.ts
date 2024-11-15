@@ -418,12 +418,20 @@ function applyImpulse(world: PhysicsWorld, entity: Entity, impulse: Vector3) {
   rigidBody.applyImpulse(impulse, true)
 }
 
-function createColliderDesc(world: PhysicsWorld, entity: Entity, rootEntity: Entity) {
+function createColliderDesc(
+  world: PhysicsWorld,
+  entity: Entity,
+  rootEntity: Entity,
+  colliderEntityOverride: Entity = UndefinedEntity
+) {
   if (!world.Rigidbodies.has(rootEntity)) return
 
   const mesh = getOptionalComponent(entity, MeshComponent)
 
-  const colliderComponent = getComponent(entity, ColliderComponent)
+  const colliderComponent = getComponent(
+    colliderEntityOverride !== UndefinedEntity ? colliderEntityOverride : entity,
+    ColliderComponent
+  )
 
   let shape: ShapeType
 

@@ -395,6 +395,7 @@
     "collider": {
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
+      "warn-missing-mesh": "No mesh found on entity or child entities! Mesh component required for ColliderComponent to function.",
       "lbl-isTrigger": "Trigger",
       "lbl-shape": "Shape",
       "lbl-type": "Body Type",

@@ -29,9 +29,12 @@ import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/compo
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent.ts'
+import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree.tsx'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiMinimize2 } from 'react-icons/fi'
+import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -48,6 +51,8 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const colliderComponent = useComponent(props.entity, ColliderComponent)
 
+  const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
+
   return (
     <NodeEditor
       {...props}
@@ -55,6 +60,9 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       description={t('editor:properties.collider.description')}
       Icon={ColliderComponentEditor.iconComponent}
     >
+      {childMeshEntities.length == 0 && ( //<ErrorPopup className="ml-5 text-red-400" visibleDuration={10000}  >{ t('editor:properties.collider.warn-missing-mesh') }  </ErrorPopup>
+        <Text className="ml-5 text-red-400">{t('editor:properties.collider.warn-missing-mesh')}</Text>
+      )}
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput
           options={shapeTypeOptions}

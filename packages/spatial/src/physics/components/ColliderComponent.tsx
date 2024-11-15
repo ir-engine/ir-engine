@@ -23,19 +23,35 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { useState } from '@ir-engine/hyperflux'
+import {
+  defineComponent,
+  Entity,
+  EntityUUID,
+  hasComponent,
+  useComponent,
+  useEntityContext,
+  useOptionalComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import { defineState, getMutableState, useState } from '@ir-engine/hyperflux'
 
+import { ColliderDesc } from '@dimforge/rapier3d-compat'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
-import { useAncestorWithComponents } from '../../transform/components/EntityTree'
+import { MeshComponent } from '../../renderer/components/MeshComponent.ts'
+import { useAncestorWithComponents, useChildrenWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { ShapeSchema, Shapes } from '../types/PhysicsTypes'
+import { Shapes, ShapeSchema } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
 import { TriggerComponent } from './TriggerComponent'
+
+export const NestedCollidersState = defineState({
+  name: 'NestedCollidersState',
+  initial: () => ({}) as Record<EntityUUID, { entity: Entity; colliderDesc: ColliderDesc }[]>
+})
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -60,22 +76,65 @@ export const ColliderComponent = defineComponent({
     const physicsWorld = Physics.useWorld(entity)
     const triggerComponent = useOptionalComponent(entity, TriggerComponent)
     const hasCollider = useState(false)
+    const uuid = useComponent(entity, UUIDComponent)
+    const childMeshEntities = useChildrenWithComponents(entity, [MeshComponent])
+
+    const nestedCollidersState = getMutableState(NestedCollidersState)
 
     useLayoutEffect(() => {
       if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
 
-      const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
+      for (const childMeshEntity of [...childMeshEntities, entity] as Entity[]) {
+        if (hasComponent(childMeshEntity, ColliderComponent)) continue
 
-      if (!colliderDesc) return
+        const colliderDesc = Physics.createColliderDesc(physicsWorld, childMeshEntity, rigidbodyEntity, entity)
 
-      Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
-      hasCollider.set(true)
+        if (!colliderDesc) continue
+
+        Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, childMeshEntity)
+
+        if (!nestedCollidersState[uuid.value].value) {
+          nestedCollidersState[uuid.value].set([])
+        }
+
+        nestedCollidersState[uuid.value].set([
+          ...Array.from(nestedCollidersState[uuid.value].value),
+          { entity: childMeshEntity, colliderDesc: colliderDesc }
+        ])
+      }
+      if (
+        nestedCollidersState[uuid.value] &&
+        nestedCollidersState[uuid.value].value &&
+        NestedCollidersState[uuid.value].value.length > 0
+      ) {
+        hasCollider.set(true)
+      }
 
       return () => {
-        Physics.removeCollider(physicsWorld, entity)
+        if (!nestedCollidersState[uuid.value]) return
+        const itemsToClear = nestedCollidersState[uuid.value].value
+        for (const item of Array.from(itemsToClear)) {
+          Physics.removeCollider(physicsWorld, item.entity)
+        }
         hasCollider.set(false)
       }
-    }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale])
+    }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale, childMeshEntities])
+
+    // useLayoutEffect(() => {
+    //   if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
+    //
+    //   const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
+    //
+    //   if (!colliderDesc) return
+    //
+    //   Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
+    //   hasCollider.set(true)
+    //
+    //   return () => {
+    //     Physics.removeCollider(physicsWorld, entity)
+    //     hasCollider.set(false)
+    //   }
+    // }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale, childMeshEntities])
 
     useLayoutEffect(() => {
       if (!physicsWorld) return

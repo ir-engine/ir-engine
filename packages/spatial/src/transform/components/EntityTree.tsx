@@ -494,7 +494,11 @@ export function useChildWithComponents(rootEntity: Entity, components: Component
   return result.value
 }
 
-export function useChildrenWithComponents(rootEntity: Entity, components: ComponentType<any>[]): Entity[] {
+export function useChildrenWithComponents(
+  rootEntity: Entity,
+  components: ComponentType<any>[],
+  includeSelf: boolean = false
+): Entity[] {
   const children = useHookstate([] as Entity[])
   const componentsString = components.map((component) => component.name).join()
   useLayoutEffect(() => {
