@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import './patchNodeForWebXREmulator'
 
+import { MockEventListener } from './MockEventListener'
+
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
 import { Entity, setComponent } from '@ir-engine/ecs'
@@ -32,7 +34,6 @@ import { EffectComposer, Pass, RenderPass } from 'postprocessing'
 import { WebGLRenderTarget } from 'three'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
 import { createWebXRManager } from '../../src/xr/WebXRManager'
-import { MockEventListener } from './MockEventListener'
 
 class MockCanvas extends MockEventListener {
   parentElement = new MockEventListener()
