@@ -23,5 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export const USERNAME_MAX_LENGTH = 70
-export const DEFAULT_USERNAME_TAG_VISIBILITY_RADIUS = 8
+import { defineState } from '@ir-engine/hyperflux'
+
+export const XruiNameplateState = defineState({
+  name: 'XruiNameplateState',
+  initial: {
+    isVisible: true,
+    isInteractable: false,
+    triggerDistance: 10,
+    defaultNamePlateHeight: 1.5,
+    transitionTime: 0.25,
+    uiParams: {
+      borderRadiusPx: 38,
+      bgPaddingPx: 3,
+      verticalContentPaddingPx: 5,
+      horizontalContentPaddingPx: 40
+    }
+  }
+})
