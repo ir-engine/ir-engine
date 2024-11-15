@@ -102,16 +102,12 @@ export const ColliderComponent = defineComponent({
           { entity: childMeshEntity, colliderDesc: colliderDesc }
         ])
       }
-      if (
-        nestedCollidersState[uuid.value] &&
-        nestedCollidersState[uuid.value].value &&
-        NestedCollidersState[uuid.value].value.length > 0
-      ) {
+      if (nestedCollidersState[uuid.value] && nestedCollidersState[uuid.value].length > 0) {
         hasCollider.set(true)
       }
 
       return () => {
-        if (!nestedCollidersState[uuid.value]) return
+        if (!nestedCollidersState[uuid.value].value) return
         const itemsToClear = nestedCollidersState[uuid.value].value
         for (const item of Array.from(itemsToClear)) {
           Physics.removeCollider(physicsWorld, item.entity)
