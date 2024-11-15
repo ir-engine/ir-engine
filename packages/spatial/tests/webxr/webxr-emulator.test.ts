@@ -23,12 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createEngine, destroyEngine } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { XRState } from '../../src/xr/XRState'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../util/mockEmulatedXREngine'
 import { CustomWebXRPolyfill } from './emulator'
+
+import { createEngine, destroyEngine } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
+import { XRState } from '../../src/xr/XRState'
 
 /** @note Runs once on the `describe` implied by vitest for this file */
 beforeAll(() => {
@@ -47,7 +48,7 @@ describe('WebXR-emulator', () => {
   })
 
   it('should be able to define and initialize a device', async () => {
-    expect(getState(XRState).session).not.toBeNull()
-    expect(getState(XRState).session).not.toBeUndefined()
+    expect(getState(XRState).session).not.toBe(null)
+    expect(getState(XRState).session).not.toBe(undefined)
   })
 }) //:: WebXR-emulator
