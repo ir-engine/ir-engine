@@ -27,7 +27,7 @@ import { ChevronDownSm, ChevronRightSm, Maximize02Sm } from '@ir-engine/ui/src/i
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-export interface DropdownItemProps {
+export interface EditorDropdownItemProps extends React.HTMLAttributes<HTMLDivElement> {
   selected?: boolean
   disabled?: boolean
   ItemIcon?: ({ className }: { className: string }) => JSX.Element
@@ -37,9 +37,11 @@ export interface DropdownItemProps {
   onRightIcon1Click?: () => void
   RightIcon2?: ({ className, onClick }: { className: string; onClick?: () => void }) => JSX.Element
   onRightIcon2Click?: () => void
+  collapsed?: boolean
+  className?: string
 }
 
-export default function DropdownItem({
+export default function EditorDropdownItem({
   selected,
   disabled,
   ItemIcon,
@@ -48,8 +50,11 @@ export default function DropdownItem({
   RightIcon1,
   onRightIcon2Click,
   RightIcon2,
-  onClick
-}: DropdownItemProps) {
+  onClick,
+  className,
+  collapsed,
+  ...props
+}: EditorDropdownItemProps) {
   const chevronArrowClassName = twMerge(
     'text-[#9CA0AA] transition-all ease-out',
     !disabled && 'group-hover/editor-dropdownitem:text-[#F5F5F5] group-focus/editor-dropdownitem:text-[#F5F5F5]',
@@ -66,6 +71,8 @@ export default function DropdownItem({
     disabled && 'text-[#42454D]'
   )
 
+  console.log('the props style', props.style)
+
   return (
     <div
       className={twMerge(
@@ -74,18 +81,20 @@ export default function DropdownItem({
         'group/editor-dropdownitem',
         !disabled && 'bg-[#141619] hover:bg-[#141619] focus:bg-[#2C2E33]',
         selected && 'bg-[#2C2E33]',
-        disabled && 'cursor-not-allowed bg-[#191B1F]'
+        disabled && 'cursor-not-allowed bg-[#191B1F]',
+        className
       )}
       onClick={() => !disabled && onClick?.()}
       tabIndex={0}
       onKeyUp={(event) => {
         if (!disabled && ['Enter', ' '].includes(event.key)) onClick?.()
       }}
+      {...props}
     >
-      {selected ? (
-        <ChevronDownSm className={chevronArrowClassName} />
-      ) : (
+      {collapsed ? (
         <ChevronRightSm className={chevronArrowClassName} />
+      ) : (
+        <ChevronDownSm className={chevronArrowClassName} />
       )}
       {ItemIcon ? <ItemIcon className={itemIconClassName} /> : <Maximize02Sm className={itemIconClassName} />}
       <span
