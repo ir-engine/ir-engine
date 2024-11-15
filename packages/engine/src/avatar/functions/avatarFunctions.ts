@@ -62,12 +62,9 @@ const hipsPos = new Vector3(),
 // box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
-  setComponent(entity, AvatarComponent)
   iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
-  // box.expandByObject(vrm.scene).getSize(size)
-  const worldHeight = Math.abs(getComponent(entity, TransformComponent).position.y)
-  console.log(worldHeight)
+  const worldHeight = Math.abs(TransformComponent.getWorldPosition(entity, new Vector3()).y)
   const rawRig = vrm.humanoid.rawHumanBones
   rawRig.hips.node.updateWorldMatrix(true, true)
   rawRig.hips.node.getWorldPosition(hipsPos)
@@ -80,13 +77,13 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rawRig.leftEye ? rawRig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   setComponent(entity, AvatarComponent, {
-    avatarHeight: headPos.y - worldHeight + 0.25,
+    avatarHeight: Math.abs(headPos.y) - worldHeight + 0.25,
     torsoLength: Math.abs(headPos.y - hipsPos.y),
     upperLegLength: Math.abs(hipsPos.y - leftLowerLegPos.y),
     lowerLegLength: Math.abs(leftLowerLegPos.y - leftFootPos.y),
-    hipsHeight: hipsPos.y,
-    eyeHeight: eyePos.y,
-    footHeight: leftFootPos.y,
+    hipsHeight: Math.abs(hipsPos.y) - worldHeight,
+    eyeHeight: eyePos.y - worldHeight,
+    footHeight: leftFootPos.y - worldHeight,
     footGap: footGap.subVectors(leftFootPos, rightFootPos).length(),
     footAngle: rawRig.leftToes ? Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y) : 0
   })
