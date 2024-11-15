@@ -126,8 +126,12 @@ export async function getJobBody(
   }
 }
 
-//K8s will add characters onto the name when making the pod, and names can be max 63 characters.
-//Trim the name to ensure it will be under that limit
+/**
+ * K8s will add characters onto the name when making the pod, and names can be max 63 characters.
+ * Trim the name to ensure it will be under that limit
+ * @param name
+ * @returns
+ */
 export function getValidPodName(name: string) {
   let sliced = name.slice(0, 52)
   if (!/[a-zA-Z0-9]/.test(sliced[sliced.length - 1])) sliced = sliced.slice(0, sliced.length - 1)
