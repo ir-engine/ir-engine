@@ -501,7 +501,7 @@ export function useChildrenWithComponents(
 ): Entity[] {
   const children = useHookstate([] as Entity[])
   const componentsString = components.map((component) => component.name).join()
-  const excludeString = exclude.length ? exclude.map((component) => component.name).join() : ''
+  const excludeString = exclude.map((component) => component.name).join()
   useLayoutEffect(() => {
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
@@ -524,7 +524,7 @@ export function useChildrenWithComponents(
             })
           }
         }
-      }, [matchesQuery])
+      }, [matchesQuery, matchesExludeQuery])
 
       if (!tree?.children?.value) return null
       return (
