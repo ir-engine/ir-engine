@@ -494,17 +494,23 @@ export function useChildWithComponents(rootEntity: Entity, components: Component
   return result.value
 }
 
-export function useChildrenWithComponents(rootEntity: Entity, components: ComponentType<any>[]): Entity[] {
+export function useChildrenWithComponents(
+  rootEntity: Entity,
+  components: ComponentType<any>[],
+  exclude: ComponentType<any>[] = []
+): Entity[] {
   const children = useHookstate([] as Entity[])
   const componentsString = components.map((component) => component.name).join()
+  const excludeString = exclude.length ? exclude.map((component) => component.name).join() : ''
   useLayoutEffect(() => {
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
       const matchesQuery = _useHasAllComponents(props.entity, components)
+      const matchesExludeQuery = _useHasAllComponents(props.entity, exclude) && exclude.length
 
       useLayoutEffect(() => {
-        if (!matchesQuery) return
+        if (!matchesQuery || matchesExludeQuery) return
         children.set((prev) => {
           if (prev.indexOf(props.entity) < 0) prev.push(props.entity)
           return prev
@@ -537,7 +543,7 @@ export function useChildrenWithComponents(rootEntity: Entity, components: Compon
       unmounted = true
       root.stop()
     }
-  }, [rootEntity, componentsString])
+  }, [rootEntity, componentsString, excludeString])
 
   return children.value as Entity[]
 }
