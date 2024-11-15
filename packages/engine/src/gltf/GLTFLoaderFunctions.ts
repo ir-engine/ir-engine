@@ -510,14 +510,14 @@ const useLoadMaterial = (
   useEffect(() => {
     if (!map) return
     map.colorSpace = SRGBColorSpace
-    result.value?.setValues({ map })
+    material?.setValues({ map })
     if (material) material.needsUpdate = true
   }, [material, map])
 
   useEffect(() => {
     if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
       const array = materialDef.pbrMetallicRoughness.baseColorFactor
-      result.value?.setValues({
+      material?.setValues({
         color: new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace),
         opacity: array[3]
       })
@@ -526,7 +526,7 @@ const useLoadMaterial = (
   }, [material, materialDef.pbrMetallicRoughness?.baseColorFactor])
 
   useEffect(() => {
-    result.value?.setValues({
+    material?.setValues({
       metalness:
         materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
           ? materialDef.pbrMetallicRoughness.metallicFactor
@@ -536,7 +536,7 @@ const useLoadMaterial = (
   }, [material, materialDef.pbrMetallicRoughness?.metallicFactor])
 
   useEffect(() => {
-    result.value?.setValues({
+    material?.setValues({
       roughness:
         materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
           ? materialDef.pbrMetallicRoughness.roughnessFactor
@@ -552,7 +552,7 @@ const useLoadMaterial = (
 
   useEffect(() => {
     if (!metalnessMap) return
-    result.value?.setValues({ metalnessMap })
+    material?.setValues({ metalnessMap })
     if (material) material.needsUpdate = true
   }, [material, metalnessMap])
 
@@ -563,34 +563,34 @@ const useLoadMaterial = (
 
   useEffect(() => {
     if (!roughnessMap) return
-    result.value?.setValues({ roughnessMap })
+    material?.setValues({ roughnessMap })
     if (material) material.needsUpdate = true
   }, [material, roughnessMap])
 
   useEffect(() => {
-    result.value?.setValues({ side: materialDef.doubleSided === true ? DoubleSide : FrontSide })
+    material?.setValues({ side: materialDef.doubleSided === true ? DoubleSide : FrontSide })
     if (material) material.needsUpdate = true
   }, [material, materialDef.doubleSided])
 
   useEffect(() => {
     const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE
-    result.value?.setValues({ transparent: alphaMode === ALPHA_MODES.BLEND })
+    material?.setValues({ transparent: alphaMode === ALPHA_MODES.BLEND })
 
     // See: https://github.com/mrdoob/three.js/issues/17706
     if (alphaMode === ALPHA_MODES.BLEND) {
-      result.value?.setValues({ depthWrite: false })
+      material?.setValues({ depthWrite: false })
     }
     if (material) material.needsUpdate = true
   }, [material, materialDef.alphaMode])
 
   useEffect(() => {
     if (materialDef.alphaMode === ALPHA_MODES.MASK) {
-      result.value?.setValues({ alphaTest: materialDef.alphaCutoff !== undefined ? materialDef.alphaCutoff : 0.5 })
+      material?.setValues({ alphaTest: typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5 })
     } else {
-      result.value?.setValues({ alphaTest: 0 })
+      material?.setValues({ alphaTest: 0 })
     }
     if (material) material.needsUpdate = true
-  }, [material, materialDef.alphaCutoff])
+  }, [material, materialDef.alphaMode, materialDef.alphaCutoff])
 
   const normalMap = GLTFLoaderFunctions.useAssignTexture(
     options,
@@ -599,16 +599,16 @@ const useLoadMaterial = (
 
   useEffect(() => {
     if (!normalMap) return
-    result.value?.setValues({ normalMap })
+    material?.setValues({ normalMap })
     if (material) material.needsUpdate = true
   }, [material, normalMap])
 
   useEffect(() => {
     if (materialDef.normalTexture?.scale) {
       const scale = materialDef.normalTexture.scale
-      result.value?.setValues({ normalScale: new Vector2(scale, scale) })
+      material?.setValues({ normalScale: new Vector2(scale, scale) })
     } else {
-      result.value?.setValues({ normalScale: new Vector2(1, 1) })
+      material?.setValues({ normalScale: new Vector2(1, 1) })
     }
     if (material) material.needsUpdate = true
   }, [material, materialDef.normalTexture?.scale])
@@ -620,12 +620,12 @@ const useLoadMaterial = (
 
   useEffect(() => {
     if (!aoMap) return
-    result.value?.setValues({ aoMap })
+    material?.setValues({ aoMap })
     if (material) material.needsUpdate = true
   }, [material, aoMap])
 
   useEffect(() => {
-    result.value?.setValues({ aoMapIntensity: materialDef.occlusionTexture?.strength ?? 1.0 })
+    material?.setValues({ aoMapIntensity: materialDef.occlusionTexture?.strength ?? 1.0 })
     if (material) material.needsUpdate = true
   }, [material, materialDef.occlusionTexture?.strength])
 
@@ -633,7 +633,7 @@ const useLoadMaterial = (
     const emissiveFactor = materialDef.emissiveFactor
     if (!emissiveFactor) return
 
-    result.value?.setValues({
+    material?.setValues({
       emissive: new Color().setRGB(emissiveFactor[0], emissiveFactor[1], emissiveFactor[2], LinearSRGBColorSpace)
     })
     if (material) material.needsUpdate = true
