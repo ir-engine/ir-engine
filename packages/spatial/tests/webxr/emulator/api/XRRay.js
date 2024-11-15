@@ -28,7 +28,7 @@ export const PRIVATE = Symbol('@@webxr-polyfill/XRRay');
 
 import { mat4, vec3, vec4 } from 'gl-matrix';
 
-import XRRigidTransform from 'webxr-polyfill/src/api/XRRigidTransform';
+import { XRRigidTransform  } from 'webxr-polyfill';
 
 export default class XRRay {
 	constructor(origin, direction) {

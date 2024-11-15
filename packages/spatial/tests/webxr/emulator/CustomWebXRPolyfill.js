@@ -38,12 +38,12 @@ import XRSession, {
 } from 'webxr-polyfill/src/api/XRSession';
 import { mat4, quat, vec3 } from 'gl-matrix';
 
-import API from 'webxr-polyfill/src/api/index';
+import { API  } from 'webxr-polyfill';
 import EX_API from './api/index';
 import EmulatedXRDevice from './EmulatedXRDevice';
 import { HAND_POSES } from './api/handPose';
 import { POLYFILL_ACTIONS } from './actions';
-import WebXRPolyfill from 'webxr-polyfill/src/WebXRPolyfill';
+import { WebXRPolyfill  } from 'webxr-polyfill';
 import { PRIVATE as XRHAND_PRIVATE } from './api/XRHand';
 import XRHitTestResult from './api/XRHitTestResult';
 import XRHitTestSource from './api/XRHitTestSource';
@@ -51,13 +51,13 @@ import { PRIVATE as XRJOINTSPACE_PRIVATE } from './api/XRJointSpace';
 import { XRJointPose } from './api/XRJointPose';
 import { XRMeshSet } from './api/XRMesh';
 import { XRPlaneSet } from './api/XRPlane';
-import XRReferenceSpace from 'webxr-polyfill/src/api/XRReferenceSpace';
-import XRRigidTransform from 'webxr-polyfill/src/api/XRRigidTransform';
-import XRSpace from 'webxr-polyfill/src/api/XRSpace';
-import XRSystem from 'webxr-polyfill/src/api/XRSystem';
+import { XRReferenceSpace  } from 'webxr-polyfill';
+import { XRRigidTransform  } from 'webxr-polyfill';
+import { XRSpace  } from 'webxr-polyfill';
+import { XRSystem  } from 'webxr-polyfill';
 import XRTransientInputHitTestResult from './api/XRTransientInputHitTestResult';
 import XRTransientInputHitTestSource from './api/XRTransientInputHitTestSource';
-import { XR_COMPATIBLE } from 'webxr-polyfill/src/constants';
+import {  XR_COMPATIBLE } from 'webxr-polyfill';
 import { WebXREventDispatcher } from './WebXREventDispatcher';
 
 const handMatrixInvert = [1, -1, -1, 0, -1, 1, 1, 0, -1, 1, 1, 0, -1, 1, 1, 1];

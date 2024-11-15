@@ -27,11 +27,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { PRIVATE, XRRemappedGamepad } from './XRGamepadInput';
 import { mat4, vec3 } from 'gl-matrix';
 
-import GamepadMappings from 'webxr-polyfill/src/devices/GamepadMappings';
+import { GamepadMappings  } from 'webxr-polyfill';
 import { XRHand } from './XRHand';
 import XRInputSource from './XRInputSource';
-import XRPose from 'webxr-polyfill/src/api/XRPose';
-import XRRigidTransform from 'webxr-polyfill/src/api/XRRigidTransform';
+import { XRPose  } from 'webxr-polyfill';
+import { XRRigidTransform  } from 'webxr-polyfill';
 
 export default class HandXRInputSource {
 	constructor(polyfill) {

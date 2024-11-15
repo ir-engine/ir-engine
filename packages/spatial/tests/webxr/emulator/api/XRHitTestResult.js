@@ -27,8 +27,8 @@ Infinite Reality Engine. All Rights Reserved.
 export const PRIVATE = Symbol('@@webxr-polyfill/XRHitTestResult');
 
 import { XRAnchor } from './XRAnchor';
-import { PRIVATE as XRFRAME_PRIVATE } from 'webxr-polyfill/src/api/XRFrame';
-import XRSpace from 'webxr-polyfill/src/api/XRSpace';
+import {  PRIVATE as XRFRAME_PRIVATE } from 'webxr-polyfill/src/api/XRFrame';
+import { XRSpace  } from 'webxr-polyfill';
 import { mat4 } from 'gl-matrix';
 
 export default class XRHitTestResult {

@@ -45,7 +45,7 @@ import { XRPlane, XRPlaneOrientation } from './api/XRPlane';
 
 import { BoxLineGeometry } from 'three/examples/jsm/geometries/BoxLineGeometry.js';
 import { XRMesh } from './api/XRMesh';
-import XRSpace from 'webxr-polyfill/src/api/XRSpace';
+import { XRSpace  } from 'webxr-polyfill';
 import { mat4 } from 'gl-matrix';
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment';
 

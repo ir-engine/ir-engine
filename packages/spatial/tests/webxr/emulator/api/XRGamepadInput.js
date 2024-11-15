@@ -26,11 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { mat4, quat, vec3 } from 'gl-matrix';
 
-import GamepadMappings from 'webxr-polyfill/src/devices/GamepadMappings';
-import OrientationArmModel from 'webxr-polyfill/src/lib/OrientationArmModel';
+import { GamepadMappings  } from 'webxr-polyfill';
+import { OrientationArmModel  } from 'webxr-polyfill';
 import XRInputSource from './XRInputSource';
-import XRPose from 'webxr-polyfill/src/api/XRPose';
-import XRRigidTransform from 'webxr-polyfill/src/api/XRRigidTransform';
+import { XRPose  } from 'webxr-polyfill';
+import { XRRigidTransform  } from 'webxr-polyfill';
 
 export const PRIVATE = Symbol('@@webxr-polyfill/XRRemappedGamepad');
 
