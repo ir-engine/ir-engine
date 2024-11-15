@@ -40,7 +40,11 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent.ts'
-import { useAncestorWithComponents, useChildrenWithComponents } from '../../transform/components/EntityTree'
+import {
+  getAncestorWithComponents,
+  useAncestorWithComponents,
+  useChildrenWithComponents
+} from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
@@ -87,7 +91,11 @@ export const ColliderComponent = defineComponent({
       const entitiesArray = [...childMeshEntities, entity] as Entity[]
 
       for (const childMeshEntity of entitiesArray) {
-        if (hasComponent(childMeshEntity, ColliderComponent)) continue
+        if (
+          getAncestorWithComponents(childMeshEntity, [ColliderComponent]) !== entity ||
+          (entity === childMeshEntity && !hasComponent(childMeshEntity, MeshComponent))
+        )
+          continue
 
         if (
           nestedCollidersState[uuid.value] &&
