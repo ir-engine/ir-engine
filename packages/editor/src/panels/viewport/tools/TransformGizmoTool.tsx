@@ -35,7 +35,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbMarquee2, TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
-import { SelectionState } from '../../../services/SelectionServices'
 import { SelectionBoxState } from './SelectionBoxTool'
 
 function Placer() {
@@ -86,7 +85,6 @@ export default function TransformGizmoTool({
     }
   }
   const handleClickSelectionBox = () => {
-    SelectionState.updateSelection([])
     setPointerSelected(false)
     setIsClickedSelectionBox(!isClickedSelectionBox)
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)

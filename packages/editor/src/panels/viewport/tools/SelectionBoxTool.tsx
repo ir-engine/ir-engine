@@ -59,9 +59,9 @@ export default function SelectionBox({
 
   const [isDragging, setIsDragging] = useState(false)
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (!getMutableState(SelectionBoxState).selectionBoxEnabled.value) return
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
-
     setStartX(e.clientX)
     setStartY(e.clientY)
     setIsDragging(true)
@@ -69,10 +69,10 @@ export default function SelectionBox({
     setTop(Math.max(e.clientY - viewportRect.top - toolbarRect.height, 0))
     width.set(0)
     height.set(0)
-    SelectionState.updateSelection([])
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (!getMutableState(SelectionBoxState).selectionBoxEnabled.value) return
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
     if (!isDragging) return
@@ -80,8 +80,9 @@ export default function SelectionBox({
     height.set(Math.min(e.clientY - startY, viewportRect.height + toolbarRect.height - startY))
   }
   const handleMouseUp = (e: React.MouseEvent) => {
+    if (!getMutableState(SelectionBoxState).selectionBoxEnabled.value) return
     setIsDragging(false)
-    if (getMutableState(SelectionBoxState).selectionBoxEnabled.value === true) {
+    if (getMutableState(SelectionBoxState).selectionBoxEnabled.value === true && width.value > 0 && height.value > 0) {
       updateSelectionEntity()
     }
   }
@@ -93,9 +94,8 @@ export default function SelectionBox({
     const ndcX2 = ((left + width.value) / viewportRect.width) * 2 - 1
     const ndcY1 = 1 - ((top + toolbarRect.height) / viewportRect.height) * 2
     const ndcY2 = 1 - ((top + toolbarRect.height + height.value) / viewportRect.height) * 2
-
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-    camera.updateMatrixWorld() // Ensure the world matrix is up-to-date
+    camera.updateMatrixWorld()
     camera.updateProjectionMatrix()
     let selectedUUIDs = [] as EntityUUID[]
     const p1Near = new Vector3(ndcX1, ndcY1, -1).unproject(camera) // top-left near
