@@ -23,29 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getComponent, hasComponent } from '@ir-engine/ecs'
+import { Engine, EntityUUID, UUIDComponent, getComponent, hasComponent, setComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import {
+  BoundingBoxComponent,
+  updateBoundingBox
+} from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useState } from 'react'
-import {
-  Box3,
-  BufferGeometry,
-  DoubleSide,
-  Float32BufferAttribute,
-  Frustum,
-  Mesh,
-  MeshStandardMaterial,
-  Plane,
-  Vector3
-} from 'three'
+import { Frustum, Plane, Vector3 } from 'three'
 import { EditorState } from '../../../services/EditorServices'
 import { SelectionState } from '../../../services/SelectionServices'
-
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import { addMesh } from '@ir-engine/engine/src/scene/functions/addMesh'
-import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 export const SelectionBoxState = defineState({
   name: 'selectionBox State',
   initial: () => ({
@@ -64,8 +54,6 @@ export default function SelectionBox({
   const [startY, setStartY] = useState(0)
   const [left, setLeft] = useState(0)
   const [top, setTop] = useState(0)
-  // const [width, setWidth] = useState(0)
-  // const [height, setHeight] = useState(0)
   const width = useHookstate(0)
   const height = useHookstate(0)
 
@@ -81,9 +69,6 @@ export default function SelectionBox({
     setTop(Math.max(e.clientY - viewportRect.top - toolbarRect.height, 0))
     width.set(0)
     height.set(0)
-    // setWidth(0)
-    // setHeight(0)
-
     SelectionState.updateSelection([])
   }
 
@@ -95,215 +80,57 @@ export default function SelectionBox({
     height.set(Math.min(e.clientY - startY, viewportRect.height + toolbarRect.height - startY))
   }
   const handleMouseUp = (e: React.MouseEvent) => {
-    // width.set(e.clientX - startX)
-    // height.set(e.clientY - startY)
     setIsDragging(false)
     if (getMutableState(SelectionBoxState).selectionBoxEnabled.value === true) {
       updateSelectionEntity()
     }
   }
+
   const updateSelectionEntity = () => {
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
     const ndcX1 = (left / viewportRect.width) * 2 - 1
     const ndcX2 = ((left + width.value) / viewportRect.width) * 2 - 1
-    const ndcY1 = 1 - (top / viewportRect.height) * 2
-    const ndcY2 = 1 - ((top + height.value) / viewportRect.height) * 2
+    const ndcY1 = 1 - ((top + toolbarRect.height) / viewportRect.height) * 2
+    const ndcY2 = 1 - ((top + toolbarRect.height + height.value) / viewportRect.height) * 2
 
-    const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    camera.updateMatrixWorld() // Ensure the world matrix is up-to-date
+    camera.updateProjectionMatrix()
     let selectedUUIDs = [] as EntityUUID[]
-    // convert NDC points to world space (for both near and far planes)
-
-    // camera.near = 0.1
-    // camera.far = 1000 // typical value for far plane
-    // camera.aspect = viewportRect.width / viewportRect.height
-    // camera.fov = 60 // or adjust to match your screen view better
-
-    // // Ensure the projection matrix is updated with these settings
-    // camera.updateProjectionMatrix()
-    const near = camera.near
-    const far = camera.far
     const p1Near = new Vector3(ndcX1, ndcY1, -1).unproject(camera) // top-left near
     const p2Near = new Vector3(ndcX2, ndcY1, -1).unproject(camera) // top-right near
     const p3Near = new Vector3(ndcX1, ndcY2, -1).unproject(camera) // bottom-left near
     const p4Near = new Vector3(ndcX2, ndcY2, -1).unproject(camera) // bottom-right near
-    console.log('p1', p1Near)
-    console.log('p4', p4Near)
     const p1Far = new Vector3(ndcX1, ndcY1, 1).unproject(camera) // top-left far
     const p2Far = new Vector3(ndcX2, ndcY1, 1).unproject(camera) // top-right far
     const p3Far = new Vector3(ndcX1, ndcY2, 1).unproject(camera) // bottom-left far
     const p4Far = new Vector3(ndcX2, ndcY2, 1).unproject(camera) // bottom-right far
     const nearPlane = new Plane().setFromCoplanarPoints(p1Near, p2Near, p4Near)
-    const frustum = new Frustum(
-      new Plane().setFromCoplanarPoints(p1Near, p2Near, p4Near), // Near plane
-      new Plane().setFromCoplanarPoints(p1Far, p2Far, p4Far), // Far plane
-      new Plane().setFromCoplanarPoints(p1Near, p1Far, p3Far), // Left plane
-      new Plane().setFromCoplanarPoints(p2Near, p2Far, p4Far), // Right plane
-      new Plane().setFromCoplanarPoints(p1Near, p2Near, p2Far), // Top plane
-      new Plane().setFromCoplanarPoints(p3Near, p4Near, p4Far) // Bottom plane
-    )
+    const farPlane = new Plane().setFromCoplanarPoints(p1Far, p4Far, p2Far)
+    const leftPlane = new Plane().setFromCoplanarPoints(p1Near, p3Near, p3Far)
+    const rightPlane = new Plane().setFromCoplanarPoints(p4Far, p4Near, p2Far)
+    const topPlane = new Plane().setFromCoplanarPoints(p1Near, p1Far, p2Near)
+    const bottomPlane = new Plane().setFromCoplanarPoints(p3Near, p4Near, p4Far)
 
-    const vertices = new Float32Array([
-      // Near plane (use in a consistent order)
-      p1Near.x,
-      p1Near.y,
-      p1Near.z,
-      p2Near.x,
-      p2Near.y,
-      p2Near.z,
-      p4Near.x,
-      p4Near.y,
-      p4Near.z,
-      p3Near.x,
-      p3Near.y,
-      p3Near.z,
-
-      // Far plane (same order as near plane)
-      p1Far.x,
-      p1Far.y,
-      p1Far.z,
-      p2Far.x,
-      p2Far.y,
-      p2Far.z,
-      p4Far.x,
-      p4Far.y,
-      p4Far.z,
-      p3Far.x,
-      p3Far.y,
-      p3Far.z
-    ])
-
-    // Define the indices for the triangular faces
-    const indices = [
-      // Near plane
-      0, 1, 2, 2, 3, 0,
-
-      // Far plane
-      4, 5, 6, 6, 7, 4,
-
-      // Side planes
-      0, 1, 5, 5, 4, 0,
-
-      1, 2, 6, 6, 5, 1,
-
-      2, 3, 7, 7, 6, 2,
-
-      3, 0, 4, 4, 7, 3
-    ]
-
-    // Create the geometry and set its vertices and faces
-    const frustumGeometry = new BufferGeometry()
-    frustumGeometry.setAttribute('position', new Float32BufferAttribute(vertices, 3))
-    frustumGeometry.setIndex(indices)
-    frustumGeometry.computeVertexNormals()
-
-    // Create a solid material for the frustum
-    const material = new MeshStandardMaterial({ color: 0x00ff00, side: DoubleSide, opacity: 0.8, transparent: true })
-
-    // Create the mesh from geometry and material
-    const frustumMesh = new Mesh(frustumGeometry, material)
-    // Create a material for the lines
-    const mesh = new Mesh(frustumGeometry, material)
-    const geoEntity = createSceneEntity('frustum', getState(EditorState).rootEntity)
-    addMesh(geoEntity, mesh)
+    // Construct the frustum
+    const frustum = new Frustum(nearPlane, farPlane, leftPlane, rightPlane, topPlane, bottomPlane)
     const parentEntity = getState(EditorState).rootEntity
     const entities = getComponent(parentEntity, EntityTreeComponent).children
-
     entities.forEach((entity) => {
-      if (hasComponent(entity, ModelComponent)) {
-        const scene = getComponent(entity, ModelComponent).scene
-        if (!scene) return {}
-        scene.traverse((mesh: Mesh) => {
-          if (mesh.isMesh) {
-            //mesh.frustumCulled = true
-            const boundingBox = new Box3().setFromObject(mesh)
-            const boxVertices = new Float32Array([
-              // Front face (z = min)
-              boundingBox.min.x,
-              boundingBox.min.y,
-              boundingBox.min.z, // 0: Bottom-left front
-              boundingBox.max.x,
-              boundingBox.min.y,
-              boundingBox.min.z, // 1: Bottom-right front
-              boundingBox.max.x,
-              boundingBox.max.y,
-              boundingBox.min.z, // 2: Top-right front
-              boundingBox.min.x,
-              boundingBox.max.y,
-              boundingBox.min.z, // 3: Top-left front
-
-              // Back face (z = max)
-              boundingBox.min.x,
-              boundingBox.min.y,
-              boundingBox.max.z, // 4: Bottom-left back
-              boundingBox.max.x,
-              boundingBox.min.y,
-              boundingBox.max.z, // 5: Bottom-right back
-              boundingBox.max.x,
-              boundingBox.max.y,
-              boundingBox.max.z, // 6: Top-right back
-              boundingBox.min.x,
-              boundingBox.max.y,
-              boundingBox.max.z // 7: Top-left back
-            ])
-
-            const boxIndices = [
-              // Front face
-              0, 1, 2, 0, 2, 3,
-
-              // Back face
-              4, 6, 5, 4, 7, 6,
-
-              // Top face
-              3, 2, 6, 3, 6, 7,
-
-              // Bottom face
-              0, 5, 1, 0, 4, 5,
-
-              // Right face
-              1, 5, 6, 1, 6, 2,
-
-              // Left face
-              0, 3, 7, 0, 7, 4
-            ]
-
-            console.log('bounding box min', boundingBox.min)
-            console.log('bounding box max', boundingBox.max)
-            const status = frustum.intersectsBox(boundingBox)
-            console.log(status)
-            if (status) {
-              console.log('intersected', entity)
-              const boxGeometry = new BufferGeometry()
-              boxGeometry.setAttribute('position', new Float32BufferAttribute(boxVertices, 3))
-              boxGeometry.setIndex(boxIndices)
-              boxGeometry.computeVertexNormals()
-
-              // Define a transparent material for the bounding box
-              const boxMaterial = new MeshStandardMaterial({
-                color: 0xff0000, // Red color
-                side: DoubleSide,
-                opacity: 0.8,
-                transparent: true
-              })
-
-              // Create the mesh
-              const boundingBoxMesh = new Mesh(boxGeometry, boxMaterial)
-
-              const boxEntity = createSceneEntity('boundingBox', getState(EditorState).rootEntity)
-
-              addMesh(boxEntity, boundingBoxMesh)
-              const uuid = getComponent(entity, UUIDComponent)
-              if (!selectedUUIDs.includes(uuid)) {
-                selectedUUIDs.push(uuid)
-              }
-            }
+      if (hasComponent(entity, GLTFComponent)) {
+        setComponent(entity, BoundingBoxComponent)
+        updateBoundingBox(entity)
+        const boundingBox = getComponent(entity, BoundingBoxComponent).box
+        const status = frustum.intersectsBox(boundingBox)
+        if (status) {
+          const uuid = getComponent(entity, UUIDComponent)
+          if (!selectedUUIDs.includes(uuid)) {
+            selectedUUIDs.push(uuid)
           }
-        })
+        }
       }
     })
-
-    console.log('finish', selectedUUIDs)
-
     SelectionState.updateSelection(selectedUUIDs)
     selectedUUIDs = []
   }
