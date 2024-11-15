@@ -36,6 +36,7 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   Quaternion,
@@ -81,15 +82,14 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import {
-  addObjectToGroup,
-  ObjectComponent,
-  removeObjectFromGroup
-} from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -1027,7 +1027,6 @@ const PrimitiveReactor = (props: {
     }
 
     setComponent(props.entity, MeshComponent, mesh)
-    addObjectToGroup(props.entity, mesh)
     mesh.name = node.name ?? 'Node-' + props.nodeIndex
 
     const url = options.url
@@ -1037,7 +1036,6 @@ const PrimitiveReactor = (props: {
       if (entityExists(props.entity)) {
         removeComponent(props.entity, SkinnedMeshComponent)
         removeComponent(props.entity, MeshComponent)
-        removeObjectFromGroup(props.entity, mesh)
       }
     }
   }, [node.skin, finalGeometry])
@@ -1126,6 +1124,25 @@ const MaterialInstanceReactor = (props: {
     if (props.isArray) materialInstance.uuid[primitive.material].set(materialUUID)
     else materialInstance.uuid.set([materialUUID])
   }, [materialEntity, primitive.material])
+
+  const material = useOptionalComponent(materialEntity, MaterialStateComponent)?.material
+  const useDerivativeTangents = primitive.attributes.TANGENT === undefined
+  const useVertexColors = primitive.attributes.COLOR_0 !== undefined
+  const useFlatShading = primitive.attributes.NORMAL === undefined
+
+  useEffect(() => {
+    const material = getOptionalComponent(materialEntity, MaterialStateComponent)?.material as MeshPhysicalMaterial
+    if (!material) return
+
+    if (useVertexColors) material.vertexColors = true
+    if (useFlatShading) material.flatShading = true
+
+    if (useDerivativeTangents) {
+      // https://github.com/mrdoob/three.js/issues/11438#issuecomment-507003995
+      if (material.normalScale) material.normalScale.y *= -1
+      if (material.clearcoatNormalScale) material.clearcoatNormalScale.y *= -1
+    }
+  }, [!!material, useDerivativeTangents || useVertexColors || useFlatShading])
 
   return null
 }
