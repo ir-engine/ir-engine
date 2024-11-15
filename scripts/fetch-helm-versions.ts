@@ -85,7 +85,7 @@ cli.main(async () => {
           }
         }
       }
-      if (helmBuilder) fs.writeFileSync(helmBuilderVersionName, helmBuilder)
+      if (helmBuilder && helmBuilder.length > 0) fs.writeFileSync(helmBuilderVersionName, helmBuilder)
       else {
         const { stdout } = await execAsync(`helm history ${options.stage}-builder | grep deployed`)
         const matches = stdout.matchAll(BUILDER_CHART_REGEX)
