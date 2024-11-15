@@ -23,12 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import assert from 'assert'
 import { describe, it } from 'node:test'
 import { Box3, Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
 
 //test view frustum  intersection with box
 describe('SelectionBoxTool', () => {
-  it('should box intersect with view frustum', () => {
+  it('should view frustum intersect with box', () => {
     const box = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1))
     const camera = new PerspectiveCamera(60, 1, 0.1, 10)
     camera.position.set(0, 0, 5)
@@ -39,5 +40,33 @@ describe('SelectionBoxTool', () => {
     projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
     frustum.setFromProjectionMatrix(projScreenMatrix)
     const doesIntersect = frustum.intersectsBox(box)
+    assert.equal(doesIntersect, true)
+  })
+  it('should view frustum not box', () => {
+    const box = new Box3(new Vector3(-1001, -1001, -1001), new Vector3(-1000, -1000, -1000))
+    const camera = new PerspectiveCamera(60, 1, 0.1, 10)
+    camera.position.set(0, 0, 5)
+    camera.lookAt(new Vector3(0, 0, 0))
+    camera.updateProjectionMatrix()
+    const frustum = new Frustum()
+    const projScreenMatrix = new Matrix4()
+    projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+    frustum.setFromProjectionMatrix(projScreenMatrix)
+    const doesIntersect = frustum.intersectsBox(box)
+    assert.equal(doesIntersect, false)
+  })
+  it('should view frustum intersect with multiple boxes', () => {
+    const box1 = new Box3(new Vector3(-1, -1, -1), new Vector3(1, 1, 1))
+    const box2 = new Box3(new Vector3(-0.2, -0.3, 0), new Vector3(1.2, 1.3, 2))
+    const camera = new PerspectiveCamera(60, 1, 0.1, 10)
+    camera.position.set(0, 0, 5)
+    camera.lookAt(new Vector3(0, 0, 0))
+    camera.updateProjectionMatrix()
+    const frustum = new Frustum()
+    const projScreenMatrix = new Matrix4()
+    projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+    frustum.setFromProjectionMatrix(projScreenMatrix)
+    const doesIntersect = frustum.intersectsBox(box1) && frustum.intersectsBox(box2)
+    assert.equal(doesIntersect, true)
   })
 })
