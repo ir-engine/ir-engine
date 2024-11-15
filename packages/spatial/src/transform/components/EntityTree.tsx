@@ -433,7 +433,7 @@ export function useAncestorWithComponents(
  * @description
  * React Hook that returns the closest child {@link Entity} of `@param rootEntity` that has all of the `@param components`
  *
- * @param rootEntity The {@link Entity} whose {@link EntityTreeComponent} will be traversed during the search.
+ * @param entity The {@link Entity} whose {@link EntityTreeComponent} will be traversed during the search.
  * @param components The list of Components that the child must have in order to be considered a match.
  * @returns The closest child {@link Entity} of `@param rootEntity` that matched the conditions.
  * */
