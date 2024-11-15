@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { isDev } from '@ir-engine/common/src/config'
 import { scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
@@ -39,7 +39,8 @@ import {
   IdentityProviderType
 } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
-import { checkScope } from '@ir-engine/common/src/utils/checkScope'
+import { checkScope as checkScopeMethod } from '@ir-engine/common/src/utils/checkScope'
+import checkScope from '../../hooks/check-scope'
 
 import { Paginated } from '@feathersjs/feathers'
 import {
@@ -51,6 +52,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import appConfig from '../../appconfig'
+import isAction from '../../hooks/is-action'
 import persistData from '../../hooks/persist-data'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import { IdentityProviderService } from './identity-provider.class'
@@ -179,7 +181,7 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
 }
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
-  const isAdmin = context.existingUser && (await checkScope(context.existingUser, 'admin', 'admin'))
+  const isAdmin = context.existingUser && (await checkScopeMethod(context.existingUser, 'admin', 'admin'))
   if (
     !isAdmin &&
     context.params!.provider &&
@@ -237,7 +239,7 @@ async function addScopes(context: HookContext<IdentityProviderService>) {
 }
 
 const addDevProjectPermissions = async (context: HookContext<IdentityProviderService>) => {
-  if (!isDev || !(await checkScope(context.existingUser, 'admin', 'admin'))) return
+  if (!isDev || !(await checkScopeMethod(context.existingUser, 'admin', 'admin'))) return
 
   const user = context.existingUser as UserType
 
@@ -292,7 +294,17 @@ export default {
       schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [iff(isProvider('external'), iffElse(isSearchQuery, [], setLoggedinUserInQuery('userId')))],
+    find: [
+      iff(
+        isProvider('external'),
+        iffElse(
+          (ctx: HookContext) => (isAction('admin')(ctx) && checkScope('user', 'read')(ctx)) || isSearchQuery(ctx),
+          [],
+          [setLoggedinUserInQuery('userId')]
+        )
+      ),
+      discardQuery('action')
+    ],
     get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
       iff(

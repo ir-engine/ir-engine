@@ -36,7 +36,7 @@ import { ViewCursor, createViewCursor, readFloat64, readUint8, writeComponent } 
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertVecApproxEq } from '../../tests/util/mathAssertions'
+import { assertVec } from '../../tests/util/assert'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import {
   TransformSerialization,
@@ -231,7 +231,7 @@ describe('TransformSerialization', () => {
         const view = createViewCursor(position.buffer)
         readUint8(view) // Read changeMask
         const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, 3)
+        assertVec.approxEq(result, Expected, 3)
       })
     }) //:: writePosition
 
@@ -262,7 +262,7 @@ describe('TransformSerialization', () => {
         const view = createViewCursor(rotation.buffer)
         readUint8(view) // Read changeMask
         const result = new Quaternion(readFloat64(view), readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, 4)
+        assertVec.approxEq(result, Expected, 4)
       })
     }) //:: writeRotation
 
