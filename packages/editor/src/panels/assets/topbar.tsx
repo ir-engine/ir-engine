@@ -35,6 +35,7 @@ import { useTranslation } from 'react-i18next'
 import { FiRefreshCcw } from 'react-icons/fi'
 import { HiMagnifyingGlass, HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
+import { validateImportFolderPath } from '../../components/dialogs/ImportSettingsPanelDialog'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesViewModeSettings } from '../../services/FilesState'
@@ -78,7 +79,13 @@ const ViewModeSettings = () => {
 
 const uploadFiles = () => {
   const projectName = getState(EditorState).projectName
-  const importFolder = getState(ImportSettingsState).importFolder || '/assets/'
+  const importFolder = getState(ImportSettingsState).importFolder
+
+  try {
+    validateImportFolderPath(importFolder)
+  } catch (e) {
+    NotificationService.dispatchNotify(e.message, { variant: 'error' })
+  }
 
   return inputFileWithAddToScene({
     projectName: projectName as string,
