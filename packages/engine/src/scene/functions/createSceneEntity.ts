@@ -23,7 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, UUIDComponent, UndefinedEntity, createEntity, generateEntityUUID, setComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  UUIDComponent,
+  UndefinedEntity,
+  createEntity,
+  generateEntityUUID,
+  getOptionalComponent,
+  setComponent
+} from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
@@ -32,6 +40,7 @@ import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Group } from 'three'
+import { SourceComponent } from '../components/SourceComponent'
 
 export const createSceneEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
   const entity = createEntity()
@@ -41,10 +50,10 @@ export const createSceneEntity = (name: string, parentEntity: Entity = Undefined
   if (parentEntity !== UndefinedEntity) {
     setComponent(entity, EntityTreeComponent, { parentEntity })
   }
-  // const sceneID = getOptionalComponent(parentEntity, SourceComponent)
-  // if (sceneID != null) {
-  //   setComponent(entity, SourceComponent, sceneID)
-  // }
+  const sceneID = getOptionalComponent(parentEntity, SourceComponent)
+  if (sceneID != null) {
+    setComponent(entity, SourceComponent, sceneID)
+  }
 
   setComponent(entity, UUIDComponent, generateEntityUUID())
 
