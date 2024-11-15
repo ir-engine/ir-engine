@@ -36,6 +36,7 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   Quaternion,
@@ -87,7 +88,10 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
-import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -1135,6 +1139,25 @@ const MaterialInstanceReactor = (props: {
     if (props.isArray) materialInstance.uuid[primitive.material].set(materialUUID)
     else materialInstance.uuid.set([materialUUID])
   }, [materialEntity, primitive.material])
+
+  const material = useOptionalComponent(materialEntity, MaterialStateComponent)?.material
+  const useDerivativeTangents = primitive.attributes.TANGENT === undefined
+  const useVertexColors = primitive.attributes.COLOR_0 !== undefined
+  const useFlatShading = primitive.attributes.NORMAL === undefined
+
+  useEffect(() => {
+    const material = getOptionalComponent(materialEntity, MaterialStateComponent)?.material as MeshPhysicalMaterial
+    if (!material) return
+
+    if (useVertexColors) material.vertexColors = true
+    if (useFlatShading) material.flatShading = true
+
+    if (useDerivativeTangents) {
+      // https://github.com/mrdoob/three.js/issues/11438#issuecomment-507003995
+      if (material.normalScale) material.normalScale.y *= -1
+      if (material.clearcoatNormalScale) material.clearcoatNormalScale.y *= -1
+    }
+  }, [!!material, useDerivativeTangents || useVertexColors || useFlatShading])
 
   return null
 }
