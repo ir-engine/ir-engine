@@ -85,7 +85,6 @@ export default function TransformGizmoTool({
     }
   }
   const handleClickSelectionBox = () => {
-    setPointerSelected(false)
     setIsClickedSelectionBox(!isClickedSelectionBox)
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
     getMutableState(InputState).capturingCameraOrbitEnabled.set(isClickedSelectionBox)
