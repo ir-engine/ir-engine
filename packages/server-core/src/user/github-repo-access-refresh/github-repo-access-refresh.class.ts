@@ -55,7 +55,7 @@ export async function getGithubRepoAccessRefreshJobBody(
     'ir-engine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-gh-repo-refresh-${userId.slice(0, 8)}-update`
+  const name = `${process.env.RELEASE_NAME}-gh-repo-refresh-${userId.slice(0, 8)}`
 
   return getJobBody(app, command, name, labels)
 }

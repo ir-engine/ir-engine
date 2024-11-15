@@ -1172,25 +1172,25 @@ describe('ClientInputHooks', () => {
       assert.equal(before.has(testEntity), false)
 
       // Setup the reactor
-      const Reactor = React.createElement(
-        EntityContext.Provider,
-        { value: testEntity },
-        React.createElement(ClientInputHooks.MeshInputReactor, {})
-      )
+      const root = startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.MeshInputReactor, {})
+        )
+      }) as ReactorRoot
 
-      const { rerender, unmount } = render(Reactor)
-      await act(() => rerender(Reactor))
+      root.run()
 
       // Check the result
       const one = getState(InputState).inputMeshes
       assert.equal(one.has(testEntity), true)
 
       removeComponent(parentEntity, InputComponent)
-      await act(() => rerender(Reactor))
+      root.run()
+
       const two = getState(InputState).inputMeshes
       assert.equal(two.has(testEntity), false)
-
-      unmount()
     })
   })
 
