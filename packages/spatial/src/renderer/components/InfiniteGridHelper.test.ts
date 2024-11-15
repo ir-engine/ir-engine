@@ -40,7 +40,7 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Color, ColorRepresentation, ShaderMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertFloatApproxEq, assertFloatApproxNotEq } from '../../../tests/util/mathAssertions'
+import { assertFloat } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
@@ -65,9 +65,9 @@ function assertInfiniteGridComponentEq(A: InfiniteGridComponentData, B: Infinite
   assert.equal(A.size, B.size)
   const leftColor = new Color(A.color)
   const rightColor = new Color(B.color)
-  assertFloatApproxEq(leftColor.r, rightColor.r)
-  assertFloatApproxEq(leftColor.g, rightColor.g)
-  assertFloatApproxEq(leftColor.b, rightColor.b)
+  assertFloat.approxEq(leftColor.r, rightColor.r)
+  assertFloat.approxEq(leftColor.g, rightColor.g)
+  assertFloat.approxEq(leftColor.b, rightColor.b)
   assert.equal(A.distance, B.distance)
 }
 
@@ -75,9 +75,9 @@ function assertInfiniteGridComponentNotEq(A: InfiniteGridComponentData, B: Infin
   assert.notEqual(A.size, B.size)
   const leftColor = new Color(A.color)
   const rightColor = new Color(B.color)
-  assertFloatApproxNotEq(leftColor.r, rightColor.r)
-  assertFloatApproxNotEq(leftColor.g, rightColor.g)
-  assertFloatApproxNotEq(leftColor.b, rightColor.b)
+  assertFloat.approxNotEq(leftColor.r, rightColor.r)
+  assertFloat.approxNotEq(leftColor.g, rightColor.g)
+  assertFloat.approxNotEq(leftColor.b, rightColor.b)
   assert.notEqual(A.distance, B.distance)
 }
 

@@ -53,6 +53,10 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -348,6 +352,7 @@ const AnimationReactor = () => {
 
   useEffect(() => {
     if (!loadedAnimations.value) return
+
     let i = 0
     for (const loadedAnimationEntity of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
       for (const animation of loadedAnimationEntity[0]!) {
@@ -355,9 +360,11 @@ const AnimationReactor = () => {
         bindAnimationClipFromMixamo(animation)
       }
       getMutableState(AnimationState).loadedAnimations[animations[i]].set(loadedAnimationEntity[1]!)
+      for (const entity of getComponent(loadedAnimationEntity[1], EntityTreeComponent).children)
+        removeEntityNodeRecursively(entity)
       i++
     }
-  }, [loadedAnimations])
+  }, [loadedAnimations.value])
 
   const locomotionAnimationState = useHookstate(
     getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]

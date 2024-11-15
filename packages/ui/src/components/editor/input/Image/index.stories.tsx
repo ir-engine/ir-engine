@@ -23,23 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { NetworkObjectAuthorityTag } from '@ir-engine/network'
+import Component from './index'
 
-import { applyGamepadInput } from '.././functions/moveAvatar'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+const argTypes = {}
 
-const controlledAvatarEntity = defineQuery([AvatarComponent, AvatarControllerComponent, NetworkObjectAuthorityTag])
-
-const execute = () => {
-  for (const entity of controlledAvatarEntity()) applyGamepadInput(entity)
+export default {
+  title: 'Editor/Input/Image',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ImageInput',
+    jest: 'Image.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
-
-export const AvatarMovementSystem = defineSystem({
-  uuid: 'ee.engine.AvatarMovementSystem',
-  insert: { with: SimulationSystemGroup },
-  execute
-})
+export const Default = { args: Component }

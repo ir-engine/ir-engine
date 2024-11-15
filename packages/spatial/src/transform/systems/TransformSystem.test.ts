@@ -46,7 +46,7 @@ import sinon from 'sinon'
 import { Box3, BoxGeometry, Group, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { MockXRFrame } from '../../../tests/util/MockXR'
-import { assertArrayAnyNotEq, assertArrayEqual, assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertArray, assertVec } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -165,15 +165,15 @@ describe('TransformSystem', () => {
       for (const entity of entities) {
         assert.equal(hasComponent(entity, BoundingBoxComponent), true)
         const box = getComponent(entity, BoundingBoxComponent).box
-        assertVecApproxEq(box.max, Initial.max, 3)
-        assertVecApproxEq(box.min, Initial.min, 3)
+        assertVec.approxEq(box.max, Initial.max, 3)
+        assertVec.approxEq(box.min, Initial.min, 3)
       }
       // Run and Check the result
       System.execute()
       for (const entity of entities) {
         const box = getComponent(entity, BoundingBoxComponent).box
-        assertVecApproxEq(box.max, Expected.max, 3)
-        assertVecApproxEq(box.min, Expected.min, 3)
+        assertVec.approxEq(box.max, Expected.max, 3)
+        assertVec.approxEq(box.min, Expected.min, 3)
       }
     })
 
@@ -196,13 +196,13 @@ describe('TransformSystem', () => {
           assert.equal(hasComponent(entity, TransformComponent), true)
           assert.equal(hasComponent(entity, CameraComponent), true)
           const before = getComponent(entity, CameraComponent).matrixWorld.elements
-          assertArrayEqual(before, Initial.elements)
+          assertArray.eq(before, Initial.elements)
         }
         // Run and Check the results
         System.execute()
         for (const entity of entities) {
           const result = getComponent(entity, CameraComponent).matrixWorldInverse.elements
-          assertArrayAnyNotEq(result, Expected.elements)
+          assertArray.anyNotEq(result, Expected.elements)
         }
       })
 
@@ -223,13 +223,13 @@ describe('TransformSystem', () => {
           assert.equal(hasComponent(entity, TransformComponent), true)
           assert.equal(hasComponent(entity, CameraComponent), true)
           const before = getComponent(entity, CameraComponent).cameras[0].matrixWorld.elements
-          assertArrayAnyNotEq(before, Expected.elements)
+          assertArray.anyNotEq(before, Expected.elements)
         }
         // Run and Check the results
         System.execute()
         for (const entity of entities) {
           const result = getComponent(entity, CameraComponent).cameras[0].matrixWorld.elements
-          assertArrayEqual(result, Expected.elements)
+          assertArray.eq(result, Expected.elements)
         }
       })
 
@@ -251,14 +251,14 @@ describe('TransformSystem', () => {
           assert.equal(hasComponent(entity, TransformComponent), true)
           assert.equal(hasComponent(entity, CameraComponent), true)
           const before = getComponent(entity, CameraComponent).cameras[0].matrixWorldInverse.elements
-          assertArrayAnyNotEq(before, Initial.elements)
+          assertArray.anyNotEq(before, Initial.elements)
         }
         // Run and Check the results
         System.execute()
         for (const entity of entities) {
           const result = getComponent(entity, CameraComponent).cameras[0].matrixWorldInverse.elements
-          assertArrayEqual(result, Expected.elements)
-          assertArrayEqual(result, getComponent(entity, CameraComponent).matrixWorldInverse.elements)
+          assertArray.eq(result, Expected.elements)
+          assertArray.eq(result, getComponent(entity, CameraComponent).matrixWorldInverse.elements)
         }
       })
 
@@ -279,14 +279,14 @@ describe('TransformSystem', () => {
           assert.equal(hasComponent(entity, TransformComponent), true)
           assert.equal(hasComponent(entity, CameraComponent), true)
           const before = getComponent(entity, CameraComponent).cameras[0].projectionMatrix.elements
-          assertArrayAnyNotEq(before, Expected.elements)
+          assertArray.anyNotEq(before, Expected.elements)
         }
         // Run and Check the results
         System.execute()
         for (const entity of entities) {
           const result = getComponent(entity, CameraComponent).cameras[0].projectionMatrix.elements
-          assertArrayEqual(result, Expected.elements)
-          assertArrayEqual(result, getComponent(entity, CameraComponent).projectionMatrix.elements)
+          assertArray.eq(result, Expected.elements)
+          assertArray.eq(result, getComponent(entity, CameraComponent).projectionMatrix.elements)
         }
       })
 
@@ -307,14 +307,14 @@ describe('TransformSystem', () => {
           assert.equal(hasComponent(entity, TransformComponent), true)
           assert.equal(hasComponent(entity, CameraComponent), true)
           const before = getComponent(entity, CameraComponent).cameras[0].projectionMatrixInverse.elements
-          assertArrayAnyNotEq(before, Expected.elements)
+          assertArray.anyNotEq(before, Expected.elements)
         }
         // Run and Check the results
         System.execute()
         for (const entity of entities) {
           const result = getComponent(entity, CameraComponent).cameras[0].projectionMatrixInverse.elements
-          assertArrayEqual(result, Expected.elements)
-          assertArrayEqual(result, getComponent(entity, CameraComponent).projectionMatrixInverse.elements)
+          assertArray.eq(result, Expected.elements)
+          assertArray.eq(result, getComponent(entity, CameraComponent).projectionMatrixInverse.elements)
         }
       })
 
@@ -334,11 +334,11 @@ describe('TransformSystem', () => {
         assert.equal(hasComponent(viewerEntity, TransformComponent), true)
         assert.equal(hasComponent(viewerEntity, CameraComponent), true)
         const before = getComponent(viewerEntity, CameraComponent).matrixWorld.elements
-        assertArrayEqual(before, Initial.elements)
+        assertArray.eq(before, Initial.elements)
         // Run and Check the results
         System.execute()
         const result = getComponent(viewerEntity, CameraComponent).matrixWorldInverse.elements
-        assertArrayAnyNotEq(result, Initial.elements)
+        assertArray.anyNotEq(result, Initial.elements)
       })
     })
 
