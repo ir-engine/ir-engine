@@ -37,7 +37,7 @@ import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { AvatarColliderComponent } from '@ir-engine/engine/src/avatar/components/AvatarControllerComponent'
 import { spawnAvatarReceptor } from '@ir-engine/engine/src/avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
-import { defineState, getMutableState, isClient, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { WorldNetworkAction } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -92,7 +92,6 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   }, [entity, hasTransformComponent])
 
   useEffect(() => {
-    if (!isClient) return
     if (!entity || !avatarURL.value) return
 
     setComponent(entity, GLTFComponent, { src: avatarURL.value })

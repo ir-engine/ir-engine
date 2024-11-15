@@ -33,6 +33,7 @@ import {
   ComponentJSONIDMap,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   SerializedComponentType,
   updateComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -50,7 +51,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
-  findCommonAncestors,
+  findRootAncestors,
   iterateEntityNode
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -375,7 +376,7 @@ const duplicateObject = (entities: Entity[]) => {
   const copyMap = {} as { [entityUUID: EntityUUID]: EntityUUID }
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const rootEntities = findCommonAncestors(entities)
+    const rootEntities = findRootAncestors(entities)
 
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
@@ -432,6 +433,14 @@ const duplicateObject = (entities: Entity[]) => {
   }
 }
 
+const applyTransformToChildren = (entity: Entity) => {
+  iterateEntityNode(entity, (entity) => {
+    if (!hasComponent(entity, TransformComponent)) return
+    computeTransformMatrix(entity)
+    TransformComponent.dirtyTransforms[entity] = true
+  })
+}
+
 const positionObject = (
   nodes: Entity[],
   positions: Vector3[],
@@ -468,10 +477,7 @@ const positionObject = (
 
     updateComponent(entity, TransformComponent, { position: transform.position })
 
-    iterateEntityNode(entity, (entity) => {
-      computeTransformMatrix(entity)
-      TransformComponent.dirtyTransforms[entity] = true
-    })
+    applyTransformToChildren(entity)
   }
 }
 
@@ -505,10 +511,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
 
-    iterateEntityNode(entity, (entity) => {
-      computeTransformMatrix(entity)
-      TransformComponent.dirtyTransforms[entity] = true
-    })
+    applyTransformToChildren(entity)
   }
 }
 

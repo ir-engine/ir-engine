@@ -84,8 +84,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     envMapIntensity: 0.5
   })
 
-  setComponent(entity, AvatarComponent)
-
   setComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(new Object3D()),
     animations: [] as AnimationClip[]
@@ -95,13 +93,15 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     locomotion: new Vector3()
   })
 
+  setComponent(entity, AvatarComponent)
+
+  createAvatarCollider(entity)
+
   setComponent(entity, RigidBodyComponent, {
     type: BodyTypes.Kinematic,
     allowRolling: false,
     enabledRotations: [false, true, false]
   })
-
-  createAvatarCollider(entity)
 
   if (ownerID === Engine.instance.store.userID) {
     createAvatarController(entity)
@@ -120,7 +120,6 @@ export const createAvatarCollider = (entity: Entity) => {
   const colliderEntity = createEntity()
   setComponent(entity, AvatarColliderComponent, { colliderEntity })
 
-  setAvatarColliderTransform(entity)
   setComponent(colliderEntity, EntityTreeComponent, { parentEntity: entity })
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,

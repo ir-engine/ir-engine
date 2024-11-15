@@ -23,23 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { NetworkObjectAuthorityTag } from '@ir-engine/network'
+import assert from 'assert'
+import { describe, it } from 'vitest'
+import { TweenComponent } from './TweenComponent'
 
-import { applyGamepadInput } from '.././functions/moveAvatar'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-
-const controlledAvatarEntity = defineQuery([AvatarComponent, AvatarControllerComponent, NetworkObjectAuthorityTag])
-
-const execute = () => {
-  for (const entity of controlledAvatarEntity()) applyGamepadInput(entity)
-}
-
-export const AvatarMovementSystem = defineSystem({
-  uuid: 'ee.engine.AvatarMovementSystem',
-  insert: { with: SimulationSystemGroup },
-  execute
-})
+describe('TweenComponent', () => {
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(TweenComponent.name, 'TweenComponent')
+    })
+  }) //:: Fields
+}) //:: TweenComponent
