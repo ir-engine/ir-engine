@@ -96,6 +96,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.cameraSettings.name')}
       description={t('editor:properties.cameraSettings.description')}
       Icon={CameraPropertiesNodeEditor.iconComponent}
+      entity={props.entity}
     >
       <InputGroup name="Projection type" label={t('editor:properties.cameraSettings.lbl-projectionType')}>
         <SelectInput

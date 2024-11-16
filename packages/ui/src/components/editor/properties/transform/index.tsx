@@ -104,6 +104,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       name={t('editor:properties.transform.title')}
       description={t('editor:properties.transform.description')}
       Icon={TransformPropertyGroup.iconComponent}
+      entity={props.entity}
     >
       <InputGroup
         name="Dynamically Load Children"
