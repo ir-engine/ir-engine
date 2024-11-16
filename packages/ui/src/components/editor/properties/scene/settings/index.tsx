@@ -173,6 +173,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
       Icon={SceneSettingsEditor.iconComponent}
+      entity={props.entity}
     >
       <InputGroup
         name="Spectate Entity"
