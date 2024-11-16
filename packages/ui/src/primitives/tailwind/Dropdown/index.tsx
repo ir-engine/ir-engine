@@ -35,16 +35,21 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
   secondaryText?: string
   disabled?: boolean
   selected?: boolean
+
+  /**
+   * Whether the item is hovered (or navigated through arrow keys)
+   */
+  active?: boolean
 }
 
-export function DropdownItem({ title, disabled, Icon, selected, secondaryText, ...props }: DropdownItemProps) {
+export function DropdownItem({ title, disabled, active, Icon, selected, secondaryText, ...props }: DropdownItemProps) {
   return (
     <div
       tabIndex={0}
       className={twMerge(
         'h-[38px] w-full cursor-pointer bg-[#141619] px-4 py-2.5 text-xs text-[#9CA0AA] outline-none',
         'flex items-center',
-        !disabled && 'hover:text-[#F5F5F5] focus:text-[#F5F5F5]',
+        !disabled && active && 'text-[#F5F5F5]',
         !disabled && selected && 'bg-[#191B1F] text-[#375DAF]',
         disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D]'
       )}

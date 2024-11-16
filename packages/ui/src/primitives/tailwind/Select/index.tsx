@@ -83,8 +83,8 @@ const Select = ({
   })
   const ref = useRef<HTMLDivElement>(null)
   const [selectedLabelContent, setSelectedLabelContent] = useState<React.ReactNode>(null)
-
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null)
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(-1)
+  const [activeIndex, setActiveIndex] = useState<number>(-1)
 
   const labelRef = useRef<HTMLLabelElement>(null)
   const [helperOffset, setHelperOffset] = useState('')
@@ -141,7 +141,11 @@ const Select = ({
       return
     }
 
-    if (selectedOptionIndex !== null && options[selectedOptionIndex]?.value === value) {
+    if (
+      0 <= selectedOptionIndex &&
+      selectedOptionIndex < options.length &&
+      options[selectedOptionIndex].value === value
+    ) {
       if (renderValue !== undefined) {
         setSelectedLabelContent(renderValue(value))
       } else {
@@ -205,13 +209,39 @@ const Select = ({
                 setOpen((v) => !v)
               }
             }}
+            tabIndex={0}
             className={twMerge(
               `relative flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA] ${
                 variantSizes[inputSizeVariant]
               } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
+              'focus:outline-none',
               state === 'success' && 'border-[#10B981]',
               state === 'error' && 'border-[#C3324B]'
             )}
+            onKeyUp={(e) => {
+              if (disabled || !open) return
+
+              let newIndex = activeIndex
+
+              if (activeIndex === -1) {
+                if (e.code === 'ArrowUp') {
+                  newIndex = options.length - 1
+                } else if (e.code === 'ArrowDown') {
+                  newIndex = 0
+                }
+              } else if (e.code === 'ArrowUp') {
+                newIndex = (activeIndex - 1 + options.length) % options.length
+              } else if (e.code === 'ArrowDown') {
+                newIndex = (activeIndex + 1) % options.length
+              }
+
+              setActiveIndex(newIndex)
+              if (e.code === 'Enter') {
+                onChange(options[newIndex].value)
+                setOpen(false)
+                setSelectedOptionIndex(newIndex)
+              }
+            }}
           >
             <div className="w-full">{selectedLabelContent || '-'}</div>
 
@@ -232,10 +262,24 @@ const Select = ({
                   key={index}
                   {...optionProps}
                   selected={value === currentValue}
+                  active={index === activeIndex}
                   onClick={() => {
                     onChange(currentValue)
                     setOpen(false)
                     setSelectedOptionIndex(index)
+                  }}
+                  onMouseEnter={() => {
+                    setActiveIndex(index)
+                  }}
+                  onMouseLeave={() => {
+                    setActiveIndex(-1)
+                  }}
+                  onKeyUp={(e) => {
+                    if (e.code === 'Enter') {
+                      onChange(currentValue)
+                      setOpen(false)
+                      setSelectedOptionIndex(index)
+                    }
                   }}
                 />
               ))}
