@@ -24,56 +24,47 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
-import { CheckLg, ChevronDownSm, HelpIconSm } from '@ir-engine/ui/src/icons'
+import { ChevronDownSm, HelpIconSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { DropdownItem } from '../Dropdown'
 import { InputProps, variantSizes } from '../Input'
 import Tooltip from '../Tooltip'
 
-export interface MenuItemProps {
-  children: React.ReactNode
+export interface OptionType {
   value: string | number
+  title: string
+  Icon?: ({ className }: { className?: string }) => JSX.Element
+  /**text shown on the right end */
+  secondaryText?: string
   disabled?: boolean
   selected?: boolean
-  onClick?: () => void
-  showCheckmark?: boolean
-}
-
-export const MenuItem = ({ children, selected, disabled, onClick, showCheckmark }: MenuItemProps) => {
-  return (
-    <div
-      tabIndex={0}
-      className={twMerge(
-        `flex cursor-pointer items-center gap-x-2 bg-[#141619] px-4 py-2.5 text-xs text-[#9CA0AA] hover:bg-[#191B1F] hover:text-[#F5F5F5] ${
-          selected && 'text-[#375DAF]'
-        } ${disabled && 'text-[#42454D]'} w-full`
-      )}
-      onClick={onClick}
-    >
-      <div className="w-full">{children}</div>
-
-      {selected && showCheckmark && <CheckLg color="#375DAF" />}
-    </div>
-  )
+  className?: string
 }
 
 export interface SelectProps<T = string | number> {
-  children: React.ReactElement<typeof MenuItem> | React.ReactElement<typeof MenuItem>[]
+  options: OptionType[]
   width?: 'sm' | 'md' | 'lg' | 'full'
   inputSizeVariant?: InputProps['variantSize']
   onChange: (value: T) => void
   value: T
-  renderValue?: (value: T) => React.ReactNode
+  renderValue?: (value: T) => string
   labelProps?: InputProps['labelProps']
   state?: InputProps['state']
   helperText?: InputProps['helperText']
   required?: boolean
-  showCheckmark?: boolean
   disabled?: boolean
 }
 
+const variantToWidth: Record<NonNullable<SelectProps['width']>, string> = {
+  sm: '240px',
+  md: '320px',
+  lg: '520px',
+  full: '100%'
+}
+
 const Select = ({
-  children,
+  options,
   width = 'md',
   inputSizeVariant = 'l',
   onChange,
@@ -83,15 +74,8 @@ const Select = ({
   state,
   helperText,
   required,
-  showCheckmark,
   disabled
 }: SelectProps) => {
-  const variantToWidth: Record<NonNullable<SelectProps['width']>, string> = {
-    sm: '240px',
-    md: '320px',
-    lg: '520px',
-    full: '100%'
-  }
   const [open, setOpen] = useState(false)
   const [positioning, setPositioning] = useState({
     direction: 'down' as 'down' | 'up',
@@ -99,7 +83,9 @@ const Select = ({
   })
   const ref = useRef<HTMLDivElement>(null)
   const [selectedLabelContent, setSelectedLabelContent] = useState<React.ReactNode>(null)
-  const [selectedMenuIndex, setSelectedMenuIndex] = useState(-1)
+
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null)
+
   const labelRef = useRef<HTMLLabelElement>(null)
   const [helperOffset, setHelperOffset] = useState('')
 
@@ -155,48 +141,29 @@ const Select = ({
       return
     }
 
-    /**
-     * If `value` is changed, identify the corresponding label content.
-     * Update the selectedOption state accordingly.
-     */
-    const childrenArray = React.Children.toArray(children) as React.ReactElement<MenuItemProps>[]
-
-    const menuItemIndex = childrenArray.findIndex(
-      (child) => React.isValidElement<MenuItemProps>(child) && child.props.value === value
-    )
-
-    if (menuItemIndex === -1) {
-      console.warn('No corresponding MenuItem found. Defaulting to null.')
-      setSelectedLabelContent(null)
-    } else {
-      let labelContent: React.ReactNode = null
+    if (selectedOptionIndex !== null && options[selectedOptionIndex]?.value === value) {
       if (renderValue !== undefined) {
-        labelContent = renderValue(value)
+        setSelectedLabelContent(renderValue(value))
       } else {
-        labelContent = childrenArray[menuItemIndex].props.children
+        setSelectedLabelContent(options[selectedOptionIndex].title)
       }
-      setSelectedLabelContent(labelContent)
-      setSelectedMenuIndex(menuItemIndex)
+      return
     }
-  }, [value])
 
-  const _children = Array.isArray(children) ? children : [children]
-  const modifiedChildren = React.Children.map(_children, (child, index) => {
-    if (React.isValidElement<MenuItemProps>(child) && child.type === MenuItem) {
-      return React.cloneElement(child, {
-        onClick: () => {
-          if (child.props.onClick) {
-            child.props.onClick()
-          }
-          onChange(child.props.value)
-          setOpen(false)
-        },
-        selected: selectedMenuIndex === index,
-        showCheckmark: showCheckmark
-      })
+    const index = options.findIndex((option) => option.value === value)
+
+    if (index === -1) {
+      console.warn('No corresponding option found. Defaulting to null.')
+      setSelectedLabelContent(null)
+      return
     }
-    return child
-  })
+
+    if (renderValue !== undefined) {
+      setSelectedLabelContent(renderValue(value))
+    } else {
+      setSelectedLabelContent(options[index].title)
+    }
+  }, [value, options, renderValue, selectedOptionIndex])
 
   return (
     <div className={`flex flex-col gap-y-2 ${width === 'full' ? 'w-full' : 'w-fit'}`}>
@@ -260,7 +227,18 @@ const Select = ({
                 maxHeight: positioning.maxHeight
               }}
             >
-              {modifiedChildren}
+              {options.map(({ value: currentValue, ...optionProps }, index) => (
+                <DropdownItem
+                  key={index}
+                  {...optionProps}
+                  selected={value === currentValue}
+                  onClick={() => {
+                    onChange(currentValue)
+                    setOpen(false)
+                    setSelectedOptionIndex(index)
+                  }}
+                />
+              ))}
             </div>
           )}
         </div>

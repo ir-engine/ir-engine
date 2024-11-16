@@ -27,7 +27,7 @@ import React from 'react'
 import { HiCheck } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 
-export interface DropdownItemProps extends Pick<React.HTMLAttributes<HTMLDivElement>, 'onClick' | 'onKeyUp'> {
+export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'className'> {
   /**text shown on the left end */
   title: string
   Icon?: ({ className }: { className?: string }) => JSX.Element
@@ -35,18 +35,9 @@ export interface DropdownItemProps extends Pick<React.HTMLAttributes<HTMLDivElem
   secondaryText?: string
   disabled?: boolean
   selected?: boolean
-  className?: string
 }
 
-export function DropdownItem({
-  title,
-  disabled,
-  Icon,
-  selected,
-  secondaryText,
-  className,
-  ...props
-}: DropdownItemProps) {
+export function DropdownItem({ title, disabled, Icon, selected, secondaryText, ...props }: DropdownItemProps) {
   return (
     <div
       tabIndex={0}
@@ -55,8 +46,7 @@ export function DropdownItem({
         'flex items-center',
         !disabled && 'hover:text-[#F5F5F5] focus:text-[#F5F5F5]',
         !disabled && selected && 'bg-[#191B1F] text-[#375DAF]',
-        disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D]',
-        className
+        disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D]'
       )}
       {...props}
     >
