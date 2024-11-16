@@ -130,7 +130,21 @@ export const TransformComponent = defineComponent({
   getMatrixRelativeToEntity: (entity: Entity, relativeEntity: Entity, outMatrix: Matrix4) => {
     const transform = getComponent(entity, TransformComponent)
     const relativeTransform = getComponent(relativeEntity, TransformComponent)
-    return outMatrix.copy(relativeTransform.matrixWorld).invert().multiply(transform.matrixWorld)
+
+    if (!transform || !relativeTransform) {
+      console.warn('One of the entities is missing the TransformComponent.')
+      outMatrix.identity() // Return identity matrix if either component is missing
+      return
+    }
+
+    try {
+      outMatrix.copy(relativeTransform.matrixWorld).invert().multiply(transform.matrixWorld)
+      return
+    } catch (error) {
+      console.error('Failed to invert relativeTransform matrix. Matrix may be non-invertible:', error)
+      outMatrix.identity() // Reset to identity if inversion fails
+      return
+    }
   },
 
   getMatrixRelativeToScene: (entity: Entity, outMatrix: Matrix4) => {

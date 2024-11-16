@@ -90,6 +90,7 @@ export const ColliderComponent = defineComponent({
 
       const entitiesArray = [...childMeshEntities, entity] as Entity[]
 
+      let firstEntry = false
       for (const childMeshEntity of entitiesArray) {
         if (
           getAncestorWithComponents(childMeshEntity, [ColliderComponent]) !== entity ||
@@ -112,6 +113,7 @@ export const ColliderComponent = defineComponent({
 
         if (!nestedCollidersState[uuid.value].value) {
           nestedCollidersState[uuid.value].set({} as Record<Entity, ColliderDesc>)
+          firstEntry = true
         }
 
         nestedCollidersState[uuid.value][childMeshEntity].set(colliderDesc)
@@ -123,6 +125,8 @@ export const ColliderComponent = defineComponent({
       ) {
         hasCollider.set(true)
       }
+
+      if (firstEntry) TransformComponent.dirtyTransforms[entity] = true
 
       return () => {}
     }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale, childMeshEntities])
