@@ -132,7 +132,7 @@ const unmountEntity = (entity: Entity) => {
   )
   const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
   const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
-  //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
+  //We use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
   const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
   teleportAvatar(entity, dismountPoint, mountComponent.forceDismountPosition)
   removeComponent(entity, SittingComponent)
