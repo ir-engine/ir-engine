@@ -46,7 +46,7 @@ import {
 import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
 import { act, render } from '@testing-library/react'
 import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
-import { assertFloatApproxEq, assertFloatApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertFloat, assertVec } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { createMockXRUI } from '../../../tests/util/MockXRUI'
 import { EngineState } from '../../EngineState'
@@ -307,11 +307,11 @@ describe('ClientInputHeuristics', () => {
         assert.equal(data.size, 0)
 
         ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
-        assertVecApproxEq(boxMin, hitTarget, 3)
+        assertVec.approxEq(boxMin, hitTarget, 3)
         assert.equal(data.size, 1)
         const result = [...data]
         assert.equal(result[0].entity, testEntity)
-        assertFloatApproxNotEq(result[0].distance, 0)
+        assertFloat.approxNotEq(result[0].distance, 0)
       })
 
       it('... should run as expected for all bounding boxes', () => {
@@ -350,7 +350,7 @@ describe('ClientInputHeuristics', () => {
         const result = [...data]
         for (let id = 0; id < boxes.length; ++id) {
           assert.equal(result[id].entity, boxes[id].entity)
-          assertFloatApproxNotEq(result[id].distance, 0)
+          assertFloat.approxNotEq(result[id].distance, 0)
         }
       })
     })
@@ -523,7 +523,7 @@ describe('ClientInputHeuristics', () => {
         assert.notEqual(data.size, 0)
         for (const hit of [...data]) {
           assert.equal(KnownEntities.includes(hit.entity), true)
-          assertFloatApproxNotEq(hit.distance, 0)
+          assertFloat.approxNotEq(hit.distance, 0)
         }
       })
 
@@ -590,7 +590,7 @@ describe('ClientInputHeuristics', () => {
         assert.notEqual(data.size, 0)
         for (const hit of [...data]) {
           assert.equal(KnownEntities.includes(hit.entity), true)
-          assertFloatApproxNotEq(hit.distance, 0)
+          assertFloat.approxNotEq(hit.distance, 0)
         }
       })
 
@@ -708,7 +708,7 @@ describe('ClientInputHeuristics', () => {
         const result = [...data]
         for (const hit of result) {
           assert.equal(KnownEntities.includes(hit.entity), true)
-          assertFloatApproxNotEq(hit.distance, 0)
+          assertFloat.approxNotEq(hit.distance, 0)
           assert.notEqual(hit.entity, three)
         }
       })
@@ -817,7 +817,7 @@ describe('ClientInputHeuristics', () => {
         const result = [...data]
         for (const hit of result) {
           assert.equal(KnownEntities.includes(hit.entity), true)
-          assertFloatApproxNotEq(hit.distance, 0)
+          assertFloat.approxNotEq(hit.distance, 0)
           assert.notEqual(hit.entity, three)
         }
       })
@@ -897,7 +897,7 @@ describe('ClientInputHeuristics', () => {
       assert.notEqual(data.size, 0)
       const result = [...data]
       assert.equal(result[0].entity, testEntity)
-      assertFloatApproxEq(result[0].distance, 0)
+      assertFloat.approxEq(result[0].distance, 0)
     })
 
     it("should not do anything if we didn't hit the WebContainer3D", () => {

@@ -40,7 +40,7 @@ import {
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertVecAllApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertVec } from '../../../tests/util/assert'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -125,13 +125,13 @@ describe('PhysicsPreTransformFunctions', () => {
         assert.equal(hasComponent(testEntity, TransformComponent), true)
         assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
         const before = getComponent(testEntity, TransformComponent).position
-        assertVecApproxEq(before, Initial, 3)
+        assertVec.approxEq(before, Initial, 3)
         // Run and Check the result
         PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
         getComponent(testEntity, TransformComponent).matrix.decompose(_position, _rotation, _scale)
         const result = _position
-        assertVecAllApproxNotEq(result, Initial, 3)
-        assertVecApproxEq(result, Expected, 3)
+        assertVec.allApproxNotEq(result, Initial, 3)
+        assertVec.approxEq(result, Expected, 3)
       })
 
       it("should update the entity's TransformComponent.rotation with an interpolation of the RigidBodyComponent.previousRotation and the RigidBodyComponent.rotation", () => {
@@ -146,13 +146,13 @@ describe('PhysicsPreTransformFunctions', () => {
         assert.equal(hasComponent(testEntity, TransformComponent), true)
         assert.equal(hasComponent(testEntity, RigidBodyComponent), true)
         const before = getComponent(testEntity, TransformComponent).rotation
-        assertVecApproxEq(before, Initial, 3)
+        assertVec.approxEq(before, Initial, 3)
         // Run and Check the result
         PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
         getComponent(testEntity, TransformComponent).matrix.decompose(_position, _rotation, _scale)
         const result = _rotation
-        assertVecAllApproxNotEq(result, Initial, 4)
-        assertVecApproxEq(result, Expected, 4)
+        assertVec.allApproxNotEq(result, Initial, 4)
+        assertVec.approxEq(result, Expected, 4)
       })
     })
 
@@ -246,8 +246,8 @@ describe('PhysicsPreTransformFunctions', () => {
           previousPosition: getComponent(testEntity, RigidBodyComponent).previousPosition,
           position: getComponent(testEntity, TransformComponent).position
         }
-        assertVecAllApproxNotEq(before.previousPosition, before.position, 3)
-        assertVecAllApproxNotEq(before.body.translation(), before.position, 3)
+        assertVec.allApproxNotEq(before.previousPosition, before.position, 3)
+        assertVec.allApproxNotEq(before.body.translation(), before.position, 3)
         // Run and Check the result
         PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
         const after = {
@@ -255,8 +255,8 @@ describe('PhysicsPreTransformFunctions', () => {
           previousPosition: getComponent(testEntity, RigidBodyComponent).previousPosition,
           position: getComponent(testEntity, TransformComponent).position
         }
-        assertVecApproxEq(after.previousPosition, after.position, 3)
-        assertVecApproxEq(after.body.translation(), after.position, 3)
+        assertVec.approxEq(after.previousPosition, after.position, 3)
+        assertVec.approxEq(after.body.translation(), after.position, 3)
       })
 
       it("should update the rotation of the entity's RigidBody inside the physicsWorld data and the RigidBodyComponent of the entity, based on its TransformComponent data", () => {
@@ -268,8 +268,8 @@ describe('PhysicsPreTransformFunctions', () => {
           previousRotation: getComponent(testEntity, RigidBodyComponent).previousRotation,
           rotation: getComponent(testEntity, TransformComponent).rotation
         }
-        assertVecAllApproxNotEq(before.previousRotation, before.rotation, 4)
-        assertVecAllApproxNotEq(before.body.rotation(), before.rotation, 4)
+        assertVec.allApproxNotEq(before.previousRotation, before.rotation, 4)
+        assertVec.allApproxNotEq(before.body.rotation(), before.rotation, 4)
         // Run and Check the result
         PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
         const after = {
@@ -277,8 +277,8 @@ describe('PhysicsPreTransformFunctions', () => {
           previousRotation: getComponent(testEntity, RigidBodyComponent).previousRotation,
           rotation: getComponent(testEntity, TransformComponent).rotation
         }
-        assertVecApproxEq(after.previousRotation, after.rotation, 4)
-        assertVecApproxEq(after.body.rotation(), after.rotation, 4)
+        assertVec.approxEq(after.previousRotation, after.rotation, 4)
+        assertVec.approxEq(after.body.rotation(), after.rotation, 4)
       })
 
       it('should not set the `@param entity` transform to dirty', () => {
@@ -368,7 +368,7 @@ describe('PhysicsPreTransformFunctions', () => {
           y: physicsWorld.Colliders.get(testEntity)?.translation().y,
           z: physicsWorld.Colliders.get(testEntity)?.translation().z
         }
-        assertVecApproxEq(before, Initial, 3)
+        assertVec.approxEq(before, Initial, 3)
         // Run and Check the result
         PhysicsPreTransformFunctions.copyTransformToCollider(testEntity)
         const result = {
@@ -376,7 +376,7 @@ describe('PhysicsPreTransformFunctions', () => {
           y: physicsWorld.Colliders.get(testEntity)?.translation().y,
           z: physicsWorld.Colliders.get(testEntity)?.translation().z
         }
-        assertVecAllApproxNotEq(result, before, 3)
+        assertVec.allApproxNotEq(result, before, 3)
       })
     })
 
