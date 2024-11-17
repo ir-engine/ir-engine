@@ -356,24 +356,24 @@ const AnimationReactor = () => {
     if (!loadedAnimations.value) return
 
     let i = 0
-    for (const loadedAnimation of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
-      /**@todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
+    for (const [clips, entity] of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
+      /**
+       * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
        * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
        */
-      for (const animation of loadedAnimation[0]!) {
-        retargetAnimationClip(animation, loadedAnimation[1])
+      for (const animation of clips!) {
+        retargetAnimationClip(animation, entity)
         bindAnimationClipFromMixamo(animation)
       }
-      getMutableState(AnimationState).loadedAnimations[animations[i]].set(loadedAnimation[1]!)
-      /**@todo handle avatar animation clips generically */
-      const run = AnimationClip.findByName(loadedAnimation[0] ?? [], runClipName)
-      const walk = AnimationClip.findByName(loadedAnimation[0] ?? [], walkClipName)
+      getMutableState(AnimationState).loadedAnimations[animations[i]].set(entity!)
+      /** @todo handle avatar animation clips generically */
+      const run = AnimationClip.findByName(clips ?? [], runClipName)
+      const walk = AnimationClip.findByName(clips ?? [], walkClipName)
 
       const movement = getMutableState(AvatarMovementSettingsState)
       if (run) movement.runSpeed.set(getRootSpeed(run))
       if (walk) movement.walkSpeed.set(getRootSpeed(walk))
-      for (const entity of getComponent(loadedAnimation[1], EntityTreeComponent).children)
-        removeEntityNodeRecursively(entity)
+      for (const child of getComponent(entity, EntityTreeComponent).children) removeEntityNodeRecursively(child)
       i++
     }
   }, [loadedAnimations.value])
