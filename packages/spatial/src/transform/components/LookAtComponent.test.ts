@@ -23,11 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineConfig } from 'vitest/config'
+import assert from 'assert'
+import { describe, it } from 'vitest'
+import { LookAtComponent } from './LookAtComponent'
 
-export default defineConfig({
-  test: {
-    environment: 'jsdom',
-    passWithNoTests: true
-  }
-})
+describe('LookAtComponent', () => {
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(LookAtComponent.name, 'LookAtComponent')
+    })
+
+    it('should initialize the *Component.jsonID field with the expected value', () => {
+      assert.equal(LookAtComponent.jsonID, 'IR_lookAt')
+    })
+  }) //:: Fields
+}) //:: LookAtComponent

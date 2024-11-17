@@ -24,22 +24,19 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBone, VRMHumanBoneList } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
+import { AnimationMixer, Matrix4, Vector3 } from 'three'
 
 import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { AnimationState } from '../AnimationManager'
-import { getRootSpeed } from '../animation/AvatarAnimationGraph'
-import { preloadedAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -62,12 +59,9 @@ const hipsPos = new Vector3(),
 // box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
-  setComponent(entity, AvatarComponent)
   iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
-  // box.expandByObject(vrm.scene).getSize(size)
-  const worldHeight = Math.abs(getComponent(entity, TransformComponent).position.y)
-  console.log(worldHeight)
+  const worldHeight = Math.abs(TransformComponent.getWorldPosition(entity, new Vector3()).y)
   const rawRig = vrm.humanoid.rawHumanBones
   rawRig.hips.node.updateWorldMatrix(true, true)
   rawRig.hips.node.getWorldPosition(hipsPos)
@@ -80,13 +74,13 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rawRig.leftEye ? rawRig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   setComponent(entity, AvatarComponent, {
-    avatarHeight: headPos.y - worldHeight + 0.25,
+    avatarHeight: Math.abs(headPos.y) - worldHeight + 0.25,
     torsoLength: Math.abs(headPos.y - hipsPos.y),
     upperLegLength: Math.abs(hipsPos.y - leftLowerLegPos.y),
     lowerLegLength: Math.abs(leftLowerLegPos.y - leftFootPos.y),
-    hipsHeight: hipsPos.y,
-    eyeHeight: eyePos.y,
-    footHeight: leftFootPos.y,
+    hipsHeight: Math.abs(hipsPos.y) - worldHeight,
+    eyeHeight: eyePos.y - worldHeight,
+    footHeight: leftFootPos.y - worldHeight,
     footGap: footGap.subVectors(leftFootPos, rightFootPos).length(),
     footAngle: rawRig.leftToes ? Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y) : 0
   })
@@ -119,28 +113,6 @@ export const setAvatarAnimations = (entity: Entity) => {
       .flat(),
     mixer: new AnimationMixer(vrm.humanoid.normalizedHumanBonesRoot)
   })
-}
-
-const runClipName = 'Run_RootMotion',
-  walkClipName = 'Walk_RootMotion'
-
-/**
- * @todo: stop using global state for avatar speed
- * in future this will be derrived from the actual root motion of a
- * given avatar's locomotion animations
- */
-export const setAvatarSpeedFromRootMotion = () => {
-  const manager = getState(AnimationState)
-  const animations = getComponent(
-    manager.loadedAnimations[preloadedAnimations.locomotion],
-    AnimationComponent
-  ).animations
-  /**@todo handle avatar animation clips generically */
-  const run = AnimationClip.findByName(animations, runClipName)
-  const walk = AnimationClip.findByName(animations, walkClipName)
-  const movement = getMutableState(AvatarMovementSettingsState)
-  if (run) movement.runSpeed.set(getRootSpeed(run))
-  if (walk) movement.walkSpeed.set(getRootSpeed(walk))
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {

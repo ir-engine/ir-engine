@@ -31,7 +31,6 @@ import {
   defineQuery,
   defineSystem,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   setComponent,
   useOptionalComponent,
@@ -130,15 +129,15 @@ const AvatarReactor = (props: { entity: Entity }) => {
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity
   const materialComponentUUID = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid
+  const rootDitheringComponent = useOptionalComponent(props.rootEntity, TransparencyDitheringRootComponent)
   useEffect(() => {
-    if (!materialComponentUUID?.value) return
+    if (!materialComponentUUID?.value || !rootDitheringComponent) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
-      const rootDitheringComponent = getMutableComponent(props.rootEntity, TransparencyDitheringRootComponent)
       if (!rootDitheringComponent.materials.value.includes(materialUUID))
         rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, materialUUID])
       setComponent(material, TransparencyDitheringPluginComponent)
     }
-  }, [materialComponentUUID])
+  }, [materialComponentUUID, rootDitheringComponent])
   return null
 }
