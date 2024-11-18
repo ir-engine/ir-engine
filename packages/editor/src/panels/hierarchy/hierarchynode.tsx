@@ -51,9 +51,9 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React, { KeyboardEvent, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -427,10 +427,9 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
             {isModified && (
               <div className="flex items-center gap-1">
                 <Button
-                  variant="transparent"
-                  size="small"
+                  variant="tertiary"
+                  size="sm"
                   className="p-0"
-                  startIcon={<IoSaveOutline />}
                   title={t('common:components.save')}
                   onClick={() =>
                     PopoverState.showPopupover(
@@ -441,12 +440,13 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                       />
                     )
                   }
-                />
+                >
+                  <IoSaveOutline />
+                </Button>
                 <Button
-                  variant="transparent"
-                  size="small"
+                  variant="tertiary"
+                  size="sm"
                   className="p-0"
-                  startIcon={<IoArrowUndo />}
                   title={t('editor:dialog.revertModel.lbl-name')}
                   onClick={() =>
                     PopoverState.showPopupover(
@@ -457,7 +457,9 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                       />
                     )
                   }
-                />
+                >
+                  <IoArrowUndo />
+                </Button>
               </div>
             )}
             <button

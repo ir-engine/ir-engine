@@ -32,14 +32,14 @@ import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentE
 import { ComponentShelfCategoriesState } from '@ir-engine/editor/src/services/ComponentShelfCategoriesState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { startCase } from 'lodash'
 import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GrStatusPlaceholder } from 'react-icons/gr'
-import { IoMdAddCircle } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 
 type ElementsType = 'components' | 'prefabs'
@@ -68,8 +68,8 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
         onSelect()
       }}
-      startIcon={<Icon className="h-4 w-4 text-[#B2B5BD]" />}
     >
+      <Icon className="h-4 w-4 text-[#B2B5BD]" />
       <div className="ml-4 w-full">
         <Text className="mb-1 block text-left text-sm text-[#B2B5BD]">
           {startCase(jsonName.replace('-', ' ').toLowerCase())}
@@ -97,8 +97,8 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
         }
         onSelect()
       }}
-      startIcon={<IoMdAddCircle className="h-4 w-4 text-[#B2B5BD]" />}
     >
+      <PlusCircleSm className="text-[#B2B5BD]" />
       <div className="ml-4 w-full">
         <Text className="mb-1 block text-left text-sm text-[#B2B5BD]" data-testid="prefabs-category-item-name">
           {item.name}
