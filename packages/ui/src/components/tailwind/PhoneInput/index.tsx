@@ -71,7 +71,7 @@ const PhoneInput = ({
         const spaceBelow = windowHeight - bottom
 
         const newDirection = spaceBelow >= spaceAbove ? 'down' : 'up'
-        const maxHeight = newDirection === 'down' ? 0.8 * spaceBelow : 0.8 * spaceAbove
+        const maxHeight = Math.min(newDirection === 'down' ? 0.8 * spaceBelow : 0.8 * spaceAbove, 250)
         setMenuDimensions({
           width: `${containerRef.current.offsetWidth}px`,
           maxHeight: `${maxHeight}px`,
