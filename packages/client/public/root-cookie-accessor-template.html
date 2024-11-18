@@ -3,6 +3,7 @@
     <title>Local Storage Accessor</title>
     <link rel="stylesheet" href="cookie-accessor.css" />
     <script>
+      const COOKIE_MAX_AGE=7 //7 days
       let origin
 
       function getCookies() {
@@ -24,7 +25,9 @@
         switch (e?.data?.method) {
           case 'set':
             if (payload?.data) {
-              document.cookie = `${payload.key}=${JSON.stringify(payload.data)}; SameSite=None; Secure`
+              const date = new Date()
+              date.setDate(date.getDate() + COOKIE_MAX_AGE)
+              document.cookie = `${payload.key}=${JSON.stringify(payload.data)}; SameSite=None; Secure; expires=${date.toUTCString()}`
               message.data.cookieWasSet = payload.key
               parent.postMessage(message, e.origin)
             }

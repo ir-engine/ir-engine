@@ -23,24 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { helmVersionQuerySchema } from '@ir-engine/common/src/schemas/setting/helm-version.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
-
-import {
-  helmSettingDataSchema,
-  helmSettingPatchSchema,
-  helmSettingQuerySchema,
-  helmSettingSchema
-} from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    helmSettingDataSchema,
-    helmSettingPatchSchema,
-    helmSettingQuerySchema,
-    helmSettingSchema
+    helmVersionQuerySchema
   },
   docs: {
-    description: 'Helm setting service description',
+    description: 'Helm version service description',
     securities: ['all']
   }
 })
