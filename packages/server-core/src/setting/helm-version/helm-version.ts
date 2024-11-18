@@ -23,26 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import ClientSetting from './client-setting/client-setting'
-import Email from './email-setting/email-setting'
-import EngineSetting from './engine-setting/engine-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import HelmVersion from './helm-version/helm-version'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectSetting from './project-setting/project-setting'
-import ServerSetting from './server-setting/server-setting'
+import { helmVersionMethods, helmVersionPath } from '@ir-engine/common/src/schemas/setting/helm-version.schema'
+import { Application } from '../../../declarations'
+import { HelmVersionService } from './helm-version.class'
+import helmVersionDocs from './helm-version.docs'
+import hooks from './helm-version.hooks'
+declare module '@ir-engine/common/declarations' {
+  interface ServiceTypes {
+    [helmVersionPath]: HelmVersionService
+  }
+}
 
-export default [
-  ProjectSetting,
-  EngineSetting,
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  HelmVersion
-]
+export default (app: Application): void => {
+  app.use(helmVersionPath, new HelmVersionService(), {
+    methods: helmVersionMethods,
+    events: [],
+    docs: helmVersionDocs
+  })
+  const service = app.service(helmVersionPath)
+  service.hooks(hooks)
+}

@@ -23,26 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  helmVersionMethods,
-  helmVersionPath
-} from '@ir-engine/common/src/schemas/integrations/helm-version/helm-version.schema'
-import { Application } from '../../../declarations'
-import { HelmVersionService } from './helm-version.class'
-import helmVersionDocs from './helm-version.docs'
-import hooks from './helm-version.hooks'
-declare module '@ir-engine/common/declarations' {
-  interface ServiceTypes {
-    [helmVersionPath]: HelmVersionService
-  }
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import type { Static } from '@feathersjs/typebox'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { queryValidator } from '@ir-engine/common/src/schemas/validators'
 
-export default (app: Application): void => {
-  app.use(helmVersionPath, new HelmVersionService(), {
-    methods: helmVersionMethods,
-    events: [],
-    docs: helmVersionDocs
-  })
-  const service = app.service(helmVersionPath)
-  service.hooks(hooks)
-}
+export const helmVersionPath = 'helm-version'
+
+export const helmVersionMethods = ['find'] as const
+
+// Main data model schema
+
+export const helmVersionQuerySchema = Type.Object(
+  {
+    action: Type.String({ enum: ['main', 'builder'], description: 'The type of Helm chart to fetch versions for' })
+  },
+  { additionalProperties: false }
+)
+export interface HelmVersionQuery extends Static<typeof helmVersionQuerySchema> {}
+
+export const helmVersionQueryValidator = /* @__PURE__ */ getValidator(helmVersionQuerySchema, queryValidator)
