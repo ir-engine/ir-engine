@@ -33,6 +33,7 @@ import {
   ComponentJSONIDMap,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   SerializedComponentType,
   updateComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -57,6 +58,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState.ts'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -432,6 +434,14 @@ const duplicateObject = (entities: Entity[]) => {
   }
 }
 
+const applyTransformToChildren = (entity: Entity) => {
+  iterateEntityNode(entity, (entity) => {
+    if (!hasComponent(entity, TransformComponent)) return
+    computeTransformMatrix(entity)
+    TransformComponent.dirtyTransforms[entity] = true
+  })
+}
+
 const positionObject = (
   nodes: Entity[],
   positions: Vector3[],
@@ -468,10 +478,7 @@ const positionObject = (
 
     updateComponent(entity, TransformComponent, { position: transform.position })
 
-    iterateEntityNode(entity, (entity) => {
-      computeTransformMatrix(entity)
-      TransformComponent.dirtyTransforms[entity] = true
-    })
+    applyTransformToChildren(entity)
   }
 }
 
@@ -505,10 +512,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
 
-    iterateEntityNode(entity, (entity) => {
-      computeTransformMatrix(entity)
-      TransformComponent.dirtyTransforms[entity] = true
-    })
+    applyTransformToChildren(entity)
   }
 }
 
@@ -793,6 +797,7 @@ const removeObject = (entities: Entity[]) => {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
     const gltfData = gltf.data
 
+    ComponentDropdownState.removeEntityUUIDs([...uuidsToRemove])
     const nodesToRemove = collectNodesToRemove(gltf.data, uuidsToRemove)
     removeNodes(gltfData, nodesToRemove)
     compactNodes(gltfData)
