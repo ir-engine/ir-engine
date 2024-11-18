@@ -41,7 +41,7 @@ export const useBrowserCheck = () => {
   const { acknowledgedUnsupportedBrowser } = useHookstate(getMutableState(EditorState))
 
   React.useEffect(() => {
-    if (!supportedBrowser) {
+    if (!supportedBrowser.value) {
       NotificationService.dispatchNotify(
         'The browser you are on is not supported. For the best experience please use Google Chrome.',
         { variant: 'warning' }
