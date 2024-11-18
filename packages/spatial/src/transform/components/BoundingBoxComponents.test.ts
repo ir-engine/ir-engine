@@ -210,7 +210,7 @@ describe('BoundingBoxComponent', () => {
           assert.equal(result, Expected)
         })
 
-        it.only('... has a Box3Helper with the ObjectLayers.NodeHelper layer enabled', () => {
+        it('... has a Box3Helper with the ObjectLayers.NodeHelper layer enabled', () => {
           const Expected = true
           // Run and Check the result
           BoundingBoxComponentReactor.run()
