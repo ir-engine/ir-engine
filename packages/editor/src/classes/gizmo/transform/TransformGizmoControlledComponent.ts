@@ -93,10 +93,10 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(gizmoPlaneEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
       setComponent(gizmoPlaneEntity, TransformComponent)
-      ObjectLayerMaskComponent.setLayer(gizmoVisualEntity, ObjectLayers.TransformGizmo)
       setComponent(gizmoPlaneEntity, InputComponent)
       setComponent(gizmoPlaneEntity, MeshComponent, gizmoPlane)
       setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
+      ObjectLayerMaskComponent.setLayer(gizmoPlaneEntity, ObjectLayers.TransformGizmo)
 
       const gizmoControlEntity = createEntity()
       setComponent(gizmoControlEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
