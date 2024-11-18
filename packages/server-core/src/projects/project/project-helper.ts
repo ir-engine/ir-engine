@@ -77,13 +77,14 @@ import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
-import { getJobBody } from '../../k8s-job-helper'
+import { getJobBody, getValidPodName } from '../../k8s-job-helper'
 import { getStats, regenerateProjectResourcesJson } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
+import { execPromise } from '../../util/execPromise'
 import { getContentType } from '../../util/fileUtils'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
@@ -1023,7 +1024,7 @@ export async function getProjectUpdateJobBody(
     'ir-engine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-update`
+  const name = `${process.env.RELEASE_NAME}-update-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1069,7 +1070,7 @@ export async function getProjectPushJobBody(
     'ir-engine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-gh-push`
+  const name = `${process.env.RELEASE_NAME}-gh-push-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1078,7 +1079,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
   const projectJobName = cleanProjectName(project.name)
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
+      name: getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectJobName}`),
       labels: {
         'ir-engine/projectUpdater': 'true',
         'ir-engine/autoUpdate': 'true',
@@ -1108,7 +1109,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               serviceAccountName: `${process.env.RELEASE_NAME}-ir-engine-api`,
               containers: [
                 {
-                  name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
+                  name: getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${project.name.toLowerCase()}`),
                   image,
                   imagePullPolicy: 'IfNotPresent',
                   command: ['npx', 'ts-node', '--swc', 'scripts/auto-update-project.ts', '--projectName', project.name],
@@ -1150,7 +1151,7 @@ export async function getDirectoryArchiveJobBody(
     'ir-engine/release': process.env.RELEASE_NAME || ''
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-archive`
+  const name = `${process.env.RELEASE_NAME}-archive-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1180,7 +1181,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
   if (k8BatchClient) {
     try {
       await k8BatchClient.patchNamespacedCronJob(
-        `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
+        getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectName}`),
         'default',
         getCronJobBody(project, image),
         undefined,
@@ -1205,7 +1206,10 @@ export const removeProjectUpdateJob = async (app: Application, projectName: stri
   try {
     const k8BatchClient = getState(ServerState).k8BatchClient
     if (k8BatchClient)
-      await k8BatchClient.deleteNamespacedCronJob(`${process.env.RELEASE_NAME}-${projectName}-auto-update`, 'default')
+      await k8BatchClient.deleteNamespacedCronJob(
+        getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectName}`),
+        'default'
+      )
   } catch (err) {
     logger.error('Failed to remove project update cronjob %o', err)
   }
@@ -1528,6 +1532,7 @@ export const updateProject = async (
     )
   }
   // run project install script
+  await execPromise(`npm install`, { cwd: appRootPath.path })
   if (projectConfig?.onEvent) {
     await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }

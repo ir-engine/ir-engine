@@ -23,23 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { NetworkObjectAuthorityTag } from '@ir-engine/network'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import React from 'react'
+import FileBrowserInput from '../FileBrowser'
+import { StringInputProps } from '../String'
 
-import { applyGamepadInput } from '.././functions/moveAvatar'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-
-const controlledAvatarEntity = defineQuery([AvatarComponent, AvatarControllerComponent, NetworkObjectAuthorityTag])
-
-const execute = () => {
-  for (const entity of controlledAvatarEntity()) applyGamepadInput(entity)
+export function ImageInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
 }
-
-export const AvatarMovementSystem = defineSystem({
-  uuid: 'ee.engine.AvatarMovementSystem',
-  insert: { with: SimulationSystemGroup },
-  execute
-})
+ImageInput.defaultProps = {}
+export default ImageInput

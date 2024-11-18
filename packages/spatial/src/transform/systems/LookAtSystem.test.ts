@@ -42,7 +42,7 @@ import {
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertVec } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { EntityTreeComponent } from '../components/EntityTree'
@@ -102,11 +102,11 @@ describe('LookAtSystem', () => {
         assert.equal(hasComponent(testEntity, LookAtComponent), true)
         assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
         const before = getComponent(testEntity, TransformComponent).rotation.clone()
-        assertVecApproxEq(before, Initial, 4)
+        assertVec.approxEq(before, Initial, 4)
         // Run and Check the result
         System.execute()
         const result = getComponent(testEntity, TransformComponent).rotation.clone()
-        assertVecApproxEq(result, Initial, 4)
+        assertVec.approxEq(result, Initial, 4)
       })
     })
 
@@ -141,11 +141,11 @@ describe('LookAtSystem', () => {
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
           const before = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVecApproxEq(before, Initial, 4)
+          assertVec.approxEq(before, Initial, 4)
           // Run and Check the result
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVecApproxEq(result, Initial, 4)
+          assertVec.approxEq(result, Initial, 4)
         })
 
         it('should not do anything for that entity if its LookAtComponent.target UUID is falsy', () => {
@@ -161,11 +161,11 @@ describe('LookAtSystem', () => {
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), false)
           const before = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVecApproxEq(before, Initial, 4)
+          assertVec.approxEq(before, Initial, 4)
           // Run and Check the result
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVecApproxEq(result, Initial, 4)
+          assertVec.approxEq(result, Initial, 4)
         })
 
         it('should set the entity.TransformComponent.rotation to the resulting lookAt rotation looking from (0,0,0) towards the difference of targetEntity.TransformComponent.position and entity.TransformComponent.position', () => {
@@ -182,11 +182,11 @@ describe('LookAtSystem', () => {
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), false)
           const before = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVecApproxEq(before, Initial, 4)
+          assertVec.approxEq(before, Initial, 4)
           // Run and Check the result
           System.execute()
           const result = getComponent(facerEntity, TransformComponent).rotation.clone()
-          assertVecApproxEq(result, Expected, 4)
+          assertVec.approxEq(result, Expected, 4)
         })
 
         it('should call TransformComponent.updateFromWorldMatrix for the entity', () => {

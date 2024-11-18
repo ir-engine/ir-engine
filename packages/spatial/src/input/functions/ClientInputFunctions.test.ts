@@ -39,7 +39,7 @@ import assert from 'assert'
 import sinon from 'sinon'
 import { Quaternion, Vector2, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertVec } from '../../../tests/util/assert'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -787,9 +787,9 @@ describe('ClientInputFunctions', () => {
             getMutableComponent(testEntity, InputPointerComponent).position.set(Position)
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downPosition, Initial, 3)
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downPosition, Expected, 3)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
           })
         })
 
@@ -824,9 +824,9 @@ describe('ClientInputFunctions', () => {
             setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downPosition, Initial, 3)
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downPosition, Expected, 3)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
           })
 
           it('... should copy the `@param eid` TransformComponent.rotation into buttonState.downRotation', () => {
@@ -859,9 +859,9 @@ describe('ClientInputFunctions', () => {
             setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downRotation, Initial, 4)
+            assertVec.approxEq(buttonState.downRotation, Initial, 4)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downRotation, Expected, 4)
+            assertVec.approxEq(buttonState.downRotation, Expected, 4)
           })
         })
 
@@ -895,9 +895,9 @@ describe('ClientInputFunctions', () => {
             setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downPosition, Initial, 3)
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downPosition, Expected, 3)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
           })
 
           it('... should set buttonState.downRotation to a new Quaterion()', () => {
@@ -929,9 +929,9 @@ describe('ClientInputFunctions', () => {
             setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downRotation, Initial, 4)
+            assertVec.approxEq(buttonState.downRotation, Initial, 4)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downRotation, Expected, 4)
+            assertVec.approxEq(buttonState.downRotation, Expected, 4)
           })
         })
       })

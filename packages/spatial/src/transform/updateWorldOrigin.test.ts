@@ -38,13 +38,7 @@ import { getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import {
-  assertArrayAllNotEq,
-  assertArrayEqual,
-  assertVecAllApproxNotEq,
-  assertVecAnyApproxNotEq,
-  assertVecApproxEq
-} from '../../tests/util/mathAssertions'
+import { assertArray, assertVec } from '../../tests/util/assert'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { EngineState } from '../EngineState'
 import { TransformComponent } from '../SpatialModule'
@@ -88,14 +82,14 @@ describe('updateWorldOriginFromScenePlacement', () => {
       setComponent(child, TransformComponent, { scale: Initial })
       // Sanity check before running
       const before = getComponent(child, TransformComponent).scale
-      assertVecApproxEq(before, Initial, 3)
-      assertVecAllApproxNotEq(before, Vector3_One, 3)
+      assertVec.approxEq(before, Initial, 3)
+      assertVec.allApproxNotEq(before, Vector3_One, 3)
     }
     // Run and Check the result
     updateWorldOriginFromScenePlacement()
     for (const child of children) {
       const result = getComponent(child, TransformComponent).scale
-      assertVecApproxEq(result, Vector3_One, 3)
+      assertVec.approxEq(result, Vector3_One, 3)
     }
   })
 
@@ -110,7 +104,7 @@ describe('updateWorldOriginFromScenePlacement', () => {
     // Run and Check the result
     updateWorldOriginFromScenePlacement()
     const result = getComponent(localFloorEntity, TransformComponent).matrix
-    assertArrayEqual(result.elements, Expected.elements)
+    assertArray.eq(result.elements, Expected.elements)
   })
 
   /** @todo How to setup this test so that the sanity check doesn't fail ?? */
@@ -123,11 +117,11 @@ describe('updateWorldOriginFromScenePlacement', () => {
     getMutableComponent(localFloorEntity, TransformComponent).matrixWorld.set(Initial)
     // Sanity check before running
     const before = getComponent(localFloorEntity, TransformComponent)
-    assertArrayAllNotEq(before.matrix.elements, before.matrixWorld.elements)
+    assertArray.allNotEq(before.matrix.elements, before.matrixWorld.elements)
     // Run and Check the result
     updateWorldOriginFromScenePlacement()
     const result = getComponent(localFloorEntity, TransformComponent)
-    assertArrayEqual(result.matrix.elements, result.matrixWorld.elements)
+    assertArray.eq(result.matrix.elements, result.matrixWorld.elements)
   })
 
   it('should change the value of EngineState.localFloorEntity.TransformComponent.position', () => {
@@ -136,11 +130,11 @@ describe('updateWorldOriginFromScenePlacement', () => {
     setComponent(localFloorEntity, TransformComponent, { position: Initial })
     // Sanity check before running
     const before = getComponent(localFloorEntity, TransformComponent).position.clone()
-    assertVecApproxEq(before, Initial, 3)
+    assertVec.approxEq(before, Initial, 3)
     // Run and Check the result
     updateWorldOriginFromScenePlacement()
     const result = getComponent(localFloorEntity, TransformComponent).position
-    assertVecAnyApproxNotEq(result, before, 3)
+    assertVec.anyApproxNotEq(result, before, 3)
   })
 
   it('should change the value of EngineState.localFloorEntity.TransformComponent.rotation', () => {
@@ -149,11 +143,11 @@ describe('updateWorldOriginFromScenePlacement', () => {
     setComponent(localFloorEntity, TransformComponent, { rotation: Initial })
     // Sanity check before running
     const before = getComponent(localFloorEntity, TransformComponent).rotation.clone()
-    assertVecApproxEq(before, Initial, 3)
+    assertVec.approxEq(before, Initial, 3)
     // Run and Check the result
     updateWorldOriginFromScenePlacement()
     const result = getComponent(localFloorEntity, TransformComponent).rotation
-    assertVecAnyApproxNotEq(result, before, 3)
+    assertVec.anyApproxNotEq(result, before, 3)
   })
 
   /** @todo XRRigidTransform type is not defined. Needs the webxr-emulator */
