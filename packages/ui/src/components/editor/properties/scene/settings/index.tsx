@@ -39,6 +39,7 @@ import {
 import { uploadProjectFiles } from '@ir-engine/editor/src/functions/assetFunctions'
 import { takeScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
 import { generateEnvmapBake } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import {
   blurAndScaleImageData,
@@ -47,14 +48,13 @@ import {
 } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getState, useHookstate, useState } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
+import { ImageLink } from '@ir-engine/ui/editor'
 import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import ComponentDropdown from '../../../ComponentDropdown'
-import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
-import ImagePreviewInput from '../../../input/Image/Preview'
 import NodeInput from '../../../input/Node'
 import NumericInput from '../../../input/Numeric'
 
@@ -169,18 +169,20 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
 
   return (
-    <ComponentDropdown
+    <NodeEditor
+      {...props}
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
       Icon={SceneSettingsEditor.iconComponent}
+      entity={props.entity}
     >
       <InputGroup
         name="Spectate Entity"
         label={t('editor:properties.sceneSettings.lbl-spectate')}
         info={t('editor:properties.sceneSettings.info-spectate')}
       >
-        <BooleanInput
-          value={useSpectatingEntity.value}
+        <Checkbox
+          checked={useSpectatingEntity.value}
           onChange={(value) => {
             useSpectatingEntity.set(value)
             commitProperty(
@@ -213,7 +215,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         className="w-auto"
       >
         <div>
-          <ImagePreviewInput value={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
+          <ImageLink src={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
 
           <Button onClick={createThumbnail} className="mt-2 w-full">
             {t('editor:properties.sceneSettings.generate')}
@@ -234,7 +236,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         className="w-auto"
       >
         <div>
-          <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
+          <ImageLink src={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
           <Button onClick={createLoadingScreen} className="mt-2 w-full">
             {t('editor:properties.sceneSettings.generate')}
           </Button>
@@ -287,7 +289,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SceneSettingsComponent, 'sceneKillHeight')}
         />
       </InputGroup>
-    </ComponentDropdown>
+    </NodeEditor>
   )
 }
 

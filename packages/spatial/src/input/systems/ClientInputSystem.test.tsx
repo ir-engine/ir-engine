@@ -44,7 +44,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
-import { assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertVec } from '../../../tests/util/assert'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
@@ -330,8 +330,8 @@ describe('ClientInputSystem', () => {
       // Run and Check the result
       clientInputSystemExecute()
       const result = getComponent(testEntity, TransformComponent)
-      assertVecApproxEq(result.position, position, 3)
-      assertVecApproxEq(result.rotation, rotation, 4)
+      assertVec.approxEq(result.position, position, 3)
+      assertVec.approxEq(result.rotation, rotation, 4)
     })
 
     it('should remove any entities that match the query [InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)] when the InputPointerComponent.cameraEntity for that entity no longer exists (aka stalePointers)', () => {

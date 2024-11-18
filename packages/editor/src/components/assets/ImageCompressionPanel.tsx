@@ -36,14 +36,13 @@ import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { Checkbox, Input } from '@ir-engine/ui'
+import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Slider from '@ir-engine/ui/src/primitives/tailwind/Slider'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
@@ -167,7 +166,7 @@ export default function ImageCompressionPanel({
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
-          <Input className="border-theme-input bg-[#2C2E33] px-2 py-1.5" value={title} disabled />
+          <Input value={title} disabled />
         </InputGroup>
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
@@ -193,57 +192,45 @@ export default function ImageCompressionPanel({
           containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
+          className="w-min"
           name="flipY"
           label={t('editor:properties.model.transform.flipY')}
           info={t('editor:properties.model.transform.flipYTooltip')}
         >
-          <BooleanInput
-            className="bg-[#2C2E33]"
-            value={compressProperties.flipY.value}
-            onChange={compressProperties.flipY.set}
-          />
+          <Checkbox checked={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
+          className="w-min"
           name="linear"
           label={t('editor:properties.model.transform.srgb')}
           info={t('editor:properties.model.transform.srgbTooltip')}
         >
-          <BooleanInput
-            className="bg-[#2C2E33]"
-            value={compressProperties.srgb.value}
-            onChange={compressProperties.srgb.set}
-          />
+          <Checkbox checked={compressProperties.srgb.value} onChange={compressProperties.srgb.set} />
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="mipmaps"
+          className="w-min"
           label={t('editor:properties.model.transform.mipmaps')}
           info={t('editor:properties.model.transform.mipmapsTooltip')}
         >
-          <BooleanInput
-            className="bg-[#2C2E33]"
-            value={compressProperties.mipmaps.value}
-            onChange={compressProperties.mipmaps.set}
-          />
+          <Checkbox checked={compressProperties.mipmaps.value} onChange={compressProperties.mipmaps.set} />
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
           labelClassName="w-20 text-theme-gray3"
           infoClassName="text-theme-gray3"
           name="normalMap"
+          className="w-min"
           label={t('editor:properties.model.transform.normalMap')}
           info={t('editor:properties.model.transform.normalMapTooltip')}
         >
-          <BooleanInput
-            className="bg-[#2C2E33]"
-            value={compressProperties.normalMap.value}
-            onChange={compressProperties.normalMap.set}
-          />
+          <Checkbox checked={compressProperties.normalMap.value} onChange={compressProperties.normalMap.set} />
         </InputGroup>
         {compressProperties.mode.value === 'ETC1S' && (
           <>
@@ -256,8 +243,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.qualityTooltip')}
             >
               <Slider
-                className="bg-[#212226] [&::-moz-range-track]:bg-[#212226]"
-                width={160}
+                label={''}
                 value={compressProperties.quality.value}
                 onChange={compressProperties.quality.set}
                 onRelease={compressProperties.quality.set}
@@ -275,8 +261,7 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
             >
               <Slider
-                className="bg-[#212226] [&::-moz-range-track]:bg-[#212226]"
-                width={160}
+                label={''}
                 value={compressProperties.compressionLevel.value}
                 onChange={compressProperties.compressionLevel.set}
                 onRelease={compressProperties.compressionLevel.set}
@@ -311,10 +296,10 @@ export default function ImageCompressionPanel({
               name="uastcZstandard"
               label={t('editor:properties.model.transform.uastcZstandard')}
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}
+              className="w-min"
             >
-              <BooleanInput
-                className="bg-[#2C2E33]"
-                value={compressProperties.uastcZstandard.value}
+              <Checkbox
+                checked={compressProperties.uastcZstandard.value}
                 onChange={compressProperties.uastcZstandard.set}
               />
             </InputGroup>

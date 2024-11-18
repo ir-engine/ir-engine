@@ -91,7 +91,7 @@ export async function saveMaterial(sourcePath: string) {
   const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
     binary: false,
     relativePath,
-    projectName: projectName
+    projectName
   })!) as { [key: string]: any }
   const blob = [JSON.stringify(gltf)]
   const file = new File(blob, sourcePath)

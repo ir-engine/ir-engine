@@ -422,13 +422,12 @@ const zendesk = {
   secret: process.env.ZENDESK_SECRET,
   kid: process.env.ZENDESK_KID
 }
-
-const mailchimp = {
-  key: process.env.MAILCHIMP_KEY,
-  server: process.env.MAILCHIMP_SERVER,
-  audienceId: process.env.MAILCHIMP_AUDIENCE_ID,
-  defaultTags: process.env.MAILCHIMP_DEFAULT_TAGS,
-  groupId: process.env.MAILCHIMP_GROUP_ID
+const metabase = {
+  siteUrl: process.env.METABASE_SITE_URL,
+  secretKey: process.env.METABASE_SECRET_KEY,
+  crashDashboardId: process.env.METABASE_CRASH_DASHBOARD_ID,
+  expiration: process.env.METABASE_EXPIRATION,
+  environment: process.env.METABASE_ENVIRONMENT
 }
 
 /**
@@ -463,7 +462,7 @@ const config = {
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
   fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true,
   zendesk,
-  mailchimp
+  metabase
 }
 
 chargebeeInst.configure({

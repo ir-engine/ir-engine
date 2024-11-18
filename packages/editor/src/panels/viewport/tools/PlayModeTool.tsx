@@ -23,101 +23,51 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { spawnLocalAvatarInWorld } from '@ir-engine/common/src/world/receiveJoinWorld'
-import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { VisualScriptActions, visualScriptQuery } from '@ir-engine/engine'
-import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import { WorldNetworkAction } from '@ir-engine/network'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
-import { TransformGizmoControlledComponent } from '../../../classes/gizmo/transform/TransformGizmoControlledComponent'
-import { transformGizmoControlledQuery } from '../../../systems/TransformGizmoSystem'
-
-/**
- * Returns true if we stopped play mode, false if we were not in play mode
- */
-export const onStopPlayMode = (): boolean => {
-  const entity = AvatarComponent.getSelfAvatarEntity()
-  if (entity) {
-    dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(entity, UUIDComponent) }))
-    removeEntity(entity)
-    const viewerEntity = getState(EngineState).viewerEntity
-    removeComponent(viewerEntity, ComputedTransformComponent)
-    removeComponent(viewerEntity, FollowCameraComponent)
-    removeComponent(viewerEntity, TargetCameraRotationComponent)
-    visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
-    // stop all visual script logic
-  }
-  return !!entity
-}
-
-export const onStartPlayMode = () => {
-  const authState = getState(AuthState)
-  const avatarDetails = authState.user.avatar //.value
-
-  const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
-  const currentScene = getComponent(getState(EditorState).rootEntity, UUIDComponent)
-
-  if (avatarDetails)
-    spawnLocalAvatarInWorld({
-      parentUUID: currentScene,
-      avatarSpawnPose,
-      avatarURL: avatarDetails.modelResource!.url!,
-      name: authState.user.name //.value
-    })
-
-  // todo
-  // run all visual script logic
-  visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
-  transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
-  //just remove all gizmo in the scene
-}
 
 const PlayModeTool: React.FC = () => {
   const { t } = useTranslation()
 
-  const isEditing = useHookstate(getMutableState(EngineState).isEditing)
+  const engineState = useHookstate(getMutableState(EngineState))
 
   const onTogglePlayMode = () => {
-    getMutableState(EngineState).isEditing.set(!isEditing.value)
+    engineState.isEditing.set(!engineState.isEditing.value)
   }
 
   useEffect(() => {
-    if (isEditing.value) return
-    onStartPlayMode()
+    if (engineState.isEditing.value) return
+    getMutableState(LocationState).currentLocation.location.sceneId.set(getState(EditorState).sceneAssetID!)
     return () => {
-      onStopPlayMode()
+      getMutableState(LocationState).currentLocation.location.sceneId.set('')
     }
-  }, [isEditing])
+  }, [engineState.isEditing])
 
   return (
     <div id="preview" className="flex items-center">
       <Tooltip
         title={
-          isEditing.value ? t('editor:toolbar.command.lbl-playPreview') : t('editor:toolbar.command.lbl-stopPreview')
+          engineState.isEditing.value
+            ? t('editor:toolbar.command.lbl-playPreview')
+            : t('editor:toolbar.command.lbl-stopPreview')
         }
         content={
-          isEditing.value ? t('editor:toolbar.command.info-playPreview') : t('editor:toolbar.command.info-stopPreview')
+          engineState.isEditing.value
+            ? t('editor:toolbar.command.info-playPreview')
+            : t('editor:toolbar.command.info-stopPreview')
         }
       >
         <Button
           variant="transparent"
           startIcon={
-            isEditing.value ? (
+            engineState.isEditing.value ? (
               <HiOutlinePlay className="text-theme-input" />
             ) : (
               <HiOutlinePause className="text-theme-input" />

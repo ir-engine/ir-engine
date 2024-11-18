@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
@@ -43,11 +44,11 @@ enum FileType {
 }
 
 const unsupportedFileMessage = {
-  [FileType.THREE_D]: 'Unsuppoted File Type! Please upload either a .gltf or a .glb.',
-  [FileType.IMAGE]: 'Unsuppoted File Type! Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
-  [FileType.AUDIO]: 'Unsuppoted File Type! Please upload a .mp3, .mpeg, .m4a, or .wav.',
-  [FileType.VIDEO]: 'Unsuppoted File Type! Please upload a .mp4, .mkv, or .avi.',
-  [FileType.UNKNOWN]: 'Unsupported File Type! Please upload a valid 3D, Image, Audio, or Video file.'
+  [FileType.THREE_D]: 'Please upload either a .gltf or a .glb.',
+  [FileType.IMAGE]: 'Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
+  [FileType.AUDIO]: 'Please upload a .mp3, .mpeg, .m4a, or .wav.',
+  [FileType.VIDEO]: 'Please upload a .mp4, .mkv, or .avi.',
+  [FileType.UNKNOWN]: 'Please upload a valid 3D, Image, Audio, or Video file.'
 }
 
 const supportedFiles = {
@@ -72,18 +73,37 @@ function findMimeType(file): FileType {
   return fileType
 }
 
-function isValidFileType(file): boolean {
+function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   const mimeType: FileType = findMimeType(file)
   const fileName = file.name
   const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase()
 
   for (const [type, extensions] of Object.entries(supportedFiles)) {
     if (extensions.has(extension)) {
-      return true
+      return {
+        isValid: true
+      }
     }
   }
 
-  throw new Error(unsupportedFileMessage[mimeType])
+  return {
+    isValid: false,
+    errorMessage: unsupportedFileMessage[mimeType]
+  }
+}
+
+function sanitizeFiles(files) {
+  const newFiles: File[] = []
+  for (const file of files) {
+    const newFile = cleanFileNameFile(file)
+    const { isValid, errorMessage } = isValidFileType(newFile)
+    if (!isValid) {
+      NotificationService.dispatchNotify(`${file.name} is not supported. ${errorMessage}`, { variant: 'warning' })
+    }
+    newFiles.push(newFile)
+  }
+
+  return newFiles
 }
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
@@ -131,12 +151,7 @@ export const inputFileWithAddToScene = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles: File[] = []
-          for (let i = 0; i < el.files.length; i++) {
-            const newFile = cleanFileNameFile(el.files[i])
-            isValidFileType(newFile)
-            newFiles.push(newFile)
-          }
+          const newFiles = sanitizeFiles(el.files)
           await handleUploadFiles(projectName, directoryPath, newFiles)
         }
         resolve(null)

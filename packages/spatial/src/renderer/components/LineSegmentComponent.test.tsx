@@ -56,11 +56,11 @@ import { getState } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
+import { assertColor } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
 import { GroupComponent } from './GroupComponent'
-import { assertColorEqual } from './lights/HemisphereLightComponent.test'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
@@ -69,9 +69,9 @@ type LineSegmentComponentData = {
   name: string
   geometry: BufferGeometry
   material: Material
-  color: ColorRepresentation | undefined
-  layerMask: typeof ObjectLayers.NodeHelper
-  entity: undefined | Entity
+  color?: ColorRepresentation
+  layerMask: number
+  entity?: Entity
 }
 
 const LineSegmentComponentDefaults = {
@@ -91,7 +91,7 @@ function assertLineSegmentComponentEq(A: LineSegmentComponentData, B: LineSegmen
   else if (B.geometry === null) assert(false, 'Geometry of B is not equal to A. A has geometry, but B.geometry is null')
   else assert.deepEqual(A.geometry, B.geometry)
   assert.deepEqual(A.material, B.material)
-  assertColorEqual(A.color!, B.color!)
+  assertColor.eq(A.color!, B.color!)
   assert.equal(A.layerMask, B.layerMask)
   assert.equal(A.entity, B.entity)
 }
@@ -124,7 +124,7 @@ describe('LineSegmentComponent', () => {
       Expected.material = material
       setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       const data = getComponent(testEntity, LineSegmentComponent)
-      assertLineSegmentComponentEq(data, Expected)
+      assertLineSegmentComponentEq(data as LineSegmentComponentData, Expected)
     })
   }) //:: onInit
 
@@ -154,7 +154,7 @@ describe('LineSegmentComponent', () => {
       Expected.material = material1
       setComponent(testEntity, LineSegmentComponent, { geometry: geometry1, material: material1 })
       const data = getComponent(testEntity, LineSegmentComponent)
-      assertLineSegmentComponentEq(data, Expected)
+      assertLineSegmentComponentEq(data as LineSegmentComponentData, Expected)
 
       const geometry2 = new BoxGeometry(2, 2, 2)
       const material2 = new MeshBasicMaterial({ color: 0x222222 })
@@ -162,7 +162,7 @@ describe('LineSegmentComponent', () => {
       Expected.geometry = geometry2
       Expected.material = material2
       const result = getComponent(testEntity, LineSegmentComponent)
-      assertLineSegmentComponentEq(result, Expected)
+      assertLineSegmentComponentEq(result as LineSegmentComponentData, Expected)
     })
   }) //:: onSet
 

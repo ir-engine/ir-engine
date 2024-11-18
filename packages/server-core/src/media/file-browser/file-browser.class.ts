@@ -402,7 +402,20 @@ export class FileBrowserService
 
     if (staticResources?.length > 0) {
       await Promise.all(
-        staticResources.map(async (resource) => await this.app.service(staticResourcePath).remove(resource.id))
+        staticResources.map(async (resource) => {
+          await this.app.service(staticResourcePath).remove(resource.id)
+          if (resource.thumbnailKey) {
+            const thumbnail = (await this.app.service(staticResourcePath).find({
+              query: { key: { $like: `%${resource.thumbnailKey}%` }, type: 'thumbnail' },
+              paginate: false
+            })) as any as StaticResourceType[]
+
+            if (thumbnail.length > 0) {
+              await storageProvider.deleteResources([thumbnail[0].key])
+              await this.app.service(staticResourcePath).remove(thumbnail[0].id)
+            }
+          }
+        })
       )
     }
 

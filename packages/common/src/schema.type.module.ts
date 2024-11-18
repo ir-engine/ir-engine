@@ -32,7 +32,6 @@ export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
 export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
-export type * from './schemas/integrations/metabase/metabase-setting.schema'
 export type * from './schemas/integrations/metabase/metabase-url.schema'
 export type * from './schemas/integrations/zendesk/zendesk.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
@@ -74,9 +73,7 @@ export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
-export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
-export type * from './schemas/setting/mailchimp-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/social/channel-user.schema'
@@ -211,9 +208,7 @@ export const instancePath = 'instance'
 export const instanceFriendsPath = 'instance-friends'
 
 export const routePath = 'route'
-
-export const helmMainVersionPath = 'helm-main-version'
-export const helmBuilderVersionPath = 'helm-builder-version'
+export const helmVersionPath = 'helm-version'
 
 export const projectSettingPath = 'project-setting'
 
@@ -236,8 +231,6 @@ export const authenticationSettingPath = 'authentication-setting'
 export const analyticsPath = 'analytics'
 
 export const serverSettingPath = 'server-setting'
-
-export const mailchimpSettingPath = 'mailchimp-setting'
 
 export const scopeTypePath = 'scope-type'
 
@@ -282,7 +275,6 @@ export const projectCommitsPath = 'project-commits'
 export const podsPath = 'pods'
 
 export const buildStatusPath = 'build-status'
-export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
 
 export const migrationsInfoPath = 'knex_migrations'
@@ -296,8 +288,6 @@ export const imageConvertPath = 'image-convert'
 export const zendeskPath = 'zendesk'
 
 export const projectHistoryPath = 'project-history'
-
-export const metabaseSettingPath = 'metabase-setting'
 
 export const metabaseUrlPath = 'metabase-url'
 

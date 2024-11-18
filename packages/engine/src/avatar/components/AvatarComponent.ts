@@ -32,10 +32,9 @@ import { NetworkObjectComponent } from '@ir-engine/network'
 
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
-
   schema: S.Object({
     /** The total height of the avatar in a t-pose, must always be non zero and positive for the capsule collider */
-    avatarHeight: S.Number(1.8),
+    avatarHeight: S.Number(0),
     /** The length of the torso in a t-pose, from the hip joint to the head joint */
     torsoLength: S.Number(0),
     /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */

@@ -159,7 +159,7 @@ const MultiSelect = <T extends string | number>({
                       onChange(selectedOptions.filter((opt) => opt && opt !== option.value))
                     }
                   }}
-                  value={selectedOptions.some((opt) => opt && opt === option.value)}
+                  checked={selectedOptions.some((opt) => opt && opt === option.value)}
                   label={option.label}
                 />
               )}

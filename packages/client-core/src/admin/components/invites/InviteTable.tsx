@@ -31,8 +31,8 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useFind, useSearch } from '@ir-engine/common'
 import { invitePath, InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 import { State } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
 import { validate as isValidUUID } from 'uuid'
 
 import { inviteColumns, InviteRowType } from '../../common/constants/invite'
@@ -90,7 +90,7 @@ export default function InviteTable({
     rows.map((row) => ({
       select: (
         <Checkbox
-          value={selectedInvites.value.findIndex((invite) => invite.id === row.id) !== -1}
+          checked={selectedInvites.value.findIndex((invite) => invite.id === row.id) !== -1}
           onChange={(value) => {
             if (value) selectedInvites.merge([row])
             else selectedInvites.set((prevInvites) => prevInvites.filter((invite) => invite.id !== row.id))
@@ -131,7 +131,7 @@ export default function InviteTable({
           id: 'select',
           label: (
             <Checkbox
-              value={selectedInvites.length === adminInviteQuery.data.length}
+              checked={selectedInvites.length === adminInviteQuery.data.length}
               onChange={(value) => {
                 if (value) selectedInvites.set(adminInviteQuery.data.slice())
                 else selectedInvites.set([])
