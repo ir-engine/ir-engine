@@ -36,8 +36,8 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
-
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, useState } from '@ir-engine/hyperflux'
 import { Checkbox } from '@ir-engine/ui'
@@ -46,7 +46,6 @@ import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
-import ComponentDropdown from '../../../ComponentDropdown'
 import InputGroup from '../../../input/Group'
 import NodeInput from '../../../input/Node'
 import NumericInput from '../../../input/Numeric'
@@ -77,10 +76,12 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
 
   return (
-    <ComponentDropdown
+    <NodeEditor
+      {...props}
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
       Icon={SceneSettingsEditor.iconComponent}
+      entity={props.entity}
     >
       <InputGroup
         name="Spectate Entity"
@@ -204,7 +205,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SceneSettingsComponent, 'sceneKillHeight')}
         />
       </InputGroup>
-    </ComponentDropdown>
+    </NodeEditor>
   )
 }
 
