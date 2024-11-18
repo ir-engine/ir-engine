@@ -23,19 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import assert from 'assert'
+import { describe, it } from 'vitest'
+import { TweenComponent } from './TweenComponent'
 
-import {
-  HelmSettingData,
-  HelmSettingPatch,
-  HelmSettingQuery,
-  HelmSettingType
-} from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
-
-export interface HelmSettingParams extends KnexAdapterParams<HelmSettingQuery> {}
-
-export class HelmSettingService<
-  T = HelmSettingType,
-  ServiceParams extends Params = HelmSettingParams
-> extends KnexService<HelmSettingType, HelmSettingData, HelmSettingParams, HelmSettingPatch> {}
+describe('TweenComponent', () => {
+  describe('Fields', () => {
+    it('should initialize the *Component.name field with the expected value', () => {
+      assert.equal(TweenComponent.name, 'TweenComponent')
+    })
+  }) //:: Fields
+}) //:: TweenComponent

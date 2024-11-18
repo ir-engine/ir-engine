@@ -39,6 +39,7 @@ import {
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertArray } from '../../../tests/util/assert'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -58,25 +59,12 @@ const TriggerComponentDefaults = {
   }>
 }
 
-function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
-  assert.equal(A.length, B.length, err)
-  for (let id = 0; id < A.length && id < B.length; id++) {
-    assert.deepEqual(A[id], B[id], err)
-  }
-}
-
-function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
-  for (let id = 0; id < A.length && id < B.length; id++) {
-    assert.notDeepEqual(A[id], B[id], err)
-  }
-}
-
 function assertTriggerComponentEqual(data, expected) {
-  assertArrayEqual(data.triggers, expected.triggers)
+  assertArray.eq(data.triggers, expected.triggers)
 }
 
 function assertTriggerComponentNotEqual(data, expected) {
-  assertArrayNotEqual(data.triggers, expected.triggers)
+  assertArray.anyNotEq(data.triggers, expected.triggers)
 }
 
 describe('TriggerComponent', () => {

@@ -106,10 +106,10 @@ const _frustum = new Frustum()
 const _worldPos = new Vector3()
 const _projScreenMatrix = new Matrix4()
 
-const transformDepths = new Map<Entity, number>()
+const _transformDepths = new Map<Entity, number>()
 
 const updateTransformDepth = (entity: Entity) => {
-  if (transformDepths.has(entity)) return transformDepths.get(entity)
+  if (_transformDepths.has(entity)) return _transformDepths.get(entity)
 
   const referenceEntities = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntities
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
@@ -117,20 +117,20 @@ const updateTransformDepth = (entity: Entity) => {
   const referenceEntityDepths = referenceEntities ? referenceEntities.map(updateTransformDepth) : []
   const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
   const depth = Math.max(...referenceEntityDepths, parentEntityDepth) + 1
-  transformDepths.set(entity, depth)
+  _transformDepths.set(entity, depth)
 
   return depth
 }
 
 const compareReferenceDepth = (a: Entity, b: Entity) => {
-  const aDepth = transformDepths.get(a)!
-  const bDepth = transformDepths.get(b)!
+  const aDepth = _transformDepths.get(a)!
+  const bDepth = _transformDepths.get(b)!
   return aDepth - bDepth
 }
 
 export const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
-const sortedTransformEntities = [] as Entity[]
+const _sortedTransformEntities = [] as Entity[]
 
 const sortAndMakeDirtyEntities = () => {
   // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
@@ -145,25 +145,25 @@ const sortAndMakeDirtyEntities = () => {
   let needsSorting = TransformComponent.transformsNeedSorting
 
   for (const entity of transformQuery.enter()) {
-    sortedTransformEntities.push(entity)
+    _sortedTransformEntities.push(entity)
     needsSorting = true
   }
 
   for (const entity of transformQuery.exit()) {
-    const idx = sortedTransformEntities.indexOf(entity)
-    idx > -1 && sortedTransformEntities.splice(idx, 1)
+    const idx = _sortedTransformEntities.indexOf(entity)
+    idx > -1 && _sortedTransformEntities.splice(idx, 1)
     needsSorting = true
   }
 
   if (needsSorting) {
-    transformDepths.clear()
-    for (const entity of sortedTransformEntities) updateTransformDepth(entity)
-    insertionSort(sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
+    _transformDepths.clear()
+    for (const entity of _sortedTransformEntities) updateTransformDepth(entity)
+    insertionSort(_sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
     TransformComponent.transformsNeedSorting = false
   }
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty
-  for (const entity of sortedTransformEntities) {
+  for (const entity of _sortedTransformEntities) {
     TransformComponent.dirtyTransforms[entity] =
       TransformComponent.dirtyTransforms[entity] ||
       hasComponent(entity, ComputedTransformComponent) ||
@@ -173,7 +173,7 @@ const sortAndMakeDirtyEntities = () => {
 }
 
 const execute = () => {
-  const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
+  const dirtySortedTransformEntities = _sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
   const dirtyGroupEntities = groupQuery().filter(isDirty)
@@ -210,13 +210,11 @@ const execute = () => {
   _frustum.setFromProjectionMatrix(_projScreenMatrix)
 
   for (const entity of frustumCulledQuery()) {
-    const boundingBox = (
-      getOptionalComponent(entity, BoundingBoxComponent) ?? getOptionalComponent(entity, BoundingBoxComponent)
-    )?.box
-    const cull = boundingBox
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)?.box
+    const shouldNotCull = boundingBox
       ? _frustum.intersectsBox(boundingBox)
       : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))
-    FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
+    FrustumCullCameraComponent.isCulled[entity] = shouldNotCull ? 0 : 1
   }
 }
 
@@ -231,8 +229,8 @@ const reactor = () => {
 
     return () => {
       networkState.networkSchema[TransformSerialization.ID].set(none)
-      sortedTransformEntities.length = 0
-      transformDepths.clear()
+      _sortedTransformEntities.length = 0
+      _transformDepths.clear()
     }
   }, [])
   return null
