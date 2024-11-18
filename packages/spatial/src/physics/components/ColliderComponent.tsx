@@ -94,7 +94,7 @@ export const ColliderComponent = defineComponent({
       for (const childMeshEntity of entitiesArray) {
         if (
           getAncestorWithComponents(childMeshEntity, [ColliderComponent]) !== entity ||
-          (entity === childMeshEntity && !hasComponent(childMeshEntity, MeshComponent))
+          !hasComponent(childMeshEntity, MeshComponent)
         )
           continue
 
@@ -126,8 +126,14 @@ export const ColliderComponent = defineComponent({
         hasCollider.set(true)
       }
 
-      if (firstEntry) TransformComponent.dirtyTransforms[entity] = true
-
+      // if (firstEntry) {
+      //   const rbTransform = getMutableComponent(rigidbodyEntity, TransformComponent)
+      //   rbTransform.position.set(rbTransform.position.value.clone())
+      //   TransformComponent.dirtyTransforms[entity] = true
+      //   for (const e of getChildrenWithComponents(entity, [TransformComponent])) {//(const e of entitiesArray) {
+      //     TransformComponent.dirtyTransforms[e] = true
+      //   }
+      // }
       return () => {}
     }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale, childMeshEntities])
 
