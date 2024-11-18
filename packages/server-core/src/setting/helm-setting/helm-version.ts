@@ -1,6 +1,3 @@
-import fetch from 'node-fetch'
-import { Application } from '../../../declarations'
-
 /*
 CPAL-1.0 License
 
@@ -26,42 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { BUILDER_CHART_REGEX, MAIN_CHART_REGEX } from '@ir-engine/common/src/regex'
-import { helmBuilderVersionPath, helmMainVersionPath } from '@ir-engine/common/src/schema.type.module'
-
+import {
+  helmVersionMethods,
+  helmVersionPath
+} from '@ir-engine/common/src/schemas/integrations/helm-version/helm-version.schema'
+import { Application } from '../../../declarations'
+import { HelmVersionService } from './helm-version.class'
+import helmVersionDocs from './helm-version.docs'
+import hooks from './helm-version.hooks'
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
-    [helmMainVersionPath]: { find: () => Promise<string[]> }
-    [helmBuilderVersionPath]: { find: () => Promise<string[]> }
+    [helmVersionPath]: HelmVersionService
   }
 }
 
 export default (app: Application): void => {
-  app.use(helmMainVersionPath, {
-    find: async () => {
-      const versions: string[] = []
-      const response = await fetch('https://helm.etherealengine.org')
-      const chart = Buffer.from(await response.arrayBuffer()).toString()
-
-      const matches = chart.matchAll(MAIN_CHART_REGEX)
-
-      for (const match of matches) if (match && versions.indexOf(match[1]) < 0) versions.push(match[1])
-
-      return versions
-    }
+  app.use(helmVersionPath, new HelmVersionService(), {
+    methods: helmVersionMethods,
+    events: [],
+    docs: helmVersionDocs
   })
-
-  app.use(helmBuilderVersionPath, {
-    find: async () => {
-      const versions: string[] = []
-      const response = await fetch('https://helm.etherealengine.org')
-      const chart = Buffer.from(await response.arrayBuffer()).toString()
-
-      const matches = chart.matchAll(BUILDER_CHART_REGEX)
-
-      for (const match of matches) if (match && versions.indexOf(match[1]) < 0) versions.push(match[1])
-
-      return versions
-    }
-  })
+  const service = app.service(helmVersionPath)
+  service.hooks(hooks)
 }

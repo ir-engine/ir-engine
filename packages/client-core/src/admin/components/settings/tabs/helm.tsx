@@ -29,11 +29,7 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
-import {
-  engineSettingPath,
-  helmBuilderVersionPath,
-  helmMainVersionPath
-} from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath, helmVersionPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -61,7 +57,11 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
 
   const selectedMainVersion = useHookstate(helmMain)
 
-  const helmMainVersions = useFind(helmMainVersionPath).data
+  const helmMainVersions = useFind(helmVersionPath, {
+    query: {
+      action: 'main'
+    }
+  }).data
   const mainVersionMenu = helmMainVersions.map((el) => {
     return {
       value: el as string,
@@ -69,7 +69,11 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     }
   })
 
-  const helmBuilderVersions = useFind(helmBuilderVersionPath).data
+  const helmBuilderVersions = useFind(helmVersionPath, {
+    query: {
+      action: 'builder'
+    }
+  }).data
   const selectedBuilderVersion = useHookstate(helmBuilder)
   const builderVersionMenu = helmBuilderVersions.map((el) => {
     return {

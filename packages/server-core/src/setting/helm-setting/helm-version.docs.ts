@@ -23,26 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import ClientSetting from './client-setting/client-setting'
-import Email from './email-setting/email-setting'
-import EngineSetting from './engine-setting/engine-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import HelmVersion from './helm-setting/helm-version'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectSetting from './project-setting/project-setting'
-import ServerSetting from './server-setting/server-setting'
+import {
+  helmVersionDataSchema,
+  helmVersionQuerySchema
+} from '@ir-engine/common/src/schemas/integrations/helm-version/helm-version.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [
-  ProjectSetting,
-  EngineSetting,
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  HelmVersion
-]
+export default createSwaggerServiceOptions({
+  schemas: {
+    helmVersionDataSchema,
+    helmVersionQuerySchema
+  },
+  docs: {
+    description: 'Helm version service description',
+    securities: ['all']
+  }
+})

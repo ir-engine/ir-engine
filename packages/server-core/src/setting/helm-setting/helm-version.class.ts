@@ -23,26 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import ClientSetting from './client-setting/client-setting'
-import Email from './email-setting/email-setting'
-import EngineSetting from './engine-setting/engine-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import HelmVersion from './helm-setting/helm-version'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectSetting from './project-setting/project-setting'
-import ServerSetting from './server-setting/server-setting'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
-export default [
-  ProjectSetting,
-  EngineSetting,
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  HelmVersion
-]
+import {
+  HelmVersionData,
+  HelmVersionQuery
+} from '@ir-engine/common/src/schemas/integrations/helm-version/helm-version.schema'
+import { BaseService } from '@ir-engine/server-core/src/BaseService'
+
+export interface HelmVersionParams extends KnexAdapterParams<HelmVersionQuery> {}
+
+export class HelmVersionService<
+  T = HelmVersionData,
+  ServiceParams extends Params = HelmVersionParams
+> extends BaseService<string, HelmVersionData, HelmVersionParams, void> {}

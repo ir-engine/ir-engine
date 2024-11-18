@@ -208,9 +208,7 @@ export const instancePath = 'instance'
 export const instanceFriendsPath = 'instance-friends'
 
 export const routePath = 'route'
-
-export const helmMainVersionPath = 'helm-main-version'
-export const helmBuilderVersionPath = 'helm-builder-version'
+export const helmVersionPath = 'helm-version'
 
 export const projectSettingPath = 'project-setting'
 
