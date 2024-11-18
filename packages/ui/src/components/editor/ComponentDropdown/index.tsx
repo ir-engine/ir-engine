@@ -103,12 +103,14 @@ export default function ComponentDropdown({
         <span className="ml-1 text-sm leading-6 text-[#B2B5BD] group-hover/component-dropdown:text-[#D3D5D9] group-focus/component-dropdown:text-[#F5F5F5]">
           {name}
         </span>
-        <button
-          className="ml-auto text-[#1A1B1E] group-hover/component-dropdown:text-[#6B6F78] group-focus/component-dropdown:text-[#6B6F78]"
-          onClick={onClose}
-        >
-          <HiMiniXMark className="h-2 w-2 group-hover/component-dropdown:h-4 group-hover/component-dropdown:w-4 group-focus/component-dropdown:h-4 group-focus/component-dropdown:w-4" />
-        </button>
+        {onClose && (
+          <button
+            className="ml-auto text-[#1A1B1E] group-hover/component-dropdown:text-[#6B6F78] group-focus/component-dropdown:text-[#6B6F78]"
+            onClick={onClose}
+          >
+            <HiMiniXMark className="h-2 w-2 group-hover/component-dropdown:h-4 group-hover/component-dropdown:w-4 group-focus/component-dropdown:h-4 group-focus/component-dropdown:w-4" />
+          </button>
+        )}
       </div>
       {!isMinimized.value && <div className="text-center text-xs leading-[18px] text-[#D3D5D9]">{description}</div>}
       <div className={twMerge('mt-4', isMinimized.value && 'hidden')}>{children}</div>

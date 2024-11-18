@@ -36,13 +36,13 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { HiOutlineCamera } from 'react-icons/hi'
 import { Box3, Vector3 } from 'three'
 import Button from '../../../../primitives/tailwind/Button'
-import ComponentDropdown from '../../ComponentDropdown'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -92,7 +92,8 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <ComponentDropdown
+    <NodeEditor
+      {...props}
       name={t('editor:properties.cameraSettings.name')}
       description={t('editor:properties.cameraSettings.description')}
       Icon={CameraPropertiesNodeEditor.iconComponent}
@@ -215,7 +216,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
-    </ComponentDropdown>
+    </NodeEditor>
   )
 }
 
