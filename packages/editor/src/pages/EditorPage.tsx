@@ -32,8 +32,6 @@ import React, { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
-import { isSupportedDevice } from '../functions/deviceCheck'
-import { useBrowserCheck } from '../hooks/useBrowserCheck'
 import { EditorState } from '../services/EditorServices'
 import { ProjectPage } from './ProjectPage'
 
@@ -53,9 +51,7 @@ export const useStudioEditor = () => {
 
 export const EditorPage = () => {
   const [params] = useSearchParams()
-  const { scenePath, projectName, acknowledgedUnsupportedDevice } = useHookstate(getMutableState(EditorState))
-  const { supportedBrowser, acknowledgedUnsupportedBrowser } = useBrowserCheck()
-  const supportedDevice = useHookstate(isSupportedDevice)
+  const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
 
   useImmediateEffect(() => {
     const sceneInParams = params.get('scenePath')
