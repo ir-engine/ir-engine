@@ -115,9 +115,13 @@ const Renderer = (args: any) => {
   return (
     <PhoneInput
       countries={countryDetails}
-      value={value}
-      onChange={(v) => {
-        setValue(v)
+      phoneNumber={value.phoneNumber}
+      countryIndex={value.countryIndex}
+      onCountryIndexChange={(index) => {
+        setValue((v) => ({ ...v, countryIndex: index }))
+      }}
+      onPhoneNumberChange={(phoneNumber) => {
+        setValue((v) => ({ ...v, phoneNumber }))
       }}
     />
   )

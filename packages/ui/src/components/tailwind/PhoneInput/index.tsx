@@ -36,15 +36,20 @@ interface CountryDetails {
 }
 
 interface PhoneInputProps {
-  value: {
-    countryIndex: number
-    phoneNumber: string
-  }
-  onChange: ({ countryIndex, phoneNumber }: { countryIndex: number; phoneNumber: string }) => void
+  countryIndex: number
+  onCountryIndexChange: (index: number) => void
+  phoneNumber: string
+  onPhoneNumberChange: (phoneNumber: string) => void
   countries: CountryDetails[]
 }
 
-const PhoneInput = ({ value, onChange, countries }: PhoneInputProps) => {
+const PhoneInput = ({
+  countryIndex,
+  onCountryIndexChange,
+  phoneNumber,
+  onPhoneNumberChange,
+  countries
+}: PhoneInputProps) => {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
@@ -113,7 +118,7 @@ const PhoneInput = ({ value, onChange, countries }: PhoneInputProps) => {
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onChange({ ...value, countryIndex: activeIndex })
+              onCountryIndexChange(activeIndex)
               setOpen((v) => !v)
             } else if (e.key === 'ArrowUp') {
               let newIndex = -1
@@ -143,7 +148,7 @@ const PhoneInput = ({ value, onChange, countries }: PhoneInputProps) => {
             }
           }}
         >
-          <span className="inline-block w-full text-center">{countries[value.countryIndex]?.dialCode}</span>
+          <span className="inline-block w-full text-center">{countries[countryIndex]?.dialCode}</span>
           <ChevronDownLg className={`h-4 w-4 ${open && 'rotate-180'} duration-300`} />
         </div>
 
@@ -166,7 +171,7 @@ const PhoneInput = ({ value, onChange, countries }: PhoneInputProps) => {
                   activeIndex === index && 'bg-[#191B1F] text-[#F5F5F5]'
                 )}
                 onClick={() => {
-                  onChange({ ...value, countryIndex: index })
+                  onCountryIndexChange(index)
                   setOpen(false)
                 }}
                 onMouseEnter={() => {
@@ -186,9 +191,9 @@ const PhoneInput = ({ value, onChange, countries }: PhoneInputProps) => {
 
         <input
           className="h-10 w-full rounded-r-md bg-[#141619] px-2 py-2.5 focus:outline-none"
-          value={value.phoneNumber}
+          value={phoneNumber}
           onChange={(e) => {
-            onChange({ ...value, phoneNumber: e.target.value })
+            onPhoneNumberChange(e.target.value)
           }}
         />
       </div>
