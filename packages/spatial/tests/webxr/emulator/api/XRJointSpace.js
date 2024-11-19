@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 
-import { XRSpace  } from 'webxr-polyfill';
+import XRSpace from 'webxr-polyfill/src/api/XRSpace';
 
 export const PRIVATE = Symbol('@@webxr-polyfill/XRJointSpace');
 

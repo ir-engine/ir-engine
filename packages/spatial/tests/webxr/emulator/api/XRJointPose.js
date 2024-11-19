@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 
-import { XRPose  } from 'webxr-polyfill';
+import XRPose from 'webxr-polyfill/src/api/XRPose';
 
 export const PRIVATE = Symbol('@@webxr-polyfill/XRJointPose');
 

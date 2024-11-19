@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { XRSpace  } from 'webxr-polyfill';
+import XRSpace from 'webxr-polyfill/src/api/XRSpace';
 
 export const PRIVATE = Symbol('@@webxr-polyfill/XRInputSource');
 

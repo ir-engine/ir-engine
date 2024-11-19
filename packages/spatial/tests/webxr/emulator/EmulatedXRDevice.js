@@ -27,10 +27,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { CLIENT_ACTIONS, POLYFILL_ACTIONS } from './actions';
 import { mat4, quat, vec3 } from 'gl-matrix';
 
-import { GamepadMappings  } from 'webxr-polyfill';
+import GamepadMappings from 'webxr-polyfill/src/devices/GamepadMappings';
 import GamepadXRInputSource from './api/XRGamepadInput';
 import HandXRInputSource from './api/XRHandInput';
-import { XRDevice  } from 'webxr-polyfill';
+import XRDevice from 'webxr-polyfill/src/devices/XRDevice';
 import { PRIVATE as XRINPUTSOURCE_PRIVATE } from './api/XRInputSource';
 import { PRIVATE as XRSESSION_PRIVATE } from 'webxr-polyfill/src/api/XRSession';
 import XRScene from './XRScene';
