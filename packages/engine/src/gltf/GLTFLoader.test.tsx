@@ -343,7 +343,12 @@ describe('GLTF Loader', () => {
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
     await act(() => rerender(<></>))
-
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 20000 }
+    )
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
     const gltf = gltfDocumentState[instanceID]
@@ -367,7 +372,7 @@ describe('GLTF Loader', () => {
       () => {
         expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
       },
-      { timeout: 100000 }
+      { timeout: 20000 }
     )
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -388,7 +393,12 @@ describe('GLTF Loader', () => {
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
     await act(() => rerender(<></>))
-
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 20000 }
+    )
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
     const gltf = gltfDocumentState[instanceID]
@@ -497,6 +507,12 @@ describe('GLTF Loader', () => {
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
     await act(() => rerender(<></>))
+    await vi.waitFor(
+      () => {
+        expect(getChildrenWithComponents(entity, [EXTMeshGPUInstancingComponent]).length).toBeTruthy()
+      },
+      { timeout: 20000 }
+    )
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
