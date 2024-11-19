@@ -73,6 +73,7 @@ import {
   useHookstate
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -1056,7 +1057,7 @@ export const ParticleSystemComponent = defineComponent({
 })
 
 function getNestedScale(node: Object3D): Vector3 {
-  const scale = node.scale.clone()
+  const scale = node.scale?.clone() ?? Vector3_One
 
   if (node.parent) {
     scale.multiply(getNestedScale(node.parent))

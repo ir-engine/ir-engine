@@ -27,7 +27,16 @@ import { useEffect, useLayoutEffect } from 'react'
 import { AudioLoader, Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { createEntity, Entity, entityExists, removeEntity, setComponent, UndefinedEntity } from '@ir-engine/ecs'
+import {
+  createEntity,
+  Entity,
+  entityExists,
+  generateEntityUUID,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { getState, NO_PROXY, State, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import {
   ResourceAssetType,
@@ -254,12 +263,14 @@ export function useGLTFComponent(url: string, parentEntity: Entity): Entity | nu
     if (!url) return
     const gltfEntity = createEntity()
     setComponent(gltfEntity, EntityTreeComponent, { parentEntity })
+    setComponent(gltfEntity, UUIDComponent, generateEntityUUID())
     setComponent(gltfEntity, GLTFComponent, { src: url })
     gltfEntityState.set(gltfEntity)
 
     return () => {
       if (entityExists(gltfEntity)) {
         removeEntity(gltfEntity)
+        gltfEntityState.set(UndefinedEntity)
       }
     }
   }, [parentEntity, url])
