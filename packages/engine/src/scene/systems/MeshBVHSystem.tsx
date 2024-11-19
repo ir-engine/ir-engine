@@ -175,7 +175,6 @@ const MeshBVHReactor = () => {
     // @ts-ignore - private property
     meshBVHVisualizer._roots = []
     meshBVHVisualizer.update()
-    console.log({ meshBVHVisualizer })
 
     return () => {
       removeEntity(helperEntity)
