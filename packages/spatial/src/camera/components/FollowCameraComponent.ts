@@ -419,8 +419,12 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
 
   const delta = getState(ECSState).deltaSeconds
   if (!followCamera.locked) {
-    followCamera.phi = followCamera.smoothLerp ? smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta) : target.phi
-    followCamera.theta = followCamera.smoothLerp ? smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta) : target.theta
+    followCamera.phi = followCamera.smoothLerp
+      ? smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
+      : target.phi
+    followCamera.theta = followCamera.smoothLerp
+      ? smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+      : target.theta
   }
 }
 
