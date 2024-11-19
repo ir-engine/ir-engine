@@ -1029,10 +1029,12 @@ const PrimitiveReactor = (props: {
       typeof node.skin !== 'undefined'
         ? new SkinnedMesh(finalGeometry as BufferGeometry)
         : new Mesh(finalGeometry as BufferGeometry)
+
     mesh.material = material
 
     if (typeof node.skin !== 'undefined') {
       ;(mesh as SkinnedMesh).skeleton = new Skeleton()
+      ;(mesh as SkinnedMesh).normalizeSkinWeights()
       setComponent(props.entity, SkinnedMeshComponent, mesh as SkinnedMesh)
     }
 

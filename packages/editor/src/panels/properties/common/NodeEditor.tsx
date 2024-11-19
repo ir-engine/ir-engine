@@ -23,13 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 
 import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorPropType } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import ComponentDropdown, { ComponentDropdownProps } from '@ir-engine/ui/src/components/editor/ComponentDropdown'
+import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState.ts'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
@@ -82,6 +83,21 @@ const NodeEditor = ({
 }: ComponentDropdownProps & EditorPropType) => {
   const { t } = useTranslation()
 
+  const minimizedByDefault = false
+
+  useEffect(() => {
+    //ensure the entry exists in the state but do not modify it if it already exists
+    if (name) ComponentDropdownState.addOrUpdateEntity(entity, name, minimizedByDefault, false)
+
+    return () => {
+      const entities = SelectionState.getSelectedEntities()
+      //clean up the component from the state for these entities
+      if (name && component && !hasComponent(entity, component)) {
+        ComponentDropdownState.removeComponentEntry(entities, name)
+      }
+    }
+  }, [])
+
   return (
     <ComponentDropdown
       name={name}
@@ -91,10 +107,13 @@ const NodeEditor = ({
         component && hasComponent(entity, component)
           ? () => {
               const entities = SelectionState.getSelectedEntities()
+              //remove the component from the entities
               EditorControlFunctions.addOrRemoveComponent(entities, component, false)
             }
           : undefined
       }
+      entity={entity}
+      minimizedDefault={minimizedByDefault}
     >
       <Suspense
         fallback={<LoadingView className="block h-12 w-12" title={t('common:loader.loadingDynamic', { name })} />}

@@ -58,7 +58,6 @@ import { ProjectCheckUnfetchedCommitType } from '@ir-engine/common/src/schemas/p
 import { ProjectCommitType } from '@ir-engine/common/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@ir-engine/common/src/schemas/projects/project-destination-check.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
-import { helmSettingPath } from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
@@ -72,7 +71,9 @@ import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { BUILDER_CHART_REGEX } from '@ir-engine/common/src/regex'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
@@ -149,8 +150,18 @@ export const updateBuilder = async (
     await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update('', project, params)))
   }
 
-  const helmSettingsResult = await app.service(helmSettingPath).find()
-  const helmSettings = helmSettingsResult.total > 0 ? helmSettingsResult.data[0] : null
+  const helmSettings = (
+    await app.service(engineSettingPath).find({
+      query: {
+        category: 'helm',
+        paginate: false
+      }
+    })
+  ).data
+
+  const helmBuilder = helmSettings.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
+  const helmMain = helmSettings.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
+
   const builderDeploymentName = `${config.server.releaseName}-builder`
   const k8sAppsClient = getState(ServerState).k8AppsClient
   const k8BatchClient = getState(ServerState).k8BatchClient
@@ -187,9 +198,9 @@ export const updateBuilder = async (
           `kubectl delete deployment --ignore-not-found=true ${builderDeployments.body.items[0].metadata!.name}`
         )
 
-      if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+      if (helmSettings.length > 0 && helmBuilder && helmBuilder.length > 0)
         await execAsync(
-          `helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
+          `helm repo update && helm upgrade --reuse-values --version ${helmBuilder} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
         )
       else {
         const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
