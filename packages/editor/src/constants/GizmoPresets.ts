@@ -449,15 +449,35 @@ function setupGizmo(parentEntity: Entity, gizmoMap: GizmoDefinition) {
   }
 }
 
+const gizmo = {
+  translate: gizmoTranslate,
+  rotate: gizmoRotate,
+  scale: gizmoScale
+}
+
+const picker = {
+  translate: pickerTranslate,
+  rotate: pickerRotate,
+  scale: pickerScale
+}
+
+const helper = {
+  translate: helperTranslate,
+  rotate: helperRotate,
+  scale: helperScale
+}
+
 export {
   GizmoMaterial,
   cameraGizmo,
   cameraPicker,
+  gizmo,
   gizmoMaterialProperties,
   gizmoPlane,
   gizmoRotate,
   gizmoScale,
   gizmoTranslate,
+  helper,
   helperRotate,
   helperScale,
   helperTranslate,
@@ -472,6 +492,7 @@ export {
   matRedTransparent,
   matWhiteTransparent,
   matYellowTransparent,
+  picker,
   pickerRotate,
   pickerScale,
   pickerTranslate,

@@ -32,7 +32,6 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   UndefinedEntity
@@ -50,7 +49,7 @@ import { CameraComponent } from '@ir-engine/spatial/src/camera/components/Camera
 import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
@@ -121,38 +120,13 @@ export function gizmoUpdate(gizmoControlEntity) {
     : gizmoControl.worldPosition.distanceTo(camera.position) *
       Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)
 
-  if (gizmo.gizmo[TransformMode.translate] === UndefinedEntity) return
-  if (gizmo.gizmo[TransformMode.rotate] === UndefinedEntity) return
-  if (gizmo.gizmo[TransformMode.scale] === UndefinedEntity) return
+  if (gizmo.gizmo === UndefinedEntity) return
 
-  setVisibleComponent(gizmo.gizmo[TransformMode.translate], gizmoControl.mode === TransformMode.translate)
-  setVisibleComponent(gizmo.gizmo[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
-  setVisibleComponent(gizmo.gizmo[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
+  setComponent(gizmo.gizmo, TransformComponent, { position: gizmoControl.worldPosition })
+  setComponent(gizmo.picker, TransformComponent, { position: gizmoControl.worldPosition })
+  setComponent(gizmo.helper, TransformComponent, { position: Vector3_Zero })
 
-  setVisibleComponent(gizmo.helper[TransformMode.translate], gizmoControl.mode === TransformMode.translate)
-  setVisibleComponent(gizmo.helper[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
-  setVisibleComponent(gizmo.helper[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
-
-  setVisibleComponent(gizmo.picker[TransformMode.translate], gizmoControl.mode === TransformMode.translate)
-  setVisibleComponent(gizmo.picker[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
-  setVisibleComponent(gizmo.picker[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
-
-  setComponent(gizmo.gizmo[gizmoControl.mode], TransformComponent, {
-    position: gizmoControl.worldPosition
-  })
-  setComponent(gizmo.picker[gizmoControl.mode], TransformComponent, {
-    position: gizmoControl.worldPosition
-  })
-  setComponent(gizmo.helper[gizmoControl.mode], TransformComponent, {
-    position: Vector3_Zero
-  })
-
-  const handles = [
-    ...getComponent(gizmo.picker[gizmoControl.mode], EntityTreeComponent).children,
-    ...getComponent(gizmo.gizmo[gizmoControl.mode], EntityTreeComponent).children
-  ]
-
-  for (const helperEntity of getComponent(gizmo.helper[gizmoControl.mode], EntityTreeComponent).children) {
+  for (const helperEntity of getComponent(gizmo.helper, EntityTreeComponent).children) {
     removeComponent(helperEntity, VisibleComponent)
     const transform = getComponent(helperEntity, TransformComponent)
     transform.rotation.identity()
@@ -241,6 +215,11 @@ export function gizmoUpdate(gizmoControlEntity) {
       }
     }
   }
+
+  const handles = [
+    ...getComponent(gizmo.picker, EntityTreeComponent).children,
+    ...getComponent(gizmo.gizmo, EntityTreeComponent).children
+  ]
 
   for (const handleEntity of handles) {
     setComponent(handleEntity, VisibleComponent)
@@ -350,9 +329,8 @@ export function gizmoUpdate(gizmoControlEntity) {
     }
     // Hide disabled axes
 
-    const isVisible = hasComponent(handleEntity, VisibleComponent)
     const visible =
-      (isVisible && name.indexOf(TransformAxis.X) > -1 && gizmoControl.showX) ||
+      (name.indexOf(TransformAxis.X) > -1 && gizmoControl.showX) ||
       (name.indexOf(TransformAxis.Y) > -1 && gizmoControl.showY) ||
       (name.indexOf(TransformAxis.Z) > -1 && gizmoControl.showZ) ||
       (name.indexOf(TransformAxis.E) > -1 && gizmoControl.showX && gizmoControl.showY && gizmoControl.showZ)
@@ -370,9 +348,9 @@ export function gizmoUpdate(gizmoControlEntity) {
       _opacity: number
     }
 
-    //material._color = material._color || material.uniforms.color.value
-    material._color = material._color || material.color.clone()
-    material._opacity = material._opacity || material.opacity
+    //material._color = material._color ?? material.uniforms.color.value
+    material._color = material._color ?? material.color.clone()
+    material._opacity = material._opacity ?? material.opacity
 
     //setGizmogizmoMaterialProperties(material , material._color , material._opacity, true)
 
@@ -380,15 +358,7 @@ export function gizmoUpdate(gizmoControlEntity) {
     material.opacity = material._opacity
 
     if (gizmoControl.enabled && gizmoControl.axis) {
-      if (name === gizmoControl.axis) {
-        //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
-        material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
-        material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
-      } else if (
-        gizmoControl.axis.split('').some(function (a) {
-          return name === a
-        })
-      ) {
+      if (gizmoControl.axis.includes(name)) {
         //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
         material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
         material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
@@ -525,7 +495,7 @@ function pointerHover(gizmoEntity: Entity) {
 
   const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
   _raycaster.setFromCamera(pointerPosition, camera)
-  const picker = getComponent(gizmoVisual.picker[gizmoControlComponent.mode.value], ObjectComponent)
+  const picker = getComponent(gizmoVisual.picker, ObjectComponent)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
   if (intersect) {

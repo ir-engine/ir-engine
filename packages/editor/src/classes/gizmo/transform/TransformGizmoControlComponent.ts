@@ -123,7 +123,7 @@ export const TransformGizmoControlComponent = defineComponent({
           return
 
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
-        const pickerEntity = visualComponent.picker[gizmoControlComponent.mode]
+        const pickerEntity = visualComponent.picker
 
         onPointerHover(gizmoControlEntity)
 

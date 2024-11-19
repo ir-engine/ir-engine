@@ -35,7 +35,7 @@ import {
   useEntityContext
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -44,7 +44,6 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   EntityTreeComponent,
-  iterateEntityNode,
   removeEntityNodeRecursively
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import {
@@ -52,84 +51,69 @@ import {
   TransformGizmoTagComponent
 } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Object3D } from 'three'
-import { gizmoTranslate, helperTranslate, pickerTranslate, setupGizmo } from '../../../constants/GizmoPresets'
+import { gizmo, helper, picker, setupGizmo } from '../../../constants/GizmoPresets'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 
 export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',
 
   schema: S.Object({
-    gizmo: S.Object({
-      translate: S.Entity(),
-      rotate: S.Entity(),
-      scale: S.Entity()
-    }),
-    picker: S.Object({
-      translate: S.Entity(),
-      rotate: S.Entity(),
-      scale: S.Entity()
-    }),
-    helper: S.Object({
-      translate: S.Entity(),
-      rotate: S.Entity(),
-      scale: S.Entity()
-    })
+    gizmo: S.Entity(),
+    picker: S.Entity(),
+    helper: S.Entity()
   }),
 
   reactor: function () {
     const gizmoVisualEntity = useEntityContext()
     const visualComponent = useComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
+    const mode = useMutableState(EditorHelperState).transformMode.value
 
     useEffect(() => {
       const entities = [] as Entity[]
 
-      for (const mode in TransformMode) {
-        const gizmoEntity = createEntity()
-        setComponent(gizmoEntity, ObjectComponent, new Object3D())
-        setComponent(gizmoEntity, NameComponent, `gizmo${mode}Entity`)
-        setComponent(gizmoEntity, TransformGizmoTagComponent)
-        setComponent(gizmoEntity, TransformComponent)
-        setComponent(gizmoEntity, VisibleComponent)
-        setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-        setupGizmo(gizmoEntity, gizmoTranslate)
-        ObjectLayerMaskComponent.setLayer(gizmoEntity, ObjectLayers.TransformGizmo)
-        visualComponent.gizmo[mode].set(gizmoEntity)
-        entities.push(gizmoEntity)
+      const gizmoEntity = createEntity()
+      setComponent(gizmoEntity, ObjectComponent, new Object3D())
+      setComponent(gizmoEntity, NameComponent, `gizmoEntity`)
+      setComponent(gizmoEntity, TransformGizmoTagComponent)
+      setComponent(gizmoEntity, TransformComponent)
+      setComponent(gizmoEntity, VisibleComponent)
+      setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setupGizmo(gizmoEntity, gizmo[mode])
+      ObjectLayerMaskComponent.setLayer(gizmoEntity, ObjectLayers.TransformGizmo)
+      visualComponent.gizmo.set(gizmoEntity)
+      entities.push(gizmoEntity)
 
-        const helperEntity = createEntity()
-        setComponent(helperEntity, ObjectComponent, new Object3D())
-        setComponent(helperEntity, NameComponent, `gizmoHelper${mode}Entity`)
-        setComponent(helperEntity, TransformGizmoTagComponent)
-        setComponent(helperEntity, VisibleComponent)
-        setComponent(helperEntity, TransformComponent)
-        setComponent(helperEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-        setupGizmo(helperEntity, helperTranslate)
-        ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.TransformGizmo)
-        visualComponent.helper[mode].set(helperEntity)
-        entities.push(helperEntity)
+      const helperEntity = createEntity()
+      setComponent(helperEntity, ObjectComponent, new Object3D())
+      setComponent(helperEntity, NameComponent, `gizmoHelperEntity`)
+      setComponent(helperEntity, TransformGizmoTagComponent)
+      setComponent(helperEntity, VisibleComponent)
+      setComponent(helperEntity, TransformComponent)
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setupGizmo(helperEntity, helper[mode])
+      ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.TransformGizmo)
+      visualComponent.helper.set(helperEntity)
+      entities.push(helperEntity)
 
-        const pickerEntity = createEntity()
-        setComponent(pickerEntity, ObjectComponent, new Object3D())
-        setComponent(pickerEntity, NameComponent, `gizmoPicker${mode}Entity`)
-        setComponent(pickerEntity, TransformGizmoTagComponent)
-        setComponent(pickerEntity, VisibleComponent)
-        setComponent(pickerEntity, TransformComponent)
-        setComponent(pickerEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-        setupGizmo(pickerEntity, pickerTranslate)
-        ObjectLayerMaskComponent.setLayer(pickerEntity, ObjectLayers.TransformGizmo)
-        visualComponent.picker[mode].set(pickerEntity)
-        entities.push(pickerEntity)
-
-        iterateEntityNode(pickerEntity, (entity) => {
-          setComponent(entity, InputComponent)
-        })
-      }
+      const pickerEntity = createEntity()
+      setComponent(pickerEntity, ObjectComponent, new Object3D())
+      setComponent(pickerEntity, NameComponent, `gizmoPickerEntity`)
+      setComponent(pickerEntity, TransformGizmoTagComponent)
+      setComponent(pickerEntity, VisibleComponent)
+      setComponent(pickerEntity, TransformComponent)
+      setComponent(pickerEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(pickerEntity, InputComponent)
+      setupGizmo(pickerEntity, picker[mode])
+      ObjectLayerMaskComponent.setLayer(pickerEntity, ObjectLayers.TransformGizmo)
+      visualComponent.picker.set(pickerEntity)
+      entities.push(pickerEntity)
 
       return () => {
         for (const entity of entities) {
           removeEntityNodeRecursively(entity)
         }
       }
-    }, [])
+    }, [mode])
 
     return null
   }
