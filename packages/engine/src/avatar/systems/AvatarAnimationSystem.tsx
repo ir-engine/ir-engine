@@ -38,7 +38,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
@@ -61,7 +61,7 @@ import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
-import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { getRootSpeed, updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
@@ -70,9 +70,9 @@ import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { setAvatarSpeedFromRootMotion } from '../functions/avatarFunctions'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
+import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
@@ -338,6 +338,8 @@ const Reactor = () => {
   return null
 }
 
+const runClipName = 'Run_RootMotion',
+  walkClipName = 'Walk_RootMotion'
 const AnimationReactor = () => {
   const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
 
@@ -354,26 +356,27 @@ const AnimationReactor = () => {
     if (!loadedAnimations.value) return
 
     let i = 0
-    for (const loadedAnimationEntity of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
-      for (const animation of loadedAnimationEntity[0]!) {
-        retargetAnimationClip(animation, loadedAnimationEntity[1])
+    for (const [clips, entity] of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
+      /**
+       * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
+       * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
+       */
+      for (const animation of clips!) {
+        retargetAnimationClip(animation, entity)
         bindAnimationClipFromMixamo(animation)
       }
-      getMutableState(AnimationState).loadedAnimations[animations[i]].set(loadedAnimationEntity[1]!)
-      for (const entity of getComponent(loadedAnimationEntity[1], EntityTreeComponent).children)
-        removeEntityNodeRecursively(entity)
+      getMutableState(AnimationState).loadedAnimations[animations[i]].set(entity!)
+      /** @todo handle avatar animation clips generically */
+      const run = AnimationClip.findByName(clips ?? [], runClipName)
+      const walk = AnimationClip.findByName(clips ?? [], walkClipName)
+
+      const movement = getMutableState(AvatarMovementSettingsState)
+      if (run) movement.runSpeed.set(getRootSpeed(run))
+      if (walk) movement.walkSpeed.set(getRootSpeed(walk))
+      for (const child of getComponent(entity, EntityTreeComponent).children) removeEntityNodeRecursively(child)
       i++
     }
   }, [loadedAnimations.value])
-
-  const locomotionAnimationState = useHookstate(
-    getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
-  )
-  const animationComponent = useOptionalComponent(locomotionAnimationState.value, AnimationComponent)
-  useEffect(() => {
-    if (!animationComponent) return
-    setAvatarSpeedFromRootMotion()
-  }, [animationComponent])
 
   return null
 }
