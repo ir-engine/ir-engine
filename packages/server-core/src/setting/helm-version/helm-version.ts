@@ -23,40 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export const EngineSettings = {
-  TaskServer: {
-    Port: 'port',
-    ProcessInterval: 'processInterval'
-  },
-  Coil: {
-    PaymentPointer: 'paymentPointer',
-    ClientId: 'clientId',
-    ClientSecret: 'clientSecret'
-  },
-  Chargebee: {
-    ApiKey: 'apiKey',
-    Url: 'url'
-  },
-  Metabase: {
-    SiteUrl: 'siteUrl',
-    SecretKey: 'secretKey',
-    CrashDashboardId: 'crashDashboardId',
-    Expiration: 'expiration',
-    Environment: 'environment'
-  },
-  Redis: {
-    Address: 'address',
-    Password: 'password',
-    Port: 'port',
-    Enabled: 'enabled'
-  },
-  Zendesk: {
-    Name: 'name',
-    Secret: 'secret',
-    Kid: 'kid'
-  },
-  Helm: {
-    Main: 'main',
-    Builder: 'builder'
+import { helmVersionMethods, helmVersionPath } from '@ir-engine/common/src/schemas/setting/helm-version.schema'
+import { Application } from '../../../declarations'
+import { HelmVersionService } from './helm-version.class'
+import helmVersionDocs from './helm-version.docs'
+import hooks from './helm-version.hooks'
+declare module '@ir-engine/common/declarations' {
+  interface ServiceTypes {
+    [helmVersionPath]: HelmVersionService
   }
+}
+
+export default (app: Application): void => {
+  app.use(helmVersionPath, new HelmVersionService(), {
+    methods: helmVersionMethods,
+    events: [],
+    docs: helmVersionDocs
+  })
+  const service = app.service(helmVersionPath)
+  service.hooks(hooks)
 }

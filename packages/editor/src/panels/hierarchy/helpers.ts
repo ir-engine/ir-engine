@@ -25,7 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { Entity, entityExists, EntityUUID, getComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  entityExists,
+  EntityUUID,
+  getComponent,
+  hasComponent,
+  UndefinedEntity,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -45,6 +53,7 @@ export type HierarchyTreeNodeType = {
   lastChild: boolean
   isLeaf?: boolean
   isCollapsed?: boolean
+  isRendered?: boolean
 }
 
 type NestedHierarchyTreeNode = HierarchyTreeNodeType & { children: NestedHierarchyTreeNode[] }
@@ -115,7 +124,8 @@ function buildHierarchyTree(
   array: NestedHierarchyTreeNode[],
   lastChild: boolean,
   sceneID: string,
-  showModelChildren: boolean
+  showModelChildren: boolean,
+  isRendered: boolean
 ) {
   const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as EntityUUID)
   const entity = UUIDComponent.getEntityByUUID(uuid!)
@@ -128,7 +138,8 @@ function buildHierarchyTree(
     isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[entity],
     children: [],
     isLeaf: !(node.children && node.children.length > 0),
-    lastChild: lastChild
+    lastChild: lastChild,
+    isRendered: isRendered
   }
   array.push(item)
 
@@ -140,13 +151,19 @@ function buildHierarchyTree(
       const snapshotNodes = snapshots.snapshots[snapshots.index].nodes
       if (snapshotNodes && snapshotNodes.length > 0) {
         item.isLeaf = false
-        if (!item.isCollapsed)
-          buildHierarchyTreeForNodes(depth + 1, snapshotNodes, item.children, sceneID, showModelChildren)
+        buildHierarchyTreeForNodes(
+          depth + 1,
+          snapshotNodes,
+          item.children,
+          sceneID,
+          showModelChildren,
+          isRendered && !item.isCollapsed
+        )
       }
     }
   }
 
-  if (node.children && !item.isCollapsed) {
+  if (node.children) {
     for (let i = 0; i < node.children.length; i++) {
       const childIndex = node.children[i]
       buildHierarchyTree(
@@ -157,7 +174,8 @@ function buildHierarchyTree(
         item.children,
         i === node.children.length - 1,
         sceneID,
-        showModelChildren
+        showModelChildren,
+        isRendered && !item.isCollapsed
       )
     }
   }
@@ -168,11 +186,12 @@ function buildHierarchyTreeForNodes(
   nodes: GLTF.INode[],
   outArray: NestedHierarchyTreeNode[],
   sceneID: string,
-  showModelChildren: boolean
+  showModelChildren: boolean,
+  isRendered: boolean
 ) {
   for (let i = 0; i < nodes.length; i++) {
     if (nodeIsChild(i, nodes)) continue
-    buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID, showModelChildren)
+    buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID, showModelChildren, isRendered)
   }
   if (!outArray.length) return
   outArray[outArray.length - 1].lastChild = true
@@ -187,7 +206,8 @@ function flattenTree(array: NestedHierarchyTreeNode[], outArray: HierarchyTreeNo
       childIndex: item.childIndex,
       lastChild: item.lastChild,
       isLeaf: item.isLeaf,
-      isCollapsed: item.isCollapsed
+      isCollapsed: item.isCollapsed,
+      isRendered: item.isRendered
     })
     flattenTree(item.children, outArray)
   }
@@ -204,16 +224,16 @@ export function gltfHierarchyTreeWalker(
   const rootNode = {
     depth: 0,
     entity: rootEntity,
+    parentEntity: UndefinedEntity,
     childIndex: 0,
     lastChild: true,
-    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[rootEntity]
+    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[rootEntity],
+    isRendered: true
   }
   const tree = [rootNode] as HierarchyTreeNodeType[]
 
-  if (!rootNode.isCollapsed) {
-    buildHierarchyTreeForNodes(1, nodes, outArray, sceneID, showModelChildren)
-    flattenTree(outArray, tree)
-  }
+  buildHierarchyTreeForNodes(1, nodes, outArray, sceneID, showModelChildren, !rootNode.isCollapsed)
+  flattenTree(outArray, tree)
 
   return tree
 }
