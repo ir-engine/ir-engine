@@ -103,6 +103,20 @@ const createHashIfNeeded = async (context: HookContext<StaticResourceService>) =
   }
 }
 
+const updateName = async (context: HookContext<StaticResourceService>) => {
+  if (!context.data || !(context.method === 'create' || context.method === 'update' || context.method === 'patch')) {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Batch create is not supported')
+
+  const data = context.data
+  if (!data.key) return
+
+  const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(data.key)!
+  context.data.name = file
+}
+
 const updateResourcesJson = async (context: HookContext<StaticResourceService>) => {
   if (!context.method || !(context.method === 'create' || context.method === 'update' || context.method === 'patch'))
     throw new BadRequest('[updateResourcesJson] Only create, update, patch methods are supported')
@@ -362,7 +376,8 @@ export default {
       // schemaHooks.validateData(staticResourceDataValidator),
       discardQuery('projectId'),
       schemaHooks.resolveData(staticResourceDataResolver),
-      createHashIfNeeded
+      createHashIfNeeded,
+      updateName
     ],
     update: [
       ensureProject,
@@ -378,7 +393,8 @@ export default {
       // schemaHooks.validateData(staticResourceDataValidator),
       discardQuery('projectId'),
       schemaHooks.resolveData(staticResourceDataResolver),
-      createHashIfNeeded
+      createHashIfNeeded,
+      updateName
     ],
     patch: [
       iff(
@@ -392,7 +408,8 @@ export default {
       deleteOldThumbnail,
       // schemaHooks.validateData(staticResourcePatchValidator),
       discardQuery('projectId'),
-      schemaHooks.resolveData(staticResourcePatchResolver)
+      schemaHooks.resolveData(staticResourcePatchResolver),
+      updateName
     ],
     remove: [
       iff(
