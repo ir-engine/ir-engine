@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { UASTCFlags } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 export type KTX2EncodeArguments = {
-  src: string
+  src: string | Blob
   flipY: boolean
   format: 'ktx2' | 'basis'
   srgb: boolean
