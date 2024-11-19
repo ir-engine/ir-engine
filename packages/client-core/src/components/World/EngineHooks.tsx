@@ -190,7 +190,8 @@ export const useNetwork = (props: { online?: boolean }) => {
       dispatchAction(
         NetworkActions.peerLeft({
           $network: networkID,
-          peerID
+          peerID,
+          userID
         })
       )
       removeNetwork(network)

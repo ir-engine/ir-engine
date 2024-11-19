@@ -447,7 +447,8 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
     dispatchAction(
       NetworkActions.peerLeft({
         $network: network.id,
-        peerID: matchingPeer.peerID
+        peerID: matchingPeer.peerID,
+        userID: matchingPeer.userId
       })
     )
   }

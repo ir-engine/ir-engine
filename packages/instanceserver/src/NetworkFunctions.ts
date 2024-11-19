@@ -412,7 +412,8 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     dispatchAction(
       NetworkActions.peerLeft({
         $network: network.id,
-        peerID
+        peerID,
+        userID: userId
       })
     )
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)

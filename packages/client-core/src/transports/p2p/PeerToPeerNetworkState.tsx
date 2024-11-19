@@ -166,7 +166,8 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
       dispatchAction(
         NetworkActions.peerLeft({
           $network: network.id,
-          peerID: Engine.instance.store.peerID
+          peerID: Engine.instance.store.peerID,
+          userID: Engine.instance.store.userID
         })
       )
       removeNetwork(network)
@@ -318,7 +319,8 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       dispatchAction(
         NetworkActions.peerLeft({
           $network: network.id,
-          peerID: props.peerID
+          peerID: props.peerID,
+          userID: props.userID
         })
       )
       dataChannel.removeEventListener('message', onMessage)

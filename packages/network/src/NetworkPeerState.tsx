@@ -89,3 +89,30 @@ export const NetworkPeerState = defineState({
     })
   }
 })
+
+export const WorldUserState = defineState({
+  name: 'ir.network.WorldUserState',
+  initial: {} as Record<UserID, Record<NetworkID, PeerID[]>>,
+  receptors: {
+    onPeerJoined: NetworkActions.peerJoined.receive((action) => {
+      const state = getMutableState(WorldUserState)
+      if (!state.value[action.userID]) {
+        state[action.userID].set({})
+      }
+      if (!state[action.userID].value[action.$network]) {
+        state[action.userID].merge({ [action.$network]: [action.peerID] })
+      } else {
+        if (!state[action.userID][action.$network].value!.includes(action.peerID))
+          state[action.userID][action.$network].merge([action.peerID])
+      }
+    }),
+    onPeerLeft: NetworkActions.peerLeft.receive((action) => {
+      const state = getMutableState(WorldUserState)
+      const userPeers = state[action.userID][action.$network]!
+      const index = userPeers.value.indexOf(action.peerID)
+      userPeers[index].set(none)
+      if (!userPeers.length) state[action.userID][action.$network].set(none)
+      if (!state[action.userID].keys.length) state[action.userID].set(none)
+    })
+  }
+})

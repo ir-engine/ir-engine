@@ -69,7 +69,8 @@ export class NetworkActions {
 
   static peerLeft = defineAction({
     type: 'ee.engine.network.PEER_LEFT',
-    peerID: matchesPeerID
+    peerID: matchesPeerID,
+    userID: matchesUserID
   })
 }
 
