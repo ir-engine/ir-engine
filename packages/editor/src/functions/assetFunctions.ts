@@ -31,9 +31,14 @@ import {
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import { ImportSettingsState } from '../services/ImportSettingsState'
 
 enum FileType {
   THREE_D = '3D',
@@ -106,12 +111,61 @@ function sanitizeFiles(files) {
   return newFiles
 }
 
+export const compressImage = async (properties: KTX2EncodeArguments) => {
+  const ktx2Encoder = new KTX2Encoder()
+
+  let img: CanvasImageSource
+  if (properties.src instanceof Blob) {
+    img = await createImageBitmap(properties.src)
+  } else {
+    img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.src = properties.src
+    await img.decode()
+  }
+  const canvas = new OffscreenCanvas(img.width, img.height)
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(img, 0, 0)
+  const imageData = ctx.getImageData(0, 0, img.width, img.height)
+
+  const data = await ktx2Encoder.encode(imageData, {
+    uastc: properties.mode === 'UASTC',
+    qualityLevel: properties.quality,
+    mipmaps: properties.mipmaps,
+    compressionLevel: properties.compressionLevel,
+    yFlip: properties.flipY,
+    srgb: !properties.srgb,
+    uastcFlags: properties.uastcFlags,
+    normalMap: properties.normalMap,
+    uastcZstandard: properties.uastcZstandard
+  })
+
+  return data
+}
+
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
+  const { ktx2: compressedImage } = CommonKnownContentTypes
+  const importSettingsState = getMutableState(ImportSettingsState)
   return Promise.all(
-    Array.from(files).map((file) => {
+    Array.from(files).map(async (file) => {
       file = cleanFileNameFile(file)
+
+      const ext = file.name.split('.').pop() ?? ''
+      const contentType = CommonKnownContentTypes[ext] as string | null
+      const isUncompressedImage = contentType != compressedImage && contentType?.startsWith('image')
+
+      if (isUncompressedImage && importSettingsState.imageCompression.value) {
+        const newFileName = file.name.replace(/.*\/(.*)\..*/, '$1').replace(/\.([^\.]+)$/, '-$1') + '.ktx2'
+        const data = await compressImage({
+          ...importSettingsState.imageSettings.value,
+          src: file
+        })
+        file = new File([data], newFileName, { type: 'image/ktx2' })
+      }
+
       const fileDirectory = file.webkitRelativePath || file.name
-      return uploadToFeathersService(fileBrowserUploadPath, [file], {
+
+      await uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
           {
             project: projectName,
@@ -120,7 +174,7 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
             contentType: file.type
           }
         ]
-      }).promise
+      })
     })
   )
 }
