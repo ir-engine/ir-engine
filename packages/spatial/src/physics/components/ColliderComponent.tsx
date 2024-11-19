@@ -28,6 +28,7 @@ import {
   Entity,
   EntityUUID,
   hasComponent,
+  UndefinedEntity,
   useComponent,
   useEntityContext,
   useOptionalComponent,
@@ -42,10 +43,12 @@ import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent.ts'
 import {
   getAncestorWithComponents,
+  getTreeFromChildToAncestor,
   useAncestorWithComponents,
   useChildrenWithComponents
 } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem.ts'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { Shapes, ShapeSchema } from '../types/PhysicsTypes'
@@ -90,7 +93,7 @@ export const ColliderComponent = defineComponent({
 
       const entitiesArray = [...childMeshEntities, entity] as Entity[]
 
-      let firstEntry = false
+      forceUpdateMatrices(entity)
       for (const childMeshEntity of entitiesArray) {
         if (
           getAncestorWithComponents(childMeshEntity, [ColliderComponent]) !== entity ||
@@ -105,6 +108,8 @@ export const ColliderComponent = defineComponent({
         )
           continue
 
+        forceUpdateMatrices(childMeshEntity, entity)
+
         const colliderDesc = Physics.createColliderDesc(physicsWorld, childMeshEntity, rigidbodyEntity, entity)
 
         if (!colliderDesc) continue
@@ -113,7 +118,6 @@ export const ColliderComponent = defineComponent({
 
         if (!nestedCollidersState[uuid.value].value) {
           nestedCollidersState[uuid.value].set({} as Record<Entity, ColliderDesc>)
-          firstEntry = true
         }
 
         nestedCollidersState[uuid.value][childMeshEntity].set(colliderDesc)
@@ -126,14 +130,6 @@ export const ColliderComponent = defineComponent({
         hasCollider.set(true)
       }
 
-      // if (firstEntry) {
-      //   const rbTransform = getMutableComponent(rigidbodyEntity, TransformComponent)
-      //   rbTransform.position.set(rbTransform.position.value.clone())
-      //   TransformComponent.dirtyTransforms[entity] = true
-      //   for (const e of getChildrenWithComponents(entity, [TransformComponent])) {//(const e of entitiesArray) {
-      //     TransformComponent.dirtyTransforms[e] = true
-      //   }
-      // }
       return () => {}
     }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale, childMeshEntities])
 
@@ -232,3 +228,12 @@ export const supportedColliderShapes = [
   Shapes.Mesh
   // Shapes.Heightfield
 ]
+
+function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = UndefinedEntity) {
+  const entities = [] as Entity[]
+  getTreeFromChildToAncestor(childEntity, entities, ancestorEntity)
+  if (entities.length === 0) return
+  for (let i = entities.length - 1; i >= 0; i--) {
+    computeTransformMatrix(entities[i])
+  }
+}
