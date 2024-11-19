@@ -174,6 +174,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       <div className="relative grid w-full gap-6">
         {errors.serviceError.value ? <p className="mt-2 text-red-700">{errors.serviceError.value}</p> : null}
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.user.name'),
             position: 'top'

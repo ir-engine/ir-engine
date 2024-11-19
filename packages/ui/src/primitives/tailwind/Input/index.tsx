@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useId, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { HelpIconSm } from '../../../icons'
 import Tooltip from '../Tooltip'
@@ -107,6 +107,12 @@ const Input = (
     window.addEventListener('resize', updateHelperTextPosition)
     return () => {
       window.removeEventListener('resize', updateHelperTextPosition)
+    }
+  }, [labelProps])
+
+  useEffect(() => {
+    if (labelProps?.text === 'Site Url') {
+      console.log('fullWidth: ', fullWidth, props)
     }
   }, [labelProps])
 
