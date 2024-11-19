@@ -27,7 +27,7 @@ import { useEffect, useLayoutEffect } from 'react'
 import { AudioLoader, Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { Entity, entityExists, UndefinedEntity } from '@ir-engine/ecs'
+import { createEntity, Entity, entityExists, removeEntity, setComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { getState, NO_PROXY, State, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import {
   ResourceAssetType,
@@ -36,6 +36,7 @@ import {
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { AssetLoader } from '../classes/AssetLoader'
@@ -243,6 +244,27 @@ export function useGLTF(
   loader: AssetLoader = getState(AssetLoaderState).gltfLoader
 ): [GLTFAsset | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   return useLoader<GLTFAsset>(url, ResourceType.GLTF, entity, loader, onUnload)
+}
+
+export function useGLTFComponent(url: string, parentEntity: Entity): Entity | null {
+  const gltfEntityState = useHookstate(UndefinedEntity)
+  const loaded = GLTFComponent.useSceneLoaded(gltfEntityState.value)
+
+  useEffect(() => {
+    if (!url) return
+    const gltfEntity = createEntity()
+    setComponent(gltfEntity, EntityTreeComponent, { parentEntity })
+    setComponent(gltfEntity, GLTFComponent, { src: url })
+    gltfEntityState.set(gltfEntity)
+
+    return () => {
+      if (entityExists(gltfEntity)) {
+        removeEntity(gltfEntity)
+      }
+    }
+  }, [parentEntity, url])
+
+  return loaded ? gltfEntityState.value : null
 }
 
 export function useGLTFResource(url: string, entity: Entity): void {

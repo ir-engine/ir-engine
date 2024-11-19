@@ -74,16 +74,17 @@ import {
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { useGLTFComponent, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
-import getFirstMesh, { getMeshes, mergeGeometries } from '../util/meshUtils'
+import { mergeGeometries } from '../util/meshUtils'
 import { SourceComponent } from './SourceComponent'
 
 export type ParticleSystemRendererInstance = {
@@ -892,14 +893,55 @@ export const ParticleSystemComponent = defineComponent({
     const refreshed = useHookstate(false)
 
     //for particle meshes
-    const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, (url) => {
-      metadata.geometries.nested(url).set(none)
-    })
+    const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
+
+    //for particle meshes
+    useEffect(() => {
+      if (!geoDependencyEntity) return
+      const meshEntity = getChildrenWithComponents(geoDependencyEntity, [MeshComponent])[0]
+      if (!meshEntity) return
+
+      const mesh = getComponent(meshEntity, MeshComponent)
+      const scaledGeometry = mesh.geometry.clone()
+      const scale = getNestedScale(mesh)
+      scaledGeometry.scale(scale.x, scale.y, scale.z)
+      !!scaledGeometry &&
+        metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry).set(scaledGeometry)
+
+      return () => {
+        metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry).set(none)
+      }
+    }, [geoDependencyEntity])
 
     //for mesh shape emitters
-    const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, (url) => {
-      metadata.geometries.nested(url).set(none)
-    })
+    const shapeMeshEntity = useGLTFComponent(componentState.value.systemParameters.shape.mesh ?? '', entity)
+
+    //for mesh shape emitters
+    useEffect(() => {
+      if (!shapeMeshEntity) return
+      const meshEntities = getChildrenWithComponents(shapeMeshEntity, [MeshComponent])
+      if (!meshEntities.length) return
+
+      const meshes = meshEntities.map((entity) => getComponent(entity, MeshComponent))
+
+      const geometries = meshes.map((mesh) => {
+        const scaledGeometry = mesh.geometry.clone()
+        const scale = getNestedScale(mesh)
+        scaledGeometry.scale(scale.x, scale.y, scale.z)
+        return scaledGeometry
+      })
+      const mergedGeometry = mergeGeometries(geometries)
+
+      if (mergedGeometry) {
+        componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
+        metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
+      }
+
+      return () => {
+        metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(none)
+      }
+    }, [shapeMeshEntity])
+
     const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, (url) => {
       metadata.textures.nested(url).set(none)
       dudMaterial.map = null
@@ -911,6 +953,7 @@ export const ParticleSystemComponent = defineComponent({
       blending: componentState.value.systemParameters.blending as Blending,
       side: DoubleSide
     })
+
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
       if (gltfComponent?.value && !GLTFComponent.isSceneLoaded(rootEntity)) return
@@ -928,45 +971,6 @@ export const ParticleSystemComponent = defineComponent({
       componentState.systemParameters.material.set('dud')
       metadata.materials.nested('dud').set(dudMaterial)
     }, [])
-
-    //for particle meshes
-    useEffect(() => {
-      if (!geoDependency || !geoDependency.scene) return
-
-      const scene = geoDependency.scene
-
-      const mesh = getFirstMesh(scene)
-      if (mesh) {
-        const scaledGeometry = mesh.geometry.clone()
-        const scale = getNestedScale(mesh)
-        scaledGeometry.scale(scale.x, scale.y, scale.z)
-        !!scaledGeometry &&
-          metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry!).set(scaledGeometry)
-      }
-    }, [geoDependency])
-
-    //for mesh shape emitters
-    useEffect(() => {
-      if (!shapeMesh || !shapeMesh.scene) return
-
-      const scene = shapeMesh.scene
-      const meshes = getMeshes(scene)
-
-      if (meshes) {
-        const geometries = meshes.map((mesh) => {
-          const scaledGeometry = mesh.geometry.clone()
-          const scale = getNestedScale(mesh)
-          scaledGeometry.scale(scale.x, scale.y, scale.z)
-          return scaledGeometry
-        })
-        const mergedGeometry = mergeGeometries(geometries)
-
-        if (mergedGeometry) {
-          componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
-          metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
-        }
-      }
-    }, [shapeMesh])
 
     useEffect(() => {
       if (!texture) return
