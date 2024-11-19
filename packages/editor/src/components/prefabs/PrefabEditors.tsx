@@ -184,6 +184,7 @@ export const PrefabShelfState = defineState({
 })
 
 const ShelfItemReactor = (props: { key: string; url: string }): JSX.Element | null => {
+  // Add prefab to cache
   useFile(props.url)
   return null
 }
