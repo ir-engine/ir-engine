@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { ChevronDownLg } from '@ir-engine/ui/src/icons'
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 interface CountryDetails {
@@ -54,6 +54,7 @@ const PhoneInput = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [countriesWithDialCode, setCountriesWithDialCode] = useState<CountryDetails[]>([])
 
   const [menuDimensions, setMenuDimensions] = useState({
     width: '',
@@ -89,6 +90,15 @@ const PhoneInput = ({
     }
   }, [])
 
+  useEffect(() => {
+    setCountriesWithDialCode(
+      countries.map((country) => ({
+        ...country,
+        dialCode: country.dialCode.startsWith('+') ? country.dialCode : '+' + country.dialCode
+      }))
+    )
+  }, [countries])
+
   useClickOutside(containerRef, () => {
     setOpen(false)
   })
@@ -96,6 +106,40 @@ const PhoneInput = ({
   const scrollCountryIntoView = (index: number) => {
     if (itemRefs.current && itemRefs.current[index]) {
       itemRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter') {
+      onCountryIndexChange(activeIndex)
+      setOpen((v) => !v)
+    } else if (e.key === 'ArrowUp') {
+      let newIndex = -1
+      if (activeIndex === -1) {
+        newIndex = countriesWithDialCode.length - 1
+      } else {
+        newIndex = (activeIndex - 1 + countriesWithDialCode.length) % countriesWithDialCode.length
+      }
+      setActiveIndex(newIndex)
+      scrollCountryIntoView(newIndex)
+    } else if (e.key === 'ArrowDown') {
+      let newIndex = -1
+      if (activeIndex === -1) {
+        newIndex = 0
+      } else {
+        newIndex = (activeIndex + 1) % countriesWithDialCode.length
+      }
+      setActiveIndex(newIndex)
+      scrollCountryIntoView(newIndex)
+    } else if (e.code.startsWith('Key')) {
+      const key = e.code.slice(-1)
+      const index = countriesWithDialCode.findIndex((country) =>
+        country.name.toLowerCase().startsWith(key.toLowerCase())
+      )
+      if (index !== -1) {
+        setActiveIndex(index)
+        scrollCountryIntoView(index)
+      }
     }
   }
 
@@ -116,39 +160,9 @@ const PhoneInput = ({
             setOpen((v) => !v)
           }}
           tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              onCountryIndexChange(activeIndex)
-              setOpen((v) => !v)
-            } else if (e.key === 'ArrowUp') {
-              let newIndex = -1
-              if (activeIndex === -1) {
-                newIndex = countries.length - 1
-              } else {
-                newIndex = (activeIndex - 1 + countries.length) % countries.length
-              }
-              setActiveIndex(newIndex)
-              scrollCountryIntoView(newIndex)
-            } else if (e.key === 'ArrowDown') {
-              let newIndex = -1
-              if (activeIndex === -1) {
-                newIndex = 0
-              } else {
-                newIndex = (activeIndex + 1) % countries.length
-              }
-              setActiveIndex(newIndex)
-              scrollCountryIntoView(newIndex)
-            } else if (e.code.startsWith('Key')) {
-              const key = e.code.slice(-1)
-              const index = countries.findIndex((country) => country.name.toLowerCase().startsWith(key.toLowerCase()))
-              if (index !== -1) {
-                setActiveIndex(index)
-                scrollCountryIntoView(index)
-              }
-            }
-          }}
+          onKeyDown={onKeyDown}
         >
-          <span className="inline-block w-full text-center">{countries[countryIndex]?.dialCode}</span>
+          <span className="inline-block w-full text-center">{countriesWithDialCode[countryIndex]?.dialCode}</span>
           <ChevronDownLg className={`h-4 w-4 ${open && 'rotate-180'} duration-300`} />
         </div>
 
@@ -162,7 +176,7 @@ const PhoneInput = ({
               maxHeight: menuDimensions.maxHeight
             }}
           >
-            {countries.map((country, index) => (
+            {countriesWithDialCode.map((country, index) => (
               <div
                 key={country.name}
                 ref={(el) => (itemRefs.current[index] = el)}
@@ -183,7 +197,9 @@ const PhoneInput = ({
               >
                 <span>{country.flag}</span>
                 <span>{country.name}</span>
-                <span className="ml-auto">{country.dialCode}</span>
+                <span className="ml-auto">
+                  {country.dialCode.startsWith('+') ? country.dialCode : '+' + country.dialCode}
+                </span>
               </div>
             ))}
           </div>
