@@ -91,7 +91,23 @@ export const ColliderComponent = defineComponent({
     useLayoutEffect(() => {
       if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
 
-      const entitiesArray = [...childMeshEntities, entity] as Entity[]
+      const entitiesArray =
+        !childMeshEntities.includes(entity) && hasComponent(entity, MeshComponent)
+          ? ([...childMeshEntities, entity] as Entity[])
+          : childMeshEntities
+
+      if (nestedCollidersState[uuid.value] && nestedCollidersState[uuid.value].keys) {
+        //if a collider has been removed, find the leftover colliders from the state and remove them
+        if (nestedCollidersState[uuid.value].keys.length > entitiesArray.length) {
+          for (const item of Array.from(nestedCollidersState[uuid.value].keys)) {
+            const colliderEntity = parseInt(item) as Entity
+            if (!entitiesArray.includes(colliderEntity)) {
+              Physics.removeCollider(physicsWorld, colliderEntity)
+              nestedCollidersState[uuid.value][colliderEntity].set(none)
+            }
+          }
+        }
+      }
 
       forceUpdateMatrices(entity)
       for (const childMeshEntity of entitiesArray) {
@@ -139,7 +155,8 @@ export const ColliderComponent = defineComponent({
         if (!nestedCollidersState[uuid.value].value) return
         const itemsToClear = nestedCollidersState[uuid.value].keys
         for (const item of Array.from(itemsToClear)) {
-          Physics.removeCollider(physicsWorld, item as unknown as Entity)
+          const entityToRemove = parseInt(item) as Entity
+          Physics.removeCollider(physicsWorld, entityToRemove)
         }
         nestedCollidersState[uuid.value].set(none)
         hasCollider.set(false)
