@@ -905,11 +905,12 @@ export const ParticleSystemComponent = defineComponent({
       const scaledGeometry = mesh.geometry.clone()
       const scale = getNestedScale(mesh)
       scaledGeometry.scale(scale.x, scale.y, scale.z)
-      !!scaledGeometry &&
+      if (scaledGeometry) {
         metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry).set(scaledGeometry)
 
-      return () => {
-        metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry).set(none)
+        return () => {
+          metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry).set(none)
+        }
       }
     }, [geoDependencyEntity])
 
@@ -935,10 +936,10 @@ export const ParticleSystemComponent = defineComponent({
       if (mergedGeometry) {
         componentState.systemParameters.shape.geometry.set(componentState.value.systemParameters.shape.mesh!)
         metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mergedGeometry)
-      }
 
-      return () => {
-        metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(none)
+        return () => {
+          metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(none)
+        }
       }
     }, [shapeMeshEntity])
 
@@ -1041,14 +1042,14 @@ export const ParticleSystemComponent = defineComponent({
         component.systemParameters.texture &&
         AssetLoader.getAssetClass(component.systemParameters.texture) === AssetType.Image
 
-      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMesh) || !doLoadEmissionGeo
-      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependency) || !doLoadInstancingGeo
+      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMeshEntity) || !doLoadEmissionGeo
+      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependencyEntity) || !doLoadInstancingGeo
       const loadedTexture = (doLoadTexture && texture) || !doLoadTexture
 
       if (loadedEmissionGeo && loadedInstanceGeo && loadedTexture) {
         componentState._loadIndex.set(componentState._loadIndex.value + 1)
       }
-    }, [geoDependency, shapeMesh, texture, componentState._refresh])
+    }, [geoDependencyEntity, shapeMeshEntity, texture, componentState._refresh])
 
     return null
   }
