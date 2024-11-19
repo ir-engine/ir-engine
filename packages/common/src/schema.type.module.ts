@@ -73,7 +73,6 @@ export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
-export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
@@ -209,9 +208,7 @@ export const instancePath = 'instance'
 export const instanceFriendsPath = 'instance-friends'
 
 export const routePath = 'route'
-
-export const helmMainVersionPath = 'helm-main-version'
-export const helmBuilderVersionPath = 'helm-builder-version'
+export const helmVersionPath = 'helm-version'
 
 export const projectSettingPath = 'project-setting'
 
@@ -278,7 +275,6 @@ export const projectCommitsPath = 'project-commits'
 export const podsPath = 'pods'
 
 export const buildStatusPath = 'build-status'
-export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
 
 export const migrationsInfoPath = 'knex_migrations'
