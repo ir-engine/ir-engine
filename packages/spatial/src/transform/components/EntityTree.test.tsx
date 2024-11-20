@@ -43,7 +43,7 @@ import { NameComponent } from '../../common/NameComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
 import { assertArray } from '../../../tests/util/assert'
-import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { BackgroundComponent, SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
@@ -1506,6 +1506,74 @@ describe('useChildrenWithComponents', () => {
 
     assert(results.includes(child_1))
     assert(!results.includes(child_2))
+    unmount
+  })
+
+  it('excludes entities that has some components in the exclude array', async () => {
+    const rootEntity = createEntity()
+    const child_1 = createEntity()
+    const child_2 = createEntity()
+    let results = [UndefinedEntity]
+    const components = [HighlightComponent, VisibleComponent]
+    const exclude = [SceneComponent, BackgroundComponent]
+
+    const Reactor = () => {
+      const entities = useChildrenWithComponents(rootEntity, components, exclude)
+      useEffect(() => {
+        results = entities
+      }, [entities])
+      return null
+    }
+    const tag = <Reactor />
+
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, EntityTreeComponent, { parentEntity: rootEntity })
+
+    for (const component of components) {
+      setComponent(child_1, component)
+      setComponent(child_2, component)
+    }
+
+    setComponent(child_2, exclude[0])
+
+    const { rerender, unmount } = render(tag)
+
+    assert(results.includes(child_1))
+    assert(!results.includes(child_2))
+    unmount
+  })
+
+  it('includes entities that have no components in the exclude array', async () => {
+    const rootEntity = createEntity()
+    const child_1 = createEntity()
+    const child_2 = createEntity()
+    let results = [UndefinedEntity]
+    const components = [HighlightComponent, VisibleComponent]
+    const exclude = [SceneComponent]
+
+    const Reactor = () => {
+      const entities = useChildrenWithComponents(rootEntity, components, exclude)
+      useEffect(() => {
+        results = entities
+      }, [entities])
+      return null
+    }
+    const tag = <Reactor />
+
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, EntityTreeComponent, { parentEntity: rootEntity })
+
+    for (const component of components) {
+      setComponent(child_1, component)
+      setComponent(child_2, component)
+    }
+
+    const { rerender, unmount } = render(tag)
+
+    assert(results.includes(child_1))
+    assert(results.includes(child_2))
     unmount
   })
 })
