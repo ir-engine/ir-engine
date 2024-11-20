@@ -441,6 +441,10 @@ function setupGizmo(parentEntity: Entity, gizmoMap: GizmoDefinition) {
       matrix4.compose(_position, _rotation, _scale)
       object.geometry.applyMatrix4(matrix4)
 
+      // for some reason, mesh-three-bvh has a problem updating the bounds on torus geometry...
+      // so we need to compute the bounds tree here
+      object.geometry.computeBoundsTree()
+
       setComponent(entity, MeshComponent, object)
       setComponent(entity, VisibleComponent)
       object.renderOrder = Infinity
