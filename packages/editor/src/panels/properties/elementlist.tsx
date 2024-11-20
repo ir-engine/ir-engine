@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useQuery } from '@ir-engine/ecs'
 import { Component } from '@ir-engine/ecs/src/ComponentFunctions'
 import { PrefabIcon, PrefabShelfItem, PrefabShelfState } from '@ir-engine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
@@ -31,6 +32,9 @@ import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { ComponentShelfCategoriesState } from '@ir-engine/editor/src/services/ComponentShelfCategoriesState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
+import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
+import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -148,9 +152,22 @@ const SceneElementListItem = ({
 
 const useComponentShelfCategories = (search: string) => {
   useMutableState(ComponentShelfCategoriesState).value
+  const hasRenderSettingsEntites = useQuery([RenderSettingsComponent]).length > 0
+  const hasSceneSettingsEntites = useQuery([SceneSettingsComponent]).length > 0
+  const hasCameraSettingsEntites = useQuery([CameraSettingsComponent]).length > 0
+
+  const mapSettingsComponents = ([category, components]: [string, Component[]]) => {
+    const filteredComponents = components
+      .filter((component) => !(component.name === RenderSettingsComponent.name && hasRenderSettingsEntites))
+      .filter((component) => !(component.name === SceneSettingsComponent.name && hasSceneSettingsEntites))
+      .filter((component) => !(component.name === CameraSettingsComponent.name && hasCameraSettingsEntites))
+    return [category, filteredComponents]
+  }
 
   if (!search) {
-    return Object.entries(getState(ComponentShelfCategoriesState)).filter(([_, items]) => !!items.length)
+    return Object.entries(getState(ComponentShelfCategoriesState))
+      .map(mapSettingsComponents)
+      .filter(([_, items]) => !!items.length)
   }
 
   const searchString = search.toLowerCase()
@@ -160,6 +177,7 @@ const useComponentShelfCategories = (search: string) => {
       const filteredItems = items.filter((item) => item.name.toLowerCase().includes(searchString))
       return [category, filteredItems] as [string, Component[]]
     })
+    .map(mapSettingsComponents)
     .filter(([_, items]) => !!items.length)
 }
 

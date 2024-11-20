@@ -28,7 +28,8 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { helmBuilderVersionPath, helmMainVersionPath, helmSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { engineSettingPath, helmVersionPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -44,11 +45,23 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     errorMessage: ''
   })
 
-  const helmSetting = useFind(helmSettingPath).data.at(0)
-  const id = helmSetting?.id
-  const selectedMainVersion = useHookstate(helmSetting?.main)
+  const helmSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'helm',
+      paginate: false
+    }
+  })
 
-  const helmMainVersions = useFind(helmMainVersionPath).data
+  const helmMain = helmSettings.data.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
+  const helmBuilder = helmSettings.data.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
+
+  const selectedMainVersion = useHookstate(helmMain)
+
+  const helmMainVersions = useFind(helmVersionPath, {
+    query: {
+      action: 'main'
+    }
+  }).data
   const mainVersionMenu = helmMainVersions.map((el) => {
     return {
       value: el as string,
@@ -56,8 +69,12 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     }
   })
 
-  const helmBuilderVersions = useFind(helmBuilderVersionPath).data
-  const selectedBuilderVersion = useHookstate(helmSetting?.builder)
+  const helmBuilderVersions = useFind(helmVersionPath, {
+    query: {
+      action: 'builder'
+    }
+  }).data
+  const selectedBuilderVersion = useHookstate(helmBuilder)
   const builderVersionMenu = helmBuilderVersions.map((el) => {
     return {
       value: el as string,
@@ -65,14 +82,37 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     }
   })
 
-  const patchHelmSetting = useMutation(helmSettingPath).patch
+  const helmMutation = useMutation(engineSettingPath)
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    if (!id || !selectedMainVersion.value || !selectedBuilderVersion.value) return
-
+    if (!selectedMainVersion.value || !selectedBuilderVersion.value) return
     state.loading.set(true)
-    patchHelmSetting(id, { main: selectedMainVersion.value, builder: selectedBuilderVersion.value })
+
+    const setting = {
+      main: selectedMainVersion.value,
+      builder: selectedBuilderVersion.value
+    }
+
+    const operation = Object.values(EngineSettings.Helm).map((key) => {
+      const settingInDb = helmSettings.data.find((el) => el.key === key)
+      if (!settingInDb) {
+        return helmMutation.create({
+          key,
+          category: 'helm',
+          value: setting[key],
+          type: 'private'
+        })
+      }
+      return helmMutation.patch(settingInDb.id, {
+        key,
+        category: 'helm',
+        value: setting[key],
+        type: 'private'
+      })
+    })
+
+    Promise.all(operation)
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
@@ -82,17 +122,16 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
   }
 
   const handleCancel = () => {
-    selectedMainVersion.set(helmSetting?.main)
-    selectedBuilderVersion.set(helmSetting?.builder)
+    selectedMainVersion.set(helmMain)
+    selectedBuilderVersion.set(helmBuilder)
   }
 
   useEffect(() => {
-    if (helmSetting?.main) selectedMainVersion.set(helmSetting.main)
-  }, [helmSetting?.main])
-
-  useEffect(() => {
-    if (helmSetting?.builder) selectedBuilderVersion.set(helmSetting.builder)
-  }, [helmSetting?.builder])
+    if (helmSettings.status == 'success') {
+      selectedMainVersion.set(helmMain)
+      selectedBuilderVersion.set(helmBuilder)
+    }
+  }, [helmSettings.status])
 
   return (
     <Accordion

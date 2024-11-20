@@ -29,7 +29,7 @@ import ClientSetting from './client-setting/client-setting'
 import Email from './email-setting/email-setting'
 import EngineSetting from './engine-setting/engine-setting'
 import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import Helm from './helm-setting/helm-setting'
+import HelmVersion from './helm-version/helm-version'
 import InstanceServer from './instance-server-setting/instance-server-setting'
 import ProjectSetting from './project-setting/project-setting'
 import ServerSetting from './server-setting/server-setting'
@@ -44,5 +44,5 @@ export default [
   FeatureFlagSetting,
   Authentication,
   Aws,
-  Helm
+  HelmVersion
 ]

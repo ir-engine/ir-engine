@@ -32,8 +32,9 @@ import knex from 'knex'
 import path from 'path'
 import { promisify } from 'util'
 
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { BUILDER_CHART_REGEX, MAIN_CHART_REGEX } from '@ir-engine/common/src/regex'
-import { HelmSettingType, helmSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettingData, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 
 dotenv.config({
   path: appRootPath.path,
@@ -62,13 +63,18 @@ cli.main(async () => {
       }
     })
 
-    const [helmSettings] = await knexClient.select().from<HelmSettingType>(helmSettingPath)
+    const helmSettings = await knexClient.select().from<EngineSettingData>(engineSettingPath).where({
+      category: 'helm'
+    })
+
+    const helmBuilder = helmSettings.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
+    const helmMain = helmSettings.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
 
     const helmMainVersionName = path.join(appRootPath.path, 'helm-main-version.txt')
     const helmBuilderVersionName = path.join(appRootPath.path, 'helm-builder-version.txt')
 
-    if (helmSettings) {
-      if (helmSettings.main && helmSettings.main.length > 0) fs.writeFileSync(helmMainVersionName, helmSettings.main)
+    if (helmSettings && helmSettings.length > 0) {
+      if (helmMain) fs.writeFileSync(helmMainVersionName, helmMain)
       else {
         const { stdout } = await execAsync(`helm history ${options.stage} | grep deployed`)
         const matches = stdout.matchAll(MAIN_CHART_REGEX)
@@ -79,8 +85,7 @@ cli.main(async () => {
           }
         }
       }
-      if (helmSettings.builder && helmSettings.builder.length > 0)
-        fs.writeFileSync(helmBuilderVersionName, helmSettings.builder)
+      if (helmBuilder && helmBuilder.length > 0) fs.writeFileSync(helmBuilderVersionName, helmBuilder)
       else {
         const { stdout } = await execAsync(`helm history ${options.stage}-builder | grep deployed`)
         const matches = stdout.matchAll(BUILDER_CHART_REGEX)
