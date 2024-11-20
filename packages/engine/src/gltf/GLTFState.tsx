@@ -639,7 +639,8 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
     /** Ensure all base components are added for synchronous mount */
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
-    setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
+    const sanitizedName = node.name.value ?? 'Node-' + props.nodeIndex
+    setComponent(entity, NameComponent, sanitizedName)
     setComponent(entity, TransformComponent)
 
     if (node.matrix.value) {
@@ -666,11 +667,17 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
       if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
         const bone = new Bone()
-        bone.name = node.name.value ?? 'Bone-' + props.nodeIndex
+        bone.name = sanitizedName
         setComponent(entity, BoneComponent, bone)
         addObjectToGroup(entity, bone)
         proxifyParentChildRelationships(bone)
         setComponent(entity, Object3DComponent, bone)
+      } else {
+        const object = new Object3D()
+        object.name = sanitizedName
+        addObjectToGroup(entity, object)
+        proxifyParentChildRelationships(object)
+        setComponent(entity, Object3DComponent, object)
       }
     }
 
@@ -711,17 +718,17 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     }
   }, [])
 
-  useLayoutEffect(() => {
-    if (!entity || !entityExists(entity)) return
+  // useLayoutEffect(() => {
+  //   if (!entity || !entityExists(entity)) return
 
-    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
-  }, [entity, parentEntity, props.childIndex])
+  //   setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
+  // }, [entity, parentEntity, props.childIndex])
 
-  useLayoutEffect(() => {
-    if (!entity) return
+  // useLayoutEffect(() => {
+  //   if (!entity) return
 
-    setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
-  }, [entity, node.name])
+  //   setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
+  // }, [entity, node.name])
 
   useLayoutEffect(() => {
     if (!entity || !node.matrix.value) return

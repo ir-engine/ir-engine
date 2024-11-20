@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer, PropertyBinding, SkinnedMesh } from 'three'
 
-import { Entity, removeEntity, UndefinedEntity } from '@ir-engine/ecs'
+import { Entity, EntityUUID, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -178,4 +178,33 @@ PropertyBinding.findNode = function (root: SkinnedMesh, nodeName: string | numbe
   }
 
   return null
+}
+
+PropertyBinding.parseTrackName = function (trackName) {
+  const lastDotIndex = trackName.lastIndexOf('.')
+  const beforeLastDot = trackName.substring(0, lastDotIndex)
+  const afterLastDot = trackName.substring(lastDotIndex + 1)
+
+  const results = {
+    nodeName: beforeLastDot,
+    objectName: undefined! as string,
+    objectIndex: undefined! as string,
+    propertyName: afterLastDot, // required
+    propertyIndex: undefined! as string
+  }
+
+  if (results.propertyName === null || results.propertyName.length === 0) {
+    throw new Error('PropertyBinding: can not parse propertyName from trackName: ' + trackName)
+  }
+
+  return results
+}
+
+PropertyBinding.findNode = (root, nodeName) => {
+  const entity = UUIDComponent.getEntityByUUID(nodeName as EntityUUID)
+  return (
+    getOptionalComponent(entity, BoneComponent) ??
+    getOptionalComponent(entity, MeshComponent) ??
+    getOptionalComponent(entity, Object3DComponent)!
+  )
 }
