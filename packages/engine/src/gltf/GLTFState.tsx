@@ -73,7 +73,6 @@ import {
   State,
   Topic,
   useHookstate,
-  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -631,7 +630,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
-  useImmediateEffect(() => {
+  useLayoutEffect(() => {
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
