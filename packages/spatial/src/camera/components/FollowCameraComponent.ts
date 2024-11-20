@@ -113,6 +113,8 @@ export const FollowCameraComponent = defineComponent({
       }),
       cameraRays: S.Array(S.Vec3(), [])
     }),
+    pointerLock: S.Bool(false),
+    smoothLerp: S.Bool(true),
     accumulatedZoomTriggerDebounceTime: S.Number(-1),
     lastZoomStartDistance: S.Number(0)
   }),
@@ -180,6 +182,13 @@ export const FollowCameraComponent = defineComponent({
       }
     }, [follow.mode])
 
+    useImmediateEffect(() => {
+      if (!follow.pointerLock.value) return
+      return () => {
+        document.exitPointerLock()
+      }
+    }, [follow.pointerLock])
+
     useEffect(() => {
       follow.lerpValue.set(0)
       const followCamera = getComponent(entity, FollowCameraComponent)
@@ -211,7 +220,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
       ? 0
       : Math.min(followState.lerpValue.value + getState(ECSState).deltaSeconds, LERP_TIME)
   )
-  const lerpVal = smootherStep(followState.lerpValue.value / LERP_TIME)
+  const lerpVal = follow.smoothLerp ? smootherStep(followState.lerpValue.value / LERP_TIME) : 1
 
   if (!targetTransform || !follow || !follow?.enabled) return
 
@@ -410,8 +419,12 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
 
   const delta = getState(ECSState).deltaSeconds
   if (!followCamera.locked) {
-    followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
-    followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+    followCamera.phi = followCamera.smoothLerp
+      ? smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
+      : target.phi
+    followCamera.theta = followCamera.smoothLerp
+      ? smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+      : target.theta
   }
 }
 
