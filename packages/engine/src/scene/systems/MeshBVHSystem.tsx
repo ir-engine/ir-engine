@@ -54,11 +54,21 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
+// import { MeshBVHHelper } from '../functions/MeshBVH'
+
+declare module 'three-mesh-bvh' {
+  export interface MeshBVHHelper {
+    dispose(): void
+  }
+}
 
 const ray = new Ray()
 const tmpInverseMatrix = new Matrix4()
@@ -158,25 +168,26 @@ const MeshBVHReactor = () => {
 
     const mesh = getComponent(entity, MeshComponent)
 
-    const meshBVHVisualizer = new MeshBVHHelper(mesh!)
+    const meshBVHVisualizer = new MeshBVHHelper(mesh)
     meshBVHVisualizer.edgeMaterial = edgeMaterial
     meshBVHVisualizer.depth = 20
     meshBVHVisualizer.displayParents = false
 
     const helperEntity = createEntity()
-    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
     setComponent(helperEntity, NameComponent, getComponent(entity, NameComponent) + ' BVH')
     setComponent(helperEntity, TransformComponent)
-    setComponent(helperEntity, EntityTreeComponent, { parentEntity })
+    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(helperEntity, ObjectComponent, meshBVHVisualizer)
     setComponent(helperEntity, VisibleComponent)
-    // ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.)
+    ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.Gizmos)
 
-    // @ts-ignore - private property
-    meshBVHVisualizer._roots = []
+    // force entity since ObjectComponent's reactor won't be invoked immediately from within this useEffect
+    meshBVHVisualizer.entity = helperEntity
+    // force update to create the visualizer
     meshBVHVisualizer.update()
 
     return () => {
+      meshBVHVisualizer.dispose()
       removeEntity(helperEntity)
     }
   }, [bvhDebug.value, hasMeshBVH.value])
@@ -194,6 +205,18 @@ export const MeshBVHSystem = defineSystem({
   )
 })
 
+/**
+ * MeshBVHHelper overrides to use ECS instead of direct threejs hierarchy
+ */
+
+const originalUpdate = MeshBVHHelper.prototype.update
+
+MeshBVHHelper.prototype.update = function () {
+  if (!this.entity) return
+
+  originalUpdate.call(this)
+}
+
 MeshBVHHelper.prototype.add = function (object: Object3D) {
   if (!this.entity) return this
   const parentEntity = getComponent(this.entity, EntityTreeComponent).parentEntity
@@ -203,14 +226,12 @@ MeshBVHHelper.prototype.add = function (object: Object3D) {
   setComponent(entity, VisibleComponent)
   setComponent(entity, EntityTreeComponent, { parentEntity })
   setComponent(entity, ObjectComponent, object)
-  console.log('add', { entity })
   return this
 }
 
 MeshBVHHelper.prototype.remove = function (object: Object3D) {
   if (!this.entity) return this
   const entity = object.entity
-  console.log('remove', { entity })
   removeEntity(entity)
   return this
 }
