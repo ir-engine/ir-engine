@@ -47,6 +47,7 @@ import {
   OrthographicCamera,
   PerspectiveCamera,
   Quaternion,
+  Sphere,
   Vector2,
   Vector3
 } from 'three'
@@ -67,10 +68,14 @@ import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { getAncestorWithComponents, useAncestorWithComponents } from '../../transform/components/EntityTree'
+import {
+  getAncestorWithComponents,
+  getChildrenWithComponents,
+  useAncestorWithComponents
+} from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { ColliderComponent } from '../components/ColliderComponent'
+import { ColliderComponent, NestedCollidersState } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
@@ -302,11 +307,22 @@ const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
       break
   }
 
-  rigidbody.setBodyType(typeEnum, false)
+  rigidbody.setBodyType(typeEnum, true)
 
   /** @todo turns out this is a react/rapier bug when it comes to changing the rigidbody type. This is the best workaround I could find*/
   rigidbody.setEnabled(false)
   rigidbody.setEnabled(true)
+
+  const childColliderEntities = getChildrenWithComponents(entity, [ColliderComponent])
+  const colliderEntities = hasComponent(entity, ColliderComponent)
+    ? [entity, ...childColliderEntities]
+    : childColliderEntities
+
+  const nestedCollidersState = getMutableState(NestedCollidersState)
+  for (const e of colliderEntities) {
+    const uuid = getComponent(entity, UUIDComponent)
+    nestedCollidersState[uuid].set(none)
+  }
 }
 
 function setRigidbodyPose(
@@ -463,14 +479,20 @@ function createColliderDesc(
 
   let colliderDesc: ColliderDesc
 
+  const meshCenterOffset = new Vector3()
+
   switch (shape) {
     case ShapeType.Cuboid:
       if (colliderComponent.shape === 'plane') colliderDesc = ColliderDesc.cuboid(10000, 0.001, 10000)
       else {
         if (mesh) {
           // if we have a mesh, we want to make sure it uses the geometry itself to calculate the size
-          const _buff = mesh.geometry.clone()
-          const box = new Box3().setFromBufferAttribute(_buff.attributes.position as BufferAttribute)
+          const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
+          mesh.geometry.computeBoundingBox()
+          if (mesh.geometry.boundingBox) {
+            mesh.geometry.boundingBox.getCenter(meshCenterOffset)
+          }
+
           const size = new Vector3()
           box.getSize(size)
           size.multiply(scale).multiplyScalar(0.5)
@@ -482,15 +504,52 @@ function createColliderDesc(
       break
 
     case ShapeType.Ball:
-      colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+      if (mesh) {
+        mesh?.geometry?.computeBoundingSphere()
+        const boundingSphere = mesh?.geometry?.boundingSphere ?? new Sphere(Vector3_Zero, scale.x)
+        if (boundingSphere) {
+          meshCenterOffset.copy(boundingSphere.center)
+          colliderDesc = ColliderDesc.ball(boundingSphere.radius * Math.max(scale.x, scale.y, scale.z))
+        } else {
+          colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+        }
+      } else {
+        colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+      }
       break
 
     case ShapeType.Capsule:
-      colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
+      if (mesh) {
+        mesh?.geometry?.computeBoundingBox()
+        if (mesh?.geometry?.boundingBox) {
+          mesh?.geometry?.boundingBox.getCenter(meshCenterOffset)
+          const boxSize = mesh?.geometry?.boundingBox.getSize(new Vector3())
+          //calculate diagonal of box using pythagorean theorem
+          const diagonal = Math.sqrt(Math.pow((boxSize.x / 2) * scale.x, 2) + Math.pow((boxSize.z / 2) * scale.z, 2))
+          colliderDesc = ColliderDesc.capsule((boxSize.y / 2) * scale.y, diagonal)
+        } else {
+          colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
+        }
+      } else {
+        colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
+      }
       break
 
     case ShapeType.Cylinder:
-      colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
+      if (mesh) {
+        mesh?.geometry?.computeBoundingBox()
+        if (mesh?.geometry?.boundingBox) {
+          mesh?.geometry?.boundingBox.getCenter(meshCenterOffset)
+          const boxSize = mesh?.geometry?.boundingBox.getSize(new Vector3())
+          //calculate diagonal of box using pythagorean theorem
+          const diagonal = Math.sqrt(Math.pow((boxSize.x / 2) * scale.x, 2) + Math.pow((boxSize.z / 2) * scale.z, 2))
+          colliderDesc = ColliderDesc.cylinder((boxSize.y / 2) * scale.y, diagonal)
+        } else {
+          colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
+        }
+      } else {
+        colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
+      }
       break
 
     case ShapeType.ConvexPolyhedron: {
@@ -537,6 +596,7 @@ function createColliderDesc(
     TransformComponent.getMatrixRelativeToEntity(entity, rootEntity, matrixRelativeToRoot)
     matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
   }
+  positionRelativeToRoot.add(meshCenterOffset)
 
   const rootWorldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
   positionRelativeToRoot.multiply(rootWorldScale)

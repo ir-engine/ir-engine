@@ -106,6 +106,10 @@ export const ColliderComponent = defineComponent({
               nestedCollidersState[uuid.value][colliderEntity].set(none)
             }
           }
+          if (nestedCollidersState[uuid.value].keys.length === 0) {
+            nestedCollidersState[uuid.value].set(none)
+            hasCollider.set(false)
+          }
         }
       }
 
