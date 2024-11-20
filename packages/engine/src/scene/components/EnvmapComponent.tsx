@@ -41,7 +41,7 @@ import {
   Vector3
 } from 'three'
 
-import { EntityUUID, Not, UUIDComponent, useQuery } from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, useQuery } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -100,12 +100,11 @@ export const EnvmapComponent = defineComponent({
     const textureSource =
       component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : ''
     const [envMapTexture, error] = useTexture(textureSource, entity)
-    const childrenMesh = useChildrenWithComponents(entity, [
-      MeshComponent,
-      VisibleComponent,
-      SourceComponent,
-      Not(EnvmapComponent)
-    ])
+    const childrenMesh = useChildrenWithComponents(
+      entity,
+      [MeshComponent, VisibleComponent, SourceComponent],
+      [EnvmapComponent]
+    )
 
     const probeQuery = useQuery([ReflectionProbeComponent])
 
