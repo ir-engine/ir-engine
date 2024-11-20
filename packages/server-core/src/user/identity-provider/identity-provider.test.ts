@@ -202,7 +202,6 @@ describe('identity-provider.test', () => {
       isGuest: false
     })
 
-    console.log('foundIdentityProvider', foundIdentityProvider)
     await assert.rejects(
       async () =>
         await app.service(identityProviderPath).remove(foundIdentityProvider.id, {

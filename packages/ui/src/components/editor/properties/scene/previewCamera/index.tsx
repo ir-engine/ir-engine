@@ -28,64 +28,46 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineCamera } from 'react-icons/hi'
 
-import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
+import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import { previewScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
+import { takeScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import {
-  RendererComponent,
-  getNestedVisibleChildren,
-  getSceneParameters
-} from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { ImageLink } from '@ir-engine/ui/editor'
-import { Scene } from 'three'
+import { Euler } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
  */
 
-const scene = new Scene()
-
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [bufferUrl, setBufferUrl] = useState<string>('')
-  const transformComponent = useComponent(Engine.instance.cameraEntity, TransformComponent)
+  const transformComponent = useComponent(getState(EngineState).viewerEntity, TransformComponent)
 
   const onSetFromViewport = () => {
-    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const transform = getComponent(props.entity, TransformComponent)
-    transform.position.copy(position)
-    transform.rotation.copy(rotation)
+    const { position, rotation } = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+    const scenePreviewCamera = getComponent(props.entity, ScenePreviewCameraComponent)
+    setComponent(props.entity, TransformComponent, { position: position, rotation: rotation })
+    scenePreviewCamera.camera.position.copy(position)
+    scenePreviewCamera.camera.rotation.copy(new Euler().setFromQuaternion(rotation))
     computeTransformMatrix(props.entity)
-
     EditorControlFunctions.commitTransformSave([props.entity])
   }
 
   const updateScenePreview = async () => {
-    const rootEntity = getState(EngineState).viewerEntity
-    const entitiesToRender = getComponent(rootEntity, RendererComponent).scenes.map(getNestedVisibleChildren).flat()
-    const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
-
-    scene.children = children
-    scene.environment = environment
-    scene.fog = fog
-    scene.background = background
-
-    const imageBlob = (await previewScreenshot(
+    const imageBlob = (await takeScreenshot(
       512 / 2,
       320 / 2,
-      0.9,
+      1,
       'jpeg',
-      scene,
       getComponent(props.entity, ScenePreviewCameraComponent).camera
     ))!
     const url = URL.createObjectURL(imageBlob)

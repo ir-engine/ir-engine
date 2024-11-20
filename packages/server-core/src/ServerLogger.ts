@@ -54,6 +54,33 @@ const useLogger = process.env.DISABLE_SERVER_LOG !== 'true'
 const logStashAddress = process.env.LOGSTASH_ADDRESS || 'logstash-service'
 const logStashPort = process.env.LOGSTASH_PORT || 5044
 
+<<<<<<< HEAD
+=======
+const isLogStashRunning = () => {
+  return new Promise((resolve, reject) => {
+    const socket = new net.Socket()
+
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout trying to connect to logstash ${logStashAddress}:${logStashPort}`))
+      socket.destroy()
+    }, 10000)
+
+    // Connect to the port
+    socket.connect(parseInt(logStashPort.toString()), logStashAddress, () => {
+      clearTimeout(timer)
+      socket.end()
+      resolve(true)
+    })
+
+    // Handle connection errors
+    socket.on('error', (err: any) => {
+      clearTimeout(timer)
+      reject(err)
+    })
+  })
+}
+
+>>>>>>> origin/dev
 const streamToPretty = pretty({
   colorize: true
 })
@@ -183,6 +210,18 @@ export const logger = pino(
   multiStream
 )
 
+<<<<<<< HEAD
+=======
+isLogStashRunning()
+  .then(() => {
+    console.info(`Logstash is running on ${logStashAddress}:${logStashPort}`)
+    multiStream.add(streamToLogstash)
+  })
+  .catch((err) => {
+    console.error(`Logstash Connection Error: ${err} when connecting to ${logStashAddress}:${logStashPort}`)
+  })
+
+>>>>>>> origin/dev
 logger.debug('Debug message for testing')
 
 export default logger
