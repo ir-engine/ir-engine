@@ -123,6 +123,7 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     >
       <div className="my-6 grid grid-cols-3 gap-6">
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.keyName'),
             position: 'top'
@@ -132,6 +133,7 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
         />
 
         <PasswordInput
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.secret'),
             position: 'top'
@@ -141,6 +143,7 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.kid'),
             position: 'top'
