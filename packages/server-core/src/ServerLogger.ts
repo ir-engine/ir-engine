@@ -65,7 +65,7 @@ const isLogStashRunning = () => {
     const timer = setTimeout(() => {
       reject(new Error(`Timeout trying to connect to logstash ${logStashAddress}:${logStashPort}`))
       socket.destroy()
-    }, 3000)
+    }, 10000)
 
     // Connect to the port
     socket.connect(parseInt(logStashPort.toString()), logStashAddress, () => {
