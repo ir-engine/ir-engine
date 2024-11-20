@@ -232,6 +232,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       <div className="grid gap-6">
         {error.value && <p className="mt-2 text-red-700">{error.serverError.value}</p>}
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.avatar.avatarName'),
             position: 'top'
@@ -257,6 +258,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
         <div className="col-span-1">
           {avatarAssets.source.value === 'url' && (
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.avatar.avatarUrl'),
                 position: 'top'
@@ -318,6 +320,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
         <div className="col-span-1">
           {avatarAssets.source.value === 'url' && (
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.avatar.thumbnailUrl'),
                 position: 'top'
