@@ -56,6 +56,7 @@ const gizmoMaterial = new MeshBasicMaterial({
   depthTest: false,
   depthWrite: false,
   fog: false,
+  side: DoubleSide,
   toneMapped: false,
   transparent: true
 })

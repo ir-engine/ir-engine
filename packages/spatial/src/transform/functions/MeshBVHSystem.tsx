@@ -34,7 +34,8 @@ import {
   Object3D,
   Ray,
   Raycaster,
-  SkinnedMesh
+  SkinnedMesh,
+  Vector3
 } from 'three'
 import { computeBoundsTree, disposeBoundsTree, MeshBVHHelper } from 'three-mesh-bvh'
 
@@ -107,6 +108,9 @@ function convertRaycastIntersect(hit: Intersection | null, object: Mesh, raycast
   }
 }
 
+const direction = new Vector3()
+const _worldScale = new Vector3()
+
 function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection>) {
   const mesh = this as Mesh
   const geometry = mesh.geometry as BufferGeometry
@@ -116,14 +120,21 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
     tmpInverseMatrix.copy(mesh.matrixWorld).invert()
     ray.copy(raycaster.ray).applyMatrix4(tmpInverseMatrix)
 
+    extractMatrixScale(mesh.matrixWorld, _worldScale)
+    direction.copy(ray.direction).multiply(_worldScale)
+
+    const scaleFactor = direction.length()
+    const near = raycaster.near / scaleFactor
+    const far = raycaster.far / scaleFactor
+
     const bvh = geometry.boundsTree
     if (raycaster.firstHitOnly === true) {
-      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material), mesh, raycaster)
+      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material, near, far), mesh, raycaster)
       if (hit) {
         intersects.push(hit)
       }
     } else {
-      const hits = bvh.raycast(ray, mesh.material)
+      const hits = bvh.raycast(ray, mesh.material, near, far)
       for (let i = 0, l = hits.length; i < l; i++) {
         const hit = convertRaycastIntersect(hits[i], mesh, raycaster)
         if (hit) {
@@ -135,14 +146,24 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
     origMeshRaycastFunc.call(mesh, raycaster, intersects)
 }
 
+// https://github.com/mrdoob/three.js/blob/dev/src/math/Matrix4.js#L732
+// extracting the scale directly is ~3x faster than using "decompose"
+function extractMatrixScale(matrix: Matrix4, target: Vector3) {
+  const te = matrix.elements
+  const sx = target.set(te[0], te[1], te[2]).length()
+  const sy = target.set(te[4], te[5], te[6]).length()
+  const sz = target.set(te[8], te[9], te[10]).length()
+  return target.set(sx, sy, sz)
+}
+
 Mesh.prototype.raycast = acceleratedRaycast
 /**
  * @todo we need a fast way to raycast skinned meshes - uncommenting this will cause skinned meshes to intersect and be very slow
  */
 SkinnedMesh.prototype.raycast = () => {}
 
-BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
-BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
+BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree
+BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
 
 const edgeMaterial = new LineBasicMaterial({
   color: 0x00ff88,
@@ -173,7 +194,7 @@ const MeshBVHReactor = () => {
   }, [mesh])
 
   useEffect(() => {
-    if (!bvhDebug.value || !hasMeshBVH.value || !sceneLayer) return
+    if (!bvhDebug.value || !hasMeshBVH.value) return // || !sceneLayer) return
 
     const mesh = getComponent(entity, MeshComponent)
 

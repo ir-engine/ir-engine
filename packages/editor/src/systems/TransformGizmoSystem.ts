@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
@@ -70,7 +70,7 @@ const reactor = () => {
 
 export const TransformGizmoSystem = defineSystem({
   uuid: 'ee.editor.TransformGizmoSystem',
-  insert: { with: AnimationSystemGroup },
+  insert: { with: InputSystemGroup },
   execute,
   reactor
 })
