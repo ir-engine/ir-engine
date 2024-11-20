@@ -34,13 +34,12 @@ import './patchEngineNode'
  */
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv-flow'
-import net from 'net'
 import os from 'os'
 import path from 'path'
 import pino from 'pino'
-import pretty from 'pino-pretty'
 import pinoElastic from 'pino-elasticsearch'
 import pinoOpensearch from 'pino-opensearch'
+import pretty from 'pino-pretty'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
@@ -51,6 +50,8 @@ if (!kubernetesEnabled) {
   })
 }
 
+const node = process.env.ELASTIC_HOST || 'http://localhost:9200'
+const nodeOpensearch = process.env.OPENSEARCH_HOST || 'http://localhost:9200'
 const useLogger = process.env.DISABLE_SERVER_LOG !== 'true'
 
 const logStashAddress = process.env.LOGSTASH_ADDRESS || 'logstash-service'
