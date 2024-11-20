@@ -203,14 +203,14 @@ const extensionThumbnailTypes: { extensions: string[]; thumbnailType: ThumbnailF
   { extensions: ['ktx2'], thumbnailType: 'texture' },
   { extensions: ['mp4', 'm3u8'], thumbnailType: 'video' }
 ]
-const extensionThumbnailTypeMap = new Map<string, ThumbnailFileType>()
+export const extensionThumbnailTypeMap = new Map<string, ThumbnailFileType>()
 for (const { extensions, thumbnailType } of extensionThumbnailTypes) {
   for (const extension of extensions) {
     extensionThumbnailTypeMap.set(extension, thumbnailType)
   }
 }
 
-const stripSearchFromURL = (url: string): string => {
+export const stripSearchFromURL = (url: string): string => {
   if (!url.includes('?')) return url
   const cleanURL = new URL(url)
   cleanURL.search = ''
