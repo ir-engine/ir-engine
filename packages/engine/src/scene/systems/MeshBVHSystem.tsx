@@ -46,7 +46,13 @@ import {
   removeEntity,
   useEntityContext
 } from '@ir-engine/ecs'
-import { getComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -60,9 +66,11 @@ import {
 } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-// import { MeshBVHHelper } from '../functions/MeshBVH'
 
 declare module 'three-mesh-bvh' {
   export interface MeshBVHHelper {
@@ -148,6 +156,7 @@ const MeshBVHReactor = () => {
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
   const mesh = useComponent(entity, MeshComponent).get(NO_PROXY) as Mesh
   const hasMeshBVH = useHookstate(false)
+  const sceneLayer = useOptionalComponent(entity, ObjectLayerComponents[ObjectLayers.Scene])
 
   useEffect(() => {
     const abortController = new AbortController()
@@ -164,7 +173,7 @@ const MeshBVHReactor = () => {
   }, [mesh])
 
   useEffect(() => {
-    if (!bvhDebug.value || !hasMeshBVH.value) return
+    if (!bvhDebug.value || !hasMeshBVH.value || !sceneLayer) return
 
     const mesh = getComponent(entity, MeshComponent)
 
@@ -188,21 +197,16 @@ const MeshBVHReactor = () => {
 
     return () => {
       meshBVHVisualizer.dispose()
-      removeEntity(helperEntity)
+      removeEntityNodeRecursively(helperEntity)
     }
-  }, [bvhDebug.value, hasMeshBVH.value])
+  }, [bvhDebug.value, hasMeshBVH.value, sceneLayer])
 
   return null
 }
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => (
-    <QueryReactor
-      Components={[MeshComponent, ObjectLayerComponents[ObjectLayers.Scene]]}
-      ChildEntityReactor={MeshBVHReactor}
-    />
-  )
+  reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
 })
 
 /**
@@ -219,12 +223,11 @@ MeshBVHHelper.prototype.update = function () {
 
 MeshBVHHelper.prototype.add = function (object: Object3D) {
   if (!this.entity) return this
-  const parentEntity = getComponent(this.entity, EntityTreeComponent).parentEntity
   const entity = createEntity()
   setComponent(entity, NameComponent, 'BVH Root')
   setComponent(entity, TransformComponent)
   setComponent(entity, VisibleComponent)
-  setComponent(entity, EntityTreeComponent, { parentEntity })
+  setComponent(entity, EntityTreeComponent, { parentEntity: this.entity })
   setComponent(entity, ObjectComponent, object)
   return this
 }

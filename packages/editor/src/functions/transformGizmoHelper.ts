@@ -64,6 +64,7 @@ import { EditorControlFunctions } from './EditorControlFunctions'
 
 const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.TransformGizmo)
+_raycaster.firstHitOnly = true
 
 const _tempQuaternion = new Quaternion()
 const _tempVector = new Vector3()
