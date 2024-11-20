@@ -110,11 +110,30 @@ const updateName = async (context: HookContext<StaticResourceService>) => {
 
   if (Array.isArray(context.data)) throw new BadRequest('Batch create is not supported')
 
+  const id = context.id
   const data = context.data
-  if (!data.key) return
+  if (!data.key || !id) return
 
   const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(data.key)!
-  context.data.name = file
+  let doUpdate = false
+
+  const existingResource = await context.app.service(staticResourcePath).get(id, {
+    query: {
+      $select: ['key', 'name']
+    }
+  })
+  if (context.method === 'create') {
+    doUpdate = true
+  } else {
+    const [existing_, existingDirectory, existingFile] = /(.*)\/([^\\\/]+$)/.exec(existingResource.key)!
+    if (!existingResource.name || existingResource.name === existingFile) {
+      doUpdate = true
+    }
+  }
+
+  if (doUpdate) {
+    context.data.name = file
+  }
 }
 
 const updateResourcesJson = async (context: HookContext<StaticResourceService>) => {
