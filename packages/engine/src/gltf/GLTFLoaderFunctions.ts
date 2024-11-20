@@ -102,6 +102,7 @@ import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
 import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { SourceComponent } from '../scene/components/SourceComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 
@@ -1117,6 +1118,9 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
   return result.get(NO_PROXY) as AnimationClip | null
 }
 
+const getTrackId = (entity) =>
+  getComponent(entity, UUIDComponent).replace(getComponent(entity, SourceComponent) + '-', '')
+
 const _createAnimationTracks = (
   node: Entity,
   inputAccessor: BufferAttribute,
@@ -1125,7 +1129,7 @@ const _createAnimationTracks = (
   target: GLTF.IAnimationChannelTarget
 ) => {
   const tracks = [] as any[] // todo
-  const targetName = getComponent(node, UUIDComponent)
+  const targetName = getTrackId(node)
   if (!targetName) throw new Error('THREE.GLTFLoader: Node has no name.')
   const targetNames = [] as string[]
   if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
@@ -1133,7 +1137,7 @@ const _createAnimationTracks = (
       const object = getComponent(entity, MeshComponent)
       if (object.morphTargetInfluences) {
         if (!object.name) throw new Error('THREE.GLTFLoader: Node has no name.')
-        targetNames.push(getComponent(node, UUIDComponent))
+        targetNames.push(getTrackId(node))
       }
     })
   } else {
@@ -1230,6 +1234,7 @@ const _createCubicSplineTrackInterpolant = (track: KeyframeTrack) => {
 
 export const GLTFLoaderFunctions = {
   computeBounds,
+  getTrackId,
   useLoadPrimitive,
   useLoadPrimitives,
   useLoadAccessor,
