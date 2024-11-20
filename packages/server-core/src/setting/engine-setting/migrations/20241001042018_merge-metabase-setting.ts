@@ -72,7 +72,6 @@ export async function up(knex: Knex): Promise<void> {
           updatedAt: await getDateTimeSql()
         }))
       )
-      console.log('items', metabaseSettings.length)
       await knex.from(engineSettingPath).insert(metabaseSettings)
     }
   }

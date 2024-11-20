@@ -129,6 +129,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.smtp')}
         </Text>
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.host'),
             position: 'top'
@@ -138,6 +139,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.port'),
             position: 'top'
@@ -159,6 +161,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.from')}
         </Text>
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.from'),
             position: 'top'
@@ -173,6 +176,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.auth')}
         </Text>
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.userName'),
             position: 'top'
@@ -182,6 +186,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         />
 
         <PasswordInput
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.password'),
             position: 'top'
@@ -196,6 +201,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.subject')}
         </Text>
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.login'),
             position: 'top'
@@ -205,6 +211,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.friend'),
             position: 'top'
@@ -214,6 +221,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.channel'),
             position: 'top'
@@ -223,6 +231,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.smsNameCharLimit'),
             position: 'top'

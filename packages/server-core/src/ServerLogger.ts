@@ -65,7 +65,7 @@ const isLogStashRunning = () => {
     const timer = setTimeout(() => {
       reject(new Error(`Timeout trying to connect to logstash ${logStashAddress}:${logStashPort}`))
       socket.destroy()
-    }, 3000)
+    }, 10000)
 
     // Connect to the port
     socket.connect(parseInt(logStashPort.toString()), logStashAddress, () => {
@@ -228,8 +228,8 @@ isLogStashRunning()
     console.info(`Logstash is running on ${logStashAddress}:${logStashPort}`)
     multiStream.add(streamToLogstash)
   })
-  .catch(() => {
-    console.error(`Logstash is not running on ${logStashAddress}:${logStashPort}`)
+  .catch((err) => {
+    console.error(`Logstash Connection Error: ${err} when connecting to ${logStashAddress}:${logStashPort}`)
   })
 
 logger.debug('Debug message for testing')

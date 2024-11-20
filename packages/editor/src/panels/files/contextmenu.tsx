@@ -156,7 +156,7 @@ export function FileContextMenu({
           <DropdownItem
             data-testid="files-panel-file-item-context-menu-open-in-new-tab-button"
             onClick={() => {
-              selectedFiles.filter((file) => !file.isFolder).forEach((file) => window.open(file.url.value))
+              selectedFiles.filter((file) => !file.isFolder.value).forEach((file) => window.open(file.url.value))
               setAnchorEvent(undefined)
             }}
             title={t('editor:layout.assetGrid.openInNewTab')}
