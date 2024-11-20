@@ -101,7 +101,10 @@ export const MeshComponent = defineComponent({
 
     useEffect(() => {
       const mesh = meshComponent.value
-      if (mesh !== meshResource.value) meshResource.set(mesh)
+      if (mesh !== meshResource.value) {
+        meshResource.set(mesh)
+        setComponent(entity, ObjectComponent, meshResource.get(NO_PROXY) as Mesh)
+      }
     }, [meshComponent])
 
     return null
