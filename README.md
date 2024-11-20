@@ -49,7 +49,7 @@ technology and shared simulations should be as easy and natural as making a webs
 
 ## Project API
 
-### [Library of EE Projects](https://github.com/ir-engine/project-manifest)
+### [Library of IR Engine Projects](https://github.com/ir-engine/project-manifest)
 
 Create composable plug-ins for iR Engine experiences with the Projects API
 
