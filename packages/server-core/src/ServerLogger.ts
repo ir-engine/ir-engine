@@ -39,6 +39,8 @@ import os from 'os'
 import path from 'path'
 import pino from 'pino'
 import pretty from 'pino-pretty'
+import pinoElastic from 'pino-elasticsearch'
+import pinoOpensearch from 'pino-opensearch'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
