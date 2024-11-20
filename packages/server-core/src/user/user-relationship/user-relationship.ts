@@ -107,7 +107,6 @@ export default (app: Application): void => {
 
   service.publish('removed', async (data: UserRelationshipType): Promise<any> => {
     try {
-      console.log('relationship removed data', data)
       const targetIds = [data.userId, data.relatedUserId]
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))

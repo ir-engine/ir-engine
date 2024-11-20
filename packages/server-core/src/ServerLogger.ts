@@ -228,8 +228,8 @@ isLogStashRunning()
     console.info(`Logstash is running on ${logStashAddress}:${logStashPort}`)
     multiStream.add(streamToLogstash)
   })
-  .catch(() => {
-    console.error(`Logstash is not running on ${logStashAddress}:${logStashPort}`)
+  .catch((err) => {
+    console.error(`Logstash Connection Error: ${err} when connecting to ${logStashAddress}:${logStashPort}`)
   })
 
 logger.debug('Debug message for testing')

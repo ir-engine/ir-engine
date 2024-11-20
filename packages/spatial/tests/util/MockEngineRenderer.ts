@@ -25,18 +25,27 @@ Infinite Reality Engine. All Rights Reserved.
 
 import './patchNodeForWebXREmulator'
 
-import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
-
-import { Entity, setComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, setComponent } from '@ir-engine/ecs'
 import { EffectComposer, Pass, RenderPass } from 'postprocessing'
-import { WebGLRenderTarget } from 'three'
+import { WebGLRenderTarget, WebGLRenderer } from 'three'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
 import { createWebXRManager } from '../../src/xr/WebXRManager'
 import { MockEventListener } from './MockEventListener'
 
-class MockCanvas extends MockEventListener {
-  parentElement = new MockEventListener()
-  getContext = () => null! // null will tell the renderer to not initialize, allowing our mock to work
+const mockCanvas = new MockEventListener() as any
+mockCanvas.parentElement = new MockEventListener()
+mockCanvas.getContext = () => null! // null will tell the renderer to not initialize, allowing our mock to work
+
+const mockContext = {
+  getExtension: () => {},
+  getParameter: () => {},
+  getContextAttributes: () => {
+    return {
+      xrCompatible: true
+    }
+  },
+  canvas: mockCanvas,
+  viewport: () => {}
 }
 
 class MockRenderer {
@@ -48,13 +57,16 @@ class MockRenderer {
     setAnimationLoop: () => {},
     setContext: () => {}
   }
-  domElement = new MockCanvas()
+  domElement = mockCanvas
   setPixelRatio = () => {}
   getRenderTarget = () => {}
   getSize = () => 0
-  getContext = () => this.domElement.getContext()
+  getContext = () => mockContext
   getPixelRatio = () => 1
   dispose = () => {}
+  capabilities = {
+    isWebGL2: true
+  }
 }
 
 class MockEffectComposer extends EffectComposer {
@@ -86,12 +98,10 @@ export const mockEngineRenderer = (entity: Entity) => {
   const xrManager = createWebXRManager(renderer)
   xrManager.cameraAutoUpdate = false
   xrManager.enabled = true
-  setComponent(entity, RendererComponent, {
-    canvas: renderer.domElement,
-    renderContext: renderer.getContext(),
-    renderer,
-    effectComposer,
-    renderPass,
-    xrManager
-  })
+  setComponent(entity, RendererComponent, { canvas: renderer.domElement })
+  const renderComponent = getComponent(entity, RendererComponent)
+  renderComponent.renderer = renderer
+  renderComponent.effectComposer = effectComposer
+  renderComponent.renderPass = renderPass
+  renderComponent.xrManager = xrManager
 }

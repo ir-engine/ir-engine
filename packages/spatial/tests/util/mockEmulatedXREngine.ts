@@ -23,10 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export const isSupportedBrowser = () => {
-  const userAgent = window.navigator.userAgent
-  const isGoogleChrome = /Chrome/.test(userAgent) && !/Chromium|Edg|OPR|Brave|CriOS/.test(userAgent)
-  const isSafari = /^((?!chrome|androidg).)*safari/i.test(userAgent)
+import { destroySpatialEngine, destroySpatialViewer } from '../../src/initializeEngine'
+import { requestEmulatedXRSession } from '../webxr/emulator'
+import { MockXRFrame } from './MockXR'
+import { mockSpatialEngine } from './mockSpatialEngine'
 
-  return isGoogleChrome || isSafari
+import { getMutableState } from '@ir-engine/hyperflux'
+import { endXRSession } from '../../src/xr/XRSessionFunctions'
+import { XRState } from '../../src/xr/XRState'
+
+export async function mockEmulatedXREngine() {
+  mockSpatialEngine()
+  await requestEmulatedXRSession()
+  // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property
+  getMutableState(XRState).xrFrame.set(new MockXRFrame())
+}
+
+export async function destroyEmulatedXREngine() {
+  destroySpatialViewer()
+  destroySpatialEngine()
+  await endXRSession()
 }
