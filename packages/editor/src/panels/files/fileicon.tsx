@@ -77,6 +77,16 @@ export const FileIcon = ({
   isMinified?: boolean
 }) => {
   const FallbackIcon = FileIconType[type ?? '']
+  const imageRef = React.createRef<HTMLImageElement>()
+  let imageLoaded = false
+
+  const handleImageLoaded = () => {
+    console.log('handleImageLoaded - ' + imageRef.current?.src)
+    imageLoaded = true
+    if (imageRef.current) {
+      imageRef.current.style.display = 'block'
+    }
+  }
 
   return (
     <>
@@ -89,10 +99,13 @@ export const FileIcon = ({
         />
       ) : thumbnailURL ? (
         <img
+          style={{ display: imageLoaded ? 'block' : 'none' }}
           className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
           crossOrigin="anonymous"
           src={thumbnailURL}
           alt="file-thumbnail"
+          ref={imageRef}
+          onLoad={handleImageLoaded}
         />
       ) : FallbackIcon ? (
         <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40')} />
