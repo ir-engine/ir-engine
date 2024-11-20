@@ -659,7 +659,10 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       for (const extension in node.extensions.value) {
         const Component = ComponentJSONIDMap.get(extension)
         if (!Component) continue
-        setComponent(entity, Component, node.extensions[extension].get(NO_PROXY_STEALTH))
+
+        const serialized = Component.toJSON(node.extensions[extension].get(NO_PROXY_STEALTH))
+        node.extensions[extension].set(serialized)
+        setComponent(entity, Component, serialized)
       }
     }
 
