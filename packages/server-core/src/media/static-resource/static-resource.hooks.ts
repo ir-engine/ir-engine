@@ -114,8 +114,7 @@ const updateName = async (context: HookContext<StaticResourceService>) => {
   const data = context.data
   if (!data.key || !id) return
 
-  const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(data.key)!
-  let doUpdate = false
+  let shouldUpdateName = false
 
   const existingResource = await context.app.service(staticResourcePath).get(id, {
     query: {
@@ -123,15 +122,16 @@ const updateName = async (context: HookContext<StaticResourceService>) => {
     }
   })
   if (context.method === 'create') {
-    doUpdate = true
+    shouldUpdateName = true
   } else {
     const [existing_, existingDirectory, existingFile] = /(.*)\/([^\\\/]+$)/.exec(existingResource.key)!
     if (!existingResource.name || existingResource.name === existingFile) {
-      doUpdate = true
+      shouldUpdateName = true
     }
   }
 
-  if (doUpdate) {
+  if (shouldUpdateName) {
+    const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(data.key)!
     context.data.name = file
   }
 }
