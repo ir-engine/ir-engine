@@ -807,7 +807,15 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
           if (ComponentJSONIDMap.has(parts[1])) {
             const Component = ComponentJSONIDMap.get(parts[1])
             if (!Component) return console.warn('no component found for extension', parts[1])
-            setComponent(props.entity, Component)
+            let deserializedValue = typeof parts[2] === 'string' ? { [parts[2]]: value } : value
+            if (typeof value === 'string') {
+              try {
+                deserializedValue = JSON.parse(value)
+              } catch (e) {
+                // expected
+              }
+            }
+            setComponent(props.entity, Component, deserializedValue)
             if (Component === ColliderComponent) removeComponent(props.entity, VisibleComponent)
           }
         }
