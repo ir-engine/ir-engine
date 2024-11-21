@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { UserID } from '@ir-engine/hyperflux'
-import { Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
+import { Box3, Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 import { Entity, EntityUUID, UndefinedEntity } from '../Entity'
 import {
   Kind,
@@ -330,15 +330,16 @@ export const S = {
     }) as TNonSerializedSchema<T>,
 
   /** EntityUUID type schema helper, defaults to UndefinedEntity */
-  Entity: (def?: Entity) => S.Number(def ?? UndefinedEntity, { $id: 'Entity' }) as unknown as TTypedSchema<Entity>,
+  Entity: (def?: Entity, options?: TTypedSchema<Entity>['options']) =>
+    S.Number(def ?? UndefinedEntity, { ...options, id: 'Entity' }) as unknown as TTypedSchema<Entity>,
 
   /** EntityUUID type schema helper, defaults to '' */
   EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>
-    S.String('', { id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
+    S.String('', { ...options, id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
 
   /** UserID type schema helper, defaults to '' */
   UserID: (options?: TTypedSchema<UserID>['options']) =>
-    S.String('', { id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
+    S.String('', { ...options, id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
 
   /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
   Vec3: (init = { x: 0, y: 0, z: 0 }, options?: Options<Vector3>) =>
@@ -402,6 +403,21 @@ export const S = {
         deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Mat4'
+      }
+    ),
+
+  /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
+  Box3: (init?: Box3, options?: Options<Box3>) =>
+    S.SerializedClass(
+      () => new Box3(init?.min, init?.max),
+      {
+        min: S.Vec3(),
+        max: S.Vec3()
+      },
+      {
+        deserialize: (curr, value) => curr.copy(value),
+        ...options,
+        id: 'Box3'
       }
     ),
 

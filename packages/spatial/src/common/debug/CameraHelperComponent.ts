@@ -36,16 +36,9 @@ export const CameraHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('camera-helper'),
-    camera: S.Type<Camera>(null!),
+    camera: S.Required(S.Type<Camera>(null!)),
     entity: S.Optional(S.Entity())
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (!json.camera || !json.camera.isCamera) throw new Error('CameraHelperComponent: Valid Camera required')
-    component.camera.set(json.camera)
-    if (typeof json.name === 'string') component.name.set(json.name)
-  },
 
   reactor: function () {
     const entity = useEntityContext()

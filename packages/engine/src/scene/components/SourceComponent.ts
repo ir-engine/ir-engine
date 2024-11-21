@@ -34,12 +34,18 @@ const entitiesBySource = {} as Record<string, Entity[]>
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  schema: S.String(''),
+  schema: S.Required(
+    S.String('', {
+      validate: (value) => {
+        if (!value) {
+          console.error('SourceComponent expects a non-empty string')
+          return false
+        }
 
-  onSet: (entity, component, src) => {
-    if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
-    component.set(src)
-  },
+        return true
+      }
+    })
+  ),
 
   reactor: () => {
     const entity = useEntityContext()

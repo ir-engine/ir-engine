@@ -34,12 +34,16 @@ const entitiesByName = {} as Record<string, Entity[]>
 export const NameComponent = defineComponent({
   name: 'NameComponent',
 
-  schema: S.String(''),
+  schema: S.String('', {
+    validate: (value) => {
+      if (!value) {
+        console.error('NameComponent expects a non-empty string')
+        return false
+      }
 
-  onSet: (entity, component, name?: string) => {
-    if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')
-    component.set(name)
-  },
+      return true
+    }
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

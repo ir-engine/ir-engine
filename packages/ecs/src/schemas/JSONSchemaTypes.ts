@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Entity } from '../Entity'
+
 export const Kind = Symbol('Kind')
 export const NonSerializable = Symbol('NonSerializable')
 export const Required = Symbol('Required')
@@ -63,7 +65,7 @@ export interface Options<V = unknown> {
   serialize?: (value: V) => unknown
   deserialize?: (curr: V, value: V) => V
   /** @todo */
-  validate?: (value: V) => boolean
+  validate?: (value: V, prev: V, entity: Entity) => boolean
   [prop: string]: any
 }
 

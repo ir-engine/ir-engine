@@ -30,11 +30,5 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const BoneComponent = defineComponent({
   name: 'BoneComponent',
-
-  schema: S.Required(S.Type<Bone>()),
-
-  onSet: (entity, component, mesh: Bone) => {
-    if (!mesh || !mesh.isBone) throw new Error('BoneComponent: Invalid bone')
-    component.set(mesh)
-  }
+  schema: S.Required(S.Type<Bone>())
 })

@@ -65,22 +65,20 @@ export const EntityTreeComponent = defineComponent({
 
   schema: S.Object({
     // api
-    parentEntity: S.Entity(),
+    parentEntity: S.Entity(UndefinedEntity, {
+      validate: (value, prev, entity) => {
+        if (entity === value) {
+          console.error('Entity cannot be its own parent: ' + entity)
+          return false
+        }
+
+        return true
+      }
+    }),
     // internal
     childIndex: S.NonSerialized(S.Optional(S.Number())),
     children: S.NonSerialized(S.Array(S.Entity()))
   }),
-
-  onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {
-    if (!json) return
-
-    if (entity === json.parentEntity) {
-      throw new Error('Entity cannot be its own parent: ' + entity)
-    }
-
-    if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
-    if (typeof json.childIndex === 'number') component.childIndex.set(json.childIndex)
-  },
 
   reactor: () => {
     const entity = useEntityContext()
