@@ -34,7 +34,7 @@ import { NameComponent } from './common/NameComponent'
 import { EngineState } from './EngineState'
 import { InputComponent } from './input/components/InputComponent'
 import { MeshComponent } from './renderer/components/MeshComponent'
-import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent } from './renderer/components/ObjectLayerComponent'
 import { SceneComponent } from './renderer/components/SceneComponents'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
@@ -99,7 +99,7 @@ export const initializeSpatialEngine = () => {
   setComponent(localFloorEntity, VisibleComponent, true)
   setComponent(localFloorEntity, SceneComponent, { active: true })
   const floorHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
-  setObjectLayers(floorHelperMesh, ObjectLayers.Gizmos)
+  ObjectLayerMaskComponent.setLayer(localFloorEntity, ObjectLayers.Gizmos)
   setComponent(localFloorEntity, MeshComponent, floorHelperMesh)
 
   getMutableState(EngineState).merge({

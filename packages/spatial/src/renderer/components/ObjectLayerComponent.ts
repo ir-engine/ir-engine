@@ -93,7 +93,7 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   enableLayer(entity: Entity, layer: number) {
-    if (!entityExists(entity)) return
+    if (!entity || !entityExists(entity)) return
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
     setComponent(entity, ObjectLayerComponents[layer])
   },
@@ -106,7 +106,7 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   disableLayer(entity: Entity, layer: number) {
-    if (!entityExists(entity)) return
+    if (!entity || !entityExists(entity)) return
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
     removeComponent(entity, ObjectLayerComponents[layer])
   },
@@ -184,18 +184,11 @@ export class Layer {
  */
 export function setObjectLayers(object: Object3D, ...layers: number[]) {
   object.traverse((obj: Object3D) => {
+    if (obj.entity) ObjectLayerMaskComponent.setMask(obj.entity, 0)
     obj.layers.disableAll()
     for (const layer of layers) {
+      if (obj.entity) ObjectLayerMaskComponent.enableLayer(obj.entity, layers[0])
       obj.layers.enable(layer)
     }
-  })
-}
-
-/**
- * @deprecated use ObjectLayerMaskComponent instead
- */
-export function enableObjectLayer(object: Object3D, layer: number, enable: boolean) {
-  object.traverse((obj: Object3D) => {
-    enable ? obj.layers.enable(layer) : obj.layers.disable(layer)
   })
 }
