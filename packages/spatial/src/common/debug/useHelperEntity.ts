@@ -30,6 +30,7 @@ import {
   createEntity,
   Entity,
   generateEntityUUID,
+  getComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -43,8 +44,9 @@ import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { TransformComponent } from '../../SpatialModule'
 
-type DisposableObject3D = Object3D & { dispose?: () => void }
+type DisposableObject3D = Object3D & { update?: () => void; dispose?: () => void }
 
 export function useHelperEntity<TObject extends DisposableObject3D>(
   parentEntity: Entity,
@@ -54,6 +56,7 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
 ): Entity {
   const helperEntityState = useHookstate(UndefinedEntity)
   const nameComponent = useOptionalComponent(parentEntity, NameComponent)
+  const transform = useOptionalComponent(helperEntityState.value, TransformComponent)
 
   useEffect(() => {
     if (!enabled) return
@@ -63,11 +66,13 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
     // workaround for hemisphere light helper having child mesh internally
     const helperMesh = helper.children[0] as Mesh<any, any> | undefined
     setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
+    setComponent(helperEntity, TransformComponent)
     setComponent(helperEntity, ObjectComponent, helper)
     setComponent(helperEntity, UUIDComponent, generateEntityUUID())
     setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
     setVisibleComponent(helperEntity, true)
     helperEntityState.set(helperEntity)
+    if (typeof helper.update === 'function') helper.update()
 
     return () => {
       if (helperMesh) {
@@ -83,6 +88,12 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
     if (!helperEntityState.value) return
     setComponent(helperEntityState.value, NameComponent, `${nameComponent?.value ?? parentEntity}-helper`)
   }, [helperEntityState.value, nameComponent])
+
+  useEffect(() => {
+    if (!transform) return
+    const helper = getComponent(helperEntityState.value, ObjectComponent) as TObject
+    if (typeof helper.update === 'function') helper.update()
+  }, [transform])
 
   return helperEntityState.value
 }

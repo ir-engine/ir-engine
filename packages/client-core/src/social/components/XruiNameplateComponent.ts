@@ -72,8 +72,7 @@ function updateXrDistVec3(selfAvatarEntity: Entity): void {
 export const XruiNameplateComponent = defineComponent({
   name: 'XruiNameplateComponent',
   schema: S.Object({
-    uiEntity: S.Entity(),
-    nameLabel: S.String('')
+    uiEntity: S.Entity()
   }),
 
   Transitions: new Map<Entity, ReturnType<typeof createTransitionState>>(),
@@ -85,7 +84,7 @@ export const XruiNameplateComponent = defineComponent({
     const user = useGet(userPath, networkObject.ownerId.value)
 
     useEffect(() => {
-      if (selfAvatarEntity === entity) return //don't add nameplate to self
+      if (!user.data?.name || selfAvatarEntity === entity) return //don't add nameplate to self
 
       const userName = user.data?.name ?? 'A User'
       addNameplateUI(entity, userName)

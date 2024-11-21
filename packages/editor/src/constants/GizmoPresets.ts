@@ -30,7 +30,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import {
   BoxGeometry,
@@ -449,7 +448,6 @@ function setupGizmo(parentEntity: Entity, gizmoMap: GizmoDefinition) {
       setComponent(entity, VisibleComponent)
       object.renderOrder = Infinity
       ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.TransformGizmo)
-      setComponent(entity, BoundingBoxComponent)
     }
   }
 }

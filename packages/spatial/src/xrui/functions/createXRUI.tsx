@@ -36,10 +36,11 @@ import { WebLayerManager } from '@ir-engine/xrui/core/three/WebLayerManager'
 
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { EngineState } from '../../EngineState'
+import { TransformComponent } from '../../SpatialModule'
 import { InputComponent } from '../../input/components/InputComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '../../renderer/components/ObjectComponent'
-import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent, setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
@@ -84,8 +85,11 @@ export function createXRUI<S extends State<any> | null>(
   const root = new Group()
   root.name = containerElement.id
   root.add(container)
-  addObjectToGroup(entity, root)
+  root.preserveChildren = true
   setObjectLayers(container, ObjectLayers.UI)
+  ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.UI)
+  setComponent(entity, ObjectComponent, root)
+  setComponent(entity, TransformComponent)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, XRUIComponent, container)
   setComponent(entity, VisibleComponent, true)

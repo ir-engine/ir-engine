@@ -32,14 +32,17 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { NO_PROXY, State, isHookstateValue, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs'
 import { useResource } from '../../resources/resourceHooks'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { ObjectComponent, addObjectToGroup, removeObjectFromGroup } from './ObjectComponent'
+import { ObjectLayerComponents } from './ObjectLayerComponent'
 
 export const MeshComponent = defineComponent({
   name: 'MeshComponent',
@@ -50,6 +53,7 @@ export const MeshComponent = defineComponent({
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
     const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
+    const sceneLayer = useOptionalComponent(entity, ObjectLayerComponents[ObjectLayers.Scene])
 
     useImmediateEffect(() => {
       setComponent(entity, ObjectComponent, meshResource.get(NO_PROXY) as Mesh)
@@ -73,6 +77,7 @@ export const MeshComponent = defineComponent({
     )
 
     useEffect(() => {
+      if (!sceneLayer) return
       const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null
       if (!box) return
 
@@ -80,7 +85,7 @@ export const MeshComponent = defineComponent({
       return () => {
         removeComponent(entity, BoundingBoxComponent)
       }
-    }, [meshComponent.geometry.boundingBox])
+    }, [sceneLayer && meshComponent.geometry.value.boundingBox])
 
     useEffect(() => {
       const geometry = meshComponent.geometry.value

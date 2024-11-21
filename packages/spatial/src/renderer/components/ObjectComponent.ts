@@ -48,6 +48,15 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Layer } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
+declare module 'three' {
+  interface Object3D {
+    /** @deprecated */
+    preserveChildren?: boolean
+    /** @deprecated */
+    readonly isProxified: true | undefined
+  }
+}
+
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const ObjectComponent = defineComponent({
@@ -76,58 +85,61 @@ export const ObjectComponent = defineComponent({
 
       obj.frustumCulled = false
 
-      Object.defineProperties(obj, {
-        parent: {
-          get() {
-            if (ObjectComponent.activeRender) return null // hack to check if renderer is rendering
-            if (getOptionalComponent(entity, EntityTreeComponent)?.parentEntity) {
-              const result = getOptionalComponent(
-                getComponent(entity, EntityTreeComponent).parentEntity!,
-                ObjectComponent
-              )
-              return result ?? null
-            }
-            return null
-          },
-          set(value) {
-            if (value != undefined) throw new Error('Cannot set parent of proxified object')
-            console.warn('Setting to nil value is not supported ObjectComponent.ts')
-          }
-        },
-        children: {
-          get() {
-            if (ObjectComponent.activeRender) return [] // hack to check if renderer is rendering
-            if (hasComponent(entity, EntityTreeComponent)) {
-              const childEntities = getComponent(entity, EntityTreeComponent).children
-              const result: Object3D[] = []
-              for (const childEntity of childEntities) {
-                if (hasComponent(childEntity, ObjectComponent)) {
-                  result.push(getComponent(childEntity, ObjectComponent))
-                }
+      /** until all three hierarchies are replaced with ECS, we need to preserve this in a few cases  */
+      if (!obj.preserveChildren) {
+        Object.defineProperties(obj, {
+          parent: {
+            get() {
+              if (ObjectComponent.activeRender) return null // hack to check if renderer is rendering
+              if (getOptionalComponent(entity, EntityTreeComponent)?.parentEntity) {
+                const result = getOptionalComponent(
+                  getComponent(entity, EntityTreeComponent).parentEntity!,
+                  ObjectComponent
+                )
+                return result ?? null
               }
-              return result
-            } else {
-              return []
+              return null
+            },
+            set(value) {
+              if (value != undefined) throw new Error('Cannot set parent of proxified object')
+              console.warn('Setting to nil value is not supported ObjectComponent.ts')
             }
           },
-          set(value) {
-            if (value != undefined) throw new Error('Cannot set children of proxified object')
-            console.warn('Setting to nil value is not supported ObjectComponent.ts')
+          children: {
+            get() {
+              if (ObjectComponent.activeRender) return [] // hack to check if renderer is rendering
+              if (hasComponent(entity, EntityTreeComponent)) {
+                const childEntities = getComponent(entity, EntityTreeComponent).children
+                const result: Object3D[] = []
+                for (const childEntity of childEntities) {
+                  if (hasComponent(childEntity, ObjectComponent)) {
+                    result.push(getComponent(childEntity, ObjectComponent))
+                  }
+                }
+                return result
+              } else {
+                return []
+              }
+            },
+            set(value) {
+              if (value != undefined) throw new Error('Cannot set children of proxified object')
+              console.warn('Setting to nil value is not supported ObjectComponent.ts')
+            }
+          },
+          isProxified: {
+            value: true
           }
-        },
-        isProxified: {
-          value: true
-        }
-      })
-      Object.assign(obj, {
-        get name() {
-          return getOptionalComponent(entity, NameComponent)
-        },
-        set name(value) {
-          if (value != undefined) throw new Error('Cannot set name of proxified object')
-        },
-        updateWorldMatrix: () => {}
-      })
+        })
+        Object.assign(obj, {
+          get name() {
+            return getOptionalComponent(entity, NameComponent)
+          },
+          set name(value) {
+            if (value != undefined) throw new Error('Cannot set name of proxified object')
+          },
+          updateWorldMatrix: () => {}
+        })
+      }
 
       // sometimes it's convenient to update the entity transform via the Object3D,
       // so allow people to do that via proxies

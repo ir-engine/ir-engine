@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Frustum, Matrix4, Vector3 } from 'three'
+import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 
 import {
   AnimationSystemGroup,
@@ -41,6 +41,8 @@ import { NetworkState } from '@ir-engine/network'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { EngineState } from '../../EngineState'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -51,6 +53,8 @@ import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 
+const objectQuery = defineQuery([ObjectComponent, VisibleComponent])
+
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
@@ -58,10 +62,12 @@ const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraCom
 
 const cameraQuery = defineQuery([TransformComponent, CameraComponent])
 
-//isProxified: used to check if an object is proxified
-declare module 'three/src/core/Object3D' {
-  export interface Object3D {
-    readonly isProxified: true | undefined
+const updateObjectChildren = (entity: Entity) => {
+  const object = getComponent(entity, ObjectComponent) as any as Mesh & Camera
+  if (object.isProxified) return
+  for (const obj of object.children) {
+    obj.updateMatrixWorld()
+    obj.matrixWorldNeedsUpdate = false
   }
 }
 
@@ -158,6 +164,9 @@ const sortAndMakeDirtyEntities = () => {
 const execute = () => {
   const dirtySortedTransformEntities = _sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
+
+  const dirtyObjectEntities = objectQuery().filter(isDirty)
+  for (const entity of dirtyObjectEntities) updateObjectChildren(entity)
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)

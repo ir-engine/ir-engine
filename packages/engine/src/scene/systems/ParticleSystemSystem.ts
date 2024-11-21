@@ -27,7 +27,6 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
-import { TransformSystem } from '@ir-engine/spatial'
 import { ParticleState } from '../components/ParticleSystemComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
@@ -44,17 +43,4 @@ export const ParticleSystem = defineSystem({
   uuid: 'ee.engine.ParticleSystem',
   insert: { with: SceneObjectSystem },
   execute
-})
-
-export const ParticleTransformSystem = defineSystem({
-  uuid: 'ee.engine.ParticleTransformSystem',
-  insert: { after: TransformSystem },
-  execute: () => {
-    for (const system of Object.values(getState(ParticleState).renderers)) {
-      for (const obj of system.renderer.batches) {
-        obj.updateMatrixWorld()
-        obj.matrixWorldNeedsUpdate = false
-      }
-    }
-  }
 })
