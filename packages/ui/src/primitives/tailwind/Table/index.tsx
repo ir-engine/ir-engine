@@ -136,14 +136,10 @@ const TablePagination = ({
   neighbours?: number
   onPageChange: (newPage: number) => void
 }) => {
-  const commonClasses = twMerge(
-    'flex h-8 items-center justify-center border bg-theme-primary px-3 leading-tight',
-    'border-gray-300 dark:border-gray-600',
-    'text-gray-400 dark:text-gray-500',
-    'enabled:text-gray-600 dark:enabled:dark:text-gray-300',
-    'hover:enabled:bg-gray-200 dark:hover:enabled:bg-gray-700',
-    'hover:enabled:text-gray-700 dark:hover:enabled:text-gray-200'
-  )
+  const commonClasses = twMerge('pt-4 text-sm font-medium text-[#9CA0AA] enabled:hover:opacity-80')
+  const controlsClasses = twMerge(commonClasses, 'px-2 pt-5 enabled:text-white')
+  const pageClasses = twMerge(commonClasses, 'px-4')
+  const currentPageClasses = twMerge(pageClasses, 'border-t-2 border-[#375DAF] text-[#375DAF]')
 
   const prevPages = [] as number[]
   for (let i = currentPage - 1; i >= Math.max(0, currentPage - neighbours); i--) {
@@ -157,46 +153,40 @@ const TablePagination = ({
   }
 
   return (
-    <div className="flex-column mb-2 flex flex-wrap items-center justify-center pt-4 md:flex-row">
-      <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
+    <div className="flex-column mb-2 flex flex-wrap items-center justify-center pt-10 md:flex-row">
+      <ul className="flex h-[38px] items-center justify-center">
         <li>
-          <button
-            disabled={currentPage === 0}
-            onClick={() => onPageChange(0)}
-            className={twMerge(commonClasses, 'rounded-s-lg')}
-          >
+          <button disabled={currentPage === 0} onClick={() => onPageChange(0)} className={controlsClasses}>
             <HiRewind />
           </button>
         </li>
         <li>
           <button
             disabled={currentPage === 0}
-            className={commonClasses}
+            className={twMerge(controlsClasses, 'mr-5')}
             onClick={() => onPageChange(Math.max(0, currentPage - 1))}
           >
             <GoChevronLeft />
           </button>
         </li>
+
         {prevPages.map((page) => (
           <li key={page}>
-            <button onClick={() => onPageChange(page)} className={commonClasses}>
+            <button onClick={() => onPageChange(page)} className={pageClasses}>
               {page + 1}
             </button>
           </li>
         ))}
 
         <li>
-          <button
-            onClick={() => onPageChange(currentPage)}
-            className={twMerge(commonClasses, 'bg-gray-300 dark:bg-gray-600')}
-          >
+          <button onClick={() => onPageChange(currentPage)} className={currentPageClasses}>
             {currentPage + 1}
           </button>
         </li>
 
         {nextPages.map((page) => (
           <li key={page}>
-            <button onClick={() => onPageChange(page)} className={commonClasses}>
+            <button onClick={() => onPageChange(page)} className={pageClasses}>
               {page + 1}
             </button>
           </li>
@@ -204,7 +194,7 @@ const TablePagination = ({
 
         {totalPages > 0 && nextPages[nextPages.length - 1] < totalPages - 2 && (
           <li>
-            <button disabled={true} className={commonClasses}>
+            <button disabled={true} className={pageClasses}>
               ...
             </button>
           </li>
@@ -213,17 +203,18 @@ const TablePagination = ({
         {totalPages > 0 && nextPages[nextPages.length - 1] < totalPages - 1 && (
           <>
             <li key={totalPages}>
-              <button onClick={() => onPageChange(totalPages - 1)} className={commonClasses}>
+              <button onClick={() => onPageChange(totalPages - 1)} className={pageClasses}>
                 {totalPages}
               </button>
             </li>
           </>
         )}
+
         <li>
           <button
             disabled={currentPage === totalPages - 1}
             onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
-            className={commonClasses}
+            className={twMerge(controlsClasses, 'ml-5')}
           >
             <GoChevronRight />
           </button>
@@ -232,7 +223,7 @@ const TablePagination = ({
           <button
             disabled={currentPage === totalPages - 1}
             onClick={() => onPageChange(totalPages - 1)}
-            className={twMerge(commonClasses, 'rounded-e-lg')}
+            className={controlsClasses}
           >
             <HiFastForward />
           </button>

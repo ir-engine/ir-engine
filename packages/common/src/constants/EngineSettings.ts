@@ -54,5 +54,9 @@ export const EngineSettings = {
     Name: 'name',
     Secret: 'secret',
     Kid: 'kid'
+  },
+  Helm: {
+    Main: 'main',
+    Builder: 'builder'
   }
 }

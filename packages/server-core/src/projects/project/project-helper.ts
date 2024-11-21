@@ -58,7 +58,6 @@ import { ProjectCheckUnfetchedCommitType } from '@ir-engine/common/src/schemas/p
 import { ProjectCommitType } from '@ir-engine/common/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@ir-engine/common/src/schemas/projects/project-destination-check.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
-import { helmSettingPath } from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
@@ -72,11 +71,13 @@ import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { BUILDER_CHART_REGEX } from '@ir-engine/common/src/regex'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
-import { getJobBody } from '../../k8s-job-helper'
+import { getJobBody, getValidPodName } from '../../k8s-job-helper'
 import { getStats, regenerateProjectResourcesJson } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
@@ -149,8 +150,16 @@ export const updateBuilder = async (
     await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update('', project, params)))
   }
 
-  const helmSettingsResult = await app.service(helmSettingPath).find()
-  const helmSettings = helmSettingsResult.total > 0 ? helmSettingsResult.data[0] : null
+  const helmSettings = await app.service(engineSettingPath).find({
+    query: {
+      category: 'helm'
+    },
+    paginate: false
+  })
+
+  const helmBuilder = helmSettings.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
+  const helmMain = helmSettings.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
+
   const builderDeploymentName = `${config.server.releaseName}-builder`
   const k8sAppsClient = getState(ServerState).k8AppsClient
   const k8BatchClient = getState(ServerState).k8BatchClient
@@ -187,9 +196,9 @@ export const updateBuilder = async (
           `kubectl delete deployment --ignore-not-found=true ${builderDeployments.body.items[0].metadata!.name}`
         )
 
-      if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+      if (helmSettings.length > 0 && helmBuilder && helmBuilder.length > 0)
         await execAsync(
-          `helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
+          `helm repo update && helm upgrade --reuse-values --version ${helmBuilder} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
         )
       else {
         const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
@@ -1013,7 +1022,7 @@ export async function getProjectUpdateJobBody(
     'ir-engine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-update`
+  const name = `${process.env.RELEASE_NAME}-update-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1059,7 +1068,7 @@ export async function getProjectPushJobBody(
     'ir-engine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-gh-push`
+  const name = `${process.env.RELEASE_NAME}-gh-push-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1068,7 +1077,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
   const projectJobName = cleanProjectName(project.name)
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
+      name: getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectJobName}`),
       labels: {
         'ir-engine/projectUpdater': 'true',
         'ir-engine/autoUpdate': 'true',
@@ -1098,7 +1107,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               serviceAccountName: `${process.env.RELEASE_NAME}-ir-engine-api`,
               containers: [
                 {
-                  name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
+                  name: getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${project.name.toLowerCase()}`),
                   image,
                   imagePullPolicy: 'IfNotPresent',
                   command: ['npx', 'ts-node', '--swc', 'scripts/auto-update-project.ts', '--projectName', project.name],
@@ -1140,7 +1149,7 @@ export async function getDirectoryArchiveJobBody(
     'ir-engine/release': process.env.RELEASE_NAME || ''
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-archive`
+  const name = `${process.env.RELEASE_NAME}-archive-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1170,7 +1179,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
   if (k8BatchClient) {
     try {
       await k8BatchClient.patchNamespacedCronJob(
-        `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
+        getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectName}`),
         'default',
         getCronJobBody(project, image),
         undefined,
@@ -1195,7 +1204,10 @@ export const removeProjectUpdateJob = async (app: Application, projectName: stri
   try {
     const k8BatchClient = getState(ServerState).k8BatchClient
     if (k8BatchClient)
-      await k8BatchClient.deleteNamespacedCronJob(`${process.env.RELEASE_NAME}-${projectName}-auto-update`, 'default')
+      await k8BatchClient.deleteNamespacedCronJob(
+        getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectName}`),
+        'default'
+      )
   } catch (err) {
     logger.error('Failed to remove project update cronjob %o', err)
   }

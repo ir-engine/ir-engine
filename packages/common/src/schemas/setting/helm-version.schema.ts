@@ -24,30 +24,22 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
+import type { Static } from '@feathersjs/typebox'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { queryValidator } from '@ir-engine/common/src/schemas/validators'
 
-import { HelmSettingQuery, HelmSettingType } from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
-import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import type { HookContext } from '@ir-engine/server-core/declarations'
+export const helmVersionPath = 'helm-version'
 
-export const helmSettingResolver = resolve<HelmSettingType, HookContext>({
-  createdAt: virtual(async (helmSetting) => fromDateTimeSql(helmSetting.createdAt)),
-  updatedAt: virtual(async (helmSetting) => fromDateTimeSql(helmSetting.updatedAt))
-})
+export const helmVersionMethods = ['find'] as const
 
-export const helmSettingExternalResolver = resolve<HelmSettingType, HookContext>({})
+// Main data model schema
 
-export const helmSettingDataResolver = resolve<HelmSettingType, HookContext>({
-  id: async () => {
-    return uuidv4()
+export const helmVersionQuerySchema = Type.Object(
+  {
+    action: Type.String({ enum: ['main', 'builder'], description: 'The type of Helm chart to fetch versions for' })
   },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql
-})
+  { additionalProperties: false }
+)
+export interface HelmVersionQuery extends Static<typeof helmVersionQuerySchema> {}
 
-export const helmSettingPatchResolver = resolve<HelmSettingType, HookContext>({
-  updatedAt: getDateTimeSql
-})
-
-export const helmSettingQueryResolver = resolve<HelmSettingQuery, HookContext>({})
+export const helmVersionQueryValidator = /* @__PURE__ */ getValidator(helmVersionQuerySchema, queryValidator)

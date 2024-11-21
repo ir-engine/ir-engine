@@ -31,13 +31,14 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { useFind } from '@ir-engine/common'
 import { DefaultUpdateSchedule } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectType, ScopeType, helmSettingPath, scopePath } from '@ir-engine/common/src/schema.type.module'
+import { ProjectType, ScopeType, engineSettingPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Checkbox } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import { AuthState } from '../../../user/services/AuthService'
@@ -50,7 +51,15 @@ const getDefaultErrors = () => ({
 
 export default function UpdateEngineModal() {
   const { t } = useTranslation()
-  const helmSetting = useFind(helmSettingPath).data.at(0)
+  const helmSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'helm',
+      paginate: false
+    }
+  }).data
+
+  const helmBuilder = helmSettings.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
+  const helmMain = helmSettings.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
   const projectState = useMutableState(ProjectState)
   const projectUpdateStatus = useMutableState(ProjectUpdateState)
   const engineCommit = projectState.builderInfo.engineCommit.value
@@ -162,11 +171,11 @@ export default function UpdateEngineModal() {
         {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
         <Text>
           {t('admin:components.setting.helm.mainHelmToDeploy')}:{' '}
-          <a href="/admin/settings#helm">{helmSetting?.main || 'Current Version'}</a>
+          <a href="/admin/settings#helm">{helmMain || 'Current Version'}</a>
         </Text>
         <Text>
           {t('admin:components.setting.helm.builderHelmToDeploy')}:{' '}
-          <a href="/admin/settings#helm">{helmSetting?.builder || 'Current Version'}</a>
+          <a href="/admin/settings#helm">{helmBuilder || 'Current Version'}</a>
         </Text>
         <Select
           label={t('admin:components.project.commitData')}

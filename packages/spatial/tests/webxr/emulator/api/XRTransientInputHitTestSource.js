@@ -23,19 +23,45 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import {
-  HelmSettingData,
-  HelmSettingPatch,
-  HelmSettingQuery,
-  HelmSettingType
-} from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
+export const PRIVATE = Symbol('@@webxr-polyfill/XRTransientInputHitTestSource');
 
-export interface HelmSettingParams extends KnexAdapterParams<HelmSettingQuery> {}
+import XRRay from './XRRay';
 
-export class HelmSettingService<
-  T = HelmSettingType,
-  ServiceParams extends Params = HelmSettingParams
-> extends KnexService<HelmSettingType, HelmSettingData, HelmSettingParams, HelmSettingPatch> {}
+export default class XRTransientInputHitTestSource {
+	constructor(session, options) {
+		// @TODO: Support options.entityTypes and options.offsetRay
+		if (options.entityTypes && options.entityTypes.length > 0) {
+			throw new Error(
+				'XRHitTestSource does not support entityTypes option yet.',
+			);
+		}
+		this[PRIVATE] = {
+			session,
+			profile: options.profile,
+			offsetRay: options.offsetRay || new XRRay(),
+			active: true,
+		};
+	}
+
+	cancel() {
+		// @TODO: Throw InvalidStateError if active is already false
+		this[PRIVATE].active = false;
+	}
+
+	get _profile() {
+		return this[PRIVATE].profile;
+	}
+
+	get _session() {
+		return this[PRIVATE].session;
+	}
+
+	get _offsetRay() {
+		return this[PRIVATE].offsetRay;
+	}
+
+	get _active() {
+		return this[PRIVATE].active;
+	}
+}

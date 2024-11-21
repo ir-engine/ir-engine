@@ -58,6 +58,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState.ts'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -796,6 +797,7 @@ const removeObject = (entities: Entity[]) => {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
     const gltfData = gltf.data
 
+    ComponentDropdownState.removeEntityUUIDs([...uuidsToRemove])
     const nodesToRemove = collectNodesToRemove(gltf.data, uuidsToRemove)
     removeNodes(gltfData, nodesToRemove)
     compactNodes(gltfData)
