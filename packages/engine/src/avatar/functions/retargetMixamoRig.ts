@@ -43,6 +43,8 @@ const _scale = new Vector3()
  */
 export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) => {
   const hips = getHips(gltfEntity)
+  if (!hips) return
+
   const hipsPositionScale = TransformComponent.getWorldScale(hips, _scale).y
   getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
   for (let i = 0; i < clip.tracks.length; i++) {

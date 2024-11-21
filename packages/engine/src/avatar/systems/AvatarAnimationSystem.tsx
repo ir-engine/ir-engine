@@ -35,6 +35,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  setComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
@@ -51,12 +52,10 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModul
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import {
-  EntityTreeComponent,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -66,11 +65,12 @@ import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
+import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
+import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AnimationSystem } from './AnimationSystem'
@@ -361,9 +361,8 @@ const AnimationReactor = () => {
        * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
        * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
        */
-      for (const animation of clips!) {
-        retargetAnimationClip(animation, entity)
-        bindAnimationClipFromMixamo(animation)
+      for (const clip of clips!) {
+        retargetAnimationClip(clip, entity)
       }
       getMutableState(AnimationState).loadedAnimations[animations[i]].set(entity!)
       /** @todo handle avatar animation clips generically */
@@ -373,7 +372,12 @@ const AnimationReactor = () => {
       const movement = getMutableState(AvatarMovementSettingsState)
       if (run) movement.runSpeed.set(getRootSpeed(run))
       if (walk) movement.walkSpeed.set(getRootSpeed(walk))
-      for (const child of getComponent(entity, EntityTreeComponent).children) removeEntityNodeRecursively(child)
+
+      setComponent(entity, AvatarRigComponent)
+      traverseEntityNode(entity, (child) => {
+        const name = getComponent(child, NameComponent).replace(':', '')
+        if (mixamoVRMRigMap[name]) AvatarRigComponent.setBone(entity, child, mixamoVRMRigMap[name])
+      })
       i++
     }
   }, [loadedAnimations.value])

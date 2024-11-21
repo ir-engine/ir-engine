@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer, Object3D, PropertyBinding } from 'three'
 
-import { Entity, removeEntity, UndefinedEntity } from '@ir-engine/ecs'
+import { Entity, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -47,9 +47,9 @@ import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/E
 import { useEffect } from 'react'
 import { v4 } from 'uuid'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { GLTFLoaderFunctions } from '../../gltf/GLTFLoaderFunctions'
 import { GLTFAssetState } from '../../gltf/GLTFState'
 import { SourceComponent } from '../../scene/components/SourceComponent'
+import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
@@ -118,15 +118,25 @@ PropertyBinding.parseTrackName = function (trackName) {
   return results
 }
 
+export const getTrackId = (entity: Entity) =>
+  getComponent(entity, UUIDComponent).replace(getComponent(entity, SourceComponent) + '-', '')
+
 PropertyBinding.findNode = (root: Object3D, nodeName) => {
   const sceneInstanceID = GLTFComponent.getInstanceID(root.entity)
   const childEntities = SourceComponent.entitiesBySource[sceneInstanceID]
 
-  const entity = childEntities.find((entity) => GLTFLoaderFunctions.getTrackId(entity) === nodeName)
+  /**Find the entity that corresponds to the nodeName.
+   * Using getTrackId to allow reuse of the same track for identical hierarchies across different roots.
+   */
+  const entity = childEntities.find(
+    (entity) => getTrackId(entity) === nodeName.substring(nodeName.lastIndexOf('-') + 1)
+  )
   if (!entity) {
     throw new Error('PropertyBinding: cannot find entity for node ' + nodeName)
   }
+
   return (
+    getOptionalComponent(entity, NormalizedBoneComponent) ??
     getOptionalComponent(entity, BoneComponent) ??
     getOptionalComponent(entity, MeshComponent) ??
     getOptionalComponent(entity, Object3DComponent)!
