@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Action, HyperFlux, NetworkID, PeerID, Topic, UserID, getState } from '@ir-engine/hyperflux'
 import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
-import { NetworkPeer } from './NetworkState'
+import { NetworkPeerState } from './NetworkPeerState'
+import { MediaTagType, NetworkPeer, PeerMediaType, PeerTransport } from './NetworkState'
 import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
 
 /**
@@ -42,16 +43,31 @@ export interface JitterBufferEntry {
 }
 
 export type Network<Ext = unknown> = {
-  /** Connected peers */
+  transports: Record<PeerID, PeerTransport>
+  /** @deprecated - only used for media recording */
+  media: Record<MediaTagType, PeerMediaType>
+  /**
+   * Connected peers
+   * @deprecated use `getState(NetworkPeerState)[network.id].peers` instead
+   */
   peers: Record<PeerID, NetworkPeer>
 
-  /** Map of numerical peer index to peer IDs */
+  /**
+   * Map of numerical peer index to peer IDs
+   * @deprecated use `getState(NetworkPeerState)[network.id].peerIndexToPeerID` instead
+   */
   peerIndexToPeerID: Record<number, PeerID>
 
-  /** Map of peer IDs to numerical peer index */
+  /**
+   * Map of peer IDs to numerical peer index
+   * @deprecated use `getState(NetworkPeerState)[network.id].peerIDToPeerIndex` instead
+   */
   peerIDToPeerIndex: Record<PeerID, number>
 
-  /** Connected users */
+  /**
+   * Connected users
+   * @deprecated use `getState(NetworkPeerState)[network.id].users` instead
+   */
   users: Record<UserID, PeerID[]>
 
   /**
@@ -98,7 +114,7 @@ export const createNetwork = <Ext = unknown>(
 ): Network<Ext> => {
   const network = {
     messageToPeer: (peerId: PeerID, data: any) => {
-      network.peers[peerId]?.transport?.message?.(data)
+      network.transports[peerId]?.message?.(data)
     },
     messageToAll: (data: any) => {
       for (const peer of Object.values(network.peers)) network.messageToPeer(peer.peerID, data)
@@ -109,7 +125,7 @@ export const createNetwork = <Ext = unknown>(
       NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
     },
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {
-      network.peers[peerID]?.transport?.buffer?.(dataChannelType, data)
+      network.transports[peerID]?.buffer?.(dataChannelType, data)
     },
     bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
       for (const peer of Object.values(network.peers))
@@ -122,10 +138,19 @@ export const createNetwork = <Ext = unknown>(
       }
     },
     ...extension,
-    peers: {},
-    peerIndexToPeerID: {},
-    peerIDToPeerIndex: {},
-    users: {},
+    transports: {},
+    get peers() {
+      return getState(NetworkPeerState)[id]?.peers
+    },
+    get peerIndexToPeerID() {
+      return getState(NetworkPeerState)[id]?.peerIndexToPeerID
+    },
+    get peerIDToPeerIndex() {
+      return getState(NetworkPeerState)[id]?.peerIDToPeerIndex
+    },
+    get users() {
+      return getState(NetworkPeerState)[id]?.users
+    },
     hostPeerID,
     get hostUserID() {
       return network.hostPeerID && (network.peers[network.hostPeerID]?.userId as UserID | undefined)

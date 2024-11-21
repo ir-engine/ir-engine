@@ -27,17 +27,18 @@ import {
   NetworkID,
   PeerID,
   UserID,
-  Validator,
   defineAction,
   defineState,
   getMutableState,
   getState,
   matches,
+  matchesPeerID,
   none
 } from '@ir-engine/hyperflux'
 
 import { DataChannelType } from './DataChannelRegistry'
 import { Network } from './Network'
+import { matchesUserID } from './functions/matchesUserID'
 import { SerializationSchema } from './serialization/Utils'
 
 export type PeersUpdateType = {
@@ -56,17 +57,20 @@ export interface NetworkPeer {
   userId: UserID
   peerID: PeerID
   peerIndex: number
-  transport?: PeerTransport // todo change this to socket and create a socket transport abstraction
-  // The following properties are only present on the server
-  lastSeenTs?: any
-  /** @deprecated - only used for media recording */
-  media?: Record<MediaTagType, PeerMediaType>
 }
 
 export class NetworkActions {
-  static updatePeers = defineAction({
-    type: 'ee.engine.network.UPDATE_PEERS',
-    peers: matches.array as Validator<unknown, PeersUpdateType[]>
+  static peerJoined = defineAction({
+    type: 'ee.engine.network.PEER_JOINED',
+    peerID: matchesPeerID,
+    peerIndex: matches.number,
+    userID: matchesUserID
+  })
+
+  static peerLeft = defineAction({
+    type: 'ee.engine.network.PEER_LEFT',
+    peerID: matchesPeerID,
+    userID: matchesUserID
   })
 }
 

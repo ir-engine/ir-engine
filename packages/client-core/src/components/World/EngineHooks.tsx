@@ -35,6 +35,7 @@ import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import {
   addOutgoingTopicIfNecessary,
+  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -45,7 +46,7 @@ import {
   addNetwork,
   createNetwork,
   Network,
-  NetworkPeerFunctions,
+  NetworkActions,
   NetworkState,
   NetworkTopics,
   removeNetwork
@@ -165,19 +166,34 @@ export const useNetwork = (props: { online?: boolean }) => {
     const userID = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
     const peerIndex = 1
+    const networkID = userID as any as InstanceID
 
     const networkState = getMutableState(NetworkState)
-    networkState.hostIds.world.set(userID as any as InstanceID)
-    addNetwork(createNetwork(userID as any as InstanceID, peerID, NetworkTopics.world))
+    networkState.hostIds.world.set(networkID)
+    addNetwork(createNetwork(networkID, peerID, NetworkTopics.world))
     addOutgoingTopicIfNecessary(NetworkTopics.world)
 
     NetworkState.worldNetworkState.ready.set(true)
 
-    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userID)
+    dispatchAction(
+      NetworkActions.peerJoined({
+        $network: networkID,
+        peerID,
+        peerIndex,
+        userID
+      })
+    )
 
     const network = NetworkState.worldNetwork as Network
 
     return () => {
+      dispatchAction(
+        NetworkActions.peerLeft({
+          $network: networkID,
+          peerID,
+          userID
+        })
+      )
       removeNetwork(network)
       networkState.hostIds.world.set(none)
     }
