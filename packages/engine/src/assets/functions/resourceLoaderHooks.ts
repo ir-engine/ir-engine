@@ -27,7 +27,16 @@ import { useEffect, useLayoutEffect } from 'react'
 import { AudioLoader, Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { Entity, entityExists, UndefinedEntity } from '@ir-engine/ecs'
+import {
+  createEntity,
+  Entity,
+  entityExists,
+  generateEntityUUID,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { getState, NO_PROXY, State, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import {
   ResourceAssetType,
@@ -36,6 +45,7 @@ import {
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { AssetLoader } from '../classes/AssetLoader'
@@ -227,22 +237,34 @@ async function getLoader<T extends ResourceAssetType>(
 /**
  *
  * GLTF loader hook for use in React Contexts.
- * The asset will be loaded through the ResourceManager in ResourceState.ts.
- * The asset will be unloaded and disposed when the component is unmounted or when onUnloadCallback is called.
+ * Creates an entity with a GLTFComponent as a child of the provided parentEntity param
+ * Returns the root entity of the GLTF after the GLTF has completed loading
  *
  * @param url The URL of the GLTF file to load
- * @param entity *Optional* The entity that is loading the GLTF, defaults to UndefinedEntity
- * @param params *Optional* LoadingArgs that are passed through to the asset loader
- * @param onUnload *Optional* A callback that is called when the URL is changed and the previous asset is unloaded, only needed for editor specific behavior
- * @returns Tuple of [GLTF, Error, Progress, onUnloadCallback]
+ * @param parentEntity The entity that is loading the GLTF
+ * @returns Entity | null
  */
-export function useGLTF(
-  url: string,
-  entity?: Entity,
-  onUnload?: (url: string) => void,
-  loader: AssetLoader = getState(AssetLoaderState).gltfLoader
-): [GLTFAsset | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
-  return useLoader<GLTFAsset>(url, ResourceType.GLTF, entity, loader, onUnload)
+export function useGLTFComponent(url: string, parentEntity: Entity): Entity | null {
+  const gltfEntityState = useHookstate(UndefinedEntity)
+  const loaded = GLTFComponent.useSceneLoaded(gltfEntityState.value)
+
+  useEffect(() => {
+    if (!url) return
+    const gltfEntity = createEntity()
+    setComponent(gltfEntity, EntityTreeComponent, { parentEntity })
+    setComponent(gltfEntity, UUIDComponent, generateEntityUUID())
+    setComponent(gltfEntity, GLTFComponent, { src: url })
+    gltfEntityState.set(gltfEntity)
+
+    return () => {
+      if (entityExists(gltfEntity)) {
+        removeEntity(gltfEntity)
+        gltfEntityState.set(UndefinedEntity)
+      }
+    }
+  }, [parentEntity, url])
+
+  return loaded ? gltfEntityState.value : null
 }
 
 export function useGLTFResource(url: string, entity: Entity): void {
@@ -259,31 +281,6 @@ export function useGLTFResource(url: string, entity: Entity): void {
       if (url) ResourceManager.unload(url, entity)
     }
   }, [])
-}
-
-/**
- *
- * Same as useGLTF hook, but takes an array of urls.
- * Only use in cases where you can operate idempotently on the result as changes to array elements are inherently non-reactive
- * Array values are returned wrapped in State to preserve the little reactivity there is
- * The assets will be unloaded and disposed when the component is unmounted or when onUnloadCallback is called.
- *
- * @param urls Array of GLTF URLs to load
- * @param entity *Optional* The entity that is loading the GLTF, defaults to UndefinedEntity
- * @param params *Optional* LoadingArgs that are passed through to the asset loader
- * @returns Tuple of [State<GLTF[]>, State<Error[]>, State<Progress[]>, onUnloadCallback]
- */
-export function useBatchGLTF(
-  urls: string[],
-  entity?: Entity,
-  loader: AssetLoader = getState(AssetLoaderState).gltfLoader
-): [
-  State<(GLTFAsset | null)[]>,
-  State<(ErrorEvent | Error | null)[]>,
-  State<(ProgressEvent<EventTarget> | null)[]>,
-  () => void
-] {
-  return useBatchLoader<GLTFAsset>(urls, ResourceType.GLTF, entity, loader)
 }
 
 /**

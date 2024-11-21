@@ -132,12 +132,11 @@ export class Googlestrategy extends CustomOAuthStrategy {
     redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/google` : config.authentication.callback.google
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
-      const err = data.message as string
-      return redirectDomain + `?error=${err}`
+      return this.handleErrorRedirect(data, params, redirectConfig, redirectDomain)
     }
 
     const loginType = params.query?.userId ? 'connection' : 'login'
-    let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
+    let redirectUrl = `${redirectDomain}?token=${(data as AuthenticationResult).accessToken}&type=${loginType}`
     if (redirectPath) {
       redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
     }
@@ -154,6 +153,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
         'There was a problem with the Google OAuth login flow: ' + authentication.error_description ||
           authentication.error
       )
+    await this.validateSignInUser(authentication, originalParams, 'google')
     return super.authenticate(authentication, originalParams)
   }
 }

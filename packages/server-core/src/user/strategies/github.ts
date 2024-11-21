@@ -186,12 +186,11 @@ export class GithubStrategy extends CustomOAuthStrategy {
     redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/github` : config.authentication.callback.github
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
-      const err = data.message as string
-      return redirectDomain + `?error=${err}`
+      return this.handleErrorRedirect(data, params, redirectConfig, redirectDomain)
     }
 
     const loginType = params.query?.userId ? 'connection' : 'login'
-    let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
+    let redirectUrl = `${redirectDomain}?token=${(data as AuthenticationResult).accessToken}&type=${loginType}`
     if (redirectPath) {
       redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
     }
@@ -208,6 +207,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
         throw new Error('You canceled the GitHub OAuth login flow')
       else throw new Error('There was a problem with the GitHub OAuth login flow: ' + authentication.error_description)
     }
+    await this.validateSignInUser(authentication, originalParams, 'github')
     originalParams.access_token = authentication.access_token
     originalParams.refresh_token = authentication.refresh_token
     return super.authenticate(authentication, originalParams)
