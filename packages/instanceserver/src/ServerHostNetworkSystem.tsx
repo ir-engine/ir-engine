@@ -35,7 +35,7 @@ import { NetworkActions, NetworkPeer, NetworkState } from '@ir-engine/network'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
-const lastSeen = new Map<PeerID, number>()
+export const lastSeen = new Map<PeerID, number>()
 
 export async function checkPeerHeartbeat(network: SocketWebRTCServerNetwork): Promise<void> {
   for (const [peerID, client] of Object.entries(network.peers) as [PeerID, NetworkPeer][]) {
