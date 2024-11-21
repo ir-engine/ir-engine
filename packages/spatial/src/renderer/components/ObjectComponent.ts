@@ -48,7 +48,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Layer } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
-declare module 'three' {
+declare module 'three/src/core/Object3D' {
   interface Object3D {
     /** @deprecated */
     preserveChildren?: boolean
