@@ -32,7 +32,7 @@ import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-e
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { PeerID, UserID, applyIncomingActions, clearOutgoingActions, dispatchAction } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@ir-engine/network'
+import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
@@ -127,8 +127,6 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const hostUserId = 'world' as UserID & PeerID
     NetworkState.worldNetwork.hostPeerID = hostUserId
     const hostIndex = 0
-
-    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork, hostUserId, hostIndex, hostUserId)
 
     const userId = 'user id' as UserID
     Engine.instance.store.userID = userId

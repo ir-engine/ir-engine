@@ -101,7 +101,11 @@ export const useMediaWindows = () => {
     .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
   // if window doesnt exist for self, add it
-  if (mediaNetworkConnected && mediaNetwork.users && !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))) {
+  if (
+    mediaNetworkConnected &&
+    mediaNetwork.users &&
+    !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))
+  ) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 

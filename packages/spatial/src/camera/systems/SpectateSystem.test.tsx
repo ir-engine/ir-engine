@@ -37,8 +37,8 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
-import { Network, NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
+import { UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import { NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { SpectateActions, SpectateEntityState } from './SpectateSystem'
 
