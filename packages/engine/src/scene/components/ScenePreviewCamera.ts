@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { CameraHelper, PerspectiveCamera } from 'three'
+import { CameraHelper, Euler, PerspectiveCamera } from 'three'
 
 import { useExecute } from '@ir-engine/ecs'
 import {
@@ -33,10 +33,9 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getMutableState, isClient, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -58,14 +57,14 @@ export const ScenePreviewCameraComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
-    const engineCameraTransform = useOptionalComponent(Engine.instance.cameraEntity, TransformComponent)
+    const engineCameraTransform = useOptionalComponent(getState(EngineState).viewerEntity, TransformComponent)
     const isEditing = useHookstate(getMutableState(EngineState).isEditing).value
 
     useLayoutEffect(() => {
       if (!engineCameraTransform || isEditing) return
 
       const transform = getComponent(entity, TransformComponent)
-      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
       cameraTransform.position.copy(transform.position)
       cameraTransform.rotation.copy(transform.rotation)
       const camera = previewCamera.camera.value as PerspectiveCamera
@@ -86,8 +85,8 @@ export const ScenePreviewCameraComponent = defineComponent({
 
     useLayoutEffect(() => {
       if (!engineCameraTransform) return
-      engineCameraTransform.position.value.copy(previewCameraTransform.position.value)
-      engineCameraTransform.rotation.value.copy(previewCameraTransform.rotation.value)
+      previewCamera.camera.value.position.copy(previewCameraTransform.position.value)
+      previewCamera.camera.value.rotation.copy(new Euler().setFromQuaternion(previewCameraTransform.rotation.value))
     }, [previewCameraTransform])
 
     useHelperEntity(entity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled.value)
