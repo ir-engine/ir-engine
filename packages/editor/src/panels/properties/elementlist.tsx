@@ -140,7 +140,7 @@ const SceneElementListItem = ({
       <div className="flex flex-col items-center justify-center">
         <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
         <div
-          className="max-w-full overflow-hidden text-ellipsis whitespace-normal"
+          className="max-w-full overflow-hidden truncate whitespace-nowrap text-nowrap"
           data-testid="prefabs-category-title"
         >
           {categoryTitle}
