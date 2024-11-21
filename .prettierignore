@@ -1,3 +1,4 @@
 **/node_modules/**
 /packages/server/upload/**
 **/*.d.ts
+/packages/spatial/tests/webxr/emulator/**

@@ -72,7 +72,7 @@ export default function Locations() {
               size="small"
               fullWidth
               onClick={() => {
-                PopoverState.showPopupover(<AddEditLocationModal action="admin" />)
+                PopoverState.showPopupover(<AddEditLocationModal />)
               }}
             >
               {t('admin:components.location.createLocation')}

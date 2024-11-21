@@ -23,41 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { Knex } from 'knex'
+import { destroySpatialEngine, destroySpatialViewer } from '../../src/initializeEngine'
+import { requestEmulatedXRSession } from '../webxr/emulator'
+import { MockXRFrame } from './MockXR'
+import { mockSpatialEngine } from './mockSpatialEngine'
 
-import { helmSettingPath } from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { endXRSession } from '../../src/xr/XRSessionFunctions'
+import { XRState } from '../../src/xr/XRState'
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function up(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(helmSettingPath)
-
-  if (tableExists === false) {
-    await knex.schema.createTable(helmSettingPath, (table) => {
-      //@ts-ignore
-      table.uuid('id').collate('utf8mb4_bin').primary()
-      table.string('main', 255).nullable()
-      table.string('builder', 255).nullable()
-      table.dateTime('createdAt').notNullable()
-      table.dateTime('updatedAt').notNullable()
-    })
-  }
+export async function mockEmulatedXREngine() {
+  mockSpatialEngine()
+  await requestEmulatedXRSession()
+  // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property
+  getMutableState(XRState).xrFrame.set(new MockXRFrame())
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-export async function down(knex: Knex): Promise<void> {
-  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const tableExists = await knex.schema.hasTable(helmSettingPath)
-
-  if (tableExists === true) {
-    await knex.schema.dropTable(helmSettingPath)
-  }
-
-  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+export async function destroyEmulatedXREngine() {
+  destroySpatialViewer()
+  destroySpatialEngine()
+  await endXRSession()
 }

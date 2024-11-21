@@ -34,7 +34,6 @@ import './patchEngineNode'
  */
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv-flow'
-import net from 'net'
 import os from 'os'
 import path from 'path'
 import pino from 'pino'
@@ -58,103 +57,66 @@ const useLogger = process.env.DISABLE_SERVER_LOG !== 'true'
 const logStashAddress = process.env.LOGSTASH_ADDRESS || 'logstash-service'
 const logStashPort = process.env.LOGSTASH_PORT || 5044
 
-const isLogStashRunning = () => {
-  return new Promise((resolve, reject) => {
-    const socket = new net.Socket()
-
-    const timer = setTimeout(() => {
-      reject(new Error(`Timeout trying to connect to logstash ${logStashAddress}:${logStashPort}`))
-      socket.destroy()
-    }, 3000)
-
-    // Connect to the port
-    socket.connect(parseInt(logStashPort.toString()), logStashAddress, () => {
-      clearTimeout(timer)
-      socket.end()
-      resolve(true)
-    })
-
-    // Handle connection errors
-    socket.on('error', (err: any) => {
-      clearTimeout(timer)
-      reject(err)
-    })
-  })
-}
-
 const streamToPretty = pretty({
   colorize: true
 })
 
-const streamToFile = pino.transport({
-  target: 'pino/file',
-  options: {
-    mkdir: true,
-    destination: path.join(appRootPath.path, 'logs/irengine.log')
-  }
-})
+const defaultStreams = [streamToPretty]
 
-/**
- * https://getpino.io/#/docs/transports?id=logstash
- * https://www.npmjs.com/package/pino-socket
- */
-const streamToLogstash = pino.transport({
-  target: 'pino-socket',
-  options: {
-    address: logStashAddress,
-    port: logStashPort,
-    mode: 'tcp'
-  }
-})
-
-const streamToOpenSearch = pinoOpensearch({
-  index: 'ethereal',
-  consistency: 'one',
-  node: nodeOpensearch,
-  auth: {
-    username: process.env.OPENSEARCH_USER || 'admin',
-    password: process.env.OPENSEARCH_PASSWORD || 'admin'
-  },
-  'es-version': 7,
-  'flush-bytes': 1000
-})
-
-const streamToElastic = pinoElastic({
-  index: 'xr-engine',
-  node: node,
-  esVersion: 7,
-  flushBytes: 1000
-})
-
-export const opensearchOnlyLogger = pino(
-  {
-    level: 'debug',
-    enabled: useLogger,
-    base: {
-      hostname: os.hostname,
-      component: 'server-core'
+// Enable log to logstash
+if (process.env.LOG_TO_LOGSTASH === 'true') {
+  /**
+   * https://getpino.io/#/docs/transports?id=logstash
+   * https://www.npmjs.com/package/pino-socket
+   */
+  const streamToLogstash = pino.transport({
+    target: 'pino-socket',
+    options: {
+      address: logStashAddress,
+      port: logStashPort,
+      mode: 'tcp'
     }
-  },
-  streamToOpenSearch
-)
-
-export const elasticOnlyLogger = pino(
-  {
-    level: 'debug',
-    enabled: useLogger,
-    base: {
-      hostname: os.hostname,
-      component: 'server-core'
-    }
-  },
-  streamToElastic
-)
-
-const defaultStreams = [streamToPretty, streamToElastic, streamToOpenSearch]
+  })
+  defaultStreams.unshift(streamToLogstash)
+}
 
 // Enable log to local file
 if (process.env.LOG_TO_FILE === 'true') {
+  const streamToFile = pino.transport({
+    target: 'pino/file',
+    options: {
+      mkdir: true,
+      destination: path.join(appRootPath.path, 'logs/irengine.log')
+    }
+  })
   defaultStreams.unshift(streamToFile)
+}
+
+// Enable log to OpenSearch
+if (process.env.LOG_TO_OPENSEARCH === 'true') {
+  const streamToOpenSearch = pinoOpensearch({
+    index: 'ir-engine',
+    consistency: 'one',
+    node: nodeOpensearch,
+    auth: {
+      username: process.env.OPENSEARCH_USER || 'admin',
+      password: process.env.OPENSEARCH_PASSWORD || 'admin'
+    },
+    'es-version': 7,
+    'flush-bytes': 1000
+  })
+  defaultStreams.unshift(streamToOpenSearch)
+}
+
+// Enable log to Elastic
+if (process.env.LOG_TO_ELASTIC === 'true') {
+  const streamToElastic = pinoElastic({
+    index: 'ir-engine',
+    node: node,
+    esVersion: 7,
+    flushBytes: 1000
+  })
+  defaultStreams.unshift(streamToElastic)
 }
 
 const multiStream = pino.multistream(defaultStreams)
@@ -222,15 +184,6 @@ export const logger = pino(
   },
   multiStream
 )
-
-isLogStashRunning()
-  .then(() => {
-    console.info(`Logstash is running on ${logStashAddress}:${logStashPort}`)
-    multiStream.add(streamToLogstash)
-  })
-  .catch(() => {
-    console.error(`Logstash is not running on ${logStashAddress}:${logStashPort}`)
-  })
 
 logger.debug('Debug message for testing')
 
