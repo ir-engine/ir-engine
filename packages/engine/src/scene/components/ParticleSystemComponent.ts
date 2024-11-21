@@ -913,6 +913,7 @@ export const ParticleSystemComponent = defineComponent({
     })
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
+      if (!sceneID) return
       if (gltfComponent?.value && !GLTFComponent.isSceneLoaded(rootEntity)) return
       if (refreshed.value) return
 
