@@ -44,7 +44,7 @@ import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
-import { TransformComponent } from '../../SpatialModule'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 type DisposableObject3D = Object3D & { update?: () => void; dispose?: () => void }
 

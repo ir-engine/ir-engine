@@ -36,7 +36,6 @@ import { WebLayerManager } from '@ir-engine/xrui/core/three/WebLayerManager'
 
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { EngineState } from '../../EngineState'
-import { TransformComponent } from '../../SpatialModule'
 import { InputComponent } from '../../input/components/InputComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
@@ -44,6 +43,7 @@ import { ObjectLayerMaskComponent, setObjectLayers } from '../../renderer/compon
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 import { XRUIComponent } from '../components/XRUIComponent'
 
