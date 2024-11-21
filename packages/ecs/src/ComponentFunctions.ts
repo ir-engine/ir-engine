@@ -317,12 +317,8 @@ export const defineComponent = <
     }
   }
   Component.onRemove = () => {}
-  Component.toJSON = (component) => {
-    if (schemaIsJSONSchema(def.schema)) {
-      return SerializeSchema(def.schema, component) as unknown as JSON
-    }
-
-    return component as unknown as JSON
+  Component.toJSON = (component: ComponentType) => {
+    return validateComponentSchema(def as any, component) as JSON
   }
 
   Component.errors = []
@@ -693,6 +689,15 @@ export const removeAllComponents = (entity: Entity) => {
 export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
   const component = getComponent(entity, Component)
   return JSON.parse(JSON.stringify(Component.toJSON(component))) as ReturnType<C['toJSON']>
+}
+
+// If we want to add more validation logic (ie. schema migrations), decouple this function from Component.toJSON first
+export const validateComponentSchema = <C extends Component>(Component: C, data: ComponentType<C>) => {
+  if (schemaIsJSONSchema(Component.schema)) {
+    return SerializeSchema(Component.schema, data)
+  }
+
+  return data
 }
 
 // use seems to be unavailable in the server environment
