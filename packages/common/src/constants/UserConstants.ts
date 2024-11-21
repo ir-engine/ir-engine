@@ -24,4 +24,3 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 export const USERNAME_MAX_LENGTH = 70
-export const DEFAULT_USERNAME_TAG_VISIBILITY_RADIUS = 8
