@@ -60,7 +60,8 @@ import {
   setComponent,
   UndefinedEntity,
   useOptionalComponent,
-  UUIDComponent
+  UUIDComponent,
+  validateComponentSchema
 } from '@ir-engine/ecs'
 import {
   defineState,
@@ -73,7 +74,6 @@ import {
   State,
   Topic,
   useHookstate,
-  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -631,7 +631,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
-  useImmediateEffect(() => {
+  useLayoutEffect(() => {
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
@@ -659,7 +659,10 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       for (const extension in node.extensions.value) {
         const Component = ComponentJSONIDMap.get(extension)
         if (!Component) continue
-        setComponent(entity, Component, node.extensions[extension].get(NO_PROXY_STEALTH))
+
+        const validatedComponent = validateComponentSchema(Component, node.extensions[extension].get(NO_PROXY_STEALTH))
+        node.extensions[extension].set(validatedComponent)
+        setComponent(entity, Component, validatedComponent)
       }
     }
 
