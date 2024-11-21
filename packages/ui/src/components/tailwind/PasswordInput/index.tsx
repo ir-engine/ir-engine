@@ -23,11 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { EyeLg, EyeOffLg } from '@ir-engine/ui/src/icons'
 import React, { forwardRef } from 'react'
-import { HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2'
 
 import { useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input, { InputProps } from '@ir-engine/ui/src/primitives/tailwind/Input'
 
 const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
@@ -44,13 +43,9 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
         {...props}
         type={show.value ? 'text' : 'password'}
         endComponent={
-          <Button onClick={toggleShow} className="bg-transperant pointer-events-auto mr-3.5 px-0">
-            {show.value ? (
-              <HiOutlineEyeSlash className="text-theme-primary" />
-            ) : (
-              <HiOutlineEye className="text-theme-primary" />
-            )}
-          </Button>
+          <button onClick={toggleShow} className="focus:outline-none">
+            {show.value ? <EyeOffLg /> : <EyeLg />}
+          </button>
         }
       />
     )

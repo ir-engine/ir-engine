@@ -145,6 +145,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
     >
       <div className="my-6 grid grid-cols-3 gap-6">
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.metabase.siteUrl'),
             position: 'top'
@@ -154,6 +155,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.metabase.environment'),
             position: 'top'
@@ -163,6 +165,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
         />
 
         <PasswordInput
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.metabase.secretKey'),
             position: 'top'
@@ -172,6 +175,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
         />
 
         <Input
+          fullWidth
           type="number"
           labelProps={{
             text: t('admin:components.setting.metabase.expiration'),
@@ -182,6 +186,7 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.metabase.crashDashboardId'),
             position: 'top'

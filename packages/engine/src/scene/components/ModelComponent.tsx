@@ -51,7 +51,6 @@ import {
 import { VRM } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
-import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
@@ -91,7 +90,7 @@ function ModelReactor() {
   const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
   const modelSceneID = getModelSceneID(entity)
 
-  const [gltf, error] = useGLTF(modelComponent.src.value, entity)
+  const [gltf, error] = [null as null | GLTF, null as null | Error]
 
   useEffect(() => {
     const occlusion = modelComponent.cameraOcclusion.value
