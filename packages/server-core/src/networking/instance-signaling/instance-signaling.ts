@@ -109,7 +109,7 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
     }
   }
 
-  logger.info(`\n\n\nPeer ${peerID} joined ${instance.channelId ? 'media' : 'world'} instance ${data.instanceID}\n\n\n`)
+  logger.info(`Peer ${peerID} joined ${instance.channelId ? 'media' : 'world'} instance ${data.instanceID}`)
 
   const newInstanceAttendance: InstanceAttendanceData = {
     isChannel: !!instance.channelId,
@@ -249,9 +249,7 @@ export default (app: Application): void => {
 
     for (const attendance of instanceAttendance) {
       logger.info(
-        `\n\n\nPeer ${peerID} disconnected from ${attendance.isChannel ? 'media' : 'world'} instance ${
-          attendance.instanceId
-        }\n\n\n`
+        `Peer ${peerID} disconnected from ${attendance.isChannel ? 'media' : 'world'} instance ${attendance.instanceId}`
       )
       app.channel(`instance/${attendance.instanceId}`).leave(connection)
     }
