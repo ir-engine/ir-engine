@@ -264,8 +264,15 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
 
     NetworkPeerFunctions.createPeer(network, props.peerID, props.peerIndex, props.userID)
 
+    let receivedPoll = false
+
     const onMessage = (e) => {
+      if (e.data === '') {
+        receivedPoll = true
+        return
+      }
       const message = decode(e.data)
+
       network.onMessage(props.peerID, message)
     }
 
@@ -290,16 +297,25 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       buffer
     }
 
-    // @todo this is a hack to ensure the data channel is open before sending the actions
-    setTimeout(() => {
-      // once connected, send all our cached actions to the peer
-      const selfCachedActions = Engine.instance.store.actions.cached.filter(
-        (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
-      )
-      network.messageToPeer(props.peerID, selfCachedActions)
+    /**
+     * Poll the data channel until it's open, then send a message to the peer to let them know we're ready to receive messages.
+     */
+    const interval = setInterval(() => {
+      if (dataChannel.readyState === 'open') {
+        dataChannel.send('')
+        if (receivedPoll) {
+          clearInterval(interval)
+          // once connected, send all our cached actions to the peer
+          const selfCachedActions = Engine.instance.store.actions.cached.filter(
+            (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
+          )
+          network.messageToPeer(props.peerID, selfCachedActions)
+        }
+      }
     }, 10)
 
     return () => {
+      clearInterval(interval)
       NetworkPeerFunctions.destroyPeer(network, props.peerID)
       dataChannel.removeEventListener('message', onMessage)
     }
