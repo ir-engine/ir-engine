@@ -30,7 +30,7 @@ import {
   createEntity,
   Entity,
   generateEntityUUID,
-  getComponent,
+  getOptionalComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -63,6 +63,7 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
 
     const helperEntity = createEntity()
     const helper = helperFactory()
+    helper.preserveChildren = true
     // workaround for hemisphere light helper having child mesh internally
     const helperMesh = helper.children[0] as Mesh<any, any> | undefined
     setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
@@ -90,8 +91,9 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   }, [helperEntityState.value, nameComponent])
 
   useEffect(() => {
-    if (!transform) return
-    const helper = getComponent(helperEntityState.value, ObjectComponent) as TObject
+    if (!helperEntityState.value || !transform) return
+    const helper = getOptionalComponent(helperEntityState.value, ObjectComponent) as TObject
+    if (!helper) return
     if (typeof helper.update === 'function') helper.update()
   }, [transform])
 
