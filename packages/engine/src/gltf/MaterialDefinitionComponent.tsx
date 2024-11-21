@@ -251,8 +251,7 @@ export const KHRClearcoatExtensionComponent = defineComponent({
 
       if (component.clearcoatNormalTexture.value?.scale !== undefined) {
         const scale = component.clearcoatNormalTexture.value.scale
-        // https://github.com/mrdoob/three.js/issues/11438#issuecomment-507003995
-        material.setValues({ clearcoatNormalScale: new Vector2(scale, -scale) })
+        material.setValues({ clearcoatNormalScale: new Vector2(scale, scale) })
       }
 
       material.setValues({ clearcoatNormalMap })

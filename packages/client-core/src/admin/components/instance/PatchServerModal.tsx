@@ -96,6 +96,7 @@ export default function PatchServerModal() {
           text: t('admin:components.instance.count'),
           position: 'top'
         }}
+        fullWidth
       />
     </Modal>
   )
