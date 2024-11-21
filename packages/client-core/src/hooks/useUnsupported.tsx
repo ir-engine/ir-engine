@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { isSupportedBrowser } from '@ir-engine/editor/src/functions/browserCheck'
+import { isSupportedBrowser } from '@ir-engine/editor/src/hooks/useBrowserCheck'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React, { useEffect } from 'react'

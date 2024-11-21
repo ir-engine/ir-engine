@@ -86,6 +86,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     >
       <div className="mt-6 grid w-full grid-cols-2 gap-4">
         <Input
+          fullWidth
           value={serverSetting?.mode || 'test'}
           labelProps={{
             text: t('admin:components.setting.mode'),
@@ -95,6 +96,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.storageProvider'),
             position: 'top'
@@ -104,6 +106,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           value={serverSetting?.hostname || 'test'}
           labelProps={{
             text: t('admin:components.setting.hostName'),
@@ -113,6 +116,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.port'),
             position: 'top'
@@ -122,6 +126,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.hub'),
             position: 'top'
@@ -131,6 +136,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.clientHost'),
             position: 'top'
@@ -140,6 +146,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.url'),
             position: 'top'
@@ -149,6 +156,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.rootDirectory'),
             position: 'top'
@@ -158,6 +166,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.certPath'),
             position: 'top'
@@ -167,6 +176,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.publicDirectory'),
             position: 'top'
@@ -176,6 +186,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.keyPath'),
             position: 'top'
@@ -185,6 +196,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.nodeModulesDirectory'),
             position: 'top'
@@ -194,6 +206,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.githubWebhookSecret'),
             position: 'top'
@@ -203,6 +216,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.localStorageProvider'),
             position: 'top'
@@ -212,6 +226,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.releaseName'),
             position: 'top'
@@ -221,6 +236,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.instanceserverUnreachableTimeoutSeconds'),
             position: 'top'

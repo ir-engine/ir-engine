@@ -36,7 +36,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@ir-engine/hyperflux'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -58,7 +58,8 @@ export const BoundingBoxComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (json.box?.isBox3) component.box.value.copy(json.box)
+    if (matches.object.test(json.box) && json.box?.isBox3) component.box.value.copy(json.box)
+    if (matches.number.test(json.helper)) component.helper.set(json.helper)
   },
 
   reactor: function () {
@@ -127,14 +128,17 @@ const _box = new Box3()
 
 const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   const geometry = object.geometry
+  if (!geometry) return
 
-  if (geometry) {
-    if (geometry.boundingBox === null) {
-      geometry.computeBoundingBox()
-    }
-
-    _box.copy(geometry.boundingBox!)
-    _box.applyMatrix4(object.matrixWorld)
-    box.union(_box)
+  if (geometry.boundingBox === null) {
+    geometry.computeBoundingBox()
   }
+
+  _box.copy(geometry.boundingBox!)
+  _box.applyMatrix4(object.matrixWorld)
+  box.union(_box)
+}
+
+export const BoundingBoxComponentFunctions = {
+  expandBoxByObject
 }

@@ -48,6 +48,7 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
   const gltfComponent = useComponent(entity, GLTFComponent)
   const errors = !!useOptionalComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
+  const loaded = GLTFComponent.useSceneLoaded(entity)
 
   const loadingEntity = useHookstate<Entity>(UndefinedEntity)
 
@@ -74,9 +75,9 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   }, [errors])
 
   useEffect(() => {
-    if (gltfComponent.progress.value !== 100) return
+    if (!loaded) return
     removeLoadingGeo()
-  }, [gltfComponent.progress.value])
+  }, [loaded])
 
   return null
 }
