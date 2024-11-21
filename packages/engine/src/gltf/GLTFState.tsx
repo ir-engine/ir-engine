@@ -60,7 +60,8 @@ import {
   setComponent,
   UndefinedEntity,
   useOptionalComponent,
-  UUIDComponent
+  UUIDComponent,
+  validateComponentSchema
 } from '@ir-engine/ecs'
 import {
   defineState,
@@ -659,9 +660,9 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
         const Component = ComponentJSONIDMap.get(extension)
         if (!Component) continue
 
-        const serialized = Component.toJSON(node.extensions[extension].get(NO_PROXY_STEALTH))
-        node.extensions[extension].set(serialized)
-        setComponent(entity, Component, serialized)
+        const validatedComponent = validateComponentSchema(Component, node.extensions[extension].get(NO_PROXY_STEALTH))
+        node.extensions[extension].set(validatedComponent)
+        setComponent(entity, Component, validatedComponent)
       }
     }
 
