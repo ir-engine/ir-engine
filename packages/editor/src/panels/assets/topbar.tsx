@@ -77,7 +77,7 @@ const ViewModeSettings = () => {
   )
 }
 
-const uploadFiles = () => {
+export const uploadFiles = () => {
   const projectName = getState(EditorState).projectName
   const importFolder = getState(ImportSettingsState).importFolder
 
