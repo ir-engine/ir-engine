@@ -52,6 +52,7 @@ import CreatePrefabPanel from '../dialogs/CreatePrefabPanelDialog'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog'
 import SaveNewSceneDialog from '../dialogs/SaveNewSceneDialog'
+import QuitToDashboardConfirmationDialog from './../dialogs/QuitToDashboardConfirmationDialog'
 
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
@@ -69,7 +70,9 @@ export const confirmSceneSaveIfModified = async () => {
   const isModified = EditorState.isModified()
 
   if (isModified) {
-    return onSaveScene()
+    return new Promise((resolve) => {
+      PopoverState.showPopupover(<QuitToDashboardConfirmationDialog resolve={resolve} />)
+    })
   }
   return true
 }
