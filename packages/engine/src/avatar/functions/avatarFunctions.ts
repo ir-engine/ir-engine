@@ -36,7 +36,7 @@ import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems
 import { UUIDComponent } from '@ir-engine/ecs'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { AnimationState } from '../AnimationManager'
-import { AnimationComponent } from '../components/AnimationComponent'
+import { AnimationComponent, getTrackId } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 
@@ -107,12 +107,13 @@ export const setAvatarAnimations = (entity: Entity) => {
   const targetRigMap = getComponent(entity, AvatarRigComponent).bonesToEntities
   const loadedAnimationEntities = Object.values(manager.loadedAnimations)
   const animationClips = [] as AnimationClip[]
+
   for (const animationEntity of loadedAnimationEntities) {
     const clips = getComponent(animationEntity, AnimationComponent).animations
     const sourceRigMap = getComponent(animationEntity, AvatarRigComponent).entitiesToBones
     for (const clip of clips) {
-      const newClip = clip.clone()
-      for (const track of newClip.tracks) {
+      const newClip = new AnimationClip(clip.name, clip.duration, [], clip.blendMode)
+      for (const track of clip.tracks) {
         const sourceEntity = UUIDComponent.getEntityByUUID(
           track.name.substring(0, track.name.lastIndexOf('.')) as EntityUUID
         )
@@ -122,7 +123,9 @@ export const setAvatarAnimations = (entity: Entity) => {
         const targetEntity = targetRigMap[vrmBone]
         if (!targetEntity) continue
         //todo figure out why using track id causes retargeter artifacting despite no dupes
-        track.name = getComponent(targetEntity, UUIDComponent) + track.name.substring(track.name.lastIndexOf('.'))
+        const newTrack = track.clone()
+        newTrack.name = getTrackId(targetEntity) + '.' + track.name.substring(track.name.lastIndexOf('.') + 1)
+        newClip.tracks.push(newTrack)
       }
       animationClips.push(newClip)
     }
