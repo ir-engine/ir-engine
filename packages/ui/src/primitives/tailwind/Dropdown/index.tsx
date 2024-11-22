@@ -29,7 +29,7 @@ import { twMerge } from 'tailwind-merge'
 
 export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'className'> {
   /**text shown on the left end */
-  title: string
+  label: string
   Icon?: ({ className }: { className?: string }) => JSX.Element
   /**text shown on the right end */
   secondaryText?: string

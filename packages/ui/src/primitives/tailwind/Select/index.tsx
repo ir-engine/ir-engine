@@ -33,7 +33,7 @@ import Tooltip from '../Tooltip'
 
 export interface OptionType {
   value: string | number
-  title: string
+  label: string
   Icon?: ({ className }: { className?: string }) => JSX.Element
   /**text shown on the right end */
   secondaryText?: string
@@ -149,7 +149,7 @@ const Select = ({
       if (renderValue !== undefined) {
         setSelectedLabelContent(renderValue(value))
       } else {
-        setSelectedLabelContent(options[selectedOptionIndex].title)
+        setSelectedLabelContent(options[selectedOptionIndex].label)
       }
       return
     }
@@ -165,7 +165,7 @@ const Select = ({
     if (renderValue !== undefined) {
       setSelectedLabelContent(renderValue(value))
     } else {
-      setSelectedLabelContent(options[index].title)
+      setSelectedLabelContent(options[index].label)
     }
   }, [value, options, renderValue, selectedOptionIndex])
 

@@ -101,7 +101,6 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
       <div className="p-4 text-center text-neutral-100">or</div>
       <div className="flex items-center justify-center">
         <SelectInput
-          className="w-full"
           options={Object.keys(examples).map((key) => {
             return {
               label: key,
@@ -110,7 +109,6 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
           })}
           value={selected}
           onChange={(val) => setSelected(val as string)}
-          placeholder={t('editor:visualScript.modal.load.examples')}
         />
       </div>
     </Modal>

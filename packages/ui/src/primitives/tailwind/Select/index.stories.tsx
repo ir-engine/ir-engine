@@ -100,7 +100,7 @@ const Renderer = ({ numberOfListItems, labelText, labelPosition, generateItem, .
     } else {
       items.push({
         value: i,
-        title: `Account Settings ${i}`
+        label: `Account Settings ${i}`
       })
     }
   }
