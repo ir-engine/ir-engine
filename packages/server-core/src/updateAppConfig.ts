@@ -206,9 +206,10 @@ export const updateAppConfig = async (): Promise<void> => {
     .from<EngineSettingType>(engineSettingPath)
     .then((dbEngineSettings) => {
       dbEngineSettings.forEach((setting) => {
-        if (appConfig[setting.category]) {
-          appConfig[setting.category][setting.key] = setting.value
+        if (!appConfig[setting.category]) {
+          appConfig[setting.category] = {}
         }
+        appConfig[setting.category][setting.key] = setting.value
       })
     })
     .catch((e) => {
