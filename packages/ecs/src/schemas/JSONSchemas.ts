@@ -277,6 +277,7 @@ export const S = {
 
   /**
    * Schemas wrapped in this schema may be null, will default to null if not default value is provided
+   * This should only be needed for properties of a component that are fetched asynchronously or provided by a third party api
    */
   Nullable: <T extends Schema, Initial>(
     schema: T,
@@ -329,9 +330,11 @@ export const S = {
       properties: schema
     }) as TNonSerializedSchema<T>,
 
-  /** EntityUUID type schema helper, defaults to UndefinedEntity */
+  /** Entity type schema helper, Entities will not be serialized, defaults to UndefinedEntity */
   Entity: (def?: Entity, options?: TTypedSchema<Entity>['options']) =>
-    S.Number(def ?? UndefinedEntity, { ...options, id: 'Entity' }) as unknown as TTypedSchema<Entity>,
+    S.NonSerialized(S.Number(def ?? UndefinedEntity, { ...options, id: 'Entity' })) as unknown as TNonSerializedSchema<
+      TTypedSchema<Entity>
+    >,
 
   /** EntityUUID type schema helper, defaults to '' */
   EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>

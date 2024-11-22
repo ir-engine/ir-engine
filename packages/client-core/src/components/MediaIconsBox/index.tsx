@@ -92,7 +92,7 @@ export const MediaIconsBox = () => {
 
   const spectating =
     !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value &&
-    getOptionalComponent(sceneSettings()?.[0], SceneSettingsComponent)?.spectateEntity === null
+    getOptionalComponent(sceneSettings()?.[0], SceneSettingsComponent)?.spectateEntity === ''
   const xrState = useMutableState(XRState)
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value

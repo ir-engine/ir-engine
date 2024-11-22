@@ -122,7 +122,7 @@ export const GrabberComponent = defineComponent({
   name: 'GrabberComponent',
 
   schema: S.Object({
-    left: S.Nullable(S.Entity()),
-    right: S.Nullable(S.Entity())
+    left: S.Entity(),
+    right: S.Entity()
   })
 })

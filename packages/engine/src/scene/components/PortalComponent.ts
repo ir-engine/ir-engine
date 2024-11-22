@@ -91,7 +91,7 @@ export const PortalComponent = defineComponent({
     spawnRotation: S.Quaternion(),
     remoteSpawnPosition: S.Vec3(),
     remoteSpawnRotation: S.Quaternion(),
-    mesh: S.Nullable(S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>())
+    mesh: S.NonSerialized(S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>())
   }),
 
   reactor: function () {
@@ -120,7 +120,7 @@ export const PortalComponent = defineComponent({
         triggers: [
           {
             onEnter: 'teleport',
-            onExit: null,
+            onExit: '',
             target: '' as EntityUUID
           }
         ]
