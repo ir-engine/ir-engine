@@ -96,7 +96,8 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        figtree: ['Figtree', 'sans-serif']
+        figtree: ['Figtree', 'sans-serif'],
+        campton: ['Campton', 'sans-serif']
       },
       keyframes: {
         twinkling: {

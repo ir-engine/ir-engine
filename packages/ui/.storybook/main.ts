@@ -40,6 +40,7 @@ const config: StorybookConfig = {
   stories: [
     '../src/primitives/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
     '../src/components/editor/**/*.stories.@(js|jsx|ts|tsx)',
+    '../src/components/tailwind/**/*.stories.@(js|jsx|ts|tsx)',
     '../src/icons/**/*.stories.@(js|jsx|ts|tsx)'
   ],
   addons: [
