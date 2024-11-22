@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getMutableState } from '@ir-engine/hyperflux'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React from 'react'
 import { EditorState } from '../services/EditorServices'
 
@@ -46,6 +47,12 @@ export const useBrowserCheck = () => {
         'The browser you are on is not supported. For the best experience please use Google Chrome.',
         { variant: 'warning' }
       )
+    }
+
+    if (isMobile) {
+      NotificationService.dispatchNotify('Mobile devices are not currently supported. Mobile Support is coming soon.', {
+        variant: 'warning'
+      })
     }
   }, [])
 
