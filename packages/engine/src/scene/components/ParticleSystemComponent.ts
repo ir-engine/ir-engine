@@ -74,13 +74,13 @@ import {
   useHookstate
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import {
   ObjectComponent,
   addObjectToGroup,
   removeObjectFromGroup
 } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
