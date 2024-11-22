@@ -187,9 +187,13 @@ const checkBudgets = () => {
   const currVerts = resourceState.totalVertexCount
   const currBuff = resourceState.totalBufferCount
   if (currVerts > maxVerts)
-    console.warn('ResourceState:GLTF:onLoad Exceeded vertex budget, budget: ' + maxVerts + ', loaded: ' + currVerts)
+    ResourceState.debugWarn(
+      'ResourceState:GLTF:onLoad Exceeded vertex budget, budget: ' + maxVerts + ', loaded: ' + currVerts
+    )
   if (currBuff > maxBuffer)
-    console.warn('ResourceState:GLTF:onLoad Exceeded buffer budget, budget: ' + maxBuffer + ', loaded: ' + currBuff)
+    ResourceState.debugWarn(
+      'ResourceState:GLTF:onLoad Exceeded buffer budget, budget: ' + maxBuffer + ', loaded: ' + currBuff
+    )
 }
 //#endregion
 

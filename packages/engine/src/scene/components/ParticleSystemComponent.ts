@@ -480,6 +480,8 @@ export type NoiseBehaviorJSON = {
   type: 'Noise'
   frequency: [number, number, number]
   power: [number, number, number]
+  positionAmount: number
+  rotationAmount: number
 }
 
 export type TurbulenceFieldBehaviorJSON = {
@@ -601,7 +603,9 @@ export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
   Noise: {
     type: 'Noise',
     frequency: [1, 1, 1],
-    power: [1, 1, 1]
+    power: [1, 1, 1],
+    positionAmount: 0,
+    rotationAmount: 0
   },
   TurbulenceField: {
     type: 'TurbulenceField',
