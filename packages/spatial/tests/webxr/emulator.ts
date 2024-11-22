@@ -61,10 +61,10 @@ export function getLastXRSessionData(session: XRSession | null) {
  * @description Requests an emulated XRSession.
  * @why Shorthand for initializing an emulated XRSession from unit tests
  * */
-export async function requestEmulatedXRSession(device = DeviceDefinitions.Default) {
+export async function requestEmulatedXRSession(deviceDefinition = DeviceDefinitions.Default) {
   WebXREventDispatcher.instance.dispatchEvent({
     type: POLYFILL_ACTIONS.DEVICE_INIT,
-    detail: { stereoEffect: false, device }
+    detail: { stereoEffect: false, deviceDefinition }
   })
   return requestXRSession()
 }

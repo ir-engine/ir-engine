@@ -56,6 +56,7 @@ import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Menu from '../../../../common/components/Menu'
+import { XruiNameplateState } from '../../../../social/XruiNameplateState'
 import { clientContextParams } from '../../../../util/ClientContextState'
 import { UserMenus } from '../../../UserUISystem'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -95,6 +96,7 @@ export type Props = {
 const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useMutableState(RendererState)
+  const xruiNameplateState = useMutableState(XruiNameplateState)
   const audioState = useMutableState(AudioState)
   const avatarInputState = useMutableState(AvatarInputSettingsState)
   const selfUser = useMutableState(AuthState).user
@@ -224,6 +226,14 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
   const handleAutomaticCheckbox = () => {
     rendererState.automatic.set(!rendererState.automatic.value)
     logger.info({ event_name: `automatic_qp`, event_value: rendererState.automatic.value })
+  }
+
+  const handleXruiNameplateCheckbox = () => {
+    xruiNameplateState.isVisible.set(!xruiNameplateState.isVisible.value)
+  }
+
+  const handleXruiNameplateTriggerDistance = (value) => {
+    xruiNameplateState.triggerDistance.set(value)
   }
 
   return (
@@ -509,7 +519,6 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               label={t('user:usermenu.setting.lbl-automatic')}
             />
           </div>
-
           {rendererState.useShadows.value && (
             <SelectInput
               label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
@@ -522,6 +531,22 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
                   event_value: `${event}px`
                 })
               }}
+            />
+          )}
+          <Checkbox
+            onChange={handleXruiNameplateCheckbox}
+            checked={xruiNameplateState.isVisible.value}
+            label={t('user:usermenu.setting.lbl-isVisible')}
+          />
+          {xruiNameplateState.isVisible.value && (
+            <Slider
+              max={100}
+              min={0}
+              step={0.2}
+              value={xruiNameplateState.triggerDistance.value}
+              onChange={handleXruiNameplateTriggerDistance}
+              onRelease={() => {}}
+              label={t('user:usermenu.setting.lbl-triggerDistance')}
             />
           )}
         </>
