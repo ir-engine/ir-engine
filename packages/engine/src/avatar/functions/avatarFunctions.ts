@@ -121,7 +121,7 @@ export const setAvatarAnimations = (entity: Entity) => {
         if (!vrmBone) continue
         const targetEntity = targetRigMap[vrmBone]
         if (!targetEntity) continue
-
+        //todo figure out why using track id causes retargeter artifacting despite no dupes
         track.name = getComponent(targetEntity, UUIDComponent) + track.name.substring(track.name.lastIndexOf('.'))
       }
       animationClips.push(newClip)
