@@ -74,7 +74,7 @@ import { AvatarAnimationComponent, AvatarRigComponent, createVRM } from '../comp
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
-import { retargetAnimationClip } from '../functions/retargetMixamoRig'
+import { normalizeAnimationClips } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AnimationSystem } from './AnimationSystem'
@@ -367,10 +367,7 @@ const AnimationLoader = () => {
        * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
        * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
        */
-      for (const clip of clips!) {
-        retargetAnimationClip(clip, entity)
-        console.log('retargeting clip', clip)
-      }
+      normalizeAnimationClips(entity)
       /** @todo handle avatar animation clips generically */
       const run = AnimationClip.findByName(clips ?? [], runClipName)
       const walk = AnimationClip.findByName(clips ?? [], walkClipName)

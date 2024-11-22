@@ -23,22 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBone, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
 
 import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { UUIDComponent } from '@ir-engine/ecs'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { AnimationState } from '../AnimationManager'
-import { AnimationComponent, getTrackId } from '../components/AnimationComponent'
+import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { retargetAnimationClips } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -104,30 +104,10 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
 
 export const setAvatarAnimations = (entity: Entity) => {
   const manager = getState(AnimationState)
-  const targetRigMap = getComponent(entity, AvatarRigComponent).bonesToEntities
   const loadedAnimationEntities = Object.values(manager.loadedAnimations)
   const animationClips = [] as AnimationClip[]
-
   for (const animationEntity of loadedAnimationEntities) {
-    const clips = getComponent(animationEntity, AnimationComponent).animations
-    const sourceRigMap = getComponent(animationEntity, AvatarRigComponent).entitiesToBones
-    for (const clip of clips) {
-      const newClip = new AnimationClip(clip.name, clip.duration, [], clip.blendMode)
-      for (const track of clip.tracks) {
-        const sourceEntity = UUIDComponent.getEntityByUUID(
-          track.name.substring(0, track.name.lastIndexOf('.')) as EntityUUID
-        )
-        if (!sourceEntity) continue
-        const vrmBone = sourceRigMap[sourceEntity] as VRMHumanBoneName
-        if (!vrmBone) continue
-        const targetEntity = targetRigMap[vrmBone]
-        if (!targetEntity) continue
-        const newTrack = track.clone()
-        newTrack.name = getTrackId(targetEntity) + '.' + track.name.substring(track.name.lastIndexOf('.') + 1)
-        newClip.tracks.push(newTrack)
-      }
-      animationClips.push(newClip)
-    }
+    animationClips.push(...retargetAnimationClips(animationEntity, entity))
   }
   setComponent(entity, AnimationComponent, {
     animations: animationClips,

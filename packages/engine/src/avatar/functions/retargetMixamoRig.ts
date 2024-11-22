@@ -23,79 +23,91 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AnimationClip, KeyframeTrack, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three'
+import { AnimationClip, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three'
 
 import { Entity, EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { getHips, mixamoVRMRigMap } from '../AvatarBoneMatching'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { getHips } from '../AvatarBoneMatching'
+import { AnimationComponent, getTrackId } from '../components/AnimationComponent'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()
 const _quatA = new Quaternion()
 const _scale = new Vector3()
 
-/**Retargets an animation clip into normalized bone space for use with any T-Posed normalized humanoid rig
- * @todo refactor to use ecs
+/**Converts an animation clip to normalized bone space for use with any T-Posed normalized humanoid rig
  */
-export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) => {
+export const normalizeAnimationClips = (gltfEntity: Entity) => {
   const hips = getHips(gltfEntity)
   if (!hips) return
-
   const hipsPositionScale = TransformComponent.getWorldScale(hips, _scale).y
   getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
-  for (let i = 0; i < clip.tracks.length; i++) {
-    const track = clip.tracks[i]
-    const trackSplitted = track.name.lastIndexOf('.')
-    const rigNodeName = track.name.slice(0, trackSplitted)
-    const rigNodeEntity = UUIDComponent.getEntityByUUID(rigNodeName as EntityUUID)
-    if (!rigNodeEntity) continue
 
-    // Store rotations of rest-pose
-    TransformComponent.getWorldRotation(rigNodeEntity, restRotationInverse).invert()
-    const parentEntity = getComponent(rigNodeEntity, EntityTreeComponent).parentEntity
-    TransformComponent.getWorldRotation(parentEntity, parentRestWorldRotation)
+  for (const clip of getComponent(gltfEntity, AnimationComponent).animations)
+    for (let i = 0; i < clip.tracks.length; i++) {
+      const track = clip.tracks[i]
+      const trackSplitted = track.name.lastIndexOf('.')
+      const rigNodeName = track.name.slice(0, trackSplitted)
+      const rigNodeEntity = UUIDComponent.getEntityByUUID(rigNodeName as EntityUUID)
+      if (!rigNodeEntity) continue
 
-    if (track instanceof QuaternionKeyframeTrack) {
-      // Retarget rotation of mixamoRig to NormalizedBone
-      for (let i = 0; i < track.values.length; i += 4) {
-        const flatQuaternion = track.values.slice(i, i + 4)
+      // Store rotations of rest-pose
+      TransformComponent.getWorldRotation(rigNodeEntity, restRotationInverse).invert()
+      const parentEntity = getComponent(rigNodeEntity, EntityTreeComponent).parentEntity
+      TransformComponent.getWorldRotation(parentEntity, parentRestWorldRotation)
 
-        _quatA.fromArray(flatQuaternion)
+      if (track instanceof QuaternionKeyframeTrack) {
+        // Retarget rotation of mixamoRig to NormalizedBone
+        for (let i = 0; i < track.values.length; i += 4) {
+          const flatQuaternion = track.values.slice(i, i + 4)
 
-        _quatA.premultiply(parentRestWorldRotation).multiply(restRotationInverse)
+          _quatA.fromArray(flatQuaternion)
 
-        _quatA.toArray(flatQuaternion)
+          _quatA.premultiply(parentRestWorldRotation).multiply(restRotationInverse)
 
-        flatQuaternion.forEach((v, index) => {
-          track.values[index + i] = v
+          _quatA.toArray(flatQuaternion)
+
+          flatQuaternion.forEach((v, index) => {
+            track.values[index + i] = v
+          })
+        }
+      } else if (track instanceof VectorKeyframeTrack) {
+        const isPosition = track.name.includes('position')
+        track.values.forEach((v, index) => {
+          track.values[index] = isPosition ? v * hipsPositionScale : v
         })
       }
-    } else if (track instanceof VectorKeyframeTrack) {
-      const isPosition = track.name.includes('position')
-      track.values.forEach((v, index) => {
-        track.values[index] = isPosition ? v * hipsPositionScale : v
-      })
     }
-  }
 }
 
-/**Binds a mixamo animation clip to the VRM bone schema */
-export const bindAnimationClipFromMixamo = (clip: AnimationClip) => {
-  const tracks = [] as KeyframeTrack[]
-  for (let i = 0; i < clip.tracks.length; i++) {
-    const trackClone = clip.tracks[i].clone()
-    const trackSplitted = trackClone.name.split('.')
-    const mixamoPrefix = trackSplitted[0].includes('mixamorig') ? '' : 'mixamorig'
-    let mixamoBoneName = mixamoPrefix + trackSplitted[0]
-    mixamoBoneName = mixamoBoneName.replace(':', '')
-    const vrmBoneName = mixamoVRMRigMap[mixamoBoneName]
-    if (!vrmBoneName) continue
-    const propertyName = trackSplitted[1]
-    trackClone.name = `${vrmBoneName}.${propertyName}`
-    tracks.push(trackClone)
+/**Copies and retargets animation clips from the source to the target rig using the VRM schema
+ */
+export const retargetAnimationClips = (sourceAnimationEntity: Entity, targetAnimationEntity: Entity) => {
+  const targetRigMap = getComponent(targetAnimationEntity, AvatarRigComponent).bonesToEntities
+
+  const animationClips = [] as AnimationClip[]
+  const clips = getComponent(sourceAnimationEntity, AnimationComponent).animations
+  const sourceRigMap = getComponent(sourceAnimationEntity, AvatarRigComponent).entitiesToBones
+  for (const clip of clips) {
+    const newClip = new AnimationClip(clip.name, clip.duration, [], clip.blendMode)
+    for (const track of clip.tracks) {
+      const sourceEntity = UUIDComponent.getEntityByUUID(
+        track.name.substring(0, track.name.lastIndexOf('.')) as EntityUUID
+      )
+      if (!sourceEntity) continue
+      const vrmBone = sourceRigMap[sourceEntity] as VRMHumanBoneName
+      if (!vrmBone) continue
+      const targetEntity = targetRigMap[vrmBone]
+      if (!targetEntity) continue
+      const newTrack = track.clone()
+      newTrack.name = getTrackId(targetEntity) + '.' + track.name.substring(track.name.lastIndexOf('.') + 1)
+      newClip.tracks.push(newTrack)
+    }
+    animationClips.push(newClip)
   }
-  clip.tracks = tracks.length ? tracks : clip.tracks
-  return clip
+  return animationClips
 }

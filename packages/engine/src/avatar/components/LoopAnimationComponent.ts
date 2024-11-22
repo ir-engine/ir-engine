@@ -28,6 +28,7 @@ import {
   AdditiveAnimationBlendMode,
   AnimationAction,
   AnimationClip,
+  AnimationMixer,
   LoopOnce,
   LoopPingPong,
   LoopRepeat,
@@ -36,6 +37,7 @@ import {
 
 import {
   defineComponent,
+  getComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -47,7 +49,8 @@ import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { normalizeAnimationClips, retargetAnimationClips } from '../functions/retargetMixamoRig'
 import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
@@ -111,6 +114,7 @@ export const LoopAnimationComponent = defineComponent({
         removeComponent(entity, AvatarRigComponent)
       else if (loopAnimationComponent.useVRM.value && !hasComponent(entity, AvatarRigComponent)) {
         setComponent(entity, AvatarRigComponent)
+        setComponent(entity, AnimationComponent, { mixer: new AnimationMixer(getComponent(entity, GroupComponent)[0]) })
       }
     }, [loopAnimationComponent.useVRM.value])
 
@@ -195,25 +199,25 @@ export const LoopAnimationComponent = defineComponent({
       if (
         (!animationPackGLTF[0].value && loopAnimationComponent.animationPack.value !== '') ||
         !animComponent?.animations.value ||
-        // gltfComponent?.progress.value !== 100 ||
         (loopAnimationComponent.animationPack.value !== '' &&
           lastAnimationPack.value === loopAnimationComponent.animationPack.value) ||
         loopAnimationComponent.animationPack.value === ''
       )
         return
 
+      if (!hasComponent(animationPackGLTF[1], AvatarRigComponent)) {
+        setComponent(animationPackGLTF[1], AvatarRigComponent)
+        return
+      }
+
       animComponent.mixer.time.set(0)
       animComponent.mixer.value.stopAllAction()
       const animations = animationPackGLTF[0].get(NO_PROXY) as AnimationClip[]
-      if (animations) {
-        for (let i = 0; i < animations.length; i++) {
-          retargetAnimationClip(animations[i], animationPackGLTF[1])
-          bindAnimationClipFromMixamo(animations[i])
-        }
-        animComponent.animations.set(animations)
-      }
+      normalizeAnimationClips(animationPackGLTF[1])
+      const retargetedClips = retargetAnimationClips(animationPackGLTF[1], entity)
+      animComponent.animations.set(retargetedClips)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
-    }, [animationPackGLTF])
+    }, [animationPackGLTF, animComponent])
 
     useEffect(() => {
       if (!animComponent?.animations) return
