@@ -471,12 +471,6 @@ const useGLTFDocument = (entity: Entity) => {
   useGLTFResource(url, entity)
 
   useEffect(() => {
-    return () => {
-      dispatchAction(GLTFSnapshotAction.unload({ source }))
-    }
-  }, [source])
-
-  useEffect(() => {
     if (!url) {
       addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
@@ -529,6 +523,7 @@ const useGLTFDocument = (entity: Entity) => {
     )
 
     return () => {
+      dispatchAction(GLTFSnapshotAction.unload({ source }))
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
       state.body.set(null)
