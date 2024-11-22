@@ -143,6 +143,12 @@ export const compressImage = async (properties: KTX2EncodeArguments) => {
   return data
 }
 
+export const ifFileExist = async (projectName: string, file: File) => {
+  const resourcePath = `projects/${projectName}/assets/${file.name}`
+  const exists = await API.instance.service(fileBrowserPath).get(resourcePath)
+  return exists
+}
+
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
