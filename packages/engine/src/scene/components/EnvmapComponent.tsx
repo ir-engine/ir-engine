@@ -46,6 +46,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -107,10 +108,16 @@ export const EnvmapComponent = defineComponent({
     )
 
     const probeQuery = useQuery([ReflectionProbeComponent])
+    useEffect(() => {
+      return () => {
+        component.envmap.set(null)
+      }
+    }, [])
 
     useEffect(() => {
-      if (component.type.value !== EnvMapSourceType.Skybox) return
-      component.envmap.set(null)
+      if (component.type.value === EnvMapSourceType.Skybox || component.type.value === EnvMapSourceType.None) {
+        component.envmap.set(null)
+      }
       /** Setting the value from the skybox can be found in EnvironmentSystem */
     }, [component.type.value])
 
@@ -186,11 +193,15 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       if (!component.envmap.value) return
+      const mesh = getOptionalComponent(entity, MeshComponent)
+      mesh ? updateEnvMap(mesh, component.envmap.value as Texture) : null
       for (const childEntity of childrenMesh) {
         const childMesh = getComponent(childEntity, MeshComponent)
         updateEnvMap(childMesh, component.envmap.value as Texture)
       }
       return () => {
+        const mesh = getOptionalComponent(entity, MeshComponent)
+        mesh ? updateEnvMap(mesh, null) : null
         for (const childEntity of childrenMesh) {
           const childMesh = getComponent(childEntity, MeshComponent)
           updateEnvMap(childMesh, null)
@@ -199,6 +210,8 @@ export const EnvmapComponent = defineComponent({
     }, [childrenMesh, component.envmap.value])
 
     useEffect(() => {
+      const mesh = getOptionalComponent(entity, MeshComponent)
+      mesh ? updateEnvMapIntensity(mesh, component.envMapIntensity.value) : null
       for (const childEntity of childrenMesh) {
         const childMesh = getComponent(childEntity, MeshComponent)
         updateEnvMapIntensity(childMesh, component.envMapIntensity.value)
