@@ -414,18 +414,6 @@ export const connectToNetwork = async (
     dataProducer.send(encode([fromPeerIndex, data]))
   }
 
-  // we can assume that the host peer is always first to connect
-
-  // dispatchAction(
-  //   NetworkActions.peerJoined({
-  //     $network: network.id,
-  //     peerID: hostPeerID,
-  //     peerIndex: 0,
-  //     userID: instanceID as any as UserID
-  //   })
-  // )
-
-  // NetworkPeerFunctions.createPeer(network, hostPeerID, 0, instanceID as any as UserID)
   network.transports[hostPeerID] = {
     message,
     buffer

@@ -43,10 +43,10 @@ export const createMockNetwork = (
   if (hostPeerID && hostUserID) {
     dispatchAction(
       NetworkActions.peerJoined({
+        $network: network.id,
         peerID: hostPeerID,
         peerIndex: 0,
-        userID: hostUserID,
-        $network: network.id
+        userID: hostUserID
       })
     )
     applyIncomingActions()

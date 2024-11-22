@@ -45,7 +45,9 @@ export async function checkPeerHeartbeat(network: SocketWebRTCServerNetwork): Pr
       if (network.transports[peerID]) network.transports[peerID]!.end!()
       dispatchAction(
         NetworkActions.peerLeft({
+          $cache: true,
           $network: network.id,
+          $topic: network.topic,
           peerID,
           userID: client.userId
         })

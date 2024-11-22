@@ -155,6 +155,8 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
     dispatchAction(
       NetworkActions.peerJoined({
         $network: network.id,
+        $topic: network.topic,
+        $to: Engine.instance.store.peerID,
         peerID: Engine.instance.store.peerID,
         peerIndex: joinResponse.value.index,
         userID: Engine.instance.store.userID
@@ -166,6 +168,8 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
       dispatchAction(
         NetworkActions.peerLeft({
           $network: network.id,
+          $topic: network.topic,
+          $to: Engine.instance.store.peerID,
           peerID: Engine.instance.store.peerID,
           userID: Engine.instance.store.userID
         })
@@ -274,6 +278,8 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
     dispatchAction(
       NetworkActions.peerJoined({
         $network: network.id,
+        $topic: network.topic,
+        $to: Engine.instance.store.peerID,
         peerID: props.peerID,
         peerIndex: props.peerIndex,
         userID: props.userID
@@ -335,6 +341,8 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       dispatchAction(
         NetworkActions.peerLeft({
           $network: network.id,
+          $topic: network.topic,
+          $to: Engine.instance.store.peerID,
           peerID: props.peerID,
           userID: props.userID
         })

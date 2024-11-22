@@ -175,21 +175,25 @@ export const useNetwork = (props: { online?: boolean }) => {
 
     NetworkState.worldNetworkState.ready.set(true)
 
+    const network = NetworkState.worldNetwork as Network
+
     dispatchAction(
       NetworkActions.peerJoined({
         $network: networkID,
+        $topic: network.topic,
+        $to: Engine.instance.store.peerID,
         peerID,
         peerIndex,
         userID
       })
     )
 
-    const network = NetworkState.worldNetwork as Network
-
     return () => {
       dispatchAction(
         NetworkActions.peerLeft({
           $network: networkID,
+          $topic: network.topic,
+          $to: Engine.instance.store.peerID,
           peerID,
           userID
         })

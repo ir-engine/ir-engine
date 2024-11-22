@@ -200,7 +200,9 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   dispatchAction(
     NetworkActions.peerJoined({
+      $cache: true,
       $network: network.id,
+      $topic: network.topic,
       peerID: Engine.instance.store.peerID,
       peerIndex: 0,
       userID: hostId
@@ -446,7 +448,9 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
     network.transports[matchingPeer.peerID]?.end?.()
     dispatchAction(
       NetworkActions.peerLeft({
+        $cache: true,
         $network: network.id,
+        $topic: network.topic,
         peerID: matchingPeer.peerID,
         userID: matchingPeer.userId
       })

@@ -738,6 +738,8 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Net
       for (const peerID of activePlayback.peerIDs) {
         dispatchAction(
           NetworkActions.peerLeft({
+            $cache: true,
+            $topic: network.topic,
             $network: network.id,
             peerID,
             userID: userId

@@ -242,7 +242,9 @@ export const handleConnectingPeer = async (
 
   dispatchAction(
     NetworkActions.peerJoined({
+      $cache: true,
       $network: network.id,
+      $topic: network.topic,
       peerID,
       peerIndex: instanceAttendance.peerIndex,
       userID: userId
@@ -411,7 +413,9 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     }
     dispatchAction(
       NetworkActions.peerLeft({
+        $cache: true,
         $network: network.id,
+        $topic: network.topic,
         peerID,
         userID: userId
       })
