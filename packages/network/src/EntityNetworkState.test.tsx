@@ -54,27 +54,15 @@ describe('EntityNetworkState', () => {
     return destroyEngine()
   })
 
-  describe('spawnObject', () => {
+  describe('should spawn entity', () => {
     it('should spawn object owned by host as host', async () => {
       const hostUserId = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      const userId = 'user id' as UserID
-      const peerID2 = 'peer id 2' as PeerID
-
       Engine.instance.store.userID = hostUserId
       const network = NetworkState.worldNetwork as Network
-
-      dispatchAction(
-        NetworkActions.peerJoined({
-          peerID: peerID2,
-          peerIndex: 1,
-          userID: userId,
-          $network: network.id
-        })
-      )
 
       const objNetId = 3 as NetworkId
 
@@ -320,6 +308,118 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID3)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
+    })
+  })
+
+  describe('should remove entity', () => {
+    it('should remove entity owned by host as host', async () => {
+      const hostUserId = 'host user' as UserID
+      const hostPeerID = Engine.instance.store.peerID
+
+      createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
+
+      Engine.instance.store.userID = hostUserId
+      const network = NetworkState.worldNetwork as Network
+
+      const objNetId = 3 as NetworkId
+
+      dispatchAction(
+        WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
+          ownerID: network.hostUserID!,
+          networkId: objNetId,
+          $topic: NetworkTopics.world,
+          $peer: hostPeerID,
+          entityUUID: 'entity' as EntityUUID
+        })
+      )
+
+      applyIncomingActions()
+
+      const networkObjectQuery = defineQuery([NetworkObjectComponent])
+      const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
+
+      let networkObjectEntities = networkObjectQuery()
+      let networkObjectOwnedEntities = networkObjectOwnedQuery()
+
+      assert.equal(networkObjectEntities.length, 1)
+      assert.equal(networkObjectOwnedEntities.length, 1)
+
+      dispatchAction(
+        WorldNetworkAction.destroyEntity({
+          entityUUID: 'entity' as EntityUUID,
+          $topic: NetworkTopics.world
+        })
+      )
+
+      applyIncomingActions()
+
+      networkObjectEntities = networkObjectQuery()
+      networkObjectOwnedEntities = networkObjectOwnedQuery()
+
+      assert.equal(networkObjectEntities.length, 0)
+      assert.equal(networkObjectOwnedEntities.length, 0)
+    })
+
+    it('should remove entity owned by host as other user', async () => {
+      const hostUserId = 'host user' as UserID
+      const hostPeerID = 'host peer' as PeerID
+
+      createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
+
+      const userId = 'user id' as UserID
+      const peerID2 = Engine.instance.store.peerID
+
+      Engine.instance.store.userID = userId
+      const network = NetworkState.worldNetwork as Network
+
+      dispatchAction(
+        NetworkActions.peerJoined({
+          peerID: peerID2,
+          peerIndex: 1,
+          userID: userId,
+          $network: network.id
+        })
+      )
+
+      const objNetId = 3 as NetworkId
+
+      dispatchAction(
+        WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
+          ownerID: network.hostUserID!,
+          networkId: objNetId,
+          $topic: NetworkTopics.world,
+          $peer: hostPeerID,
+          entityUUID: 'entity' as EntityUUID
+        })
+      )
+
+      applyIncomingActions()
+
+      const networkObjectQuery = defineQuery([NetworkObjectComponent])
+      const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
+
+      let networkObjectEntities = networkObjectQuery()
+      let networkObjectOwnedEntities = networkObjectOwnedQuery()
+
+      assert.equal(networkObjectEntities.length, 1)
+      assert.equal(networkObjectOwnedEntities.length, 0)
+
+      dispatchAction(
+        WorldNetworkAction.destroyEntity({
+          entityUUID: 'entity' as EntityUUID,
+          $topic: NetworkTopics.world
+        })
+      )
+
+      applyIncomingActions()
+
+      networkObjectEntities = networkObjectQuery()
+      networkObjectOwnedEntities = networkObjectOwnedQuery()
+
+      assert.equal(networkObjectEntities.length, 0)
+      assert.equal(networkObjectOwnedEntities.length, 0)
     })
   })
 

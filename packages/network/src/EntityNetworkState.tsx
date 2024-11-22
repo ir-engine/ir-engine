@@ -42,6 +42,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
+import { NetworkPeerState } from './NetworkPeerState'
 import { NetworkState, SceneUser } from './NetworkState'
 
 export const EntityNetworkState = defineState({
@@ -106,7 +107,8 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const ownerID = state.ownerId.value
   const isOwner = ownerID === SceneUser || ownerID === Engine.instance.userID
   const worldNetwork = useHookstate(NetworkState.worldNetworkState).value
-  const userConnected = !!worldNetwork?.users?.[ownerID] || isOwner
+  const networkPeerState = useMutableState(NetworkPeerState).value
+  const userConnected = (worldNetwork && networkPeerState[worldNetwork.id]?.users?.[ownerID]) ?? isOwner
 
   useLayoutEffect(() => {
     if (!userConnected) return

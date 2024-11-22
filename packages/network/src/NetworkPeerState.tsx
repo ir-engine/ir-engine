@@ -84,7 +84,8 @@ export const NetworkPeerState = defineState({
       const userPeers = state[action.$network].users[userID]!
       const index = userPeers.value.indexOf(action.peerID)
       userPeers[index].set(none)
-      if (!userPeers.length) state[action.$network][userID].set(none)
+
+      if (!userPeers.length) state[action.$network].users[userID].set(none)
       if (!state[action.$network].peers.keys.length) state[action.$network].set(none)
     })
   }
