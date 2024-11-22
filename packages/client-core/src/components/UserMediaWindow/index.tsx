@@ -386,7 +386,8 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
 
-  useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
+  // @todo - currently this adds lots of systems unnecessarily
+  // useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
 
   useEffect(() => {
     videoElement.draggable = false
