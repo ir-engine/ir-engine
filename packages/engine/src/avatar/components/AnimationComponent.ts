@@ -35,7 +35,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
@@ -129,12 +128,9 @@ PropertyBinding.findNode = (root: Object3D, nodeName) => {
   /**Find the entity that corresponds to the nodeName.
    * Using getTrackId to allow reuse of the same track for identical hierarchies across different roots.
    */
-  //todo figure out why this causes retargeter artifacting despite no dupes
   const entity = childEntities.find(
     (entity) => getTrackId(entity) === nodeName.substring(nodeName.lastIndexOf('-') + 1)
   )
-  console.log('found ' + getComponent(entity!, NameComponent) + ' for node ' + nodeName)
-  // const entity = UUIDComponent.getEntityByUUID(nodeName as EntityUUID)
   if (!entity) {
     throw new Error('PropertyBinding: cannot find entity for node ' + nodeName)
   }
