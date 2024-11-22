@@ -50,6 +50,7 @@ import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import getLocalServerIp from '../../util/get-local-server-ip'
+import { InstanceParams } from '../instance/instance.class'
 
 const releaseRegex = /^([a-zA-Z0-9_-]+)-instanceserver/
 
@@ -768,13 +769,21 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         if (instanceId != null) {
           instance = await this.app.service(instancePath).get(instanceId)
         } else if (roomCode != null) {
-          const instances = (await this.app.service(instancePath).find({
+          const instanceQuery = {
             query: {
               roomCode,
               ended: false
             },
             paginate: false
-          })) as any as InstanceType[]
+          } as InstanceParams
+
+          // ensure that if we switch from p2p to non-p2p, we don't get a p2p instance
+          if (!config.instanceserver.p2pEnabled) {
+            instanceQuery.query!.ipAddress = {
+              $ne: 'null'
+            }
+          }
+          const instances = (await this.app.service(instancePath).find(instanceQuery)) as any as InstanceType[]
           instance = instances.length > 0 ? instances[0] : null
         }
 

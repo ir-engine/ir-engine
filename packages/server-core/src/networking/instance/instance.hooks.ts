@@ -39,6 +39,7 @@ import { LocationID, locationPath, LocationType } from '@ir-engine/common/src/sc
 
 import { channelPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
+import allowNullQuery from '../../hooks/allow-null-query'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'
@@ -180,6 +181,7 @@ export default {
       enableClientPagination(),
       discardQuery('search'),
       discardQuery('action'),
+      allowNullQuery('ipAddress'),
       sortByLocationName
     ],
     get: [],
