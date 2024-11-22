@@ -27,7 +27,6 @@ import {
   defineComponent,
   Entity,
   EntityUUID,
-  hasComponent,
   UndefinedEntity,
   useComponent,
   useEntityContext,
@@ -42,7 +41,6 @@ import { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent.ts'
 import {
-  getAncestorWithComponents,
   getTreeFromChildToAncestor,
   useAncestorWithComponents,
   useChildrenWithComponents
@@ -71,8 +69,22 @@ export const ColliderComponent = defineComponent({
     friction: S.Number(0.5),
     restitution: S.Number(0.5),
     collisionLayer: S.Enum(CollisionGroups, CollisionGroups.Default),
-    collisionMask: S.Number(DefaultCollisionMask)
+    collisionMask: S.Number(DefaultCollisionMask),
+    alignToMesh: S.Bool(false),
+    applyToChildMeshes: S.Bool(false),
+
+    //shape specific parameters
+    centerOffset: S.Vec3({ x: 0, y: 0, z: 0 }),
+    boxSize: S.Vec3({ x: 1, y: 1, z: 1 }),
+    radius: S.Number(0.5),
+    height: S.Number(1)
   }),
+
+  // alignToMesh: (colliderEntity:Entity)=> {
+  //   const colliderComponent = useOptionalComponent(colliderEntity, ColliderComponent)
+  //   if (!colliderComponent) return
+  //   colliderComponent.alignToMesh.set(colliderComponent.alignToMesh.value + 1)
+  // },
 
   reactor: function () {
     const entity = useEntityContext()
@@ -91,14 +103,15 @@ export const ColliderComponent = defineComponent({
     useLayoutEffect(() => {
       if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
 
-      const entitiesArray =
-        !childMeshEntities.includes(entity) && hasComponent(entity, MeshComponent)
+      const entitiesArray = component.applyToChildMeshes.value
+        ? !childMeshEntities.includes(entity)
           ? ([...childMeshEntities, entity] as Entity[])
           : childMeshEntities
+        : [entity]
 
       if (nestedCollidersState[uuid.value] && nestedCollidersState[uuid.value].keys) {
         //if a collider has been removed, find the leftover colliders from the state and remove them
-        if (nestedCollidersState[uuid.value].keys.length > entitiesArray.length) {
+        if (nestedCollidersState[uuid.value].keys.length >= entitiesArray.length) {
           for (const item of Array.from(nestedCollidersState[uuid.value].keys)) {
             const colliderEntity = parseInt(item) as Entity
             if (!entitiesArray.includes(colliderEntity)) {
@@ -115,11 +128,11 @@ export const ColliderComponent = defineComponent({
 
       forceUpdateMatrices(entity)
       for (const childMeshEntity of entitiesArray) {
-        if (
-          getAncestorWithComponents(childMeshEntity, [ColliderComponent]) !== entity ||
-          !hasComponent(childMeshEntity, MeshComponent)
-        )
-          continue
+        // if (
+        //   getAncestorWithComponents(childMeshEntity, [ColliderComponent]) !== entity ||
+        //   !hasComponent(childMeshEntity, MeshComponent)
+        // )
+        //   continue
 
         if (
           nestedCollidersState[uuid.value] &&
@@ -151,7 +164,19 @@ export const ColliderComponent = defineComponent({
       }
 
       return () => {}
-    }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale, childMeshEntities])
+    }, [
+      physicsWorld,
+      component.shape,
+      !!rigidbodyComponent?.initialized?.value,
+      transform.scale,
+      childMeshEntities,
+      component.alignToMesh,
+      component.centerOffset,
+      component.boxSize,
+      component.radius,
+      component.height,
+      component.applyToChildMeshes
+    ])
 
     useEffect(() => {
       if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
@@ -166,21 +191,6 @@ export const ColliderComponent = defineComponent({
         hasCollider.set(false)
       }
     }, [])
-    // useLayoutEffect(() => {
-    //   if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
-    //
-    //   const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
-    //
-    //   if (!colliderDesc) return
-    //
-    //   Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
-    //   hasCollider.set(true)
-    //
-    //   return () => {
-    //     Physics.removeCollider(physicsWorld, entity)
-    //     hasCollider.set(false)
-    //   }
-    // }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale, childMeshEntities])
 
     useLayoutEffect(() => {
       if (!physicsWorld) return

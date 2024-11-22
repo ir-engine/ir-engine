@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
-import { useComponent } from '@ir-engine/ecs'
-import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { hasComponent, SerializedComponentType, useComponent } from '@ir-engine/ecs'
+import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
@@ -34,6 +34,8 @@ import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/comp
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiMinimize2 } from 'react-icons/fi'
+import { Vector3 } from 'three'
+import { Checkbox } from '../../../../index.ts'
 import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
@@ -52,6 +54,31 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
   const colliderComponent = useComponent(props.entity, ColliderComponent)
 
   const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
+  const shape = colliderComponent.shape.value
+
+  const isMeshOrConvexHull =
+    colliderComponent.shape.value === Shapes.Mesh || colliderComponent.shape.value === Shapes.ConvexHull
+  const validRootMesh = hasComponent(props.entity, MeshComponent)
+  const validChildMeshes = childMeshEntities.length !== 0 && colliderComponent.applyToChildMeshes.value
+
+  const showMeshError = isMeshOrConvexHull && !(validChildMeshes || validRootMesh)
+
+  const sanitzeAndCommitNumber = <K extends keyof SerializedComponentType<typeof ColliderComponent>>(
+    value: number,
+    propName: K
+  ) => {
+    commitProperty(ColliderComponent, propName)(Math.max(0, value) as any)
+  }
+
+  const sanitizeAndCommitVector3 = <K extends keyof SerializedComponentType<typeof ColliderComponent>>(
+    value: Vector3,
+    propName: K
+  ) => {
+    value.x = Math.max(0, value.x)
+    value.y = Math.max(0, value.y)
+    value.z = Math.max(0, value.z)
+    commitProperty(ColliderComponent, propName)(value as any)
+  }
 
   return (
     <NodeEditor
@@ -60,9 +87,6 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       description={t('editor:properties.collider.description')}
       Icon={ColliderComponentEditor.iconComponent}
     >
-      {childMeshEntities.length == 0 && ( //<ErrorPopup className="ml-5 text-red-400" visibleDuration={10000}  >{ t('editor:properties.collider.warn-missing-mesh') }  </ErrorPopup>
-        <Text className="ml-5 text-red-400">{t('editor:properties.collider.warn-missing-mesh')}</Text>
-      )}
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput
           options={shapeTypeOptions}
@@ -70,8 +94,72 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
           onChange={commitProperty(ColliderComponent, 'shape')}
         />
       </InputGroup>
+      <InputGroup label={t('editor:properties.collider.lbl-applyToChildMeshes')}>
+        <Checkbox
+          checked={colliderComponent.applyToChildMeshes.value}
+          onChange={commitProperty(ColliderComponent, 'applyToChildMeshes')}
+        />
+      </InputGroup>
+      {showMeshError && (
+        <Text className="ml-5 text-red-400">
+          {colliderComponent.applyToChildMeshes.value
+            ? t('editor:properties.collider.warn-missing-mesh-magic')
+            : t('editor:properties.collider.warn-missing-mesh-root')}
+        </Text>
+      )}
+      <InputGroup name="CenterOffset" label={t('editor:properties.collider.lbl-centerOffset')}>
+        <Vector3Input
+          value={colliderComponent.centerOffset.value}
+          onChange={commitProperty(ColliderComponent, 'centerOffset')}
+        />
+      </InputGroup>
+      {shape === Shapes.Box && (
+        <InputGroup name="BoxSize" label={t('editor:properties.collider.lbl-boxSize')}>
+          <Vector3Input
+            value={colliderComponent.boxSize.value}
+            onChange={(value) => sanitizeAndCommitVector3(value, 'boxSize')}
+          />
+        </InputGroup>
+      )}
+      {(shape === Shapes.Sphere || shape === Shapes.Capsule || shape === Shapes.Cylinder) && (
+        <InputGroup name="Radius" label={t('editor:properties.collider.lbl-radius')}>
+          <NumericInput
+            value={colliderComponent.radius.value}
+            onChange={(value) => sanitzeAndCommitNumber(value, 'radius')}
+          />
+        </InputGroup>
+      )}
+      {(shape === Shapes.Capsule || shape === Shapes.Cylinder) && (
+          <InputGroup name="Radius" label={t('editor:properties.collider.lbl-radius')}>
+            <NumericInput
+              value={colliderComponent.radius.value}
+              onChange={(value) => sanitzeAndCommitNumber(value, 'radius')}
+            />
+          </InputGroup>
+        ) && (
+          <InputGroup name="Height" label={t('editor:properties.collider.lbl-height')}>
+            <NumericInput
+              value={colliderComponent.height.value}
+              onChange={(value) => sanitzeAndCommitNumber(value, 'height')}
+            />
+          </InputGroup>
+        )}
+
+      {/*<Button*/}
+      {/*  title={t('editor:properties.collider.lbl-alignColliderToMesh')}*/}
+      {/*  startIcon={<HiPlus />}*/}
+      {/*  className="text-sm text-[#FFFFFF]"*/}
+      {/*  onClick={() => {*/}
+      {/*    */}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  {t('editor:properties.collider.lbl-alignColliderToMesh')}*/}
+      {/*</Button>*/}
       <InputGroup name="Mass" label={t('editor:properties.collider.lbl-mass')}>
-        <NumericInput value={colliderComponent.mass.value} onChange={commitProperty(ColliderComponent, 'mass')} />
+        <NumericInput
+          value={colliderComponent.mass.value}
+          onChange={(value) => sanitzeAndCommitNumber(value, 'mass')}
+        />
       </InputGroup>
       <InputGroup name="Mass Center" label={t('editor:properties.collider.lbl-massCenter')} className="w-auto">
         <Vector3Input

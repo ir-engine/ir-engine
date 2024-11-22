@@ -449,6 +449,12 @@ function createColliderDesc(
     ColliderComponent
   )
 
+  const useMesh =
+    (colliderEntityOverride !== UndefinedEntity && colliderComponent.applyToChildMeshes) ||
+    (colliderEntityOverride === UndefinedEntity && colliderComponent.alignToMesh) ||
+    colliderComponent.shape === Shapes.Mesh ||
+    colliderComponent.shape === Shapes.ConvexHull
+
   let shape: ShapeType
 
   switch (colliderComponent.shape) {
@@ -495,10 +501,19 @@ function createColliderDesc(
 
           const size = new Vector3()
           box.getSize(size)
+          colliderComponent.boxSize.set(size.x, size.y, size.z)
           size.multiply(scale).multiplyScalar(0.5)
+
+          //@todo: need to have a check for when we are refreshing the mesh size rather than just "if(mesh)" then we can update boxSize when it runs
+
           colliderDesc = ColliderDesc.cuboid(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z))
         } else {
-          colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x * 0.5), Math.abs(scale.y * 0.5), Math.abs(scale.z * 0.5))
+          const boxSize = colliderComponent.boxSize
+          colliderDesc = ColliderDesc.cuboid(
+            Math.abs(boxSize.x * scale.x * 0.5),
+            Math.abs(boxSize.y * scale.y * 0.5),
+            Math.abs(boxSize.z * scale.z * 0.5)
+          )
         }
       }
       break
@@ -509,7 +524,9 @@ function createColliderDesc(
         const boundingSphere = mesh?.geometry?.boundingSphere ?? new Sphere(Vector3_Zero, scale.x)
         if (boundingSphere) {
           meshCenterOffset.copy(boundingSphere.center)
-          colliderDesc = ColliderDesc.ball(boundingSphere.radius * Math.max(scale.x, scale.y, scale.z))
+          const calculatedRadius = boundingSphere.radius * Math.max(scale.x, scale.y, scale.z)
+          colliderComponent.radius = calculatedRadius
+          colliderDesc = ColliderDesc.ball(calculatedRadius)
         } else {
           colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
         }
@@ -525,10 +542,14 @@ function createColliderDesc(
           mesh?.geometry?.boundingBox.getCenter(meshCenterOffset)
           const boxSize = mesh?.geometry?.boundingBox.getSize(new Vector3())
           //calculate diagonal of box using pythagorean theorem
+          const calcRadius = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+          colliderComponent.radius = calcRadius
+          colliderComponent.height = boxSize.y
+          //includes scale, whereas component radius does not when being driven by mesh
           const diagonal = Math.sqrt(Math.pow((boxSize.x / 2) * scale.x, 2) + Math.pow((boxSize.z / 2) * scale.z, 2))
           colliderDesc = ColliderDesc.capsule((boxSize.y / 2) * scale.y, diagonal)
         } else {
-          colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
+          colliderDesc = ColliderDesc.capsule(colliderComponent.height / 2, Math.abs(colliderComponent.radius))
         }
       } else {
         colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
@@ -596,7 +617,7 @@ function createColliderDesc(
     TransformComponent.getMatrixRelativeToEntity(entity, rootEntity, matrixRelativeToRoot)
     matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
   }
-  positionRelativeToRoot.add(meshCenterOffset)
+  positionRelativeToRoot.add(meshCenterOffset).add(colliderComponent.centerOffset)
 
   const rootWorldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
   positionRelativeToRoot.multiply(rootWorldScale)
