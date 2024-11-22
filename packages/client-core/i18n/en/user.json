@@ -191,7 +191,9 @@
       "client": "Client",
       "studio": "Studio",
       "admin": "Admin",
-      "windowsPerformanceHelp": "Windows OS Performance"
+      "windowsPerformanceHelp": "Windows OS Performance",
+      "lbl-isVisible": "Show User NamePlate",
+      "lbl-triggerDistance": "NamePlate Trigger Distance"
     },
     "profile": {
       "lbl-profile": "Profile",
@@ -408,6 +410,7 @@
     "exitFullScreen": "Exit FullScreen",
     "hide": "Hide",
     "show": "Show"
+    
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",
