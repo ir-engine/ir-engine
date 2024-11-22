@@ -36,7 +36,7 @@ import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems
 import { UUIDComponent } from '@ir-engine/ecs'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { AnimationState } from '../AnimationManager'
-import { AnimationComponent, getTrackId } from '../components/AnimationComponent'
+import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 
@@ -103,14 +103,8 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
 }
 
 export const setAvatarAnimations = (entity: Entity) => {
-  const vrm = getComponent(entity, AvatarRigComponent).vrm
   const manager = getState(AnimationState)
-  for (const boneName of VRMHumanBoneList) {
-    const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
-    if (bone) bone.name = boneName
-  }
   const targetRigMap = getComponent(entity, AvatarRigComponent).bonesToEntities
-  console.log(entity, targetRigMap)
   const loadedAnimationEntities = Object.values(manager.loadedAnimations)
   const animationClips = [] as AnimationClip[]
   for (const animationEntity of loadedAnimationEntities) {
@@ -124,13 +118,11 @@ export const setAvatarAnimations = (entity: Entity) => {
         )
         if (!sourceEntity) continue
         const vrmBone = sourceRigMap[sourceEntity] as VRMHumanBoneName
-        console.log(vrmBone)
         if (!vrmBone) continue
         const targetEntity = targetRigMap[vrmBone]
-        console.log(targetEntity, targetRigMap, entity)
         if (!targetEntity) continue
-        track.name = getTrackId(targetEntity)
-        console.log(track.name)
+
+        track.name = getComponent(targetEntity, UUIDComponent) + track.name.substring(track.name.lastIndexOf('.'))
       }
       animationClips.push(newClip)
     }

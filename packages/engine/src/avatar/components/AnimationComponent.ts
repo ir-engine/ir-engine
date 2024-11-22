@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer, Object3D, PropertyBinding } from 'three'
 
-import { Entity, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -128,17 +128,16 @@ PropertyBinding.findNode = (root: Object3D, nodeName) => {
   /**Find the entity that corresponds to the nodeName.
    * Using getTrackId to allow reuse of the same track for identical hierarchies across different roots.
    */
-  const entity = childEntities.find(
-    (entity) => getTrackId(entity) === nodeName.substring(nodeName.lastIndexOf('-') + 1)
-  )
+
+  const entity = UUIDComponent.getEntityByUUID(nodeName as EntityUUID)
   if (!entity) {
     throw new Error('PropertyBinding: cannot find entity for node ' + nodeName)
   }
 
   return (
-    getOptionalComponent(entity, NormalizedBoneComponent) ??
-    getOptionalComponent(entity, BoneComponent) ??
-    getOptionalComponent(entity, MeshComponent) ??
+    getOptionalComponent(entity, NormalizedBoneComponent) ||
+    getOptionalComponent(entity, BoneComponent) ||
+    getOptionalComponent(entity, MeshComponent) ||
     getOptionalComponent(entity, Object3DComponent)!
   )
 }

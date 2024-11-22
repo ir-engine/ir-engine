@@ -35,7 +35,6 @@ import {
 } from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { useEffect } from 'react'
 import { AnimationAction, Bone, Euler, Group, Matrix4, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
@@ -46,12 +45,9 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
+  setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -59,14 +55,11 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
-import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -119,43 +112,24 @@ export const AvatarRigComponent = defineComponent({
     rigComponent.entitiesToBones[boneEntity].set(boneName)
   },
 
-  reactor: function () {
-    const entity = useEntityContext()
-    const rigComponent = useComponent(entity, AvatarRigComponent)
-    const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-
-    useEffect(() => {
-      if (gltfComponent?.progress?.value !== 100) return
-      const vrm = createVRM(entity)
-      setObjectLayers(vrm.scene, ObjectLayers.Avatar)
-      setupAvatarProportions(entity, vrm)
-      rigComponent.vrm.set(vrm)
-      rigComponent.normalizedRig.set(vrm.humanoid.normalizedHumanBones)
-      rigComponent.rawRig.set(vrm.humanoid.rawHumanBones)
-      setAvatarAnimations(entity)
-
-      const avatarRigComponent = getComponent(entity, AvatarRigComponent)
-
-      for (const bone in avatarRigComponent.rawRig)
-        if (avatarRigComponent.rawRig[bone]?.node && avatarRigComponent.normalizedRig[bone]?.node) {
-          setComponent(
-            avatarRigComponent.rawRig[bone].node.entity,
-            NormalizedBoneComponent,
-            avatarRigComponent.normalizedRig[bone].node
-          )
-        }
-    }, [gltfComponent?.progress?.value, gltfComponent?.src.value])
-
-    return null
-  },
-
   errors: ['UNSUPPORTED_AVATAR']
 })
 
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
 
-export default function createVRM(rootEntity: Entity) {
+const linkNormalizedBones = (vrm: VRM) => {
+  for (const bone in vrm.humanoid.rawHumanBones)
+    if (vrm.humanoid.rawHumanBones[bone]?.node && vrm.humanoid.normalizedHumanBones[bone]?.node) {
+      setComponent(
+        vrm.humanoid.rawHumanBones[bone].node.entity,
+        NormalizedBoneComponent,
+        vrm.humanoid.normalizedHumanBones[bone].node
+      )
+    }
+}
+
+export function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getState(GLTFDocumentState)[documentID]
 
@@ -215,13 +189,15 @@ export default function createVRM(rootEntity: Entity) {
       // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
     } as VRMParameters)
 
+    linkNormalizedBones(vrm)
+
     return vrm
   }
 
   return createVRMFromGLTF(rootEntity, gltf)
 }
 
-const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
+export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   const hipsEntity = iterateEntityNode(
     rootEntity,
     (entity) => entity,
@@ -265,6 +241,7 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
       if (boneComponent instanceof Bone) boneComponent.quaternion.set(0, 0, 0, 1)
       const node = getComponent(entity, BoneComponent)
       bones[bone] = { node } as VRMHumanBone
+      setComponent(entity, NormalizedBoneComponent, node)
     }
   })
   const humanoid = enforceTPose(bones)
@@ -283,6 +260,8 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
     // springBoneManager: gltf.userData.vrmSpringBoneManager,
     // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
   } as VRMParameters)
+
+  linkNormalizedBones(vrm)
 
   if (!vrm.userData) vrm.userData = {}
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)

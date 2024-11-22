@@ -25,12 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, KeyframeTrack, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three'
 
-import { Entity, getComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { getHips, mixamoVRMRigMap } from '../AvatarBoneMatching'
 
 const restRotationInverse = new Quaternion()
@@ -49,20 +47,13 @@ export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) =
   getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
   for (let i = 0; i < clip.tracks.length; i++) {
     const track = clip.tracks[i]
-    const trackSplitted = track.name.split('.')
-    const rigNodeName = trackSplitted[0]
-    const rigNodeEntity = iterateEntityNode(
-      gltfEntity,
-      (entity) => entity,
-      (entity) => getComponent(entity, NameComponent) === rigNodeName,
-      false,
-      true
-    )?.[0]
+    const trackSplitted = track.name.lastIndexOf('.')
+    const rigNodeName = track.name.slice(0, trackSplitted)
+    const rigNodeEntity = UUIDComponent.getEntityByUUID(rigNodeName as EntityUUID)
     if (!rigNodeEntity) continue
-    const rigNode = getComponent(rigNodeEntity, BoneComponent)
 
     // Store rotations of rest-pose
-    rigNode.getWorldQuaternion(restRotationInverse).invert()
+    TransformComponent.getWorldRotation(rigNodeEntity, restRotationInverse).invert()
     const parentEntity = getComponent(rigNodeEntity, EntityTreeComponent).parentEntity
     TransformComponent.getWorldRotation(parentEntity, parentRestWorldRotation)
 
@@ -82,9 +73,9 @@ export const retargetAnimationClip = (clip: AnimationClip, gltfEntity: Entity) =
         })
       }
     } else if (track instanceof VectorKeyframeTrack) {
-      const value = track.values.map((v) => v * hipsPositionScale)
-      value.forEach((v, index) => {
-        track.values[index] = v
+      const isPosition = track.name.includes('position')
+      track.values.forEach((v, index) => {
+        track.values[index] = isPosition ? v * hipsPositionScale : v
       })
     }
   }

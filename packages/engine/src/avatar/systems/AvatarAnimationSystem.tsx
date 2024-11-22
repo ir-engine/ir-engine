@@ -36,10 +36,11 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
+  useComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
@@ -53,12 +54,14 @@ import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/sr
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getRootSpeed, updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
@@ -67,9 +70,10 @@ import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent, createVRM } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
+import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
@@ -211,6 +215,7 @@ const execute = () => {
       newWorldMatrix.elements[13] = rawRig.hips.node.position.y - transform.position.y
       normalizedRig.hips.node.matrix.setPosition(new Vector3())
       normalizedRig.hips.node.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedRig.hips.node.matrix)
+      normalizedRig.hips.node.matrixWorld.scale(new Vector3(100, 100, 100))
       for (const boneName of VRMHumanBoneList) {
         const bone = rigComponent.vrm.humanoid.getNormalizedBoneNode(boneName)
         if (!bone) continue
@@ -340,7 +345,7 @@ const Reactor = () => {
 
 const runClipName = 'Run_RootMotion',
   walkClipName = 'Walk_RootMotion'
-const AnimationReactor = () => {
+const AnimationLoader = () => {
   const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
 
   const loadedAnimations = useLoadAnimationFromBatchGLTF(
@@ -357,14 +362,15 @@ const AnimationReactor = () => {
 
     let i = 0
     for (const [clips, entity] of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
+      if (getState(AnimationState).loadedAnimations[animations[i]]) continue
       /**
        * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
        * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
        */
       for (const clip of clips!) {
         retargetAnimationClip(clip, entity)
+        console.log('retargeting clip', clip)
       }
-      getMutableState(AnimationState).loadedAnimations[animations[i]].set(entity!)
       /** @todo handle avatar animation clips generically */
       const run = AnimationClip.findByName(clips ?? [], runClipName)
       const walk = AnimationClip.findByName(clips ?? [], walkClipName)
@@ -378,10 +384,48 @@ const AnimationReactor = () => {
         const name = getComponent(child, NameComponent).replace(':', '')
         if (mixamoVRMRigMap[name]) AvatarRigComponent.setBone(entity, child, mixamoVRMRigMap[name])
       })
+
+      getMutableState(AnimationState).loadedAnimations[animations[i]].set(entity!)
       i++
     }
   }, [loadedAnimations.value])
 
+  return null
+}
+
+const RigReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const rigComponent = useComponent(entity, AvatarRigComponent)
+  const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+  useEffect(() => {
+    if (gltfComponent?.progress?.value !== 100) return
+    try {
+      const vrm = createVRM(entity)
+      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatars)
+      setupAvatarProportions(entity, vrm)
+      rigComponent.vrm.set(vrm)
+      rigComponent.normalizedRig.set(vrm.humanoid.normalizedHumanBones)
+      rigComponent.rawRig.set(vrm.humanoid.rawHumanBones)
+    } catch (e) {
+      console.error('Failed to load avatar', e)
+      addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+      return () => {
+        removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+      }
+    }
+  }, [gltfComponent?.progress?.value, gltfComponent?.src.value])
+
+  return null
+}
+
+const AnimationReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const rigComponent = useComponent(entity, AvatarRigComponent)
+  console.log(entity)
+  useEffect(() => {
+    if (!Object.values(rigComponent.bonesToEntities).length) return
+    setAvatarAnimations(entity)
+  }, [entity, rigComponent.bonesToEntities])
   return null
 }
 
@@ -390,11 +434,22 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
-    if (!isClient || !useQuery([RendererComponent]).length) return null
+    // if (!isClient || !useQuery([RendererComponent]).length) return null
+    const rigEntities = useQuery([AvatarRigComponent])
+    const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
+    console.log(avatarAnimationEntities)
     return (
       <>
         <Reactor />
-        <AnimationReactor />
+        <AnimationLoader />
+        <>
+          {rigEntities.map((entity: Entity) => (
+            <RigReactor entity={entity} key={entity} />
+          ))}
+          {avatarAnimationEntities.map((entity: Entity) => (
+            <AnimationReactor entity={entity} key={entity} />
+          ))}
+        </>
       </>
     )
   }
