@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationClip, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   defineQuery,
@@ -73,8 +73,8 @@ import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components
 import { AvatarAnimationComponent, AvatarRigComponent, createVRM } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
-import { normalizeAnimationClips } from '../functions/retargetMixamoRig'
+import { getAllLoadedAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
+import { normalizeAnimationClips, retargetAnimationClips } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AnimationSystem } from './AnimationSystem'
@@ -354,6 +354,7 @@ export const setupMixamoAnimation = (entity: Entity) => {
     const name = getComponent(child, NameComponent).replace(':', '')
     if (mixamoVRMRigMap[name]) AvatarRigComponent.setBone(entity, child, mixamoVRMRigMap[name])
   })
+  retargetAnimationClips(entity)
 }
 
 const runClipName = 'Run_RootMotion',
@@ -399,7 +400,6 @@ const RigReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const rigComponent = useComponent(entity, AvatarRigComponent)
   const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-  console.log(entity)
   useEffect(() => {
     if (gltfComponent?.progress?.value !== 100 || !hasComponent(entity, AvatarAnimationComponent)) return
     try {
@@ -424,11 +424,13 @@ const RigReactor = (props: { entity: Entity }) => {
 const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const rigComponent = useComponent(entity, AvatarRigComponent)
-  console.log(entity)
   useEffect(() => {
-    if (!Object.values(rigComponent.bonesToEntities).length) return
-    setAvatarAnimations(entity)
-  }, [entity, rigComponent.bonesToEntities])
+    if (!Object.values(rigComponent.entitiesToBones).length) return
+    setComponent(entity, AnimationComponent, {
+      animations: getAllLoadedAnimations(),
+      mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
+    })
+  }, [entity, rigComponent.entitiesToBones])
   return null
 }
 

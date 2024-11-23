@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three'
 
-import { Entity, EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, getComponent, getMutableComponent, UUIDComponent } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHips } from '../AvatarBoneMatching'
-import { AnimationComponent, getTrackId } from '../components/AnimationComponent'
+import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 
 const restRotationInverse = new Quaternion()
@@ -84,11 +84,9 @@ export const normalizeAnimationClips = (gltfEntity: Entity) => {
     }
 }
 
-/**Copies and retargets animation clips from the source to the target rig using the VRM schema
+/**Retargets animation clips from the source to the VRM schema
  */
-export const retargetAnimationClips = (sourceAnimationEntity: Entity, targetAnimationEntity: Entity) => {
-  const targetRigMap = getComponent(targetAnimationEntity, AvatarRigComponent).bonesToEntities
-
+export const retargetAnimationClips = (sourceAnimationEntity) => {
   const animationClips = [] as AnimationClip[]
   const clips = getComponent(sourceAnimationEntity, AnimationComponent).animations
   const sourceRigMap = getComponent(sourceAnimationEntity, AvatarRigComponent).entitiesToBones
@@ -101,13 +99,11 @@ export const retargetAnimationClips = (sourceAnimationEntity: Entity, targetAnim
       if (!sourceEntity) continue
       const vrmBone = sourceRigMap[sourceEntity] as VRMHumanBoneName
       if (!vrmBone) continue
-      const targetEntity = targetRigMap[vrmBone]
-      if (!targetEntity) continue
       const newTrack = track.clone()
-      newTrack.name = getTrackId(targetEntity) + '.' + track.name.substring(track.name.lastIndexOf('.') + 1)
+      newTrack.name = vrmBone + '.' + track.name.substring(track.name.lastIndexOf('.') + 1)
       newClip.tracks.push(newTrack)
     }
     animationClips.push(newClip)
   }
-  return animationClips
+  getMutableComponent(sourceAnimationEntity, AnimationComponent).animations.set(animationClips)
 }

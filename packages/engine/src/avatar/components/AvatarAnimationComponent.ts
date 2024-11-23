@@ -241,6 +241,7 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
       if (boneComponent instanceof Bone) boneComponent.quaternion.set(0, 0, 0, 1)
       const node = getComponent(entity, BoneComponent)
       bones[bone] = { node } as VRMHumanBone
+      AvatarRigComponent.setBone(rootEntity, entity, bone as VRMHumanBoneName)
       setComponent(entity, NormalizedBoneComponent, node)
     }
   })

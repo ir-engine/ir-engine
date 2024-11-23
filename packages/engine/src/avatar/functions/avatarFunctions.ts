@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBone, VRMHumanBoneList } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Matrix4, Vector3 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 
 import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -33,12 +33,10 @@ import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/E
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { retargetAnimationClips } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -102,18 +100,10 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   }
 }
 
-export const setAvatarAnimations = (entity: Entity) => {
-  const manager = getState(AnimationState)
-  const loadedAnimationEntities = Object.values(manager.loadedAnimations)
-  const animationClips = [] as AnimationClip[]
-  for (const animationEntity of loadedAnimationEntities) {
-    animationClips.push(...retargetAnimationClips(animationEntity, entity))
-  }
-  setComponent(entity, AnimationComponent, {
-    animations: animationClips,
-    mixer: new AnimationMixer(getComponent(entity, GroupComponent)[0])
-  })
-}
+export const getAllLoadedAnimations = () =>
+  Object.values(getState(AnimationState).loadedAnimations)
+    .map((anim) => getComponent(anim, AnimationComponent).animations)
+    .flat()
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)

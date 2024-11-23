@@ -49,6 +49,7 @@ import { v4 } from 'uuid'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFAssetState } from '../../gltf/GLTFState'
 import { SourceComponent } from '../../scene/components/SourceComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
 export const AnimationComponent = defineComponent({
@@ -125,14 +126,24 @@ PropertyBinding.findNode = (root: Object3D, nodeName) => {
   const sceneInstanceID = GLTFComponent.getInstanceID(root.entity)
   const childEntities = SourceComponent.entitiesBySource[sceneInstanceID]
 
+  let entity = UndefinedEntity
+  /**if AvatarRigComponent is present, use VRM schema */
+  const avatarRigComponent = getOptionalComponent(root.entity, AvatarRigComponent)
+  console.log('avatarRigComponent', avatarRigComponent, 'root.entity', root.entity)
+  if (avatarRigComponent) {
+    console.log('looking for entity for node', nodeName)
+    entity = avatarRigComponent.bonesToEntities[nodeName]
+    console.log('found entity', entity)
+  }
+
   /**Find the entity that corresponds to the nodeName.
    * Using getTrackId to allow reuse of the same track for identical hierarchies across different roots.
    */
-  const entity = childEntities.find(
-    (entity) => getTrackId(entity) === nodeName.substring(nodeName.lastIndexOf('-') + 1)
-  )
+  if (!entity)
+    entity = childEntities.find((entity) => getTrackId(entity) === nodeName.substring(nodeName.lastIndexOf('-') + 1))!
+
   if (!entity) {
-    throw new Error('PropertyBinding: cannot find entity for node ' + nodeName)
+    return null
   }
 
   return (

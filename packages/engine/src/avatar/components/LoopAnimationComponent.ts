@@ -213,8 +213,8 @@ export const LoopAnimationComponent = defineComponent({
       animComponent.mixer.value.stopAllAction()
 
       setupMixamoAnimation(animationPackGLTF[1])
-      const retargetedClips = retargetAnimationClips(animationPackGLTF[1], entity)
-      animComponent.animations.set(retargetedClips)
+      retargetAnimationClips(animationPackGLTF[1])
+      animComponent.animations.set(getComponent(animationPackGLTF[1], AnimationComponent).animations)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
     }, [animationPackGLTF, animComponent])
 
