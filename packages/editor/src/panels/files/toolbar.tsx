@@ -24,11 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Checkbox, Input } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -48,6 +50,19 @@ const VIEW_MODES = [
   { mode: 'list', icon: <FaList /> },
   { mode: 'icons', icon: <FiGrid /> }
 ]
+
+export const showMultipleFileModal = (fileNames: string[] = []) => {
+  PopoverState.showPopupover(
+    <>
+      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={() => {}} onClose={PopoverState.hidePopupover}>
+        <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
+          Warning: You will overwrite existing files by uploading these. Do you wish to continue? <br />
+          {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
+        </div>
+      </Modal>
+    </>
+  )
+}
 
 function BreadcrumbItems() {
   const filesState = useMutableState(FilesState)
