@@ -50,9 +50,10 @@ import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spati
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { normalizeAnimationClips, retargetAnimationClips } from '../functions/retargetMixamoRig'
+import { retargetAnimationClips } from '../functions/retargetMixamoRig'
+import { setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
-import { AvatarRigComponent } from './AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'
 
 const AnimationBlendMode = S.LiteralUnion(
   [NormalAnimationBlendMode, AdditiveAnimationBlendMode],
@@ -110,10 +111,12 @@ export const LoopAnimationComponent = defineComponent({
     }, [loopAnimationComponent.activeClipIndex, rigComponent?.vrm, animComponent?.animations])
 
     useEffect(() => {
-      if (!loopAnimationComponent.useVRM.value && hasComponent(entity, AvatarRigComponent))
+      if (!loopAnimationComponent.useVRM.value && hasComponent(entity, AvatarRigComponent)) {
         removeComponent(entity, AvatarRigComponent)
-      else if (loopAnimationComponent.useVRM.value && !hasComponent(entity, AvatarRigComponent)) {
+        removeComponent(entity, AvatarAnimationComponent)
+      } else if (loopAnimationComponent.useVRM.value && !hasComponent(entity, AvatarRigComponent)) {
         setComponent(entity, AvatarRigComponent)
+        setComponent(entity, AvatarAnimationComponent)
         setComponent(entity, AnimationComponent, { mixer: new AnimationMixer(getComponent(entity, GroupComponent)[0]) })
       }
     }, [loopAnimationComponent.useVRM.value])
@@ -194,6 +197,7 @@ export const LoopAnimationComponent = defineComponent({
     }, [])
 
     const animationPackGLTF = useLoadAnimationFromGLTF(loopAnimationComponent.animationPack.value, true)
+    const animationPackRigComponent = useOptionalComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
       if (
@@ -205,15 +209,10 @@ export const LoopAnimationComponent = defineComponent({
       )
         return
 
-      if (!hasComponent(animationPackGLTF[1], AvatarRigComponent)) {
-        setComponent(animationPackGLTF[1], AvatarRigComponent)
-        return
-      }
-
       animComponent.mixer.time.set(0)
       animComponent.mixer.value.stopAllAction()
-      const animations = animationPackGLTF[0].get(NO_PROXY) as AnimationClip[]
-      normalizeAnimationClips(animationPackGLTF[1])
+
+      setupMixamoAnimation(animationPackGLTF[1])
       const retargetedClips = retargetAnimationClips(animationPackGLTF[1], entity)
       animComponent.animations.set(retargetedClips)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
@@ -237,7 +236,7 @@ export const LoopAnimationComponent = defineComponent({
           removeCallback(entity, name)
         }
       }
-    }, [animComponent?.animations])
+    }, [animComponent?.animations, animationPackRigComponent?.bonesToEntities])
 
     return null
   }

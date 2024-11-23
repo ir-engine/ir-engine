@@ -343,6 +343,19 @@ const Reactor = () => {
   return null
 }
 
+/**
+ * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
+ * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
+ */
+export const setupMixamoAnimation = (entity: Entity) => {
+  normalizeAnimationClips(entity)
+  setComponent(entity, AvatarRigComponent)
+  traverseEntityNode(entity, (child) => {
+    const name = getComponent(child, NameComponent).replace(':', '')
+    if (mixamoVRMRigMap[name]) AvatarRigComponent.setBone(entity, child, mixamoVRMRigMap[name])
+  })
+}
+
 const runClipName = 'Run_RootMotion',
   walkClipName = 'Walk_RootMotion'
 const AnimationLoader = () => {
@@ -363,11 +376,9 @@ const AnimationLoader = () => {
     let i = 0
     for (const [clips, entity] of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
       if (getState(AnimationState).loadedAnimations[animations[i]]) continue
-      /**
-       * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
-       * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
-       */
-      normalizeAnimationClips(entity)
+
+      setupMixamoAnimation(entity)
+
       /** @todo handle avatar animation clips generically */
       const run = AnimationClip.findByName(clips ?? [], runClipName)
       const walk = AnimationClip.findByName(clips ?? [], walkClipName)
@@ -375,12 +386,6 @@ const AnimationLoader = () => {
       const movement = getMutableState(AvatarMovementSettingsState)
       if (run) movement.runSpeed.set(getRootSpeed(run))
       if (walk) movement.walkSpeed.set(getRootSpeed(walk))
-
-      setComponent(entity, AvatarRigComponent)
-      traverseEntityNode(entity, (child) => {
-        const name = getComponent(child, NameComponent).replace(':', '')
-        if (mixamoVRMRigMap[name]) AvatarRigComponent.setBone(entity, child, mixamoVRMRigMap[name])
-      })
 
       getMutableState(AnimationState).loadedAnimations[animations[i]].set(entity!)
       i++
@@ -394,8 +399,9 @@ const RigReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const rigComponent = useComponent(entity, AvatarRigComponent)
   const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+  console.log(entity)
   useEffect(() => {
-    if (gltfComponent?.progress?.value !== 100) return
+    if (gltfComponent?.progress?.value !== 100 || !hasComponent(entity, AvatarAnimationComponent)) return
     try {
       const vrm = createVRM(entity)
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatars)
