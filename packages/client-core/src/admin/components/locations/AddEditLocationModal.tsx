@@ -98,12 +98,17 @@ export default function AddEditLocationModal(props: {
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
   const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
+  const engineState = useHookstate(getMutableState(EngineState))
+  const sceneSettingsEntities = useHookstate([] as Entity[])
+
   // only use query if engine is running
-  let sceneSettingsEntities: Entity[] = []
-  if (getState(EngineState).viewerEntity !== UndefinedEntity) {
-    // no viewerEntity if not in Editor, running the engine
-    sceneSettingsEntities = useQuery([SceneSettingsComponent])
-  }
+  useEffect(() => {
+    if (engineState.viewerEntity.value === UndefinedEntity) return
+    sceneSettingsEntities.set(useQuery([SceneSettingsComponent]))
+    return () => {
+      sceneSettingsEntities.set([])
+    }
+  }, [engineState.viewerEntity])
 
   useEffect(() => {
     if (location) {
@@ -308,7 +313,7 @@ export default function AddEditLocationModal(props: {
               onChange={screenSharingEnabled.set}
               disabled={isLoading}
             />
-            {getState(EngineState).viewerEntity !== UndefinedEntity && (
+            {engineState.viewerEntity.value !== UndefinedEntity && (
               <>
                 <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
                 <div className="flex flex-col ">
