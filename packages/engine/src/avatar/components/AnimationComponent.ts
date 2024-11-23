@@ -129,11 +129,8 @@ PropertyBinding.findNode = (root: Object3D, nodeName) => {
   let entity = UndefinedEntity
   /**if AvatarRigComponent is present, use VRM schema */
   const avatarRigComponent = getOptionalComponent(root.entity, AvatarRigComponent)
-  console.log('avatarRigComponent', avatarRigComponent, 'root.entity', root.entity)
   if (avatarRigComponent) {
-    console.log('looking for entity for node', nodeName)
     entity = avatarRigComponent.bonesToEntities[nodeName]
-    console.log('found entity', entity)
   }
 
   /**Find the entity that corresponds to the nodeName.

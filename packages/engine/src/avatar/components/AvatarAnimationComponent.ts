@@ -85,11 +85,7 @@ export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
   schema: S.Object({
-    /** rig bones with quaternions relative to the raw bones in their bind pose */
-    normalizedRig: S.Type<VRMHumanBones>(),
-    /** contains the raw bone quaternions */
-    rawRig: S.Type<VRMHumanBones>(),
-
+    /** maps human bones to entities */
     bonesToEntities: S.Record(HumanBonesSchema, S.Entity()),
     entitiesToBones: S.Record(S.Entity(), HumanBonesSchema),
 
@@ -189,6 +185,7 @@ export function createVRM(rootEntity: Entity) {
       // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
     } as VRMParameters)
 
+    setComponent(rootEntity, AvatarRigComponent, { vrm })
     linkNormalizedBones(vrm)
 
     return vrm
@@ -228,6 +225,8 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
     if (entity === rootEntity) return
 
     const name = getComponent(entity, NameComponent)
+    console.log(name)
+    if (!name) return
     /**match the keys to create a humanoid bones object */
     let boneName = mixamoPrefix + name
 
@@ -262,6 +261,7 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
     // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
   } as VRMParameters)
 
+  setComponent(rootEntity, AvatarRigComponent, { vrm })
   linkNormalizedBones(vrm)
 
   if (!vrm.userData) vrm.userData = {}
