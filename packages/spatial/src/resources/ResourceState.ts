@@ -436,7 +436,7 @@ const disposeGeometry = (asset: Geometry) => {
   }
 
   //@ts-ignore todo - figure out why check errors flags this
-  if (asset.boundsTree) asset.disposeBoundsTree()
+  if (asset.boundsTree && typeof asset.disposeBoundsTree === 'function') asset.disposeBoundsTree()
   ;(asset as DisposableObject).disposed = true
 }
 
@@ -460,7 +460,7 @@ const disposeMaterial = (asset: Material | Material[]) => {
     if ((material as DisposableObject).disposed) return
     for (const [_, val] of Object.entries(material) as [string, Texture][]) {
       if (isTexture(val)) {
-        unload(val.uuid, UndefinedEntity)
+        unload(getAssetKey(val), UndefinedEntity)
       }
     }
     material.dispose()
@@ -546,11 +546,11 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
   const resources = resourceState.nested('resources')
   const obj = new disposableLike(...args)
   if (entity) obj.entity = entity
-  const id = obj.uuid
+  const id = getAssetKey(obj)
   const resourceType = getResourceType(obj, ResourceType.Object3D)
   const callbacks = resourceCallbacks[resourceType]
 
-  // Only one object can exist per UUID
+  // Only one object can exist per ID
   resources.merge({
     [id]: {
       id: id,
@@ -570,6 +570,11 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
   return obj as InstanceType<T2>
 }
 
+const getAssetKey = (asset: { id?: number; uuid: string }) => {
+  // Three js Skeleton objects do not have an id, so fallback to uuid
+  return 'id' in asset && asset.id !== undefined ? asset.id.toString() : asset.uuid
+}
+
 const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resourceType = ResourceType.Unknown) => {
   if (Array.isArray(asset)) {
     for (const assetItem of asset) {
@@ -586,20 +591,20 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
       break
     case ResourceType.Mesh: {
       const mesh = asset as Mesh
-      onItemLoadedFor(assetKey, resourceType, mesh.uuid, mesh)
+      onItemLoadedFor(assetKey, resourceType, getAssetKey(mesh), mesh)
       addReferencedAsset(assetKey, mesh.material, ResourceType.Material)
       addReferencedAsset(assetKey, mesh.geometry, ResourceType.Geometry)
       break
     }
     case ResourceType.Texture:
-      onItemLoadedFor(assetKey, resourceType, (asset as Texture).uuid, asset as Texture)
+      onItemLoadedFor(assetKey, resourceType, getAssetKey(asset as Texture), asset as Texture)
       break
     case ResourceType.Geometry:
-      onItemLoadedFor(assetKey, resourceType, (asset as Geometry).uuid, asset as Geometry)
+      onItemLoadedFor(assetKey, resourceType, getAssetKey(asset as Geometry), asset as Geometry)
       break
     case ResourceType.Material: {
       const material = asset as Material
-      onItemLoadedFor(assetKey, resourceType, material.uuid, material)
+      onItemLoadedFor(assetKey, resourceType, getAssetKey(material), material)
       for (const [_, val] of Object.entries(material) as [string, any][]) {
         if (isTexture(val)) {
           addReferencedAsset(assetKey, val, ResourceType.Texture)
@@ -608,7 +613,7 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
       break
     }
     case ResourceType.Object3D:
-      onItemLoadedFor(assetKey, resourceType, (asset as Object3D).uuid, asset as Object3D)
+      onItemLoadedFor(assetKey, resourceType, getAssetKey(asset as Object3D), asset as Object3D)
       break
     default:
       break
@@ -631,20 +636,20 @@ const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resou
       break
     case ResourceType.Mesh: {
       const mesh = asset as Mesh
-      removeResource(mesh.uuid)
+      removeResource(getAssetKey(mesh))
       removeReferencedAsset(assetKey, mesh.material, ResourceType.Material)
       removeReferencedAsset(assetKey, mesh.geometry, ResourceType.Geometry)
       break
     }
     case ResourceType.Texture:
-      removeResource((asset as Texture).uuid)
+      removeResource(getAssetKey(asset as Texture))
       break
     case ResourceType.Geometry:
-      removeResource((asset as Geometry).uuid)
+      removeResource(getAssetKey(asset as Geometry))
       break
     case ResourceType.Material: {
       const material = asset as Material
-      removeResource(material.uuid)
+      removeResource(getAssetKey(material))
       for (const [_, val] of Object.entries(material) as [string, any][]) {
         if (isTexture(val)) {
           removeReferencedAsset(assetKey, val, ResourceType.Texture)
@@ -653,7 +658,7 @@ const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resou
       break
     }
     case ResourceType.Object3D:
-      removeResource((asset as Object3D).uuid)
+      removeResource(getAssetKey(asset as Object3D))
       break
     default:
       break
@@ -664,7 +669,7 @@ const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resou
   if (!resources[assetKey].value || !resources[assetKey].assetRefs.value?.[resourceType]) return
 
   resources[assetKey].assetRefs[resourceType].set((refs: string[]) => {
-    const index = refs.indexOf((asset as Object3D).uuid)
+    const index = refs.indexOf(getAssetKey(asset as Object3D))
     if (index !== -1) refs.splice(index, 1)
     return refs
   })
@@ -756,9 +761,9 @@ const removeResource = (id: string) => {
     return
   }
 
+  Cache.remove(id)
   const resource = resources[id]
   ResourceState.debugLog('ResourceManager:removeResource: Removing ' + resource.type.value + ' resource with ID: ' + id)
-  Cache.remove(id)
 
   const asset = resource.asset.get(NO_PROXY) as ResourceAssetType
   if (asset) {

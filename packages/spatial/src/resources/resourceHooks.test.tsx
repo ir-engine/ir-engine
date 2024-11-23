@@ -169,82 +169,6 @@ describe('ResourceHooks', () => {
       })
     }))
 
-  it('Can track any asset tied to an id', () =>
-    new Promise((done: DoneCallback) => {
-      const entity = createEntity()
-
-      const spy = sinon.spy()
-
-      const id = '3456345623216'
-
-      const resourceObj = {
-        data: new ArrayBuffer(128),
-        dispose: function () {
-          spy()
-          this.data = null
-        }
-      }
-
-      const Reactor = () => {
-        useResource(resourceObj, entity, id)
-        return <></>
-      }
-
-      const { rerender, unmount } = render(<Reactor />)
-
-      act(async () => {
-        rerender(<Reactor />)
-      }).then(() => {
-        const resourceState = getState(ResourceState)
-        assert(resourceState.resources[id])
-        unmount()
-        sinon.assert.calledOnce(spy)
-        assert(!resourceObj.data)
-        assert(!resourceState.resources[id])
-        done()
-      })
-    }))
-
-  it('Can unload any asset tied to an id', () =>
-    new Promise((done: DoneCallback) => {
-      const entity = createEntity()
-
-      const spy = sinon.spy()
-
-      const id = '3456345623215'
-
-      const resourceObj = {
-        data: new ArrayBuffer(128),
-        dispose: function () {
-          spy()
-          this.data = null
-        }
-      }
-
-      const Reactor = () => {
-        const [resource, unload] = useResource(resourceObj, entity, id)
-
-        useEffect(() => {
-          unload()
-        }, [])
-
-        return <></>
-      }
-
-      const { rerender, unmount } = render(<Reactor />)
-
-      act(async () => {
-        rerender(<Reactor />)
-      }).then(() => {
-        const resourceState = getState(ResourceState)
-        sinon.assert.calledOnce(spy)
-        assert(!resourceObj.data)
-        assert(!resourceState.resources[id])
-        unmount()
-        done()
-      })
-    }))
-
   it('Can track any asset and callback when unloaded', () =>
     new Promise((done: DoneCallback) => {
       const entity = createEntity()
@@ -260,7 +184,7 @@ describe('ResourceHooks', () => {
       }
 
       const Reactor = () => {
-        useResource(resourceObj, entity, undefined, () => {
+        useResource(resourceObj, entity, () => {
           resourceObj.onUnload()
         })
         return <></>
@@ -274,48 +198,6 @@ describe('ResourceHooks', () => {
         unmount()
         sinon.assert.calledOnce(spy)
         assert(!resourceObj.data)
-        done()
-      })
-    }))
-
-  it('Can update any asset correctly', () =>
-    new Promise((done: DoneCallback) => {
-      const entity = createEntity()
-      const id = '3456345623215'
-      const spy = sinon.spy()
-
-      const onUnload = () => {
-        spy()
-      }
-
-      let resourceObj = undefined as any
-
-      const Reactor = () => {
-        const [res] = useResource(new DirectionalLight(), entity, id, onUnload)
-
-        useEffect(() => {
-          resourceObj = res
-        }, [res])
-        return <></>
-      }
-
-      const { rerender, unmount } = render(<Reactor />)
-
-      const resourceState = getState(ResourceState)
-
-      act(async () => {
-        assert(resourceState.resources[id])
-        assert(resourceState.resources[id].references.length == 1)
-        assert((resourceState.resources[id].asset as DirectionalLight).isDirectionalLight)
-        resourceObj.set(new AmbientLight())
-        rerender(<Reactor />)
-      }).then(() => {
-        assert(resourceObj.isAmbientLight)
-        sinon.assert.calledOnce(spy)
-        assert(resourceState.resources[id])
-        assert(resourceState.resources[id].references.length == 1)
-        assert((resourceState.resources[id].asset as AmbientLight).isAmbientLight)
-        unmount()
         done()
       })
     }))

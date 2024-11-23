@@ -52,9 +52,7 @@ export const setGLTFResource = (url: string, entity: Entity, status: ResourceSta
         onLoads: {}
       }
     })
-  } else {
-    resources[url].references.merge([entity])
-  }
+  } else if (!resources[url].references.value.includes(entity)) resources[url].references.merge([entity])
 
   const callbacks = ResourceManager.resourceCallbacks[resourceType]
   const resource = resources[url]
