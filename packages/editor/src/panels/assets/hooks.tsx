@@ -23,10 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { API } from '@ir-engine/common'
 import { StaticResourceQuery, StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { State, useHookstate, usePrevious } from '@ir-engine/hyperflux'
+import { State, getState, useHookstate, usePrevious } from '@ir-engine/hyperflux'
 import React, { ReactNode, createContext, useContext, useEffect } from 'react'
+import { MyAssetCategory } from '../../services/AssetPanelCategoriesState'
 import { ASSETS_PAGE_LIMIT, Category, calculateItemsToFetch, iterativelyListTags, mapCategoriesHelper } from './helpers'
 
 const AssetsQueryContext = createContext({
@@ -65,33 +67,50 @@ export const AssetsQueryProvider = ({ children }: { children: ReactNode }) => {
     const performFetch = () => {
       const tags = selectedCategory ? [selectedCategory.name, ...iterativelyListTags(selectedCategory.object)] : []
 
-      const query = {
-        key: {
-          $like: `%${search.query.value}%`
-        },
-        type: {
-          $or: [{ type: 'asset' }]
-        },
-        tags: selectedCategory
-          ? {
-              $or: tags.flatMap((tag) => [
-                { tags: { $like: `%${tag.toLowerCase()}%` } },
-                { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } },
-                {
-                  tags: {
-                    $like: `%${tag
-                      .split(' ')
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                      .join(' ')}%`
+      let query = {} as StaticResourceQuery
+      if (selectedCategory?.name === MyAssetCategory) {
+        const selfUser = getState(AuthState).user
+        query = {
+          key: {
+            $like: `%${search.query.value}%`
+          },
+          type: {
+            $or: [{ type: 'asset' }]
+          },
+          userId: selfUser.id,
+          $sort: { name: 1 },
+          $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
+          $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+        } as StaticResourceQuery
+      } else {
+        query = {
+          key: {
+            $like: `%${search.query.value}%`
+          },
+          type: {
+            $or: [{ type: 'asset' }]
+          },
+          tags: selectedCategory
+            ? {
+                $or: tags.flatMap((tag) => [
+                  { tags: { $like: `%${tag.toLowerCase()}%` } },
+                  { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } },
+                  {
+                    tags: {
+                      $like: `%${tag
+                        .split(' ')
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ')}%`
+                    }
                   }
-                }
-              ])
-            }
-          : undefined,
-        $sort: { mimeType: 1 },
-        $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
-        $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
-      } as StaticResourceQuery
+                ])
+              }
+            : undefined,
+          $sort: { name: 1 },
+          $limit: ASSETS_PAGE_LIMIT + calculateItemsToFetch(),
+          $skip: Math.min(staticResourcesPagination.skip.value, staticResourcesPagination.total.value)
+        } as StaticResourceQuery
+      }
 
       API.instance
         .service(staticResourcePath)

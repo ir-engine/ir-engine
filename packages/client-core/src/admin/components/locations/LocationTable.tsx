@@ -116,7 +116,7 @@ export default function LocationTable({ search }: { search: string }) {
             disabled={!userHasAccess}
             title={t('admin:components.common.view')}
             startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
-            onClick={() => PopoverState.showPopupover(<AddEditLocationModal location={row} />)}
+            onClick={() => PopoverState.showPopupover(<AddEditLocationModal action="admin" location={row} />)}
           />
           <Button
             rounded="full"
