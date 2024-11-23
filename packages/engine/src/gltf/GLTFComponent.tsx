@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 
 import {
   Component,
@@ -57,7 +57,13 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
+import { ColliderDesc } from '@dimforge/rapier3d-compat'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { TransformComponent } from '@ir-engine/spatial'
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics.ts'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.ts'
+import { NestedCollidersState } from '@ir-engine/spatial/src/physics/states/NestedCollidersState.ts'
+import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -65,9 +71,11 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   getAncestorWithComponents,
+  getTreeFromChildToAncestor,
   useAncestorWithComponents,
   useChildrenWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem.ts'
 import { useGLTFResource } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
@@ -157,6 +165,10 @@ export const GLTFComponent = defineComponent({
     src: S.String(''),
     /** @todo move this to it's own component */
     cameraOcclusion: S.Bool(false),
+
+    //collision info
+    applyColliders: S.Bool(false),
+    shape: ShapeSchema('box'),
 
     // internals
     body: S.NonSerialized(S.Nullable(S.Type<ArrayBuffer>())),
@@ -248,13 +260,92 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
   const gltfDocumentState = useMutableState(GLTFDocumentState)
   const sourceEntities = useHookstate(SourceComponent.entitiesBySourceState[props.documentID])
+  const nestedCollidersState = getMutableState(NestedCollidersState)
+  const uuid = useComponent(props.entity, UUIDComponent)
+  const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
+  const physicsWorld = Physics.useWorld(props.entity)
+  const rigidbodyEntity = useAncestorWithComponents(props.entity, [RigidBodyComponent])
+  const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
+  const transform = useComponent(props.entity, TransformComponent)
+  const component = useComponent(props.entity, GLTFComponent)
+
+  //populate/update collider state
+  useLayoutEffect(() => {
+    if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
+
+    const entitiesArray = !component.applyColliders.value
+      ? []
+      : !childMeshEntities.includes(props.entity)
+      ? ([...childMeshEntities, props.entity] as Entity[])
+      : childMeshEntities
+
+    if (nestedCollidersState[uuid.value] && nestedCollidersState[uuid.value].keys) {
+      //if a collider has been removed, find the leftover colliders from the state and remove them
+      if (nestedCollidersState[uuid.value].keys.length >= entitiesArray.length) {
+        for (const item of Array.from(nestedCollidersState[uuid.value].keys)) {
+          const colliderEntity = parseInt(item) as Entity
+          if (!entitiesArray.includes(colliderEntity)) {
+            Physics.removeCollider(physicsWorld, colliderEntity)
+            nestedCollidersState[uuid.value][colliderEntity].set(none)
+          }
+        }
+
+        //clear empty root keys
+        if (nestedCollidersState[uuid.value].keys.length === 0) {
+          nestedCollidersState[uuid.value].set(none)
+        }
+      }
+    }
+
+    forceUpdateMatrices(props.entity)
+    for (const childMeshEntity of entitiesArray) {
+      if (
+        nestedCollidersState[uuid.value] &&
+        nestedCollidersState[uuid.value][childMeshEntity] &&
+        nestedCollidersState[uuid.value][childMeshEntity].value
+      )
+        continue
+
+      forceUpdateMatrices(childMeshEntity, props.entity)
+
+      const colliderDesc = Physics.createColliderDesc(physicsWorld, childMeshEntity, rigidbodyEntity, props.entity)
+
+      if (!colliderDesc) continue
+
+      Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, childMeshEntity)
+
+      if (!nestedCollidersState[uuid.value].value) {
+        nestedCollidersState[uuid.value].set({} as Record<Entity, ColliderDesc>)
+      }
+
+      nestedCollidersState[uuid.value][childMeshEntity].set(colliderDesc)
+    }
+  }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale])
+
+  //cleanup collider state
+  useEffect(() => {
+    if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
+    return () => {
+      if (!nestedCollidersState[uuid.value].value) return
+      const itemsToClear = nestedCollidersState[uuid.value].keys
+      for (const item of Array.from(itemsToClear)) {
+        const entityToRemove = parseInt(item) as Entity
+        Physics.removeCollider(physicsWorld, entityToRemove)
+      }
+      nestedCollidersState[uuid.value].set(none)
+    }
+  }, [])
 
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
     if (!getState(GLTFDocumentState)[props.documentID]) return
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
-      if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)
+      if (dependenciesLoaded) {
+        getMutableComponent(props.entity, GLTFComponent).progress.set(100)
+
+        //@todo add the collider state update here
+      }
       return
     }
 
@@ -591,4 +682,13 @@ export const useHasModelOrIndependentMesh = (entity: Entity) => {
   const isChildOfModel = !!useAncestorWithComponents(entity, [GLTFComponent, SceneComponent])
   const hasMesh = !!useOptionalComponent(entity, MeshComponent)
   return hasModel || (hasMesh && !isChildOfModel)
+}
+
+function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = UndefinedEntity) {
+  const entities = [] as Entity[]
+  getTreeFromChildToAncestor(childEntity, entities, ancestorEntity)
+  if (entities.length === 0) return
+  for (let i = entities.length - 1; i >= 0; i--) {
+    computeTransformMatrix(entities[i])
+  }
 }

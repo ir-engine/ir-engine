@@ -75,12 +75,13 @@ import {
 } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { ColliderComponent, NestedCollidersState } from '../components/ColliderComponent'
+import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { CollisionGroups } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
+import { NestedCollidersState } from '../states/NestedCollidersState.ts'
 import {
   Body,
   BodyTypes,
@@ -449,11 +450,11 @@ function createColliderDesc(
     ColliderComponent
   )
 
-  const useMesh =
-    (colliderEntityOverride !== UndefinedEntity && colliderComponent.applyToChildMeshes) ||
-    (colliderEntityOverride === UndefinedEntity && colliderComponent.alignToMesh) ||
-    colliderComponent.shape === Shapes.Mesh ||
-    colliderComponent.shape === Shapes.ConvexHull
+  // const useMesh =
+  //   (colliderEntityOverride !== UndefinedEntity && colliderComponent.applyToChildMeshes) ||
+  //   (colliderEntityOverride === UndefinedEntity && colliderComponent.alignToMesh) ||
+  //   colliderComponent.shape === Shapes.Mesh ||
+  //   colliderComponent.shape === Shapes.ConvexHull
 
   let shape: ShapeType
 

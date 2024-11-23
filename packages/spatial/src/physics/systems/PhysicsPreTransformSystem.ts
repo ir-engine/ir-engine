@@ -38,8 +38,9 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
-import { ColliderComponent, NestedCollidersState } from '../components/ColliderComponent'
+import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { NestedCollidersState } from '../states/NestedCollidersState.ts'
 
 const _localMatrix = new Matrix4()
 const _sceneRelParentMatrix = new Matrix4()
