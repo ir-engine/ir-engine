@@ -28,13 +28,7 @@ import { useEffect } from 'react'
 import multiLogger from '@ir-engine/common/src/logger'
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
-import {
-  addOutgoingTopicIfNecessary,
-  getMutableState,
-  none,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { addOutgoingTopicIfNecessary, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
   Network,
   NetworkPeerFunctions,
