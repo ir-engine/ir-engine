@@ -103,6 +103,49 @@ const createHashIfNeeded = async (context: HookContext<StaticResourceService>) =
   }
 }
 
+const updateName = async (context: HookContext<StaticResourceService>) => {
+  if (!context.data || !(context.method === 'create' || context.method === 'update' || context.method === 'patch')) {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Batch create is not supported')
+
+  let id = context.id
+  const data = context.data
+
+  if (!data.key) {
+    return
+  }
+
+  if (data.name) {
+    return
+  }
+
+  let shouldUpdateName = false
+  if (context.method === 'create') {
+    shouldUpdateName = true
+  } else {
+    if (!id) {
+      return
+    }
+    const existingResource = await context.app.service(staticResourcePath).get(id, {
+      query: {
+        $select: ['key', 'name']
+      }
+    })
+
+    const [existing_, existingDirectory, existingFile] = /(.*)\/([^\\\/]+$)/.exec(existingResource.key)!
+    if (!existingResource.name || existingResource.name === existingFile) {
+      shouldUpdateName = true
+    }
+  }
+
+  if (shouldUpdateName) {
+    const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(data.key)!
+    context.data.name = file
+  }
+}
+
 const updateResourcesJson = async (context: HookContext<StaticResourceService>) => {
   if (!context.method || !(context.method === 'create' || context.method === 'update' || context.method === 'patch'))
     throw new BadRequest('[updateResourcesJson] Only create, update, patch methods are supported')
@@ -362,7 +405,8 @@ export default {
       // schemaHooks.validateData(staticResourceDataValidator),
       discardQuery('projectId'),
       schemaHooks.resolveData(staticResourceDataResolver),
-      createHashIfNeeded
+      createHashIfNeeded,
+      updateName
     ],
     update: [
       ensureProject,
@@ -378,7 +422,8 @@ export default {
       // schemaHooks.validateData(staticResourceDataValidator),
       discardQuery('projectId'),
       schemaHooks.resolveData(staticResourceDataResolver),
-      createHashIfNeeded
+      createHashIfNeeded,
+      updateName
     ],
     patch: [
       iff(
@@ -392,7 +437,8 @@ export default {
       deleteOldThumbnail,
       // schemaHooks.validateData(staticResourcePatchValidator),
       discardQuery('projectId'),
-      schemaHooks.resolveData(staticResourcePatchResolver)
+      schemaHooks.resolveData(staticResourcePatchResolver),
+      updateName
     ],
     remove: [
       iff(
