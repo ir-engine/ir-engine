@@ -29,6 +29,7 @@ import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 
 import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.type.module'
+import { isEmpty } from 'lodash'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import allowNullQuery from '../../hooks/allow-null-query'
@@ -99,6 +100,49 @@ const createHashIfNeeded = async (context: HookContext<StaticResourceService>) =
     const result = await storageProvider.getObject(data.key)
     const hash = createStaticResourceHash(result.Body)
     context.data.hash = hash
+  }
+}
+
+const updateName = async (context: HookContext<StaticResourceService>) => {
+  if (!context.data || !(context.method === 'create' || context.method === 'update' || context.method === 'patch')) {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Batch create is not supported')
+
+  let id = context.id
+  const data = context.data
+
+  if (!data.key) {
+    return
+  }
+
+  if (data.name) {
+    return
+  }
+
+  let shouldUpdateName = false
+  if (context.method === 'create') {
+    shouldUpdateName = true
+  } else {
+    if (!id) {
+      return
+    }
+    const existingResource = await context.app.service(staticResourcePath).get(id, {
+      query: {
+        $select: ['key', 'name']
+      }
+    })
+
+    const [existing_, existingDirectory, existingFile] = /(.*)\/([^\\\/]+$)/.exec(existingResource.key)!
+    if (!existingResource.name || existingResource.name === existingFile) {
+      shouldUpdateName = true
+    }
+  }
+
+  if (shouldUpdateName) {
+    const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(data.key)!
+    context.data.name = file
   }
 }
 
@@ -262,7 +306,30 @@ const resolveThumbnailURL = async (context: HookContext<StaticResourceService>) 
   return context
 }
 
-const addDeleteLog = async (context: HookContext<StaticResourceService>) => {
+/**
+ * Returns the corresponding action string based on the resource type and action type.
+ *
+ * @param {string} resourceType - The type of the resource.
+ * @param {ActionType} actionType - The type of action being performed.
+ * @returns {string} - The action string corresponding to the given resource and action types.
+ *
+ */
+const getActionType = (resourceType: string, actionType: 'delete' | 'patch'): string => {
+  const actionsMap = {
+    scene: {
+      delete: 'SCENE_REMOVED',
+      patch: 'SCENE_MODIFIED'
+    },
+    default: {
+      delete: 'RESOURCE_REMOVED',
+      patch: 'RESOURCE_MODIFIED'
+    }
+  }
+
+  return actionsMap[resourceType]?.[actionType] || actionsMap.default[actionType]
+}
+
+const addLog = async (context: HookContext<StaticResourceService>, actionType: 'delete' | 'patch') => {
   try {
     const resource = context.result as StaticResourceType
 
@@ -273,14 +340,18 @@ const addDeleteLog = async (context: HookContext<StaticResourceService>) => {
       }
     })
 
+    if (isEmpty(project.data)) {
+      throw new Error('Project not found')
+    }
+
     const projectId = project.data[0].id
 
-    const action = resource.type === 'scene' ? 'SCENE_REMOVED' : 'RESOURCE_REMOVED'
+    const action: any = getActionType(resource.type, actionType)
 
     await context.app.service(projectHistoryPath).create({
       projectId: projectId,
       userId: context.params.user?.id || null,
-      action: action,
+      action,
       actionIdentifier: resource.id,
       actionIdentifierType: 'static-resource',
       actionDetail: JSON.stringify({
@@ -288,7 +359,7 @@ const addDeleteLog = async (context: HookContext<StaticResourceService>) => {
       })
     })
   } catch (error) {
-    console.error('Error in adding delete log: ', error)
+    console.error(`Error in adding ${actionType} log:`, error)
   }
 }
 
@@ -334,7 +405,8 @@ export default {
       // schemaHooks.validateData(staticResourceDataValidator),
       discardQuery('projectId'),
       schemaHooks.resolveData(staticResourceDataResolver),
-      createHashIfNeeded
+      createHashIfNeeded,
+      updateName
     ],
     update: [
       ensureProject,
@@ -350,7 +422,8 @@ export default {
       // schemaHooks.validateData(staticResourceDataValidator),
       discardQuery('projectId'),
       schemaHooks.resolveData(staticResourceDataResolver),
-      createHashIfNeeded
+      createHashIfNeeded,
+      updateName
     ],
     patch: [
       iff(
@@ -364,7 +437,8 @@ export default {
       deleteOldThumbnail,
       // schemaHooks.validateData(staticResourcePatchValidator),
       discardQuery('projectId'),
-      schemaHooks.resolveData(staticResourcePatchResolver)
+      schemaHooks.resolveData(staticResourcePatchResolver),
+      updateName
     ],
     remove: [
       iff(
@@ -401,8 +475,8 @@ export default {
     ],
     create: [updateResourcesJson],
     update: [updateResourcesJson],
-    patch: [updateResourcesJson],
-    remove: [removeResourcesJson, addDeleteLog]
+    patch: [updateResourcesJson, (context) => addLog(context, 'patch')],
+    remove: [removeResourcesJson, (context) => addLog(context, 'delete')]
   },
 
   error: {

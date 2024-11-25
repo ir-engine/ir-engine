@@ -77,6 +77,7 @@ export default function AddEditChannelModal({ channel }: { channel?: ChannelType
     >
       {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
       <Input
+        fullWidth
         labelProps={{
           text: t('admin:components.channel.name'),
           position: 'top'

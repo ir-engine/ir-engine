@@ -23,17 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, setComponent, UndefinedEntity } from '@ir-engine/ecs'
+import { getComponent, getOptionalComponent, setComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { Tween } from '@tweenjs/tween.js'
 import { CircleGeometry, DoubleSide, Euler, Mesh, MeshBasicMaterial, RingGeometry, Vector3 } from 'three'
+import { SourceComponent } from '../components/SourceComponent'
 import { addMesh } from './addMesh'
 import { createSceneEntity } from './createSceneEntity'
 
 export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
-  const rootEntity = createSceneEntity(name, parentEntity)
+  const rootEntity = createSceneEntity(name)
+  if (parentEntity) {
+    setComponent(rootEntity, SourceComponent, getComponent(parentEntity, SourceComponent))
+    const entityTree = getOptionalComponent(parentEntity, EntityTreeComponent)
+    if (entityTree && entityTree.parentEntity) {
+      setComponent(rootEntity, EntityTreeComponent, { parentEntity: entityTree.parentEntity })
+      setComponent(rootEntity, TransformComponent, getComponent(parentEntity, TransformComponent))
+    }
+  }
   const childEntity = createSceneEntity(`${name}: loading spinner child`, rootEntity)
   const spinnerEntity = createSceneEntity(`${name}: spinner`, childEntity)
   const sphereEntity = createSceneEntity(`${name}: background`, childEntity)

@@ -80,14 +80,7 @@ export const ComponentShelfCategoriesState = defineState({
       Files: [GLTFComponent, PositionalAudioComponent, AudioAnalysisComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
-      Interaction: [
-        SpawnPointComponent,
-        LinkComponent,
-        MountPointComponent,
-        InteractableComponent,
-        InputComponent,
-        ScreenshareTargetComponent
-      ],
+      Interaction: [SpawnPointComponent, LinkComponent, MountPointComponent, InteractableComponent, InputComponent],
       Lighting: [
         AmbientLightComponent,
         PointLightComponent,

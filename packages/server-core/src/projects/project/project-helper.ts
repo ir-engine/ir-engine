@@ -150,14 +150,12 @@ export const updateBuilder = async (
     await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update('', project, params)))
   }
 
-  const helmSettings = (
-    await app.service(engineSettingPath).find({
-      query: {
-        category: 'helm',
-        paginate: false
-      }
-    })
-  ).data
+  const helmSettings = await app.service(engineSettingPath).find({
+    query: {
+      category: 'helm'
+    },
+    paginate: false
+  })
 
   const helmBuilder = helmSettings.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
   const helmMain = helmSettings.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value

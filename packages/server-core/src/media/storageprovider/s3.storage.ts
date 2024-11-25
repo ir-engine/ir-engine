@@ -370,7 +370,6 @@ export class S3Provider implements StorageProviderInterface {
       try {
         const upload = new Upload(args as unknown as Options)
         upload.on('httpUploadProgress', (progress) => {
-          console.log(progress)
           // if (params.onProgress) params.onProgress(progress.loaded, progress.total)
         })
         await upload.done()
