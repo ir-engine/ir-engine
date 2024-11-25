@@ -36,6 +36,7 @@ import { DisposableObject, ResourceAssetType, ResourceManager } from './Resource
  * Loader hook for creating an instance of a class that implements the DisposableObject interface in ResourceState.ts in a React context,
  * but has it's lifecycle managed by the ResourceManager in ResourceState.ts
  *
+ * @deprecated in favor of useResource
  * @param disposableLike A class that implements the DisposableObject interface eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
  * @param args *Optional* arguments to pass to the constructor of disposableLike

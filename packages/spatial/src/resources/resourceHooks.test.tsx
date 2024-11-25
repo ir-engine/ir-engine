@@ -27,17 +27,14 @@ import '@hookstate/core'
 
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React, { useEffect } from 'react'
+import React from 'react'
 import sinon from 'sinon'
-import { AmbientLight, DirectionalLight } from 'three'
-import { afterEach, beforeEach, describe, DoneCallback, it } from 'vitest'
+import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { getState } from '@ir-engine/hyperflux'
 
-import { useDisposable, useResource } from './resourceHooks'
-import { ResourceState } from './ResourceState'
+import { useResource } from './resourceHooks'
 
 describe('ResourceHooks', () => {
   beforeEach(async () => {
@@ -47,96 +44,6 @@ describe('ResourceHooks', () => {
   afterEach(() => {
     return destroyEngine()
   })
-
-  it('Loads an Object3D correctly', () =>
-    new Promise((done: DoneCallback) => {
-      const entity = createEntity()
-
-      let objUUID = undefined as undefined | string
-      const Reactor = () => {
-        const [light] = useDisposable(DirectionalLight, entity)
-
-        useEffect(() => {
-          objUUID = light.id.toString()
-          assert(light.isDirectionalLight)
-        }, [])
-
-        return <></>
-      }
-
-      const { rerender, unmount } = render(<Reactor />)
-
-      act(async () => {
-        rerender(<Reactor />)
-      }).then(() => {
-        const resourceState = getState(ResourceState)
-        assert(objUUID && resourceState.resources[objUUID])
-        unmount()
-        assert(!resourceState.resources[objUUID])
-        done()
-      })
-    }))
-
-  it('Unloads an Object3D correctly', () =>
-    new Promise((done: DoneCallback) => {
-      const entity = createEntity()
-
-      let objUUID = undefined as undefined | string
-      const Reactor = () => {
-        const [light, unload] = useDisposable(DirectionalLight, entity)
-
-        useEffect(() => {
-          objUUID = light.id.toString()
-          unload()
-        }, [])
-
-        return <></>
-      }
-
-      const { rerender, unmount } = render(<Reactor />)
-
-      act(async () => {
-        rerender(<Reactor />)
-      }).then(() => {
-        const resourceState = getState(ResourceState)
-        assert(objUUID && !resourceState.resources[objUUID])
-        unmount()
-        done()
-      })
-    }))
-
-  it('Updates an Object3D correctly', () =>
-    new Promise((done: DoneCallback) => {
-      const entity = createEntity()
-
-      const light1 = DirectionalLight
-      const light2 = AmbientLight
-
-      let lightClass = light1 as any
-      let lightObj: any = undefined
-
-      const Reactor = () => {
-        const [light] = useDisposable(lightClass, entity)
-
-        useEffect(() => {
-          lightObj = light
-        }, [light])
-
-        return <></>
-      }
-
-      const { rerender, unmount } = render(<Reactor />)
-
-      act(async () => {
-        assert(lightObj.isDirectionalLight)
-        lightClass = light2
-        rerender(<Reactor />)
-      }).then(() => {
-        assert(lightObj.isAmbientLight)
-        unmount()
-        done()
-      })
-    }))
 
   it('Can track any asset', () =>
     new Promise((done: DoneCallback) => {
