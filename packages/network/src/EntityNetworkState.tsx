@@ -108,8 +108,8 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const isOwner = ownerID === SceneUser || ownerID === Engine.instance.userID
   const worldNetwork = useHookstate(NetworkState.worldNetworkState).value
   const networkPeerState = useMutableState(NetworkPeerState).value
-  const useHasPeer = !!(worldNetwork && networkPeerState[worldNetwork.id]?.users?.[ownerID])
-  const userConnected = useHasPeer || isOwner
+  const userHasPeer = !!(worldNetwork && networkPeerState[worldNetwork.id]?.users?.[ownerID])
+  const userConnected = userHasPeer || isOwner
 
   useLayoutEffect(() => {
     if (!userConnected) return
