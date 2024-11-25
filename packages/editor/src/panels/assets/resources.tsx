@@ -210,24 +210,14 @@ function SideNavBar({ handleScrollToPage }) {
   const { resources, staticResourcesPagination } = useAssetsQuery()
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
 
-  const assignNavColor = (index: number) => {
-    if (hoveredIndex === null) return 'gray-400'
-    //bg-gray-700, bg-gray-400, bg-white
-    switch (index) {
-      case hoveredIndex:
-        return 'white'
-      case hoveredIndex - 1:
-      case hoveredIndex + 1:
-        return 'gray-700'
-      default:
-        return 'gray-400'
-    }
-  }
   return (
-    <div className="relative">
+    <div className="relative p-2">
       <div
         id="minimap-nav"
-        className="duration-250 fixed ml-6 mt-1.5 flex w-6 flex-col items-end gap-0 overflow-visible rounded-[4px] p-0.5 text-[10px] uppercase transition-all hover:ml-1 hover:gap-1 hover:p-2"
+        className={twMerge(
+          'duration-250 fixed ml-6 mt-1.5 flex w-6 flex-col items-end overflow-visible rounded-[4px] text-[10px] transition-[margin,padding]',
+          navBarActivated ? 'py-2 pr-6' : 'p-0.5 pr-1'
+        )}
         onMouseEnter={() => setNavBarActivated(true)}
         onMouseLeave={() => setNavBarActivated(false)}
       >
@@ -236,9 +226,10 @@ function SideNavBar({ handleScrollToPage }) {
           <div
             key={i}
             className={twMerge(
-              'nav-item transition-padding duration-250 flex w-10 flex-row items-center justify-end gap-1 p-0 text-gray-500',
+              'nav-item duration-250 flex w-10 flex-row items-center justify-end gap-1 text-gray-500  transition-[padding]',
               navBarActivated ? 'h-auto' : 'h-2',
-              'hover:cursor-pointer hover:py-1.5 hover:first:pb-0 hover:first:pt-1.5 hover:last:hover:pt-1.5'
+              hoveredIndex === i ? 'cursor-pointer py-1.5 first:pb-0 first:pt-1.5 last:pt-1.5' : 'py-0.5',
+              ''
             )}
             onMouseEnter={() => setHoveredIndex(i)}
             onMouseLeave={() => setHoveredIndex(null)}
@@ -246,16 +237,25 @@ function SideNavBar({ handleScrollToPage }) {
           >
             <span
               className={twMerge(
-                'nav-handle duration-250 h-[1px] w-3 transition-all',
-                hoveredIndex === i ? 'w-10' : '',
-                `bg-${assignNavColor(i)}`
+                'nav-handle duration-250 h-[1px] transition-[width]',
+                hoveredIndex === null
+                  ? 'bg-gray-400'
+                  : i === (hoveredIndex + 1) % pages || i === (hoveredIndex - 1 + pages) % pages
+                  ? 'bg-gray-700'
+                  : 'bg-gray-400',
+                hoveredIndex === i ? 'w-10 bg-white' : 'w-3'
               )}
             ></span>
             <span
               className={twMerge(
                 'nav-id w-[1em] transition-opacity duration-500 ',
-                !navBarActivated && 'opacity-0',
-                `text-${assignNavColor(i)}`
+                navBarActivated ? 'opacity-100' : 'opacity-0',
+                hoveredIndex === null
+                  ? 'text-gray-400'
+                  : i === (hoveredIndex + 1) % pages || i === (hoveredIndex - 1 + pages) % pages
+                  ? 'text-gray-700'
+                  : 'text-gray-400',
+                hoveredIndex === i ? 'text-white' : ''
               )}
             >
               {i === 0
@@ -353,8 +353,8 @@ function ResourceItems() {
                     i * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
                     (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch())
                   )
-                  .map((resource) => (
-                    <ResourceFile key={resource.id} resource={resource as StaticResourceType} />
+                  .map((resource, index) => (
+                    <ResourceFile key={index} resource={resource as StaticResourceType} />
                   ))}
               </div>
             </div>
