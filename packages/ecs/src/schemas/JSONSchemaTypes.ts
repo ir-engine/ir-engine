@@ -64,7 +64,6 @@ export interface Options<V = unknown> {
   default?: any
   serialize?: (value: V) => unknown
   deserialize?: (curr: V, value: V) => V
-  /** @todo */
   validate?: (value: V, prev: V, entity: Entity) => boolean
   [prop: string]: any
 }
