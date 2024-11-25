@@ -686,11 +686,12 @@ export const AuthService = {
     try {
       const identityProviders = await API.instance.service(identityProviderPath).find({
         query: {
-          email: email.toLowerCase()
+          email: email.toLowerCase(),
+          type: 'email'
         }
       })
 
-      return identityProviders.data.length > 0
+      return identityProviders.data.some((provider) => provider.email === email.toLowerCase())
     } catch (error) {
       return false
     }
