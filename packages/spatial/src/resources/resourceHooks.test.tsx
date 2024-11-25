@@ -55,7 +55,7 @@ describe('ResourceHooks', () => {
       let objUUID = undefined as undefined | string
       const Reactor = () => {
         const [light] = useDisposable(DirectionalLight, entity)
-        objUUID = light.uuid
+        objUUID = light.id.toString()
 
         useEffect(() => {
           assert(light.isDirectionalLight)
@@ -84,7 +84,7 @@ describe('ResourceHooks', () => {
       let objUUID = undefined as undefined | string
       const Reactor = () => {
         const [light, unload] = useDisposable(DirectionalLight, entity)
-        objUUID = light.uuid
+        objUUID = light.id.toString()
 
         useEffect(() => {
           unload()
