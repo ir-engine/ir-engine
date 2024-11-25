@@ -28,7 +28,7 @@ import { ChevronDownLg } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-interface CountryDetails {
+export interface CountryDetails {
   flag: string
   name: string
   dialCode: string

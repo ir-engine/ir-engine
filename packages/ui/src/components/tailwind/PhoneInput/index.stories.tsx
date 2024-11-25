@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
-import PhoneInput from './index'
+import { Country } from 'country-state-city'
+import React, { useEffect, useState } from 'react'
+import PhoneInput, { CountryDetails } from './index'
 
 export default {
   title: 'Components/Tailwind/PhoneInput',
@@ -32,85 +33,24 @@ export default {
 }
 
 const Renderer = (args: any) => {
-  const countryDetails = [
-    {
-      flag: '🇺🇸',
-      name: 'United States',
-      dialCode: '+1',
-      countryCode: 'US'
-    },
-    {
-      flag: '🇨🇦',
-      name: 'Canada',
-      dialCode: '+1',
-      countryCode: 'CA'
-    },
-    {
-      flag: '🇲🇽',
-      name: 'Mexico',
-      dialCode: '+52',
-      countryCode: 'MX'
-    },
-    {
-      flag: '🇧🇷',
-      name: 'Brazil',
-      dialCode: '+55',
-      countryCode: 'BR'
-    },
-    {
-      flag: '🇦🇷',
-      name: 'Argentina',
-      dialCode: '+54',
-      countryCode: 'AR'
-    },
-    {
-      flag: '🇨🇱',
-      name: 'Chile',
-      dialCode: '+56',
-      countryCode: 'CL'
-    },
-    {
-      flag: '🇵🇪',
-      name: 'Peru',
-      dialCode: '+51',
-      countryCode: 'PE'
-    },
-    {
-      flag: '🇨🇴',
-      name: 'Colombia',
-      dialCode: '+57',
-      countryCode: 'CO'
-    },
-    {
-      flag: '🇻🇪',
-      name: 'Venezuela',
-      dialCode: '+58',
-      countryCode: 'VE'
-    },
-    {
-      flag: '🇪🇨',
-      name: 'Ecuador',
-      dialCode: '+593',
-      countryCode: 'EC'
-    },
-    {
-      flag: '🇵🇾',
-      name: 'Paraguay',
-      dialCode: '+595',
-      countryCode: 'PY'
-    },
-    {
-      flag: '🇮🇳',
-      name: 'India',
-      dialCode: '+91',
-      countryCode: 'IN'
-    }
-  ]
+  const [countryDetails, setCountryDetails] = useState<CountryDetails[]>([])
 
   const [value, setValue] = useState({
     countryIndex: -1,
     phoneNumber: ''
   })
+
+  useEffect(() => {
+    const countries = Country.getAllCountries()
+    const _countryDetails = countries.map((country) => ({
+      flag: country.flag,
+      name: country.name,
+      dialCode: country.phonecode,
+      countryCode: country.isoCode
+    }))
+    _countryDetails.sort((a, b) => a.name.localeCompare(b.name))
+    setCountryDetails(_countryDetails)
+  }, [])
 
   return (
     <PhoneInput
