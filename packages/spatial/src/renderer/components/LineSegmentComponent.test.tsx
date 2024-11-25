@@ -367,7 +367,6 @@ describe('LineSegmentComponent', () => {
           rerender(<Reactor />)
         }).then(() => {
           sinon.assert.calledTwice(spy)
-          assert(spy.callCount === 4)
           unmount()
           done()
         })
