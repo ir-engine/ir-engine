@@ -27,13 +27,14 @@ import '@hookstate/core'
 
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React from 'react'
+import React, { useEffect } from 'react'
 import sinon from 'sinon'
 import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, destroyEngine } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
+import { AmbientLight, DirectionalLight } from 'three'
 import { useResource } from './resourceHooks'
 
 describe('ResourceHooks', () => {
@@ -107,5 +108,42 @@ describe('ResourceHooks', () => {
         assert(!resourceObj.data)
         done()
       })
+    }))
+
+  it('Updates an any asset', () =>
+    new Promise((done: DoneCallback) => {
+      const entity = createEntity()
+
+      const spy = sinon.spy()
+      const spy2 = sinon.spy()
+
+      const light1 = new DirectionalLight()
+      const light2 = new AmbientLight()
+
+      light1.dispose = spy
+      light2.dispose = spy2
+
+      let lightObj: any = undefined
+      let lightObj2: any = undefined
+
+      const Reactor = () => {
+        const [light] = useResource(() => light1 as DirectionalLight | AmbientLight, entity)
+
+        useEffect(() => {
+          lightObj = light.value
+          light.set(light2)
+          lightObj2 = light.value
+        }, [])
+
+        return <></>
+      }
+
+      const { rerender, unmount } = render(<Reactor />)
+      assert(lightObj.isDirectionalLight)
+      assert(lightObj2.isAmbientLight)
+      assert(spy.calledOnce)
+      assert(!spy2.called)
+      unmount()
+      done()
     }))
 })
