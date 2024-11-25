@@ -36,6 +36,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   UndefinedEntity,
   useComponent,
@@ -375,8 +376,8 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
   useEffect(() => {
     return () => {
       const ancestor = getAncestorWithComponents(gltfComponentEntity, [SceneComponent])
-      const scene = getMutableComponent(ancestor, SceneComponent)
-      scene.active.set(true)
+      const scene = getOptionalMutableComponent(ancestor, SceneComponent)
+      if (scene) scene.active.set(true)
       removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
       removeError(gltfComponentEntity, GLTFComponent, 'INVALID_SOURCE')
     }
