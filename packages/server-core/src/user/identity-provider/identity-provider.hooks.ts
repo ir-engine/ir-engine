@@ -275,7 +275,7 @@ const isSearchQuery = (context: HookContext) => {
   const { query } = context.params
   const queryLength = Object.keys(query).length
   // we only need to allow search based on exact email in the query
-  if (queryLength === 2 && query.email && !query.email.$like && !query.email.$notlike) {
+  if (queryLength === 3 && query.email && !query.email.$like && !query.email.$notlike) {
     return true
   }
   return false
@@ -298,7 +298,8 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          (ctx: HookContext) => (isAction('admin')(ctx) && checkScope('user', 'read')(ctx)) || isSearchQuery(ctx),
+          async (ctx: HookContext) =>
+            (isAction('admin')(ctx) && (await checkScope('user', 'read')(ctx))) || isSearchQuery(ctx),
           [],
           [setLoggedinUserInQuery('userId')]
         )
