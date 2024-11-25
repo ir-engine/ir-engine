@@ -616,20 +616,6 @@ export function createSkeletonFromBone(bone: Bone): Skeleton {
   return skeleton
 }
 
-function findRootBone(bone: Bone): Bone {
-  let node = bone
-  while (node.parent && (node.parent as Bone).isBone) {
-    node = node.parent as Bone
-  }
-
-  // Some models use Object3D as a root bone instead of Bone
-  if (node.parent && /hip|pelvis/i.test(node.parent.name)) {
-    node = node.parent as any
-  }
-
-  return node
-}
-
 export const hipsRegex = /hip|pelvis/i
 
 const _dir = new Vector3()
