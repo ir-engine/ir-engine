@@ -50,7 +50,7 @@ import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spati
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
-import { retargetAnimationClips } from '../functions/retargetMixamoRig'
+import { retargetAnimationClips } from '../functions/retargetingFunctions'
 import { setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'

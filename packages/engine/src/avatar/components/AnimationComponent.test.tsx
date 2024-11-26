@@ -69,7 +69,7 @@ const animation_pack = default_url + '/animations/emotes.glb'
 const vrm = default_url + '/avatars/male_01.vrm'
 
 describe('AnimationComponent', () => {
-  describe('Animation Binding', () => {
+  describe('ECS PropertyBinding', () => {
     overrideFileLoaderLoad()
 
     beforeEach(() => {
@@ -79,12 +79,6 @@ describe('AnimationComponent', () => {
     afterEach(() => {
       return destroyEngine()
     })
-
-    const compareFlatQuaternions = (a: number[], b: number[]) => {
-      for (let i = 0; i < a.length; i++) {
-        assert(a[i] === b[i])
-      }
-    }
 
     it('should bind animation tracks to entities based on node id sourced from entity UUIDs', async () => {
       const entity = setupEntity()
@@ -107,6 +101,7 @@ describe('AnimationComponent', () => {
         if (hasComponent(e, MeshComponent))
           startingFlatQuaternions.push(...getComponent(e, TransformComponent).rotation.toArray())
       })
+
       const animationComponent = getComponent(entity, AnimationComponent)
       animationComponent.mixer.clipAction(animationComponent.animations[0]).play()
       animationComponent.mixer.update(0.1)
@@ -118,12 +113,23 @@ describe('AnimationComponent', () => {
       })
 
       //quaternions update as a side effect of successful animation binding, so assert that they've changed
-      compareFlatQuaternions(startingFlatQuaternions, animatedFlatQuaternions)
+      for (let i = 0; i < startingFlatQuaternions.length / 4; i++) {
+        const startX = startingFlatQuaternions[i]
+        const startY = startingFlatQuaternions[i + 1]
+        const startZ = startingFlatQuaternions[i + 2]
+        const startW = startingFlatQuaternions[i + 3]
+        const animatedX = animatedFlatQuaternions[i]
+        const animatedY = animatedFlatQuaternions[i + 1]
+        const animatedZ = animatedFlatQuaternions[i + 2]
+        const animatedW = animatedFlatQuaternions[i + 3]
+        assert(startX + startY + startZ + startW !== animatedX + animatedY + animatedZ + animatedW)
+      }
       unmount()
     })
 
     it('should bind animation tracks to rig entities based on VRM schema', async () => {
       const animationPackEntity = setupEntity()
+      const { rerender, unmount } = render(<></>)
 
       setComponent(animationPackEntity, UUIDComponent, generateEntityUUID())
       setComponent(animationPackEntity, GLTFComponent, { src: animation_pack })
@@ -131,13 +137,15 @@ describe('AnimationComponent', () => {
 
       const vrmEntity = setupEntity()
 
+      applyIncomingActions()
+      await act(async () => rerender(<></>))
+
       setComponent(vrmEntity, UUIDComponent, generateEntityUUID())
       setComponent(vrmEntity, GLTFComponent, { src: vrm })
       setComponent(vrmEntity, AvatarRigComponent)
       setComponent(vrmEntity, AvatarAnimationComponent)
       setComponent(vrmEntity, AvatarComponent)
       startReactor(SystemDefinitions.get(AvatarAnimationSystem)!.reactor!)
-      const { rerender, unmount } = render(<></>)
       applyIncomingActions()
       //extra wait for animation component to prevent race conditions
       await vi.waitFor(
@@ -156,23 +164,35 @@ describe('AnimationComponent', () => {
         animations: getComponent(animationPackEntity, AnimationComponent).animations,
         mixer: new AnimationMixer(getComponent(vrmEntity, AvatarRigComponent).vrm.scene)
       })
+      const rig = getComponent(vrmEntity, AvatarRigComponent).entitiesToBones
 
-      const startingFlatQuaternions = [] as number[]
-      iterateEntityNode(vrmEntity, (e) => {
-        if (hasComponent(e, MeshComponent))
-          startingFlatQuaternions.push(...getComponent(e, TransformComponent).rotation.toArray())
-      })
+      const startRigQuaternions = [] as number[]
+      for (const bone in rig) {
+        if (hasComponent(rig[bone], TransformComponent))
+          startRigQuaternions.push(...getComponent(rig[bone], TransformComponent).rotation.toArray())
+      }
 
       animationComponent.mixer.clipAction(animationComponent.animations[0]).play()
       animationComponent.mixer.update(0.1)
 
-      const animatedFlatQuaternions = [] as number[]
-      iterateEntityNode(vrmEntity, (e) => {
-        if (hasComponent(e, MeshComponent))
-          animatedFlatQuaternions.push(...getComponent(e, TransformComponent).rotation.toArray())
-      })
+      const animatedRigQuaternions = [] as number[]
+      for (const bone in rig) {
+        if (hasComponent(rig[bone], TransformComponent))
+          animatedRigQuaternions.push(...getComponent(rig[bone], TransformComponent).rotation.toArray())
+      }
 
-      compareFlatQuaternions(startingFlatQuaternions, animatedFlatQuaternions)
+      for (let i = 0; i < startRigQuaternions.length / 4; i++) {
+        const startX = startRigQuaternions[i]
+        const startY = startRigQuaternions[i + 1]
+        const startZ = startRigQuaternions[i + 2]
+        const startW = startRigQuaternions[i + 3]
+        const animatedX = animatedRigQuaternions[i]
+        const animatedY = animatedRigQuaternions[i + 1]
+        const animatedZ = animatedRigQuaternions[i + 2]
+        const animatedW = animatedRigQuaternions[i + 3]
+        assert(startX + startY + startZ + startW !== animatedX + animatedY + animatedZ + animatedW)
+      }
+
       unmount()
     })
   })
