@@ -104,8 +104,7 @@ export const FileIcon = ({
             onLoad={handleImageLoaded}
           />
           <img
-            style={{ display: imageLoaded.value ? 'none' : 'block' }}
-            className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
+            className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain', imageLoaded.value ? 'hidden' : 'block')}
             crossOrigin="anonymous"
             src={FILE_ICON_BLUR}
             alt="file-thumbnail"
