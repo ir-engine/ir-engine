@@ -90,6 +90,7 @@ const TransformPivotTool = () => {
           onChange={setTransformPivot}
           options={transformPivotOptions}
           value={editorHelperState.transformPivot.value}
+          width="sm"
         />
       </Tooltip>
     </div>

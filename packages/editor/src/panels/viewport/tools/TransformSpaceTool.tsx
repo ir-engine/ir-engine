@@ -78,6 +78,7 @@ const TransformSpaceTool = () => {
           onChange={setTransformSpace}
           options={transformSpaceOptions}
           value={transformSpace.value}
+          width="sm"
         />
       </Tooltip>
     </div>
