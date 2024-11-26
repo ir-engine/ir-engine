@@ -134,7 +134,7 @@ PropertyBinding.findNode = (root: Object3D, nodeName) => {
   }
 
   /**Find the entity that corresponds to the nodeName.
-   * Using getTrackId to allow reuse of the same track for identical hierarchies across different roots.
+   * Using getTrackId to allow reuse of the same track for identical hierarchies across different entity roots.
    */
   if (!entity)
     entity = childEntities.find((entity) => getTrackId(entity) === nodeName.substring(nodeName.lastIndexOf('-') + 1))!

@@ -62,6 +62,7 @@ import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
+/**@todo refactor into generalized AnimationGraphComponent */
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
 
@@ -90,6 +91,7 @@ export const AvatarRigComponent = defineComponent({
     entitiesToBones: S.Record(S.Entity(), HumanBonesSchema),
 
     /** contains ik solve data */
+    /**@todo create and move to AvatarIKComponent */
     ikMatrices: S.Record(
       S.LiteralUnion(Object.values(VRMHumanBoneName)),
       S.Object({

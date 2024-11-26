@@ -403,7 +403,6 @@ const AnimationLoader = () => {
 
 const RigReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const rigComponent = useComponent(entity, AvatarRigComponent)
   const gltfComponent = useOptionalComponent(entity, GLTFComponent)
   useEffect(() => {
     if (gltfComponent?.progress?.value !== 100 || !hasComponent(entity, AvatarAnimationComponent)) return
