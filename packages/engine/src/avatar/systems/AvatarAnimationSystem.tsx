@@ -444,7 +444,6 @@ export const AvatarAnimationSystem = defineSystem({
     // if (!isClient || !useQuery([RendererComponent]).length) return null
     const rigEntities = useQuery([AvatarRigComponent])
     const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
-    console.log(avatarAnimationEntities)
     return (
       <>
         <Reactor />

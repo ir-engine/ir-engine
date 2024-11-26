@@ -227,7 +227,6 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
     if (entity === rootEntity) return
 
     const name = getComponent(entity, NameComponent)
-    console.log(name)
     if (!name) return
     /**match the keys to create a humanoid bones object */
     let boneName = mixamoPrefix + name
