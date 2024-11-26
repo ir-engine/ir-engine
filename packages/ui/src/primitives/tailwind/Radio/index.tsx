@@ -102,7 +102,7 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
 
 type OptionType = {
   value: string
-  label: string
+  label?: string
   description?: string
 }
 export interface RadioGroupProps<T> {
