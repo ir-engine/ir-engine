@@ -131,20 +131,10 @@ export const Default = {
   render: Renderer
 }
 
-export const CustomRenderValue = {
-  render: Renderer,
-  args: {
-    labelText: 'Price',
-    labelPosition: 'top',
-    renderValue: (value: number) => `$${Math.max(value * 100, 20)}`
-  }
-}
-
 export const SecondaryText = {
   render: Renderer,
   args: {
-    generateItem: (i: number) => ({ value: i, title: `Account Settings ${i}`, secondaryText: 'secondary' }),
-    renderValue: (value: number) => `Account Settings ${value}`,
+    generateItem: (i: number) => ({ value: i, label: `Account Settings ${i}`, secondaryText: 'secondary' }),
     showCheckmark: false
   }
 }
@@ -154,11 +144,10 @@ export const SecondaryTextWithIcon = {
   args: {
     generateItem: (i: number) => ({
       value: i,
-      title: `Account Settings ${i}`,
+      label: `Account Settings ${i}`,
       secondaryText: 'secondary',
       Icon: Rows01Md
     }),
-    renderValue: (value: number) => `Account Settings ${value}`,
     showCheckmark: false
   }
 }

@@ -48,7 +48,6 @@ export interface SelectProps<T = string | number> {
   inputSizeVariant?: InputProps['variantSize']
   onChange: (value: T) => void
   value: T
-  renderValue?: (value: T) => string
   labelProps?: InputProps['labelProps']
   state?: InputProps['state']
   helperText?: InputProps['helperText']
@@ -69,7 +68,6 @@ const Select = ({
   inputSizeVariant = 'l',
   onChange,
   value,
-  renderValue,
   labelProps,
   state,
   helperText,
@@ -146,11 +144,7 @@ const Select = ({
       selectedOptionIndex < options.length &&
       options[selectedOptionIndex].value === value
     ) {
-      if (renderValue !== undefined) {
-        setSelectedLabelContent(renderValue(value))
-      } else {
-        setSelectedLabelContent(options[selectedOptionIndex].label)
-      }
+      setSelectedLabelContent(options[selectedOptionIndex].label)
       return
     }
 
@@ -162,12 +156,8 @@ const Select = ({
       return
     }
 
-    if (renderValue !== undefined) {
-      setSelectedLabelContent(renderValue(value))
-    } else {
-      setSelectedLabelContent(options[index].label)
-    }
-  }, [value, options, renderValue, selectedOptionIndex])
+    setSelectedLabelContent(options[index].label)
+  }, [value, options, selectedOptionIndex])
 
   return (
     <div className={`flex flex-col gap-y-2 ${width === 'full' ? 'w-full' : 'w-fit'}`}>
