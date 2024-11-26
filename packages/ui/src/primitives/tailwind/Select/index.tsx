@@ -226,7 +226,7 @@ const Select = ({
               }
 
               setActiveIndex(newIndex)
-              if (e.code === 'Enter') {
+              if (['Enter', ' '].includes(e.code)) {
                 onChange(options[newIndex].value)
                 setOpen(false)
                 setSelectedOptionIndex(newIndex)
