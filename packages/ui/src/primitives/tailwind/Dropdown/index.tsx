@@ -42,7 +42,7 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
   active?: boolean
 }
 
-export function DropdownItem({ title, disabled, active, Icon, selected, secondaryText, ...props }: DropdownItemProps) {
+export function DropdownItem({ label, disabled, active, Icon, selected, secondaryText, ...props }: DropdownItemProps) {
   return (
     <div
       tabIndex={0}
@@ -57,7 +57,7 @@ export function DropdownItem({ title, disabled, active, Icon, selected, secondar
     >
       <span className="flex items-center gap-2">
         {Icon && <Icon className={twMerge('h-3 w-3', selected && 'text-[#F5F5F5]')} />}
-        {title}
+        {label}
       </span>
       {secondaryText && <span className="ml-auto">{secondaryText}</span>}
       {!secondaryText && selected && <HiCheck className="ml-auto h-3 w-3 stroke-2" />}
