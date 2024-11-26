@@ -97,14 +97,22 @@ export const FileIcon = ({
       ) : thumbnailURL ? (
         <>
           <img
-            className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain', imageLoaded.value ? 'block' : 'hidden')}
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'block' : 'hidden'
+            )}
             crossOrigin="anonymous"
             src={thumbnailURL}
             alt="file-thumbnail"
             onLoad={handleImageLoaded}
           />
           <img
-            className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain', imageLoaded.value ? 'hidden' : 'block')}
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'hidden' : 'block'
+            )}
             crossOrigin="anonymous"
             src={FILE_ICON_BLUR}
             alt="file-thumbnail"
