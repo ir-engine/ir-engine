@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
@@ -32,14 +34,17 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
-import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
+import React from 'react'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
@@ -147,5 +152,40 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   return () => {
     unload()
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)
+  }
+}
+
+/**
+ * onSaveScene
+ *
+ * @returns Promise<void>
+ */
+export const onSaveScene = async () => {
+  const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+  const sceneModified = EditorState.isModified()
+
+  if (!sceneModified) {
+    PopoverState.hidePopupover()
+    NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
+    return
+  }
+
+  const abortController = new AbortController()
+
+  try {
+    await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
+    NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
+    const sourceID = getComponent(rootEntity, SourceComponent)
+    getMutableState(GLTFModifiedState)[sourceID].set(none)
+
+    PopoverState.hidePopupover()
+  } catch (error) {
+    console.error(error)
+    PopoverState.showPopupover(
+      <ErrorDialog
+        title={i18n.t('editor:savingError')}
+        description={error.message || i18n.t('editor:savingErrorMsg')}
+      />
+    )
   }
 }
