@@ -404,8 +404,9 @@ const AnimationLoader = () => {
 const RigReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+  const avatarAnimationComponent = useOptionalComponent(entity, AvatarAnimationComponent)
   useEffect(() => {
-    if (gltfComponent?.progress?.value !== 100 || !hasComponent(entity, AvatarAnimationComponent)) return
+    if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
     try {
       createVRM(entity)
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatars)
@@ -417,7 +418,7 @@ const RigReactor = (props: { entity: Entity }) => {
         removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
       }
     }
-  }, [gltfComponent?.progress?.value, gltfComponent?.src.value])
+  }, [gltfComponent?.progress?.value, gltfComponent?.src.value, avatarAnimationComponent])
 
   return null
 }
