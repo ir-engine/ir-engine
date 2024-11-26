@@ -42,7 +42,7 @@ import {
   Vector3
 } from 'three'
 
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState } from '@ir-engine/hyperflux'
@@ -57,6 +57,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { NormalizedBoneComponent } from '../avatar/components/NormalizedBoneComponent'
 import { LandmarkIndices } from './MocapConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
@@ -275,8 +276,8 @@ export function solveMotionCapturePose(
     return filteredLandmarks
   }
 
-  const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig || !rig.normalizedRig || !rig.normalizedRig.hips || !rig.normalizedRig.hips.node) {
+  const rig = getOptionalComponent(entity, AvatarRigComponent)?.bonesToEntities
+  if (!rig?.hips) {
     return
   }
 
@@ -453,7 +454,7 @@ export const solveSpine = (
   landmarks: NormalizedLandmark[],
   trackingLowerBody: boolean
 ) => {
-  const rig = getComponent(entity, AvatarRigComponent)
+  const rig = getComponent(entity, AvatarRigComponent).bonesToEntities
   const avatar = getComponent(entity, AvatarComponent)
 
   const rightHip = landmarks[LandmarkIndices.RIGHT_HIP]
@@ -477,7 +478,7 @@ export const solveSpine = (
       if (feetGrounded[i]) {
         const footLandmark =
           landmarks[i == feetIndices.rightFoot ? LandmarkIndices.RIGHT_ANKLE : LandmarkIndices.LEFT_ANKLE].y
-        const footY = footLandmark * -1 + rig.normalizedRig.hips.node.position.y
+        const footY = footLandmark * -1 + getComponent(rig.hips, NormalizedBoneComponent).position.y
         MotionCaptureRigComponent.footOffset[entity] = footY
       }
     }
@@ -621,7 +622,9 @@ export const solveHand = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+  const parentQuaternion = getComponent(rig[parentTargetBoneName], NormalizedBoneComponent).getWorldQuaternion(
+    new Quaternion()
+  )
 
   startPoint.set(extent.x, lowestWorldY - extent.y, extent.z)
   ref1Point.set(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -662,7 +665,9 @@ export const solveFoot = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+  const parentQuaternion = getComponent(rig[parentTargetBoneName], NormalizedBoneComponent).getWorldQuaternion(
+    new Quaternion()
+  )
 
   const targetQuat = new Quaternion()
   if (grounded) {
