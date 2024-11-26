@@ -97,8 +97,7 @@ export const FileIcon = ({
       ) : thumbnailURL ? (
         <>
           <img
-            style={{ display: imageLoaded.value ? 'block' : 'none' }}
-            className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
+            className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain', imageLoaded.value ? 'block' : 'hidden')}
             crossOrigin="anonymous"
             src={thumbnailURL}
             alt="file-thumbnail"
