@@ -22,7 +22,6 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 import { getComponent } from '@ir-engine/ecs'
@@ -30,7 +29,6 @@ import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { Input } from '@ir-engine/ui'
-import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
@@ -38,64 +36,7 @@ import { useTranslation } from 'react-i18next'
 import { saveSceneGLTF } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 
-export const SaveSceneDialog = (props: { isExiting?: boolean; onConfirm?: () => void; onCancel?: () => void }) => {
-  const { t } = useTranslation()
-  const modalProcessing = useHookstate(false)
-
-  const handleSubmit = async () => {
-    modalProcessing.set(true)
-    const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
-    const sceneModified = EditorState.isModified()
-
-    if (!projectName) {
-      PopoverState.hidePopupover()
-      if (props.onCancel) props.onCancel()
-      return
-    } else if (!sceneName) {
-      PopoverState.hidePopupover()
-      PopoverState.showPopupover(<SaveNewSceneDialog onConfirm={props.onConfirm} onCancel={props.onCancel} />)
-      return
-    } else if (!sceneModified) {
-      PopoverState.hidePopupover()
-      if (props.onCancel) props.onCancel()
-      NotificationService.dispatchNotify(t('editor:dialog.saveScene.info-save-success'), { variant: 'success' })
-      return
-    }
-
-    const abortController = new AbortController()
-
-    try {
-      await saveSceneGLTF(sceneAssetID!, projectName, sceneName, abortController.signal)
-      NotificationService.dispatchNotify(t('editor:dialog.saveScene.info-save-success'), { variant: 'success' })
-      const sourceID = getComponent(rootEntity, SourceComponent)
-      getMutableState(GLTFModifiedState)[sourceID].set(none)
-
-      PopoverState.hidePopupover()
-      if (props.onConfirm) props.onConfirm()
-    } catch (error) {
-      console.error(error)
-      PopoverState.showPopupover(
-        <ErrorDialog title={t('editor:savingError')} description={error.message || t('editor:savingErrorMsg')} />
-      )
-      if (props.onCancel) props.onCancel()
-    }
-    modalProcessing.set(false)
-  }
-
-  return (
-    <ConfirmDialog
-      title={props.isExiting ? t('editor:dialog.saveScene.unsavedChanges.title') : t('editor:dialog.saveScene.title')}
-      onSubmit={handleSubmit}
-      onClose={() => {
-        PopoverState.hidePopupover()
-        if (props.onCancel) props.onCancel()
-      }}
-      text={props.isExiting ? t('editor:dialog.saveScene.info-question') : t('editor:dialog.saveScene.info-confirm')}
-    />
-  )
-}
-
-export const SaveNewSceneDialog = (props: { onConfirm?: () => void; onCancel?: () => void }) => {
+export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCancel?: () => void }) {
   const { t } = useTranslation()
   const inputSceneName = useHookstate('New-Scene')
   const modalProcessing = useHookstate(false)

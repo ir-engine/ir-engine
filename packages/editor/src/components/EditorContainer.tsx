@@ -37,7 +37,6 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
@@ -54,7 +53,7 @@ import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
-import { setCurrentEditorScene } from '../functions/sceneFunctions'
+import { onSaveScene, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { AssetsPanelTab } from '../panels/assets'
 import { FilesPanelTab } from '../panels/files'
 import { HierarchyPanelTab } from '../panels/hierarchy'
@@ -205,7 +204,7 @@ const EditorContainer = () => {
 
   useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
     e.preventDefault()
-    PopoverState.showPopupover(<SaveSceneDialog />)
+    onSaveScene()
   })
 
   const { initialized, isWidgetVisible, openChat } = useZendesk()

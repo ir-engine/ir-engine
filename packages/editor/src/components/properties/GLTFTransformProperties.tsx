@@ -171,7 +171,6 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'Default', value: 'default' },
                   { label: 'JPG', value: 'jpg' },
@@ -183,7 +182,7 @@ export default function GLTFTransformProperties({
                   // @ts-ignore
                   transformParms.textureFormat.set(value)
                 }}
-                currentValue={transformParms.textureFormat.value}
+                value={transformParms.textureFormat.value}
               />
             </div>
           </div>
@@ -215,7 +214,6 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'UASTC', value: 'uastc' },
                   { label: 'ETC1', value: 'etc1' }
@@ -224,7 +222,7 @@ export default function GLTFTransformProperties({
                   // @ts-ignore
                   transformParms.textureCompressionType.set(value)
                 }}
-                currentValue={transformParms.textureCompressionType.value}
+                value={transformParms.textureCompressionType.value}
               />
             </div>
           </div>
