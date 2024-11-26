@@ -117,7 +117,7 @@ export default function FileBrowser() {
   const projectName = useMutableState(EditorState).projectName.value
   useEffect(() => {
     if (projectName) {
-      filesState.merge({ selectedDirectory: `/projects/${projectName}/`, projectName: projectName })
+      filesState.merge({ selectedDirectory: `/projects/${projectName}/public/`, projectName: projectName })
     }
   }, [projectName])
 
