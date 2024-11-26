@@ -133,12 +133,11 @@ export class AppleStrategy extends CustomOAuthStrategy {
     redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/apple` : config.authentication.callback.apple
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
-      const err = data.message as string
-      return redirectDomain + `?error=${err}`
+      return this.handleErrorRedirect(data, params, redirectConfig, redirectDomain)
     }
 
     const loginType = params.query?.userId ? 'connection' : 'login'
-    let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
+    let redirectUrl = `${redirectDomain}?token=${(data as AuthenticationResult).accessToken}&type=${loginType}`
     if (redirectPath) {
       redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
     }
@@ -158,6 +157,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
             authentication.error
         )
     }
+    await this.validateSignInUser(authentication, originalParams, 'apple')
     return super.authenticate(authentication, originalParams)
   }
 }

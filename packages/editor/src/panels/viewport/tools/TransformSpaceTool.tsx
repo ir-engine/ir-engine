@@ -75,11 +75,10 @@ const TransformSpaceTool = () => {
       >
         <Select
           key={transformSpace.value}
-          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs"
-          className="m-1 w-24 border-theme-input text-theme-gray3"
           onChange={setTransformSpace}
           options={transformSpaceOptions}
-          currentValue={transformSpace.value}
+          value={transformSpace.value}
+          width="sm"
         />
       </Tooltip>
     </div>

@@ -152,11 +152,11 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
 
   const onAddBurst = useCallback(() => {
     const nuBurst: BurstParametersJSON = {
-      time: 0,
-      count: 0,
+      time: 1,
+      count: 500,
       cycle: 0,
       interval: 0,
-      probability: 0
+      probability: 1
     }
     const data = [...JSON.parse(JSON.stringify(particleSystem.systemParameters.emissionBursts)), nuBurst]
     commitProperty(ParticleSystemComponent, 'systemParameters.emissionBursts' as any)(data)

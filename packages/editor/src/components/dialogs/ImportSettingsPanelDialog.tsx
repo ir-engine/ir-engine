@@ -62,13 +62,15 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
     <>
       <Text>{t('editor:properties.model.transform.compress')}</Text>
       <Select
-        label={t('editor:properties.model.transform.mode')}
-        description={t('editor:properties.model.transform.modeTooltip')}
+        labelProps={{
+          text: t('editor:properties.model.transform.mode'),
+          position: 'top'
+        }}
         options={[
           { label: 'ETC1S', value: 'ETC1S' },
           { label: 'UASTC', value: 'UASTC' }
         ]}
-        currentValue={compressProperties.mode.value}
+        value={compressProperties.mode.value}
         onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
       />
       <div className="flex items-center gap-2">
@@ -148,7 +150,7 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
           >
             <Select
               options={UASTCFlagOptions}
-              currentValue={compressProperties.uastcFlags.value}
+              value={compressProperties.uastcFlags.value}
               onChange={(val: number) => compressProperties.uastcFlags.set(val)}
             />
           </InputGroup>
@@ -236,11 +238,13 @@ export default function ImportSettingsPanel() {
           <Label>LODs to Generate</Label>
           {selectedLODS.slice(0, 3).map((LOD, idx) => (
             <Select
-              label={LOD.params.dst}
-              description={presetLabels[idx]}
+              labelProps={{
+                text: LOD.params.dst,
+                position: 'top'
+              }}
               key={idx}
               options={LODList.map((sLOD) => ({ label: sLOD.params.dst, value: sLOD as any }))}
-              currentValue={LOD.params.dst}
+              value={LOD.params.dst}
               onChange={(value) => {
                 setCurrentLOD(value as any)
                 setCurrentIndex(idx)

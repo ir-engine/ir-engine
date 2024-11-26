@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { IoAccessibilityOutline } from 'react-icons/io5'
 import { MdOutlineAudioFile, MdOutlinePhotoSizeSelectActual, MdOutlineViewInAr } from 'react-icons/md'
@@ -62,6 +63,7 @@ const FileIconType = {
 
 const FOLDER_ICON_PATH = '/static/editor/folder-icon.png'
 const FILE_ICON_PATH = '/static/editor/file-icon.png'
+const FILE_ICON_BLUR = '/static/editor/file-icon-blur.png'
 
 export const FileIcon = ({
   thumbnailURL,
@@ -77,6 +79,11 @@ export const FileIcon = ({
   isMinified?: boolean
 }) => {
   const FallbackIcon = FileIconType[type ?? '']
+  const imageLoaded = useHookstate(false)
+
+  const handleImageLoaded = () => {
+    imageLoaded.set(true)
+  }
 
   return (
     <>
@@ -88,12 +95,29 @@ export const FileIcon = ({
           alt="folder-icon"
         />
       ) : thumbnailURL ? (
-        <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
-          crossOrigin="anonymous"
-          src={thumbnailURL}
-          alt="file-thumbnail"
-        />
+        <>
+          <img
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'block' : 'hidden'
+            )}
+            crossOrigin="anonymous"
+            src={thumbnailURL}
+            alt="file-thumbnail"
+            onLoad={handleImageLoaded}
+          />
+          <img
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'hidden' : 'block'
+            )}
+            crossOrigin="anonymous"
+            src={FILE_ICON_BLUR}
+            alt="file-thumbnail"
+          />
+        </>
       ) : FallbackIcon ? (
         <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40')} />
       ) : (

@@ -60,14 +60,19 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-export default function AddEditLocationModal(props: { location?: LocationType; sceneID?: string | null }) {
+export default function AddEditLocationModal(props: {
+  action: string
+  location?: LocationType
+  sceneID?: string | null
+}) {
   const { t } = useTranslation()
 
   const locationID = useHookstate(props.location?.id || null)
 
   const params = {
     query: {
-      id: locationID.value
+      id: locationID.value,
+      action: props.action
     }
   }
 
@@ -242,7 +247,7 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
             />
             <Input
               type="number"
-              labelProps={{ text: t('admin:components.location.lbl-max-users'), position: 'top' }}
+              labelProps={{ text: t('admin:components.location.lbl-maxuser'), position: 'top' }}
               value={maxUsers.value}
               data-testid="publish-panel-location-max-users"
               onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
@@ -251,9 +256,12 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
               disabled={isLoading}
             />
             <Select
-              label={t('admin:components.location.lbl-scene')}
-              currentValue={scene.value}
-              onChange={(value) => scene.set(value)}
+              labelProps={{
+                text: t('admin:components.location.lbl-scene'),
+                position: 'top'
+              }}
+              value={scene.value}
+              onChange={(value: string) => scene.set(value)}
               disabled={!!props.sceneID || scenes.status !== 'success' || isLoading}
               options={
                 scenes.status === 'pending'
@@ -270,11 +278,15 @@ export default function AddEditLocationModal(props: { location?: LocationType; s
                       })
                     ]
               }
-              error={errors.scene.value}
+              state={errors.scene.value ? 'error' : undefined}
+              helperText={errors.scene.value}
             />
             <Select
-              label={t('admin:components.location.type')}
-              currentValue={locationType.value}
+              labelProps={{
+                text: t('admin:components.location.type'),
+                position: 'top'
+              }}
+              value={locationType.value}
               onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
               options={locationTypeOptions}
               disabled={true}

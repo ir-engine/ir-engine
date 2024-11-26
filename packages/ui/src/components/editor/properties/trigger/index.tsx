@@ -47,13 +47,13 @@ import { useTranslation } from 'react-i18next'
 import { GiTriggerHurt } from 'react-icons/gi'
 import { HiPlus, HiTrash } from 'react-icons/hi2'
 import Button from '../../../../primitives/tailwind/Button'
-import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
+import { OptionType } from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
 import NodeInput from '../../input/Node'
 import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
 
-type TargetOptionType = { label: string; value: string; callbacks: SelectOptionsType[] }
+type TargetOptionType = { label: string; value: string; callbacks: OptionType[] }
 
 const TriggerProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()

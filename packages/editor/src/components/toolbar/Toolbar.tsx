@@ -42,16 +42,16 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { RxHamburgerMenu } from 'react-icons/rx'
-import { twMerge } from 'tailwind-merge'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
-import { onNewScene } from '../../functions/sceneFunctions'
+import { onNewScene, onSaveScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { UIAddonsState } from '../../services/UIAddonsState'
 import CreatePrefabPanel from '../dialogs/CreatePrefabPanelDialog'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog'
-import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog'
+import SaveNewSceneDialog from '../dialogs/SaveNewSceneDialog'
+import QuitToDashboardConfirmationDialog from './../dialogs/QuitToDashboardConfirmationDialog'
 
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
@@ -70,9 +70,7 @@ export const confirmSceneSaveIfModified = async () => {
 
   if (isModified) {
     return new Promise((resolve) => {
-      PopoverState.showPopupover(
-        <SaveSceneDialog isExiting onConfirm={() => resolve(true)} onCancel={() => resolve(false)} />
-      )
+      PopoverState.showPopupover(<QuitToDashboardConfirmationDialog resolve={resolve} />)
     })
   }
   return true
@@ -121,7 +119,7 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.saveScene'),
       hotkey: `${cmdOrCtrlString}+s`,
-      action: () => PopoverState.showPopupover(<SaveSceneDialog />)
+      action: onSaveScene
     },
     {
       name: t('editor:menubar.saveAs'),
@@ -209,7 +207,7 @@ export default function Toolbar() {
                 disabled={!hasPublishAccess}
                 onClick={() =>
                   PopoverState.showPopupover(
-                    <AddEditLocationModal sceneID={sceneAssetID.value} location={currentLocation} />
+                    <AddEditLocationModal action="studio" sceneID={sceneAssetID.value} location={currentLocation} />
                   )
                 }
                 className="py-1 text-base"
@@ -227,8 +225,7 @@ export default function Toolbar() {
         <div className="w-[180px]" tabIndex={0}>
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <DropdownItem
-              className={twMerge(index === 0 && 'rounded-t-lg', index === toolbarMenu.length - 1 && 'rounded-b-lg')}
-              title={name}
+              label={name}
               secondaryText={hotkey}
               onClick={() => {
                 action()

@@ -83,12 +83,7 @@ const MediaPreview: React.FC<MediaPlayerProps> = ({ resources }) => {
       </div>
       {/* Dropdown to select media file */}
       <InputGroup label={t('editor:properties.media-preview.lbl-selected-source')}>
-        <SelectInput
-          value={selectedMedia.value}
-          options={options}
-          onChange={(e) => handleMediaChange(e as string)}
-          className="mb-2 flex-grow"
-        />
+        <SelectInput value={selectedMedia.value} options={options} onChange={(e) => handleMediaChange(e as string)} />
       </InputGroup>
 
       {mediaType.value === 'video' ? (

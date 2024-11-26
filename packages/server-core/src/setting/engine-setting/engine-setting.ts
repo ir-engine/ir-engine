@@ -60,21 +60,11 @@ export default (app: Application): void => {
   service.hooks(hooks)
 
   const onUpdateAppConfig = (...args: EngineSettingType[]) => {
-    const categoryMap = {
-      'task-server': appConfig.taskserver,
-      coil: appConfig.coil,
-      chargebee: appConfig.chargebee,
-      zendesk: appConfig.zendesk,
-      metabase: appConfig.metabase,
-      redis: appConfig.redis
-    }
-
-    for (const setting of args) {
-      const categoryConfig = categoryMap[setting.category]
-      if (categoryConfig) {
-        categoryConfig[setting.key] = setting.value
+    args.forEach((setting) => {
+      if (appConfig[setting.category]) {
+        appConfig[setting.category][setting.key] = setting.value
       }
-    }
+    })
   }
 
   service.on('patched', onUpdateAppConfig)
