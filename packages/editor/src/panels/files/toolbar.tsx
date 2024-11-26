@@ -40,7 +40,7 @@ import { HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
-import { inputFileWithAddToScene } from '../../functions/assetFunctions'
+import { handleUploadFiles, inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
 import { availableTableColumns, useCurrentFiles } from './helpers'
@@ -51,10 +51,17 @@ const VIEW_MODES = [
   { mode: 'icons', icon: <FiGrid /> }
 ]
 
-export const showMultipleFileModal = (fileNames: string[] = []) => {
+export const showMultipleFileModal = (projectName: string, directoryPath: string, files: File[]) => {
+  const fileNames = files.map((file) => file.name ?? file.key.split('/').at(-1))
+
+  const onSubmit = async () => {
+    await handleUploadFiles(projectName, directoryPath, files)
+    PopoverState.hidePopupover()
+  }
+
   PopoverState.showPopupover(
     <>
-      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={() => {}} onClose={PopoverState.hidePopupover}>
+      <Modal title={'test'} className="w-[50vw] max-w-2xl" onSubmit={onSubmit} onClose={PopoverState.hidePopupover}>
         <div className="flex flex-col rounded-lg bg-[#0e0f11] px-5 py-10 text-center">
           Warning: You will overwrite existing files by uploading these. Do you wish to continue? <br />
           {fileNames.length > 0 && `Files: ${fileNames.join(', ')}`}
