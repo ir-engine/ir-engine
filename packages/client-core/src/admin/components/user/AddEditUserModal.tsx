@@ -38,7 +38,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@ir-engine/ui/src/primitives/tailwind/MultiSelect'
-import Select, { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Select, { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 import AccountIdentifiers from './AccountIdentifiers'
 
@@ -69,7 +69,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
     }
   })
   const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
-  const avatarOptions: SelectOptionsType[] =
+  const avatarOptions: OptionType[] =
     avatarsQuery.status === 'success'
       ? [
           { label: t('admin:components.user.selectAvatar'), value: '', disabled: true },
@@ -82,7 +82,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       paginate: false
     }
   })
-  const scopeTypeOptions: SelectOptionsType[] =
+  const scopeTypeOptions: OptionType[] =
     scopeTypesQuery.status === 'success'
       ? [
           { label: t('admin:components.user.selectScopes'), value: '', disabled: true },
@@ -209,12 +209,15 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
           </div>
         </div>
         <Select
-          label={t('admin:components.user.avatar')}
-          currentValue={avatarId.value}
-          onChange={(value) => avatarId.set(value)}
+          labelProps={{
+            text: t('admin:components.user.avatar'),
+            position: 'top'
+          }}
+          value={avatarId.value}
+          onChange={(value: string) => avatarId.set(value)}
           options={avatarOptions}
-          error={errors.avatarId.value}
-          menuClassname="min-h-52"
+          state={errors.avatarId.value ? 'error' : undefined}
+          helperText={errors.avatarId.value}
         />
         {user?.inviteCode && (
           <Input

@@ -1447,11 +1447,14 @@
       "title": "Save",
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
+      "discard-quit": "Discard Changes and Quit",
+      "lbl-save-quit": "Save and Quit",
       "info-confirm": "Are you sure you want to save the scene?",
-      "info-question": "Do you want to save the current scene?",
-      "info-save-success": "Scene saved successfully!",
+      "info-question": "Save changes to the current scene?",
+      "info-warning": "Discarted changes can not be recovered",
+      "info-save-success": "Scene Saved",
       "unsavedChanges": {
-        "title": "Unsaved Changes"
+        "title": "Quit to Dashboard"
       }
     },
     "saveNewScene": {

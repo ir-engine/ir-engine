@@ -149,13 +149,11 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.modeTooltip')}
         >
           <Select
-            className="w-full"
-            inputClassName="px-2 py-0.5 text-theme-input text-sm"
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
               { label: 'UASTC', value: 'UASTC' }
             ]}
-            currentValue={compressProperties.mode.value}
+            value={compressProperties.mode.value}
             onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
           />
         </InputGroup>
@@ -254,7 +252,6 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.uastcFlagsTooltip')}
             >
               <SelectInput
-                className="w-full"
                 options={UASTCFlagOptions}
                 value={compressProperties.uastcFlags.value}
                 onChange={(val: number) => compressProperties.uastcFlags.set(val)}
