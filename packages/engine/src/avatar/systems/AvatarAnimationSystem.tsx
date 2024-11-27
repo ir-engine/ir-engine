@@ -220,7 +220,7 @@ const execute = () => {
       normalizedHips.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedHips.matrix)
       normalizedHips.matrixWorld.scale(new Vector3(100, 100, 100))
       for (const boneName of VRMHumanBoneList) {
-        const bone = rigComponent.vrm.humanoid.getNormalizedBoneNode(boneName)
+        const bone = getComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
         if (!bone) continue
         bone.scale.setScalar(1)
         bone.updateMatrix()
@@ -320,11 +320,11 @@ const execute = () => {
     }
 
     if (hasComponent(entity, XRRightHandComponent)) {
-      applyHandRotationFK(rigComponent.vrm, 'right', getComponent(entity, XRRightHandComponent).rotations)
+      applyHandRotationFK(entity, 'right', getComponent(entity, XRRightHandComponent).rotations)
     }
 
     if (hasComponent(entity, XRLeftHandComponent)) {
-      applyHandRotationFK(rigComponent.vrm, 'left', getComponent(entity, XRLeftHandComponent).rotations)
+      applyHandRotationFK(entity, 'left', getComponent(entity, XRLeftHandComponent).rotations)
     }
   }
 

@@ -43,7 +43,7 @@ let poseHoldTimer = 0
 
 export const evaluatePose = (entity: Entity) => {
   const rig = getComponent(entity, AvatarRigComponent).bonesToEntities
-  if (!rig) return
+  if (!rig.hips) return
 
   const deltaSeconds = getState(ECSState).deltaSeconds
 

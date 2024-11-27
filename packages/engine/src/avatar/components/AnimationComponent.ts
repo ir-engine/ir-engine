@@ -122,7 +122,7 @@ PropertyBinding.parseTrackName = function (trackName) {
 export const getTrackId = (entity: Entity) =>
   getComponent(entity, UUIDComponent).replace(getComponent(entity, SourceComponent) + '-', '')
 
-PropertyBinding.findNode = (root: Object3D, nodeName) => {
+PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
   const sceneInstanceID = GLTFComponent.getInstanceID(root.entity)
   const childEntities = SourceComponent.entitiesBySource[sceneInstanceID]
 

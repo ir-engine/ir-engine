@@ -131,7 +131,7 @@ const execute = () => {
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     const rigComponent = getComponent(entity, AvatarRigComponent)
-    if (!rigComponent.bonesToEntities) continue
+    if (!rigComponent.bonesToEntities.hips) continue
     const worldHipsParent = getComponent(rigComponent.bonesToEntities.hips, NormalizedBoneComponent).parent
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
