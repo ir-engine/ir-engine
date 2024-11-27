@@ -907,7 +907,8 @@
     "sceneCamera": {
       "name": "Scene Preview Camera",
       "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera.",
-      "lbl-setFromViewPort": "Set From Viewport"
+      "lbl-setFromViewPort": "Set From Viewport",
+      "lbl-updateThumbnail": "Update Thumbnail"
     },
     "skybox": {
       "name": "Skybox",
