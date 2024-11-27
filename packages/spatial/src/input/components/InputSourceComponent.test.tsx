@@ -40,7 +40,7 @@ import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Raycaster } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertArrayEqual } from '../../../tests/util/mathAssertions'
+import { assertArray } from '../../../tests/util/assert'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -487,7 +487,7 @@ describe('InputSourceComponent', () => {
         getMutableState(InputState).capturingEntity.set(capturingEntity)
         const result = InputSourceComponent.nonCapturedInputSources([testEntity, capturingEntity])
         const Expected = [testEntity] as Entity[]
-        assertArrayEqual(result, Expected)
+        assertArray.eq(result, Expected)
       })
     })
 
@@ -498,7 +498,7 @@ describe('InputSourceComponent', () => {
         getMutableState(InputState).capturingEntity.set(capturingEntity) // Set it as the capturing entity of InputState
         const Expected = [testEntity] as Entity[] // capturingEntity should NOT be returned back from the `inputSourceQuery()`
         const result = InputSourceComponent.nonCapturedInputSources()
-        assertArrayEqual(result, Expected)
+        assertArray.eq(result, Expected)
       })
     })
   }) // << nonCapturedInputSources

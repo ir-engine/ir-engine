@@ -40,7 +40,7 @@ import {
 import assert from 'assert'
 import { BoxGeometry, Material, Mesh, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertArrayAllNotEq, assertArrayEqual } from '../../../tests/util/mathAssertions'
+import { assertArray } from '../../../tests/util/assert'
 import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialInstanceComponent,
@@ -69,14 +69,14 @@ const MaterialStateComponentDefaults: MaterialStateComponentData = {
 function assertMaterialStateComponentEq(A: MaterialStateComponentData, B: MaterialStateComponentData) {
   assert.equal(A.material.uuid, B.material.uuid)
   assert.deepEqual(A.parameters, B.parameters)
-  assertArrayEqual(A.instances, B.instances)
+  assertArray.eq(A.instances, B.instances)
   assert.equal(A.prototypeEntity, B.prototypeEntity)
 }
 
 function assertMaterialStateComponentNotEq(A: MaterialStateComponentData, B: MaterialStateComponentData) {
   assert.notEqual(A.material.uuid, B.material.uuid)
   assert.notDeepEqual(A.parameters, B.parameters)
-  assertArrayEqual(A.instances, B.instances)
+  assertArray.eq(A.instances, B.instances)
   assert.notEqual(A.prototypeEntity, B.prototypeEntity)
 }
 
@@ -291,11 +291,11 @@ const MaterialInstanceComponentDefaults: MaterialInstanceComponentData = {
 }
 
 function assertMaterialInstanceComponentEq(A: MaterialInstanceComponentData, B: MaterialInstanceComponentData) {
-  assertArrayEqual(A.uuid, B.uuid)
+  assertArray.eq(A.uuid, B.uuid)
 }
 
 function assertMaterialInstanceComponentNotEq(A: MaterialInstanceComponentData, B: MaterialInstanceComponentData) {
-  assertArrayAllNotEq(A.uuid, B.uuid)
+  assertArray.anyNotEq(A.uuid, B.uuid)
 }
 
 describe('MaterialInstanceComponent', () => {

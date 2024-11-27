@@ -27,7 +27,6 @@ import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
-import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
@@ -41,7 +40,6 @@ import {
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Input, RadioGroup } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
@@ -50,6 +48,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
 import { useFind } from '@ir-engine/common'
+import { Copy03Md } from '@ir-engine/ui/src/icons'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 
@@ -408,6 +407,7 @@ export default function AddEditProjectModal({
               state={projectUpdateStatus.value?.destinationError ? 'error' : undefined}
               onChange={handleChangeDestination}
               onBlur={handleChangeDestinationRepo}
+              fullWidth
             />
           ) : (
             <Text>{t('admin:components.project.needsGithubProvider')}</Text>
@@ -441,18 +441,16 @@ export default function AddEditProjectModal({
               onChange={handleChangeSource}
               onBlur={handleChangeSourceRepo}
               endComponent={
-                <Button
-                  title={t('admin:components.project.copyDestination')}
-                  variant="outline"
-                  size="small"
-                  className="p-3 [&>*]:m-0"
-                  startIcon={<HiMiniClipboardDocumentList />}
+                <button
                   onClick={() => {
                     handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
                     handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
                   }}
-                />
+                >
+                  <Copy03Md />
+                </button>
               }
+              fullWidth
             />
           ) : (
             <Text>{t('admin:components.project.needsGithubProvider')}</Text>
@@ -464,10 +462,14 @@ export default function AddEditProjectModal({
           projectUpdateStatus.value?.branchData.length > 0 &&
           projectUpdateStatus.value?.showBranchSelector && (
             <Select
-              label={t('admin:components.project.branchData')}
-              currentValue={projectUpdateStatus.value?.selectedBranch}
+              labelProps={{
+                text: t('admin:components.project.branchData'),
+                position: 'top'
+              }}
+              value={projectUpdateStatus.value?.selectedBranch}
               options={branchSelectOptions}
-              error={projectUpdateStatus.value?.branchError}
+              state={projectUpdateStatus.value?.branchError ? 'error' : undefined}
+              helperText={projectUpdateStatus.value?.branchError}
               onChange={handleChangeBranch}
             />
           )}
@@ -485,17 +487,15 @@ export default function AddEditProjectModal({
           projectUpdateStatus.value?.commitData.length > 0 &&
           projectUpdateStatus.value?.showCommitSelector && (
             <Select
-              label={t('admin:components.project.commitData')}
-              currentValue={projectUpdateStatus.value?.selectedSHA}
+              labelProps={{
+                text: t('admin:components.project.commitData'),
+                position: 'top'
+              }}
+              value={projectUpdateStatus.value?.selectedSHA}
               onChange={handleCommitChange}
               options={commitSelectOptions}
-              error={projectUpdateStatus.value?.commitError}
-              description={
-                !projectUpdateStatus.value?.commitsProcessing && projectUpdateStatus.value?.sourceProjectName.length > 0
-                  ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
-                      ?.sourceProjectName}`
-                  : undefined
-              }
+              state={projectUpdateStatus.value?.commitError ? 'error' : undefined}
+              helperText={projectUpdateStatus.value?.commitError}
             />
           )}
         {projectUpdateStatus.value?.commitsProcessing && (
@@ -598,10 +598,13 @@ export default function AddEditProjectModal({
             </div>
             <div className="w-1/2">
               <Select
-                label={t('admin:components.project.autoUpdateInterval')}
+                labelProps={{
+                  text: t('admin:components.project.autoUpdateInterval'),
+                  position: 'top'
+                }}
                 options={autoUpdateIntervalOptions}
-                currentValue={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
-                onChange={(value) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
+                value={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
+                onChange={(value: string) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
               />
             </div>
           </div>

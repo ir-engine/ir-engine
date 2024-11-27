@@ -91,7 +91,7 @@ const Checkbox = (
   return (
     <div
       className={twMerge(
-        'relative flex cursor-pointer items-center justify-center',
+        'relative flex cursor-pointer items-center',
         'group/checkbox outline-none',
         variantSizes.spacings[variantSize],
         variantTextPlacement === 'left' && 'flex-row-reverse',

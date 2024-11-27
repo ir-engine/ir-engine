@@ -181,10 +181,12 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
       <Select
         options={projectsMenu}
-        currentValue={selectedProjectId.value}
-        onChange={(value) => selectedProjectId.set(value)}
-        label={t('admin:components.setting.project.header')}
-        className="mb-8 mt-6 max-w-[50%]"
+        value={selectedProjectId.value}
+        onChange={(value: string) => selectedProjectId.set(value)}
+        labelProps={{
+          text: t('admin:components.setting.project.header'),
+          position: 'top'
+        }}
       />
 
       {selectedProjectId.value && (

@@ -27,11 +27,11 @@ import Avatar from '@ir-engine/client-core/src/common/components/Avatar/Avatar2'
 import AvatarPreview from '@ir-engine/client-core/src/common/components/AvatarPreview'
 import { useFind, useMutation } from '@ir-engine/common'
 import { AvatarID, avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
-import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { hasComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
-import { LocalAvatarState } from '@ir-engine/engine/src/avatar/state/AvatarState'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { debounce } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -58,7 +58,8 @@ const AvatarMenu2 = () => {
   const avatar = useFind(userAvatarPath, { query: { userId } }).data[0]
   const userAvatarId = avatar?.avatarId
   const avatarLoading = useHookstate(false)
-  const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
+  const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
+  const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
   const [createAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.CreateAvatar])
 
@@ -110,11 +111,11 @@ const AvatarMenu2 = () => {
   }
 
   useEffect(() => {
-    if (avatarLoading.value && isUserReady.value) {
+    if (avatarLoading.value && selfAvatarLoaded) {
       avatarLoading.set(false)
       PopupMenuServices.showPopupMenu()
     }
-  }, [isUserReady, avatarLoading])
+  }, [selfAvatarLoaded, avatarLoading])
 
   useEffect(() => {
     const userAvatar = avatarsData.find((item) => item.id === userAvatarId)
@@ -134,18 +135,19 @@ const AvatarMenu2 = () => {
         className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
         hideFooter={true}
         rawChildren={
-          <div className="flex h-full w-full flex-1 flex-col">
+          <div className="grid h-full w-full grid-rows-[3.5rem,1fr,3.5rem]">
             <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
               <Text className="col-start-2  place-self-center self-center">{t('user:avatar.titleSelectAvatar')}</Text>
             </div>
-            <div className="grid h-full w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
-              <div className="relative rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+            <div className="grid h-full max-h-[calc(95vh-7rem)] w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
+              <div className="relative max-h-[calc(95vh-8rem)] rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
                 <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
                 <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
               </div>
               <div className="grid h-full w-full grid-flow-row grid-rows-[3rem,1fr]">
-                <div className="grid max-h-6 grid-cols-[65%,35%] gap-2">
+                <div className="flex max-h-6  gap-2">
                   <Input
+                    fullWidth
                     data-test-id="search-avatar-input"
                     value={search.local.value}
                     placeholder={t('user:avatar.searchAvatar')}
@@ -163,17 +165,15 @@ const AvatarMenu2 = () => {
                   />
                   <Button
                     rounded="partial"
-                    className="text-sm font-normal"
-                    size="small"
+                    className="ml-auto h-8 w-fit min-w-[30%] px-2 text-sm font-normal"
                     variant="secondary"
                     hidden={!createAvatarEnabled}
-                    fullWidth={false}
                     onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
                   >
                     {t('user:avatar.createAvatar')}
                   </Button>
                 </div>
-                <div className="max-h-[74vh] overflow-y-auto pb-6 pr-2">
+                <div className="max-h-[calc(95vh-11rem)] overflow-y-auto pb-6 pr-2">
                   <div className="grid grid-cols-1 gap-2">
                     {avatarsData.map((avatar) => (
                       <div key={avatar.id} className="w-full">
@@ -193,7 +193,7 @@ const AvatarMenu2 = () => {
                 </div>
               </div>
             </div>
-            <div className="flex w-full items-center justify-center border-t border-t-theme-primary px-6 py-2">
+            <div className="flex h-14 w-full items-center justify-center border-t border-t-theme-primary px-6 py-2">
               <Button
                 data-testid="discard-changes-button"
                 onClick={() => {
@@ -210,7 +210,7 @@ const AvatarMenu2 = () => {
                     PopupMenuServices.showPopupMenu()
                   }
                 }}
-                className="w-full max-w-[20%] place-self-center text-sm"
+                className="w-fit place-self-center text-sm"
               >
                 {t('user:common.discardChanges')}
               </Button>
@@ -219,7 +219,7 @@ const AvatarMenu2 = () => {
                 disabled={userAvatarId === selectedAvatarId.value}
                 endIcon={avatarLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 onClick={handleConfirmAvatar}
-                className="ml-2 w-full max-w-[20%] place-self-center text-sm"
+                className="ml-2 w-fit place-self-center text-sm"
               >
                 {t('user:avatar.finishEditing')}
               </Button>

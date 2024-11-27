@@ -42,7 +42,7 @@ import assert from 'assert'
 import sinon from 'sinon'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertVecAllApproxNotEq, assertVecAnyApproxNotEq, assertVecApproxEq } from '../../tests/util/mathAssertions'
+import { assertVec } from '../../tests/util/assert'
 import { SceneComponent } from '../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -372,11 +372,11 @@ describe('PhysicsSerialization', () => {
         assert.equal(getComponent(testEntity, RigidBodyComponent).type, BodyTypes.Fixed)
         assert.equal(hasComponent(testEntity, RigidBodyDynamicTagComponent), false)
         const before = getComponent(testEntity, RigidBodyComponent).targetKinematicPosition
-        assertVecAnyApproxNotEq(before, Expected, 3)
+        assertVec.anyApproxNotEq(before, Expected, 3)
         // Run and Check the result
         readRigidBody(view, testEntity)
         const result = getComponent(testEntity, RigidBodyComponent).targetKinematicPosition
-        assertVecApproxEq(result, Expected, 3)
+        assertVec.approxEq(result, Expected, 3)
       })
 
       it('should set RigidBodyComponent.targetKinematicRotation to RigidBodyComponent.rotation if the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)])', () => {
@@ -395,11 +395,11 @@ describe('PhysicsSerialization', () => {
         assert.equal(getComponent(testEntity, RigidBodyComponent).type, BodyTypes.Fixed)
         assert.equal(hasComponent(testEntity, RigidBodyDynamicTagComponent), false)
         const before = getComponent(testEntity, RigidBodyComponent).targetKinematicRotation
-        assertVecAllApproxNotEq(before, Expected, 4)
+        assertVec.allApproxNotEq(before, Expected, 4)
         // Run and Check the result
         readRigidBody(view, testEntity)
         const result = getComponent(testEntity, RigidBodyComponent).targetKinematicRotation
-        assertVecApproxEq(result, Expected, 4)
+        assertVec.approxEq(result, Expected, 4)
       })
     }) //:: readRigidBody
   }) //:: Read
@@ -431,7 +431,7 @@ describe('PhysicsSerialization', () => {
         // Run and Check the result
         readUint8(view) // Read changeMask
         const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, 3)
+        assertVec.approxEq(result, Expected, Vector3.length)
       })
     }) //:: writeBodyPosition
 
@@ -462,7 +462,7 @@ describe('PhysicsSerialization', () => {
         // Run and Check the result
         readUint8(view) // Read changeMask
         const result = new Quaternion(readFloat64(view), readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, 4)
+        assertVec.approxEq(result, Expected, Quaternion.length)
       })
     }) //:: writeBodyRotation
 
@@ -492,7 +492,7 @@ describe('PhysicsSerialization', () => {
         // Run and Check the result
         readUint8(view) // Read changeMask
         const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, 3)
+        assertVec.approxEq(result, Expected, Vector3.length)
       })
     }) //:: writeBodyLinearVelocity
 
@@ -522,7 +522,7 @@ describe('PhysicsSerialization', () => {
         // Run and Check the result
         readUint8(view) // Read changeMask
         const result = new Vector3(readFloat64(view), readFloat64(view), readFloat64(view))
-        assertVecApproxEq(result, Expected, 3)
+        assertVec.approxEq(result, Expected, Vector3.length)
       })
     }) //:: writeBodyAngularVelocity
 
