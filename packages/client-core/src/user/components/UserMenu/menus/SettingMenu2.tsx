@@ -53,7 +53,7 @@ import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
-import { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
+import { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Menu from '../../../../common/components/Menu'
 import { XruiNameplateState } from '../../../../social/XruiNameplateState'
@@ -64,7 +64,7 @@ import styles from '../index.module.scss'
 
 const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
 
-export const ShadowMapResolutionOptions: SelectOptionsType[] = [
+export const ShadowMapResolutionOptions: OptionType[] = [
   {
     label: '256px',
     value: 256
@@ -181,21 +181,21 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
     return true
   })
 
-  const colorModesMenu: SelectOptionsType[] = Object.keys(themeSettings).map((el) => {
+  const colorModesMenu: OptionType[] = Object.keys(themeSettings).map((el) => {
     return {
       label: capitalizeFirstLetter(el),
       value: el
     }
   })
 
-  const controlSchemesMenu: SelectOptionsType[] = controlSchemes.map(([label, value]) => {
+  const controlSchemesMenu: OptionType[] = controlSchemes.map(([label, value]) => {
     return {
       label,
       value
     }
   })
 
-  const handOptionsMenu: SelectOptionsType[] = handOptions.map((el) => {
+  const handOptionsMenu: OptionType[] = handOptions.map((el) => {
     return {
       label: el,
       value: el
@@ -264,10 +264,11 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               <div className="flex-1" key={index}>
                 <InputGroup className="w-full" name="Type" label="">
                   <SelectInput
-                    label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
+                    labelProps={{
+                      text: `${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`,
+                      position: 'top'
+                    }}
                     value={mode === 'client' ? 'dark' : themeModes[mode]}
-                    className="w-full"
-                    inputClassName="rounded-lg overflow-hidden"
                     onChange={(val) => handleChangeUserThemeMode(mode, val)}
                     options={colorModesMenu}
                   />
@@ -283,7 +284,10 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
               <div className="grid">
                 <div className="grid">
                   <SelectInput
-                    label={t('user:usermenu.setting.lbl-left-control-scheme')}
+                    labelProps={{
+                      text: t('user:usermenu.setting.lbl-left-control-scheme'),
+                      position: 'top'
+                    }}
                     value={leftAxesControlScheme}
                     options={controlSchemesMenu}
                     onChange={(event) =>
@@ -293,7 +297,10 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
                 </div>
                 <div className="grid">
                   <SelectInput
-                    label={t('user:usermenu.setting.lbl-right-control-scheme')}
+                    labelProps={{
+                      text: t('user:usermenu.setting.lbl-right-control-scheme'),
+                      position: 'top'
+                    }}
                     value={rightAxesControlScheme}
                     options={controlSchemesMenu}
                     onChange={(event) =>
@@ -305,7 +312,10 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
                 </div>
                 <div className="grid">
                   <SelectInput
-                    label={t('user:usermenu.setting.lbl-preferred-hand')}
+                    labelProps={{
+                      text: t('user:usermenu.setting.lbl-preferred-hand'),
+                      position: 'top'
+                    }}
                     value={preferredHand}
                     options={handOptionsMenu}
                     onChange={(event) => getMutableState(InputState).preferredHand.set(handOptionsMenu[event])}
@@ -521,7 +531,10 @@ const SettingMenu2 = ({ isPopover }: Props): JSX.Element => {
           </div>
           {rendererState.useShadows.value && (
             <SelectInput
-              label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+              labelProps={{
+                text: t('editor:properties.directionalLight.lbl-shadowmapResolution'),
+                position: 'top'
+              }}
               value={rendererState.shadowMapResolution.value}
               options={ShadowMapResolutionOptions}
               onChange={(event) => {

@@ -39,7 +39,7 @@ import multiLogger from '@ir-engine/server-core/src/ServerLogger'
 const logger = multiLogger.child({ component: 'taskserver:collect-analytics' })
 
 const DEFAULT_INTERVAL_SECONDS = 1800
-const configInterval = parseInt(config.taskserver.processInterval)
+const configInterval = parseInt(config['task-server'].processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
 export default (app): void => {
