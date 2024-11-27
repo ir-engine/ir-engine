@@ -76,36 +76,36 @@ export default function HierarchyTreeContextMenu() {
             renamingNode.set(entity)
           }}
           secondaryText={cmdOrCtrlString + ' + r'}
-          title={t('editor:hierarchy.lbl-rename')}
+          label={t('editor:hierarchy.lbl-rename')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-duplicate-button"
           onClick={onDuplicateNode}
           secondaryText={cmdOrCtrlString + ' + d'}
-          title={t('editor:hierarchy.lbl-duplicate')}
+          label={t('editor:hierarchy.lbl-duplicate')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-group-button"
           onClick={onGroupNodes}
           secondaryText={cmdOrCtrlString + ' + g'}
-          title={t('editor:hierarchy.lbl-group')}
+          label={t('editor:hierarchy.lbl-group')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-copy-button"
           onClick={onCopyNode}
           secondaryText={cmdOrCtrlString + ' + c'}
-          title={t('editor:hierarchy.lbl-copy')}
+          label={t('editor:hierarchy.lbl-copy')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-paste-button"
           onClick={onPasteNode}
           secondaryText={cmdOrCtrlString + ' + v'}
-          title={t('editor:hierarchy.lbl-paste')}
+          label={t('editor:hierarchy.lbl-paste')}
         />
         <DropdownItem
           data-testid="hierarchy-panel-scene-item-context-menu-delete-button"
           onClick={onDeleteNode}
-          title={t('editor:hierarchy.lbl-delete')}
+          label={t('editor:hierarchy.lbl-delete')}
         />
         {!node?.isLeaf && (
           <>
@@ -114,14 +114,14 @@ export default function HierarchyTreeContextMenu() {
                 setMenu()
                 expandChildren(entity)
               }}
-              title={t('editor:hierarchy.lbl-expandAll')}
+              label={t('editor:hierarchy.lbl-expandAll')}
             />
             <DropdownItem
               onClick={() => {
                 setMenu()
                 collapseChildren(entity)
               }}
-              title={t('editor:hierarchy.lbl-collapseAll')}
+              label={t('editor:hierarchy.lbl-collapseAll')}
             />
           </>
         )}
@@ -130,7 +130,7 @@ export default function HierarchyTreeContextMenu() {
             setMenu()
             PopoverState.showPopupover(<CreatePrefabPanel entity={entity} isExportLookDev={false} />)
           }}
-          title={t('editor:hierarchy.lbl-createPrefab')}
+          label={t('editor:hierarchy.lbl-createPrefab')}
         />
       </div>
     </ContextMenu>

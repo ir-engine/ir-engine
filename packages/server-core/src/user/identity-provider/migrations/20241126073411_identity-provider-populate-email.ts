@@ -23,40 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { HiMiniRocketLaunch } from 'react-icons/hi2'
-import { DropdownItem, DropdownItemProps } from './index'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-export default {
-  title: 'Components/Editor/DropdownList',
-  parameters: {
-    componentSubtitle: 'Dropdown',
-    design: {
-      type: 'figma',
-      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2511-3503&node-type=frame&t=B0cD28zTLRN51Vxd-0'
-    }
-  }
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex(identityProviderPath)
+    .where({ type: 'email' })
+    .andWhere('email', null)
+    .update({
+      email: knex.raw('accountIdentifier')
+    })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-const DropdownItemRenderer = (args: DropdownItemProps) => {
-  let Icon: (() => JSX.Element) | undefined = undefined
-  if (!args.Icon) {
-    Icon = HiMiniRocketLaunch as () => JSX.Element
-    delete args.Icon
-  }
-  return <DropdownItem Icon={Icon} {...args} />
-}
-
-export const DropdownItemStory = {
-  name: 'Dropdown Item',
-  render: DropdownItemRenderer,
-  args: {
-    label: 'Account settings',
-    selected: false
-  },
-  argTypes: {
-    secondaryText: {
-      control: 'text'
-    }
-  }
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

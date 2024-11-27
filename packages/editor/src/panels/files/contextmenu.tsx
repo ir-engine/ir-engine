@@ -82,7 +82,7 @@ function PasteFileButton({
           })
         }
       }}
-      title={t('editor:layout.filebrowser.pasteAsset')}
+      label={t('editor:layout.filebrowser.pasteAsset')}
     />
   )
 }
@@ -109,7 +109,7 @@ export function FileContextMenu({
         {hasFiles && (
           <>
             <DropdownItem
-              title={t('editor:layout.assetGrid.placeObject')}
+              label={t('editor:layout.assetGrid.placeObject')}
               onClick={() => {
                 const vec3 = new Vector3()
                 getSpawnPositionAtCenter(vec3)
@@ -125,7 +125,7 @@ export function FileContextMenu({
               data-testid="files-panel-file-item-context-menu-place-object-button"
             />
             <DropdownItem
-              title={t('editor:layout.assetGrid.placeObjectAtOrigin')}
+              label={t('editor:layout.assetGrid.placeObjectAtOrigin')}
               data-testid="files-panel-file-item-context-menu-place-object-at-origin-button"
               onClick={() => {
                 selectedFiles
@@ -148,7 +148,7 @@ export function FileContextMenu({
               }
               setAnchorEvent(undefined)
             }}
-            title={t('editor:layout.assetGrid.copyURL')}
+            label={t('editor:layout.assetGrid.copyURL')}
           />
         )}
         {/* Open In New Tab */}
@@ -159,14 +159,14 @@ export function FileContextMenu({
               selectedFiles.filter((file) => !file.isFolder.value).forEach((file) => window.open(file.url.value))
               setAnchorEvent(undefined)
             }}
-            title={t('editor:layout.assetGrid.openInNewTab')}
+            label={t('editor:layout.assetGrid.openInNewTab')}
           />
         )}
         {/* Add New Folder */}
         <DropdownItem
           onClick={createNewFolder}
           data-testid="files-panel-file-item-context-menu-add-new-folder-button"
-          title={t('editor:layout.filebrowser.addNewFolder')}
+          label={t('editor:layout.filebrowser.addNewFolder')}
         />
         {hasSelection && (
           <>
@@ -179,7 +179,7 @@ export function FileContextMenu({
                 })
                 setAnchorEvent(undefined)
               }}
-              title={t('editor:layout.filebrowser.cutAsset')}
+              label={t('editor:layout.filebrowser.cutAsset')}
             />
             {/* Copy Asset */}
             <DropdownItem
@@ -191,7 +191,7 @@ export function FileContextMenu({
                 })
                 setAnchorEvent(undefined)
               }}
-              title={t('editor:layout.filebrowser.copyAsset')}
+              label={t('editor:layout.filebrowser.copyAsset')}
             />
           </>
         )}
@@ -207,7 +207,7 @@ export function FileContextMenu({
               )
               setAnchorEvent(undefined)
             }}
-            title={t('editor:layout.filebrowser.renameAsset')}
+            label={t('editor:layout.filebrowser.renameAsset')}
           />
         )}
         {/* Delete Asset */}
@@ -226,7 +226,7 @@ export function FileContextMenu({
               )
               setAnchorEvent(undefined)
             }}
-            title={t('editor:layout.assetGrid.deleteAsset')}
+            label={t('editor:layout.assetGrid.deleteAsset')}
           />
         )}
         {/* Compress */}
@@ -240,7 +240,7 @@ export function FileContextMenu({
               }
               setAnchorEvent(undefined)
             }}
-            title={t('editor:layout.filebrowser.compress')}
+            label={t('editor:layout.filebrowser.compress')}
           />
         )}
         {hasFiles && fileConsistsOfContentType(selectedFiles.value, 'image') && (
@@ -253,7 +253,7 @@ export function FileContextMenu({
               }
               setAnchorEvent(undefined)
             }}
-            title={t('editor:layout.filebrowser.compress')}
+            label={t('editor:layout.filebrowser.compress')}
           />
         )}
 
@@ -265,7 +265,7 @@ export function FileContextMenu({
               PopoverState.showPopupover(<FilePropertiesModal />)
               setAnchorEvent(undefined)
             }}
-            title={t('editor:layout.filebrowser.viewAssetProperties')}
+            label={t('editor:layout.filebrowser.viewAssetProperties')}
           />
         )}
       </div>

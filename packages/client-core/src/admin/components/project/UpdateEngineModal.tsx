@@ -178,10 +178,13 @@ export default function UpdateEngineModal() {
           <a href="/admin/settings#helm">{helmBuilder || 'Current Version'}</a>
         </Text>
         <Select
-          label={t('admin:components.project.commitData')}
+          labelProps={{
+            text: t('admin:components.project.commitData'),
+            position: 'top'
+          }}
           options={selectCommitTagOptions}
-          currentValue={selectedCommitTag.value}
-          onChange={(value) => {
+          value={selectedCommitTag.value}
+          onChange={(value: string) => {
             selectedCommitTag.set(value)
           }}
           disabled={modalProcessing.value}
