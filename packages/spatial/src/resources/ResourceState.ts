@@ -461,7 +461,7 @@ const disposeMaterial = (asset: Material | Material[]) => {
     for (const [_, val] of Object.entries(material) as [string, Texture][]) {
       if (isTexture(val)) {
         unload(getResourceID(val), UndefinedEntity)
-        // Dispose texture if it was added to material after the material was being tracked
+        // Dispose texture if it was added to material after the material added
         val.dispose?.()
       }
     }
@@ -543,7 +543,7 @@ let _resourceID = 0
 
 const assignResourceID = (asset: ResourceAssetType): string => {
   const resourceID = (_resourceID++).toString()
-  Object.defineProperty(asset, 'resourceID', { value: resourceID })
+  Object.defineProperty(asset, 'resourceID', { value: resourceID, configurable: true })
   return resourceID
 }
 
