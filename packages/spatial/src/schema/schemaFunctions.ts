@@ -23,18 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  Entity,
-  EntityUUID,
-  Options,
-  S,
-  TNonSerializedSchema,
-  TProperties,
-  TTypedSchema,
-  UndefinedEntity
-} from '@ir-engine/ecs'
-import { UserID } from '@ir-engine/hyperflux'
 import { Box3, Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
+
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Options, TNonSerializedSchema, TProperties, TTypedSchema } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { UserID } from '@ir-engine/hyperflux'
 
 const isColorObj = (color?: ColorRepresentation): color is Color => {
   return color !== undefined && (color as Color).r !== undefined
