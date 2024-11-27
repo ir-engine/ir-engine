@@ -28,6 +28,7 @@ import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunct
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { hookstate, none, useImmediateEffect } from '@ir-engine/hyperflux'
+import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 const entitiesBySource = {} as Record<string, Entity[]>
 
@@ -36,14 +37,7 @@ export const SourceComponent = defineComponent({
 
   schema: S.Required(
     S.String('', {
-      validate: (value) => {
-        if (!value) {
-          console.error('SourceComponent expects a non-empty string')
-          return false
-        }
-
-        return true
-      }
+      validate: NonEmptyString('SourceComponent expects a non-empty string')
     })
   ),
 

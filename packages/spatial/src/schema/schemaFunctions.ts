@@ -34,6 +34,17 @@ const isColorObj = (color?: ColorRepresentation): color is Color => {
   return color !== undefined && (color as Color).r !== undefined
 }
 
+export const NonEmptyString = (errMsg: string) => {
+  return (str: string): boolean => {
+    if (!str) {
+      console.error(errMsg)
+      return false
+    }
+
+    return true
+  }
+}
+
 export const T = {
   /** Entity type schema helper, Entities will not be serialized, defaults to UndefinedEntity */
   Entity: (def?: Entity, options?: TTypedSchema<Entity>['options']) =>

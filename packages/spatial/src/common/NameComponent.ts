@@ -28,6 +28,7 @@ import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunct
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
+import { NonEmptyString } from '../schema/schemaFunctions'
 
 const entitiesByName = {} as Record<string, Entity[]>
 
@@ -35,14 +36,7 @@ export const NameComponent = defineComponent({
   name: 'NameComponent',
 
   schema: S.String('', {
-    validate: (value) => {
-      if (!value) {
-        console.error('NameComponent expects a non-empty string')
-        return false
-      }
-
-      return true
-    }
+    validate: NonEmptyString('NameComponent expects a non-empty string')
   }),
 
   reactor: () => {
