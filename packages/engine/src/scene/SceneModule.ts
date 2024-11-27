@@ -64,6 +64,7 @@ import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
+import { SceneNetworkSystem } from './systems/SceneNetworkSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
@@ -120,6 +121,7 @@ export {
   ParticleSystem,
   PortalSystem,
   SceneKillHeightSystem,
+  SceneNetworkSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
   ShadowSystem,

@@ -31,16 +31,17 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  HyperFlux,
   none,
   PeerID,
   useHookstate,
   useMutableState,
   UserID
 } from '@ir-engine/hyperflux'
-import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
+import { NetworkId } from './NetworkId'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
 import { NetworkPeerState } from './NetworkPeerState'
 import { NetworkState, SceneUser } from './NetworkState'
@@ -54,19 +55,16 @@ export const EntityNetworkState = defineState({
       parentUUID: EntityUUID
       ownerId: UserID | typeof SceneUser
       ownerPeer: PeerID
-      networkId: NetworkId
-      authorityPeerId: PeerID
+      authorityPeerId?: PeerID
       requestingPeerId?: PeerID
     }
   >,
 
   receptors: {
     onSpawnObject: WorldNetworkAction.spawnEntity.receive((action) => {
-      // const userId = getState(NetworkState).networks[action.$network].peers[action.$peer].userId
       getMutableState(EntityNetworkState)[action.entityUUID].merge({
         parentUUID: action.parentUUID,
         ownerId: action.ownerID,
-        networkId: action.networkId,
         authorityPeerId: action.authorityPeerId ?? action.$peer,
         ownerPeer: action.$peer
       })
@@ -105,18 +103,16 @@ export const EntityNetworkState = defineState({
 const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
   const ownerID = state.ownerId.value
-  const isOwner = ownerID === SceneUser || ownerID === Engine.instance.userID
+  const isOwner = ownerID === SceneUser || ownerID === HyperFlux.store.userID
   const worldNetwork = useHookstate(NetworkState.worldNetworkState).value
   const networkPeerState = useMutableState(NetworkPeerState).value
   const userHasPeer = !!(worldNetwork && networkPeerState[worldNetwork.id]?.users?.[ownerID])
   const userConnected = userHasPeer || isOwner
+  const networkID = useNetworkID(props.uuid)
 
   useLayoutEffect(() => {
     if (!userConnected) return
-    const entity =
-      ownerID === SceneUser
-        ? UUIDComponent.getEntityByUUID(props.uuid)
-        : UUIDComponent.getOrCreateEntityByUUID(props.uuid)
+    const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
     return () => {
       removeEntity(entity)
     }
@@ -134,20 +130,14 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     if (!entity) return
-    const worldNetwork = NetworkState.worldNetwork
 
     setComponent(entity, NetworkObjectComponent, {
-      ownerId:
-        ownerID === SceneUser
-          ? worldNetwork
-            ? worldNetwork.hostUserID ?? ('' as UserID) // TODO: this is kind of a hack for p2p
-            : Engine.instance.store.userID
-          : ownerID,
+      ownerId: ownerID,
       ownerPeer: state.ownerPeer.value,
       authorityPeerID: state.authorityPeerId.value,
-      networkId: state.networkId.value
+      networkId: networkID
     })
-  }, [!!worldNetwork, userConnected, state.ownerId.value, state.authorityPeerId.value, state.networkId.value])
+  }, [!!worldNetwork, userConnected, state.ownerId.value, state.authorityPeerId.value, networkID])
 
   useLayoutEffect(() => {
     if (!userConnected || !state.requestingPeerId.value) return
@@ -156,7 +146,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     if (!entity) return
     const ownerID = getOptionalComponent(entity, NetworkObjectComponent)?.ownerId
-    if (!ownerID || ownerID !== Engine.instance.userID) return
+    if (!ownerID || ownerID !== HyperFlux.store.userID) return
     console.log('Requesting authority over object', props.uuid, state.requestingPeerId.value)
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
@@ -167,7 +157,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     )
   }, [userConnected, state.requestingPeerId.value])
 
-  return <>{isOwner && !!worldNetwork && <OwnerPeerReactor uuid={props.uuid} />}</>
+  return <>{ownerID === HyperFlux.store.userID && !!worldNetwork && <OwnerPeerReactor uuid={props.uuid} />}</>
 }
 
 const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {
@@ -181,14 +171,14 @@ const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {
       // ensure reactor isn't completely unmounting
       if (!getState(EntityNetworkState)[props.uuid]) return
       if (ownerPeer !== Engine.instance.store.peerID && Engine.instance.store.userID === state.ownerId.value) {
-        const lowestPeer = [...networkState.users[Engine.instance.userID].value].sort((a, b) => (a > b ? 1 : -1))[0]
+        const lowestPeer = [...networkState.users[HyperFlux.store.userID].value].sort((a, b) => (a > b ? 1 : -1))[0]
         if (lowestPeer !== Engine.instance.store.peerID) return
         dispatchAction(
           WorldNetworkAction.spawnEntity({
             entityUUID: props.uuid,
             parentUUID: state.parentUUID.value,
             // if the authority peer is not connected, we need to take authority
-            authorityPeerId: networkState.users[Engine.instance.userID].value.includes(ownerPeer)
+            authorityPeerId: networkState.users[HyperFlux.store.userID].value.includes(ownerPeer)
               ? undefined
               : Engine.instance.store.peerID
           })
@@ -198,4 +188,14 @@ const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {
   }, [networkState.peers, networkState.users])
 
   return null
+}
+
+/**
+ * Get a deterministic network ID scoped to each owner peer
+ */
+const useNetworkID = (uuid: EntityUUID) => {
+  const state = useMutableState(EntityNetworkState)
+  const ownerPeer = state[uuid].ownerPeer.value
+  const entitiesForPeer = state.keys.filter((key: EntityUUID) => state[key].ownerPeer.value === ownerPeer).sort()
+  return entitiesForPeer.indexOf(uuid) as NetworkId
 }

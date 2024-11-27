@@ -40,7 +40,6 @@ import './EntityNetworkState'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
-import { NetworkId } from './NetworkId'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from './NetworkObjectComponent'
 import { NetworkActions, NetworkState } from './NetworkState'
 
@@ -64,13 +63,10 @@ describe('EntityNetworkState', () => {
       Engine.instance.store.userID = hostUserId
       const network = NetworkState.worldNetwork as Network
 
-      const objNetId = 3 as NetworkId
-
       dispatchAction(
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
           ownerID: network.hostUserID!,
-          networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: hostPeerID,
           entityUUID: 'entity' as EntityUUID
@@ -88,7 +84,7 @@ describe('EntityNetworkState', () => {
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 1)
 
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, 0)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, hostPeerID)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), true)
     })
@@ -113,13 +109,10 @@ describe('EntityNetworkState', () => {
         })
       )
 
-      const objNetId = 3 as NetworkId
-
       dispatchAction(
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
           ownerID: network.hostUserID!,
-          networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: hostPeerID,
           entityUUID: 'entity' as EntityUUID
@@ -137,7 +130,7 @@ describe('EntityNetworkState', () => {
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
 
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, 0)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, hostPeerID)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
@@ -163,13 +156,10 @@ describe('EntityNetworkState', () => {
         })
       )
 
-      const objNetId = 3 as NetworkId
-
       dispatchAction(
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
           ownerID: userId,
-          networkId: objNetId,
           $peer: peerID2,
           entityUUID: 'entity' as EntityUUID
         })
@@ -186,7 +176,7 @@ describe('EntityNetworkState', () => {
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
 
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, 0)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID2)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
@@ -211,13 +201,10 @@ describe('EntityNetworkState', () => {
         })
       )
 
-      const objNetId = 3 as NetworkId
-
       dispatchAction(
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
           ownerID: userId,
-          networkId: objNetId,
           $peer: peerID2,
           entityUUID: 'entity' as EntityUUID
         })
@@ -234,7 +221,7 @@ describe('EntityNetworkState', () => {
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 1)
 
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, 0)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID2)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), true)
     })
@@ -281,13 +268,10 @@ describe('EntityNetworkState', () => {
 
       applyIncomingActions()
 
-      const objNetId = 3 as NetworkId
-
       dispatchAction(
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: userId2, // from other user
-          networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world,
           entityUUID: peerID3 as any as EntityUUID
@@ -305,7 +289,7 @@ describe('EntityNetworkState', () => {
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
 
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, 0)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID3)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
@@ -321,13 +305,10 @@ describe('EntityNetworkState', () => {
       Engine.instance.store.userID = hostUserId
       const network = NetworkState.worldNetwork as Network
 
-      const objNetId = 3 as NetworkId
-
       dispatchAction(
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
           ownerID: network.hostUserID!,
-          networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: hostPeerID,
           entityUUID: 'entity' as EntityUUID
@@ -382,13 +363,10 @@ describe('EntityNetworkState', () => {
         })
       )
 
-      const objNetId = 3 as NetworkId
-
       dispatchAction(
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
           ownerID: network.hostUserID!,
-          networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: hostPeerID,
           entityUUID: 'entity' as EntityUUID
@@ -456,13 +434,10 @@ describe('EntityNetworkState', () => {
 
       applyIncomingActions()
 
-      const objNetId = 3 as NetworkId
-
       dispatchAction(
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
           ownerID: userID,
-          networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: peerID,
           entityUUID: 'entity' as EntityUUID
@@ -540,13 +515,10 @@ describe('EntityNetworkState', () => {
 
     applyIncomingActions()
 
-    const objNetId = 3 as NetworkId
-
     dispatchAction(
       WorldNetworkAction.spawnEntity({
         parentUUID: getComponent(getState(EngineState).originEntity, UUIDComponent),
         ownerID: userID,
-        networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: peerID,
         entityUUID: 'entity' as EntityUUID
@@ -622,13 +594,10 @@ describe('EntityNetworkState', () => {
 
     applyIncomingActions()
 
-    const objNetId = 3 as NetworkId
-
     dispatchAction(
       WorldNetworkAction.spawnEntity({
         parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: hostUserID, // from  host
-        networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.store.peerID,
         entityUUID: Engine.instance.store.peerID as any as EntityUUID
@@ -672,6 +641,111 @@ describe('EntityNetworkState', () => {
     assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
   })
 
+  it('should increment network id for each entity owner by a particular peer', async () => {
+    const hostUserID = 'host user' as UserID
+    const hostPeerID = 'host peer id' as PeerID
+
+    createMockNetwork(NetworkTopics.world, hostPeerID, hostUserID)
+
+    const userId = 'user id' as UserID
+    const peerID = Engine.instance.store.peerID
+
+    Engine.instance.store.userID = userId // user being the action dispatcher
+    const network = NetworkState.worldNetwork as Network
+
+    dispatchAction(
+      NetworkActions.peerJoined({
+        peerID: peerID,
+        peerIndex: 0,
+        userID: userId,
+        $network: network.id
+      })
+    )
+
+    const entityUUID = 'entity' as EntityUUID
+
+    dispatchAction(
+      WorldNetworkAction.spawnEntity({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        ownerID: hostUserID,
+        $topic: NetworkTopics.world,
+        $peer: hostPeerID,
+        entityUUID
+      })
+    )
+
+    applyIncomingActions()
+
+    const networkObjectQuery = defineQuery([NetworkObjectComponent])
+
+    const networkObjectEntitiesBefore = networkObjectQuery()
+
+    assert.equal(networkObjectEntitiesBefore.length, 1)
+    assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).networkId, 0)
+
+    const entityUUID2 = 'entity 2' as EntityUUID
+
+    assert.ok(entityUUID2 > entityUUID)
+
+    dispatchAction(
+      WorldNetworkAction.spawnEntity({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        ownerID: hostUserID,
+        $topic: NetworkTopics.world,
+        $peer: hostPeerID,
+        entityUUID: entityUUID2
+      })
+    )
+
+    applyIncomingActions()
+
+    const networkObjectEntitiesAfter = networkObjectQuery()
+
+    assert.equal(networkObjectEntitiesAfter.length, 2)
+    assert.equal(getComponent(networkObjectEntitiesAfter[1], NetworkObjectComponent).networkId, 1)
+
+    const otherEntityUUID = 'other entity 1' as EntityUUID
+
+    dispatchAction(
+      WorldNetworkAction.spawnEntity({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        ownerID: userId,
+        $topic: NetworkTopics.world,
+        $peer: peerID,
+        entityUUID: otherEntityUUID
+      })
+    )
+
+    applyIncomingActions()
+
+    const otherEntity = UUIDComponent.getEntityByUUID(otherEntityUUID)
+
+    assert.ok(otherEntity)
+    assert.equal(getComponent(otherEntity, NetworkObjectComponent).networkId, 0)
+
+    const otherEntityUUID2 = 'other entity 2' as EntityUUID
+
+    // ensure network id is incremented via alphabetical order of entityUUIDs
+    assert.ok(otherEntityUUID2 > otherEntityUUID)
+
+    dispatchAction(
+      WorldNetworkAction.spawnEntity({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        ownerID: userId,
+        $topic: NetworkTopics.world,
+        $peer: peerID,
+        entityUUID: otherEntityUUID2
+      })
+    )
+
+    applyIncomingActions()
+
+    const otherEntity2 = UUIDComponent.getEntityByUUID(otherEntityUUID2)
+
+    assert.ok(otherEntity2)
+    assert.equal(getComponent(otherEntity2, NetworkObjectComponent).networkId, 1)
+  })
+
   it.skip('benchmark 1000 entities spawn', async () => {
     const hostUserID = 'host user' as UserID
     const hostPeerID = 'host peer id' as PeerID
@@ -703,8 +777,6 @@ describe('EntityNetworkState', () => {
     )
     applyIncomingActions()
 
-    const objNetId = 3 as NetworkId
-
     const start = performance.now()
 
     const count = 1000
@@ -714,7 +786,6 @@ describe('EntityNetworkState', () => {
         WorldNetworkAction.spawnEntity({
           parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: hostUserID, // from  host
-          networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID,
           entityUUID: generateEntityUUID()
@@ -739,7 +810,6 @@ describe('EntityNetworkState', () => {
       WorldNetworkAction.spawnEntity({
         parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: hostUserID, // from  host
-        networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.store.peerID,
         entityUUID: generateEntityUUID()

@@ -156,5 +156,3 @@ export const NetworkObjectAuthorityTag = defineComponent({ name: 'NetworkObjectA
 export const NetworkObjectOwnedTag = defineComponent({ name: 'NetworkObjectOwnedTag' })
 
 export const NetworkObjectSendPeriodicUpdatesTag = defineComponent({ name: 'NetworkObjectSendPeriodicUpdatesTag' })
-
-export const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
