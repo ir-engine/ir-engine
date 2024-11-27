@@ -460,7 +460,9 @@ const disposeMaterial = (asset: Material | Material[]) => {
     if ((material as DisposableObject).disposed) return
     for (const [_, val] of Object.entries(material) as [string, Texture][]) {
       if (isTexture(val)) {
-        unload(getAssetKey(val), UndefinedEntity)
+        unload(getResourceID(val), UndefinedEntity)
+        // Dispose texture if it was added to material after the material was being tracked
+        val.dispose?.()
       }
     }
     material.dispose()
@@ -537,6 +539,18 @@ const getResourceType = (asset: ResourceAssetType, defaultType: ResourceType = R
   else return defaultType
 }
 
+let _resourceID = 0
+
+const assignResourceID = (asset: ResourceAssetType): string => {
+  const resourceID = (_resourceID++).toString()
+  Object.defineProperty(asset, 'resourceID', { value: resourceID })
+  return resourceID
+}
+
+const getResourceID = (asset): string => {
+  return asset.resourceID as string
+}
+
 const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) => T>(
   disposableLike: T2,
   entity: Entity,
@@ -546,7 +560,7 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
   const resources = resourceState.nested('resources')
   const obj = new disposableLike(...args)
   if (entity) obj.entity = entity
-  const id = getAssetKey(obj)
+  const id = assignResourceID(obj)
   const resourceType = getResourceType(obj, ResourceType.Object3D)
   const callbacks = resourceCallbacks[resourceType]
 
@@ -570,11 +584,6 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
   return obj as InstanceType<T2>
 }
 
-const getAssetKey = (asset: { id?: number; uuid: string }) => {
-  // Three js Skeleton objects do not have an id, so fallback to uuid
-  return 'id' in asset && asset.id !== undefined ? asset.id.toString() : asset.uuid
-}
-
 const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resourceType = ResourceType.Unknown) => {
   if (Array.isArray(asset)) {
     for (const assetItem of asset) {
@@ -582,6 +591,8 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
     }
     return
   }
+
+  const resourceID = assignResourceID(asset)
 
   if (resourceType == ResourceType.Unknown) resourceType = getResourceType(asset)
 
@@ -591,20 +602,20 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
       break
     case ResourceType.Mesh: {
       const mesh = asset as Mesh
-      onItemLoadedFor(assetKey, resourceType, getAssetKey(mesh), mesh)
+      onItemLoadedFor(assetKey, resourceType, resourceID, mesh)
       addReferencedAsset(assetKey, mesh.material, ResourceType.Material)
       addReferencedAsset(assetKey, mesh.geometry, ResourceType.Geometry)
       break
     }
     case ResourceType.Texture:
-      onItemLoadedFor(assetKey, resourceType, getAssetKey(asset as Texture), asset as Texture)
+      onItemLoadedFor(assetKey, resourceType, resourceID, asset as Texture)
       break
     case ResourceType.Geometry:
-      onItemLoadedFor(assetKey, resourceType, getAssetKey(asset as Geometry), asset as Geometry)
+      onItemLoadedFor(assetKey, resourceType, resourceID, asset as Geometry)
       break
     case ResourceType.Material: {
       const material = asset as Material
-      onItemLoadedFor(assetKey, resourceType, getAssetKey(material), material)
+      onItemLoadedFor(assetKey, resourceType, resourceID, material)
       for (const [_, val] of Object.entries(material) as [string, any][]) {
         if (isTexture(val)) {
           addReferencedAsset(assetKey, val, ResourceType.Texture)
@@ -613,7 +624,7 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType, resource
       break
     }
     case ResourceType.Object3D:
-      onItemLoadedFor(assetKey, resourceType, getAssetKey(asset as Object3D), asset as Object3D)
+      onItemLoadedFor(assetKey, resourceType, resourceID, asset as Object3D)
       break
     default:
       break
@@ -628,6 +639,13 @@ const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resou
     return
   }
 
+  if (!('resourceID' in asset)) {
+    console.error('ResourceState:removeReferencedAsset No resource ID found in asset')
+    return
+  }
+
+  const resourceID = asset.resourceID as string
+
   if (resourceType == ResourceType.Unknown) resourceType = getResourceType(asset)
 
   switch (resourceType) {
@@ -636,20 +654,20 @@ const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resou
       break
     case ResourceType.Mesh: {
       const mesh = asset as Mesh
-      removeResource(getAssetKey(mesh))
+      removeResource(resourceID)
       removeReferencedAsset(assetKey, mesh.material, ResourceType.Material)
       removeReferencedAsset(assetKey, mesh.geometry, ResourceType.Geometry)
       break
     }
     case ResourceType.Texture:
-      removeResource(getAssetKey(asset as Texture))
+      removeResource(resourceID)
       break
     case ResourceType.Geometry:
-      removeResource(getAssetKey(asset as Geometry))
+      removeResource(resourceID)
       break
     case ResourceType.Material: {
       const material = asset as Material
-      removeResource(getAssetKey(material))
+      removeResource(resourceID)
       for (const [_, val] of Object.entries(material) as [string, any][]) {
         if (isTexture(val)) {
           removeReferencedAsset(assetKey, val, ResourceType.Texture)
@@ -658,7 +676,7 @@ const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resou
       break
     }
     case ResourceType.Object3D:
-      removeResource(getAssetKey(asset as Object3D))
+      removeResource(resourceID)
       break
     default:
       break
@@ -669,7 +687,7 @@ const removeReferencedAsset = (assetKey: string, asset: ResourceAssetType, resou
   if (!resources[assetKey].value || !resources[assetKey].assetRefs.value?.[resourceType]) return
 
   resources[assetKey].assetRefs[resourceType].set((refs: string[]) => {
-    const index = refs.indexOf(getAssetKey(asset as Object3D))
+    const index = refs.indexOf(resourceID)
     if (index !== -1) refs.splice(index, 1)
     return refs
   })
@@ -776,6 +794,7 @@ const removeResource = (id: string) => {
 export const ResourceManager = {
   resourceCallbacks,
   loadObj,
+  getResourceID,
   addReferencedAsset,
   removeReferencedAsset,
   addResource,

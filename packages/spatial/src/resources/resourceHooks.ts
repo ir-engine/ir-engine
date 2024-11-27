@@ -52,7 +52,7 @@ export function useDisposable<T extends DisposableObject, T2 extends new (...par
 
   const unload = () => {
     if (objState.value) {
-      ResourceManager.unload(objState.get(NO_PROXY).uuid, entity)
+      ResourceManager.unload(ResourceManager.getResourceID(objState.get(NO_PROXY)), entity)
     }
   }
 
@@ -90,7 +90,7 @@ export function createDisposable<T extends DisposableObject, T2 extends new (...
   const obj = ResourceManager.loadObj(disposableLike, entity, ...args)
 
   const unload = () => {
-    ResourceManager.unload(obj.uuid, entity)
+    ResourceManager.unload(ResourceManager.getResourceID(obj), entity)
   }
 
   return [obj, unload]
