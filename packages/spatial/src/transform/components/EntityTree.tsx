@@ -45,6 +45,7 @@ import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '
 import React, { useEffect, useLayoutEffect } from 'react'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '../../schema/schemaFunctions'
 
 type EntityTreeSetType = {
   parentEntity: Entity
@@ -65,7 +66,7 @@ export const EntityTreeComponent = defineComponent({
 
   schema: S.Object({
     // api
-    parentEntity: S.Entity(UndefinedEntity, {
+    parentEntity: T.Entity(UndefinedEntity, {
       validate: (value, prev, entity) => {
         if (entity === value) {
           console.error('Entity cannot be its own parent: ' + entity)
@@ -77,7 +78,7 @@ export const EntityTreeComponent = defineComponent({
     }),
     // internal
     childIndex: S.NonSerialized(S.Optional(S.Number())),
-    children: S.NonSerialized(S.Array(S.Entity()))
+    children: S.NonSerialized(S.Array(T.Entity()))
   }),
 
   reactor: () => {

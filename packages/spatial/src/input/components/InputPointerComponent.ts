@@ -35,6 +35,7 @@ import {
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { defineState, getState, OpaqueType, useImmediateEffect } from '@ir-engine/hyperflux'
+import { T } from '../../schema/schemaFunctions'
 
 /**
  * @description
@@ -65,10 +66,10 @@ export const InputPointerComponent = defineComponent({
 
   schema: S.Object({
     pointerId: S.Number(-1),
-    position: S.Vec2(),
-    lastPosition: S.Vec2(),
-    movement: S.Vec2(),
-    cameraEntity: S.Entity()
+    position: T.Vec2(),
+    lastPosition: T.Vec2(),
+    movement: T.Vec2(),
+    cameraEntity: T.Entity()
   }),
 
   onSet(entity, component, json: { pointerId: number; cameraEntity: Entity }) {

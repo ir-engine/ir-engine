@@ -63,6 +63,7 @@ import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctio
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
@@ -245,7 +246,7 @@ export const InteractableComponent = defineComponent({
   schema: S.Object({
     canInteract: S.NonSerialized(S.Bool(false)),
     uiInteractable: S.NonSerialized(S.Bool(true)),
-    uiEntity: S.Entity(),
+    uiEntity: T.Entity(),
     label: S.String('E'),
     uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
     uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
@@ -261,7 +262,7 @@ export const InteractableComponent = defineComponent({
         /**
          * empty string represents self
          */
-        target: S.EntityUUID()
+        target: T.EntityUUID()
       })
     )
   }),

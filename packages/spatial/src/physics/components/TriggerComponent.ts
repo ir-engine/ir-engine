@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '../../schema/schemaFunctions'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
@@ -44,7 +45,7 @@ export const TriggerComponent = defineComponent({
         /**
          * empty string represents self
          */
-        target: S.EntityUUID()
+        target: T.EntityUUID()
       })
     )
   })

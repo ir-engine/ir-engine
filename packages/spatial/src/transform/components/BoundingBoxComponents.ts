@@ -47,13 +47,14 @@ import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { RendererState } from '../../renderer/RendererState'
+import { T } from '../../schema/schemaFunctions'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
 
   schema: S.Object({
-    box: S.Box3(),
-    helper: S.Entity()
+    box: T.Box3(),
+    helper: T.Entity()
   }),
 
   reactor: function () {

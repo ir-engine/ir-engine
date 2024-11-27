@@ -45,6 +45,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { useResource } from '../../resources/resourceHooks'
+import { T } from '../../schema/schemaFunctions'
 import { RendererState } from '../RendererState'
 import LogarithmicDepthBufferMaterialChunk from '../constants/LogarithmicDepthBufferMaterialChunk'
 import { LineSegmentComponent } from './LineSegmentComponent'
@@ -132,7 +133,7 @@ export const InfiniteGridComponent = defineComponent({
 
   schema: S.Object({
     size: S.Number(1),
-    color: S.Color(0x535353),
+    color: T.Color(0x535353),
     distance: S.Number(200)
   }),
 

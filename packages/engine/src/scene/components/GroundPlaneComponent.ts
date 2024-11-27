@@ -36,13 +36,14 @@ import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsT
 import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
   jsonID: 'EE_ground_plane',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     visible: S.Bool(true)
   }),
 

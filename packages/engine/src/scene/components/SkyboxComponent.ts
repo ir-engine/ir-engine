@@ -41,6 +41,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
@@ -52,7 +53,7 @@ export const SkyboxComponent = defineComponent({
   jsonID: 'EE_skybox',
 
   schema: S.Object({
-    backgroundColor: S.Color(0x000000),
+    backgroundColor: T.Color(0x000000),
     equirectangularPath: S.String(''),
     cubemapPath: S.String(''),
     backgroundType: S.Number(1),

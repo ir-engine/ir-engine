@@ -33,6 +33,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useMeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '../../renderer/constants/ObjectLayers'
+import { T } from '../../schema/schemaFunctions'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const DebugMeshComponent = defineComponent({
@@ -42,7 +43,7 @@ export const DebugMeshComponent = defineComponent({
     name: S.String('debug-mesh'),
     geometry: S.Required(S.Type<BufferGeometry>()),
     material: S.Class(() => new MeshBasicMaterial() as Material),
-    entity: S.Optional(S.Entity())
+    entity: S.Optional(T.Entity())
   }),
 
   reactor: function () {

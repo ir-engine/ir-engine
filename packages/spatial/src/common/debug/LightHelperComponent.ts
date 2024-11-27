@@ -41,6 +41,7 @@ import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
+import { T } from '../../schema/schemaFunctions'
 import { useHelperEntity } from './DebugComponentUtils'
 
 const getLightHelperType = (light: Light) => {
@@ -57,8 +58,8 @@ export const LightHelperComponent = defineComponent({
     name: S.String('light-helper'),
     light: S.Required(S.Type<Light>()),
     size: S.Number(1),
-    color: S.Optional(S.Color()),
-    entity: S.Optional(S.Entity())
+    color: S.Optional(T.Color()),
+    entity: S.Optional(T.Entity())
   }),
 
   reactor: function () {

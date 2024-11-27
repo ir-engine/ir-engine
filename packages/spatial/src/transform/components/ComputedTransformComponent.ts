@@ -26,13 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
+import { T } from '../../schema/schemaFunctions'
 import { TransformComponent } from './TransformComponent'
 
 export const ComputedTransformComponent = defineComponent({
   name: 'ComputedTransformComponent',
 
   schema: S.Object({
-    referenceEntities: S.Array(S.Entity()),
+    referenceEntities: S.Array(T.Entity()),
     computeFunction: S.Call()
   }),
 
