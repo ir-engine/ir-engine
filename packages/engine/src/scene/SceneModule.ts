@@ -29,7 +29,7 @@ import { NoiseOffsetSystem } from '@ir-engine/spatial/src/renderer/materials/con
 
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
-import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
+import { GrabbableComponent } from '../grabbable/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'

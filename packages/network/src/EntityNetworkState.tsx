@@ -78,6 +78,7 @@ export const EntityNetworkState = defineState({
       const fromUserId = action.ownerID
       const state = getMutableState(EntityNetworkState)
       const ownerUserId = state[action.entityUUID].ownerId.value
+      /** @todo move this to validation */
       if (fromUserId !== ownerUserId) return // Authority transfer can only be initiated by owner
       state[action.entityUUID].authorityPeerId.set(action.newAuthority)
       state[action.entityUUID].requestingPeerId.set(none)

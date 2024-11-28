@@ -27,8 +27,9 @@ Infinite Reality Engine. All Rights Reserved.
 import '@ir-engine/spatial'
 
 export * from './avatar/AvatarModule'
-export * from './interaction/InteractionModule'
-export * from './interaction/MediaModule'
+export * from './interaction/systems/InteractableSystem'
+export * from './grabbable/GrabbableSystem'
+export * from './audio/MediaModule'
 export * from './mocap/MocapModule'
 export * from './postprocessing/PopulateEffectRegistry'
 export * from './scene/SceneModule'
