@@ -147,8 +147,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     if (!entity) return
     const ownerID = getOptionalComponent(entity, NetworkObjectComponent)?.ownerId
-    if (!ownerID || ownerID !== HyperFlux.store.userID) return
-    console.log('Requesting authority over object', props.uuid, state.requestingPeerId.value)
+    if ((!ownerID || ownerID !== HyperFlux.store.userID) && ownerID !== SceneUser) return
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
         ownerID: state.ownerId.value,

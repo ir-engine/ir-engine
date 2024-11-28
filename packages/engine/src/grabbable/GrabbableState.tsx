@@ -44,7 +44,7 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
-import { EntityNetworkState, WorldNetworkAction } from '@ir-engine/network'
+import { EntityNetworkState, SceneUser, WorldNetworkAction } from '@ir-engine/network'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 
@@ -103,6 +103,8 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const attachmentPoint = state.attachmentPoint.value
 
   const entityNetworkState = useMutableState(EntityNetworkState).value
+
+  const ownedByScene = entityNetworkState[entityUUID]?.ownerId === SceneUser
   const grabbableAuthorityPeer = entityNetworkState[entityUUID]?.authorityPeerId
   const grabberAuthorityPeer = entityNetworkState[state.grabberEntityUUID.value]?.authorityPeerId
 
@@ -152,7 +154,7 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const needsToRequestAuthority =
     entity !== UndefinedEntity &&
     grabberEntity !== UndefinedEntity &&
-    grabbableAuthorityPeer !== grabberAuthorityPeer &&
+    (ownedByScene || grabbableAuthorityPeer !== grabberAuthorityPeer) &&
     grabberAuthorityPeer === HyperFlux.store.peerID
 
   useEffect(() => {
@@ -161,7 +163,7 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
       WorldNetworkAction.requestAuthorityOverObject({
         entityUUID,
         newAuthority: HyperFlux.store.peerID,
-        $to: grabbableAuthorityPeer
+        $to: ownedByScene ? HyperFlux.store.peerID : grabbableAuthorityPeer
       })
     )
   }, [needsToRequestAuthority])

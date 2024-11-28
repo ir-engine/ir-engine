@@ -37,6 +37,8 @@ import {
   NetworkObjectComponent,
   NetworkState,
   NetworkTopics,
+  ScenePeer,
+  SceneUser,
   WorldNetworkAction
 } from '@ir-engine/network'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
@@ -188,7 +190,107 @@ describe('GrabbableSystem', () => {
     // strictEqual(grabbableTransform.rotation.z, rotation.z)
     // strictEqual(grabbableTransform.rotation.w, rotation.w)
 
-    // equippableSystem()
+    unmount()
+  })
+
+  it('can grab an object owner by the scene as another user', async () => {
+    const hostPeerID = 'host peer' as PeerID
+    const hostUserID = 'host user' as UserID
+
+    const userID = 'user id' as UserID
+    const peerID = Engine.instance.store.peerID
+
+    createMockNetwork(NetworkTopics.world, hostPeerID, hostUserID)
+
+    Engine.instance.store.userID = userID
+    const network = NetworkState.worldNetwork as Network
+
+    dispatchAction(
+      NetworkActions.peerJoined({
+        peerID: peerID,
+        peerIndex: 0,
+        userID: userID,
+        $network: network.id
+      })
+    )
+
+    const avatarEntityUUID = 'avatar' as EntityUUID
+
+    dispatchAction(
+      AvatarNetworkAction.spawn({
+        parentUUID: getComponent(sceneEntity, UUIDComponent),
+        entityUUID: avatarEntityUUID,
+        avatarURL: '',
+        name: ''
+      })
+    )
+
+    const grabbableEntityUUID = 'grabbable' as EntityUUID
+
+    dispatchAction(
+      SpawnObjectActions.spawnObject({
+        parentUUID: getComponent(sceneEntity, UUIDComponent),
+        ownerID: SceneUser,
+        $peer: ScenePeer,
+        $topic: NetworkTopics.world,
+        entityUUID: grabbableEntityUUID
+      })
+    )
+
+    applyIncomingActions()
+
+    const grabbableEntity = UUIDComponent.getEntityByUUID(grabbableEntityUUID)
+    setComponent(grabbableEntity, GrabbableComponent)
+
+    const playerEntity = UUIDComponent.getEntityByUUID(avatarEntityUUID)
+    assert.ok(hasComponent(playerEntity, GrabberComponent))
+
+    assert.equal(Object.keys(getState(GrabbableState)).length, 0)
+
+    dispatchAction(
+      GrabbableNetworkAction.setGrabbedObject({
+        entityUUID: grabbableEntityUUID,
+        grabbed: true,
+        attachmentPoint: 'right',
+        grabberEntityUUID: avatarEntityUUID
+      })
+    )
+
+    applyIncomingActions()
+
+    // assert that the grabbable state has been updated
+    assert.equal(Object.keys(getState(GrabbableState)).length, 1)
+    assert.equal(getState(GrabbableState)[grabbableEntityUUID].grabberEntityUUID, avatarEntityUUID)
+    assert.equal(getState(GrabbableState)[grabbableEntityUUID].attachmentPoint, 'right')
+
+    // should not have authority
+    assert.equal(getComponent(grabbableEntity, NetworkObjectComponent).authorityPeerID, ScenePeer)
+    assert.equal(hasComponent(grabbableEntity, GrabbedComponent), false)
+
+    applyIncomingActions()
+
+    // ensure we have requested authority
+    assert.equal(getState(EntityNetworkState)[grabbableEntityUUID].requestingPeerId, peerID)
+
+    // since we arent the host, we need to manually transfer authority acting as the host
+    dispatchAction(
+      WorldNetworkAction.transferAuthorityOfObject({
+        ownerID: SceneUser,
+        entityUUID: grabbableEntityUUID,
+        newAuthority: peerID,
+        $peer: peerID
+      })
+    )
+
+    applyIncomingActions()
+
+    // wait for the authority transfer to be processed by the GrabbableState reactor
+    const { rerender, unmount } = render(<></>)
+    await act(async () => rerender(<></>))
+
+    // should now have authority
+    assert.equal(getComponent(grabbableEntity, NetworkObjectComponent).authorityPeerID, peerID)
+    assert.ok(hasComponent(grabbableEntity, GrabbedComponent))
 
     unmount()
   })
