@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, isDev, ReactorRoot } from '@ir-engine/hyperflux'
+import { defineState, isDev, ReactorRoot, State } from '@ir-engine/hyperflux'
 
-import { Query, QueryComponents } from './QueryFunctions'
+import { defineQuery, QueryComponents } from './QueryFunctions'
 import { SystemUUID } from './SystemFunctions'
+import { Entity } from './Entity'
 
 export const SystemState = defineState({
   name: 'ee.meta.SystemState',
@@ -34,6 +35,10 @@ export const SystemState = defineState({
     performanceProfilingEnabled: isDev,
     activeSystemReactors: new Map<SystemUUID, ReactorRoot>(),
     currentSystemUUID: '__null__' as SystemUUID,
-    reactiveQueryStates: new Set<{ query: Query; forceUpdate: () => void; components: QueryComponents }>()
+    reactiveQueryStates: new Set<{
+      query: ReturnType<typeof defineQuery>
+      entities: State<Entity[]>
+      components: QueryComponents
+    }>()
   })
 })

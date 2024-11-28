@@ -109,9 +109,9 @@ export function destroyEngine() {
     for (const entity of entities) removeEntity(entity)
   })
 
-  for (const query of getState(SystemState).reactiveQueryStates) {
-    removeQuery(query.query)
-  }
+  // for (const query of getState(SystemState).reactiveQueryStates) {
+  //   removeQuery(query.query)
+  // }
 
   disposeStore()
 
