@@ -60,7 +60,9 @@ export const GrabbableComponent = defineComponent({
 
     useEffect(() => {
       if (isClient) {
-        setCallback(entity, GrabbableComponent.grabbableCallbackName, () => grabCallback(entity))
+        setCallback(entity, GrabbableComponent.grabbableCallbackName, (entity: Entity, targetEntity: Entity) =>
+          grabCallback(entity)
+        )
       }
     }, [])
 
@@ -83,7 +85,7 @@ export const GrabbableComponent = defineComponent({
 
     const grabber = getComponent(grabberEntity, GrabberComponent)
     const grabbedEntity = grabber[handedness]!
-    if (grabbedEntity) return // todo - should we drop whatever we have held in this hand?
+    if (grabbedEntity) return
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
         entityUUID: getComponent(grabbableEntity, UUIDComponent),
@@ -112,16 +114,20 @@ export const GrabbableComponent = defineComponent({
   }
 })
 
-const grabCallback = (targetEntity: Entity) => {
+const grabCallback = (grabbableEntity: Entity) => {
   const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   for (const entity of nonCapturedInputSources) {
     const inputSource = getComponent(entity, InputSourceComponent)
-    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-    return GrabbableComponent.grab(
-      selfAvatarEntity,
-      targetEntity,
-      inputSource.source.handedness === 'left' ? 'left' : 'right'
-    )
+    if (hasComponent(grabbableEntity, GrabbedComponent)) {
+      GrabbableComponent.drop(selfAvatarEntity, grabbableEntity)
+    } else {
+      GrabbableComponent.grab(
+        selfAvatarEntity,
+        grabbableEntity,
+        inputSource.source.handedness === 'left' ? 'left' : 'right'
+      )
+    }
   }
 }
 

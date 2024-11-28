@@ -39,7 +39,7 @@ import ECS, {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { matches, PeerID, UserID, Validator } from '@ir-engine/hyperflux'
+import { PeerID, UserID } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { ProxyWithECS } from '@ir-engine/spatial/src/common/proxies/ECSSchemaProxy'
 

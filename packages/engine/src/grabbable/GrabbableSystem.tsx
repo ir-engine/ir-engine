@@ -26,40 +26,38 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineQuery, defineSystem, getComponent, getOptionalComponent, SimulationSystemGroup } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag } from '@ir-engine/network'
-import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { ClientInputSystem } from '@ir-engine/spatial/src/input/systems/ClientInputSystem'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { ClientInputSystem } from '@ir-engine/spatial/src/input/systems/ClientInputSystem'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { getHandTarget } from '../avatar/components/AvatarIKComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from './GrabbableComponent'
 
 import '@ir-engine/spatial/src/transform/SpawnPoseState'
-import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import './GrabbableState'
 
-const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
+const ownedGrabbableQuery = defineQuery([GrabbableComponent, GrabbedComponent, NetworkObjectAuthorityTag])
 
 const execute = () => {
   if (getState(EngineState).isEditing) return
 
   for (const entity of ownedGrabbableQuery()) {
-    const grabbedComponent = getOptionalComponent(entity, GrabbedComponent)
-    if (!grabbedComponent) return
-    const attachmentPoint = grabbedComponent.attachmentPoint
+    const grabbedComponent = getComponent(entity, GrabbedComponent)
 
-    const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint)!
+    const target = getHandTarget(grabbedComponent.grabberEntity, grabbedComponent.attachmentPoint)
+    if (!target) continue
 
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
 
     if (rigidbodyComponent) {
       rigidbodyComponent.targetKinematicPosition.copy(target.position)
       rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
-      const world = Physics.getWorld(entity)!
-      Physics.setRigidbodyPose(world, entity, target.position, target.rotation, Vector3_Zero, Vector3_Zero)
+      // const world = Physics.getWorld(entity)!
+      // Physics.setRigidbodyPose(world, entity, target.position, target.rotation, Vector3_Zero, Vector3_Zero)
     } else {
       const grabbableTransform = getComponent(entity, TransformComponent)
       grabbableTransform.position.copy(target.position)

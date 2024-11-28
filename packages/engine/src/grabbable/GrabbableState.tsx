@@ -28,6 +28,7 @@ import React, { useEffect } from 'react'
 import {
   entityExists,
   EntityUUID,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -47,6 +48,10 @@ import { EntityNetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 
+import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import '@ir-engine/spatial/src/transform/SpawnPoseState'
 import { GrabbableNetworkAction, GrabbedComponent, GrabberComponent } from './GrabbableComponent'
 
@@ -114,15 +119,32 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
 
     if (hasComponent(entity, RigidBodyComponent)) {
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Kinematic })
+      Physics.wakeUp(Physics.getWorld(entity)!, entity)
+
+      const colliders = [entity, ...getChildrenWithComponents(entity, [ColliderComponent])]
+
+      for (const collider of colliders) {
+        if (!hasComponent(collider, ColliderComponent)) continue
+        getMutableComponent(collider, ColliderComponent).collisionMask.set((mask) => (mask ^= CollisionGroups.Avatars))
+      }
     }
 
     return () => {
-      if (hasComponent(grabberEntity, GrabbedComponent))
-        setComponent(grabberEntity, GrabberComponent, { [attachmentPoint]: null })
+      setComponent(grabberEntity, GrabberComponent, { [attachmentPoint]: null })
       if (!entityExists(entity)) return
       removeComponent(entity, GrabbedComponent)
       if (hasComponent(entity, RigidBodyComponent)) {
         setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        Physics.wakeUp(Physics.getWorld(entity)!, entity)
+
+        const colliders = [entity, ...getChildrenWithComponents(entity, [ColliderComponent])]
+
+        for (const collider of colliders) {
+          if (!hasComponent(collider, ColliderComponent)) continue
+          getMutableComponent(collider, ColliderComponent).collisionMask.set(
+            (mask) => (mask ^= CollisionGroups.Avatars)
+          )
+        }
       }
     }
   }, [entity, grabberEntity, hasAuthority])

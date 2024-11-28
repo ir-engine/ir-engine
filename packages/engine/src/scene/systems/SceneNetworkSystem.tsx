@@ -68,14 +68,14 @@ const SourcedSceneReactor = () => {
   return (
     <>
       {sourcedEntities.filter(filterSpatialEntities).map((sourcedEntity) => (
-        <SourcedEntityReactor entity={sourcedEntity} />
+        <SourcedEntityReactor key={sourcedEntity} entity={sourcedEntity} />
       ))}
     </>
   )
 }
 
 const reactor = () => {
-  const ready = useHookstate(NetworkState.worldNetworkState).ready.value
+  const ready = useHookstate(NetworkState.worldNetworkState).value?.ready
 
   if (!ready) return null
 
