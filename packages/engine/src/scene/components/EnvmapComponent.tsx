@@ -231,7 +231,7 @@ export const EnvmapComponent = defineComponent({
           updateEnvMap(mesh, component.envmap.value as Texture)
         }
       }
-    }, [childrenMesh.join(), component.envmap, hasRootMesh])
+    }, [childrenMesh, component.envmap, hasRootMesh])
 
     useEffect(() => {
       const meshes = getMeshes()
@@ -239,7 +239,7 @@ export const EnvmapComponent = defineComponent({
       for (const mesh of meshes) {
         updateEnvMapIntensity(mesh, component.envMapIntensity.value)
       }
-    }, [childrenMesh.join(), component.envMapIntensity, component.envmap, hasRootMesh])
+    }, [childrenMesh, component.envMapIntensity, component.envmap, hasRootMesh])
 
     const getEnvmapChildReactor = () => {
       switch (component.type.value) {

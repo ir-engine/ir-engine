@@ -75,7 +75,7 @@ const EnvmapReactor = (props: { backgroundEntity: Entity }) => {
         updateEnvMap(mesh, null)
       }
     }
-  }, [childrenMesh.join(), envmapComponent.type, backgroundComponent])
+  }, [childrenMesh, envmapComponent.type, backgroundComponent])
 
   return null
 }
