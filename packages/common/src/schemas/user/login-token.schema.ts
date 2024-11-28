@@ -26,7 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-
+import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
+import { TypedString } from '../../types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 
 export const loginTokenPath = 'login-token'
@@ -45,7 +46,12 @@ export const loginTokenSchema = Type.Object(
     }),
     expiresAt: Type.String({ format: 'date-time' }),
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
+    updatedAt: Type.String({ format: 'date-time' }),
+    associateUserId: Type.Optional(
+      TypedString<UserID>({
+        format: 'uuid'
+      })
+    )
   },
   { $id: 'LoginToken', additionalProperties: false }
 )
@@ -64,7 +70,12 @@ export const loginTokenPatchSchema = Type.Partial(loginTokenSchema, {
 export interface LoginTokenPatch extends Static<typeof loginTokenPatchSchema> {}
 
 // Schema for allowed query properties
-export const loginTokenQueryProperties = Type.Pick(loginTokenSchema, ['id', 'token', 'identityProviderId'])
+export const loginTokenQueryProperties = Type.Pick(loginTokenSchema, [
+  'id',
+  'token',
+  'identityProviderId',
+  'associateUserId'
+])
 export const loginTokenQuerySchema = Type.Intersect(
   [
     querySyntax(loginTokenQueryProperties),
