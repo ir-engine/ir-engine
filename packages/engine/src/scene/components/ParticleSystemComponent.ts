@@ -611,7 +611,7 @@ export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
   GravityForce: {
     type: 'GravityForce',
     center: [0, 0, 0],
-    magnitude: 1
+    magnitude: 10
   },
   ColorOverLife: {
     type: 'ColorOverLife',

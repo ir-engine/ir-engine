@@ -23,30 +23,131 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { Rows01Md } from '@ir-engine/ui/src/icons'
+import React, { useEffect } from 'react'
+import { ArgTypes } from 'storybook/internal/types'
+import Select, { OptionType, SelectProps } from './index'
 
-export default {
-  title: 'Primitives/Tailwind/Select',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'Select',
-    jest: 'Select.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
+const argTypes: ArgTypes = {
+  numberOfListItems: {
+    control: 'number',
+    name: 'Number of List Items'
+  },
+  width: {
+    control: 'select',
+    options: ['sm', 'md', 'lg', 'full']
+  },
+  inputSizeVariant: {
+    control: 'select',
+    options: ['xs', 'l', 'xl']
+  },
+  labelText: {
+    control: {
+      type: 'text'
     }
+  },
+  labelPosition: {
+    control: {
+      type: 'select'
+    },
+    options: ['top', 'left']
+  },
+  showCheckmark: {
+    control: {
+      type: 'boolean'
+    }
+  },
+  disabled: {
+    control: {
+      type: 'boolean'
+    }
+  },
+  helperText: {
+    control: {
+      type: 'text'
+    }
+  },
+  state: {
+    control: {
+      type: 'select'
+    },
+    options: ['success', 'error']
   }
 }
 
-export const Default = {
+export default {
+  title: 'Primitives/Tailwind/Select',
+  component: Select,
+  parameters: {
+    componentSubtitle: 'Select',
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2508-3421&t=XJmPDraRXGrLFAp3-4'
+    }
+  },
+  argTypes,
   args: {
-    label: 'Select Example',
-    options: [
-      { name: 'A1', value: 'a1' },
-      { name: 'B2', value: 'b2' },
-      { name: 'C3', value: 'c3' }
-    ],
-    currentValue: 'b2',
-    onChange: () => {}
+    numberOfListItems: 5
+  }
+}
+
+const Renderer = ({ numberOfListItems, labelText, labelPosition, generateItem, ...props }) => {
+  const items = [] as OptionType[]
+  for (let i = 0; i < numberOfListItems; i++) {
+    if (generateItem) {
+      // @ts-ignore
+      items.push(generateItem(i))
+    } else {
+      items.push({
+        value: i,
+        label: `Account Settings ${i}`
+      })
+    }
+  }
+
+  const [value, setValue] = React.useState(-1)
+
+  const onChange = (value: number) => {
+    setValue(value)
+  }
+
+  const [labelProps, setLabelProps] = React.useState(undefined as SelectProps['labelProps'] | undefined)
+
+  useEffect(() => {
+    if (labelText && labelPosition) {
+      setLabelProps({
+        text: labelText,
+        position: labelPosition
+      })
+    } else {
+      setLabelProps(undefined)
+    }
+  }, [labelText, labelPosition])
+
+  return <Select options={items} value={value} onChange={onChange} labelProps={labelProps} {...props} />
+}
+
+export const Default = {
+  render: Renderer
+}
+
+export const SecondaryText = {
+  render: Renderer,
+  args: {
+    generateItem: (i: number) => ({ value: i, label: `Account Settings ${i}`, secondaryText: 'secondary' }),
+    showCheckmark: false
+  }
+}
+
+export const SecondaryTextWithIcon = {
+  render: Renderer,
+  args: {
+    generateItem: (i: number) => ({
+      value: i,
+      label: `Account Settings ${i}`,
+      secondaryText: 'secondary',
+      Icon: Rows01Md
+    }),
+    showCheckmark: false
   }
 }
