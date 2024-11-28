@@ -33,14 +33,18 @@ import { PositionalAudioSystem } from '../systems/PositionalAudioSystem'
 import { WarningUISystem } from '../systems/WarningUISystem'
 import { WidgetUISystem } from '../systems/WidgetUISystem'
 import { UserUISystem } from '../user/UserUISystem'
+import { LinkRedirectSystem } from './LinkRedirectSystem'
+import { PortalRedirectSystem } from './PortalRedirectSystem'
 
 import './ClientNetworkModule'
 
 export {
   AvatarSpawnSystem,
   AvatarUISystem,
+  LinkRedirectSystem,
   LoadingUISystem,
   MediaControlSystem,
+  PortalRedirectSystem,
   PositionalAudioSystem,
   UserUISystem,
   WarningUISystem,
