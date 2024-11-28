@@ -28,7 +28,7 @@ import { twMerge } from 'tailwind-merge'
 import { HelpIconSm } from '../../../icons'
 import Tooltip from '../Tooltip'
 
-const variantSizes = {
+export const variantSizes = {
   xs: 'h-6 py-0.5 px-2',
   l: 'h-8 py-1.5 px-2',
   xl: 'h-10 py-2.5 px-2'

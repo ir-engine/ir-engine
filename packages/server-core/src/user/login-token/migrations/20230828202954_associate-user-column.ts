@@ -23,40 +23,39 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { HiMiniRocketLaunch } from 'react-icons/hi2'
-import { DropdownItem, DropdownItemProps } from './index'
+import type { Knex } from 'knex'
 
-export default {
-  title: 'Components/Editor/DropdownList',
-  parameters: {
-    componentSubtitle: 'Dropdown',
-    design: {
-      type: 'figma',
-      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2511-3503&node-type=frame&t=B0cD28zTLRN51Vxd-0'
-    }
+import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const associateUserColumnExists = await knex.schema.hasColumn(loginTokenPath, 'associateUserId')
+  if (!associateUserColumnExists) {
+    await knex.schema.alterTable(loginTokenPath, async (table) => {
+      //@ts-ignore
+      table.uuid('associateUserId').collate('utf8mb4_bin').nullable().index()
+      table.foreign('associateUserId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
+    })
   }
 }
 
-const DropdownItemRenderer = (args: DropdownItemProps) => {
-  let Icon: (() => JSX.Element) | undefined = undefined
-  if (!args.Icon) {
-    Icon = HiMiniRocketLaunch as () => JSX.Element
-    delete args.Icon
-  }
-  return <DropdownItem Icon={Icon} {...args} />
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export const DropdownItemStory = {
-  name: 'Dropdown Item',
-  render: DropdownItemRenderer,
-  args: {
-    label: 'Account settings',
-    selected: false
-  },
-  argTypes: {
-    secondaryText: {
-      control: 'text'
-    }
+  const associateUserColumnExists = await knex.schema.hasColumn(loginTokenPath, 'associateUserId')
+
+  if (associateUserColumnExists) {
+    await knex.schema.alterTable(loginTokenPath, async (table) => {
+      table.dropColumn('associateUserId')
+    })
   }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

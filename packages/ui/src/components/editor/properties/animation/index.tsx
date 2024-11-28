@@ -44,7 +44,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaStreetView } from 'react-icons/fa'
 import { LoopOnce, LoopPingPong, LoopRepeat } from 'three'
-import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
+import { OptionType } from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
@@ -92,7 +92,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.loopAnimation.lbl-loopAnimation')}>
         <SelectInput
           key={props.entity}
-          options={animationOptions.value as SelectOptionsType[]}
+          options={animationOptions.value as OptionType[]}
           value={loopAnimationComponent.value.activeClipIndex}
           onChange={onChangePlayingAnimation}
         />

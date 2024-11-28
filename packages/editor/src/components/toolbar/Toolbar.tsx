@@ -42,7 +42,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { RxHamburgerMenu } from 'react-icons/rx'
-import { twMerge } from 'tailwind-merge'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene, onSaveScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
@@ -226,8 +225,7 @@ export default function Toolbar() {
         <div className="w-[180px]" tabIndex={0}>
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <DropdownItem
-              className={twMerge(index === 0 && 'rounded-t-lg', index === toolbarMenu.length - 1 && 'rounded-b-lg')}
-              title={name}
+              label={name}
               secondaryText={hotkey}
               onClick={() => {
                 action()

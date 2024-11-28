@@ -109,8 +109,6 @@ const RenderModeTool = () => {
             containerClassName="justify-between gap-2"
           >
             <SelectInput
-              inputClassName="text-theme-gray3"
-              className="border-theme-input text-theme-gray3"
               options={ShadowMapResolutionOptions as { value: string; label: string }[]}
               value={rendererState.shadowMapResolution.value}
               onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
