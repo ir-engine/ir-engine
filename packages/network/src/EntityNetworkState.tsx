@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 
 import { Engine, EntityUUID, getOptionalComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -157,35 +157,33 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     )
   }, [userConnected, state.requestingPeerId.value])
 
-  return <>{ownerID === HyperFlux.store.userID && !!worldNetwork && <OwnerPeerReactor uuid={props.uuid} />}</>
-}
+  const authorityPeer = state.authorityPeerId.value ?? state.ownerPeer.value
+  const isAuthorInNetwork = !!(worldNetwork && networkPeerState[worldNetwork.id]?.peers[authorityPeer])
 
-const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {
-  const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
-  const ownerPeer = state.ownerPeer.value
-  const networkState = useHookstate(NetworkState.worldNetworkState)
+  /**
+   * If the authority peer does not exist in the network, and we are the owner user,
+   * dispatch a spawn action so we take authority over the object
+   */
+  useLayoutEffect(() => {
+    if (!isOwner || !isAuthorInNetwork) return
 
-  /** If the owner peer does not exist in the network, and we are the owner user, dispatch a spawn action so we take ownership */
-  useEffect(() => {
     return () => {
-      // ensure reactor isn't completely unmounting
+      // ensure entity still exists
       if (!getState(EntityNetworkState)[props.uuid]) return
-      if (ownerPeer !== Engine.instance.store.peerID && Engine.instance.store.userID === state.ownerId.value) {
-        const lowestPeer = [...networkState.users[HyperFlux.store.userID].value].sort((a, b) => (a > b ? 1 : -1))[0]
-        if (lowestPeer !== Engine.instance.store.peerID) return
-        dispatchAction(
-          WorldNetworkAction.spawnEntity({
-            entityUUID: props.uuid,
-            parentUUID: state.parentUUID.value,
-            // if the authority peer is not connected, we need to take authority
-            authorityPeerId: networkState.users[HyperFlux.store.userID].value.includes(ownerPeer)
-              ? undefined
-              : Engine.instance.store.peerID
-          })
-        )
-      }
+
+      // Use the lowest peer as the new authority
+      const lowestPeer = [...worldNetwork.users[HyperFlux.store.userID]].sort((a, b) => (a > b ? 1 : -1))[0]
+      if (lowestPeer !== Engine.instance.store.peerID) return
+
+      dispatchAction(
+        WorldNetworkAction.transferAuthorityOfObject({
+          ownerID: state.ownerId.value,
+          entityUUID: props.uuid,
+          newAuthority: Engine.instance.store.peerID
+        })
+      )
     }
-  }, [networkState.peers, networkState.users])
+  }, [isOwner, isAuthorInNetwork])
 
   return null
 }
