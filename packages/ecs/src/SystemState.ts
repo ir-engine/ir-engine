@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineState, isDev, ReactorRoot, State } from '@ir-engine/hyperflux'
 
+import { Entity } from './Entity'
 import { defineQuery, QueryComponents } from './QueryFunctions'
 import { SystemUUID } from './SystemFunctions'
-import { Entity } from './Entity'
 
 export const SystemState = defineState({
   name: 'ee.meta.SystemState',

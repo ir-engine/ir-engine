@@ -40,7 +40,6 @@ import {
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'
 import { removeEntity } from './EntityFunctions'
-import { removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
 
 export class Engine {
