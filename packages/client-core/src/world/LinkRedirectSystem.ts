@@ -23,31 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { WidgetAppServiceReceptorSystem } from '@ir-engine/spatial/src/xrui/WidgetAppService'
+import { PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
+import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
+import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { RouterState } from '../common/services/RouterService'
+import { LocationService } from '../social/services/LocationService'
 
-import { AvatarSpawnSystem } from '../networking/AvatarSpawnSystem'
-import { AvatarUISystem } from '../systems/AvatarUISystem'
-import { LoadingUISystem } from '../systems/LoadingUISystem'
-import { MediaControlSystem } from '../systems/MediaControlSystem'
-import { PositionalAudioSystem } from '../systems/PositionalAudioSystem'
-import { WarningUISystem } from '../systems/WarningUISystem'
-import { WidgetUISystem } from '../systems/WidgetUISystem'
-import { UserUISystem } from '../user/UserUISystem'
-import { LinkRedirectSystem } from './LinkRedirectSystem'
-import { PortalRedirectSystem } from './PortalRedirectSystem'
+export const reactor = () => {
+  const linkState = useMutableState(LinkState)
 
-import './ClientNetworkModule'
+  useEffect(() => {
+    const location = linkState.location.value
+    if (!location) return
 
-export {
-  AvatarSpawnSystem,
-  AvatarUISystem,
-  LinkRedirectSystem,
-  LoadingUISystem,
-  MediaControlSystem,
-  PortalRedirectSystem,
-  PositionalAudioSystem,
-  UserUISystem,
-  WarningUISystem,
-  WidgetAppServiceReceptorSystem,
-  WidgetUISystem
+    RouterState.navigate('/location/' + location)
+    LocationService.getLocationByName(location)
+
+    getMutableState(LinkState).location.set(undefined)
+  }, [linkState.location.value])
+
+  return null
 }
+
+export const LinkRedirectSystem = defineSystem({
+  uuid: 'ir.client.world.LinkRedirectSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor
+})
