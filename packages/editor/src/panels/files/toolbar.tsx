@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Button, Checkbox, Input } from '@ir-engine/ui'
-import { Slider } from '@ir-engine/ui/editor'
+import { Checkbox, Input } from '@ir-engine/ui'
+import { Slider, StudioButton } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import {
   ArrowLeftSm,
@@ -114,9 +114,9 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button size="sm" variant="secondary" data-testid="files-panel-view-options-button">
+          <StudioButton size="sm" variant="tertiary" data-testid="files-panel-view-options-button">
             <CogSm />
-          </Button>
+          </StudioButton>
         </Tooltip>
       }
     >
@@ -197,28 +197,29 @@ export default function FilesToolbar() {
         {showBackButton && (
           <div>
             <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
-              <Button
+              <StudioButton
                 size="sm"
-                variant="secondary"
+                variant="tertiary"
                 data-testid="files-panel-back-directory-button"
                 onClick={backDirectory}
+                rounded
               >
                 <ArrowLeftSm />
-              </Button>
+              </StudioButton>
             </Tooltip>
           </div>
         )}
 
         <div>
           <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-            <Button
+            <StudioButton
               size="sm"
-              variant="secondary"
+              variant="tertiary"
               data-testid="files-panel-refresh-directory-button"
               onClick={refreshDirectory}
             >
               <Refresh1Sm />
-            </Button>
+            </StudioButton>
           </Tooltip>
         </div>
 
@@ -262,34 +263,34 @@ export default function FilesToolbar() {
                 : t('editor:layout.filebrowser.downloadProjectUnavailable')
             }
           >
-            <Button
+            <StudioButton
               size="sm"
-              variant="secondary"
+              variant="tertiary"
               onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
               data-testid="files-panel-download-project-button"
             >
               <Download01Sm />
-            </Button>
+            </StudioButton>
           </Tooltip>
         </div>
 
         <div className="w-fit">
-          <Button
+          <StudioButton
             size="l"
-            variant="secondary"
+            variant="tertiary"
             data-testid="files-panel-create-new-folder-button"
             className="disabled:bg-[#212226]"
             onClick={createNewFolder}
           >
             <FolderSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
-          </Button>
+          </StudioButton>
         </div>
         <div className="w-fit">
-          <Button
+          <StudioButton
             size="l"
             disabled={!showUploadButtons}
-            variant="secondary"
+            variant="tertiary"
             data-testid="files-panel-upload-folder-button"
             className="disabled:bg-[#212226]"
             onClick={() =>
@@ -306,7 +307,7 @@ export default function FilesToolbar() {
           >
             <PlusCircleSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
-          </Button>
+          </StudioButton>
         </div>
       </div>
     </>
