@@ -23,11 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState, HyperFlux, NetworkID, none, PeerID } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  HyperFlux,
+  isTest,
+  NetworkID,
+  none,
+  PeerID
+} from '@ir-engine/hyperflux'
 import { DataChannelType } from '../DataChannelRegistry'
 import { MediaTagType } from '../NetworkState'
 
-const loggingEnabled = false //isDev
+const loggingEnabled = isTest
 const logger = loggingEnabled ? console : { log: () => {}, warn: () => {}, error: () => {} }
 
 /**

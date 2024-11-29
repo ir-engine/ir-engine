@@ -23,7 +23,8 @@
   "devDependencies": {
     "@types/node": "18.15.5",
     "rimraf": "4.4.0",
-    "three": "0.158.0"
+    "three": "0.158.0",
+    "webrtc-polyfill": "1.1.10"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

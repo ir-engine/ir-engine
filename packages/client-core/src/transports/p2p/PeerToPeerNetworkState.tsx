@@ -238,7 +238,7 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
       if (data.targetPeerID !== Engine.instance.store.peerID) return
       if (data.instanceID !== props.instanceID) return
 
-      await WebRTCTransportFunctions.onMessage(sendMessage, data.instanceID, props.peerID, data.message)
+      WebRTCTransportFunctions.onMessage(sendMessage, data.instanceID, props.peerID, data.message)
     })
 
     const abortController = new AbortController()
