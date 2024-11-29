@@ -74,8 +74,8 @@ export default function Servers() {
             </Button>
             <Select
               options={serverAutoRefreshOptions}
-              currentValue={autoRefresh.value}
-              onChange={(value) => autoRefresh.set(value)}
+              value={autoRefresh.value}
+              onChange={(value: string) => autoRefresh.set(value)}
             />
           </div>
         </div>

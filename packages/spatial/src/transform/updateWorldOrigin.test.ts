@@ -73,10 +73,10 @@ describe('updateWorldOriginFromScenePlacement', () => {
     return destroyEngine()
   })
 
-  it('should set the value of XRState.worldScale into all components of TransformComponent.scale for all children of EngineState.localFloorEntity', () => {
+  it('should set the value of XRState.worldScale into all components of TransformComponent.scale for all children of EngineState.originEntity', () => {
     const scale = 42
     const Initial = new Vector3().setScalar(scale)
-    const children = getComponent(localFloorEntity, EntityTreeComponent).children
+    const children = getComponent(getState(EngineState).originEntity, EntityTreeComponent).children
     for (const child of children) {
       // Set the data as expected
       setComponent(child, TransformComponent, { scale: Initial })

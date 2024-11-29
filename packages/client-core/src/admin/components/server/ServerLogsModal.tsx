@@ -103,10 +103,13 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
         </div>
         <div className="flex items-end">
           <Select
-            label={t('admin:components.server.container')}
+            labelProps={{
+              text: t('admin:components.server.container'),
+              position: 'top'
+            }}
             options={containersOptions}
-            currentValue={selectedContainerName.value || ''}
-            onChange={(value) => selectedContainerName.set(value)}
+            value={selectedContainerName.value || ''}
+            onChange={(value: string) => selectedContainerName.set(value)}
           />
           <div className="ml-auto flex items-center">
             <Button
@@ -120,8 +123,8 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
             </Button>
             <Select
               options={serverAutoRefreshOptions}
-              currentValue={autoRefresh.value}
-              onChange={(value) => autoRefresh.set(value)}
+              value={autoRefresh.value}
+              onChange={(value: string) => autoRefresh.set(value)}
             />
           </div>
         </div>

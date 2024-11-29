@@ -23,24 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { destroySpatialEngine, destroySpatialViewer } from '../../src/initializeEngine'
+import { requestEmulatedXRSession } from '../webxr/emulator'
+import { MockXRFrame } from './MockXR'
+import { mockSpatialEngine } from './mockSpatialEngine'
 
-import {
-  helmSettingDataSchema,
-  helmSettingPatchSchema,
-  helmSettingQuerySchema,
-  helmSettingSchema
-} from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { endXRSession } from '../../src/xr/XRSessionFunctions'
+import { XRState } from '../../src/xr/XRState'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    helmSettingDataSchema,
-    helmSettingPatchSchema,
-    helmSettingQuerySchema,
-    helmSettingSchema
-  },
-  docs: {
-    description: 'Helm setting service description',
-    securities: ['all']
-  }
-})
+export async function mockEmulatedXREngine() {
+  mockSpatialEngine()
+  await requestEmulatedXRSession()
+  // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property
+  getMutableState(XRState).xrFrame.set(new MockXRFrame())
+}
+
+export async function destroyEmulatedXREngine() {
+  destroySpatialViewer()
+  destroySpatialEngine()
+  await endXRSession()
+}

@@ -24,3 +24,7 @@
     23rem 1rem 2px rgb(255 255 255 / 60%),
     25rem 11rem 2px rgb(255 255 255 / 90%)
 }
+
+#asset-panel::-webkit-scrollbar-thumb {
+  min-height: 20%;
+}

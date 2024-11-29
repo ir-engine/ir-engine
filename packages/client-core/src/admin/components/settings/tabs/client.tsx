@@ -139,6 +139,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.appTitle'),
             position: 'top'
@@ -148,6 +149,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.title'),
             position: 'top'
@@ -157,6 +159,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.appSubtitle'),
             position: 'top'
@@ -166,6 +169,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.shortTitle'),
             position: 'top'
@@ -175,6 +179,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.appDescription'),
             position: 'top'
@@ -184,6 +189,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.startPath'),
             position: 'top'
@@ -193,6 +199,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.appBackground'),
             position: 'top'
@@ -202,6 +209,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.description'),
             position: 'top'
@@ -211,6 +219,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.googleAnalyticsMeasurementId'),
             position: 'top'
@@ -219,6 +228,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           onChange={(e) => settings.gaMeasurementId.set(e.target.value)}
         />
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.googleTagManagerContainerId'),
             position: 'top'
@@ -227,6 +237,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           onChange={(e) => settings.gtmContainerId.set(e.target.value)}
         />
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.googleTagManagerAuth'),
             position: 'top'
@@ -235,6 +246,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           onChange={(e) => settings.gtmAuth.set(e.target.value)}
         />
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.googleTagManagerPreview'),
             position: 'top'
@@ -255,6 +267,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.logo'),
             position: 'top'
@@ -264,6 +277,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.appleTouchIcon'),
             position: 'top'
@@ -273,6 +287,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.favIcon16px'),
             position: 'top'
@@ -282,6 +297,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.favIcon32px'),
             position: 'top'
@@ -291,6 +307,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.icon192px'),
             position: 'top'
@@ -300,6 +317,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.icon512px'),
             position: 'top'
@@ -313,6 +331,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.webmanifestLink'),
             position: 'top'
@@ -322,6 +341,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.swScriptLink'),
             position: 'top'
@@ -331,6 +351,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.url'),
             position: 'top'
@@ -340,6 +361,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.releaseName'),
             position: 'top'
@@ -349,6 +371,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.privacyPolicy'),
             position: 'top'
@@ -358,6 +381,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.key8thWall'),
             position: 'top'
@@ -371,6 +395,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         </Text>
 
         <Input
+          fullWidth
           type="number"
           labelProps={{
             text: t('admin:components.setting.audioMaxBitrate'),
@@ -381,25 +406,30 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Select
-          className="col-span-1"
-          label={t('admin:components.setting.videoMaxResolution')}
-          currentValue={settings.mediaSettings.video.maxResolution.value}
+          labelProps={{
+            text: t('admin:components.setting.videoMaxResolution'),
+            position: 'top'
+          }}
+          value={settings.mediaSettings.video.maxResolution.value}
           options={videoMaxResolutionMenu}
-          onChange={(value) => settings.mediaSettings.video.maxResolution.set(value)}
+          onChange={(value: string) => settings.mediaSettings.video.maxResolution.set(value)}
         />
 
         <Select
-          className="col-span-1"
-          label={t('admin:components.setting.videoCodec')}
-          currentValue={settings.mediaSettings.video.codec.value}
+          labelProps={{
+            text: t('admin:components.setting.videoCodec'),
+            position: 'top'
+          }}
+          value={settings.mediaSettings.video.codec.value}
           options={codecMenu}
-          onChange={(value) => settings.mediaSettings.video.codec.set(value)}
+          onChange={(value: string) => settings.mediaSettings.video.codec.set(value)}
         />
 
         {(settings.mediaSettings.video.codec.value === 'VP8' ||
           settings.mediaSettings.video.codec.value === 'h264') && (
           <>
             <Input
+              fullWidth
               type="number"
               labelProps={{
                 text: t('admin:components.setting.videoLowResMaxBitrate'),
@@ -410,6 +440,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             />
 
             <Input
+              fullWidth
               type="number"
               labelProps={{
                 text: t('admin:components.setting.videoMidResMaxBitrate'),
@@ -420,6 +451,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             />
 
             <Input
+              fullWidth
               type="number"
               labelProps={{
                 text: t('admin:components.setting.videoHighResMaxBitrate'),
@@ -432,17 +464,20 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         )}
 
         <Select
-          className="col-span-1"
-          label={t('admin:components.setting.screenshareCodec')}
-          currentValue={settings.mediaSettings.screenshare.codec.value}
+          labelProps={{
+            text: t('admin:components.setting.screenshareCodec'),
+            position: 'top'
+          }}
+          value={settings.mediaSettings.screenshare.codec.value}
           options={codecMenu}
-          onChange={(value) => settings.mediaSettings.screenshare.codec.set(value)}
+          onChange={(value: string) => settings.mediaSettings.screenshare.codec.set(value)}
         />
 
         {(settings.mediaSettings.screenshare.codec.value === 'VP8' ||
           settings.mediaSettings.screenshare.codec.value === 'h264') && (
           <>
             <Input
+              fullWidth
               type="number"
               labelProps={{
                 text: t('admin:components.setting.screenshareLowResMaxBitrate'),
@@ -453,6 +488,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             />
 
             <Input
+              fullWidth
               type="number"
               labelProps={{
                 text: t('admin:components.setting.screenshareMidResMaxBitrate'),
@@ -463,6 +499,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             />
 
             <Input
+              fullWidth
               type="number"
               labelProps={{
                 text: t('admin:components.setting.screenshareHighResMaxBitrate'),

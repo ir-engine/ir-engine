@@ -23,14 +23,40 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import React from 'react'
-import FileBrowserInput from '../FileBrowser'
-import { StringInputProps } from '../String'
 
-export function ImageInput({ ...rest }: StringInputProps) {
-  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
+export const PRIVATE = Symbol('@@webxr-polyfill/XRHitTestResult');
+
+import { XRAnchor } from './XRAnchor';
+import { PRIVATE as XRFRAME_PRIVATE } from 'webxr-polyfill/src/api/XRFrame';
+import XRSpace from 'webxr-polyfill/src/api/XRSpace';
+import { mat4 } from 'gl-matrix';
+
+export default class XRHitTestResult {
+	constructor(frame, transform) {
+		this[PRIVATE] = {
+			frame,
+			transform,
+		};
+	}
+
+	getPose(baseSpace) {
+		const space = new XRSpace();
+		space._baseMatrix = mat4.copy(
+			mat4.create(),
+			this[PRIVATE].transform.matrix,
+		);
+		return this[PRIVATE].frame.getPose(space, baseSpace);
+	}
+
+	async createAnchor() {
+		const anchorSpace = new XRSpace();
+		anchorSpace._baseMatrix = mat4.copy(
+			mat4.create(),
+			this[PRIVATE].transform.matrix,
+		);
+		const session = this[PRIVATE].frame[XRFRAME_PRIVATE].session;
+		const anchor = new XRAnchor(session, anchorSpace);
+		session.addTrackedAnchor(anchor);
+		return anchor;
+	}
 }
-ImageInput.defaultProps = {}
-export default ImageInput
