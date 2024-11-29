@@ -28,12 +28,11 @@ import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunct
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { useMutableState } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { ToolbarButton } from '@ir-engine/ui/editor'
+import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
-import { twMerge } from 'tailwind-merge'
 
 function Placer() {
   return (
@@ -110,60 +109,44 @@ export default function TransformGizmoTool({
       </div>
       <div className="mt-2 flex flex-col overflow-hidden rounded bg-[#212226]">
         <Tooltip content={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
-              pointerSelected && 'bg-theme-highlight text-white'
-            )}
-            iconContainerClassName="m-0"
-            startIcon={<TbPointer />}
+          <ToolbarButton
             onClick={() => {
               setPointerSelected(true)
               EditorControlFunctions.replaceSelection([])
             }}
-          />
+          >
+            <Cursor03Default />
+          </ToolbarButton>
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.translate')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
-              !pointerSelected && transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
-            )}
-            iconContainerClassName="m-0"
-            startIcon={<TbVector />}
+          <ToolbarButton
             onClick={() => {
               setPointerSelected(false)
               setTransformMode(TransformMode.translate)
             }}
-          />
+          >
+            <Scale02Md />
+          </ToolbarButton>
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
-              !pointerSelected && transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
-            )}
-            iconContainerClassName="m-0"
-            startIcon={<TbRefresh />}
+          <ToolbarButton
             onClick={() => {
               setPointerSelected(false)
               setTransformMode(TransformMode.rotate)
             }}
-          />
+          >
+            <Refresh1Md />
+          </ToolbarButton>
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.scale')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none bg-[#212226] p-2 text-[#A3A3A3]',
-              !pointerSelected && transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
-            )}
-            iconContainerClassName="m-0"
-            startIcon={<TbWindowMaximize />}
+          <ToolbarButton
             onClick={() => {
               setPointerSelected(false)
               setTransformMode(TransformMode.scale)
             }}
-          />
+          >
+            <TransformMd />
+          </ToolbarButton>
         </Tooltip>
       </div>
     </div>

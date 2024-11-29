@@ -36,10 +36,10 @@ const argTypes: ArgTypes = {
 }
 
 export default {
-  title: 'Components/Editor/StudioButton',
+  title: 'Components/Editor/ViewportButton',
   component: ViewportButton,
   parameters: {
-    componentSubtitle: 'StudioButton',
+    componentSubtitle: 'ViewportButton',
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=2276-16114&node-type=frame&m=dev'

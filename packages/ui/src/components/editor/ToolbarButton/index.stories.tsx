@@ -23,15 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export { default as ImageLink } from './src/components/editor/ImageLink'
-export type { ImageLinkProps } from './src/components/editor/ImageLink'
-export { default as Seeker } from './src/components/editor/Seeker'
-export type { SeekerProps } from './src/components/editor/Seeker'
-export { default as Slider } from './src/components/editor/Slider'
-export type { SliderProps } from './src/components/editor/Slider'
-export { default as StudioButton } from './src/components/editor/StudioButton'
-export type { StudioButtonProps } from './src/components/editor/StudioButton'
-export { default as ToolbarButton } from './src/components/editor/ToolbarButton'
-export type { ToolbarButtonProps } from './src/components/editor/ToolbarButton'
-export { default as ViewportButton } from './src/components/editor/ViewportButton'
-export type { ViewportButtonProps } from './src/components/editor/ViewportButton'
+import { ArgTypes, StoryObj } from '@storybook/react'
+import React from 'react'
+
+import { RulerUnitsMd } from '@ir-engine/ui/src/icons'
+import ToolbarButton, { ToolbarButtonProps } from './index'
+
+const argTypes: ArgTypes = {
+  selected: {
+    control: 'boolean'
+  }
+}
+
+export default {
+  title: 'Components/Editor/ToolbarButton',
+  component: ToolbarButton,
+  parameters: {
+    componentSubtitle: 'ToolbarButton',
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=3349-16983&node-type=symbol&m=dev'
+    }
+  },
+  argTypes
+}
+
+type Story = StoryObj<typeof ToolbarButton>
+
+const ToolbarButtonRenderer = (args: ToolbarButtonProps) => {
+  return (
+    <ToolbarButton {...args}>
+      <RulerUnitsMd />
+    </ToolbarButton>
+  )
+}
+
+export const Default: Story = {
+  name: 'Primary',
+  args: {},
+  render: ToolbarButtonRenderer
+}
