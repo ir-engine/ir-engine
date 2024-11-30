@@ -22,22 +22,29 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
 
 import { PUBLIC_STUN_SERVERS } from '@ir-engine/common/src/constants/STUNServers'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { NetworkID, PeerID, getMutableState } from '@ir-engine/hyperflux'
+import { NetworkID, PeerID, getMutableState, getState } from '@ir-engine/hyperflux'
 
 import '../EntityNetworkState'
 
 import webrtc from 'webrtc-polyfill'
 globalThis.RTCPeerConnection = webrtc.RTCPeerConnection
 
-import { MessageTypes, SendMessageType, StunServerState, WebRTCTransportFunctions } from './WebRTCTransportFunctions'
+import {
+  MessageTypes,
+  RTCPeerConnectionState,
+  SendMessageType,
+  StunServerState,
+  WebRTCTransportFunctions
+} from './WebRTCTransportFunctions'
 
 import { ChildProcess } from 'child_process'
 import { PeerMessage } from '../../tests/interfaces'
 import { startSubprocess } from '../../tests/startSubprocess'
+import { DataChannelType } from '../DataChannelRegistry'
 
 const initiatorPeerID = 'peer' as PeerID
 
@@ -74,6 +81,29 @@ const startPeer = async (networkID: NetworkID) => {
   return { peerProcess, otherPeerID: otherPeerID! }
 }
 
+const setupMessaging = async (networkID: NetworkID) => {
+  const peerID = Engine.instance.store.peerID
+
+  const { peerProcess, otherPeerID } = await startPeer(networkID)
+
+  const sendMessage: SendMessageType = (networkID: NetworkID, toPeerID: PeerID, message: MessageTypes) => {
+    // console.log('sendMessage', Date.now(), networkID, toPeerID, message)
+    if (!peerProcess.channel) return console.error('peer process not connected')
+    peerProcess.send({ networkID, toPeerID, message } as PeerMessage)
+  }
+
+  peerProcess.on('message', (data: PeerMessage) => {
+    if (onMessageCallback) onMessageCallback(data)
+    // console.log('on message', Date.now(), data)
+    const { networkID, toPeerID, message } = data
+    if (toPeerID !== peerID) return console.error('received message not for us')
+    const fromPeerID = otherPeerID!
+    WebRTCTransportFunctions.onMessage(sendMessage, networkID, fromPeerID, message)
+  })
+
+  return { peerProcess, otherPeerID, sendMessage }
+}
+
 let onMessageCallback: ((data: PeerMessage) => void) | undefined
 
 const awaitResponse = (time = 10000) => {
@@ -96,7 +126,6 @@ describe('WebRTCTransportFunctions', () => {
   afterEach(() => {
     if (childProcess) process.kill(-childProcess.pid!, 'SIGINT')
     childProcess = undefined
-    // childProcess.kill('SIGINT')
     return destroyEngine()
   })
 
@@ -108,6 +137,9 @@ describe('WebRTCTransportFunctions', () => {
     const isInitiator = Engine.instance.store.peerID > otherPeerID
 
     assert(isInitiator)
+
+    if (childProcess) process.kill(-childProcess.pid!, 'SIGINT')
+    childProcess = undefined
   })
 
   it('can start other peer as initiator', async () => {
@@ -118,28 +150,17 @@ describe('WebRTCTransportFunctions', () => {
     const isOtherInitiator = Engine.instance.store.peerID < otherPeerID
 
     assert(isOtherInitiator)
+
+    if (childProcess) process.kill(-childProcess.pid!, 'SIGINT')
+    childProcess = undefined
   })
 
-  it.only('should connect to peer in other process as initiator', async () => {
+  it('should connect to peer in other process as initiator', async () => {
     const networkID = 'network' as NetworkID
     Engine.instance.store.peerID = initiatorPeerID
     const peerID = Engine.instance.store.peerID
 
-    const { peerProcess, otherPeerID } = await startPeer(networkID)
-
-    const sendMessage: SendMessageType = (networkID: NetworkID, toPeerID: PeerID, message: MessageTypes) => {
-      // console.log('sendMessage', Date.now(), networkID, toPeerID, message)
-      peerProcess.send({ networkID, toPeerID, message } as PeerMessage)
-    }
-
-    peerProcess.on('message', (data: PeerMessage) => {
-      if (onMessageCallback) onMessageCallback(data)
-      // console.log('on message', Date.now(), data)
-      const { networkID, toPeerID, message } = data
-      if (toPeerID !== peerID) return console.error('received message not for us')
-      const fromPeerID = otherPeerID!
-      WebRTCTransportFunctions.onMessage(sendMessage, networkID, fromPeerID, message)
-    })
+    const { otherPeerID, sendMessage } = await setupMessaging(networkID)
 
     WebRTCTransportFunctions.poll(sendMessage, networkID, otherPeerID)
 
@@ -147,6 +168,132 @@ describe('WebRTCTransportFunctions', () => {
     assert.equal(pollResponse.networkID, networkID)
     assert.equal(pollResponse.toPeerID, peerID)
     assert.equal(pollResponse.message.type, 'poll')
+
+    assert.equal(getState(RTCPeerConnectionState)[networkID][otherPeerID].makingOffer, true)
+    assert.ok(getState(RTCPeerConnectionState)[networkID][otherPeerID].peerConnection)
+
+    const descriptionResponse = await awaitResponse()
+    assert.equal(descriptionResponse.networkID, networkID)
+    assert.equal(descriptionResponse.toPeerID, peerID)
+    assert.equal(descriptionResponse.message.type, 'description')
+
+    // should have at least one candidate negotiation message
+    const negotiationResponse = await awaitResponse()
+    assert.equal(negotiationResponse.networkID, networkID)
+    assert.equal(negotiationResponse.toPeerID, peerID)
+    assert.equal(negotiationResponse.message.type, 'candidate')
+
+    const ready = await vi.waitUntil(() => getState(RTCPeerConnectionState)[networkID][otherPeerID].ready, {
+      timeout: 1000,
+      interval: 20
+    })
+
+    assert.equal(ready, true)
+    assert.equal(getState(RTCPeerConnectionState)[networkID][otherPeerID].makingOffer, false)
+
+    // data channel
+    assert.ok(getState(RTCPeerConnectionState)[networkID][otherPeerID].dataChannels['actions'])
+
+    if (childProcess) process.kill(-childProcess.pid!, 'SIGINT')
+    childProcess = undefined
+  })
+
+  it('should be able to send data over data channel', async () => {
+    const networkID = 'network' as NetworkID
+    Engine.instance.store.peerID = initiatorPeerID
+    const peerID = Engine.instance.store.peerID
+
+    const { otherPeerID, sendMessage } = await setupMessaging(networkID)
+
+    WebRTCTransportFunctions.poll(sendMessage, networkID, otherPeerID)
+
+    await vi.waitUntil(() => getState(RTCPeerConnectionState)?.[networkID]?.[otherPeerID]?.ready, {
+      timeout: 10000,
+      interval: 20
+    })
+
+    const message = { type: 'test', data: 'test' }
+
+    await vi.waitUntil(
+      () => getState(RTCPeerConnectionState)[networkID]?.[otherPeerID]?.dataChannels?.['actions' as DataChannelType],
+      {
+        timeout: 10000,
+        interval: 20
+      }
+    )
+
+    const actionChannel =
+      getState(RTCPeerConnectionState)[networkID][otherPeerID].dataChannels['actions' as DataChannelType]
+
+    await new Promise<void>((resolve) => {
+      actionChannel.onmessage = (event) => resolve()
+    })
+
+    let response: typeof message | undefined
+
+    actionChannel.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      response = data
+    }
+
+    actionChannel.send(JSON.stringify(message))
+
+    const responseData = await vi.waitUntil(() => response, {
+      timeout: 10000,
+      interval: 20
+    })
+
+    assert.deepEqual(responseData, message)
+
+    if (childProcess) process.kill(-childProcess.pid!, 'SIGINT')
+    childProcess = undefined
+  })
+
+  it('should be able to open custom data channel', async () => {
+    const networkID = 'network' as NetworkID
+    Engine.instance.store.peerID = initiatorPeerID
+    const peerID = Engine.instance.store.peerID
+
+    const { otherPeerID, sendMessage } = await setupMessaging(networkID)
+
+    WebRTCTransportFunctions.poll(sendMessage, networkID, otherPeerID)
+
+    await vi.waitUntil(() => getState(RTCPeerConnectionState)?.[networkID]?.[otherPeerID]?.ready, {
+      timeout: 10000,
+      interval: 20
+    })
+
+    const actionChannel =
+      getState(RTCPeerConnectionState)[networkID][otherPeerID].dataChannels['actions' as DataChannelType]
+
+    await new Promise<void>((resolve) => {
+      actionChannel.onmessage = (event) => resolve()
+    })
+
+    const channelType = 'testChannel' as DataChannelType
+
+    const message = { type: 'test', data: 'test' }
+
+    const customDataChannel = WebRTCTransportFunctions.createDataChannel(networkID, otherPeerID, channelType)!
+    await new Promise<void>((resolve) => {
+      customDataChannel.onmessage = (event) => resolve()
+    })
+
+    let response: typeof message | undefined
+
+    customDataChannel.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      response = data
+    }
+
+    customDataChannel.send(JSON.stringify(message))
+
+    const responseData = await vi.waitUntil(() => response, {
+      timeout: 10000,
+      interval: 20
+    })
+
+    assert.deepEqual(responseData, message)
 
     if (childProcess) process.kill(-childProcess.pid!, 'SIGINT')
     childProcess = undefined
