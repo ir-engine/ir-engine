@@ -255,6 +255,8 @@ export default function AddEditLocationModal(props: {
               state={errors.name.value ? 'error' : undefined}
               helperText={errors.name.value}
               disabled={isLoading}
+              fullWidth
+              variantSize="xl"
             />
             <Input
               type="number"
@@ -265,6 +267,8 @@ export default function AddEditLocationModal(props: {
               state={errors.maxUsers.value ? 'error' : undefined}
               helperText={errors.maxUsers.value}
               disabled={isLoading}
+              fullWidth
+              variantSize="xl"
             />
             <Select
               labelProps={{
@@ -291,6 +295,8 @@ export default function AddEditLocationModal(props: {
               }
               state={errors.scene.value ? 'error' : undefined}
               helperText={errors.scene.value}
+              width="full"
+              inputSizeVariant="xl"
             />
             <Select
               labelProps={{
@@ -301,6 +307,8 @@ export default function AddEditLocationModal(props: {
               onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
               options={locationTypeOptions}
               disabled={true}
+              width="full"
+              inputSizeVariant="xl"
             />
             <Toggle
               label={t('admin:components.location.lbl-ve')}
