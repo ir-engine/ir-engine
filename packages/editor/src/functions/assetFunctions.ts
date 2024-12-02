@@ -103,7 +103,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-function sanitizeFiles(files) {
+function sanitizeFiles(files): File[] {
   const newFiles: File[] = []
   for (const file of files) {
     const newFile = cleanFileNameFile(file)
@@ -156,29 +156,32 @@ export const ifFileExist = async (projectName: string, file: File) => {
 }
 
 export const filterExistingFiles = async (projectName: string, files: File[]) => {
-  const resourcePaths = files.map((file) => `projects/${projectName}/assets/${file.name}`)
-  if (!resourcePaths.length) return []
-  try {
-    const { data: existingFiles } = await API.instance.service(staticResourcePath).find({
-      query: {
-        key: {
-          $in: resourcePaths || []
-        }
-      },
-      paginate: false
-    })
-
-    const existingFileKeys = new Set(existingFiles.map((file) => file.key))
-
-    const filteredFiles = files.filter((file) => !existingFileKeys.has(file.key))
-
+  if (!files.length) {
     return {
-      existingFiles,
-      filteredFiles
+      existingFiles: [],
+      uniqueFiles: files
     }
-  } catch (e) {
-    console.error(e)
   }
+
+  const resourcePaths = files.map((file) => `projects/${projectName}/assets/${file.name}`)
+  const { data: existingResources } = await API.instance.service(staticResourcePath).find({
+    query: { key: { $in: resourcePaths } }
+  })
+
+  const existingResourceKeys = new Set(existingResources.map((resource) => resource.key))
+
+  return files.reduce(
+    (result, file) => {
+      const fileKey = `projects/${projectName}/assets/${file.name}`
+      if (existingResourceKeys.has(fileKey)) {
+        result.existingFiles.push(file)
+      } else {
+        result.uniqueFiles.push(file)
+      }
+      return result
+    },
+    { existingFiles: [], uniqueFiles: [] } as { existingFiles: File[]; uniqueFiles: File[] }
+  )
 }
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
@@ -244,13 +247,13 @@ export const inputFileWithAddToScene = ({
       try {
         if (el.files?.length) {
           const newFiles = sanitizeFiles(el.files)
-          const { existingFiles, filteredFiles } = await filterExistingFiles(projectName, newFiles)
+          const { existingFiles, uniqueFiles } = await filterExistingFiles(projectName, newFiles)
 
           if (existingFiles.length > 0) {
             showMultipleFileModal(projectName, directoryPath, existingFiles)
           }
 
-          await handleUploadFiles(projectName, directoryPath, filteredFiles)
+          await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
         resolve(null)
         API.instance.service(fileBrowserPath).emit('created')
