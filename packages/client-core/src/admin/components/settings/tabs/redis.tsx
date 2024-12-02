@@ -62,6 +62,7 @@ const RedisTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     >
       <div className="mt-6 grid grid-cols-2 gap-6">
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.address'),
             position: 'top'
@@ -71,6 +72,7 @@ const RedisTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.password'),
             position: 'top'
@@ -80,6 +82,7 @@ const RedisTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.port'),
             position: 'top'
@@ -89,6 +92,7 @@ const RedisTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.enabled'),
             position: 'top'

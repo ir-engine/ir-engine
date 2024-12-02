@@ -36,18 +36,10 @@ import {
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
-import { uploadProjectFiles } from '@ir-engine/editor/src/functions/assetFunctions'
-import { takeScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
-import { generateEnvmapBake } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import {
-  blurAndScaleImageData,
-  convertImageDataToKTX2Blob,
-  imageDataToBlob
-} from '@ir-engine/engine/src/scene/classes/ImageUtils'
+import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import { getState, useHookstate, useState } from '@ir-engine/hyperflux'
+import { getMutableState, useState } from '@ir-engine/hyperflux'
 import { Checkbox } from '@ir-engine/ui'
 import { ImageLink } from '@ir-engine/ui/editor'
 import { RiLandscapeLine } from 'react-icons/ri'
@@ -61,95 +53,10 @@ import NumericInput from '../../../input/Numeric'
 export const SceneSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const sceneSettingsComponent = useComponent(props.entity, SceneSettingsComponent)
-  const state = useHookstate({
-    thumbnailURL: null as string | null,
-    thumbnail: null as File | null,
-    uploadingThumbnail: false,
-    loadingScreenURL: null as string | null,
-    loadingScreenImageData: null as ImageData | null,
-    uploadingLoadingScreen: false,
-    resolution: 2048
-  })
-
-  const createThumbnail = async () => {
-    const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
-    if (!thumbnailBlob) return
-    const thumbnailURL = URL.createObjectURL(thumbnailBlob)
-    const sceneName = getState(EditorState).sceneName!.split('.').slice(0, -1).join('.')
-    const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
-    state.merge({
-      thumbnailURL,
-      thumbnail: file
-    })
-  }
-
-  const uploadThumbnail = async () => {
-    if (!state.thumbnail.value) return
-    state.uploadingThumbnail.set(true)
-    const editorState = getState(EditorState)
-    const projectName = editorState.projectName!
-    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
-    const { promises } = uploadProjectFiles(projectName, [state.thumbnail.value], [currentSceneDirectory])
-    const [[savedThumbnailURL]] = await Promise.all(promises)
-    commitProperty(SceneSettingsComponent, 'thumbnailURL')(savedThumbnailURL)
-    state.merge({
-      thumbnailURL: null,
-      thumbnail: null,
-      uploadingThumbnail: false
-    })
-  }
-
-  const createLoadingScreen = async () => {
-    const envmapImageData = generateEnvmapBake(state.resolution.value)
-    const blob = await imageDataToBlob(envmapImageData)
-    state.merge({
-      loadingScreenURL: URL.createObjectURL(blob!),
-      loadingScreenImageData: envmapImageData
-    })
-  }
-
-  const uploadLoadingScreen = async () => {
-    const envmapImageData = state.loadingScreenImageData.value
-    if (!envmapImageData) return
-    state.uploadingLoadingScreen.set(true)
-
-    const loadingScreenImageData = blurAndScaleImageData(envmapImageData, 2048, 2048, 6, 512)
-
-    const [envmap, loadingScreen] = await Promise.all([
-      convertImageDataToKTX2Blob(envmapImageData),
-      convertImageDataToKTX2Blob(loadingScreenImageData)
-    ])
-
-    if (!envmap || !loadingScreen) return null!
-
-    const editorState = getState(EditorState)
-    const sceneName = editorState.sceneName!.split('.').slice(0, -1).join('.')
-    const projectName = editorState.projectName!
-    const envmapFilename = `${sceneName}.envmap.ktx2`
-    const loadingScreenFilename = `${sceneName}.loadingscreen.ktx2`
-
-    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
-    const promises = uploadProjectFiles(
-      projectName,
-      [new File([envmap], envmapFilename), new File([loadingScreen], loadingScreenFilename)],
-      [currentSceneDirectory, currentSceneDirectory]
-    )
-
-    const [[envmapURL], [loadingScreenURL]] = await Promise.all(promises.promises)
-
-    const cleanURL = new URL(loadingScreenURL)
-    cleanURL.hash = ''
-    cleanURL.search = ''
-    commitProperty(SceneSettingsComponent, 'loadingScreenURL')(cleanURL.href)
-    state.merge({
-      loadingScreenURL: null,
-      loadingScreenImageData: null,
-      uploadingLoadingScreen: false
-    })
-  }
+  const sceneThumbnailState = getMutableState(SceneThumbnailState)
 
   const generateColors = () => {
-    const url = state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value
+    const url = sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value
     if (!url) return
     const image = new Image()
     image.crossOrigin = 'Anonymous'
@@ -215,15 +122,21 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         className="w-auto"
       >
         <div>
-          <ImageLink src={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
+          <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
 
-          <Button onClick={createThumbnail} className="mt-2 w-full">
+          <Button onClick={SceneThumbnailState.createThumbnail} className="mt-2 w-full">
             {t('editor:properties.sceneSettings.generate')}
           </Button>
-          {state.uploadingThumbnail.value ? (
+          {sceneThumbnailState.uploadingThumbnail.value ? (
             <LoadingView spinnerOnly />
           ) : (
-            <Button onClick={uploadThumbnail} disabled={!state.thumbnail.value} className="mt-2 w-full">
+            <Button
+              onClick={() => {
+                SceneThumbnailState.uploadThumbnail(props.entity)
+              }}
+              disabled={!sceneThumbnailState.thumbnail.value}
+              className="mt-2 w-full"
+            >
               {t('editor:properties.sceneSettings.save')}
             </Button>
           )}
@@ -236,16 +149,20 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         className="w-auto"
       >
         <div>
-          <ImageLink src={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
-          <Button onClick={createLoadingScreen} className="mt-2 w-full">
+          <ImageLink
+            src={sceneThumbnailState.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value}
+          />
+          <Button onClick={SceneThumbnailState.createLoadingScreen} className="mt-2 w-full">
             {t('editor:properties.sceneSettings.generate')}
           </Button>
-          {state.uploadingLoadingScreen.value ? (
+          {sceneThumbnailState.uploadingLoadingScreen.value ? (
             <LoadingView spinnerOnly />
           ) : (
             <Button
-              onClick={uploadLoadingScreen}
-              disabled={!state.loadingScreenImageData.value}
+              onClick={() => {
+                SceneThumbnailState.uploadLoadingScreen(props.entity)
+              }}
+              disabled={!sceneThumbnailState.loadingScreenImageData.value}
               className="mt-2 w-full"
             >
               {t('editor:properties.sceneSettings.save')}
@@ -256,21 +173,21 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
       <InputGroup name="Primary Color" label={t('editor:properties.sceneSettings.lbl-colors')}>
         <div className="w-full space-y-2">
           <ColorInput
-            disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
+            disabled={!sceneThumbnailState.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.primaryColor.value)}
             onChange={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
             onRelease={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
             className="w-full"
           />
           <ColorInput
-            disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
+            disabled={!sceneThumbnailState.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.backgroundColor.value)}
             onChange={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
             onRelease={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
             className="w-full"
           />
           <ColorInput
-            disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
+            disabled={!sceneThumbnailState.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
             value={new Color(sceneSettingsComponent.alternativeColor.value)}
             onChange={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
             onRelease={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
@@ -281,7 +198,6 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           </Button>
         </div>
       </InputGroup>
-
       <InputGroup name="Kill Height" label={t('editor:properties.sceneSettings.lbl-killHeight')}>
         <NumericInput
           value={sceneSettingsComponent.sceneKillHeight.value}

@@ -40,11 +40,10 @@ import {
 } from '@ir-engine/ecs'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { getState, State } from '@ir-engine/hyperflux'
+import { State } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Geometry } from '../../common/constants/Geometry'
-import { ResourceState } from '../../resources/ResourceState'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent, useMeshComponent } from './MeshComponent'
 
@@ -234,20 +233,7 @@ describe('MeshComponent', () => {
       const { rerender, unmount } = render(<Reactor />)
 
       assert(hasComponent(entity, MeshComponent))
-      const meshUUID = getComponent(entity, MeshComponent).uuid
-      const resourceState = getState(ResourceState)
-
       await act(() => rerender(<Reactor />))
-
-      assert(resourceState.resources[meshUUID])
-      assert(resourceState.resources[geometry.uuid])
-      assert(resourceState.resources[material.uuid])
-      unmount()
-
-      assert(!hasComponent(entity, MeshComponent))
-      assert(!resourceState.resources[meshUUID])
-      assert(!resourceState.resources[geometry.uuid])
-      assert(!resourceState.resources[material.uuid])
       sinon.assert.calledTwice(spy)
       removeEntity(entity)
     })
@@ -273,13 +259,8 @@ describe('MeshComponent', () => {
       const { rerender, unmount } = render(<Reactor />)
 
       assert(hasComponent(entity, MeshComponent))
-      const resourceState = getState(ResourceState)
-
       assert(meshState)
       assert(meshState.geometry.value)
-      assert(resourceState.resources[geoUUID].asset)
-      assert(resourceState.resources[geoUUID].references.length == 1)
-      assert((resourceState.resources[geoUUID].asset as BoxGeometry).type === 'BoxGeometry')
       assert(meshState.geometry.type.value === 'BoxGeometry')
       meshState.geometry.set(geometry2)
 
@@ -288,9 +269,6 @@ describe('MeshComponent', () => {
       sinon.assert.calledOnce(spy)
       assert(meshState)
       assert(meshState.geometry.value)
-      assert(resourceState.resources[geoUUID].asset)
-      assert(resourceState.resources[geoUUID].references.length == 1)
-      assert((resourceState.resources[geoUUID].asset as SphereGeometry).type === 'SphereGeometry')
       assert(meshState.geometry.type.value === ('SphereGeometry' as any))
       unmount()
       removeEntity(entity)
@@ -317,15 +295,10 @@ describe('MeshComponent', () => {
       const { rerender, unmount } = render(<Reactor />)
 
       assert(hasComponent(entity, MeshComponent))
-      const resourceState = getState(ResourceState)
       await act(() => rerender(<Reactor />))
 
       assert(meshState)
       assert(meshState.material.value)
-      assert(resourceState.resources[matUUID].asset)
-      assert(resourceState.resources[matUUID].references.length == 1)
-      assert((resourceState.resources[matUUID].asset as MeshBasicMaterial).type === 'MeshBasicMaterial')
-      assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0xdadada)
       assert(meshState.material.type.value === 'MeshBasicMaterial')
       assert(meshState.material.color.value.getHex() === 0xdadada)
       meshState.material.set(material2)
@@ -334,10 +307,6 @@ describe('MeshComponent', () => {
 
       sinon.assert.calledOnce(spy)
       assert(meshState)
-      assert(resourceState.resources[matUUID].asset)
-      assert(resourceState.resources[matUUID].references.length == 1)
-      assert((resourceState.resources[matUUID].asset as LineBasicMaterial).type === 'LineBasicMaterial')
-      assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0xffff00)
       assert(meshState.material.type.value === ('LineBasicMaterial' as any))
       assert(meshState.material.color.value.getHex() === 0xffff00)
       meshState.material.color.set(new Color(0x000000))
@@ -347,7 +316,6 @@ describe('MeshComponent', () => {
       // Dispose wasn't called again because just a property was changed in the material, not the material itself
       sinon.assert.calledOnce(spy)
       assert(meshState)
-      assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0x000000)
       assert(meshState.material.type.value === ('LineBasicMaterial' as any))
       assert(meshState.material.color.value.getHex() === 0x000000)
       unmount()

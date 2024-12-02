@@ -42,7 +42,7 @@ export const updateWorldOriginFromScenePlacement = () => {
   const originTransform = getComponent(getState(EngineState).localFloorEntity, TransformComponent)
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
-  const children = getComponent(getState(EngineState).localFloorEntity, EntityTreeComponent).children
+  const children = getComponent(getState(EngineState).originEntity, EntityTreeComponent).children
   for (const child of children) {
     const childTransform = getComponent(child, TransformComponent)
     childTransform.scale.setScalar(worldScale)

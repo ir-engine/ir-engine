@@ -150,13 +150,6 @@ export const EnvMapBakeNodeEditor = (props) => {
     return renderedProperty
   }
 
-  const onChangePosition = (value) => {
-    bakeComponent.bakePositionOffset.value.copy(value)
-  }
-  const onChangeScale = (value) => {
-    bakeComponent.bakeScale.value.copy(value)
-  }
-
   return (
     <NodeEditor
       style={envMapBakeNodeEditorStyle}

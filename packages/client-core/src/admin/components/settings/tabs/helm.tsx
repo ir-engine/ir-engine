@@ -148,23 +148,27 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
 
       <div className="mb-6 grid w-full grid-cols-2 gap-2">
         <Select
-          label={t('admin:components.setting.helm.main')}
+          labelProps={{
+            text: t('admin:components.setting.helm.main'),
+            position: 'top'
+          }}
           options={mainVersionMenu}
           onChange={(value) => {
             selectedMainVersion.set(value as string)
           }}
-          currentValue={selectedMainVersion.value || ''}
-          className="col-span-1"
+          value={selectedMainVersion.value || ''}
         />
 
         <Select
-          label={t('admin:components.setting.helm.builder')}
+          labelProps={{
+            text: t('admin:components.setting.helm.builder'),
+            position: 'top'
+          }}
           options={builderVersionMenu}
           onChange={(value) => {
             selectedBuilderVersion.set(value as string)
           }}
-          currentValue={selectedBuilderVersion.value || ''}
-          className="col-span-1"
+          value={selectedBuilderVersion.value || ''}
         />
 
         <div className="col-span-1 mt-6 grid grid-cols-4 gap-6">

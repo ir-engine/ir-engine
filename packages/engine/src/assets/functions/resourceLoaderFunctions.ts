@@ -52,9 +52,7 @@ export const setGLTFResource = (url: string, entity: Entity, status: ResourceSta
         onLoads: {}
       }
     })
-  } else {
-    resources[url].references.merge([entity])
-  }
+  } else if (!resources[url].references.value.includes(entity)) resources[url].references.merge([entity])
 
   const callbacks = ResourceManager.resourceCallbacks[resourceType]
   const resource = resources[url]
@@ -194,21 +192,21 @@ export const loadResource = <T extends ResourceAssetType>(
  * @param url the url of the asset to update
  * @returns
  */
-const updateResource = (url: string) => {
+const reloadResource = (url: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   const resource = resources[url]
   if (!resource.value) {
-    console.warn('resourceLoaderFunctions:updateResource No resource found to update for url: ' + url)
+    console.warn('resourceLoaderFunctions:reloadResource No resource found to update for url: ' + url)
     return
   }
   const onLoads = resource.onLoads.get(NO_PROXY)
   if (!onLoads) {
-    ResourceState.debugLog('resourceLoaderFunctions:updateResource No callbacks found to update for url: ' + url)
+    ResourceState.debugLog('resourceLoaderFunctions:reloadResource No callbacks found to update for url: ' + url)
     return
   }
 
-  ResourceState.debugLog('resourceLoaderFunctions:updateResource Updating asset for url: ' + url)
+  ResourceState.debugLog('resourceLoaderFunctions:reloadResource Updating asset for url: ' + url)
   const resourceType = resource.type.value
   ResourceManager.__unsafeRemoveResource(url)
   for (const [uuid, loadObj] of Object.entries(onLoads)) {
@@ -219,7 +217,7 @@ const updateResource = (url: string) => {
       loadObj.onLoad,
       () => {},
       (error) => {
-        console.error('resourceLoaderFunctions:updateResource error updating resource for url: ' + url, error)
+        console.error('resourceLoaderFunctions:reloadResource error updating resource for url: ' + url, error)
       },
       new AbortController().signal,
       undefined,
@@ -228,4 +226,4 @@ const updateResource = (url: string) => {
   }
 }
 
-export const ResourceLoaderManager = { updateResource }
+export const ResourceLoaderManager = { reloadResource }

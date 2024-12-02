@@ -36,6 +36,7 @@ import {
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponents,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -454,17 +455,16 @@ export function useAncestorWithComponents(
 /**
  * @internal
  * @description
- * React Hook that returns the closest child {@link Entity} of `@param rootEntity` that has all of the `@param components`
  *
+ * Returns whether or not `@param entity` has any of the `@param components`
  * @param entity The {@link Entity} whose {@link EntityTreeComponent} will be traversed during the search.
- * @param components The list of Components that the child must have in order to be considered a match.
- * @returns The closest child {@link Entity} of `@param rootEntity` that matched the conditions.
+ * @param components The list of Components that the parent must have at least one of in order to be considered a match.
  * */
-const _useHasAllComponents = (entity: Entity, components: ComponentType<any>[]) => {
-  let result = true
+const _useHasAnyComponents = (entity: Entity, components: ComponentType<any>[]) => {
+  let result = false
   for (const component of components) {
-    if (!useOptionalComponent(entity, component)) {
-      result = false
+    if (useOptionalComponent(entity, component)) {
+      result = true
     }
   }
   return result
@@ -472,6 +472,7 @@ const _useHasAllComponents = (entity: Entity, components: ComponentType<any>[]) 
 
 /**
  * Returns the closest child of an entity that has a component
+ * @deprecated use useChildrenWithComponents instead
  * @param rootEntity
  * @param components
  */
@@ -482,7 +483,7 @@ export function useChildWithComponents(rootEntity: Entity, components: Component
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = _useHasAllComponents(props.entity, components)
+      const matchesQuery = useHasComponents(props.entity, components)
 
       useLayoutEffect(() => {
         if (!matchesQuery) return
@@ -520,18 +521,20 @@ export function useChildWithComponents(rootEntity: Entity, components: Component
 export function useChildrenWithComponents(
   rootEntity: Entity,
   components: ComponentType<any>[],
-  includeSelf: boolean = false
+  exclude: ComponentType<any>[] = []
 ): Entity[] {
   const children = useHookstate([] as Entity[])
   const componentsString = components.map((component) => component.name).join()
+  const excludeString = exclude.map((component) => component.name).join()
   useLayoutEffect(() => {
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = _useHasAllComponents(props.entity, components)
+      const matchesQuery = useHasComponents(props.entity, components)
+      const matchesExludeQuery = _useHasAnyComponents(props.entity, exclude)
 
       useLayoutEffect(() => {
-        if (!matchesQuery) return
+        if (!matchesQuery || matchesExludeQuery) return
         children.set((prev) => {
           if (prev.indexOf(props.entity) < 0) prev.push(props.entity)
           return prev
@@ -545,7 +548,7 @@ export function useChildrenWithComponents(
             })
           }
         }
-      }, [matchesQuery])
+      }, [matchesQuery, matchesExludeQuery])
 
       if (!tree?.children?.value) return null
       return (
@@ -564,7 +567,7 @@ export function useChildrenWithComponents(
       unmounted = true
       root.stop()
     }
-  }, [rootEntity, componentsString])
+  }, [rootEntity, componentsString, excludeString])
 
   return children.value as Entity[]
 }
