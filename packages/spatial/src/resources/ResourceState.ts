@@ -39,7 +39,6 @@ import { Engine, Entity, getOptionalComponent, UndefinedEntity } from '@ir-engin
 import { defineState, getMutableState, getState, NO_PROXY, none, State } from '@ir-engine/hyperflux'
 import { removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 
-import { GLTF } from '@ir-engine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { PerformanceState } from '../renderer/PerformanceState'
@@ -74,6 +73,10 @@ export enum ResourceType {
   File = 'File',
   Unknown = 'Unknown'
   // ECSData = 'ECSData',
+}
+
+type GLTF = {
+  parser?: any
 }
 
 export type ResourceAssetType =
