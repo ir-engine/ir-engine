@@ -50,9 +50,12 @@ export const useBrowserCheck = () => {
     }
 
     if (isMobile) {
-      NotificationService.dispatchNotify('Mobile devices are not currently supported. Mobile Support is coming soon.', {
-        variant: 'warning'
-      })
+      NotificationService.dispatchNotify(
+        'Not optimized for mobile, experience might have issues. For best experience use desktop Chrome.',
+        {
+          variant: 'warning'
+        }
+      )
     }
   }, [])
 
