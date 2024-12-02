@@ -21,7 +21,7 @@
       "username": "UserName + Password",
       "social": "Social"
     },
-    "magiklink": {
+    "magiclink": {
       "header": "Login Link",
       "descriptionEmail": "Please enter your email address and we'll send you a login link via Email.",
       "descriptionSMS": "Please enter your phone number and we'll send you a login link via SMS.",
@@ -288,16 +288,24 @@
     "oauth": {
       "authenticating": "Authenticating..."
     },
-    "magikLink": {
+    "magicLink": {
       "wait": "Please wait a moment while processing..."
     }
   },
   "oauth": {
     "error": "Unfortunately, {{name}} authentication failed.",
-    "redirectToRoot": "Return to Home"
+    "redirectToRoot": "Return to Home",
+    "promptForConnection": "Connect to existing account?",
+    "askConnection": "{{email}} is already associated with an account. Would you like to link this {{service}} Single Sign-On to that account?",
+    "acceptConnection": "Yes",
+    "declineConnection": "No (create new account)"
   },
-  "magikLink": {
-    "wait": "Please wait a moment while processing..."
+  "magicLink": {
+    "wait": "Please wait a moment while processing...",
+    "promptForConnection": "Connect to existing account?",
+    "askConnection": "{{email}} is already associated with an account. Would you like to link this magiclink login to that account?",
+    "acceptConnection": "Yes",
+    "declineConnection": "No (create new account)"
   },
   "dashboard": {
     "header": "Dashboard",

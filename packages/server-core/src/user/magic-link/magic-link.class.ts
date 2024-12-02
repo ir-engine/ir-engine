@@ -58,11 +58,15 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    * A function used to sent an email
    *
    * @param toEmail email of reciever
-   * @param token generated token
+   * @param id generated login id
+   * @param token generated login token
+   * @param redirectUrl URL to redirect to after login
    * @returns {function} sent email
    */
-  async sendEmail(toEmail: string, token: string, redirectUrl?: string): Promise<void> {
-    const hashLink = `${config.server.url}/login/${token}${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`
+  async sendEmail(toEmail: string, id: string, token: string, redirectUrl?: string): Promise<void> {
+    const hashLink = `${config.server.url}/login/${id}?token=${token}${
+      redirectUrl ? `&redirectUrl=${redirectUrl}` : ''
+    }`
 
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
 
@@ -89,12 +93,16 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
    * A function which used to send sms
    *
    * @param mobile of receiver user
-   * @param token generated token
+   * @param id generated login id
+   * @param token generated login token
+   * @param redirectUrl URL to redirect to after login
    * @returns {function}  send sms
    */
 
-  async sendSms(mobile: string, token: string, redirectUrl?: string): Promise<void> {
-    const hashLink = `${config.server.url}/login/${token}${redirectUrl ? `?redirectUrl=${redirectUrl}` : ''}`
+  async sendSms(mobile: string, id: string, token: string, redirectUrl?: string): Promise<void> {
+    const hashLink = `${config.server.url}/login/${id}?token=${token}${
+      redirectUrl ? `&redirectUrl=${redirectUrl}` : ''
+    }`
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
     const compiledHTML = pug
       .compileFile(templatePath)({
@@ -175,9 +183,9 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
       })
 
       if (data.type === 'email') {
-        await this.sendEmail(data.email, loginToken.token, data.redirectUrl)
+        await this.sendEmail(data.email, loginToken.id, loginToken.token, data.redirectUrl)
       } else if (data.type === 'sms') {
-        await this.sendSms(data.mobile, loginToken.token, data.redirectUrl)
+        await this.sendSms(data.mobile, loginToken.id, loginToken.token, data.redirectUrl)
       }
     }
     return data

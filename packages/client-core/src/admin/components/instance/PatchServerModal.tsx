@@ -79,12 +79,14 @@ export default function PatchServerModal() {
     >
       <Select
         options={locationsMenu}
-        currentValue={state.locationId.value}
-        onChange={(value) => {
+        value={state.locationId.value}
+        onChange={(value: string) => {
           state.locationId.set(value)
         }}
-        className="mb-5"
-        label={t('admin:components.instance.location')}
+        labelProps={{
+          text: t('admin:components.instance.location'),
+          position: 'top'
+        }}
       />
       <Input
         type="number"

@@ -244,6 +244,8 @@ export default function AddEditLocationModal(props: {
               state={errors.name.value ? 'error' : undefined}
               helperText={errors.name.value}
               disabled={isLoading}
+              fullWidth
+              variantSize="xl"
             />
             <Input
               type="number"
@@ -254,11 +256,16 @@ export default function AddEditLocationModal(props: {
               state={errors.maxUsers.value ? 'error' : undefined}
               helperText={errors.maxUsers.value}
               disabled={isLoading}
+              fullWidth
+              variantSize="xl"
             />
             <Select
-              label={t('admin:components.location.lbl-scene')}
-              currentValue={scene.value}
-              onChange={(value) => scene.set(value)}
+              labelProps={{
+                text: t('admin:components.location.lbl-scene'),
+                position: 'top'
+              }}
+              value={scene.value}
+              onChange={(value: string) => scene.set(value)}
               disabled={!!props.sceneID || scenes.status !== 'success' || isLoading}
               options={
                 scenes.status === 'pending'
@@ -275,14 +282,22 @@ export default function AddEditLocationModal(props: {
                       })
                     ]
               }
-              error={errors.scene.value}
+              state={errors.scene.value ? 'error' : undefined}
+              helperText={errors.scene.value}
+              width="full"
+              inputSizeVariant="xl"
             />
             <Select
-              label={t('admin:components.location.type')}
-              currentValue={locationType.value}
+              labelProps={{
+                text: t('admin:components.location.type'),
+                position: 'top'
+              }}
+              value={locationType.value}
               onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
               options={locationTypeOptions}
               disabled={true}
+              width="full"
+              inputSizeVariant="xl"
             />
             <Toggle
               label={t('admin:components.location.lbl-ve')}

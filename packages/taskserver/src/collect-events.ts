@@ -31,7 +31,7 @@ import { ServerState } from '@ir-engine/server-core/src/ServerState'
 const logger = multiLogger.child({ component: 'taskserver:collect-events' })
 
 const DEFAULT_INTERVAL_SECONDS = 60
-const configInterval = parseInt(config.taskserver.processInterval)
+const configInterval = parseInt(config['task-server'].processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
 let lastTimestamp: string // Store the timestamp of the last run

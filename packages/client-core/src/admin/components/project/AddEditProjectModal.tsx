@@ -462,10 +462,14 @@ export default function AddEditProjectModal({
           projectUpdateStatus.value?.branchData.length > 0 &&
           projectUpdateStatus.value?.showBranchSelector && (
             <Select
-              label={t('admin:components.project.branchData')}
-              currentValue={projectUpdateStatus.value?.selectedBranch}
+              labelProps={{
+                text: t('admin:components.project.branchData'),
+                position: 'top'
+              }}
+              value={projectUpdateStatus.value?.selectedBranch}
               options={branchSelectOptions}
-              error={projectUpdateStatus.value?.branchError}
+              state={projectUpdateStatus.value?.branchError ? 'error' : undefined}
+              helperText={projectUpdateStatus.value?.branchError}
               onChange={handleChangeBranch}
             />
           )}
@@ -483,17 +487,15 @@ export default function AddEditProjectModal({
           projectUpdateStatus.value?.commitData.length > 0 &&
           projectUpdateStatus.value?.showCommitSelector && (
             <Select
-              label={t('admin:components.project.commitData')}
-              currentValue={projectUpdateStatus.value?.selectedSHA}
+              labelProps={{
+                text: t('admin:components.project.commitData'),
+                position: 'top'
+              }}
+              value={projectUpdateStatus.value?.selectedSHA}
               onChange={handleCommitChange}
               options={commitSelectOptions}
-              error={projectUpdateStatus.value?.commitError}
-              description={
-                !projectUpdateStatus.value?.commitsProcessing && projectUpdateStatus.value?.sourceProjectName.length > 0
-                  ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
-                      ?.sourceProjectName}`
-                  : undefined
-              }
+              state={projectUpdateStatus.value?.commitError ? 'error' : undefined}
+              helperText={projectUpdateStatus.value?.commitError}
             />
           )}
         {projectUpdateStatus.value?.commitsProcessing && (
@@ -596,10 +598,13 @@ export default function AddEditProjectModal({
             </div>
             <div className="w-1/2">
               <Select
-                label={t('admin:components.project.autoUpdateInterval')}
+                labelProps={{
+                  text: t('admin:components.project.autoUpdateInterval'),
+                  position: 'top'
+                }}
                 options={autoUpdateIntervalOptions}
-                currentValue={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
-                onChange={(value) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
+                value={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
+                onChange={(value: string) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
               />
             </div>
           </div>

@@ -23,21 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
+import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
+import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { RouterState } from '../common/services/RouterService'
+import { LocationService } from '../social/services/LocationService'
 
-const argTypes = {}
+export const reactor = () => {
+  const linkState = useMutableState(LinkState)
 
-export default {
-  title: 'Editor/Input/Image',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ImageInput',
-    jest: 'Image.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+  useEffect(() => {
+    const location = linkState.location.value
+    if (!location) return
+
+    RouterState.navigate('/location/' + location)
+    LocationService.getLocationByName(location)
+
+    getMutableState(LinkState).location.set(undefined)
+  }, [linkState.location.value])
+
+  return null
 }
-export const Default = { args: Component }
+
+export const LinkRedirectSystem = defineSystem({
+  uuid: 'ir.client.world.LinkRedirectSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor
+})
