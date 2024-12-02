@@ -189,7 +189,6 @@ export default function UserTable({
               disabled={!userHasAccess}
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
-              iconOnly
             >
               <HiPencil className="text-theme-iconGreen" />
             </Button>
@@ -208,7 +207,6 @@ export default function UserTable({
                   />
                 )
               }}
-              iconOnly
             >
               <HiTrash className="text-theme-iconRed" />
             </Button>

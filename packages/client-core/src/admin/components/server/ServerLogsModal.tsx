@@ -96,7 +96,6 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
             variant="tertiary"
             className="ml-auto border-0"
             onClick={handleDownloadServerLogs}
-            iconOnly
           >
             <GoDownload />
           </Button>
@@ -117,7 +116,6 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
               onClick={() => serverLogsQuery.refetch()}
               variant="tertiary"
               className="border-0"
-              iconOnly
             >
               <HiOutlineRefresh />
             </Button>

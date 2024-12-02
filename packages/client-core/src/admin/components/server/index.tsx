@@ -68,7 +68,6 @@ export default function Servers() {
               onClick={serverInfoQuery.refetch}
               variant="tertiary"
               className="justify-self-end border-0"
-              iconOnly
             >
               <HiOutlineRefresh />
             </Button>

@@ -46,11 +46,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: keyof typeof sizes
   variant?: keyof typeof variants
   fullWidth?: boolean
-  iconOnly?: boolean
 }
 
 const Button = (
-  { children, size = 'l', fullWidth, variant = 'primary', className, iconOnly, ...props }: ButtonProps,
+  { children, size = 'l', fullWidth, variant = 'primary', className, ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLButtonElement>
 ) => {
   return (
@@ -63,7 +62,6 @@ const Button = (
         'px-4 py-1',
         sizes[size],
         fullWidth ? 'w-full' : 'w-fit',
-        // 'min-w-[66px]',
         'disabled:cursor-not-allowed',
         variants[variant],
         className

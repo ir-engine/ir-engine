@@ -87,7 +87,6 @@ export default function RecordingsTable({ search }: { search: string }) {
                 />
               )
             }}
-            iconOnly
           >
             <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />
           </Button>

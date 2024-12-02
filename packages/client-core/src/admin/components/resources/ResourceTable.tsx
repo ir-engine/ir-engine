@@ -75,7 +75,6 @@ export default function ResourceTable({ search }: { search: string }) {
               PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)
             }}
             className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
-            iconOnly
           >
             <HiEye className="text-theme-primary" />
           </Button>

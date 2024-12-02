@@ -98,7 +98,6 @@ export default function InstanceTable({ search }: { search: string }) {
                 />
               )
             }}
-            iconOnly
           >
             <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>

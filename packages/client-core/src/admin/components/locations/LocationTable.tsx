@@ -115,7 +115,6 @@ export default function LocationTable({ search }: { search: string }) {
             disabled={!userHasAccess}
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditLocationModal action="admin" location={row} />)}
-            iconOnly
           >
             <HiPencil className="text-theme-iconGreen" />
           </Button>
@@ -133,7 +132,6 @@ export default function LocationTable({ search }: { search: string }) {
                 />
               )
             }
-            iconOnly
           >
             <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>

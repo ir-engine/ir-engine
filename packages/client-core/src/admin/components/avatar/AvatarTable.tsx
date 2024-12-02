@@ -111,7 +111,6 @@ export default function AvatarTable({ search }: { search: string }) {
             className="h-8 w-8"
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditAvatarModal avatar={row} />)}
-            iconOnly
           >
             <HiPencil className="text-theme-iconGreen" />
           </Button>

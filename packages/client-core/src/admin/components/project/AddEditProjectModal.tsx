@@ -450,7 +450,6 @@ export default function AddEditProjectModal({
                     handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
                     handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
                   }}
-                  iconOnly
                 >
                   <Copy03Md />
                 </Button>

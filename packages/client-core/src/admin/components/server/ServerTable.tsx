@@ -121,7 +121,6 @@ export default function ServerTable({
                 />
               )
             }}
-            iconOnly
           >
             <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>

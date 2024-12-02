@@ -146,7 +146,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
                 projectPermissionsFindQuery.data.length === 1
               }
             />
-            <Button title="Remove Access" onClick={() => handleRemovePermission(permission.id)} iconOnly>
+            <Button title="Remove Access" onClick={() => handleRemovePermission(permission.id)}>
               <MdOutlineRemoveCircleOutline />
             </Button>
           </div>
