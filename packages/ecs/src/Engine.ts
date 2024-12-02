@@ -40,6 +40,7 @@ import {
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'
 import { removeEntity } from './EntityFunctions'
+import { removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
 
 export class Engine {
@@ -108,9 +109,9 @@ export function destroyEngine() {
     for (const entity of entities) removeEntity(entity)
   })
 
-  // for (const query of getState(SystemState).reactiveQueryStates) {
-  //   removeQuery(query.query)
-  // }
+  for (const query of getState(SystemState).reactiveQueryStates) {
+    removeQuery(query.query)
+  }
 
   disposeStore()
 
