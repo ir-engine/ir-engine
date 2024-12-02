@@ -326,14 +326,14 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     const fullProjectName = `${orgName}/${projectName}`
     const parsedName = fileName.split('?')[0]
     exportRelativeGLTF(node.entity, fullProjectName, parsedName).then(() => {
-      ResourceLoaderManager.updateResource(gltfComponent.src)
+      ResourceLoaderManager.reloadResource(gltfComponent.src)
       getMutableState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
     })
   }
 
   const onRevert = () => {
     const gltfComponent = getComponent(node.entity, GLTFComponent)
-    ResourceLoaderManager.updateResource(gltfComponent.src)
+    ResourceLoaderManager.reloadResource(gltfComponent.src)
     getMutableState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
   }
 

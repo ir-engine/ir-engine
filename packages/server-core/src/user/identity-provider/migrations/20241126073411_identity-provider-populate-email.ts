@@ -23,31 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { WidgetAppServiceReceptorSystem } from '@ir-engine/spatial/src/xrui/WidgetAppService'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-import { AvatarSpawnSystem } from '../networking/AvatarSpawnSystem'
-import { AvatarUISystem } from '../systems/AvatarUISystem'
-import { LoadingUISystem } from '../systems/LoadingUISystem'
-import { MediaControlSystem } from '../systems/MediaControlSystem'
-import { PositionalAudioSystem } from '../systems/PositionalAudioSystem'
-import { WarningUISystem } from '../systems/WarningUISystem'
-import { WidgetUISystem } from '../systems/WidgetUISystem'
-import { UserUISystem } from '../user/UserUISystem'
-import { LinkRedirectSystem } from './LinkRedirectSystem'
-import { PortalRedirectSystem } from './PortalRedirectSystem'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-import './ClientNetworkModule'
+  await knex(identityProviderPath)
+    .where({ type: 'email' })
+    .andWhere('email', null)
+    .update({
+      email: knex.raw('accountIdentifier')
+    })
 
-export {
-  AvatarSpawnSystem,
-  AvatarUISystem,
-  LinkRedirectSystem,
-  LoadingUISystem,
-  MediaControlSystem,
-  PortalRedirectSystem,
-  PositionalAudioSystem,
-  UserUISystem,
-  WarningUISystem,
-  WidgetAppServiceReceptorSystem,
-  WidgetUISystem
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

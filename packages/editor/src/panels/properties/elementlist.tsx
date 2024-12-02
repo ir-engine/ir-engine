@@ -140,7 +140,7 @@ const SceneElementListItem = ({
       <div className="flex flex-col items-center justify-center">
         <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
         <div
-          className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+          className="max-w-full overflow-hidden truncate whitespace-nowrap text-nowrap"
           data-testid="prefabs-category-title"
         >
           {categoryTitle}
@@ -270,7 +270,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
 
   return (
     <div className="rounded-xl bg-[#191B1F] p-4">
-      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll p-2">
+      <div className="h-auto w-full overflow-hidden p-2">
         <Text className="mb-1.5 w-full text-center uppercase text-white">{t(`editor:layout.assetGrid.${type}`)}</Text>
         <StringInput
           placeholder={t(`editor:layout.assetGrid.${type}-search`)}
@@ -278,6 +278,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
           onChange={(val) => onSearch(val)}
           inputRef={inputReference}
           data-testid="prefabs-search-input"
+          fullWidth
         />
       </div>
 

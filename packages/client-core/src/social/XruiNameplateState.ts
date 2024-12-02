@@ -23,14 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import React from 'react'
-import FileBrowserInput from '../FileBrowser'
-import { StringInputProps } from '../String'
+import { defineState } from '@ir-engine/hyperflux'
 
-export function ImageInput({ ...rest }: StringInputProps) {
-  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
-}
-ImageInput.defaultProps = {}
-export default ImageInput
+export const XruiNameplateState = defineState({
+  name: 'XruiNameplateState',
+  initial: {
+    isVisible: true,
+    isInteractable: false,
+    triggerDistance: 10,
+    defaultNamePlateHeight: 1.5,
+    transitionTime: 0.25,
+    uiParams: {
+      borderRadiusPx: 38,
+      bgPaddingPx: 3,
+      verticalContentPaddingPx: 5,
+      horizontalContentPaddingPx: 40
+    }
+  }
+})

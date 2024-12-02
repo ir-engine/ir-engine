@@ -25,37 +25,21 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { LocationService } from '@ir-engine/client-core/src/social/services/LocationService'
 import multiLogger from '@ir-engine/common/src/logger'
 import { InstanceID } from '@ir-engine/common/src/schema.type.module'
-import { Engine, getComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
-import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { teleportAvatar } from '@ir-engine/engine/src/avatar/functions/moveAvatar'
-import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { PortalComponent, PortalState } from '@ir-engine/engine/src/scene/components/PortalComponent'
+import { Engine } from '@ir-engine/ecs'
+import { addOutgoingTopicIfNecessary, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import {
-  addOutgoingTopicIfNecessary,
-  getMutableState,
-  getState,
-  none,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
-import {
-  addNetwork,
-  createNetwork,
   Network,
   NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
+  addNetwork,
+  createNetwork,
   removeNetwork
 } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
-import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
-import { RouterState } from '../../common/services/RouterService'
-import { LocationState } from '../../social/services/LocationService'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
@@ -68,81 +52,6 @@ export const useEngineInjection = () => {
     })
   }, [])
   return loaded.value
-}
-
-export const useLinkTeleport = () => {
-  const linkState = useMutableState(LinkState)
-
-  useEffect(() => {
-    const location = linkState.location.value
-    if (!location) return
-
-    logger.info('Relocating to linked location.')
-
-    RouterState.navigate('/location/' + location)
-    LocationService.getLocationByName(location)
-
-    // shut down connection with existing world instance server
-    // leaving a world instance server will check if we are in a location media instance and shut that down too
-    getMutableState(LinkState).location.set(undefined)
-  }, [linkState.location])
-}
-
-export const usePortalTeleport = () => {
-  const engineState = useMutableState(EngineState)
-  const locationState = useMutableState(LocationState)
-  const portalState = useMutableState(PortalState)
-
-  useEffect(() => {
-    const activePortalEntity = portalState.activePortalEntity.value
-    if (!activePortalEntity) return
-
-    const activePortal = getComponent(activePortalEntity, PortalComponent)
-
-    const currentLocation = locationState.locationName.value.split('/')[1]
-    if (currentLocation === activePortal.location || UUIDComponent.getEntityByUUID(activePortal.linkedPortalId)) {
-      teleportAvatar(
-        AvatarComponent.getSelfAvatarEntity(),
-        activePortal.remoteSpawnPosition,
-        true
-        // activePortal.remoteSpawnRotation
-      )
-      portalState.activePortalEntity.set(UndefinedEntity)
-      return
-    }
-
-    if (activePortal.redirect) {
-      window.location.href = getState(DomainConfigState).publicDomain + '/location/' + activePortal.location
-      return
-    }
-
-    if (activePortal.effectType !== 'None') {
-      PortalComponent.setPlayerInPortalEffect(activePortal.effectType)
-    } else {
-      getMutableState(PortalState).portalReady.set(true)
-      // teleport player to where the portal spawn position is
-      teleportAvatar(AvatarComponent.getSelfAvatarEntity(), activePortal.remoteSpawnPosition, true)
-    }
-  }, [portalState.activePortalEntity])
-
-  useEffect(() => {
-    if (!portalState.activePortalEntity.value || !portalState.portalReady.value) return
-
-    const activePortalEntity = portalState.activePortalEntity.value
-    const activePortal = getComponent(activePortalEntity, PortalComponent)
-
-    RouterState.navigate('/location/' + activePortal.location)
-    LocationService.getLocationByName(activePortal.location)
-
-    if (activePortal.effectType === 'None') {
-      getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
-    }
-  }, [portalState.portalReady])
-}
-
-export const useLoadEngineWithScene = () => {
-  usePortalTeleport()
-  useLinkTeleport()
 }
 
 export const useNetwork = (props: { online?: boolean }) => {

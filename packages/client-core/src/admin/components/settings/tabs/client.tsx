@@ -407,19 +407,23 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Select
-          className="col-span-1"
-          label={t('admin:components.setting.videoMaxResolution')}
-          currentValue={settings.mediaSettings.video.maxResolution.value}
+          labelProps={{
+            text: t('admin:components.setting.videoMaxResolution'),
+            position: 'top'
+          }}
+          value={settings.mediaSettings.video.maxResolution.value}
           options={videoMaxResolutionMenu}
-          onChange={(value) => settings.mediaSettings.video.maxResolution.set(value)}
+          onChange={(value: string) => settings.mediaSettings.video.maxResolution.set(value)}
         />
 
         <Select
-          className="col-span-1"
-          label={t('admin:components.setting.videoCodec')}
-          currentValue={settings.mediaSettings.video.codec.value}
+          labelProps={{
+            text: t('admin:components.setting.videoCodec'),
+            position: 'top'
+          }}
+          value={settings.mediaSettings.video.codec.value}
           options={codecMenu}
-          onChange={(value) => settings.mediaSettings.video.codec.set(value)}
+          onChange={(value: string) => settings.mediaSettings.video.codec.set(value)}
         />
 
         {(settings.mediaSettings.video.codec.value === 'VP8' ||
@@ -461,11 +465,13 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         )}
 
         <Select
-          className="col-span-1"
-          label={t('admin:components.setting.screenshareCodec')}
-          currentValue={settings.mediaSettings.screenshare.codec.value}
+          labelProps={{
+            text: t('admin:components.setting.screenshareCodec'),
+            position: 'top'
+          }}
+          value={settings.mediaSettings.screenshare.codec.value}
           options={codecMenu}
-          onChange={(value) => settings.mediaSettings.screenshare.codec.set(value)}
+          onChange={(value: string) => settings.mediaSettings.screenshare.codec.set(value)}
         />
 
         {(settings.mediaSettings.screenshare.codec.value === 'VP8' ||
