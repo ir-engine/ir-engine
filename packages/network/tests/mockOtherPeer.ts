@@ -4,7 +4,12 @@ import './receiveSubprocess'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
-import webrtc from 'webrtc-polyfill'
+import { randomUUID } from 'node:crypto'
+globalThis.crypto = { randomUUID } as any
+
+import webrtc, { MediaStream, MediaStreamTrack } from 'webrtc-polyfill'
+globalThis.MediaStreamTrack = MediaStreamTrack
+globalThis.MediaStream = MediaStream
 globalThis.RTCPeerConnection = webrtc.RTCPeerConnection
 
 import { PUBLIC_STUN_SERVERS } from '@ir-engine/common/src/constants/STUNServers'
@@ -82,6 +87,14 @@ const mockOtherPeer = async () => {
       dc.channel.send(event.data)
     }
   }
+
+  /** @todo for some reason this is broken */
+  // const ontrack = pc.ontrack!
+  // pc.ontrack = (event) => {
+  //   ontrack.call(pc, event)
+  //   const track = new MediaStreamTrack()
+  //   WebRTCTransportFunctions.createMediaChannel(sendMessage, networkID!, testPeerID!, track, webcamVideoDataChannelType)
+  // }
 
   // send initial message to tell other peer we are ready
   actionDataChannel.send('')

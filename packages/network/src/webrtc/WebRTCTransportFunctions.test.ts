@@ -28,9 +28,14 @@ import { PUBLIC_STUN_SERVERS } from '@ir-engine/common/src/constants/STUNServers
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { NetworkID, PeerID, getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { randomUUID } from 'node:crypto'
+globalThis.crypto = { randomUUID } as any
+
 import '../EntityNetworkState'
 
-import webrtc from 'webrtc-polyfill'
+import webrtc, { MediaStream, MediaStreamTrack } from 'webrtc-polyfill'
+globalThis.MediaStreamTrack = MediaStreamTrack
+globalThis.MediaStream = MediaStream
 globalThis.RTCPeerConnection = webrtc.RTCPeerConnection
 
 import {
@@ -45,6 +50,7 @@ import { ChildProcess } from 'child_process'
 import { PeerMessage } from '../../tests/interfaces'
 import { startSubprocess } from '../../tests/startSubprocess'
 import { DataChannelType } from '../DataChannelRegistry'
+import { webcamVideoDataChannelType } from '../NetworkState'
 
 const initiatorPeerID = 'peer' as PeerID
 
@@ -297,5 +303,53 @@ describe('WebRTCTransportFunctions', () => {
 
     if (childProcess) process.kill(-childProcess.pid!, 'SIGINT')
     childProcess = undefined
+  })
+
+  /** @todo for whatever reason, the webrtc library doesn't back a track */
+  it.skip('should be able to open media channel', async () => {
+    const networkID = 'network' as NetworkID
+    Engine.instance.store.peerID = initiatorPeerID
+    const peerID = Engine.instance.store.peerID
+
+    const { otherPeerID, sendMessage } = await setupMessaging(networkID)
+
+    WebRTCTransportFunctions.poll(sendMessage, networkID, otherPeerID)
+
+    await vi.waitUntil(() => getState(RTCPeerConnectionState)?.[networkID]?.[otherPeerID]?.dataChannels?.['actions'], {
+      timeout: 10000,
+      interval: 20
+    })
+
+    const actionChannel =
+      getState(RTCPeerConnectionState)[networkID][otherPeerID].dataChannels['actions' as DataChannelType]
+
+    await new Promise<void>((resolve) => {
+      actionChannel.onmessage = (event) => resolve()
+    })
+
+    const stream = WebRTCTransportFunctions.createMediaChannel(
+      sendMessage,
+      networkID,
+      otherPeerID,
+      new MediaStreamTrack(),
+      webcamVideoDataChannelType
+    )!
+
+    const incomingMediaTracks = getState(RTCPeerConnectionState)[networkID][otherPeerID].incomingMediaTracks
+
+    const incomingStream = await vi.waitUntil(
+      () => {
+        console.log(incomingMediaTracks)
+        return Object.values(incomingMediaTracks)[0]?.stream
+      },
+      {
+        timeout: 10000,
+        interval: 1000
+      }
+    )
+
+    const incomingTrack = incomingMediaTracks[incomingStream.id]
+    assert.ok(incomingTrack.stream)
+    assert(incomingTrack.stream instanceof MediaStream)
   })
 })
