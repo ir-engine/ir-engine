@@ -33,6 +33,9 @@ import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/us
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 
+import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
+import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import moment from 'moment/moment'
 import { Octokit } from 'octokit'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -105,26 +108,28 @@ export class GithubStrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
-    if (!entity.userId) {
-      const code = (await getFreeInviteCode(this.app)) as InviteCode
-      const newUser = await this.app.service(userPath).create({
-        name: '' as UserName,
-        isGuest: false,
-        inviteCode: code
-      })
-      entity.userId = newUser.id
-      await this.app.service(identityProviderPath)._patch(entity.id, {
-        userId: newUser.id,
-        oauthToken: params.access_token,
-        oauthRefreshToken: params.refresh_token,
-        email: entity.email
-      })
-    } else
-      await this.app.service(identityProviderPath)._patch(entity.id, {
-        oauthToken: params.access_token,
-        oauthRefreshToken: params.refresh_token,
-        email: entity.email
-      })
+    if (entity.type === 'github') {
+      if (!entity.userId) {
+        const code = (await getFreeInviteCode(this.app)) as InviteCode
+        const newUser = await this.app.service(userPath).create({
+          name: '' as UserName,
+          isGuest: false,
+          inviteCode: code
+        })
+        entity.userId = newUser.id
+        await this.app.service(identityProviderPath)._patch(entity.id, {
+          userId: newUser.id,
+          oauthToken: params.access_token,
+          oauthRefreshToken: params.refresh_token,
+          email: entity.email
+        })
+      } else
+        await this.app.service(identityProviderPath)._patch(entity.id, {
+          oauthToken: params.access_token,
+          oauthRefreshToken: params.refresh_token,
+          email: entity.email
+        })
+    }
     const identityProvider = authResult[identityProviderPath]
     const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
@@ -157,7 +162,39 @@ export class GithubStrategy extends CustomOAuthStrategy {
       profile.oauthToken = params.access_token
       profile.oauthRefreshToken = params.refresh_token
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
+      if (entity.type === 'guest') {
+        const profileEmail = profile.email
+        const existingIdentityProviders = await this.app.service(identityProviderPath).find({
+          query: {
+            $or: [
+              {
+                email: profileEmail
+              },
+              {
+                token: profileEmail
+              }
+            ],
+            id: {
+              $ne: newIP.id
+            }
+          }
+        })
+        if (existingIdentityProviders.total > 0) {
+          const loginToken = await this.app.service(loginTokenPath).create({
+            identityProviderId: newIP.id,
+            associateUserId: existingIdentityProviders.data[0].userId,
+            expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+          })
+          return {
+            ...entity,
+            associateEmail: profileEmail,
+            loginId: loginToken.id,
+            loginToken: loginToken.token,
+            promptForConnection: true
+          }
+        }
+        await this.app.service(identityProviderPath).remove(entity.id)
+      }
       if (!config.kubernetes.enabled)
         await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
       else await this.createRefreshJob(user.id)
@@ -182,23 +219,34 @@ export class GithubStrategy extends CustomOAuthStrategy {
       redirectConfig = {}
     }
     let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
-
     redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/github` : config.authentication.callback.github
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       return this.handleErrorRedirect(data, params, redirectConfig, redirectDomain)
     }
 
-    const loginType = params.query?.userId ? 'connection' : 'login'
-    let redirectUrl = `${redirectDomain}?token=${(data as AuthenticationResult).accessToken}&type=${loginType}`
-    if (redirectPath) {
-      redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
-    }
-    if (redirectInstanceId) {
-      redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
-    }
+    if (data[identityProviderPath]?.promptForConnection) {
+      let redirectUrl = `${redirectDomain}?promptForConnection=true&associateEmail=${data[identityProviderPath].associateEmail}&loginToken=${data[identityProviderPath].loginToken}&loginId=${data[identityProviderPath].loginId}`
+      if (redirectPath) {
+        redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+      }
+      if (redirectInstanceId) {
+        redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
+      }
 
-    return redirectUrl
+      return redirectUrl
+    } else {
+      const loginType = params.query?.userId ? 'connection' : 'login'
+      let redirectUrl = `${redirectDomain}?token=${(data as AuthenticationResult).accessToken}&type=${loginType}`
+      if (redirectPath) {
+        redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+      }
+      if (redirectInstanceId) {
+        redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
+      }
+
+      return redirectUrl
+    }
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: CustomOAuthParams) {
@@ -210,7 +258,27 @@ export class GithubStrategy extends CustomOAuthStrategy {
     await this.validateSignInUser(authentication, originalParams, 'github')
     originalParams.access_token = authentication.access_token
     originalParams.refresh_token = authentication.refresh_token
-    return super.authenticate(authentication, originalParams)
+    const entity: string = this.configuration.entity
+    const { provider, ...params } = originalParams
+    const profile = await super.getProfile(authentication, params)
+    const existingEntity = (await super.findEntity(profile, params)) || (await super.getCurrentEntity(params))
+
+    const authEntity = !existingEntity
+      ? await this.createEntity(profile, params)
+      : await this.updateEntity(existingEntity, profile, params)
+
+    const fetchedEntity = await super.getEntity(authEntity, originalParams)
+    if (authEntity.promptForConnection) {
+      fetchedEntity.promptForConnection = authEntity.promptForConnection
+      fetchedEntity.associateEmail = authEntity.associateEmail
+      fetchedEntity.loginId = authEntity.loginId
+      fetchedEntity.loginToken = authEntity.loginToken
+    }
+
+    return {
+      authentication: { strategy: this.name! },
+      [entity]: fetchedEntity
+    }
   }
 }
 export default GithubStrategy

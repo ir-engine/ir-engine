@@ -249,7 +249,7 @@ export function useGLTFComponent(url: string, parentEntity: Entity): Entity | nu
   const loaded = GLTFComponent.useSceneLoaded(gltfEntityState.value)
 
   useEffect(() => {
-    if (!url) return
+    if (!url || !parentEntity) return
     const gltfEntity = createEntity()
     setComponent(gltfEntity, EntityTreeComponent, { parentEntity })
     setComponent(gltfEntity, UUIDComponent, generateEntityUUID())
@@ -280,7 +280,7 @@ export function useGLTFResource(url: string, entity: Entity): void {
     return () => {
       if (url) ResourceManager.unload(url, entity)
     }
-  }, [])
+  }, [url])
 }
 
 /**

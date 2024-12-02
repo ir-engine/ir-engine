@@ -23,14 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import React from 'react'
-import FileBrowserInput from '../FileBrowser'
-import { StringInputProps } from '../String'
+import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-export function ImageInput({ ...rest }: StringInputProps) {
-  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex(identityProviderPath)
+    .where({ type: 'email' })
+    .andWhere('email', null)
+    .update({
+      email: knex.raw('accountIdentifier')
+    })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
-ImageInput.defaultProps = {}
-export default ImageInput
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}
