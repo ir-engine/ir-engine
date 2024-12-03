@@ -102,7 +102,15 @@ const client = {
  * Full config
  */
 export const config = {
-  client
+  client,
+  websocket: {
+    pingTimeout: globalThis.process.env.VITE_WEBSOCKET_PING_TIMEOUT
+      ? parseInt(globalThis.process.env.VITE_WEBSOCKET_PING_TIMEOUT)
+      : 30000,
+    pingInterval: globalThis.process.env.VITE_WEBSOCKET_PING_INTERVAL
+      ? parseInt(globalThis.process.env.VITE_WEBSOCKET_PING_INTERVAL)
+      : 10000
+  }
 }
 
 export default config

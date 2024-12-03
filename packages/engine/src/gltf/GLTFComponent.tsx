@@ -108,7 +108,7 @@ const loadDependencies = {
   ['EE_model']: [
     {
       key: 'dependencies',
-      eval: (dependencies) => componentDependenciesLoaded(dependencies as ComponentDependencies | undefined)
+      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
     }
   ]
 } as Record<string, DependencyEval[]>

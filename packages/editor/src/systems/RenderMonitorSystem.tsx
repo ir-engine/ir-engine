@@ -30,6 +30,7 @@ import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SceneComplexity, SceneComplexityWeights } from '@ir-engine/engine/src/scene/constants/SceneConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { useQuery } from '@ir-engine/ecs'
@@ -37,9 +38,7 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { RenderInfoState, SceneComplexityParams } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { LightTagComponent } from '@ir-engine/spatial/src/renderer/components/lights/LightTagComponent'
-import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 import { useTranslation } from 'react-i18next'
-import { EditorWarningState } from '../services/EditorWarningServices'
 
 function calculateSceneComplexity(params: SceneComplexityParams): number {
   const complexity =
@@ -60,12 +59,14 @@ export const RenderMonitorSystem = defineSystem({
     const { t } = useTranslation()
 
     const renderInfoState = useHookstate(getMutableState(RenderInfoState))
-    const resourceState = useHookstate(getMutableState(ResourceState))
     const lightQuery = useQuery([LightTagComponent, VisibleComponent, SourceComponent])
     const [sceneComplexityNotif] = useFeatureFlags([FeatureFlags.Studio.UI.SceneComplexityNotification])
+    const prevSceneComplexity = useHookstate(0)
+
     useEffect(() => {
       const params = {
-        vertices: resourceState.totalVertexCount.value,
+        // Change this back to the resource state once the GLTF loader refactor is done
+        vertices: renderInfoState.info.triangles.value,
         triangles: renderInfoState.info.triangles.value,
         texturesMB: renderInfoState.info.texturesMB.value,
         drawCalls: renderInfoState.info.calls.value,
@@ -75,7 +76,6 @@ export const RenderMonitorSystem = defineSystem({
 
       renderInfoState.info.sceneComplexity.set(calculateSceneComplexity(params))
     }, [
-      resourceState.totalVertexCount,
       renderInfoState.info.triangles.value,
       renderInfoState.info.texturesMB.value,
       renderInfoState.info.calls.value,
@@ -84,20 +84,35 @@ export const RenderMonitorSystem = defineSystem({
     ])
 
     useEffect(() => {
-      // these thresholds are to be adjusted  based on experimentation
       if (!sceneComplexityNotif) return
 
-      let warning = t('editor:warnings.sceneComplexity', { sceneComplexity: SceneComplexity.VeryHeavy.label })
-      if (renderInfoState.info.sceneComplexity.value < SceneComplexity.VeryLight.value) return
-      if (renderInfoState.info.sceneComplexity.value < SceneComplexity.Light.value) return
-      if (renderInfoState.info.sceneComplexity.value < SceneComplexity.Medium.value) return
-      if (renderInfoState.info.sceneComplexity.value < SceneComplexity.Heavy.value)
-        warning = t('editor:warnings.sceneComplexity', { sceneComplexity: SceneComplexity.Heavy.label })
-      getMutableState(EditorWarningState).warning.set(warning)
-
-      return () => {
-        getMutableState(EditorWarningState).warning.set(null)
+      // these thresholds are to be adjusted  based on experimentation
+      const sceneComplexity = renderInfoState.info.sceneComplexity.value
+      if (
+        sceneComplexity < SceneComplexity.VeryLight.value ||
+        sceneComplexity < SceneComplexity.Light.value ||
+        sceneComplexity < SceneComplexity.Medium.value ||
+        sceneComplexity < SceneComplexity.Heavy.value
+      ) {
+        prevSceneComplexity.set(sceneComplexity)
+        return
       }
+
+      const prevValue = prevSceneComplexity.value
+
+      let warningThreshold: number = SceneComplexity.VeryHeavy.value
+      if (prevValue < warningThreshold && sceneComplexity >= warningThreshold) {
+        const warning = t('editor:warnings.sceneComplexity', { sceneComplexity: SceneComplexity.VeryHeavy.label })
+        NotificationService.dispatchNotify(warning, { variant: 'warning' })
+      }
+
+      warningThreshold = SceneComplexity.Heavy.value
+      if (prevValue < warningThreshold && sceneComplexity >= warningThreshold) {
+        const warning = t('editor:warnings.sceneComplexity', { sceneComplexity: SceneComplexity.Heavy.label })
+        NotificationService.dispatchNotify(warning, { variant: 'warning' })
+      }
+
+      prevSceneComplexity.set(sceneComplexity)
     }, [renderInfoState.info.sceneComplexity.value])
 
     return null

@@ -106,25 +106,26 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
     return getComponent(targetEntity, TransformComponent)
 
-  const rig = getOptionalComponent(entity, AvatarRigComponent)
-  if (!rig?.rawRig) return getComponent(entity, TransformComponent)
+  const rig = getOptionalComponent(entity, AvatarRigComponent)?.bonesToEntities
+  if (!rig?.rightHand || !rig?.leftHand || !rig?.head) return getComponent(entity, TransformComponent)
 
   switch (hand) {
-    case 'left':
+    case 'left': {
       return {
-        position: rig.rawRig.leftHand.node.getWorldPosition(vec3),
-        rotation: rig.rawRig.leftHand.node.getWorldQuaternion(quat)
+        position: TransformComponent.getWorldPosition(rig.leftHand, vec3),
+        rotation: TransformComponent.getWorldRotation(rig.leftHand, quat)
       }
+    }
     case 'right':
       return {
-        position: rig.rawRig.rightHand.node.getWorldPosition(vec3),
-        rotation: rig.rawRig.rightHand.node.getWorldQuaternion(quat)
+        position: TransformComponent.getWorldPosition(rig.rightHand, vec3),
+        rotation: TransformComponent.getWorldRotation(rig.rightHand, quat)
       }
     default:
     case 'none':
       return {
-        position: rig.rawRig.head.node.getWorldPosition(vec3),
-        rotation: rig.rawRig.head.node.getWorldQuaternion(quat)
+        position: TransformComponent.getWorldPosition(rig.head, vec3),
+        rotation: TransformComponent.getWorldRotation(rig.head, quat)
       }
   }
 }
