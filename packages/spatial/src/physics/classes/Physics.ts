@@ -495,19 +495,14 @@ function createColliderDesc(
           //box around mesh without it's local baked rotations from gltf root
           const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
           box.getCenter(meshCenterOffset)
-          //apply local->model root scaling
-          meshCenterOffset.multiply(scaleRelativeToRoot)
-
-          //apply local->model root rotation
-          meshCenterOffset.applyQuaternion(quaternionRelativeToRoot)
-
-          const size = box.getSize(new Vector3())
+          const boxSize = box.getSize(new Vector3())
 
           /*multiplying by scale here is the same as multiplying by scaleRelativeToRoot, rotating, then multiplying by rootWorldScale
           this is fine because offset doesn't matter for it's size*/
-          size.multiply(scale).multiplyScalar(0.5)
-          size.applyQuaternion(quaternionRelativeToRoot) //rotate so size is in proper orientation for scene xforming
-          colliderDesc = ColliderDesc.cuboid(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z))
+          boxSize.multiply(scale).multiplyScalar(0.5)
+          boxSize.applyQuaternion(quaternionRelativeToRoot) //rotate so size is in proper orientation for scene xforming
+          boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
+          colliderDesc = ColliderDesc.cuboid(boxSize.x, boxSize.y, boxSize.z)
         } else {
           const boxSize = colliderComponent.boxSize
           colliderDesc = ColliderDesc.cuboid(
@@ -544,17 +539,16 @@ function createColliderDesc(
           box.getCenter(meshCenterOffset)
           const boxSize = box.getSize(new Vector3())
 
-          //we need to calculate the capsule height with the correct axis, but not rotate the final product
-          boxSize.applyQuaternion(quaternionRelativeToRoot) //UNDO THIS
-
+          boxSize.multiply(scale)
+          boxSize.applyQuaternion(quaternionRelativeToRoot)
+          boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
           //calculate diagonal of box using pythagorean theorem
           const calcRadius = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
           colliderComponent.radius = calcRadius
           colliderComponent.height = boxSize.y
           //includes scale, whereas component radius does not when being driven by mesh
-          const diagonal = Math.sqrt(Math.pow((boxSize.x / 2) * scale.x, 2) + Math.pow((boxSize.z / 2) * scale.z, 2))
-          colliderDesc = ColliderDesc.capsule((boxSize.y / 2) * scale.y, diagonal)
-          // colliderDesc.setRotation(quaternionRelativeToRoot.clone().invert())
+          const diagonal = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+          colliderDesc = ColliderDesc.capsule(boxSize.y / 2, diagonal)
         } else {
           colliderDesc = ColliderDesc.capsule(colliderComponent.height / 2, Math.abs(colliderComponent.radius))
         }
@@ -570,10 +564,12 @@ function createColliderDesc(
         if (box) {
           box.getCenter(meshCenterOffset)
           const boxSize = box.getSize(new Vector3())
+          boxSize.multiply(scale)
           boxSize.applyQuaternion(quaternionRelativeToRoot)
+          boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
           //calculate diagonal of box using pythagorean theorem
-          const diagonal = Math.sqrt(Math.pow((boxSize.x / 2) * scale.x, 2) + Math.pow((boxSize.z / 2) * scale.z, 2))
-          colliderDesc = ColliderDesc.cylinder((boxSize.y / 2) * scale.y, diagonal)
+          const diagonal = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+          colliderDesc = ColliderDesc.cylinder(boxSize.y / 2, diagonal)
         } else {
           colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
         }
@@ -590,6 +586,7 @@ function createColliderDesc(
         const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+        colliderDesc.setRotation(quaternionRelativeToRoot)
       } catch (e) {
         console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
         return
@@ -605,6 +602,7 @@ function createColliderDesc(
         const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.trimesh(vertices, indices)
+        colliderDesc.setRotation(quaternionRelativeToRoot)
       } catch (e) {
         console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
         return
@@ -616,6 +614,11 @@ function createColliderDesc(
       console.error('unknown shape', colliderComponent)
       return
   }
+
+  //apply local->model root scaling
+  meshCenterOffset.multiply(scaleRelativeToRoot)
+  //apply local->model root rotation
+  meshCenterOffset.applyQuaternion(quaternionRelativeToRoot)
 
   //positionRelativeToRoot is already in proper final scene orientation, just add offsets
   positionRelativeToRoot.add(meshCenterOffset) //apply local geo center-point offset
