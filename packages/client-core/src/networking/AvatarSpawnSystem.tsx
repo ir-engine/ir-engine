@@ -98,7 +98,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     }
   })
 
-  const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
+  const userAvatar = userAvatarQuery.data[0]
 
   useEffect(() => {
     if (!spawnAvatar.value || !userAvatar) return
@@ -127,7 +127,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
     }
-  }, [spawnAvatar.value, !!userAvatar])
+  }, [spawnAvatar.value, userAvatar, !!userAvatarQuery.data.length])
 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
