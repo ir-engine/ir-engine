@@ -52,7 +52,7 @@ const VIEW_MODES = [
 ]
 
 export const showMultipleFileModal = (projectName: string, directoryPath: string, files: File[]) => {
-  const fileNames = files.map((file) => file.name ?? file.key.split('/').at(-1))
+  const fileNames = files.map((file) => file.name)
 
   const onSubmit = async () => {
     await handleUploadFiles(projectName, directoryPath, files)
