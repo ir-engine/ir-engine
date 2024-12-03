@@ -46,11 +46,13 @@ export const SelectionState = defineState({
     })
   },
   getSelectedEntities: () => {
-    return getState(SelectionState).selectedEntities.map(UUIDComponent.getEntityByUUID)
+    return getState(SelectionState).selectedEntities.map((entity) => UUIDComponent.getEntityByUUID(entity))
   },
 
   useSelectedEntities: () => {
-    return useHookstate(getMutableState(SelectionState).selectedEntities).value.map(UUIDComponent.getEntityByUUID)
+    return useHookstate(getMutableState(SelectionState).selectedEntities).value.map((entity) =>
+      UUIDComponent.getEntityByUUID(entity)
+    )
   }
 })
 
@@ -58,7 +60,7 @@ const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
 
   useEffect(() => {
-    const entities = [...selectedEntities.value].map(UUIDComponent.getEntityByUUID)
+    const entities = [...selectedEntities.value].map((entity) => UUIDComponent.getEntityByUUID(entity))
     for (const entity of entities) {
       if (!entityExists(entity)) continue
       setComponent(entity, SelectTagComponent)
