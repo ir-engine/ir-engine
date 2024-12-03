@@ -25,9 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import config from '@ir-engine/common/src/config'
-import { useComponent } from '@ir-engine/ecs'
+import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString.ts'
+import { hasComponent, useComponent } from '@ir-engine/ecs'
 import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
-import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
@@ -36,6 +37,10 @@ import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathR
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent.tsx'
+import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent.ts'
+import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree.tsx'
 import { Checkbox } from '@ir-engine/ui'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -49,6 +54,13 @@ import ModelInput from '../../../input/Model'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
 
+const shapeTypeOptions = Object.entries(Shapes)
+  .filter(([_, value]) => supportedColliderShapes.includes(value as any))
+  .map(([label, value]) => ({
+    label: camelCaseToSpacedString(label),
+    value
+  }))
+
 const GLTFNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const gltfComponent = useComponent(props.entity, GLTFComponent)
@@ -56,6 +68,13 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
   const editorState = getState(EditorState)
   const projectState = getState(ProjectState)
   const loadedProjects = useHookstate(() => projectState.projects.map((project) => project.name))
+
+  const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
+  const isMeshOrConvexHull =
+    gltfComponent.shape.value === Shapes.Mesh || gltfComponent.shape.value === Shapes.ConvexHull
+  const validRootMesh = hasComponent(props.entity, MeshComponent)
+  const validChildMeshes = childMeshEntities.length !== 0
+  const showMeshError = isMeshOrConvexHull && !(validChildMeshes || validRootMesh)
 
   const errors = ErrorComponent.useComponentErrors(props.entity, GLTFComponent)?.value
   const srcProject = useHookstate(() => {
@@ -122,6 +141,26 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(GLTFComponent, 'cameraOcclusion')}
         />
       </InputGroup>
+      <InputGroup name="Apply Colliders" label={t('editor:properties.model.lbl-applyColliders')}>
+        <Checkbox
+          checked={gltfComponent.applyColliders.value}
+          onChange={commitProperty(GLTFComponent, 'applyColliders')}
+        />
+      </InputGroup>
+      {
+        <InputGroup name="Shape" label={t('editor:properties.model.lbl-shape')}>
+          <SelectInput
+            options={shapeTypeOptions}
+            value={gltfComponent.shape.value}
+            onChange={commitProperty(GLTFComponent, 'shape')}
+          />
+        </InputGroup>
+      }
+      {/*{showMeshError && (*/}
+      {/*  <Text className="ml-5 text-red-400">*/}
+      {/*    {t('editor:properties.model.warn-missing-mesh-magic')}*/}
+      {/*  </Text>*/}
+      {/*)}*/}
       <Accordion
         className="space-y-4 p-4"
         title={t('editor:properties.model.lbl-export')}

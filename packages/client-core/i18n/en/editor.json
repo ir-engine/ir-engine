@@ -504,6 +504,8 @@
       "lbl-convertToVRM": "Force VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
+      "lbl-applyColliders": "Apply Colliders",
+      "lbl-shape": "Shape",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
       "lbl-name": "Name",
       "lbl-url": "Model Url",

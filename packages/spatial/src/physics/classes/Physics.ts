@@ -68,11 +68,7 @@ import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import {
-  getAncestorWithComponents,
-  getChildrenWithComponents,
-  useAncestorWithComponents
-} from '../../transform/components/EntityTree'
+import { getAncestorWithComponents, useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -81,7 +77,6 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { CollisionGroups } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { NestedCollidersState } from '../states/NestedCollidersState.ts'
 import {
   Body,
   BodyTypes,
@@ -313,17 +308,6 @@ const setRigidBodyType = (world: PhysicsWorld, entity: Entity, type: Body) => {
   /** @todo turns out this is a react/rapier bug when it comes to changing the rigidbody type. This is the best workaround I could find*/
   rigidbody.setEnabled(false)
   rigidbody.setEnabled(true)
-
-  const childColliderEntities = getChildrenWithComponents(entity, [ColliderComponent])
-  const colliderEntities = hasComponent(entity, ColliderComponent)
-    ? [entity, ...childColliderEntities]
-    : childColliderEntities
-
-  const nestedCollidersState = getMutableState(NestedCollidersState)
-  for (const e of colliderEntities) {
-    const uuid = getComponent(entity, UUIDComponent)
-    nestedCollidersState[uuid].set(none)
-  }
 }
 
 function setRigidbodyPose(
@@ -487,6 +471,19 @@ function createColliderDesc(
   let colliderDesc: ColliderDesc
 
   const meshCenterOffset = new Vector3()
+  const positionRelativeToRoot = new Vector3()
+  const quaternionRelativeToRoot = new Quaternion()
+
+  const scaleRelativeToRoot = new Vector3()
+
+  const rootWorldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
+
+  // get matrix relative to root
+  if (rootEntity !== entity) {
+    const matrixRelativeToRoot = new Matrix4()
+    TransformComponent.getMatrixRelativeToEntity(entity, rootEntity, matrixRelativeToRoot)
+    matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, scaleRelativeToRoot)
+  }
 
   switch (shape) {
     case ShapeType.Cuboid:
@@ -494,19 +491,22 @@ function createColliderDesc(
       else {
         if (mesh) {
           // if we have a mesh, we want to make sure it uses the geometry itself to calculate the size
+
+          //box around mesh without it's local baked rotations from gltf root
           const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
-          mesh.geometry.computeBoundingBox()
-          if (mesh.geometry.boundingBox) {
-            mesh.geometry.boundingBox.getCenter(meshCenterOffset)
-          }
+          box.getCenter(meshCenterOffset)
+          //apply local->model root scaling
+          meshCenterOffset.multiply(scaleRelativeToRoot)
 
-          const size = new Vector3()
-          box.getSize(size)
-          colliderComponent.boxSize.set(size.x, size.y, size.z)
+          //apply local->model root rotation
+          meshCenterOffset.applyQuaternion(quaternionRelativeToRoot)
+
+          const size = box.getSize(new Vector3())
+
+          /*multiplying by scale here is the same as multiplying by scaleRelativeToRoot, rotating, then multiplying by rootWorldScale
+          this is fine because offset doesn't matter for it's size*/
           size.multiply(scale).multiplyScalar(0.5)
-
-          //@todo: need to have a check for when we are refreshing the mesh size rather than just "if(mesh)" then we can update boxSize when it runs
-
+          size.applyQuaternion(quaternionRelativeToRoot) //rotate so size is in proper orientation for scene xforming
           colliderDesc = ColliderDesc.cuboid(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z))
         } else {
           const boxSize = colliderComponent.boxSize
@@ -538,10 +538,15 @@ function createColliderDesc(
 
     case ShapeType.Capsule:
       if (mesh) {
-        mesh?.geometry?.computeBoundingBox()
-        if (mesh?.geometry?.boundingBox) {
-          mesh?.geometry?.boundingBox.getCenter(meshCenterOffset)
-          const boxSize = mesh?.geometry?.boundingBox.getSize(new Vector3())
+        //mesh?.geometry?.computeBoundingBox()
+        const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
+        if (box) {
+          box.getCenter(meshCenterOffset)
+          const boxSize = box.getSize(new Vector3())
+
+          //we need to calculate the capsule height with the correct axis, but not rotate the final product
+          boxSize.applyQuaternion(quaternionRelativeToRoot) //UNDO THIS
+
           //calculate diagonal of box using pythagorean theorem
           const calcRadius = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
           colliderComponent.radius = calcRadius
@@ -549,6 +554,7 @@ function createColliderDesc(
           //includes scale, whereas component radius does not when being driven by mesh
           const diagonal = Math.sqrt(Math.pow((boxSize.x / 2) * scale.x, 2) + Math.pow((boxSize.z / 2) * scale.z, 2))
           colliderDesc = ColliderDesc.capsule((boxSize.y / 2) * scale.y, diagonal)
+          // colliderDesc.setRotation(quaternionRelativeToRoot.clone().invert())
         } else {
           colliderDesc = ColliderDesc.capsule(colliderComponent.height / 2, Math.abs(colliderComponent.radius))
         }
@@ -559,10 +565,12 @@ function createColliderDesc(
 
     case ShapeType.Cylinder:
       if (mesh) {
-        mesh?.geometry?.computeBoundingBox()
-        if (mesh?.geometry?.boundingBox) {
-          mesh?.geometry?.boundingBox.getCenter(meshCenterOffset)
-          const boxSize = mesh?.geometry?.boundingBox.getSize(new Vector3())
+        // mesh?.geometry?.computeBoundingBox()
+        const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
+        if (box) {
+          box.getCenter(meshCenterOffset)
+          const boxSize = box.getSize(new Vector3())
+          boxSize.applyQuaternion(quaternionRelativeToRoot)
           //calculate diagonal of box using pythagorean theorem
           const diagonal = Math.sqrt(Math.pow((boxSize.x / 2) * scale.x, 2) + Math.pow((boxSize.z / 2) * scale.z, 2))
           colliderDesc = ColliderDesc.cylinder((boxSize.y / 2) * scale.y, diagonal)
@@ -609,19 +617,11 @@ function createColliderDesc(
       return
   }
 
-  const positionRelativeToRoot = new Vector3()
-  const quaternionRelativeToRoot = new Quaternion()
-
-  // get matrix relative to root
-  if (rootEntity !== entity) {
-    const matrixRelativeToRoot = new Matrix4()
-    TransformComponent.getMatrixRelativeToEntity(entity, rootEntity, matrixRelativeToRoot)
-    matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
-  }
-  positionRelativeToRoot.add(meshCenterOffset).add(colliderComponent.centerOffset)
-
-  const rootWorldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
-  positionRelativeToRoot.multiply(rootWorldScale)
+  //positionRelativeToRoot is already in proper final scene orientation, just add offsets
+  positionRelativeToRoot.add(meshCenterOffset) //apply local geo center-point offset
+  positionRelativeToRoot.multiply(rootWorldScale) //apply root gltf world scale
+  positionRelativeToRoot.add(colliderComponent.centerOffset) //user specified offset adjustments
+  colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
 
   colliderDesc.setFriction(colliderComponent.friction)
   colliderDesc.setRestitution(colliderComponent.restitution)
@@ -629,9 +629,6 @@ function createColliderDesc(
   const collisionLayer = colliderComponent.collisionLayer
   const collisionMask = colliderComponent.collisionMask
   colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
-
-  colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
-  colliderDesc.setRotation(quaternionRelativeToRoot)
 
   if (hasComponent(entity, TriggerComponent)) {
     colliderDesc.setSensor(true)

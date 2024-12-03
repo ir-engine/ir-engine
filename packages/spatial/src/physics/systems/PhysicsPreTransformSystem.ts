@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineQuery, defineSystem, Entity, getComponent, UUIDComponent } from '@ir-engine/ecs'
+import { defineQuery, defineSystem, Entity, getComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import {
@@ -40,7 +40,6 @@ import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { NestedCollidersState } from '../states/NestedCollidersState.ts'
 
 const _localMatrix = new Matrix4()
 const _sceneRelParentMatrix = new Matrix4()
@@ -168,18 +167,11 @@ const copyTransformToCollider = (entity: Entity) => {
   computeTransformMatrix(entity)
   const rigidbodyEntity = getAncestorWithComponents(entity, [RigidBodyComponent])
   if (!rigidbodyEntity) return
-  const nestedCollidersState = getMutableState(NestedCollidersState)
-  const entityUUID = getComponent(entity, UUIDComponent)
-  if (nestedCollidersState[entityUUID] && nestedCollidersState[entityUUID].keys) {
-    for (const childMeshEntityString of Array.from(nestedCollidersState[entityUUID].keys)) {
-      const childMeshEntity = parseInt(childMeshEntityString) as Entity
-      const colliderDesc = Physics.createColliderDesc(world, childMeshEntity, rigidbodyEntity, entity)
-      if (!colliderDesc) return
-      Physics.removeCollider(world, childMeshEntity)
-      Physics.attachCollider(world, colliderDesc, rigidbodyEntity, childMeshEntity)
-      Physics.wakeUp(world, rigidbodyEntity)
-    }
-  }
+  const colliderDesc = Physics.createColliderDesc(world, entity, rigidbodyEntity)
+  if (!colliderDesc) return
+  Physics.removeCollider(world, entity)
+  Physics.attachCollider(world, colliderDesc, rigidbodyEntity, entity)
+  Physics.wakeUp(world, rigidbodyEntity)
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent, EntityTreeComponent])

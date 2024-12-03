@@ -92,6 +92,14 @@ export const ColliderComponent = defineComponent({
       component.height
     ])
 
+    useEffect(() => {
+      if (!physicsWorld) return
+      return () => {
+        Physics.removeCollider(physicsWorld, entity)
+        hasCollider.set(false)
+      }
+    }, [])
+
     useLayoutEffect(() => {
       if (!physicsWorld) return
       Physics.setMass(physicsWorld, entity, component.mass.value)
